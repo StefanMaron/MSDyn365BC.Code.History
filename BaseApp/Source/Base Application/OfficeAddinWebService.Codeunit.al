@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 1650 "Office Add-in Web Service"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'End of support for Exchange PowerShell. Add-ins can be deployed manually.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -35,4 +39,5 @@ codeunit 1650 "Office Add-in Web Service"
             until OfficeAddIn.Next() = 0;
     end;
 }
+#endif
 

@@ -3351,12 +3351,15 @@
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     procedure ErrorGLAccountMustHaveAValueIsShownForPurchasePrepaymentInvoiceWithMissingGenBusPostingGroupInGLAccount()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         GeneralPostingSetup: Record "General Posting Setup";
         GLAccount: Record "G/L Account";
+        ErrorMessages: TestPage "Error Messages";
+        PurchPostYNPrepmt: Codeunit "Purch.-Post Prepmt. (Yes/No)";
     begin
         // [Posting Groups] [Purchase]
         // [SCENARIO 391612] Create Purchase Order with Prepayment and empty "Gen. Prod. Posting Group" for "Purch. Prepayments Account"
@@ -3381,20 +3384,30 @@
         PurchaseLine.Modify(true);
 
         // [WHEN] Post Prepayment Invoice
-        asserterror LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+        ErrorMessages.Trap();
+        PurchPostYNPrepmt.PostPrepmtInvoiceYN(PurchaseHeader, false);
 
         // [THEN] Error has been thrown: "Gen. Prod. Posting Group  is not set for the Prepayment G/L account with no. XXXXX."
-        Assert.ExpectedError(
-          StrSubstNo(GenProdPostingGroupErr, GLAccount.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
+        VerifyErrorMessage(
+            ErrorMessages,
+            StrSubstNo(GenProdPostingGroupErr, GLAccount.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."),
+            PurchaseHeader.RecordId,
+            '',
+            GLAccount.RecordId,
+            GLAccount.FieldCaption("Gen. Prod. Posting Group"),
+            'https://go.microsoft.com/fwlink/?linkid=2157418');
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     procedure ErrorGLAccountMustHaveAValueIsShownForSalesPrepaymentInvoiceWithMissingGenBusPostingGroupInGLAccount()
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         GeneralPostingSetup: Record "General Posting Setup";
         GLAccount: Record "G/L Account";
+        ErrorMessages: TestPage "Error Messages";
+        SalesPostPrepaymentYesNo: Codeunit "Sales-Post Prepayment (Yes/No)";
     begin
         // [Posting Groups] [Sales]
         // [SCENARIO 391612] Create Sales Order with Prepayment and empty "Gen. Prod. Posting Group" for "Purch. Prepayments Account"
@@ -3416,11 +3429,18 @@
         SalesLine.Modify(true);
 
         // [WHEN] Post Prepayment Invoice
-        asserterror LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        ErrorMessages.Trap();
+        SalesPostPrepaymentYesNo.PostPrepmtInvoiceYN(SalesHeader, false);
 
         // [THEN] Error has been thrown: "Gen. Prod. Posting Group  is not set for the Prepayment G/L account with no. XXXXX."
-        Assert.ExpectedError(
-          StrSubstNo(GenProdPostingGroupErr, GLAccount.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
+        VerifyErrorMessage(
+            ErrorMessages,
+            StrSubstNo(GenProdPostingGroupErr, GLAccount.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."),
+            SalesHeader.RecordId,
+            '',
+            GLAccount.RecordId,
+            GLAccount.FieldCaption("Gen. Prod. Posting Group"),
+            'https://go.microsoft.com/fwlink/?linkid=2157418');
     end;
 
     [Test]
@@ -4697,6 +4717,16 @@
         PurchInvLine.SetRange("No.", PurchasePrepmtGLAccountNo);
         PurchInvLine.FindFirst();
         PurchInvLine.TestField(Amount, -(LineAmount - InvDiscountAmount));
+    end;
+
+    local procedure VerifyErrorMessage(var ErrorMessages: TestPage "Error Messages"; ExpectedDescription: Text; ExpectedContextRecordId: RecordId; ExpectedContextFieldName: Text; ExpectedSourceRecordId: RecordId; ExpectedSourceFieldName: Text; ExpectedURL: Text)
+    begin
+        ErrorMessages.Description.AssertEquals(ExpectedDescription);
+        ErrorMessages.Context.AssertEquals(ExpectedContextRecordId);
+        ErrorMessages."Context Field Name".AssertEquals(ExpectedContextFieldName);
+        ErrorMessages.Source.AssertEquals(ExpectedSourceRecordId);
+        ErrorMessages."Field Name".AssertEquals(ExpectedSourceFieldName);
+        ErrorMessages."Support Url".AssertEquals(ExpectedURL);
     end;
 
     [PageHandler]

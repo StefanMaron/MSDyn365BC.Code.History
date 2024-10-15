@@ -14,7 +14,6 @@ page 802 "Online Map Address Selector"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Table Selection';
-                    OptionCaption = ' ,Bank,Contact,Customer,Employee,Job,Location,Resource,Vendor,Ship-to Address,Order Address';
 
                     trigger OnValidate()
                     begin
@@ -69,7 +68,7 @@ page 802 "Online Map Address Selector"
         OnlineMapSetup: Record "Online Map Setup";
         SelectedRecPosition: Text[1000];
         LookupCode: Code[20];
-        LookupSelection: Option " ",Bank,Contact,Customer,Employee,Job,Location,Resource,Vendor,"Ship-to Address","Order Address";
+        LookupSelection: Enum "Online Map Table Selection";
         Text001: Label 'The selection that was chosen is not valid.';
         Text003: Label 'The value %1 from Table ID %2 could not be found.';
         Distance: Option Miles,Kilometers;
@@ -116,11 +115,13 @@ page 802 "Online Map Address Selector"
                 SelectedTableNo := DATABASE::"Order Address";
             else begin
                     IsHandled := false;
-                    OnSetTableNoElseCase(LookupSelection, SelectedTableNo, IsHandled);
+                    OnSetTableNoElseCase(LookupSelection.AsInteger(), SelectedTableNo, IsHandled);
                     if not IsHandled then
                         Error(Text001);
                 end;
         end;
+
+        OnAfterSetTableNo(LookupSelection, SelectedTableNo);
     end;
 
     local procedure LoadLocationLookup(LoadTableNo: Integer; var LookupCode: Code[20]; Lookup: Boolean): Text[1000]
@@ -338,6 +339,11 @@ page 802 "Online Map Address Selector"
     local procedure LookupSelectionOnAfterValidate()
     begin
         SetTableNo;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTableNo(LookupSelection: Enum "Online Map Table Selection"; var SelectedTableNo: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

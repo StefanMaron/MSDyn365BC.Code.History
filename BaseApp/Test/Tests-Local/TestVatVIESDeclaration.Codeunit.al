@@ -61,7 +61,7 @@ codeunit 142078 "Test Vat VIES Declaration"
         VATEntry.CalcSums(Base);
         Amount := VATEntry.Base;
 
-        LibraryXPathXMLReader.Initialize(FileMgt.UploadFileSilent(ExportedFileName), '');
+        LibraryXPathXMLReader.Initialize(ExportedFileName, '');
 
         LibraryXPathXMLReader.VerifyNodeValueByXPath(
           '/ERKLAERUNGS_UEBERMITTLUNG/ERKLAERUNG/ZM/UID_MS',
@@ -100,7 +100,7 @@ codeunit 142078 "Test Vat VIES Declaration"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst;
 
-        LibraryXPathXMLReader.Initialize(FileMgt.UploadFileSilent(ExportedFileName), '');
+        LibraryXPathXMLReader.Initialize(ExportedFileName, '');
 
         LibraryXPathXMLReader.VerifyNodeAbsence('/ERKLAERUNGS_UEBERMITTLUNG/ERKLAERUNG/ZM');
         LibraryXPathXMLReader.VerifyNodeValueByXPath(

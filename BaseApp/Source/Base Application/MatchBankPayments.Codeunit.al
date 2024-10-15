@@ -14,7 +14,20 @@
 
         Rec := BankAccReconciliationLine;
 
-        OnAfterCode(BankAccReconciliationLine);       
+        OnAfterCode(BankAccReconciliationLine);
+    end;
+
+    procedure MatchNoOverwriteOfManualOrAccepted(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    var
+        BankAccReconciliationLineBackup: Record "Bank Acc. Reconciliation Line";
+    begin
+        BankAccReconciliationLineBackup.Copy(BankAccReconciliationLine);
+
+        Code(BankAccReconciliationLineBackup, false);
+
+        BankAccReconciliationLine := BankAccReconciliationLineBackup;
+
+        OnAfterCode(BankAccReconciliationLine);
     end;
 
     var
@@ -203,15 +216,20 @@
         DirectDebitMatched := ActualBankPmtApplRule."Direct Debit Collect. Matched" = ActualBankPmtApplRule."Direct Debit Collect. Matched"::Yes;
     end;
 
-    procedure "Code"(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    procedure "Code"(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Overwrite: Boolean)
     begin
         if BankAccReconciliationLine.IsEmpty() then
             exit;
 
-        MapLedgerEntriesToStatementLines(BankAccReconciliationLine);
+        MapLedgerEntriesToStatementLines(BankAccReconciliationLine, Overwrite);
 
         if ApplyEntries then
-            ApplyLedgerEntriesToStatementLines(BankAccReconciliationLine);
+            ApplyLedgerEntriesToStatementLines(BankAccReconciliationLine, Overwrite);
+    end;
+
+    procedure "Code"(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+        Code(BankAccReconciliationLine, true);
     end;
 
     procedure OpenLinesForReviewPage(ReviewNotification: Notification)
@@ -258,7 +276,7 @@
         BankAccReconciliationLine.SetFilter(Difference, '<>0');
     end;
 
-    local procedure ApplyLedgerEntriesToStatementLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    local procedure ApplyLedgerEntriesToStatementLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Overwrite: Boolean)
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         Window: Dialog;
@@ -268,17 +286,21 @@
           BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
           BankAccReconciliationLine."Statement No.");
 
-        DeleteAppliedPaymentEntries(BankAccReconciliation);
+        DeleteAppliedPaymentEntries(BankAccReconciliation, Overwrite);
         DeletePaymentMatchDetails(BankAccReconciliation);
 
         CreateAppliedEntries(BankAccReconciliation);
+        if not Overwrite then
+            BankAccReconciliationLine.SetFilter("Match Confidence", '<>%1&<>%2',
+                                                   BankAccReconciliationLine."Match Confidence"::Accepted,
+                                                   BankAccReconciliationLine."Match Confidence"::Manual);
         UpdatePaymentMatchDetails(BankAccReconciliationLine);
         Window.Close;
 
         ShowMatchSummary(BankAccReconciliation);
     end;
 
-    local procedure MapLedgerEntriesToStatementLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    local procedure MapLedgerEntriesToStatementLines(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Overwrite: Boolean)
     var
         Window: Dialog;
         TotalNoOfLines: Integer;
@@ -314,6 +336,10 @@
         DisableEmployeeLedgerEntriesMatch := not BankPmtApplSettings."Empl. Ledger Entries Matching";
 
         BankAccReconciliationLine.SetFilter("Statement Amount", '<>0');
+        if not Overwrite then
+            BankAccReconciliationLine.SetFilter("Match Confidence", '<>%1&<>%2',
+                                                  BankAccReconciliationLine."Match Confidence"::Accepted,
+                                                  BankAccReconciliationLine."Match Confidence"::Manual);
         if BankAccReconciliationLine.FindSet() then begin
             OnDisableCustomerLedgerEntriesMatch(DisableCustomerLedgerEntriesMatch, BankAccReconciliationLine);
             OnDisableVendorLedgerEntriesMatch(DisableVendorLedgerEntriesMatch, BankAccReconciliationLine);
@@ -333,6 +359,9 @@
                 InitializeEmployeeLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempEmployeeLedgerEntryMatchingBuffer);
 
             InitializeDirectDebitCollectionEntriesMatchingBuffer(TempDirectDebitCollectionEntryBuffer);
+
+            if not Overwrite then
+                RemoveAppliedEntriesFromBufferTables();
 
             TotalNoOfLines := BankAccReconciliationLine.Count();
             ProcessedLines := 0;
@@ -395,8 +424,45 @@
             SendTraceTag('0000DKC', PaymentkRecPreformanceCategoryLbl, Verbosity::Normal, StrSubstNo(TotalTimeSummaryTxt, TotalTimeMatchingCustomerLedgerEntriesPerLine, TotalTimeMatchingVendorLedgerEntriesPerLine, TotalTimeMatchingEmployeeLedgerEntriesPerLine, TotalTimeMatchingBankLedgerEntriesPerLine, TotalTimeTimeTextMappingsPerLine), DataClassification::SystemMetadata);
             SendTraceTag('0000DKD', PaymentkRecPreformanceCategoryLbl, Verbosity::Normal, StrSubstNo(SpecificTaskSummaryTxt, TotalTimeDirectCollection, TotalTimeRelatedPartyMatching, TotalTimeDocumentNoMatching, TotalTimeAmountMatching, TotalTimeStringNearness, TotalTimeDocumentNoMatchingForBankLedgerEntry, TotalTimeSearchingDocumentNoInLedgerEntries, HitCountClosingDocumentMatches, TotalNoClosingDocumentMatches), DataClassification::SystemMetadata);
 
-            Window.Close;
+            Window.Close();
         end;
+    end;
+
+    local procedure RemoveAppliedEntriesFromBufferTables()
+    begin
+        RemoveAppliedEntriesFromTempLEMatchingBuffer(TempCustomerLedgerEntryMatchingBuffer);
+        RemoveAppliedEntriesFromTempLEMatchingBuffer(TempVendorLedgerEntryMatchingBuffer);
+        RemoveAppliedEntriesFromTempLEMatchingBuffer(TempBankAccLedgerEntryMatchingBuffer);
+        RemoveAppliedEntriesFromTempLEMatchingBuffer(TempEmployeeLedgerEntryMatchingBuffer);
+        RemoveAppliedEntriesFromDirectDebMatchingBuffer(TempDirectDebitCollectionEntryBuffer);
+    end;
+
+    local procedure RemoveAppliedEntriesFromTempLEMatchingBuffer(var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
+    var
+        AppliedPaymentEntry: Record "Applied Payment Entry";
+        EntryNo: Integer;
+    begin
+        AppliedPaymentEntry.SetFilter("Match Confidence", '%1|%2', AppliedPaymentEntry."Match Confidence"::Accepted, AppliedPaymentEntry."Match Confidence"::Manual);
+        if AppliedPaymentEntry.FindSet() then
+            repeat
+                EntryNo := AppliedPaymentEntry."Applies-to Entry No.";
+                TempLedgerEntryMatchingBuffer.SetRange("Entry No.", EntryNo);
+                TempLedgerEntryMatchingBuffer.DeleteAll();
+            until AppliedPaymentEntry.Next() = 0
+    end;
+
+    local procedure RemoveAppliedEntriesFromDirectDebMatchingBuffer(var TempDirectDebitCollectionEntryBuffer: Record "Direct Debit Collection Entry" temporary)
+    var
+        AppliedPaymentEntry: Record "Applied Payment Entry";
+        EntryNo: Integer;
+    begin
+        AppliedPaymentEntry.SetFilter("Match Confidence", '%1|%2', AppliedPaymentEntry."Match Confidence"::Accepted, AppliedPaymentEntry."Match Confidence"::Manual);
+        if AppliedPaymentEntry.FindSet() then
+            repeat
+                EntryNo := AppliedPaymentEntry."Applies-to Entry No.";
+                TempDirectDebitCollectionEntryBuffer.SetRange("Entry No.", EntryNo);
+                TempDirectDebitCollectionEntryBuffer.DeleteAll();
+            until AppliedPaymentEntry.Next() = 0
     end;
 
     procedure RerunTextMapper(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
@@ -1849,13 +1915,15 @@
         PaymentMatchingDetails.DeleteAll(true);
     end;
 
-    local procedure DeleteAppliedPaymentEntries(BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    local procedure DeleteAppliedPaymentEntries(BankAccReconciliation: Record "Bank Acc. Reconciliation"; Overwrite: Boolean)
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
         AppliedPaymentEntry.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         AppliedPaymentEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         AppliedPaymentEntry.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        if not Overwrite then
+            AppliedPaymentEntry.SetFilter("Match Confidence", '<>%1&<>%2', AppliedPaymentEntry."Match Confidence"::Accepted, AppliedPaymentEntry."Match Confidence"::Manual);
         OnDeleteAppliedPaymentEntriesOnAfterAppliedPaymentEntrySetFilters(AppliedPaymentEntry, BankAccReconciliation);
         AppliedPaymentEntry.DeleteAll(true);
     end;

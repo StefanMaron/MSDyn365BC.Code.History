@@ -40,6 +40,12 @@ page 9623 "Finish Up Design"
                     Caption = 'Do not add personal data to the designer extension as this is not treated as restricted data';
                     Visible = NameAndPublisherEnabled;
                 }
+                label(InformationLabel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Extensions that have been created using Designer are removed when the environment is updated or relocated within our service. However, the data of the app is not removed, so you only have to re-publish and install the app to make it available. For more information, see this article on sandbox environments https://go.microsoft.com/fwlink/?linkid=2153804 .';
+                    Visible = NameAndPublisherEnabled;
+                }
             }
         }
     }
@@ -97,7 +103,7 @@ page 9623 "Finish Up Design"
         Designer: DotNet NavDesignerALFunctions;
     begin
         SaveVisible := true;
-        DownloadCode := false;
+        DownloadCode := true;
         AppName := Designer.GetDesignerExtensionName;
         Publisher := Designer.GetDesignerExtensionPublisher;
         DownloadCodeEnabled := Designer.GetDesignerExtensionShowMyCode;

@@ -20,6 +20,7 @@ codeunit 134920 "ERM General Journal UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryGraphMgt: Codeunit "Library - Graph Mgt";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         Assert: Codeunit Assert;
         GenJnlManagement: Codeunit GenJnlManagement;
         LibraryDimension: Codeunit "Library - Dimension";
@@ -4635,17 +4636,136 @@ codeunit 134920 "ERM General Journal UT"
           10000, NewDocNo);
     end;
 
-    local procedure GetGenJnlBatchJson(NewGenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]) GenJnlBatchJson: Text
+    [Test]
+    [Scope('OnPrem')]
+    procedure KeepDescriptionBalGLAccount()
     var
-        JSONManagement: Codeunit "JSON Management";
-        JsonObject: DotNet JObject;
+        GenJnlLine: Record "Gen. Journal Line";
+        OriginalDescription: Text[100];
     begin
-        JSONManagement.InitializeEmptyObject;
-        JSONManagement.GetJSONObject(JsonObject);
-        JSONManagement.AddJPropertyToJObject(JsonObject, 'Name', NewGenJnlBatchName);
-        JSONManagement.AddJPropertyToJObject(JsonObject, 'Journal_Template_Name', GenJnlTemplateName);
+        // [SCENARIO 395563] Gen. Journal Line Description is not changed when update "Bal. Account No." for G/L Account type and "Keep Description" = Yes
+        Initialize();
 
-        GenJnlBatchJson := JSONManagement.WriteObjectToString;
+        // [GIVEN] Create Gen. Journal Line with empty "Account No.", Description = XYZ, "Keep Description" = Yes
+        MockGenJournalLineWithKeepDescription(GenJnlLine);
+        OriginalDescription := GenJnlLine.Description;
+
+        // [WHEN] Validate "Bal. Account No." to G/L Account AAA
+        GenJnlLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        // [THEN] Gen. Journal Line has same description "XYZ"
+        GenJnlLine.TestField(Description, OriginalDescription);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure KeepDescriptionBalCustAccount()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        OriginalDescription: Text[100];
+    begin
+        // [SCENARIO 395563] Gen. Journal Line Description is not changed when update "Bal. Account No." for Customer type and "Keep Description" = Yes
+        Initialize();
+
+        // [GIVEN] Create Gen. Journal Line with empty "Account No.", Description = XYZ, "Keep Description" = Yes
+        MockGenJournalLineWithKeepDescription(GenJnlLine);
+        OriginalDescription := GenJnlLine.Description;
+
+        // [WHEN] Validate "Bal. Account No." to Customer AAA
+        GenJnlLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::Customer);
+        GenJnlLine.Validate("Bal. Account No.", LibrarySales.CreateCustomerNo());
+
+        // [THEN] Gen. Journal Line has same description "XYZ"
+        GenJnlLine.TestField(Description, OriginalDescription);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure KeepDescriptionBalVendAccount()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        OriginalDescription: Text[100];
+    begin
+        // [SCENARIO 395563] Gen. Journal Line Description is not changed when update "Bal. Account No." for Vendor type and "Keep Description" = Yes
+        Initialize();
+
+        // [GIVEN] Create Gen. Journal Line with empty "Account No.", Description = XYZ, "Keep Description" = Yes
+        MockGenJournalLineWithKeepDescription(GenJnlLine);
+        OriginalDescription := GenJnlLine.Description;
+
+        // [WHEN] Validate "Bal. Account No." to Vendor AAA
+        GenJnlLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::Vendor);
+        GenJnlLine.Validate("Bal. Account No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] Gen. Journal Line has same description "XYZ"
+        GenJnlLine.TestField(Description, OriginalDescription);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure KeepDescriptionBalBankAccount()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        OriginalDescription: Text[100];
+    begin
+        // [SCENARIO 395563] Gen. Journal Line Description is not changed when update "Bal. Account No." for Bank type and "Keep Description" = Yes
+        Initialize();
+
+        // [GIVEN] Create Gen. Journal Line with empty "Account No.", Description = XYZ, "Keep Description" = Yes
+        MockGenJournalLineWithKeepDescription(GenJnlLine);
+        OriginalDescription := GenJnlLine.Description;
+
+        // [WHEN] Validate "Bal. Account No." to Bank AAA
+        GenJnlLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::"Bank Account");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
+
+        // [THEN] Gen. Journal Line has same description "XYZ"
+        GenJnlLine.TestField(Description, OriginalDescription);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure KeepDescriptionBalFAAccount()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        OriginalDescription: Text[100];
+    begin
+        // [SCENARIO 395563] Gen. Journal Line Description is not changed when update "Bal. Account No." for "Fixed Asset" type and "Keep Description" = Yes
+        Initialize();
+
+        // [GIVEN] Create Gen. Journal Line with empty "Account No.", Description = XYZ, "Keep Description" = Yes
+        MockGenJournalLineWithKeepDescription(GenJnlLine);
+        OriginalDescription := GenJnlLine.Description;
+
+        // [WHEN] Validate "Bal. Account No." to Fixed Asset AAA
+        GenJnlLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::"Fixed Asset");
+        GenJnlLine.Validate("Bal. Account No.", LibraryFixedAsset.CreateFixedAssetNo());
+
+        // [THEN] Gen. Journal Line has same description "XYZ"
+        GenJnlLine.TestField(Description, OriginalDescription);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure KeepDescriptionBalICPartnerAccount()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        OriginalDescription: Text[100];
+    begin
+        // [SCENARIO 395563] Gen. Journal Line Description is not changed when update "Bal. Account No." for "IC Partner" type and "Keep Description" = Yes
+        Initialize();
+
+        // [GIVEN] Create Gen. Journal Line with empty "Account No.", Description = XYZ, "Keep Description" = Yes
+        MockIntercompanyGenJournalLineWithKeepDescription(GenJnlLine);
+        OriginalDescription := GenJnlLine.Description;
+
+        // [WHEN] Validate "Bal. Account No." to "IC Partner" AAA
+        GenJnlLine.Validate("Bal. Account Type", "Gen. Journal Account Type"::"IC Partner");
+        GenJnlLine.Validate("Bal. Account No.", LibraryERM.CreateICPartnerNo());
+
+        // [THEN] Gen. Journal Line has same description "XYZ"
+        GenJnlLine.TestField(Description, OriginalDescription);
     end;
 
     [Test]
@@ -4677,19 +4797,19 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalBatch.Modify();
 
         // [GIVEN] Gen. Journal Line "1" with Document No. = "1" and Amount = 100
-        CreateGenJournalLineGL(
+        CreateGenJournalLine1(
             GenJournalLine[1], GenJournalBatch.Name, GenJournalTemplate.Name,
             GenJournalLine[1]."Account Type"::"G/L Account", GLAccount."No.",
             100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
 
         // [GIVEN] Gen. Journal Line "2" with Document No. = "2" and Amount = 200
-        CreateGenJournalLineGL(
+        CreateGenJournalLine1(
             GenJournalLine[2], GenJournalBatch.Name, GenJournalTemplate.Name,
             GenJournalLine[2]."Account Type"::"G/L Account", GLAccount."No.",
             200, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
 
         // [GIVEN] Gen. Journal Line "3" with Document No. = "3" and Amount = 100
-        CreateGenJournalLineGL(
+        CreateGenJournalLine1(
             GenJournalLine[3], GenJournalBatch.Name, GenJournalTemplate.Name,
             GenJournalLine[3]."Account Type"::"G/L Account", GLAccount."No.",
             100, NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false));
@@ -4734,6 +4854,40 @@ codeunit 134920 "ERM General Journal UT"
         IsInitialized := true;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+    end;
+
+    local procedure MockGenJournalLineWithKeepDescription(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine2(GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 2));
+        GenJnlLine."Keep Description" := true;
+        GenJnlLine.Description := LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen((GenJnlLine.Description)), 0);
+        GenJnlLine.Modify();
+    end;
+
+    local procedure MockIntercompanyGenJournalLineWithKeepDescription(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreateICJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine2(GenJnlLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 2));
+        GenJnlLine."Keep Description" := true;
+        GenJnlLine.Description := LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen((GenJnlLine.Description)), 0);
+        GenJnlLine.Modify();
+    end;
+
+    local procedure CreateICJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Intercompany);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
     local procedure PreparePaymentTemplateBatchAndPage(var GeneralJournalBatches: TestPage "General Journal Batches")
@@ -4827,7 +4981,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Modify
     end;
 
-    local procedure CreateGenJournalLineGL(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; Type: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
+    local procedure CreateGenJournalLine1(var GenJournalLine: Record "Gen. Journal Line"; GenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]; Type: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(
             GenJournalLine, GenJnlTemplateName, GenJnlBatchName,
@@ -5627,6 +5781,19 @@ codeunit 134920 "ERM General Journal UT"
             LibraryDimension.CreateDimWithDimValue(DimensionValue);
             LibraryERM.SetShortcutDimensionCode(i, DimensionValue."Dimension Code");
         end;
+    end;
+
+    local procedure GetGenJnlBatchJson(NewGenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]) GenJnlBatchJson: Text
+    var
+        JSONManagement: Codeunit "JSON Management";
+        JsonObject: DotNet JObject;
+    begin
+        JSONManagement.InitializeEmptyObject;
+        JSONManagement.GetJSONObject(JsonObject);
+        JSONManagement.AddJPropertyToJObject(JsonObject, 'Name', NewGenJnlBatchName);
+        JSONManagement.AddJPropertyToJObject(JsonObject, 'Journal_Template_Name', GenJnlTemplateName);
+
+        GenJnlBatchJson := JSONManagement.WriteObjectToString;
     end;
 
     [ModalPageHandler]

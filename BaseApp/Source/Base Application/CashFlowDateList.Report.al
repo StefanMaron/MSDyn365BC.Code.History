@@ -289,5 +289,11 @@ report 846 "Cash Flow Date List"
         PeriodNumber := NumberOfIntervals;
         Interval := IntervalLength;
     end;
+
+    procedure GetPeriod(var DateFrom: Date; var DateTo: Date)
+    begin
+        DateFrom := CurrentDateFrom;
+        DateTo := CurrentDateTo;
+    end;
 }
 

@@ -73,6 +73,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         VerifyIntrastatChecklistATReport(StrSubstNo(HeaderText, GeneralLedgerSetup."LCY Code"));
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('IntrastatFormATRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -102,6 +103,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         // Verify: Verify Error that, transaction specification should be equal to five digits.
         Assert.ExpectedError('Transaction Specification 100000 must have 5 digits');
     end;
+#endif
 
     [Test]
     [HandlerFunctions('IntrastatFormATRequestPageHandler')]
@@ -131,6 +133,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         Assert.ExpectedError('Quantity must have a value in Intrastat Jnl. Line');
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('IntrastatFormATRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -160,6 +163,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
         // Verify: Verify Error that Transport Method must have value on Intrastat Journal Line.
         Assert.ExpectedError('Transport Method must have a value in Intrastat Jnl. Line');
     end;
+#endif
 
     [Test]
     [HandlerFunctions('IntrastatChecklistATShipmentRequestPageHandler')]

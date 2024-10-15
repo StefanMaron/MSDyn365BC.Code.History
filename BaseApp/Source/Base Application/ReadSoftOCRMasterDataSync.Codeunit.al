@@ -1,5 +1,6 @@
 codeunit 884 "ReadSoft OCR Master Data Sync"
 {
+    Permissions = tabledata "OCR Service Setup" = rm;
 
     trigger OnRun()
     begin

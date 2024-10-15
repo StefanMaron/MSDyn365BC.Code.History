@@ -14,7 +14,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(2; "No."; Code[20])
@@ -27,7 +27,7 @@
             var
                 NoSeriesMgt: Codeunit NoSeriesManagement;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if "No." <> xRec."No." then begin
                     AssemblySetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
@@ -71,8 +71,8 @@
             var
                 IsHandled: Boolean;
             begin
-                CheckIsNotAsmToOrder;
-                TestStatusOpen;
+                CheckIsNotAsmToOrder();
+                TestStatusOpen();
                 SetCurrentFieldNum(FieldNo("Item No."));
                 if "Item No." <> '' then begin
                     SetDescriptionsFromItem;
@@ -107,8 +107,8 @@
                 ItemVariant: Record "Item Variant";
                 IsHandled: Boolean;
             begin
-                CheckIsNotAsmToOrder;
-                TestStatusOpen;
+                CheckIsNotAsmToOrder();
+                TestStatusOpen();
                 SetCurrentFieldNum(FieldNo("Variant Code"));
                 if "Variant Code" = '' then
                     SetDescriptionsFromItem
@@ -144,7 +144,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(19; Comment; Boolean)
@@ -164,8 +164,8 @@
             var
                 IsHandled: Boolean;
             begin
-                CheckIsNotAsmToOrder;
-                TestStatusOpen;
+                CheckIsNotAsmToOrder();
+                TestStatusOpen();
                 SetCurrentFieldNum(FieldNo("Location Code"));
                 IsHandled := false;
                 OnValidateLocationCodeOnBeforeValidateDates(Rec, xRec, IsHandled);
@@ -268,7 +268,7 @@
 
             trigger OnValidate()
             begin
-                CheckIsNotAsmToOrder;
+                CheckIsNotAsmToOrder();
                 ValidateBinCode("Bin Code");
             end;
         }
@@ -279,17 +279,21 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                UOMMgt: Codeunit "Unit of Measure Management";
             begin
-                CheckIsNotAsmToOrder;
-                TestStatusOpen;
+                CheckIsNotAsmToOrder();
+                TestStatusOpen();
 
                 SetCurrentFieldNum(FieldNo(Quantity));
-                RoundQty(Quantity);
+
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
                 "Cost Amount" := Round(Quantity * "Unit Cost");
                 if Quantity < "Assembled Quantity" then
                     Error(Text002, FieldCaption(Quantity), FieldCaption("Assembled Quantity"), "Assembled Quantity");
 
-                "Quantity (Base)" := CalcBaseQty(Quantity);
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption("Quantity (Base)"), FieldCaption(Quantity));
                 OnValiateQuantityOnAfterCalcBaseQty(Rec, CurrFieldNo);
                 InitRemainingQty;
                 InitQtyToAssemble;
@@ -307,7 +311,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Quantity (Base)");
             end;
@@ -346,9 +350,11 @@
             trigger OnValidate()
             var
                 ATOLink: Record "Assemble-to-Order Link";
+                UOMMgt: Codeunit "Unit of Measure Management";
             begin
                 SetCurrentFieldNum(FieldNo("Quantity to Assemble"));
-                RoundQty("Quantity to Assemble");
+
+                "Quantity to Assemble" := UOMMgt.RoundAndValidateQty("Quantity to Assemble", "Qty. Rounding Precision", FieldCaption("Quantity to Assemble"));
                 if "Quantity to Assemble" > "Remaining Quantity" then
                     Error(Text003,
                       FieldCaption("Quantity to Assemble"), FieldCaption("Remaining Quantity"), "Remaining Quantity");
@@ -356,7 +362,11 @@
                 if "Quantity to Assemble" <> xRec."Quantity to Assemble" then
                     ATOLink.CheckQtyToAsm(Rec);
 
-                Validate("Quantity to Assemble (Base)", CalcBaseQty("Quantity to Assemble"));
+                Validate(
+                    "Quantity to Assemble (Base)",
+                    CalcBaseQty("Quantity to Assemble", FieldCaption("Quantity to Assemble (Base)"), FieldCaption("Quantity to Assemble"))
+                );
+
                 AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Quantity to Assemble"), false, CurrFieldNo, CurrentFieldNum);
                 ClearCurrentFieldNum(FieldNo("Quantity to Assemble"));
             end;
@@ -394,8 +404,8 @@
 
             trigger OnValidate()
             begin
-                CheckIsNotAsmToOrder;
-                TestStatusOpen;
+                CheckIsNotAsmToOrder();
+                TestStatusOpen();
                 if "Planning Flexibility" <> xRec."Planning Flexibility" then
                     AssemblyHeaderReserve.UpdatePlanningFlexibility(Rec);
             end;
@@ -482,13 +492,15 @@
             var
                 UOMMgt: Codeunit "Unit of Measure Management";
             begin
-                CheckIsNotAsmToOrder;
+                CheckIsNotAsmToOrder();
                 TestField("Assembled Quantity", 0);
-                TestStatusOpen;
+                TestStatusOpen();
                 SetCurrentFieldNum(FieldNo("Unit of Measure Code"));
 
                 GetItem;
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
                 "Unit Cost" := GetUnitCost;
                 "Overhead Rate" := Item."Overhead Rate";
 
@@ -506,9 +518,27 @@
 
             trigger OnValidate()
             begin
-                CheckIsNotAsmToOrder;
-                TestStatusOpen;
+                CheckIsNotAsmToOrder();
+                TestStatusOpen();
             end;
+        }
+        field(82; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(83; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
         field(107; "No. Series"; Code[20])
         {
@@ -518,7 +548,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(108; "Posting No. Series"; Code[20])
@@ -543,7 +573,7 @@
             var
                 NoSeriesMgt: Codeunit NoSeriesManagement;
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 if "Posting No. Series" <> '' then begin
                     AssemblySetup.Get();
                     TestNoSeries;
@@ -607,7 +637,7 @@
 
     trigger OnDelete()
     begin
-        CheckIsNotAsmToOrder;
+        CheckIsNotAsmToOrder();
 
         AssemblyHeaderReserve.DeleteLine(Rec);
         CalcFields("Reserved Qty. (Base)");
@@ -621,7 +651,7 @@
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        CheckIsNotAsmToOrder;
+        CheckIsNotAsmToOrder();
 
         AssemblySetup.Get();
 
@@ -1112,33 +1142,36 @@
         PAGE.Run(PAGE::"Assembly BOM", BOMComponent);
     end;
 
-    local procedure CalcBaseQty(Qty: Decimal): Decimal
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     var
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        exit(
-          UOMMgt.CalcBaseQty(
-            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure"));
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     procedure RoundQty(var Qty: Decimal)
     var
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        Qty := UOMMgt.RoundQty(Qty);
+        Qty := UOMMgt.RoundQty(Qty, "Qty. Rounding Precision");
     end;
 
-    local procedure GetSKU() Result: Boolean
+    local procedure GetSKU()
+    var
+        SKU: Record "Stockkeeping Unit";
+        Result: Boolean;
     begin
         if (StockkeepingUnit."Location Code" = "Location Code") and
            (StockkeepingUnit."Item No." = "Item No.") and
            (StockkeepingUnit."Variant Code" = "Variant Code")
         then
-            exit(true);
-        if StockkeepingUnit.Get("Location Code", "Item No.", "Variant Code") then
-            exit(true);
+            exit;
 
-        Result := false;
+        GetItem();
+        StockkeepingUnit := Item.GetSKU("Location Code", "Variant Code");
+        Result := SKU.Get("Location Code", "Item No.", "Variant Code");
+
         OnAfterGetSKU(Rec, Result);
     end;
 
@@ -1150,10 +1183,8 @@
             exit(0);
 
         GetItem;
-        if GetSKU then
-            SkuItemUnitCost := StockkeepingUnit."Unit Cost" * "Qty. per Unit of Measure"
-        else
-            SkuItemUnitCost := Item."Unit Cost" * "Qty. per Unit of Measure";
+        GetSKU;
+        SkuItemUnitCost := StockkeepingUnit."Unit Cost" * "Qty. per Unit of Measure";
 
         exit(RoundUnitAmount(SkuItemUnitCost));
     end;
@@ -1178,7 +1209,7 @@
         ActCost[RowIdx::AsmOvhd] := TempSourceInvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
     end;
 
-    local procedure CalcStartDateFromEndDate(EndingDate: Date) Result: Date
+    procedure CalcStartDateFromEndDate(EndingDate: Date) Result: Date
     var
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
@@ -1198,7 +1229,7 @@
         OnAfterCalcStartDateFromEndDate(Rec, Result);
     end;
 
-    local procedure CalcEndDateFromStartDate(StartingDate: Date) Result: Date
+    procedure CalcEndDateFromStartDate(StartingDate: Date) Result: Date
     var
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
@@ -1214,7 +1245,7 @@
         OnAfterCalcEndDateFromStartDate(Rec, Result);
     end;
 
-    local procedure CalcEndDateFromDueDate(DueDate: Date): Date
+    procedure CalcEndDateFromDueDate(DueDate: Date): Date
     var
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
@@ -1224,7 +1255,7 @@
             "Item No.", "Location Code", "Variant Code", DueDate, '', ReqLine."Ref. Order Type"::Assembly));
     end;
 
-    local procedure CalcDueDateFromEndDate(EndingDate: Date): Date
+    procedure CalcDueDateFromEndDate(EndingDate: Date): Date
     var
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
@@ -1247,7 +1278,6 @@
         AssemblyHeaderReserve.VerifyQuantity(Rec, xRec);
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateDates(FieldNumToCalculateFrom: Integer; DoNotValidateButJustAssign: Boolean)
     var
         NewDueDate: Date;
@@ -1381,14 +1411,14 @@
         end;
     end;
 
-    local procedure ValidateDueDate(NewDueDate: Date; CallValidateOnOtherDates: Boolean)
+    procedure ValidateDueDate(NewDueDate: Date; CallValidateOnOtherDates: Boolean)
     var
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
     begin
         OnBeforeValidateDueDate(Rec, NewDueDate);
         "Due Date" := NewDueDate;
-        CheckIsNotAsmToOrder;
-        TestStatusOpen;
+        CheckIsNotAsmToOrder();
+        TestStatusOpen();
 
         if CallValidateOnOtherDates then
             ValidateDates(FieldNo("Due Date"), false);
@@ -1396,19 +1426,19 @@
             ReservationCheckDateConfl.AssemblyHeaderCheck(Rec, (CurrFieldNo <> 0) or TestReservationDateConflict);
     end;
 
-    local procedure ValidateEndDate(NewEndDate: Date; CallValidateOnOtherDates: Boolean)
+    procedure ValidateEndDate(NewEndDate: Date; CallValidateOnOtherDates: Boolean)
     begin
         "Ending Date" := NewEndDate;
-        TestStatusOpen;
+        TestStatusOpen();
 
         if CallValidateOnOtherDates then
             ValidateDates(FieldNo("Ending Date"), false);
     end;
 
-    local procedure ValidateStartDate(NewStartDate: Date; CallValidateOnOtherDates: Boolean)
+    procedure ValidateStartDate(NewStartDate: Date; CallValidateOnOtherDates: Boolean)
     begin
         "Starting Date" := NewStartDate;
-        TestStatusOpen;
+        TestStatusOpen();
         SetCurrentFieldNum(FieldNo("Starting Date"));
 
         AssemblyLineMgt.UpdateAssemblyLines(Rec, xRec, FieldNo("Starting Date"), false, CurrFieldNo, CurrentFieldNum);
@@ -1476,7 +1506,7 @@
         WhseIntegrationMgt: Codeunit "Whse. Integration Management";
     begin
         "Bin Code" := NewBinCode;
-        TestStatusOpen;
+        TestStatusOpen();
 
         if "Bin Code" <> '' then begin
             if Quantity < 0 then
@@ -1532,7 +1562,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateInvtMovement(Rec, MakeATOInvtMvmt, PrintDocumentForATOMvmt, ShowErrorForATOMvmt, ATOMovementsCreated, ATOTotalMovementsToBeCreated, IsHandled); 
+        OnBeforeCreateInvtMovement(Rec, MakeATOInvtMvmt, PrintDocumentForATOMvmt, ShowErrorForATOMvmt, ATOMovementsCreated, ATOTotalMovementsToBeCreated, IsHandled);
         if IsHandled then
             exit;
 
@@ -1843,7 +1873,7 @@
     local procedure OnBeforeCreateInvtMovement(var AssemblyHeader: Record "Assembly Header"; MakeATOInvtMvmt: Boolean; PrintDocumentForATOMvmt: Boolean; ShowErrorForATOMvmt: Boolean; var ATOMovementsCreated: Integer; var ATOTotalMovementsToBeCreated: Integer; var IsHandled: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterGetDefaultBin(var AssemblyHeader: Record "Assembly Header"; Item: Record Item)
     begin

@@ -139,9 +139,22 @@ table 5335 "Integration Table Mapping"
             Caption = 'Uncouple Codeunit ID';
             TableRelation = "Table Metadata".ID;
         }
+        field(28; "Coupling Codeunit ID"; Integer)
+        {
+            Caption = 'Coupling Codeunit ID';
+            TableRelation = "Table Metadata".ID;
+        }
+        field(29; "Synch. After Bulk Coupling"; Boolean)
+        {
+            Caption = 'Synch. After Match-Based Coupling';
+        }
         field(30; "Dependency Filter"; Text[250])
         {
             Caption = 'Dependency Filter';
+        }
+        field(31; "Create New in Case of No Match"; Boolean)
+        {
+            Caption = 'Create New in Case of No Match';
         }
         field(100; "Full Sync is Running"; Boolean)
         {
@@ -177,6 +190,9 @@ table 5335 "Integration Table Mapping"
         {
             Clustered = true;
         }
+        key(Key2; "Table ID", "Integration Table ID")
+        {
+        }
     }
 
     fieldgroups
@@ -205,7 +221,10 @@ table 5335 "Integration Table Mapping"
     begin
         if not ("Table ID" in [Database::Contact, Database::Customer, Database::Item, Database::Vendor,
                                 Database::Resource, Database::Opportunity, Database::Currency, Database::"Customer Price Group",
-                                Database::"Sales Invoice Header", Database::"Sales Invoice Line", Database::"Sales Price",
+                                Database::"Sales Invoice Header", Database::"Sales Invoice Line",
+#if not CLEAN19
+                                Database::"Sales Price",
+#endif
                                 Database::"Unit of Measure", Database::"Payment Terms", Database::"Shipment Method", Database::"Shipping Agent", DATABASE::"Salesperson/Purchaser"]) then
             if IntegrationManagement.IsIntegrationActivated() then
                 IntegrationManagement.InitializeIntegrationRecords("Table ID");
@@ -220,11 +239,10 @@ table 5335 "Integration Table Mapping"
 
     procedure FindFilteredRec(RecordRef: RecordRef; var OutOfMapFilter: Boolean) Found: Boolean
     var
-        OutlookSynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
         TempRecRef: RecordRef;
     begin
         TempRecRef.Open(RecordRef.Number, true);
-        OutlookSynchNAVMgt.CopyRecordReference(RecordRef, TempRecRef, false);
+        CopyRecordReference(RecordRef, TempRecRef, false);
         if "Table ID" = RecordRef.Number then
             SetRecordRefFilter(TempRecRef)
         else
@@ -459,6 +477,36 @@ table 5335 "Integration Table Mapping"
         ShowLog(NameFilter, '', TempIntegrationSynchJob.GetFilter(Type));
     end;
 
+    internal procedure ShowCouplingLog(var IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        TempIntegrationSynchJob: Record "Integration Synch. Job" temporary;
+        NameFilter: Text;
+    begin
+        NameFilter := GetNameFilter(IntegrationTableMapping);
+        TempIntegrationSynchJob.SetRange(Type, TempIntegrationSynchJob.Type::Coupling);
+        ShowLog(NameFilter, '', TempIntegrationSynchJob.GetFilter(Type));
+    end;
+
+    local procedure CopyRecordReference(FromRec: RecordRef; var ToRec: RecordRef; ValidateOnInsert: Boolean)
+    var
+        FromField: FieldRef;
+        ToField: FieldRef;
+        Counter: Integer;
+    begin
+        if FromRec.Number <> ToRec.Number then
+            exit;
+
+        ToRec.Init();
+        for Counter := 1 to FromRec.FieldCount do begin
+            FromField := FromRec.FieldIndex(Counter);
+            if not (FromField.Type in [FieldType::BLOB, FieldType::TableFilter]) then begin
+                ToField := ToRec.Field(FromField.Number);
+                ToField.Value := FromField.Value;
+            end;
+        end;
+        ToRec.Insert(ValidateOnInsert);
+    end;
+
     local procedure ShowLog(NameFilter: Text; JobIDFilter: Text; JobTypeFilter: Text)
     var
         IntegrationSynchJob: Record "Integration Synch. Job";
@@ -595,11 +643,13 @@ table 5335 "Integration Table Mapping"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         UncoupleCodeunitId: Integer;
+        CouplingCodeunitId: Integer;
     begin
         if DirectionArg in [IntegrationTableMapping.Direction::ToIntegrationTable, IntegrationTableMapping.Direction::Bidirectional] then
             if CDSIntegrationMgt.HasCompanyIdField(IntegrationTableNo) then
                 UncoupleCodeunitId := Codeunit::"CDS Int. Table Uncouple";
-        CreateRecord(MappingName, TableNo, IntegrationTableNo, IntegrationTableUIDFieldNo, IntegrationTableModifiedFieldNo, TableConfigTemplateCode, IntegrationTableConfigTemplateCode, SynchOnlyCoupledRecords, DirectionArg, Prefix, Codeunit::"CRM Integration Table Synch.", UncoupleCodeunitId);
+        CouplingCodeunitId := Codeunit::"CDS Int. Table Couple";
+        CreateRecord(MappingName, TableNo, IntegrationTableNo, IntegrationTableUIDFieldNo, IntegrationTableModifiedFieldNo, TableConfigTemplateCode, IntegrationTableConfigTemplateCode, SynchOnlyCoupledRecords, DirectionArg, Prefix, Codeunit::"CRM Integration Table Synch.", UncoupleCodeunitId, CouplingCodeunitId);
     end;
 
     [Scope('Cloud')]
@@ -620,6 +670,29 @@ table 5335 "Integration Table Mapping"
         Direction := DirectionArg;
         "Int. Tbl. Caption Prefix" := Prefix;
         "Synch. Only Coupled Records" := SynchOnlyCoupledRecords;
+        "Coupling Codeunit ID" := Codeunit::"CDS Int. Table Couple";
+        Insert(true);
+    end;
+
+    [Scope('Cloud')]
+    procedure CreateRecord(MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean; DirectionArg: Option; Prefix: Text[30]; SynchCodeunitId: Integer; UncoupleCodeunitId: Integer; CouplingCodeunitId: Integer)
+    begin
+        if Get(MappingName) then
+            Delete(true);
+        Init();
+        Name := MappingName;
+        "Table ID" := TableNo;
+        "Integration Table ID" := IntegrationTableNo;
+        "Synch. Codeunit ID" := SynchCodeunitId;
+        "Uncouple Codeunit ID" := UncoupleCodeunitId;
+        Validate("Integration Table UID Fld. No.", IntegrationTableUIDFieldNo);
+        "Int. Tbl. Modified On Fld. No." := IntegrationTableModifiedFieldNo;
+        "Table Config Template Code" := TableConfigTemplateCode;
+        "Int. Tbl. Config Template Code" := IntegrationTableConfigTemplateCode;
+        Direction := DirectionArg;
+        "Int. Tbl. Caption Prefix" := Prefix;
+        "Synch. Only Coupled Records" := SynchOnlyCoupledRecords;
+        "Coupling Codeunit ID" := CouplingCodeunitId;
         Insert(true);
     end;
 

@@ -43,11 +43,9 @@ table 1173 "Document Attachment"
                     Error(DuplicateErr);
             end;
         }
-        field(6; "File Type"; Option)
+        field(6; "File Type"; Enum "Document Attachment File Type")
         {
             Caption = 'File Type';
-            OptionCaption = ' ,Image,PDF,Word,Excel,PowerPoint,Email,XML,Other';
-            OptionMembers = " ",Image,PDF,Word,Excel,PowerPoint,Email,XML,Other;
         }
         field(7; "File Extension"; Text[30])
         {

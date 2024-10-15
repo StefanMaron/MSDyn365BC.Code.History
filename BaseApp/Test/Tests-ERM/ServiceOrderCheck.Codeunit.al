@@ -408,6 +408,7 @@ codeunit 136114 "Service Order Check"
         VerifyGetShipmentLines(OrderNo, ServiceHeader."No.");
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ServiceOrderDiscounts()
@@ -443,7 +444,7 @@ codeunit 136114 "Service Order Check"
         // 3. Verify: Service Discounts are correctly transfered to Invoice.
         VerifyServiceInvoice(TempServiceLine);
     end;
-
+#endif
     [Test]
     [HandlerFunctions('FormHandlerGetShipment')]
     [Scope('OnPrem')]
@@ -1415,6 +1416,7 @@ codeunit 136114 "Service Order Check"
         ServiceLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreateCustomerLineDiscount(Item: Record Item; CustomerNo: Code[20])
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -1426,7 +1428,7 @@ codeunit 136114 "Service Order Check"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandInt(10));
         SalesLineDiscount.Modify(true);
     end;
-
+#endif
     local procedure CreateCustomerInvoiceDiscount(var CustInvoiceDisc: Record "Cust. Invoice Disc."; CustomerNo: Code[20]; MinimumAmount: Decimal; ServiceCharge: Decimal)
     begin
         LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CustomerNo, '', MinimumAmount);

@@ -887,92 +887,6 @@ codeunit 134600 "Report Layout Test"
     end;
 
     [Test]
-    [HandlerFunctions('WorkOrder_RPH')]
-    [Scope('OnPrem')]
-    procedure SalesOrder_Print_WorkOrder()
-    var
-        SalesHeader: Record "Sales Header";
-        DocumentPrint: Codeunit "Document-Print";
-        CustomerNo: Code[20];
-    begin
-        Initialize;
-        // [FEATURE] [Sales] [Order] [Print]
-        // [SCENARIO 379027] REP 752 "Work Order" is shown when run "Work Order" action from Sales Order in case of "Order Confirmation" setup in customer document layout
-
-        // [GIVEN] Custom Report Layout "X" with "Report ID" = 752, "Report Name" = "Work Order"
-        // [GIVEN] Customer with Document Layout: Usage = "Work Order", "Report ID" = 752, "Customer Report Layout ID" = "X"
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        AddOrderConfirmationToCustomerDocumentLayout(CustomerNo);
-
-        // [GIVEN] Sales Order for the given customer
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-
-        // [WHEN] Run "Work Order" action from Sales Order
-        Commit();
-        DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Work Order");
-
-        // [THEN] REP 752 "Work Order" is shown
-        // WorkOrder_RPH
-    end;
-
-    [Test]
-    [HandlerFunctions('PickInstruction_RPH')]
-    [Scope('OnPrem')]
-    procedure SalesOrder_Print_PickInstruction()
-    var
-        SalesHeader: Record "Sales Header";
-        DocumentPrint: Codeunit "Document-Print";
-        CustomerNo: Code[20];
-    begin
-        Initialize;
-        // [FEATURE] [Sales] [Order] [Print]
-        // [SCENARIO 379027] REP 214 "Pick Instruction" is shown when run "Pick Instruction" action from Sales Order in case of "Order Confirmation" setup in customer document layout
-
-        // [GIVEN] Custom Report Layout "X" with "Report ID" = 214, "Report Name" = "Pick Instruction"
-        // [GIVEN] Customer with Document Layout: Usage = "Pick Instruction", "Report ID" = 214, "Customer Report Layout ID" = "X"
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        AddOrderConfirmationToCustomerDocumentLayout(CustomerNo);
-
-        // [GIVEN] Sales Order for the given customer
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-
-        // [WHEN] Run "Pick Instruction" action from Sales Order
-        Commit();
-        DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Pick Instruction");
-
-        // [THEN] REP 214 "Pick Instruction" is shown
-        // PickInstruction_RPH
-    end;
-
-    [Test]
-    [HandlerFunctions('ReturnOrderConfirmation_RPH')]
-    [Scope('OnPrem')]
-    procedure SalesReturnOrder_Print()
-    var
-        SalesHeader: Record "Sales Header";
-        DocumentPrint: Codeunit "Document-Print";
-        CustomerNo: Code[20];
-    begin
-        Initialize;
-        // [FEATURE] [Sales] [Return Order] [Print]
-        // [SCENARIO 379871]  REP 6631 "Return Order Confirmation" is shown when run "Print" action from Sales Return Order in case of Usage="Invoice" setup in customer document layout
-
-        // [GIVEN] Customer with Document Layout: Usage = "Invoice", "Report ID" = 206 (Sales - Invoice)
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        AddSalesInvoiceToCustomerDocumentLayout(CustomerNo);
-
-        // [GIVEN] Sales Return Order for the given customer
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
-
-        // [WHEN] Run "Print" action from Sales Return Order
-        Commit();
-        DocumentPrint.PrintSalesHeader(SalesHeader);
-
-        // [THEN] REP 6631 "Return Order Confirmation" is shown
-        // ReturnOrderConfirmation_RPH
-    end;
-
-    [Test]
     [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
     procedure JobTaskNosInStandardSalesInvoiceReport()
@@ -1071,52 +985,6 @@ codeunit 134600 "Report Layout Test"
         Assert.ExpectedMessage(FileNameIsBlankMsg, LibraryVariableStorage.DequeueText); // message from MessageHandler
     end;
 
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure PrintSalesOrderProperFiltering()
-    var
-        SalesHeader: Record "Sales Header";
-        NoSeries: array[2] of Record "No. Series";
-        NoSeriesLine: array[2] of Record "No. Series Line";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        DocumentPrint: Codeunit "Document-Print";
-        ReportLayoutTest: Codeunit "Report Layout Test";
-        CustomerNo: Code[20];
-    begin
-        // [FEATURE] [Sales] [Order] [Print]
-        // [SCENARIO 386769] PrintSalesOrder method should set correct filter on SalesHeader record
-        Initialize();
-
-        // [GIVEN] Sales Order "SO" and Sales Quote "SQ" with same Document No.
-        CustomerNo := LibrarySales.CreateCustomerNo();
-        AddOrderConfirmationToCustomerDocumentLayout(CustomerNo);
-
-        LibraryUtility.CreateNoSeries(NoSeries[1], true, true, false);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine[1], NoSeries[1].Code, '', '');
-
-        LibraryUtility.CreateNoSeries(NoSeries[2], true, false, false);
-        LibraryUtility.CreateNoSeriesLine(NoSeriesLine[2], NoSeries[2].Code, '', '');
-
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", NoSeries[1].Code);
-        SalesReceivablesSetup.Validate("Quote Nos.", NoSeries[2].Code);
-        SalesReceivablesSetup.Modify(true);
-
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CustomerNo);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-
-        // [WHEN] Run "Print Confirmation" action from Sales Order "SO"
-        Commit();
-        BindSubscription(ReportLayoutTest);
-        DocumentPrint.PrintSalesOrder(SalesHeader, Usage::"Order Confirmation");
-
-        // [THEN] SalesHeader record points to Sales Order "SO"
-        // Checked by subscribing to OnBeforePrintSalesOrder event in method PrintSalesOrder of Codeunit "Document-Print"
-        // and getting Sales Header RecordId to be sure it point to correct record "SO"
-        Assert.ExpectedMessage(Format(SalesHeader.RecordId()), LibraryVariableStorage.DequeueText); // message from MessageHandler
-    end;
-
     local procedure InitCustomReportLayout(var CustomReportLayout: Record "Custom Report Layout"; LayoutType: Enum "Custom Report Layout Type"; WithCompanyName: Boolean)
     var
         LayoutCode: Code[20];
@@ -1165,34 +1033,6 @@ codeunit 134600 "Report Layout Test"
                 end;
         end;
         ReportLayoutSelection.Insert();
-    end;
-
-    local procedure AddOrderConfirmationToCustomReportLayout(): Code[20]
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-    begin
-        with CustomReportLayout do begin
-            Init;
-            "Report ID" := REPORT::"Order Confirmation";
-            Insert(true);
-            exit(Code);
-        end;
-    end;
-
-    local procedure AddOrderConfirmationToCustomerDocumentLayout(CustomerNo: Code[20])
-    var
-        CustomReportSelection: Record "Custom Report Selection";
-    begin
-        AddCustomerDocumentLayoutReport(
-          CustomerNo, CustomReportSelection.Usage::"S.Order", REPORT::"Order Confirmation", AddOrderConfirmationToCustomReportLayout);
-    end;
-
-    local procedure AddSalesInvoiceToCustomerDocumentLayout(CustomerNo: Code[20])
-    var
-        CustomReportSelection: Record "Custom Report Selection";
-    begin
-        AddCustomerDocumentLayoutReport(
-          CustomerNo, CustomReportSelection.Usage::"S.Invoice", REPORT::"Sales - Invoice", '');
     end;
 
     local procedure AddCustomerDocumentLayoutReport(CustomerNo: Code[20]; NewUsage: Enum "Report Selection Usage"; ReportID: Integer; CustomReportLayoutCode: Code[20])
@@ -1410,23 +1250,6 @@ codeunit 134600 "Report Layout Test"
         LibraryVariableStorage.Enqueue(Msg);
     end;
 
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure WorkOrder_RPH(var WorkOrder: TestRequestPage "Work Order")
-    begin
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure PickInstruction_RPH(var PickInstruction: TestRequestPage "Pick Instruction")
-    begin
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ReturnOrderConfirmation_RPH(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
-    begin
-    end;
 
     local procedure StandardSalesInvoiceReportID(): Integer
     begin

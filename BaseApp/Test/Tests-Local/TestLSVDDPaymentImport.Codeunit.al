@@ -466,7 +466,9 @@ codeunit 144044 "Test LSV DD Payment Import"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         CreateLSVSalesDoc(SalesHeader, Customer."No.", SalesHeader."Document Type"::Invoice);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
+#if not CLEAN17
         FileMgt.DeleteClientFile(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
+#endif
     end;
 
     local procedure CreateLSVSalesDoc(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Option)
@@ -553,7 +555,9 @@ codeunit 144044 "Test LSV DD Payment Import"
         OutputFileName: Text;
         LineNo: Integer;
     begin
+#if not CLEAN17
         InputFileName := CopyStr(FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename"), 1, 1024);
+#endif
         OutputFileName := FileMgt.ServerTempFileName('');
         DDFile.TextMode(true);
         DDFile.WriteMode(true);
@@ -582,8 +586,10 @@ codeunit 144044 "Test LSV DD Payment Import"
 
         DDFile.Close;
 
+#if not CLEAN17
         FileMgt.DeleteClientDirectory(LSVSetup."DebitDirect Import Filename");
         FileMgt.CopyClientFile(OutputFileName, LSVSetup."DebitDirect Import Filename", true);
+#endif
     end;
 
     local procedure FindCustLedgerEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]) CollectionAmount: Decimal

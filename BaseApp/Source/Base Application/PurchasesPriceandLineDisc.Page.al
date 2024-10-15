@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1346 "Purchases Price and Line Disc."
 {
     Caption = 'Purchase Prices';
@@ -80,4 +81,4 @@ page 1346 "Purchases Price and Line Disc."
         LoadDataForItem(Item);
     end;
 }
-
+#endif

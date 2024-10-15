@@ -29,22 +29,6 @@ codeunit 144058 "Test CH Small Features"
         GlobalFooterTxt: Text;
         ShipingDateTxt: Label 'Shipping Date';
 
-    [Test]
-    [HandlerFunctions('StrMenuHandler,SalesShipmentReportHandler,SalesInvoiceReportHandler')]
-    [Scope('OnPrem')]
-    procedure ShipmentOnShipAndInvoiceTrue()
-    begin
-        ShipmentOnShipAndInvoice(true);
-    end;
-
-    [Test]
-    [HandlerFunctions('StrMenuHandler,SalesInvoiceReportHandler')]
-    [Scope('OnPrem')]
-    procedure ShipmentOnShipAndInvoiceFalse()
-    begin
-        ShipmentOnShipAndInvoice(false);
-    end;
-
     [Normal]
     local procedure ShipmentOnShipAndInvoice(ShipmentOnShipAndInvoice: Boolean)
     var
@@ -194,155 +178,6 @@ codeunit 144058 "Test CH Small Features"
         SalesOrder.Statistics.Invoke;
 
         // Verify: in the handler.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesQuoteRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesQuoteHeaderAndFooter()
-    var
-        SalesHeader: Record "Sales Header";
-        TestCHSmallFeatures: Codeunit "Test CH Small Features";
-        HeaderLabel: Text[30];
-        HeaderTxt: Text;
-        FooterLabel: Text[30];
-        FooterTxt: Text;
-    begin
-        // [FEATURE] [UT] [Sales Quote]
-        // [SCENARIO 283760] Report 204 "Sales - Quote" prints CH header and footer data
-        Initialize;
-
-        // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
-        BindSubscription(TestCHSmallFeatures);
-
-        // [GIVEN] Create sales quote
-        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo);
-        UpdateSalesHeaderYourReferenceAndSalespersoneName(SalesHeader);
-
-        // [GIVEN] Prepare extended header and footer data
-        TestCHSmallFeatures.SetExtendedParamenters(HeaderLabel, HeaderTxt, FooterLabel, FooterTxt);
-
-        // [WHEN] Sales - Quote is being printed
-        Commit();
-        REPORT.Run(REPORT::"Sales - Quote", true, false, SalesHeader);
-
-        // [THEN] CH header and footer data printed
-        VerifySalesBaseHeaderAndFooterData(SalesHeader, true);
-        // [THEN] Extended header and footer data printed
-        VerifySalesExtendedHeaderAndFooterData(HeaderLabel, HeaderTxt, FooterLabel, FooterTxt);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesOrderConfirmationHeaderAndFooter()
-    var
-        SalesHeader: Record "Sales Header";
-        TestCHSmallFeatures: Codeunit "Test CH Small Features";
-        HeaderLabel: Text[30];
-        HeaderTxt: Text;
-        FooterLabel: Text[30];
-        FooterTxt: Text;
-    begin
-        // [FEATURE] [UT] [Sales Order]
-        // [SCENARIO 283760] Report 205 "Order Confirmation" prints CH header and footer data
-        Initialize;
-
-        // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
-        BindSubscription(TestCHSmallFeatures);
-
-        // [GIVEN] Create sales order
-        LibrarySales.CreateSalesOrder(SalesHeader);
-        // [GIVEN] Set "Your Reference" = "YR", Salespersone name = "SPN"
-        UpdateSalesHeaderYourReferenceAndSalespersoneName(SalesHeader);
-
-        // [GIVEN] Prepare extended header and footer data
-        TestCHSmallFeatures.SetExtendedParamenters(HeaderLabel, HeaderTxt, FooterLabel, FooterTxt);
-
-        // [WHEN] Order Confirmation is being printed
-        Commit();
-        REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);
-
-        // [THEN] CH header and footer data printed
-        VerifySalesBaseHeaderAndFooterData(SalesHeader, true);
-        // [THEN] Extended header and footer data printed
-        VerifySalesExtendedHeaderAndFooterData(HeaderLabel, HeaderTxt, FooterLabel, FooterTxt);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceHeaderAndFooter()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        TestCHSmallFeatures: Codeunit "Test CH Small Features";
-        HeaderLabel: Text[30];
-        HeaderTxt: Text;
-        FooterLabel: Text[30];
-        FooterTxt: Text;
-    begin
-        // [FEATURE] [UT] [Sales Invoice]
-        // [SCENARIO 283760] Report 206 "Sales - Invoice" prints CH header and footer data
-        Initialize;
-
-        // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
-        BindSubscription(TestCHSmallFeatures);
-
-        // [GIVEN] Create and post sales invoice
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        UpdateSalesHeaderYourReferenceAndSalespersoneName(SalesHeader);
-        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-
-        // [GIVEN] Prepare extended header and footer data
-        TestCHSmallFeatures.SetExtendedParamenters(HeaderLabel, HeaderTxt, FooterLabel, FooterTxt);
-
-        // [WHEN] Sales - Invoice is being printed
-        Commit();
-        REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-        // [THEN] CH header and footer data printed
-        VerifySalesBaseHeaderAndFooterData(SalesHeader, true);
-        // [THEN] Extended header and footer data printed
-        VerifySalesExtendedHeaderAndFooterData(HeaderLabel, HeaderTxt, FooterLabel, FooterTxt);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoHeaderAndFooter()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        TestCHSmallFeatures: Codeunit "Test CH Small Features";
-        HeaderLabel: Text[30];
-        HeaderTxt: Text;
-        FooterLabel: Text[30];
-        FooterTxt: Text;
-    begin
-        // [FEATURE] [UT] [Sales Credit Memo]
-        // [SCENARIO 283760] Report 207 "Sales - Credit Memo" prints CH header and footer data
-        Initialize;
-
-        // [GIVEN] Subscirbe to OnAfterPrepareHeader and OnAfterPrepareFooter of CH Repor Management codeunit
-        BindSubscription(TestCHSmallFeatures);
-
-        // [GIVEN] Create and post sales credit memo
-        LibrarySales.CreateSalesCreditMemo(SalesHeader);
-        UpdateSalesHeaderYourReferenceAndSalespersoneName(SalesHeader);
-        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-
-        // [GIVEN] Prepare extended header and footer data
-        TestCHSmallFeatures.SetExtendedParamenters(HeaderLabel, HeaderTxt, FooterLabel, FooterTxt);
-
-        // [WHEN] Sales - Credit Memo is being printed
-        Commit();
-        REPORT.Run(REPORT::"Sales - Credit Memo", true, false, SalesCrMemoHeader);
-
-        // [THEN] CH header and footer data printed
-        VerifySalesBaseHeaderAndFooterData(SalesHeader, true);
-        // [THEN] Extended header and footer data printed
-        VerifySalesExtendedHeaderAndFooterData(HeaderLabel, HeaderTxt, FooterLabel, FooterTxt);
     end;
 
     [Test]
@@ -977,12 +812,6 @@ codeunit 144058 "Test CH Small Features"
     begin
     end;
 
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceReportHandler(var StandardSalesInvoice: Report "Standard Sales - Invoice")
-    begin
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
@@ -993,39 +822,12 @@ codeunit 144058 "Test CH Small Features"
         SalesOrderStatistics.TotalInclVAT_Invoicing.AssertEquals(AmtInclVAT);
     end;
 
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesQuoteRequestPageHandler(var SalesQuote: TestRequestPage "Sales - Quote")
-    begin
-        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationRequestPageHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    begin
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    begin
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceESRRequestPageHandler(var SalesInvoiceESR: TestRequestPage "Sales Invoice ESR")
     begin
         SalesInvoiceESR.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    begin
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

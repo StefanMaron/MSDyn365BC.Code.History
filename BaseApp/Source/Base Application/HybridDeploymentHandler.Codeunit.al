@@ -10,6 +10,12 @@ codeunit 6061 "Hybrid Deployment Handler"
     var
         DotNet_HybridDeployment: Codeunit DotNet_HybridDeployment;
         SourceProduct: Text;
+        StartingCreateIntegrationRuntimeMsg: Label 'Starting Create Integration Runtime', Locked = true;
+        StartingEnableReplicationMsg: Label 'Starting Enable Replication', Locked = true;
+        StartingDisableReplicationMsg: Label 'Starting Disable Replication', Locked = true;
+        StartingRunReplicationMsg: Label 'Starting Run Replication', Locked = true;
+        StartingRunUpgradeMsg: Label 'Starting Run Upgrade', Locked = true;
+        IntelligentCloudTok: Label 'IntelligentCloud', Locked = true;
 
     local procedure CanHandle(): Boolean
     var
@@ -29,6 +35,7 @@ codeunit 6061 "Hybrid Deployment Handler"
         if not CanHandle then
             exit;
 
+        Session.LogMessage('0000EUS', StartingCreateIntegrationRuntimeMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', IntelligentCloudTok);
         InstanceId := DotNet_HybridDeployment.CreateIntegrationRuntime(SourceProduct);
     end;
 
@@ -37,6 +44,8 @@ codeunit 6061 "Hybrid Deployment Handler"
     begin
         if not CanHandle then
             exit;
+
+        Session.LogMessage('0000EUT', StartingDisableReplicationMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', IntelligentCloudTok);
 
         InstanceId := DotNet_HybridDeployment.DisableReplication(SourceProduct);
     end;
@@ -55,6 +64,8 @@ codeunit 6061 "Hybrid Deployment Handler"
     begin
         if not CanHandle() then
             exit;
+
+        Session.LogMessage('0000EUU', StartingEnableReplicationMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', IntelligentCloudTok);
 
         InstanceId :=
           DotNet_HybridDeployment.EnableReplication(
@@ -146,6 +157,8 @@ codeunit 6061 "Hybrid Deployment Handler"
         if not CanHandle() then
             exit;
 
+        Session.LogMessage('0000EUV', StartingRunReplicationMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', IntelligentCloudTok);
+
         InstanceId := DotNet_HybridDeployment.RunReplication(SourceProduct, ReplicationType)
     end;
 
@@ -155,6 +168,7 @@ codeunit 6061 "Hybrid Deployment Handler"
         if not CanHandle() then
             exit;
 
+        Session.LogMessage('0000EUW', StartingRunUpgradeMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', IntelligentCloudTok);
         InstanceId := DotNet_HybridDeployment.RunUpgrade(SourceProduct)
     end;
 

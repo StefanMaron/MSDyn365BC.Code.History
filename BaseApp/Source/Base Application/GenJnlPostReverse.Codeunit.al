@@ -1,4 +1,4 @@
-﻿codeunit 17 "Gen. Jnl.-Post Reverse"
+codeunit 17 "Gen. Jnl.-Post Reverse"
 {
     Permissions = TableData "G/L Entry" = m,
                   TableData "Cust. Ledger Entry" = imd,

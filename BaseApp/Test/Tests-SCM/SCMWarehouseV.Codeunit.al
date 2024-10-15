@@ -3559,7 +3559,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseItemJournalSetupSetTemplateType(LocationCode, WarehouseJournalTemplate.Type::Item);
     end;
 
-    local procedure WarehouseItemJournalSetupSetTemplateType(LocationCode: Code[10]; TemplateType: Option)
+    local procedure WarehouseItemJournalSetupSetTemplateType(LocationCode: Code[10]; TemplateType: Enum "Warehouse Journal Template Type")
     begin
         Clear(WarehouseJournalTemplate);
         WarehouseJournalTemplate.Init();
@@ -3628,7 +3628,7 @@ codeunit 137056 "SCM Warehouse-V"
         ItemJournalBatch.Modify(true);
     end;
 
-    local procedure AssignSerialNoAndLotNoToWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Option; ItemNo: Code[20]; LocationCode: Code[10]; SourceNo: Code[20])
+    local procedure AssignSerialNoAndLotNoToWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; LocationCode: Code[10]; SourceNo: Code[20])
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
@@ -3875,7 +3875,7 @@ codeunit 137056 "SCM Warehouse-V"
           StrSubstNo(ReferenceText, RequisitionLine.FieldCaption("Vendor No."), RequisitionLine."Vendor No."));
     end;
 
-    local procedure ChangeUnitOfMeasureOnWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20])
+    local procedure ChangeUnitOfMeasureOnWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20])
     begin
         FindWhseActivityLine(WarehouseActivityLine, ActivityType, LocationCode, SourceNo, WarehouseActivityLine."Action Type"::Place);
         repeat
@@ -4042,7 +4042,7 @@ codeunit 137056 "SCM Warehouse-V"
     begin
         FindBinContent(BinContent, ItemNo);
         FindBinWithZone(Bin, LocationCode, BinContent."Zone Code");
-        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Reclassification, LocationCode);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Reclassification, LocationCode);
         WhseReclassificationJournal.OpenEdit;
         WhseReclassificationJournal.CurrentLocationCode.SetValue(LocationCode);
         WhseReclassificationJournal.CurrentJnlBatchName.SetValue(WarehouseJournalBatch.Name);
@@ -4055,14 +4055,6 @@ codeunit 137056 "SCM Warehouse-V"
         WhseReclassificationJournal.Quantity.SetValue(Quantity);
         WhseReclassificationJournal.ItemTrackingLines.Invoke;
         WhseReclassificationJournal.Register.Invoke;  // Invoke WhseItemTrackingLinesHandler Handler.
-    end;
-
-    local procedure CreateWarehouseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WarehouseJournalTemplateType: Option; LocationCode: Code[10])
-    var
-        WarehouseJournalTemplate: Record "Warehouse Journal Template";
-    begin
-        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplateType);
-        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
     end;
 
     local procedure CreateWhseWorksheetName(var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
@@ -4151,7 +4143,7 @@ codeunit 137056 "SCM Warehouse-V"
             GetBinContentFromWhseInternalPutAway(WhseInternalPutAwayHeader, LocationCode, ItemNo);
     end;
 
-    local procedure CreateWhseInternalPutAwayWithItemTracking(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; LocationCode: Code[10]; FromZonecode: Code[10]; FromBinCode: Code[20]; ItemNo: Code[20]; Qty: Decimal; LotNo: Code[20]; SerialNo: Code[20])
+    local procedure CreateWhseInternalPutAwayWithItemTracking(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; LocationCode: Code[10]; FromZonecode: Code[10]; FromBinCode: Code[20]; ItemNo: Code[20]; Qty: Decimal; LotNo: Code[50]; SerialNo: Code[50])
     var
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
     begin
@@ -4302,7 +4294,7 @@ codeunit 137056 "SCM Warehouse-V"
         WhseInternalPutAwayLine.CreatePutAwayDoc(WhseInternalPutAwayLine);
     end;
 
-    local procedure CreatePutAwayFromInternalPutAwayWithLotSerialNos(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[20]; SerialNo: Code[20]; NewQuantity: Decimal)
+    local procedure CreatePutAwayFromInternalPutAwayWithLotSerialNos(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; SerialNo: Code[50]; NewQuantity: Decimal)
     var
         WhseIntPutAwayRelease: Codeunit "Whse. Int. Put-away Release";
     begin
@@ -4406,7 +4398,7 @@ codeunit 137056 "SCM Warehouse-V"
         Zone.FindFirst;
     end;
 
-    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option)
+    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType);
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
@@ -4414,14 +4406,14 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityLine.FindSet();
     end;
 
-    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWhseActivityLineByItem(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; ItemNo: Code[20]; ActionType: Option)
+    local procedure FindWhseActivityLineByItem(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         with WarehouseActivityLine do begin
             SetRange("Activity Type", ActivityType);
@@ -4461,7 +4453,7 @@ codeunit 137056 "SCM Warehouse-V"
         SalesLine.FindFirst;
     end;
 
-    local procedure FindRegisterWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; ActivityType: Option; ActionType: Option; LocationCode: Code[10]; SourceNo: Code[20])
+    local procedure FindRegisterWarehouseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; SourceNo: Code[20])
     begin
         RegisteredWhseActivityLine.SetRange("Activity Type", ActivityType);
         RegisteredWhseActivityLine.SetRange("Location Code", LocationCode);
@@ -4518,7 +4510,7 @@ codeunit 137056 "SCM Warehouse-V"
         Bin.FindFirst;
     end;
 
-    local procedure FindWhseMovementLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20])
+    local procedure FindWhseMovementLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20])
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
@@ -4527,14 +4519,14 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityLine.FindSet();
     end;
 
-    local procedure FindWhseActivityLineAndInvPutAwayPick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; DocumentNo: Code[20]; ActionType: Option; SourceDocument: Enum "Warehouse Activity Source Document")
+    local procedure FindWhseActivityLineAndInvPutAwayPick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; DocumentNo: Code[20]; ActionType: Enum "Warehouse Action Type"; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         FindWhseActivityLine(WarehouseActivityLine, ActivityType, LocationCode, DocumentNo, ActionType);
         WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
         FindInventoryPutAwayPick(WarehouseActivityHeader, ActivityType, SourceDocument, DocumentNo);
     end;
 
-    local procedure FindInventoryPutAwayPick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; Type: Option; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
+    local procedure FindInventoryPutAwayPick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; Type: Enum "Warehouse Activity Type"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseActivityHeader.SetRange(Type, Type);
         WarehouseActivityHeader.SetRange("Source Document", SourceDocument);
@@ -4588,7 +4580,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         TrackingQuantity1: Decimal;
-        ActionType: Option ,Take,Place;
+        ActionType: Enum "Warehouse Action Type";
     begin
         // Create Item with Item Tracking Code for Lot. Get Bin code from White location.
         CreateItemTrackingCode(ItemTrackingCode, true, false, false); // Set Lot No. as TRUE.
@@ -4623,7 +4615,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         Quantity: Decimal;
-        ActionType: Option ,Take,Place;
+        ActionType: Enum "Warehouse Action Type";
     begin
         // Setup: Create Item with Item Tracking Code for SN. Get Bin code from White location.
         CreateItemTrackingCode(ItemTrackingCode, false, true, false); // Set Series No. as TRUE.
@@ -4739,17 +4731,17 @@ codeunit 137056 "SCM Warehouse-V"
         LibraryWarehouse.WhseGetBinContentFromItemJournalLine(BinContent, ItemJournalLine);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, Type);
-        WarehouseActivityHeader.Get(Type, WarehouseActivityLine."No.");
+        FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(ActivityType, WarehouseActivityLine."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
-    local procedure RegisterWarehouseActivityWithItemNo(ItemNo: Code[20]; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option)
+    local procedure RegisterWarehouseActivityWithItemNo(ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
@@ -4932,7 +4924,7 @@ codeunit 137056 "SCM Warehouse-V"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure UpdateTrackingOnWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20])
+    local procedure UpdateTrackingOnWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20])
     begin
         FindWhseActivityLine(WarehouseActivityLine, ActivityType, LocationCode, SourceNo, WarehouseActivityLine."Action Type"::Take);
         repeat
@@ -4998,7 +4990,7 @@ codeunit 137056 "SCM Warehouse-V"
         UpdatePlaceBinCode(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Movement, ItemNo, LocationCode, BinCode, '');
     end;
 
-    local procedure UpdatePlaceBinCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; SourceNo: Code[20])
+    local procedure UpdatePlaceBinCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; SourceNo: Code[20])
     begin
         FindWhseMovementLine(WarehouseActivityLine, ItemNo, ActivityType, LocationCode, SourceNo);
         with WarehouseActivityLine do begin
@@ -5131,7 +5123,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseReceiptLine.TestField("Variant Code", VariantCode);
     end;
 
-    local procedure VerifyCrossDockEntriesOnWarehouseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; LocationCode: Code[10]; ZoneCode: Code[20]; ActivityType: Option; SourceNo: Code[20]; ActionType: Option; Quantity: Decimal)
+    local procedure VerifyCrossDockEntriesOnWarehouseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; LocationCode: Code[10]; ZoneCode: Code[20]; ActivityType: Enum "Warehouse Activity Type"; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; Quantity: Decimal)
     begin
         FindWhseActivityLine(WarehouseActivityLine, ActivityType, LocationCode, SourceNo, ActionType);
         WarehouseActivityLine.TestField("Zone Code", ZoneCode);
@@ -5188,7 +5180,7 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseShipmentLine.TestField("Bin Code", BinCode);
     end;
 
-    local procedure VerifyWhseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option; ExpectedQuantity: Decimal; UnitOfMeasureCode: Code[10]; QtyPerUnitOfMeasure: Integer)
+    local procedure VerifyWhseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; ExpectedQuantity: Decimal; UnitOfMeasureCode: Code[10]; QtyPerUnitOfMeasure: Integer)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
@@ -5204,7 +5196,7 @@ codeunit 137056 "SCM Warehouse-V"
           StrSubstNo(QuantityError, ExpectedQuantity, WarehouseActivityLine.TableCaption));
     end;
 
-    local procedure VerifyMultipleWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; ExpectedQuantity: Decimal; ActivityType: Option; SourceNo: Code[20]; LocationCode: Code[10]; UnitOfMeasureCode: Code[10]; QtyPerUnitOfMeasure: Integer)
+    local procedure VerifyMultipleWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; ExpectedQuantity: Decimal; ActivityType: Enum "Warehouse Activity Type"; SourceNo: Code[20]; LocationCode: Code[10]; UnitOfMeasureCode: Code[10]; QtyPerUnitOfMeasure: Integer)
     begin
         repeat
             VerifyWhseActivityLine(
@@ -5352,7 +5344,7 @@ codeunit 137056 "SCM Warehouse-V"
         WhseItemTrackingLine.TestField("Quantity (Base)", QuantityBase);
     end;
 
-    local procedure VerifyBinCodeInWhseActivityLine(ItemNo: Code[20]; ActionType: Option; BinCode: Code[20])
+    local procedure VerifyBinCodeInWhseActivityLine(ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type"; BinCode: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -5364,7 +5356,7 @@ codeunit 137056 "SCM Warehouse-V"
         end;
     end;
 
-    local procedure VerifyCrossDockBinCodeForWhseActivityLine(ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option; Qty: Decimal; BinCode: Code[20])
+    local procedure VerifyCrossDockBinCodeForWhseActivityLine(ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type"; Qty: Decimal; BinCode: Code[20])
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin

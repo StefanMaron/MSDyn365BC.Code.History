@@ -21,6 +21,7 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3.';
         FieldError: Label '%1 not updated correctly.';
@@ -103,42 +104,6 @@ codeunit 134379 "ERM Sales Quotes"
           StrSubstNo(
             AmountErrorMessage, VATAmountLine.FieldCaption("VAT Amount"), SalesHeader.Amount * SalesLine."VAT %" / 100,
             VATAmountLine.TableCaption));
-
-        // Tear Down: Cleanup of Setup Done.
-        UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandlerNo')]
-    [Scope('OnPrem')]
-    procedure SalesQuoteReport()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        SalesQuote: Report "Sales - Quote";
-        LibraryUtility: Codeunit "Library - Utility";
-        OldDefaultPostingDate: Enum "Default Posting Date";
-        OldStockoutWarning: Boolean;
-        FilePath: Text[1024];
-    begin
-        // Test if the system generates Sales Quote Report.
-
-        // Setup: Create Sales Quote with Multiple Sales Quote Line.
-        Initialize;
-        OldStockoutWarning :=
-          UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
-        CreateSalesQuote(SalesHeader, SalesLine, CreateCustomer, LibraryRandom.RandInt(5));
-
-        // Exercise: Generate Report as external file for Sales Quote.
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        SalesQuote.SetTableView(SalesHeader);
-        FilePath := TemporaryPath + Format(SalesHeader."Document Type") + SalesHeader."No." + '.xlsx';
-        SalesQuote.SaveAsExcel(FilePath);
-
-        // Verify: Verify that saved files have some data.
-        LibraryUtility.CheckFileNotEmpty(FilePath);
 
         // Tear Down: Cleanup of Setup Done.
         UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
@@ -510,7 +475,7 @@ codeunit 134379 "ERM Sales Quotes"
     [Scope('OnPrem')]
     procedure AssignCustomerTemplateCodeAfterConfirmationWhenValidateContact()
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Contact: Record Contact;
         SalesHeader: Record "Sales Header";
     begin
@@ -520,6 +485,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize;
 
         // [GIVEN] Customer Template "CUST"
+        CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
 
         // [GIVEN] Contact "X" without relation to any Customer
@@ -535,7 +501,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader.Validate("Sell-to Contact No.", Contact."No.");
 
         // [THEN] "Sell-to Customer Template Code" is assigned according to selected "Customer Template"
-        SalesHeader.TestField("Sell-to Customer Template Code", CustomerTemplate.Code);
+        SalesHeader.TestField("Sell-to Customer Templ. Code", CustomerTemplate.Code);
     end;
 
     [Test]
@@ -543,7 +509,7 @@ codeunit 134379 "ERM Sales Quotes"
     [Scope('OnPrem')]
     procedure AssignCustomerTemplateCodeAfterConfirmationWhenLookupContact()
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Contact: Record Contact;
         SalesHeader: Record "Sales Header";
         SalesQuote: TestPage "Sales Quote";
@@ -554,6 +520,7 @@ codeunit 134379 "ERM Sales Quotes"
         Initialize;
 
         // [GIVEN] Customer Template "CUST"
+        CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
 
         // [GIVEN] Contact "X" without relation to any Customer
@@ -576,7 +543,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [THEN] "Sell-to Customer Template Code" is assigned according to selected "Customer Template"
         SalesHeader.Find;
-        SalesHeader.TestField("Sell-to Customer Template Code", CustomerTemplate.Code);
+        SalesHeader.TestField("Sell-to Customer Templ. Code", CustomerTemplate.Code);
     end;
 
     [Test]
@@ -882,7 +849,7 @@ codeunit 134379 "ERM Sales Quotes"
     procedure UpdatedShipToFieldsOfSalesQuoteFromTemplateMovedToSalesOrder()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         SalesHeader: Record "Sales Header";
         ShipmentMethod: Record "Shipment Method";
         ShippingAgent: Record "Shipping Agent";
@@ -979,14 +946,14 @@ codeunit 134379 "ERM Sales Quotes"
     [Scope('OnPrem')]
     procedure SalesQuoteWithSellToCustomerTemplateLinesEditable()
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         SalesQuote: TestPage "Sales Quote";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 234080] When open sales quote with populated "Sell-to Customer Template Code" lines are editable.
         SalesQuote.OpenNew;
         CreateCustomerTemplateWithPostingSetup(CustomerTemplate);
-        SalesQuote."Sell-to Customer Template Code".SetValue(CustomerTemplate.Code);
+        SalesQuote."Sell-to Customer Templ. Code".SetValue(CustomerTemplate.Code);
         Assert.IsTrue(SalesQuote.SalesLines.Description.Editable, LinesEditableErr);
     end;
 
@@ -1077,7 +1044,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader: Record "Sales Header";
         ContactPerson: array[2] of Record Contact;
         ContactCompany: array[2] of Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // [SCENARIO 262275] Create customers function from quote with contact of person type which is linked to contact of company type causes creating customer based on contact-company
         Initialize;
@@ -1113,6 +1080,7 @@ codeunit 134379 "ERM Sales Quotes"
         Customer.TestField(Name, ContactCompany[2].Name);
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,CustomerTemplateListModalPageHandlerGetRecord')]
     [Scope('OnPrem')]
@@ -1155,7 +1123,6 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] TEMP_PERSON is not available to choose
         Assert.ExpectedError(RowDoesNotExistErr);
     end;
-
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,CustomerTemplateListModalPageHandlerGetRecord')]
     [Scope('OnPrem')]
@@ -1195,6 +1162,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] TEMP_COMPANY is not available to choose
         Assert.ExpectedError(RowDoesNotExistErr);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1325,8 +1293,8 @@ codeunit 134379 "ERM Sales Quotes"
     [Scope('OnPrem')]
     procedure CopyCustomerTemplate()
     var
-        CustomerTemplate: Record "Customer Template";
-        CustomerTemplateCard: TestPage "Customer Template Card";
+        CustomerTemplate: Record "Customer Templ.";
+        CustomerTemplateCard: TestPage "Customer Templ. Card";
     begin
         // [SCENARIO 210447] Copy customer template
         Initialize;
@@ -1483,7 +1451,7 @@ codeunit 134379 "ERM Sales Quotes"
     procedure CreateCustomerFromQuoteContactWithMultipleCustomerTemplates()
     var
         Contact: Record Contact;
-        CustomerTemplate: array[2] of Record "Customer Template";
+        CustomerTemplate: array[2] of Record "Customer Templ.";
         SalesHeader: Record "Sales Header";
         ErrorMessage: Record "Error Message";
         ErrorMessages: TestPage "Error Messages";
@@ -1527,7 +1495,7 @@ codeunit 134379 "ERM Sales Quotes"
     procedure CreateCustomerForContactQuoteWithoutCustomerTemplate()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         SalesHeader: Record "Sales Header";
         ErrorMessage: Record "Error Message";
         ErrorMessages: TestPage "Error Messages";
@@ -1670,6 +1638,7 @@ codeunit 134379 "ERM Sales Quotes"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Quotes");
 
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -1742,24 +1711,22 @@ codeunit 134379 "ERM Sales Quotes"
         exit(CustomerNo);
     end;
 
-    local procedure CreateCustomerTemplateWithPostingSetup(var CustomerTemplate: Record "Customer Template")
+    local procedure CreateCustomerTemplateWithPostingSetup(var CustomerTemplate: Record "Customer Templ.")
     var
-        CountryRegion: Record "Country/Region";
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        LibraryERM.CreateCountryRegion(CountryRegion);
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
-        CustomerTemplate.Validate("Country/Region Code", CountryRegion.Code); // Country/Region filled in order to prevent automatical assignment of Customer Template on Sell-To Contact No. - OnValidate
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         CustomerTemplate.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         CustomerTemplate.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         CustomerTemplate.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup);
         CustomerTemplate.Modify(true);
     end;
 
+#if not CLEAN18
     local procedure CreateCustomerTemplateWithContactType(var CustomerTemplate: Record "Customer Template"; ContactType: Enum "Contact Type"): Code[10]
     begin
         LibrarySales.CreateCustomerTemplate(CustomerTemplate);
@@ -1767,7 +1734,7 @@ codeunit 134379 "ERM Sales Quotes"
         CustomerTemplate.Modify();
         exit(CustomerTemplate.Code);
     end;
-
+#endif
     local procedure CreateItem(): Code[20]
     var
         Item: Record Item;
@@ -1907,12 +1874,13 @@ codeunit 134379 "ERM Sales Quotes"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: TestPage "Customer Template List")
+    procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: TestPage "Select Customer Templ. List")
     begin
         CustomerTemplateList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         CustomerTemplateList.OK.Invoke;
     end;
 
+#if not CLEAN18
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerTemplateListModalPageHandlerGetRecord(var CustomerTemplateList: TestPage "Customer Template List")
@@ -1923,7 +1891,7 @@ codeunit 134379 "ERM Sales Quotes"
         CustomerTemplateList.GotoRecord(CustomerTemplate);
         CustomerTemplateList.OK.Invoke;
     end;
-
+#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContactListModalPageHandler(var ContactList: TestPage "Contact List")

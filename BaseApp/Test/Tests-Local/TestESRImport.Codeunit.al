@@ -519,7 +519,9 @@ codeunit 144043 "Test ESR Import"
         LibraryLSV.CreateLSVCustomerBankAccount(Customer);
         CreateLSVSalesDoc(SalesHeader, Customer."No.", SalesHeader."Document Type"::Invoice);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
+#if not CLEAN17
         FileMgt.DeleteClientFile(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
+#endif
         exit(SalesHeader."Last Posting No.")
     end;
 
@@ -733,12 +735,16 @@ codeunit 144043 "Test ESR Import"
         directoryInfo := directoryInfo.DirectoryInfo(environment.SystemDirectory);
         FileName := directoryInfo.Parent.FullName + '\temp';
 
+#if not CLEAN17
         Assert.IsTrue(FileManagement.ClientDirectoryExists(FileName), 'Could not locate the windows\temp folder');
+#endif
 
         FileName := FileName + '\' + CopyStr(Format(CreateGuid), 2, 8);
         Assert.IsTrue(StrLen(FileName) <= 50, StrSubstNo('Cannot create files larger than 50 characters: %1', FileName));
+#if not CLEAN17
         if FileManagement.ClientFileExists(FileName) then
             FILE.Erase(FileName);
+#endif
     end;
 
     [Normal]
@@ -748,9 +754,10 @@ codeunit 144043 "Test ESR Import"
         ESRBackupFolderName: Code[50];
     begin
         TempESRFileName := CopyStr(ESRFileName, 1, 50);
+#if not CLEAN17
         Assert.IsTrue(not CheckForFile or FileManagement.ClientFileExists(TempESRFileName),
           StrSubstNo('Could not locate %1 file.', TempESRFileName));
-
+#endif
         ESRBackupFolderName := CopyStr(FileManagement.GetDirectoryName(TempESRFileName) + '\', 1, 50);
         LibraryLSV.CreateESRSetup(ESRSetup);
         ESRSetup.Validate("ESR Filename", TempESRFileName);

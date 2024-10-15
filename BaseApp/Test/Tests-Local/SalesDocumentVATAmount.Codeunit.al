@@ -74,59 +74,7 @@ codeunit 144048 "Sales Document VAT Amount"
     end;
 
     [Test]
-    [HandlerFunctions('OrderConfirmationReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationVATAmountIsZero()
-    var
-        SalesHeader: Record "Sales Header";
-        CustomerNo: Code[20];
-    begin
-        // SETUP
-        Initialize;
-
-        // Create Foreign Customer
-        CustomerNo := CreateCustomer1;
-
-        // Create Sales Order + Lines
-        CreateSalesDocumentVATIsZero(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        Commit();
-
-        // Run Report
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);
-
-        // Validate Report
-        VerifySalesDocumentReportData(SalesHeader, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmationReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationVATAmountIsNotZero()
-    var
-        SalesHeader: Record "Sales Header";
-        CustomerNo: Code[20];
-    begin
-        // SETUP
-        Initialize;
-
-        // Create Foreign Customer
-        CustomerNo := CreateCustomer2;
-
-        // Create Sales Order + Lines
-        CreateSalesDocumentVATIsNotZero(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        Commit();
-
-        // Run Report
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);
-
-        // Validate Report
-        VerifySalesDocumentReportData(SalesHeader, false);
-    end;
-
-    [Test]
-    [HandlerFunctions('QuoteReportRequestPageHandler,ConfirmHandler')]
+    [HandlerFunctions('QuoteReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SalesQuoteVATAmountIsZero()
     var
@@ -144,15 +92,15 @@ codeunit 144048 "Sales Document VAT Amount"
         Commit();
 
         // Run Report
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        REPORT.Run(REPORT::"Sales - Quote", true, false, SalesHeader);
+        SalesHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
         // Validate Report
-        VerifySalesDocumentReportData(SalesHeader, true);
+        VerifyStdSalesDocumentReportData(SalesHeader, true);
     end;
 
     [Test]
-    [HandlerFunctions('QuoteReportRequestPageHandler,ConfirmHandler')]
+    [HandlerFunctions('QuoteReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SalesQuoteVATAmountIsNotZero()
     var
@@ -170,11 +118,11 @@ codeunit 144048 "Sales Document VAT Amount"
         Commit();
 
         // Run Report
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        REPORT.Run(REPORT::"Sales - Quote", true, false, SalesHeader);
+        SalesHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
         // Validate Report
-        VerifySalesDocumentReportData(SalesHeader, false);
+        VerifyStdSalesDocumentReportData(SalesHeader, false);
     end;
 
     [Test]
@@ -381,27 +329,9 @@ codeunit 144048 "Sales Document VAT Amount"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure OrderConfirmationReportRequestPageHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
+    procedure QuoteReportRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
-        OrderConfirmation.NoOfCopies.SetValue(0);
-        OrderConfirmation.ShowInternalInfo.SetValue(false);
-        OrderConfirmation.ArchiveDocument.SetValue(false);
-        OrderConfirmation.LogInteraction.SetValue(true);
-        OrderConfirmation.ShowAssemblyComponents.SetValue(false);
-
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure QuoteReportRequestPageHandler(var SalesQuote: TestRequestPage "Sales - Quote")
-    begin
-        SalesQuote.NoOfCopies.SetValue(0);
-        SalesQuote.ShowInternalInfo.SetValue(false);
-        SalesQuote.ArchiveDocument.SetValue(false);
-        SalesQuote.LogInteraction.SetValue(true);
-
-        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [ConfirmHandler]
@@ -464,6 +394,58 @@ codeunit 144048 "Sales Document VAT Amount"
             Assert.AreNearlyEqual(ElementValue, TotalVATAmount, 0.5, 'Wrong Total VAT Amount');
     end;
 
+    local procedure VerifyStdSalesDocumentReportData(SalesHeader: Record "Sales Header"; VerifyIsZeroVAT: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        ElementValue: Variant;
+        TotalLineAmountExclVAT: Decimal;
+        TotalAllAmountExclVAT: Decimal;
+        TotalVATAmount: Decimal;
+        ElementName: Option UnitPrice,LineAmount,VATPercentage,TotalAmountExVAT,TotalVATAmount;
+    begin
+        // Verify the XML
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.GetNextRow;
+
+        with SalesLine do begin
+            SetRange("Document Type", SalesHeader."Document Type");
+            SetRange("Document No.", SalesHeader."No.");
+            Assert.IsTrue(Count = 7, 'Wrong number of Sales Line found.');
+
+            TotalAllAmountExclVAT := 0;
+            TotalVATAmount := 0;
+            if FindSet then
+                repeat
+                    if Type <> Type::"New Page" then begin
+                        LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::UnitPrice), Format("Unit Price", 0, '<Integer Thousand><Decimals,3>'));
+                        TotalLineAmountExclVAT := "Unit Price" * Quantity;
+                        LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::LineAmount), Format(TotalLineAmountExclVAT, 0, '<Integer Thousand><Decimals,3>'));
+                        if VerifyIsZeroVAT = true then
+                            LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), Format(0))
+                        else
+                            LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), Format("VAT %"));
+                        TotalAllAmountExclVAT += TotalLineAmountExclVAT;
+                        TotalVATAmount += ("VAT %" * TotalLineAmountExclVAT) / 100;
+                    end;
+                    LibraryReportDataset.GetNextRow();
+                until Next = 0;
+
+            LibraryReportDataset.GetLastRow();
+        end;
+
+        TotalAllAmountExclVAT := Round(TotalAllAmountExclVAT, 0.01);
+        TotalVATAmount := Round(TotalVATAmount, 0.01);
+
+        LibraryReportDataset.GetElementValueInCurrentRow(GetElementName(SalesHeader, ElementName::TotalAmountExVAT), ElementValue);
+        Assert.AreNearlyEqual(ElementValue, TotalAllAmountExclVAT, 0.5, 'Wrong Total Amount Excl. VAT');
+
+        LibraryReportDataset.GetElementValueInCurrentRow(GetElementName(SalesHeader, ElementName::TotalVATAmount), ElementValue);
+        if VerifyIsZeroVAT then
+            Assert.AreNearlyEqual(ElementValue, 0, 0.5, 'Wrong Total VAT Amount')
+        else
+            Assert.AreNearlyEqual(ElementValue, TotalVATAmount, 0.5, 'Wrong Total VAT Amount');
+    end;
+
     local procedure GetElementName(SalesHeader: Record "Sales Header"; ElementName: Option UnitPrice,LineAmount,VATPercentage,TotalAmountExVAT,TotalVATAmount): Text
     begin
         with SalesHeader do
@@ -497,15 +479,15 @@ codeunit 144048 "Sales Document VAT Amount"
                 "Document Type"::Quote:
                     case ElementName of
                         ElementName::UnitPrice:
-                            exit('UnitPrice_SalesLine');
+                            exit('UnitPrice');
                         ElementName::LineAmount:
-                            exit('LineAmt_SalesLine');
+                            exit('LineAmount_Line');
                         ElementName::VATPercentage:
-                            exit('VATPercentage_SalesLine');
+                            exit('VATPct_Line');
                         ElementName::TotalAmountExVAT:
-                            exit('VATBaseAmount');
+                            exit('TotalNetAmount');
                         ElementName::TotalVATAmount:
-                            exit('VATAmount');
+                            exit('TotalVATAmount');
                     end;
             end;
 

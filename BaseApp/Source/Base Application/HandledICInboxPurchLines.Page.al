@@ -24,6 +24,11 @@ page 651 "Handled IC Inbox Purch. Lines"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the IC partner. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item or account in your partner''s company that corresponds to the line.';
                 }
+                field("IC Item Reference No."; "IC Item Reference No.")
+                {
+                    ApplicationArea = Intercompany;
+                    ToolTip = 'Specifies the IC item reference. If the line is being sent to one of your intercompany partners, this field is used together with the IC Partner Ref. Type field to indicate the item reference in your partner''s company that corresponds to the line.';
+                }
                 field(Description; Description)
                 {
                     ApplicationArea = Intercompany;

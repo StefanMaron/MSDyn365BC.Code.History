@@ -6,6 +6,9 @@ page 17 "G/L Account Card"
     RefreshOnActivate = true;
     SourceTable = "G/L Account";
 
+    AboutTitle = 'About G/L account details';
+    AboutText = 'Choose the G/L account settings appropriate for the transactions that are posted to this G/L account.';
+
     layout
     {
         area(content)
@@ -18,6 +21,8 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                    AboutTitle = 'Accounts are ordered by No.';
+                    AboutText = 'The account number (No.) determines where this account will appear in the chart of accounts.';
                 }
                 field(Name; Name)
                 {
@@ -131,6 +136,8 @@ page 17 "G/L Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether you will be able to post directly or only indirectly to this general ledger account. To allow Direct Posting to the G/L account, place a check mark in the check box.';
+                    AboutTitle = 'Is direct posting allowed?';
+                    AboutText = 'If you have control accounts for receivables and payables, then keep Direct Posting turned off as all transactions should be posted through customers and vendors.';
                 }
                 field(Blocked; Blocked)
                 {
@@ -146,6 +153,12 @@ page 17 "G/L Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the default description is automatically inserted in the Description field on journal lines created for this general ledger account.';
+                }
+                field("No. 2"; "No. 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies an alternative account number which can be used internally in the company.';
+                    Visible = false;
                 }
             }
             group(Posting)

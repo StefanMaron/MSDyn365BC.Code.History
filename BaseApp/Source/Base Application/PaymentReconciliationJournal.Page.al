@@ -672,20 +672,29 @@ page 1290 "Payment Reconciliation Journal"
                     var
                         BankAccReconciliation: Record "Bank Acc. Reconciliation";
                         AppliedPaymentEntry: Record "Applied Payment Entry";
+                        ConfirmManagement: Codeunit "Confirm Management";
+                        MatchBankPmtAppl: Codeunit "Match Bank Pmt. Appl.";
                         SubscriberInvoked: Boolean;
+                        Overwrite: Boolean;
                     begin
                         AppliedPaymentEntry.SetRange("Statement Type", "Statement Type");
                         AppliedPaymentEntry.SetRange("Bank Account No.", "Bank Account No.");
                         AppliedPaymentEntry.SetRange("Statement No.", "Statement No.");
+                        AppliedPaymentEntry.SetRange("Match Confidence", AppliedPaymentEntry."Match Confidence"::Accepted);
+                        AppliedPaymentEntry.SetRange("Match Confidence", AppliedPaymentEntry."Match Confidence"::Manual);
 
                         if AppliedPaymentEntry.Count > 0 then
-                            if not Confirm(RemoveExistingApplicationsQst) then
-                                exit;
+                            Overwrite := ConfirmManagement.GetResponseOrDefault(OverwriteExistingMatchesTxt, false)
+                        else
+                            Overwrite := true;
 
                         BankAccReconciliation.Get("Statement Type", "Bank Account No.", "Statement No.");
                         OnAtActionApplyAutomatically(BankAccReconciliation, SubscriberInvoked);
                         if not SubscriberInvoked then
-                            CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccReconciliation);
+                            if Overwrite then
+                                CODEUNIT.Run(CODEUNIT::"Match Bank Pmt. Appl.", BankAccReconciliation)
+                            else
+                                MatchBankPmtAppl.MatchNoOverwriteOfManualOrAccepted(BankAccReconciliation);
                         CurrPage.Update(false);
                     end;
                 }
@@ -1023,9 +1032,9 @@ page 1290 "Payment Reconciliation Journal"
 
                     trigger OnAction()
                     var
-                        ODataUtility: Codeunit ODataUtility;
+                        EditinExcel: Codeunit "Edit in Excel";
                     begin
-                        ODataUtility.EditWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), '');
+                        EditinExcel.EditPageInExcel(CurrPage.Caption, CurrPage.ObjectId(false), '');
                     end;
                 }
             }
@@ -1192,7 +1201,7 @@ page 1290 "Payment Reconciliation Journal"
         FinanceChargeMemoEnabled: Boolean;
         StatementEndingBalanceVisible: Boolean;
         RemainingAmountAfterPosting: Decimal;
-        RemoveExistingApplicationsQst: Label 'When you run the Apply Automatically action, it will undo all previous applications.\\Do you want to continue?';
+        OverwriteExistingMatchesTxt: Label 'Overwriting previous applications will not affect Accepted and Manual ones.\\Chose Yes to overwrite, or No to apply only new entries.';
         BalanceAfterPostingStyleExpr: Text;
         ReviewStatusStyleTxt: Text;
         LinesForReviewCount: Integer;

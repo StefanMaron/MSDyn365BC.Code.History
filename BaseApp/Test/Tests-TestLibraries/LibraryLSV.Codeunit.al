@@ -52,7 +52,9 @@ codeunit 143000 "Library - LSV"
             "DebitDirect Customerno." := Format(LibraryRandom.RandIntInRange(111111, 999999));
             "DebitDirect Import Filename" := LibraryUtility.GenerateGUID;
             Insert;
+#if not CLEAN17
             FileMgt.CreateClientDirectory("LSV File Folder");
+#endif
         end;
 
         exit(LSVSetup."Bank Code");

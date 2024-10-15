@@ -13,7 +13,6 @@ codeunit 1011 "Job Jnl.-Check Line"
         CombinationBlockedErr: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
         DimensionCausedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
         Location: Record Location;
-        ItemNoStock: Record Item;
         DimMgt: Codeunit DimensionManagement;
         TimeSheetMgt: Codeunit "Time Sheet Management";
         Text004: Label 'You must post more usage of %1 %2 in %3 %4 before you can post job journal %5 %6 = %7.', Comment = '%1=Item;%2=JobJnlline."No.";%3=Job;%4=JobJnlline."Job No.";%5=JobJnlline."Journal Batch Name";%6="Line No";%7=JobJnlline."Line No."';
@@ -43,15 +42,11 @@ codeunit 1011 "Job Jnl.-Check Line"
                 if ("Quantity (Base)" < 0) and ("Entry Type" = "Entry Type"::Usage) then
                     CheckItemQuantityJobJnl(JobJnlLine);
                 GetLocation("Location Code");
-
-                ItemNoStock.Get("No.");
-                if ItemNoStock.Type <> ItemNoStock.Type::"Non-Inventory" then begin
-                    if Location."Directed Put-away and Pick" then
-                        TestField("Bin Code", '')
-                    else
-                        if Location."Bin Mandatory" then
-                            TestField("Bin Code");
-                end;
+                if Location."Directed Put-away and Pick" then
+                    TestField("Bin Code", '')
+                else
+                    if Location."Bin Mandatory" and IsInventoriableItem() then
+                        TestField("Bin Code");
             end;
 
             TestJobJnlLineChargeable(JobJnlLine);

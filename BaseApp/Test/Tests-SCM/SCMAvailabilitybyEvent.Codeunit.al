@@ -82,6 +82,101 @@ codeunit 137009 "SCM Availability by Event"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ForecastedItemAvailabilityIsCalculatedByVariant()
+    var
+        Item: Record Item;
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        ProductionForecastEntry2: Record "Production Forecast Entry";
+        ProductionForecastName: Record "Production Forecast Name";
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+    begin
+        Initialize;
+
+        // Create an item with 2 variants
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
+
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant2, Item."No.");
+
+        // Create a forecast and setup manufacturing setup
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true, true);
+
+        // Create forecasted demand for the first item variant 
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', CalcDate('<+5D>', WorkDate), false);
+        ProductionForecastEntry.Validate("Variant Code", ItemVariant.Code);
+        ProductionForecastEntry.Validate("Forecast Quantity (Base)", 3);
+        ProductionForecastEntry.Modify(true);
+
+        // Create forecasted demand for the second item variant 
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry2, ProductionForecastName.Name, Item."No.", '', CalcDate('<+10D>', WorkDate), false);
+        ProductionForecastEntry2.Validate("Variant Code", ItemVariant2.Code);
+        ProductionForecastEntry2.Validate("Forecast Quantity (Base)", 9);
+        ProductionForecastEntry2.Modify(true);
+
+        // Should give 2 lines from forecast plus one per Period Type, total forecasted availability of -12
+        RunPage(Item, ProductionForecastName.Name, false, true, 0, 4, -12);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ForecastedItemAvailabilityIsCalculatedForAVariantWhenVariatnFilterIsDefined()
+    var
+        Item: Record Item;
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        ProductionForecastEntry2: Record "Production Forecast Entry";
+        ProductionForecastName: Record "Production Forecast Name";
+        ItemVariant: Record "Item Variant";
+        ItemVariant2: Record "Item Variant";
+    begin
+        Initialize;
+
+        // Create an item with 2 variants
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
+
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant2, Item."No.");
+
+        // Create a forecast and setup manufacturing setup
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name, true, true);
+
+
+        // Create forecasted demand for the first item variant 
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name, Item."No.", '', CalcDate('<+5D>', WorkDate), false);
+        ProductionForecastEntry.Validate("Variant Code", ItemVariant.Code);
+        ProductionForecastEntry.Validate("Forecast Quantity (Base)", 3);
+        ProductionForecastEntry.Modify(true);
+
+        // Create forecasted demand for the second item variant 
+        LibraryManufacturing.CreateProductionForecastEntry(ProductionForecastEntry2, ProductionForecastName.Name, Item."No.", '', CalcDate('<+10D>', WorkDate), false);
+        ProductionForecastEntry2.Validate("Variant Code", ItemVariant2.Code);
+        ProductionForecastEntry2.Validate("Forecast Quantity (Base)", 9);
+        ProductionForecastEntry2.Modify(true);
+
+        // Should give 1 line from forecast plus one for Period Type, total forecasted availability of -3
+        Item.SetRange("Variant Filter", ItemVariant.Code);
+        RunPage(Item, ProductionForecastName.Name, false, true, 0, 2, -3);
+    end;
+
+    local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10]; UseForecastOnLocations: Boolean; UseForecastOnVariants: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
+        ManufacturingSetup.Validate("Use Forecast on Locations", UseForecastOnLocations);
+        ManufacturingSetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
+        ManufacturingSetup.Modify(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ReservedReceiptIsEqualToPurchaseQtyInAvailByEvent()
     var
         Item: Record Item;
@@ -368,7 +463,7 @@ codeunit 137009 "SCM Availability by Event"
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
     begin
-        ReservMgt.SetPurchLine(PurchaseLine);
+        ReservMgt.SetReservSource(PurchaseLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', WorkDate, PurchaseLine.Quantity, PurchaseLine."Quantity (Base)");
     end;
 
@@ -377,11 +472,11 @@ codeunit 137009 "SCM Availability by Event"
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
     begin
-        ReservMgt.SetSalesLine(SalesLine);
+        ReservMgt.SetReservSource(SalesLine);
         ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", SalesLine.Quantity, SalesLine."Quantity (Base)");
     end;
 
-    local procedure RunPage(Item: Record Item; ForecastName: Code[10]; InclBlanketOrders: Boolean; InclPlan: Boolean; PeriodType: Option; ExpectedNoOfLines: Integer; ExpextedEndBalance: Decimal)
+    local procedure RunPage(var Item: Record Item; ForecastName: Code[10]; InclBlanketOrders: Boolean; InclPlan: Boolean; PeriodType: Option; ExpectedNoOfLines: Integer; ExpextedEndBalance: Decimal)
     var
         PageTempInvtPageData: Record "Inventory Page Data" temporary;
         TempInvtPageData: Record "Inventory Page Data" temporary;

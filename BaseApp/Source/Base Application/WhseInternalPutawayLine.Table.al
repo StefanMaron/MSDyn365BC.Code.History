@@ -676,8 +676,8 @@ table 7332 "Whse. Internal Put-away Line"
 
         TestField("Item No.");
         TestField("Qty. (Base)");
-        TempWhseWorksheetLine.InitLineWithItem(
-          TempWhseWorksheetLine."Whse. Document Type"::"Internal Put-away", "No.", "Line No.",
+        TempWhseWorksheetLine.InitNewLineWithItem(
+          "Warehouse Worksheet Document Type"::"Internal Put-away", "No.", "Line No.",
           "Location Code", "Item No.", "Variant Code",
           "Qty. (Base)", "Qty. (Base)" - "Qty. Put Away (Base)" - "Put-away Qty. (Base)", "Qty. per Unit of Measure");
 
@@ -793,8 +793,8 @@ table 7332 "Whse. Internal Put-away Line"
     begin
         TestField("Item No.");
         TestField("Qty. (Base)");
-        TempWhseWorksheetLine.InitLineWithItem(
-          TempWhseWorksheetLine."Whse. Document Type"::"Internal Put-away", "No.", "Line No.",
+        TempWhseWorksheetLine.InitNewLineWithItem(
+          "Warehouse Worksheet Document Type"::"Internal Put-away", "No.", "Line No.",
           "Location Code", "Item No.", "Variant Code",
           "Qty. (Base)", "Qty. (Base)" - "Qty. Put Away (Base)" - "Put-away Qty. (Base)", "Qty. per Unit of Measure");
 

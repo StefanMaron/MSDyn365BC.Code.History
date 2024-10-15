@@ -31,9 +31,7 @@ codeunit 136312 "Job Reservation"
         RequisitionLineError: Label 'You cannot reserve this entry because it is not a true demand or supply.';
         OriginalQuantity: Decimal;
         DescriptionEmptyErr: Label 'Description 2 should be empty.';
-        ReqLineCrossRefDescriptionErr: Label 'Description in Requisition Line should be same as in Item Cross Reference';
         ReqLineItemRefDescriptionErr: Label 'Description in Requisition Line should be same as in Item Reference';
-        CrossRefDescriptionErr: Label 'Description should be %1 which from Item Cross Reference card.';
         ItemRefDescriptionErr: Label 'Description should be %1 which from Item Reference card.';
         LocationCodeErr: Label 'Location Code should be %1 which from Vendor card.';
         NotResetErr: Label 'The field should be reset when Vendor No. is cleared.';
@@ -500,65 +498,6 @@ codeunit 136312 "Job Reservation"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    procedure CreateRequisitionWorksheetlineAndUpdateVendorNoCrossRef()
-    var
-        Vendor: Record Vendor;
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        ItemCrossReference: Record "Item Cross Reference";
-        RequisitionLine: Record "Requisition Line";
-        ReqWorksheet: TestPage "Req. Worksheet";
-        OriginalDescription: Text[100];
-        OriginalLocationCode: Code[20];
-    begin
-        // [FEATURE] [Requisition Worksheet]
-        // [SCENARIO] Description and Location Code are updated when updating "Vendor No." in Requisition Worksheet line.
-
-        // Fill the Item No. in Requisition Line - Description updated according to "Item" card;
-        // Fill the Item No. and Variant Code in Requisition Line - Description updated according to "Item Variants" card;
-        // Fill the Item No. and Variant Code and Vendor No. in Requisition Line - Description updated according to "Item Cross Reference" card;
-
-        // [GIVEN] Create a vendor with Location, create a item with Item Variant and Item Cross Reference.
-        Initialize(false);
-        CreateVendorWithLocation(Vendor);
-        LibraryInventory.CreateItem(Item);
-        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-        CreateItemCrossReference(
-          ItemCrossReference, Item."No.", ItemVariant.Code, ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
-
-        // [GIVEN] Create a line in Requisition Worksheet
-        CreateRequisitionWorksheetline(RequisitionLine, Item."No.", ItemVariant.Code);
-        OpenRequisitionWorksheetPage(ReqWorksheet, RequisitionLine."Journal Batch Name");
-        OriginalDescription := ReqWorksheet.Description.Value;
-        OriginalLocationCode := ReqWorksheet."Location Code".Value;
-
-        // [WHEN] Change Vendor No..
-        ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
-        // [THEN] Description and Location Code are updated.
-        Assert.AreEqual(
-          ItemCrossReference.Description, ReqWorksheet.Description.Value, StrSubstNo(CrossRefDescriptionErr, ItemCrossReference.Description));
-        Assert.AreEqual(
-          Vendor."Location Code", ReqWorksheet."Location Code".Value, StrSubstNo(LocationCodeErr, Vendor."Location Code"));
-
-        // [WHEN] Clear "Vendor No.".
-        ReqWorksheet."Vendor No.".SetValue('');
-        // [THEN] Description and Location Code are reset.
-        Assert.AreEqual(OriginalDescription, ReqWorksheet.Description.Value, NotResetErr);
-        Assert.AreEqual(OriginalLocationCode, ReqWorksheet."Location Code".Value, NotResetErr);
-
-        // [WHEN] Reset Vendor No., remove the Location Code.
-        ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
-        ReqWorksheet."Location Code".SetValue('');
-
-        // [THEN] Vendor No. is not changed. Description is copied from the item cross reference.
-        Assert.AreEqual(Vendor."No.", ReqWorksheet."Vendor No.".Value, VendorNoIsNotMatchErr);
-        Assert.AreEqual(ItemCrossReference.Description, ReqWorksheet.Description.Value, NotResetErr);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure CreateRequisitionWorksheetlineAndUpdateVendorNoItemRef()
@@ -612,61 +551,10 @@ codeunit 136312 "Job Reservation"
         ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
         ReqWorksheet."Location Code".SetValue('');
 
-        // [THEN] Vendor No. is not changed. Description is copied from the item cross reference.
+        // [THEN] Vendor No. is not changed. Description is copied from the item reference.
         Assert.AreEqual(Vendor."No.", ReqWorksheet."Vendor No.".Value, VendorNoIsNotMatchErr);
         Assert.AreEqual(ItemReference.Description, ReqWorksheet.Description.Value, NotResetErr);
     end;
-
-#if not CLEAN17
-    [Test]
-    [Scope('OnPrem')]
-    procedure CreateRequisitionWorksheetLineAndValidateVendorNoCrossRef()
-    var
-        Vendor: Record Vendor;
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        RequisitionLine: Record "Requisition Line";
-        ReqWorksheet: TestPage "Req. Worksheet";
-    begin
-        // [FEATURE] [Requisition Worksheet] [Item Cross Reference]
-        // [SCENARIO 378246] "Description 2" in Requisition Line should be empty when vendor with Item Cross Reference is selected in "Vendor No."
-
-        // [GIVEN] Create Item with filled "Description 2" field
-        Initialize(false);
-
-        LibraryInventory.CreateItem(Item);
-        Item.Validate("Description 2", LibraryUtility.GenerateGUID);
-        Item.Modify(true);
-
-        // [GIVEN] Create Vendor
-        LibraryPurchase.CreateVendor(Vendor);
-
-        // [GIVEN] Create Requisition Line with filled "Description 2" field
-        CreateRequisitionWorksheetline(RequisitionLine, Item."No.", '');
-        RequisitionLine.Validate("Description 2", LibraryUtility.GenerateGUID);
-        RequisitionLine.Modify(true);
-
-        // [GIVEN] Generate Item Cross Reference with Description = "X"
-        LibraryInventory.CreateItemCrossReference(
-          ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
-        ItemCrossReference.Validate(Description, LibraryUtility.GenerateGUID);
-        ItemCrossReference.Modify(true);
-
-        // [GIVEN] Open Requisition Worksheet Page with Requisition Line inside
-        OpenRequisitionWorksheetPage(ReqWorksheet, RequisitionLine."Journal Batch Name");
-
-        // [WHEN] Set "Vendor No." in Requisition Line
-        ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
-
-        RequisitionLine.Find;
-
-        // [THEN] "Description" in Requisition Line should be same as in ItemCrossReference
-        Assert.AreEqual(ItemCrossReference.Description, RequisitionLine.Description, ReqLineCrossRefDescriptionErr);
-
-        // [THEN] "Description 2" in Requisition Line should be empty
-        Assert.AreEqual('', RequisitionLine."Description 2", DescriptionEmptyErr);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -678,8 +566,8 @@ codeunit 136312 "Job Reservation"
         RequisitionLine: Record "Requisition Line";
         ReqWorksheet: TestPage "Req. Worksheet";
     begin
-        // [FEATURE] [Requisition Worksheet] [Item Cross Reference]
-        // [SCENARIO 378246] "Description 2" in Requisition Line should be empty when vendor with Item Cross Reference is selected in "Vendor No."
+        // [FEATURE] [Requisition Worksheet] [Item Reference]
+        // [SCENARIO 378246] "Description 2" in Requisition Line should be empty when vendor with Item Reference is selected in "Vendor No."
 
         // [GIVEN] Create Item with filled "Description 2" field
         Initialize(true);
@@ -696,7 +584,7 @@ codeunit 136312 "Job Reservation"
         RequisitionLine.Validate("Description 2", LibraryUtility.GenerateGUID);
         RequisitionLine.Modify(true);
 
-        // [GIVEN] Generate Item Cross Reference with Description = "X"
+        // [GIVEN] Generate Item Reference with Description = "X"
         LibraryItemReference.CreateItemReference(
           ItemReference, Item."No.", "Item Reference Type"::Vendor, Vendor."No.");
         ItemReference.Validate(Description, LibraryUtility.GenerateGUID);
@@ -710,7 +598,7 @@ codeunit 136312 "Job Reservation"
 
         RequisitionLine.Find;
 
-        // [THEN] "Description" in Requisition Line should be same as in ItemCrossReference
+        // [THEN] "Description" in Requisition Line should be same as in ItemReference
         Assert.AreEqual(ItemReference.Description, RequisitionLine.Description, ReqLineItemRefDescriptionErr);
 
         // [THEN] "Description 2" in Requisition Line should be empty
@@ -761,15 +649,15 @@ codeunit 136312 "Job Reservation"
         Vendor: Record Vendor;
         Item: Record Item;
         ItemVariant: Record "Item Variant";
-        ItemCrossReference1: Record "Item Cross Reference";
-        ItemCrossReference2: Record "Item Cross Reference";
+        ItemReference1: Record "Item Reference";
+        ItemReference2: Record "Item Reference";
         RequisitionLine: Record "Requisition Line";
         ReqWorksheet: TestPage "Req. Worksheet";
     begin
         // Verify Vendor Item No. is correct when creating Requisition Worksheet line manually.
 
-        // Setup: Create a item with Variant and Cross Reference.
-        CreateItemWithVariantAndCrossReference(Vendor, Item, ItemVariant, ItemCrossReference1, ItemCrossReference2);
+        // Setup: Create a item with Variant and Item Reference.
+        CreateItemWithVariantAndItemReference(Vendor, Item, ItemVariant, ItemReference1, ItemReference2);
 
         // Exercise: Create a line in Requisition Worksheet
         CreateRequisitionWorksheetline(RequisitionLine, Item."No.", ItemVariant.Code);
@@ -777,11 +665,11 @@ codeunit 136312 "Job Reservation"
         // Verify: Vendor Item No. is displayed correctly with Variant Code
         OpenRequisitionWorksheetPage(ReqWorksheet, RequisitionLine."Journal Batch Name");
         Assert.AreEqual(
-          ItemCrossReference2."Cross-Reference No.", ReqWorksheet."Vendor Item No.".Value,
-          StrSubstNo(VendorItemNoErr, ItemCrossReference2."Cross-Reference No."));
+          ItemReference2."Reference No.", ReqWorksheet."Vendor Item No.".Value,
+          StrSubstNo(VendorItemNoErr, ItemReference2."Reference No."));
 
         // Exercise and Verify: Vendor Item No. is displayed correctly when clear and reset the Vendor No..
-        ResetAndVerifyVendorItemNo(ReqWorksheet, ItemCrossReference2."Cross-Reference No.", Vendor."No.");
+        ResetAndVerifyVendorItemNo(ReqWorksheet, ItemReference2."Reference No.", Vendor."No.");
     end;
 
     [Test]
@@ -791,16 +679,16 @@ codeunit 136312 "Job Reservation"
         Vendor: Record Vendor;
         Item: Record Item;
         ItemVariant: Record "Item Variant";
-        ItemCrossReference1: Record "Item Cross Reference";
-        ItemCrossReference2: Record "Item Cross Reference";
+        ItemReference1: Record "Item Reference";
+        ItemReference2: Record "Item Reference";
         SalesHeader: Record "Sales Header";
         RequisitionWkshName: Record "Requisition Wksh. Name";
         ReqWorksheet: TestPage "Req. Worksheet";
     begin
         // Verify Vendor Item No. is correct when calculate plan in Requisition Worksheet.
 
-        // Setup: Create a item with Variant and Cross Reference.
-        CreateItemWithVariantAndCrossReference(Vendor, Item, ItemVariant, ItemCrossReference1, ItemCrossReference2);
+        // Setup: Create a item with Variant and Item Reference.
+        CreateItemWithVariantAndItemReference(Vendor, Item, ItemVariant, ItemReference1, ItemReference2);
 
         // Create 2 demands.
         CreateSalesOrderWithVariantCode(
@@ -817,16 +705,16 @@ codeunit 136312 "Job Reservation"
         // Verify: Vendor Item No. is displayed correctly with Variant Code
         OpenRequisitionWorksheetPage(ReqWorksheet, RequisitionWkshName.Name);
         Assert.AreEqual(
-          ItemCrossReference1."Cross-Reference No.", ReqWorksheet."Vendor Item No.".Value,
-          StrSubstNo(VendorItemNoErr, ItemCrossReference1."Cross-Reference No."));
+          ItemReference1."Reference No.", ReqWorksheet."Vendor Item No.".Value,
+          StrSubstNo(VendorItemNoErr, ItemReference1."Reference No."));
 
         ReqWorksheet.Next;
         Assert.AreEqual(
-          ItemCrossReference2."Cross-Reference No.", ReqWorksheet."Vendor Item No.".Value,
-          StrSubstNo(VendorItemNoErr, ItemCrossReference2."Cross-Reference No."));
+          ItemReference2."Reference No.", ReqWorksheet."Vendor Item No.".Value,
+          StrSubstNo(VendorItemNoErr, ItemReference2."Reference No."));
 
         // Exercise and Verify: Vendor Item No. is displayed correctly when clear and reset the Vendor No..
-        ResetAndVerifyVendorItemNo(ReqWorksheet, ItemCrossReference2."Cross-Reference No.", Vendor."No.");
+        ResetAndVerifyVendorItemNo(ReqWorksheet, ItemReference2."Reference No.", Vendor."No.");
     end;
 
     [Test]
@@ -1336,22 +1224,6 @@ codeunit 136312 "Job Reservation"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; ItemVariantNo: Code[10]; CrossReferenceType: Option; CrossReferenceTypeNo: Code[30])
-    begin
-        with ItemCrossReference do begin
-            Init;
-            Validate("Item No.", ItemNo);
-            Validate("Variant Code", ItemVariantNo);
-            Validate("Cross-Reference Type", CrossReferenceType);
-            Validate("Cross-Reference Type No.", CrossReferenceTypeNo);
-            Validate(
-              "Cross-Reference No.",
-              LibraryUtility.GenerateRandomCode(FieldNo("Cross-Reference No."), DATABASE::"Item Cross Reference"));
-            Validate(Description, CrossReferenceTypeNo);
-            Insert(true);
-        end;
-    end;
-
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ItemVariantNo: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30])
     begin
         with ItemReference do begin
@@ -1366,19 +1238,6 @@ codeunit 136312 "Job Reservation"
             Validate(Description, ReferenceTypeNo);
             Insert(true);
         end;
-    end;
-
-    local procedure CreateItemWithVariantAndCrossReference(var Vendor: Record Vendor; var Item: Record Item; var ItemVariant: Record "Item Variant"; var ItemCrossReference1: Record "Item Cross Reference"; var ItemCrossReference2: Record "Item Cross Reference")
-    begin
-        CreateVendorWithLocation(Vendor);
-        CreateItem(Item, Vendor."No.", Item."Reordering Policy"::"Lot-for-Lot");
-
-        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
-
-        CreateItemCrossReference(
-          ItemCrossReference1, Item."No.", '', ItemCrossReference1."Cross-Reference Type"::Vendor, Vendor."No.");
-        CreateItemCrossReference(
-          ItemCrossReference2, Item."No.", ItemVariant.Code, ItemCrossReference2."Cross-Reference Type"::Vendor, Vendor."No.");
     end;
 
     local procedure CreateItemWithVariantAndItemReference(var Vendor: Record Vendor; var Item: Record Item; var ItemVariant: Record "Item Variant"; var ItemReference1: Record "Item Reference"; var ItemReference2: Record "Item Reference")
@@ -1696,15 +1555,15 @@ codeunit 136312 "Job Reservation"
         Reservation.OK.Invoke;
     end;
 
-    local procedure ResetAndVerifyVendorItemNo(ReqWorksheet: TestPage "Req. Worksheet"; CrossReferenceNo: Code[20]; VendorNo: Code[20])
+    local procedure ResetAndVerifyVendorItemNo(ReqWorksheet: TestPage "Req. Worksheet"; ReferenceNo: Code[50]; VendorNo: Code[20])
     begin
         ReqWorksheet."Vendor No.".SetValue('');
         Assert.AreEqual('', ReqWorksheet."Vendor Item No.".Value, NotResetErr);
 
         ReqWorksheet."Vendor No.".SetValue(VendorNo);
         Assert.AreEqual(
-          CrossReferenceNo, ReqWorksheet."Vendor Item No.".Value,
-          StrSubstNo(VendorItemNoErr, CrossReferenceNo));
+          ReferenceNo, ReqWorksheet."Vendor Item No.".Value,
+          StrSubstNo(VendorItemNoErr, ReferenceNo));
     end;
 
     [StrMenuHandler]

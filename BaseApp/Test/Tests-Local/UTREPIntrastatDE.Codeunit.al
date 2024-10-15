@@ -1,4 +1,4 @@
-codeunit 142039 "UT REP Intrastat DE"
+﻿codeunit 142039 "UT REP Intrastat DE"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -833,6 +833,7 @@ codeunit 142039 "UT REP Intrastat DE"
         LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineTotalWeightRoundedTxt, Round(TotalWeight * 2, 1));
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('IntrastatChecklistDERequestPageHandler')]
     procedure CheckForPartnerVATID()
@@ -895,6 +896,7 @@ codeunit 142039 "UT REP Intrastat DE"
         CompanyInformation.TestField("Check for Partner VAT ID", true);
         CompanyInformation.TestField("Check for Country of Origin", true);
     end;
+#endif
 
     local procedure Initialize()
     begin

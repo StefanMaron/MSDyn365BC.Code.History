@@ -807,7 +807,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         VerifyLSVJnl(LSVJnl."LSV Status"::"File Created",
           FindCustLedgerEntries(CustLedgerEntry, Customer."No."), CustLedgerEntry.Count, '', LSVJnl);
         FindLSVJournalLines(LSVJnlLine, LSVJnl."No.");
+#if not CLEAN17
         FileName := FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
+#endif
         VerifyDDRecord(LSVJnl, LSVSetup, 1, LSVJnl."Amount Plus", Customer."No.", LibraryTextFileValidation.ReadLine(FileName, 2));
         VerifyDDTotalRecord(LSVJnl, 1, LibraryTextFileValidation.ReadLine(FileName, 3));
     end;
@@ -860,7 +862,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         LSVSetupPage."&Write DebiDirect Testfile".Invoke;
 
         // Verify.
+#if not CLEAN17
         asserterror FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
+#endif
         Path := LSVSetup."LSV File Folder" + LSVSetup."LSV Filename";
         Assert.ExpectedError(StrSubstNo(FileNotExistErr, Path));
     end;
@@ -1178,7 +1182,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         CreateLSVSalesDoc(SalesHeader, Customer."No.", SalesHeader."Document Type"::Invoice);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
+#if not CLEAN17
         FileMgt.DeleteClientFile(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
+#endif
     end;
 
     local procedure CreateLSVSalesDoc(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocType: Option)
@@ -1407,9 +1413,11 @@ codeunit 144040 "Test LSV DD Payment Export"
         FileMgt: Codeunit "File Management";
         Line: Text;
     begin
+#if not CLEAN17
         Line :=
           LibraryTextFileValidation.ReadLine(
             FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename"), 1);
+#endif
         CheckColumnValue('8750', Line, 1, 4);
         CheckColumnValue(Test, Line, 5, 1);
         CheckColumnValue(Format(LSVJnl."Credit Date", 8, '<year4><month,2><day,2>'), Line, 6, 8);
@@ -1442,7 +1450,9 @@ codeunit 144040 "Test LSV DD Payment Export"
         FileName: Text;
         LineNo: Integer;
     begin
+#if not CLEAN17
         FileName := FileMgt.UploadFileSilent(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
+#endif
         LineNo := 2;
         repeat
             Line := LibraryTextFileValidation.ReadLine(FileName, LineNo);

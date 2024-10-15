@@ -387,7 +387,6 @@ codeunit 9651 "Document Report Mgt."
                 FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypeWordTxt), true);
         end;
     end;
-#endif
 
     local procedure SelectPrinter(var PrinterName: Text; var Collate: Boolean; var Copies: Integer): Boolean
     var
@@ -419,7 +418,6 @@ codeunit 9651 "Document Report Mgt."
         exit(true);
     end;
 
-#if not CLEAN17
     [TryFunction]
     local procedure DeleteClientFile(FileName: Text)
     var
@@ -427,7 +425,6 @@ codeunit 9651 "Document Report Mgt."
     begin
         FileMgt.DeleteClientFile(FileName);
     end;
-#endif
 
     local procedure IsValidPrinter(PrinterName: Text): Boolean
     var
@@ -437,6 +434,7 @@ codeunit 9651 "Document Report Mgt."
         Printer.FindFirst;
         exit(not Printer.IsEmpty);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure IsStreamHasDataset(InStrXmlData: InStream): Boolean

@@ -289,7 +289,11 @@ codeunit 3010831 LSVMgt
         GlBatchName.Get(ActGenJnlLine."Journal Template Name", ActGenJnlLine."Journal Batch Name");
         NextDocNo := NoSeriesMgt.GetNextNo(GlBatchName."No. Series", PostDate, false);
 
+#if CLEAN17
+        FileName := OpenDDFile(f);
+#else
         FileName := OpenDDFile(f, LSVSetup);
+#endif
         Window.Open(ImportProgressMsg);
 
         while ReadDebitDirectLine(f, Line) > 1 do begin
@@ -496,16 +500,21 @@ codeunit 3010831 LSVMgt
             Error(WrongFileErr);
     end;
 
+#if CLEAN17
+    local procedure OpenDDFile(var f: File) Result: Text[1024]
+    begin
+        f.TextMode(true);
+        Evaluate(Result, FileMgt.UploadFile(ChooseFileTitleMsg, ''));
+        f.Open(Result);
+    end;
+#else
     local procedure OpenDDFile(var f: File; LSVSetup: Record "LSV Setup") Result: Text[1024]
     begin
         f.TextMode(true);
-#if not CLEAN17
         Evaluate(Result, FileMgt.UploadFileToServer(LSVSetup."DebitDirect Import Filename"));
-#else
-        Evaluate(Result, FileMgt.UploadFile(ChooseFileTitleMsg, ''));
-#endif
         f.Open(Result);
     end;
+#endif
 
     local procedure CloseDDFile(var f: File; FileName: Text[1024])
     begin

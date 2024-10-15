@@ -604,8 +604,8 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         AssemblyLine: Record "Assembly Line";
         AssemblyOrderPage: TestPage "Assembly Order";
     begin
-        LibraryKitting.AddLine(AssemblyHeader, AssemblyLine.Type::Item, ItemNo,
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, ItemNo, true),
+        LibraryKitting.AddLine(AssemblyHeader, "BOM Component Type"::Item, ItemNo,
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, ItemNo, true),
           Quantity, 1, '');
 
         if AssignBinCode then begin
@@ -1268,7 +1268,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         LibraryAssembly.PrepareOrderPosting(AssemblyHeader, TempAssemblyLine, 100, 100, true, WorkDate2);
 
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, '', '', 0, 0, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, '', '', 0, 0, '');
         AssemblyLine.Validate(Description, 'Comment');
         AssemblyLine.Validate(Type, AssemblyLine.Type::Item);
         AssemblyLine.Modify(true);
@@ -1718,8 +1718,8 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         AssembledQty := AssemblyHeader."Quantity to Assemble";
 
         // Split lines
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, NotEnoughItemNo,
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, NotEnoughItemNo, true), 0, 0, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, NotEnoughItemNo,
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, NotEnoughItemNo, true), 0, 0, '');
 
         AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");

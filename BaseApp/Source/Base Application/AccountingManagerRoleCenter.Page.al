@@ -1,6 +1,6 @@
 page 9001 "Accounting Manager Role Center"
 {
-    Caption = 'Accounting Manager', Comment = '{Dependency=Match,"ProfileDescription_ACCOUNTINGMANAGER"}';
+    Caption = 'Accounting Manager';
     PageType = RoleCenter;
 
     layout
@@ -873,7 +873,7 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'Adjust E&xchange Rates';
                 Ellipsis = true;
                 Image = AdjustExchangeRates;
-                RunObject = Report "Adjust Exchange Rates";
+                RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                 ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
             }
             action("P&ost Inventory Cost to G/L")

@@ -268,7 +268,7 @@ codeunit 137305 "SCM Warehouse Reports"
           Bin.Code,
           Item."No.",
           Quantity,
-          WarehouseJournalBatch."Template Type"::Item);
+          "Warehouse Journal Template Type"::Item);
         LibraryVariableStorage.Enqueue(WantToRegisterConfirm);  // Enqueue for ConfirmHandler.
         LibraryVariableStorage.Enqueue(JournalLineRegistered);  // Enqueue for MessageHandler.
         LibraryWarehouse.RegisterWhseJournalLine(
@@ -1107,6 +1107,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEmployee.Delete(true);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1132,6 +1133,7 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryReportDataset.LoadDataSetFile;
         VerifyReportData('No_Item', SalesPrice."Item No.", 'MinimumQty_SalesPrices', SalesPrice."Minimum Quantity");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('WhereUsedListRequestPageHandler')]
@@ -2575,6 +2577,7 @@ codeunit 137305 "SCM Warehouse Reports"
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
+#if not CLEAN19
     local procedure CreateItemWithSalesPrice(var SalesPrice: Record "Sales Price")
     var
         Item: Record Item;
@@ -2585,6 +2588,7 @@ codeunit 137305 "SCM Warehouse Reports"
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateLocation(var Location: Record Location; var WarehouseEmployee: Record "Warehouse Employee"; BinMandatory: Boolean)
     begin
@@ -2650,11 +2654,7 @@ codeunit 137305 "SCM Warehouse Reports"
         EntryNo := ItemLedgerEntry."Entry No.";
     end;
 
-    local procedure FindWarehouseActivityLine(
-        var WarehouseActivityLine: Record "Warehouse Activity Line";
-        SourceDocument: Enum "Warehouse Activity Source Document";
-                            SourceNo: Code[20];
-                            ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -2853,10 +2853,10 @@ codeunit 137305 "SCM Warehouse Reports"
     var
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
     begin
-        CreateAndRegisterWhseJnlLine2(Location, ItemNo, Quantity, WarehouseJournalBatch."Template Type"::Item);
+        CreateAndRegisterWhseJnlLine2(Location, ItemNo, Quantity, "Warehouse Journal Template Type"::Item);
     end;
 
-    local procedure CreateAndRegisterWhseJnlLine2(Location: Record Location; ItemNo: Code[20]; Quantity: Decimal; TemplateType: Option)
+    local procedure CreateAndRegisterWhseJnlLine2(Location: Record Location; ItemNo: Code[20]; Quantity: Decimal; TemplateType: Enum "Warehouse Journal Template Type")
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
         Bin: Record Bin;
@@ -2876,7 +2876,7 @@ codeunit 137305 "SCM Warehouse Reports"
     end;
 
     [Normal]
-    local procedure CreateWhseJnlLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; Quantity: Decimal; TemplateType: Option)
+    local procedure CreateWhseJnlLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; Quantity: Decimal; TemplateType: Enum "Warehouse Journal Template Type")
     var
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
     begin
@@ -2951,11 +2951,11 @@ codeunit 137305 "SCM Warehouse Reports"
         until Bin.Next = 0;
     end;
 
-    local procedure FindWhseJnlTemplateAndBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; LocationCode: Code[10]; WarehouseJournalTemplateType: Option)
+    local procedure FindWhseJnlTemplateAndBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; LocationCode: Code[10]; TemplateType: Enum "Warehouse Journal Template Type")
     var
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
-        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplateType);
+        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, TemplateType);
         LibraryWarehouse.SelectWhseJournalBatchName(
           WarehouseJournalBatch, WarehouseJournalTemplate.Type, WarehouseJournalTemplate.Name, LocationCode);
     end;
@@ -3055,7 +3055,7 @@ codeunit 137305 "SCM Warehouse Reports"
     end;
 
     [Normal]
-    local procedure VerifyWarehouseActivityLine(ItemNo: Code[20]; LocationCode: Code[10]; ActionType: Option)
+    local procedure VerifyWarehouseActivityLine(ItemNo: Code[20]; LocationCode: Code[10]; ActionType: Enum "Warehouse Action Type")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -3142,6 +3142,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Reply := true;
     end;
 
+#if not CLEAN19
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListRequestPageHandler(var PriceList: TestRequestPage "Price List")
@@ -3156,6 +3157,7 @@ codeunit 137305 "SCM Warehouse Reports"
         PriceList.SalesType.SetValue(SalesType);
         PriceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
+#endif
 
     [MessageHandler]
     [Scope('OnPrem')]

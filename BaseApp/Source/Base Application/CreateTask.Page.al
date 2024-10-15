@@ -240,7 +240,6 @@ page 5097 "Create Task"
                     Enabled = LocationEnable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the Location where the Meeting will take place.';
-                    Visible = NOT IsSoftwareAsAService;
                 }
             }
             group(MeetingAttendees)
@@ -363,7 +362,7 @@ page 5097 "Create Task"
 
     trigger OnAfterGetRecord()
     begin
-        EnableFields;
+        EnableFields();
         WizardContactNameOnFormat(Format("Wizard Contact Name"));
     end;
 
@@ -429,8 +428,6 @@ page 5097 "Create Task"
         SalespersonFilter: Code[20];
         ContactFilter: Code[20];
         [InDataSet]
-        TeamTaskEditable: Boolean;
-        [InDataSet]
         WizardContactNameEditable: Boolean;
         [InDataSet]
         WizardCampaignDescriptionEdita: Boolean;
@@ -442,12 +439,6 @@ page 5097 "Create Task"
         SegmentDescEditable: Boolean;
         IsMeeting: Boolean;
         IsOnMobile: Boolean;
-        [InDataSet]
-        SalespersonCodeEnable: Boolean;
-        [InDataSet]
-        StartTimeEnable: Boolean;
-        [InDataSet]
-        EndingTimeEnable: Boolean;
         [InDataSet]
         DurationEnable: Boolean;
         [InDataSet]
@@ -465,6 +456,16 @@ page 5097 "Create Task"
         [InDataSet]
         AttachmentEnable: Boolean;
         IsSoftwareAsAService: Boolean;
+
+    protected var
+        [InDataSet]
+        StartTimeEnable: Boolean;
+        [InDataSet]
+        EndingTimeEnable: Boolean;
+        [InDataSet]
+        SalespersonCodeEnable: Boolean;
+        [InDataSet]
+        TeamTaskEditable: Boolean;
 
     procedure Caption(): Text
     var
@@ -517,6 +518,8 @@ page 5097 "Create Task"
             DurationEnable := false;
             AllDayEventEnable := false;
         end;
+
+        OnAfterEnableFields(Rec);
     end;
 
     local procedure ValidateTypeField()
@@ -559,22 +562,22 @@ page 5097 "Create Task"
 
     local procedure TypeOnAfterValidate()
     begin
-        EnableFields;
+        EnableFields();
     end;
 
     local procedure AllDayEventOnAfterValidate()
     begin
-        EnableFields;
+        EnableFields();
     end;
 
     local procedure RecurringOnAfterValidate()
     begin
-        EnableFields;
+        EnableFields();
     end;
 
     local procedure InteractionTemplateCodeOnAfter()
     begin
-        EnableFields
+        EnableFields();
     end;
 
     local procedure WizardContactNameOnFormat(Text: Text[1024])
@@ -590,6 +593,11 @@ page 5097 "Create Task"
 
         CheckStatus;
         FinishWizard(false);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterEnableFields(var Task: Record "To-do")
+    begin
     end;
 }
 

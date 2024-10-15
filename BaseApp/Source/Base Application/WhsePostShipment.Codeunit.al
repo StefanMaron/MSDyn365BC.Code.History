@@ -741,9 +741,9 @@ codeunit 5763 "Whse.-Post Shipment"
             exit;
 
         with WhseShptLineBuf do begin
-            WhseShptLine2."Qty. Shipped" := "Qty. Shipped" + "Qty. to Ship";
-            WhseShptLine2.Validate("Qty. Outstanding", "Qty. Outstanding" - "Qty. to Ship");
+            WhseShptLine2.Validate("Qty. Shipped", "Qty. Shipped" + "Qty. to Ship");
             WhseShptLine2."Qty. Shipped (Base)" := "Qty. Shipped (Base)" + "Qty. to Ship (Base)";
+            WhseShptLine2.Validate("Qty. Outstanding", "Qty. Outstanding" - "Qty. to Ship");
             WhseShptLine2."Qty. Outstanding (Base)" := "Qty. Outstanding (Base)" - "Qty. to Ship (Base)";
             WhseShptLine2.Status := WhseShptLine2.CalcStatusShptLine;
             OnBeforePostUpdateWhseShptLineModify(WhseShptLine2, WhseShptLineBuf);
@@ -940,7 +940,7 @@ codeunit 5763 "Whse.-Post Shipment"
             PostedWhseShptLine."Source Type", PostedWhseShptLine."Source Subtype", PostedWhseShptLine."Source No.",
             PostedWhseShptLine."Source Line No.", 0);
         WhseJnlLine."Source Document" := PostedWhseShptLine."Source Document";
-        WhseJnlLine.SetWhseDoc(
+        WhseJnlLine.SetWhseDocument(
             WhseJnlLine."Whse. Document Type"::Shipment, PostedWhseShptLine."No.", PostedWhseShptLine."Line No.");
         GetItemUnitOfMeasure2(PostedWhseShptLine."Item No.", PostedWhseShptLine."Unit of Measure Code");
         WhseJnlLine.Cubage := WhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Cubage;
@@ -1020,7 +1020,7 @@ codeunit 5763 "Whse.-Post Shipment"
             repeat
                 if ReservationEntry.TrackingExists then begin
                     QtyPickedBase := 0;
-                    WhseItemTrkgLine.SetCurrentKey("Serial No.", "Lot No.");
+                    WhseItemTrkgLine.SetTrackingKey();
                     WhseItemTrkgLine.SetTrackingFilterFromReservEntry(ReservationEntry);
                     WhseItemTrkgLine.SetSourceFilter(DATABASE::"Warehouse Shipment Line", -1, WhseShptLine."No.", WhseShptLine."Line No.", false);
                     if WhseItemTrkgLine.Find('-') then
@@ -1345,6 +1345,16 @@ codeunit 5763 "Whse.-Post Shipment"
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
+    end;
+
+    procedure GetCounterSourceDocTotal(): Integer;
+    begin
+        exit(CounterSourceDocTotal);
+    end;
+
+    procedure GetCounterSourceDocOK(): Integer;
+    begin
+        exit(CounterSourceDocOK);
     end;
 
     [IntegrationEvent(false, false)]

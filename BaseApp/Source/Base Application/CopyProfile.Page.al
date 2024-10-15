@@ -23,11 +23,12 @@ page 9175 "Copy Profile"
 
                         trigger OnAssistEdit()
                         var
-                            AvailableRoles: Page "Available Roles";
+                            Roles: Page Roles;
                         begin
-                            AvailableRoles.LookupMode(true);
-                            if AvailableRoles.RunModal() = Action::LookupOK then
-                                AvailableRoles.GetRecord(SourceAllProfile);
+                            Roles.Initialize();
+                            Roles.LookupMode(true);
+                            if Roles.RunModal() = Action::LookupOK then
+                                Roles.GetRecord(SourceAllProfile);
                         end;
                     }
                     field(SourceProfileAppName; SourceAllProfile."App Name")

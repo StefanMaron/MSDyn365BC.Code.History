@@ -56,7 +56,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
         CompletelyShippedErr: Label 'Completely Shipped should be Yes after fully post shipment';
 
     [Test]
-    [HandlerFunctions('SalesQuoteReqPageHandler,ConfirmHandler')]
+    [HandlerFunctions('StandardSalesQuoteRequestPageHandler')]
     [Scope('OnPrem')]
     procedure VariantsOnSalesQuote()
     var
@@ -70,8 +70,8 @@ codeunit 144057 "Test CH Sales Quote Reports"
 
         // Exercise.
         Commit();
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        REPORT.Run(REPORT::"Sales - Quote", true, false, SalesHeader);
+        SalesHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
         // Verify.
         VerifySalesQuoteReport(SalesHeader, true);
@@ -122,7 +122,7 @@ codeunit 144057 "Test CH Sales Quote Reports"
     end;
 
     [Test]
-    [HandlerFunctions('SalesQuoteReqPageHandler,ConfirmHandler')]
+    [HandlerFunctions('StandardSalesQuoteRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SpecialLinesOnSalesQuote()
     var
@@ -136,8 +136,8 @@ codeunit 144057 "Test CH Sales Quote Reports"
 
         // Exercise.
         Commit();
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        REPORT.Run(REPORT::"Sales - Quote", true, false, SalesHeader);
+        SalesHeader.SetRecFilter();
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
         // Verify.
         VerifySalesQuoteReport(SalesHeader, false);
@@ -487,8 +487,8 @@ codeunit 144057 "Test CH Sales Quote Reports"
         SalesLine: Record "Sales Line";
     begin
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.SetRange('DocType_SalesHeader', Format(SalesHeader."Document Type"));
-        LibraryReportDataset.SetRange('No_SalesHeader', SalesHeader."No.");
+        LibraryReportDataset.SetRange('DocumentCopyText', Format(SalesHeader."Document Type"));
+        LibraryReportDataset.SetRange('DocumentNo', SalesHeader."No.");
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -498,12 +498,18 @@ codeunit 144057 "Test CH Sales Quote Reports"
             SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::Item);
         SalesLine.FindSet();
         repeat
-            LibraryReportDataset.SetRange('Type_SalesLine', Format(SalesLine.Type));
-            LibraryReportDataset.SetRange('No1_SalesLine', SalesLine."Line No.");
+            LibraryReportDataset.SetRange('Type_Line', Format(SalesLine.Type));
+            LibraryReportDataset.SetRange('LineNo_Line', SalesLine."Line No.");
             Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Special lines should be printed.');
-            LibraryReportDataset.AssertCurrentRowValueEquals('No_SalesLine', SalesLine."No.");
-            LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_SalesLine', 0);
-            LibraryReportDataset.AssertCurrentRowValueEquals('LineAmt1_SalesLine', 0);
+            LibraryReportDataset.AssertCurrentRowValueEquals('ItemNo_Line', SalesLine."No.");
+            if SalesLine.Type = SalesLine.Type::"item" then begin
+                LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_Line', '0');
+                LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount_Line', '0.00');
+            end else begin
+                LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_Line', '');
+                LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount_Line', '');
+            end;
+
             SalesLine.TestField("Subtotal Net", 0);
             SalesLine.TestField("Subtotal Gross", 0);
             SalesLine.TestField(Classification, '');
@@ -561,17 +567,6 @@ codeunit 144057 "Test CH Sales Quote Reports"
             SalesLine.TestField("Subtotal Gross");
             SalesLine.TestField(Classification);
         until SalesLine.Next = 0;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesQuoteReqPageHandler(var SalesQuote: TestRequestPage "Sales - Quote")
-    begin
-        SalesQuote.NoOfCopies.SetValue(1);
-        SalesQuote.ShowInternalInfo.SetValue(false);
-        SalesQuote.ArchiveDocument.SetValue(false);
-        SalesQuote.LogInteraction.SetValue(false);
-        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

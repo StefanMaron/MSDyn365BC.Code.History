@@ -45,7 +45,7 @@ table 1060 "Payment Service Setup"
         field(6; "Setup Record ID"; RecordID)
         {
             Caption = 'Setup Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(7; "Setup Page ID"; Integer)
         {

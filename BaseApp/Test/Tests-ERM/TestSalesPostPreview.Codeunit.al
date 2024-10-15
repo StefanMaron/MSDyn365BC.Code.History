@@ -1,4 +1,4 @@
-﻿codeunit 134763 "Test Sales Post Preview"
+codeunit 134763 "Test Sales Post Preview"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;

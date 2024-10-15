@@ -9,7 +9,9 @@ codeunit 3010531 EsrMgt
     var
         Text008: Label 'Do you want to import the ESR file?';
         Text011: Label 'Import cancelled.';
+#if not CLEAN17
         Text014: Label 'Backup copy of ESR file could not be written. Please check ESR setup.';
+#endif
         Text015: Label 'Journal "%1" contains entries. Please process these first.';
         Text017: Label 'Import ESR file\No. of payments   #1############\Total amount     #2############';
         Text020: Label 'ESR payment, inv ';
@@ -527,8 +529,8 @@ codeunit 3010531 EsrMgt
             ESRSetup.LockTable();
             ESRSetup."Last Backup No." := IncStr(ESRSetup."Last Backup No.");
             ESRSetup.Modify();
-            BackupFilename := ESRSetup."Backup Folder" + 'ESR' + ESRSetup."Last Backup No." + '.BAK';
 #if not CLEAN17
+            BackupFilename := ESRSetup."Backup Folder" + 'ESR' + ESRSetup."Last Backup No." + '.BAK';
             if FileMgt.ClientFileExists(ESRSetup."ESR Filename") and (not FileMgt.ClientFileExists(BackupFilename)) then begin
                 FileMgt.CopyClientFile(ESRSetup."ESR Filename", BackupFilename, true);
                 if not FileMgt.ClientFileExists(BackupFilename) then

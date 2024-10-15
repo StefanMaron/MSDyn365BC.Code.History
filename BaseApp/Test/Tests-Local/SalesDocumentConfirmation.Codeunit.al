@@ -21,48 +21,6 @@ codeunit 144045 "Sales Document Confirmation"
         IsInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('OrderReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyOrderConfirmationReportTest()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Setup
-        Initialize;
-
-        // Create Sales Order
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        Commit();
-
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);
-
-        // Verify Footer in Report Order Confirmation
-        VerifyReportData(SalesHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('QuoteReportRequestPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyQuoteConfirmationReportTest()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // Setup
-        Initialize;
-
-        // Create Sales Quote
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
-        Commit();
-
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        REPORT.Run(REPORT::"Sales - Quote", true, false, SalesHeader);
-
-        // Verify Footer in Report Order Confirmation
-        VerifyReportData(SalesHeader);
-    end;
-
-    [Test]
     [HandlerFunctions('ReturnOrderReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure VerifyReturnOrderConfirmationReportTest()
@@ -99,54 +57,6 @@ codeunit 144045 "Sales Document Confirmation"
 
         SalesHeader.SetRange("No.", SalesHeader."No.");
         REPORT.Run(REPORT::"Blanket Sales Order", true, false, SalesHeader);
-
-        // Verify Footer in Report Order Confirmation
-        VerifyReportData(SalesHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('InvoiceReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PostAndVerifyInvoiceConfirmationReportTest()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        DocumentNo: Code[20];
-    begin
-        // Setup
-        Initialize;
-
-        // Create and Post Sales Invoice
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, false);
-        Commit();
-
-        SalesInvoiceHeader.SetRange("No.", DocumentNo);
-        REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-        // Verify Footer in Report Order Confirmation
-        VerifyReportData(SalesHeader);
-    end;
-
-    [Test]
-    [HandlerFunctions('CreditMemoReportRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PostAndVerifyCreditMemoConfirmationReportTest()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        DocumentNo: Code[20];
-    begin
-        // Setup
-        Initialize;
-
-        // Create and Post Sales Credit Memo
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, false);
-        Commit();
-
-        SalesCrMemoHeader.SetRange("No.", DocumentNo);
-        REPORT.Run(REPORT::"Sales - Credit Memo", true, false, SalesCrMemoHeader);
 
         // Verify Footer in Report Order Confirmation
         VerifyReportData(SalesHeader);
@@ -262,31 +172,6 @@ codeunit 144045 "Sales Document Confirmation"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure OrderReportRequestPageHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    begin
-        OrderConfirmation.NoOfCopies.SetValue(0);
-        OrderConfirmation.ShowInternalInfo.SetValue(false);
-        OrderConfirmation.ArchiveDocument.SetValue(false);
-        OrderConfirmation.LogInteraction.SetValue(true);
-        OrderConfirmation.ShowAssemblyComponents.SetValue(false);
-
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure QuoteReportRequestPageHandler(var SalesQuote: TestRequestPage "Sales - Quote")
-    begin
-        SalesQuote.NoOfCopies.SetValue(0);
-        SalesQuote.ShowInternalInfo.SetValue(false);
-        SalesQuote.ArchiveDocument.SetValue(false);
-        SalesQuote.LogInteraction.SetValue(true);
-
-        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure ReturnOrderReportRequestPageHandler(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
     begin
         ReturnOrderConfirmation.NoOfCopies.SetValue(0);
@@ -306,29 +191,6 @@ codeunit 144045 "Sales Document Confirmation"
         BlanketSalesOrder.LogInteraction.SetValue(true);
 
         BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure InvoiceReportRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    begin
-        SalesInvoice.NoOfCopies.SetValue(0);
-        SalesInvoice.ShowInternalInfo.SetValue(false);
-        SalesInvoice.LogInteraction.SetValue(true);
-        SalesInvoice.DisplayAsmInformation.SetValue(false);
-
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure CreditMemoReportRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    begin
-        SalesCreditMemo.NoOfCopies.SetValue(0);
-        SalesCreditMemo.ShowInternalInfo.SetValue(false);
-        SalesCreditMemo.LogInteraction.SetValue(true);
-
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

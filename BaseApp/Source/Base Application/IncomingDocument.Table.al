@@ -293,7 +293,7 @@
         field(58; "Related Record ID"; RecordID)
         {
             Caption = 'Related Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(160; "Job Queue Status"; Option)
         {
@@ -1778,7 +1778,7 @@
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         IncomingDocument: Record "Incoming Document";
     begin
-        if IncomingDocumentAttachment.Import then begin
+        if IncomingDocumentAttachment.Import(true) then begin
             IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
             PAGE.Run(PAGE::"Incoming Document", IncomingDocument);
         end;
@@ -2008,7 +2008,7 @@
         if not Evaluate(PostingDate, PostingDateText) then
             exit(false);
 
-        IncomingDocument.SetRange("Document No.", DocumentNo);
+        IncomingDocument.SetFilter("Document No.", DocumentNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
 
         exit(IncomingDocument.FindFirst);

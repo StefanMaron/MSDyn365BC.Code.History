@@ -85,41 +85,6 @@ codeunit 137061 "SCM Purchases & Payables"
         UpdateManufacturingSetup(ManufacturingSetup."Default Safety Lead Time");
     end;
 
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure B32625_CrossRefNoInPurchLine()
-    var
-        Item: Record Item;
-        Item2: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        Vendor: Record Vendor;
-    begin
-        // Create Purchase Order with line and Cross-Reference No in line.
-        // Setup.
-        Initialize(false);
-        LibraryInventory.CreateItem(Item);
-        LibraryInventory.CreateItem(Item2);
-        LibraryPurchase.CreateVendor(Vendor);
-
-        LibraryInventory.CreateItemCrossReference(ItemCrossReference, Item."No.",
-          ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
-        LibraryInventory.CreateItemCrossReference(ItemCrossReference, Item2."No.",
-          ItemCrossReference."Cross-Reference Type"::Vendor, Vendor."No.");
-
-        // Exercise: Create Purchase Order.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item2."No.", LibraryRandom.RandDec(10, 2));
-
-        // Verify: Verify Cross-Reference No in Purchase line.
-        PurchaseLine.Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-        PurchaseLine.Modify(true);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure B32625_ItemRefNoInPurchLine()

@@ -1,4 +1,4 @@
-codeunit 142068 "UT REP LOWVAL"
+﻿codeunit 142068 "UT REP LOWVAL"
 {
     // // FEATURE [Adjust Exchange Rates]
 

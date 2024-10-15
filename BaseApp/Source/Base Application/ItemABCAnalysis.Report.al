@@ -480,7 +480,6 @@ report 11503 "Item ABC Analysis"
         NoA: Integer;
         NoB: Integer;
         NoC: Integer;
-        ABC: Text[1];
         PrintZero: Boolean;
         Column: array[2] of Option Stock,Movement,"Sale Qty","Purch. Qty","Qty in Purch","Qty in Sale","Max Order","Min Order","Sale LCY","Purch LCY","Sale Price",Cost,"Purch Price","Profit %",Weight,"Bud Qty","Bud Amt.","<blank>";
         TmpAmt: array[2] of Decimal;
@@ -511,6 +510,9 @@ report 11503 "Item ABC Analysis"
         ShareCaptionLbl: Label 'Share';
         StructureCaptionLbl: Label 'Structure';
         RangeCaptionLbl: Label 'Range';
+
+    protected var
+	    ABC: Text[1];
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterItemOnAfterGetRecord(var Item: Record Item; ABC: Text[1])

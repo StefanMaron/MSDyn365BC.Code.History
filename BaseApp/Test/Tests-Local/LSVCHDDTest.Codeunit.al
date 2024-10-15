@@ -354,7 +354,9 @@ codeunit 144001 "LSV CH DD Test"
         Line: Text[1024];
         i: Integer;
     begin
+#if not CLEAN17
         PathToFile := FileMgt.UploadFileSilent(GetPathToDDFile(LSVJnl."LSV Bank Code", 0)); // DD Export file path
+#endif
         with InFile do begin
             TextMode(true);
             Open(PathToFile);
@@ -375,8 +377,10 @@ codeunit 144001 "LSV CH DD Test"
         end;
         InFile.Close;
         OutFile.Close;
+#if not CLEAN17
         FileMgt.DownloadToFile(PathToFile + FileSuffixTxt, GetPathToDDFile(LSVJnl."LSV Bank Code", 1)); // DD Import file path
         FileMgt.DeleteClientFile(GetPathToDDFile(LSVJnl."LSV Bank Code", 0));
+#endif
     end;
 
     local procedure ModifyLineForImport(Line: Text[1024]; SetRejected: Boolean): Text[1024]

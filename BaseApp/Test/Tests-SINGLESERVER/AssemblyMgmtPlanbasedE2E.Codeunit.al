@@ -42,7 +42,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Assembly Mgmt. Plan-based E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
@@ -58,7 +58,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure AssemblyMgmtCreateAndPostSalesOrderAsBusinessManager()
     var
@@ -84,7 +84,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure AssemblyMgmtCreateAndPostSalesOrderAsExternalAccountant()
     var
@@ -110,7 +110,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure AssemblyMgmtCreateAndPostSalesOrderAsTeamMember()
     var
@@ -148,7 +148,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure AssemblyMgmtCreateAndPostSalesOrderAsEssentialISVEmbUser()
     var
@@ -174,7 +174,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure AssemblyMgmtCreateAndPostSalesOrderAsTeamMemberISVEmb()
     var
@@ -214,7 +214,7 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,OrderPostActionHandler,PostedSalesInvoicePageHandler,PostedPurchaseInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure AssemblyMgmtCreateAndPostSalesOrderAsDeviceISVEmbUser()
     var
@@ -420,10 +420,26 @@ codeunit 135411 "Assembly Mgmt. Plan-based E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
+    begin
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
     end;
 
     [ConfirmHandler]

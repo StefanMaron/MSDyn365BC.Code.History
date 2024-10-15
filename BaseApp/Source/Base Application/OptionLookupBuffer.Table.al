@@ -63,6 +63,9 @@ table 1670 "Option Lookup Buffer"
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         Permission: Record Permission;
+        TableNo: Integer;
+        FieldNo: Integer;
+        RelationFieldNo: Integer;
         IsHandled: Boolean;
     begin
         case LookupType of
@@ -74,9 +77,10 @@ table 1670 "Option Lookup Buffer"
                 FillBufferInternal(DATABASE::Permission, Permission.FieldNo("Read Permission"), 0, LookupType);
             else begin
                     IsHandled := false;
-                    OnFillBufferLookupTypeCase(LookupType, IsHandled);
+                    OnFillBufferLookupTypeCase(LookupType, IsHandled, TableNo, FieldNo, RelationFieldNo);
                     if not IsHandled then
                         Error(UnsupportedTypeErr);
+                    FillBufferInternal(TableNo, FieldNo, RelationFieldNo, LookupType);
                 end;
         end;
     end;
@@ -276,7 +280,7 @@ table 1670 "Option Lookup Buffer"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnFillBufferLookupTypeCase(LookupType: Enum "Option Lookup Type"; var IsHandled: Boolean)
+    local procedure OnFillBufferLookupTypeCase(LookupType: Enum "Option Lookup Type"; var IsHandled: Boolean; var TableNo: Integer; var FieldNo: Integer; var RelationFieldNo: Integer)
     begin
     end;
 

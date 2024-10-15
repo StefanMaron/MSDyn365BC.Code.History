@@ -125,7 +125,6 @@ page 7118 "Purchase Analysis Report"
                 {
                     ApplicationArea = PurchaseAnalysis;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -373,7 +372,7 @@ page 7118 "Purchase Analysis Report"
         CurrentAreaType: Enum "Analysis Area Type";
         CurrentSourceTypeNoFilter: Text;
         CurrentSourceTypeFilter: Enum "Analysis Source Type";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         Direction: Option Backward,Forward;
         NoOfColumns: Integer;
         FirstLineNo: Integer;
@@ -385,15 +384,15 @@ page 7118 "Purchase Analysis Report"
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if GetFilter("Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
         SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
         if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
             SetRange("Date Filter", GetRangeMin("Date Filter"));

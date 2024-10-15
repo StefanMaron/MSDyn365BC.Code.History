@@ -27,16 +27,16 @@ codeunit 11515 "CH Report Management"
         Clear(HeaderTxt);
 
         case ReportId of
-            REPORT::"Sales - Quote",
+            REPORT::"Standard Sales - Quote",
           REPORT::"Blanket Sales Order",
           REPORT::"Sales Picking List",
-          REPORT::"Order Confirmation",
+          REPORT::"Standard Sales - Order Conf.",
           REPORT::"Return Order Confirmation",
           REPORT::"Sales - Shipment",
-          REPORT::"Sales - Credit Memo":
+          REPORT::"Standard Sales - Credit Memo":
                 PrepareHeaderSalesCommonPart(RecRef, HeaderLabel, HeaderTxt);
             REPORT::"Sales Invoice ESR",
-          REPORT::"Sales - Invoice":
+          REPORT::"Standard Sales - Invoice":
                 PrepareHeaderSalesInvoice(RecRef, HeaderLabel, HeaderTxt);
             REPORT::"Purchase - Quote",
           REPORT::"Purchase - Credit Memo",
@@ -111,13 +111,13 @@ codeunit 11515 "CH Report Management"
         Clear(FooterTxt);
 
         case ReportId of
-            REPORT::"Sales - Quote",
+            REPORT::"Standard Sales - Quote",
           REPORT::"Blanket Sales Order",
-          REPORT::"Order Confirmation",
+          REPORT::"Standard Sales - Order Conf.",
           REPORT::"Return Order Confirmation",
-          REPORT::"Sales - Invoice",
+          REPORT::"Standard Sales - Invoice",
           REPORT::"Sales Invoice ESR",
-          REPORT::"Sales - Credit Memo":
+          REPORT::"Standard Sales - Credit Memo":
                 PrepareFooterSalesCommonPart(RecRef, FooterLabel, FooterTxt, true);
             REPORT::"Sales Picking List",
           REPORT::"Sales - Shipment":

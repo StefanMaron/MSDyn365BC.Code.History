@@ -6,32 +6,31 @@ codeunit 1655 "Office Add-In Sample Emails"
     end;
 
     var
-        WelcomeTxt: Label 'We are all set up. Welcome to Your Business Inbox in Outlook!';
-        FirstHeaderTxt: Label 'Get your business done without leaving Outlook';
-        FirstParagraph_Part1Txt: Label 'With %1, your business comes to you directly in Microsoft Outlook. Getting started in Outlook or the Outlook Web App is easy. Just open the %2 add-in from an email message that a business contact sends you and work with your business data without leaving Outlook.', Comment = '%1 = Application Name(Marketing), %2 - Application Name(Full)';
-        FirstParagraph_Part2Txt: Label 'Use the steps below to see how easily you can create and send documents for your business contacts.';
-        GetStartedTxt: Label 'Get Started';
+        WelcomeTxt: Label 'We are all set up. Welcome to Your business inbox in Outlook!';
+        FirstHeaderTxt: Label 'Get business done without leaving Outlook';
+        FirstParagraph_Part1Txt: Label 'With %1, your business comes to you directly in Microsoft Outlook. Getting started in Outlook is easy: use the steps below to see how quickly you can create and send documents for your business contacts.', Comment = '%1 = Application Name';
+        GetStartedTxt: Label 'Get started with contact insights';
         OutlookHeaderTxt: Label 'In Outlook:';
-        OutlookParagraphTxt: Label 'In the %1 section of the ribbon, choose Contact Insights.', Comment = '%1 = Application Name';
-        OWAHeaderTxt: Label 'In the Outlook Web App:';
+        OutlookParagraphTxt: Label 'Find %1 in the ribbon, and choose Contact Insights.', Comment = '%1 = Application Name';
+        OWAHeaderTxt: Label 'In Outlook on the web:', Comment = 'Outlook on the web is a product name';
         OWAParagraph1Txt: Label 'Choose ''More actions'' ', Comment = 'Trailing space is required. More actions is the text used in OWA - it''s not clear how this would be translated.';
         OWAParagraph2Txt: Label ' in the upper-right corner of the email and choose %1.', Comment = '%1 = Application Name; Opening space is required.';
         SalesQuoteHdrTxt: Label 'Create a sales quote';
+        SalesQuoteIntroTxt: Label 'Business Central helps you author email responses by suggesting items and quantities that you can include in an attached document.';
         SalesQuoteInst1Txt: Label 'On the app bar, choose Sales Quote from the New menu';
-        SalesQuoteInst2Txt: Label 'On the lines of the quote, enter the items that Adatum Corporation wants and how many of each.';
-        SalesQuoteFirstItemTxt: Label 'London Swivel Chair';
+        SalesQuoteInst2Txt: Label 'Review the items and quantities in Suggested Items list and select those you want to add to the sales quote. You can adjust these directly on the quote.';
+        SalesQuoteInst3Txt: Label 'On the document''s action menu, choose Send by Email.';
+        SalesQuoteInst4Txt: Label 'Review the mail and attached file before you send it.';
+        SalesQuoteInst5Txt: Label 'In the add-in pane, choose the back arrow to return to the customer dashboard.';
+        SalesQuoteFirstItemNameTxt: Label 'London Swivel Chair', Comment = 'Special characters such as hyphen, brackets, parentheses and commas are not allowed.';
         SalesQuoteFirstItemQtyTxt: Label '7';
-        SalesQuoteSecondItemTxt: Label 'Antwerp Conference Table';
+        SalesQuoteSecondItemNameTxt: Label 'Antwerp Conference Table', Comment = 'Special characters such as hyphen, brackets, parentheses and commas are not allowed.';
         SalesQuoteSecondItemQtyTxt: Label '2';
-        SalesQuoteTipTxt: Label 'Tip: You can start typing the name of the item in the Description field in the new line, or you can search for the item if you choose the lookup action.';
-        SendbyEmailHdrTxt: Label 'Send the quote by email';
-        SendbyEmailInst1Txt: Label 'On the document''s action menu, choose Send by Email.';
-        SendbyEmailInst2Txt: Label 'This creates an email, and you should review it and the attached PDF file with the quote before you send it. For this walkthrough, you can close the email without saving it.';
-        SendbyEmailInst3Txt: Label 'In the add-in pane, choose the back arrow to return to the customer dashboard.';
-        FinalMessageTxt: Label 'When you are ready, return to the Getting Started guide in %1 to continue the tour.', Comment = '%1 = Application Name';
         LineNo1Txt: Label '1.';
         LineNo2Txt: Label '2.';
         LineNo3Txt: Label '3.';
+        LineNo4Txt: Label '4.';
+        LineNo5Txt: Label '5.';
         OpenParenTxt: Label '(';
         CloseParenTxt: Label ')';
         BrandingFolderTxt: Label 'ProjectMadeira/', Locked = true;
@@ -331,90 +330,92 @@ codeunit 1655 "Office Add-In Sample Emails"
           ' style=''width:468.5pt;border-collapse:collapse;mso-yfti-tbllook:1184;' +
           ' mso-padding-alt:0in 0in 0in 0in''>' +
           ' <tr style=''mso-yfti-irow:0;mso-yfti-firstrow:yes;height:64.75pt''>' +
-          '  <td width=425 colspan=2 style=''width:319.1pt;background:#D9D9D9;padding:0in 0in 0in .15in;' +
+          '  <td width=425 colspan=2 style=''width:319.1pt;background:#D9F0F2;padding:0in 0in 0in .15in;' +
           '  height:64.75pt''>' +
           '  <p class=MsoNormal><span style=''font-size:22.0pt;mso-bidi-font-size:11.0pt;' +
-          '  font-family:"Segoe UI Light",sans-serif;color:#262626;mso-themecolor:text1;' +
-          '  mso-themetint:217;mso-style-textfill-fill-color:#262626;mso-style-textfill-fill-themecolor:' +
+          '  font-family:"Segoe UI Light",sans-serif;color:#212121;mso-themecolor:text1;' +
+          '  mso-themetint:217;mso-style-textfill-fill-color:#212121;mso-style-textfill-fill-themecolor:' +
           '  text1;mso-style-textfill-fill-alpha:100.0%;mso-style-textfill-fill-colortransforms:' +
           '  "lumm=85000 lumo=15000"''>' + WelcomeTxt + '</span><span style=''font-family:"Segoe UI Light",sans-serif;' +
-          '  color:#262626;mso-themecolor:text1;mso-themetint:217;mso-style-textfill-fill-color:' +
-          '  #262626;mso-style-textfill-fill-themecolor:text1;mso-style-textfill-fill-alpha:' +
+          '  color:#212121;mso-themecolor:text1;mso-themetint:217;mso-style-textfill-fill-color:' +
+          '  #212121;mso-style-textfill-fill-themecolor:text1;mso-style-textfill-fill-alpha:' +
           '  100.0%;mso-style-textfill-fill-colortransforms:"lumm=85000 lumo=15000"''><o:p></o:p></span></p>' +
           '  </td>' +
-          '  <td width=199 style=''width:149.4pt;background:#D9D9D9;padding:0in 0in 0in 0in;' +
+          '  <td width=199 style=''width:149.4pt;background:#D9F0F2;padding:0in 0in 0in 0in;' +
           '  height:64.75pt''>' +
           '  <p class=MsoNormal align=right style=''text-align:right''><span' +
           '  style=''color:#7F7F7F;mso-no-proof:yes''>' +
           '  </v:shape><![endif]--><![if !vml]><img width=171 height=106' +
-          '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'WelcomeBanner.png') + '"' +
-          '  alt="cid:WelcomeBanner.png@01D202D9.765B0100" v:shapes="Picture_x0020_392"><![endif]></span><span' +
+          '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookWelcomeBanner.png') + '"' +
+          '  alt="WelcomeBanner" v:shapes="Picture_x0020_392"><![endif]></span><span' +
           '  style=''color:#7F7F7F''><o:p></o:p></span></p>' +
           '  </td>' +
           ' </tr>' +
           ' <tr style=''mso-yfti-irow:1;height:57.0pt''>' +
           '  <td width=625 colspan=3 valign=top style=''width:468.5pt;padding:8.65pt .15in 8.65pt .15in;' +
           '  height:57.0pt''>' +
-          '  <p class=MsoNormal><span style=''font-family:"Segoe UI",sans-serif;color:#0070C0''>' +
-          FirstHeaderTxt + '</span><span style=''font-size:9.0pt;' +
+          '  <p class=MsoNormal><span style=''font-family:"Segoe UI",sans-serif;color:#008489''>' +
+             FirstHeaderTxt + '</span><span style=''font-size:9.0pt;' +
           '  font-family:"Segoe UI",sans-serif;color:#00B0F0''><o:p></o:p></span></p>' +
           '  <p class=MsoNormal><span style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;' +
-          '  color:#595959''>' + StrSubstNo(FirstParagraph_Part1Txt, PRODUCTNAME.Marketing, PRODUCTNAME.Full) + '<o:p></o:p></span></p>' +
+          '  color:#595959''>' + StrSubstNo(FirstParagraph_Part1Txt, PRODUCTNAME.Short) + '<o:p></o:p></span></p>' +
           '  <p class=MsoNormal><span style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;' +
           '  color:#595959''><o:p>&nbsp;</o:p></span></p>' +
-          '  <p class=MsoNormal><span style=''font-size:10.0pt;mso-bidi-font-size:11.0pt;' +
-          '  font-family:"Segoe UI",sans-serif;color:#595959''>' + FirstParagraph_Part2Txt + '</span><span' +
-          '  style=''font-size:9.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p></o:p></span></p>' +
           '  </td>' +
           ' </tr>' +
           ' <tr style=''mso-yfti-irow:2;height:13.0pt''>' +
           '  <td width=625 colspan=3 valign=top style=''width:468.5pt;padding:.05in .15in .05in .15in;' +
           '  height:13.0pt''>' +
-          '  <p class=MsoNormal><span style=''font-family:"Segoe UI",sans-serif;color:#0070C0''>' + GetStartedTxt + '<o:p></o:p></span></p>' +
+          '  <p class=MsoNormal><span style=''font-family:"Segoe UI",sans-serif;color:#008489''>' + GetStartedTxt + '<o:p></o:p></span></p>' +
           '  </td>' +
           ' </tr>' +
           ' <tr style=''mso-yfti-irow:3;height:84.0pt''>' +
           '  <td width=311 valign=top style=''width:233.6pt;padding:0in .2in 8.65pt .15in;' +
           '  height:84.0pt''>' +
           '  <p class=MsoNormal><span style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;' +
-          '  color:#0070C0''>' + OutlookHeaderTxt + '</span></p>' +
+          '  color:#008489''>' + OutlookHeaderTxt + '</span></p>' +
           '  <p class=MsoNormal><span style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;' +
           '  color:#595959''>' + StrSubstNo(OutlookParagraphTxt, PRODUCTNAME.Short) + '<o:p></o:p></span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
           '  10.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p>&nbsp;</o:p></span></p>' +
-          '  <p class=MsoNormal align=center style=''text-align:center''><span' +
+          '  <p class=MsoNormal align=left style=''text-align:left''><span' +
           '  style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;color:#595959;' +
           '  mso-no-proof:yes''>' +
-          '  </v:shape><![endif]--><![if !vml]><img width=49 height=51' +
-          '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookIcon.png') + '"' +
-          '  alt="cid:OutlookIcon.png@01D1FFAB.2B39E500" v:shapes="Picture_x0020_5"><![endif]></span><span' +
+          '  </v:shape><![endif]--><![if !vml]><img width=253 height=194' +
+          '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookDesktopIconDiscovery.png') + '"' +
+          '  alt="Outlook Desktop Icon Discovery" v:shapes="Picture_x0020_5"><![endif]></span><span' +
           '  style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p></o:p></span></p>' +
           '  </td>' +
           '  <td width=313 colspan=2 valign=top style=''width:234.9pt;padding:0in .2in 0in 5.75pt;' +
           '  height:84.0pt''>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
-          '  10.0pt;font-family:"Segoe UI",sans-serif;color:#0070C0''>' + OWAHeaderTxt + '</span></p>' +
+          '  10.0pt;font-family:"Segoe UI",sans-serif;color:#008489''>' + OWAHeaderTxt + '</span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
           '  10.0pt;font-family:"Segoe UI",sans-serif;color:#595959''>' + OWAParagraph1Txt + OpenParenTxt +
           '  <span style=''mso-no-proof:yes''></v:shape><![endif]--><![if !vml]><img width=21 height=14' +
           '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookEllipse.png') + '"' +
-          '  alt="cid:OutlookEllipse.png@01D1838A.7FBEA0E0" v:shapes="Picture_x0020_1058"><![endif]></span><span' +
+          '  alt="Outlook Ellipse" v:shapes="Picture_x0020_1058"><![endif]></span><span' +
           '  style=''mso-spacerun:yes''> </span>' + CloseParenTxt + StrSubstNo(OWAParagraph2Txt, PRODUCTNAME.Short) + '</span><span' +
           '  style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif''> <o:p></o:p></span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
           '  10.0pt;font-family:"Segoe UI",sans-serif''><o:p>&nbsp;</o:p></span></p>' +
-          '  <p class=MsoNormal align=center style=''text-align:center''><span' +
+          '  <p class=MsoNormal align=right style=''text-align:right;margin-top:6px''><span' +
           '  style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;mso-no-proof:yes''>' +
-          '  </v:shape><![endif]--><![if !vml]><img width=196 height=50' +
-          '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookOWA.png') + '"' +
-          '  alt="cid:OutlookOWA.png@01D1709E.B113E5F0" v:shapes="Picture_x0020_20"><![endif]></span><span' +
+          '  </v:shape><![endif]--><![if !vml]><img width=290 height=169' +
+          '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookWebIconDiscovery.png') + '"' +
+          '  alt="Outlook Web Icon Discovery" v:shapes="Picture_x0020_20"><![endif]></span><span' +
           '  style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p></o:p></span></p>' +
           '  </td>' +
           ' </tr>' +
           ' <tr style=''mso-yfti-irow:4;height:186.75pt''>' +
-          '  <td width=625 colspan=3 valign=top style=''width:468.5pt;padding:0in .25in 8.65pt .15in;' +
+          '  <td width=625 colspan=3 valign=top style=''width:468.5pt;padding:.05in .15in .05in .15in;' +
           '  height:186.75pt''>' +
-          '  <p class=MsoNormal><span style=''font-family:"Segoe UI",sans-serif;color:#0070C0''>' + SalesQuoteHdrTxt + '<o:p></o:p></span></p>' +
+          '  <p class=MsoNormal><span style=''font-family:"Segoe UI",sans-serif;color:#008489''>' + SalesQuoteHdrTxt + ' &nbsp;<o:p></o:p></span></p>' +
+
+          '  <p class=MsoNormal><span style=''font-size:10.0pt;mso-bidi-font-size:11.0pt;' +
+          '  font-family:"Segoe UI",sans-serif;color:#595959''>' + SalesQuoteIntroTxt + '</span><span' +
+          '  style=''font-size:9.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p></o:p></span></p>' +
+
           '  <p class=MsoListParagraph style=''margin-left:.25in;text-indent:-.25in;' +
           '  mso-list:l1 level1 lfo1''><![if !supportLists]><span style=''font-size:9.0pt;' +
           '  mso-bidi-font-size:10.0pt;font-family:"Segoe UI",sans-serif;mso-fareast-font-family:' +
@@ -457,7 +458,7 @@ codeunit 1655 "Office Add-In Sample Emails"
           '    solid #595959 .5pt;padding:0in 5.4pt 0in 5.4pt''>' +
           '    <p class=MsoListParagraph style=''margin-left:0in''><span style=''font-size:' +
           '    10.0pt;mso-bidi-font-size:9.0pt;font-family:"Segoe UI",sans-serif;' +
-          '    color:#595959''>' + SalesQuoteFirstItemTxt + '<o:p></o:p></span></p>' +
+          '    color:#595959''>' + SalesQuoteFirstItemNameTxt + '<o:p></o:p></span></p>' +
           '    </td>' +
           '    <td width=79 valign=top style=''width:58.9pt;border:none;mso-border-top-alt:' +
           '    solid #595959 .5pt;padding:0in 5.4pt 0in 5.4pt''>' +
@@ -470,7 +471,7 @@ codeunit 1655 "Office Add-In Sample Emails"
           '    <td width=177 valign=top style=''width:133.1pt;padding:0in 5.4pt 0in 5.4pt''>' +
           '    <p class=MsoListParagraph style=''margin-left:0in''><span style=''font-size:' +
           '    10.0pt;mso-bidi-font-size:9.0pt;font-family:"Segoe UI",sans-serif;' +
-          '    color:#595959''>' + SalesQuoteSecondItemTxt + '<o:p></o:p></span></p>' +
+          '    color:#595959''>' + SalesQuoteSecondItemNameTxt + '<o:p></o:p></span></p>' +
           '    </td>' +
           '    <td width=79 valign=top style=''width:58.9pt;padding:0in 5.4pt 0in 5.4pt''>' +
           '    <p class=MsoListParagraph align=center style=''margin-left:0in;text-align:' +
@@ -481,45 +482,42 @@ codeunit 1655 "Office Add-In Sample Emails"
           '  </table>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
           '  10.0pt;mso-bidi-font-size:9.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p>&nbsp;</o:p></span></p>' +
-          '  <p class=MsoListParagraph style=''margin-top:0in;margin-right:0in;margin-bottom:' +
-          '  6.0pt;margin-left:.25in''><span style=''font-size:10.0pt;mso-bidi-font-size:' +
-          '  9.0pt;font-family:"Segoe UI",sans-serif;color:#595959''>' + SalesQuoteTipTxt + '.<o:p></o:p></span></p>' +
+
           '  <p class=MsoNormal style=''margin-bottom:6.0pt''><span style=''font-size:10.0pt;' +
           '  mso-bidi-font-size:9.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p>&nbsp;</o:p></span></p>' +
-          '  <p class=MsoNormal><span style=''font-family:"Segoe UI",sans-serif;color:#0070C0''>' + SendbyEmailHdrTxt + '<o:p></o:p></span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in;text-indent:-.25in;' +
           '  mso-list:l0 level1 lfo2''><![if !supportLists]><span style=''font-size:9.0pt;' +
           '  font-family:"Segoe UI",sans-serif;mso-fareast-font-family:"Segoe UI";' +
-          '  color:#595959''><span style=''mso-list:Ignore''>' + LineNo1Txt + '<span style=''font:7.0pt "Times New Roman"''>&nbsp;&nbsp;&nbsp;&nbsp;' +
+          '  color:#595959''><span style=''mso-list:Ignore''>' + LineNo3Txt + '<span style=''font:7.0pt "Times New Roman"''>&nbsp;&nbsp;&nbsp;&nbsp;' +
           '  </span></span></span><![endif]><span style=''font-size:10.0pt;mso-bidi-font-size:' +
-          '  9.0pt;font-family:"Segoe UI",sans-serif;color:#595959''>' + SendbyEmailInst1Txt + ' ' + OpenParenTxt + '<span style=''mso-no-proof:yes''>' +
+          '  9.0pt;font-family:"Segoe UI",sans-serif;color:#595959''>' + SalesQuoteInst3Txt + ' ' + OpenParenTxt + '<span style=''mso-no-proof:yes''>' +
           '  </v:shape><![endif]--><![if !vml]><img width=21 height=14' +
           '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookEllipse.png') + '"' +
-          '  alt="cid:OutlookEllipse.png@01D1838A.7FBEA0E0" v:shapes="Picture_x0020_1058"><![endif]></span><span' +
+          '  alt="Outlook Ellipse" v:shapes="Picture_x0020_1058"><![endif]></span><span' +
           '  style=''mso-spacerun:yes''> </span>' + CloseParenTxt + '<o:p></o:p></span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in;text-indent:-.25in;' +
           '  mso-list:l0 level1 lfo2''><![if !supportLists]><span style=''font-size:9.0pt;' +
           '  font-family:"Segoe UI",sans-serif;mso-fareast-font-family:"Segoe UI";' +
-          '  color:#595959''><span style=''mso-list:Ignore''>' + LineNo2Txt + '<span style=''font:7.0pt "Times New Roman"''>&nbsp;&nbsp;&nbsp;&nbsp;' +
+          '  color:#595959''><span style=''mso-list:Ignore''>' + LineNo4Txt + '<span style=''font:7.0pt "Times New Roman"''>&nbsp;&nbsp;&nbsp;&nbsp;' +
           '  </span></span></span><![endif]><span style=''font-size:10.0pt;mso-bidi-font-size:' +
-          '  9.0pt;font-family:"Segoe UI",sans-serif;color:#595959''>' + SendbyEmailInst2Txt + '<o:p></o:p></span></p>' +
+          '  9.0pt;font-family:"Segoe UI",sans-serif;color:#595959''>' + SalesQuoteInst4Txt + '<o:p></o:p></span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in;text-indent:-.25in;' +
           '  mso-list:l0 level1 lfo2''><![if !supportLists]><span style=''font-size:9.0pt;' +
           '  mso-bidi-font-size:11.0pt;font-family:"Segoe UI",sans-serif;mso-fareast-font-family:' +
-          '  "Segoe UI";color:#595959''><span style=''mso-list:Ignore''>' + LineNo3Txt + '<span' +
+          '  "Segoe UI";color:#595959''><span style=''mso-list:Ignore''>' + LineNo5Txt + '<span' +
           '  style=''font:7.0pt "Times New Roman"''>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><![endif]><span' +
           '  style=''font-size:10.0pt;mso-bidi-font-size:9.0pt;font-family:"Segoe UI",sans-serif;' +
-          '  color:#595959''>' + SendbyEmailInst3Txt + '</span><span style=''font-family:"Segoe UI",sans-serif;' +
+          '  color:#595959''>' + SalesQuoteInst5Txt + '</span><span style=''font-family:"Segoe UI",sans-serif;' +
           '  color:#595959''><o:p></o:p></span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-family:' +
           '  "Segoe UI",sans-serif;color:#595959''><o:p>&nbsp;</o:p></span></p>' +
-          '  <p class=MsoNormal><span style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;' +
-          '  color:#595959''>' + StrSubstNo(FinalMessageTxt, PRODUCTNAME.Marketing) + '</span><span style=''font-size:9.0pt;' +
+          '  <span style=''font-size:9.0pt;' +
           '  mso-bidi-font-size:10.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p></o:p></span></p>' +
           '  </td>' +
           ' </tr>' +
+
           ' <tr style=''mso-yfti-irow:5;height:.2in''>' +
-          '  <td width=625 colspan=3 valign=top style=''width:468.5pt;background:#00B0F0;' +
+          '  <td width=625 colspan=3 valign=top style=''width:468.5pt;background:#00B7C3;' +
           '  padding:0in 5.4pt 0in 5.4pt;height:.2in''>' +
           '  <p class=MsoNormal><o:p>&nbsp;</o:p></p>' +
           '  </td>' +

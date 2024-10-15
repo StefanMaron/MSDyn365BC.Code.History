@@ -1,4 +1,4 @@
-﻿codeunit 91 "Purch.-Post (Yes/No)"
+codeunit 91 "Purch.-Post (Yes/No)"
 {
     EventSubscriberInstance = Manual;
     TableNo = "Purchase Header";

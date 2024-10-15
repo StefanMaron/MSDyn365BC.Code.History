@@ -145,6 +145,16 @@ table 5475 "Sales Invoice Entity Aggregate"
                 UpdateShipmentMethodId;
             end;
         }
+        field(29; "Shortcut Dimension 1 Code"; Code[20])
+        {
+            Caption = 'Shortcut Dimension 1 Code';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+        }
+        field(30; "Shortcut Dimension 2 Code"; Code[20])
+        {
+            Caption = 'Shortcut Dimension 2 Code';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+        }
         field(31; "Customer Posting Group"; Code[20])
         {
             Caption = 'Customer Posting Group';

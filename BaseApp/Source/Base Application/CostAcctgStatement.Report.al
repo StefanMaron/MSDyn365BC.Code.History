@@ -90,7 +90,7 @@ report 1126 "Cost Acctg. Statement"
                 end;
                 NewPage := "New Page";
 
-                LineType := Type;
+                LineType := Type.AsInteger();
             end;
 
             trigger OnPreDataItem()

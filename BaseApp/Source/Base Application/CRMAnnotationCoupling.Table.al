@@ -7,7 +7,7 @@ table 5392 "CRM Annotation Coupling"
         field(2; "Record Link Record ID"; RecordID)
         {
             Caption = 'Record Link Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(3; "CRM Annotation ID"; Guid)
         {

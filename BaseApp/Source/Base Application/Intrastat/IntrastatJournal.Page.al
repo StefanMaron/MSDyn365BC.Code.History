@@ -38,27 +38,32 @@
                 field(Type; Type)
                 {
                     ApplicationArea = BasicEU;
+                    StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies whether the item was received or shipped by the company.';
                 }
                 field(Date; Date)
                 {
                     ApplicationArea = BasicEU;
+                    StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the date the item entry was posted.';
                 }
                 field("Document No."; "Document No.")
                 {
                     ApplicationArea = BasicEU;
+                    StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the document number on the entry.';
                     ShowMandatory = true;
                 }
                 field("Item No."; "Item No.")
                 {
                     ApplicationArea = BasicEU;
+                    StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the number of the item.';
                 }
                 field(Name; Name)
                 {
                     ApplicationArea = BasicEU;
+                    StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the name of the item.';
                     Caption = 'Item Name';
                 }
