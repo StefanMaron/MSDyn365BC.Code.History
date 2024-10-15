@@ -40,6 +40,7 @@ codeunit 144101 "Test SEPA CT v03"
         WrongSymbolFoundErr: Label 'Wrong symbol found';
         NoDataExportedMsg: Label 'No BTL91 data has been exported.';
         DataExportedMsg: Label 'BTL91 data has been exported.';
+        MustBeEnteredMsg: Label '%1 must be entered in %2.';
 
     [Test]
     [Scope('OnPrem')]
@@ -590,6 +591,74 @@ codeunit 144101 "Test SEPA CT v03"
 
     [Test]
     [Scope('OnPrem')]
+    procedure LocalFunctionalityMgt_GetPmtHistLineCountAndAmt_OnlyForeignAmounts()
+    var
+        PaymentHistory: Record "Payment History";
+        PaymentHistoryLine: Record "Payment History Line";
+        LocalFunctionalityMgt: Codeunit "Local Functionality Mgt.";
+        TotalAmount: Text[50];
+        LineCount: Text[20];
+        ForeignCount: Integer;
+        Amount: Decimal;
+        TotalForeign: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 363009] COD 11400 "Local Functionality Mgt.".GetPmtHistLineCountAndAmtForSEPAISO20022Pain() in case of several lines
+        // [SCENARIO 363009] with only foreign amounts
+        MockPaymentHistory(PaymentHistory);
+
+        for ForeignCount := 1 to LibraryRandom.RandIntInRange(10, 20) do begin
+            Amount := LibraryRandom.RandDec(1000, 2);
+            TotalForeign += Amount;
+            MockPaymentHistoryLineWithAmounts(PaymentHistoryLine, PaymentHistory, LibraryRandom.RandDec(1000, 2), Amount);
+        end;
+
+        LocalFunctionalityMgt.GetPmtHistLineCountAndAmtForSEPAISO20022Pain(PaymentHistory, PaymentHistoryLine, TotalAmount, LineCount);
+
+        Assert.AreEqual(Format(ForeignCount), LineCount, '');
+        Assert.AreEqual(Format(TotalForeign, 0, '<Precision,2:2><Standard Format,9>'), TotalAmount, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocalFunctionalityMgt_GetPmtHistLineCountAndAmt_ForeignAndLocalAmounts()
+    var
+        PaymentHistory: Record "Payment History";
+        PaymentHistoryLine: Record "Payment History Line";
+        LocalFunctionalityMgt: Codeunit "Local Functionality Mgt.";
+        TotalAmount: Text[50];
+        LineCount: Text[20];
+        LocalCount: Integer;
+        ForeignCount: Integer;
+        Amount: Decimal;
+        TotalLocal: Decimal;
+        TotalForeign: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 363009] COD 11400 "Local Functionality Mgt.".GetPmtHistLineCountAndAmtForSEPAISO20022Pain() in case of several lines
+        // [SCENARIO 363009] with local and foreign amounts
+        MockPaymentHistory(PaymentHistory);
+
+        for LocalCount := 1 to LibraryRandom.RandIntInRange(10, 20) do begin
+            Amount := LibraryRandom.RandDec(1000, 2);
+            TotalLocal += Amount;
+            MockPaymentHistoryLineWithAmounts(PaymentHistoryLine, PaymentHistory, Amount, 0);
+        end;
+
+        for ForeignCount := 1 to LibraryRandom.RandIntInRange(10, 20) do begin
+            Amount := LibraryRandom.RandDec(1000, 2);
+            TotalForeign += Amount;
+            MockPaymentHistoryLineWithAmounts(PaymentHistoryLine, PaymentHistory, LibraryRandom.RandDec(1000, 2), Amount);
+        end;
+
+        LocalFunctionalityMgt.GetPmtHistLineCountAndAmtForSEPAISO20022Pain(PaymentHistory, PaymentHistoryLine, TotalAmount, LineCount);
+
+        Assert.AreEqual(Format(LocalCount + ForeignCount), LineCount, '');
+        Assert.AreEqual(Format(TotalLocal + TotalForeign, 0, '<Precision,2:2><Standard Format,9>'), TotalAmount, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure SEPA_ISO20022_Pain010103_DecimalAmountFormat()
     var
         PaymentHistory: Record "Payment History";
@@ -822,10 +891,11 @@ codeunit 144101 "Test SEPA CT v03"
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
-        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "EUR", CdtTrfTxInf.Amt.InstdAmt<Ccy = "USD"> = 2000
+        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "EUR", CdtTrfTxInf.Amt.InstdAmt<Ccy = "EUR"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, CurrencyCode);
+        // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "EUR" (regardless of bank currency)
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, GetEuroCurrencyCode);
         // [THEN] Payment History Line has Currency Code = 'USD' (TFS 309218)
         VerifyPmtHistoryLineCurrencyCode(BankAccountNo, CurrencyCode);
     end;
@@ -860,10 +930,11 @@ codeunit 144101 "Test SEPA CT v03"
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
-        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "EUR", CdtTrfTxInf.Amt.InstdAmt<Ccy = "EUR"> = 2000
+        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "EUR", CdtTrfTxInf.Amt.InstdAmt<Ccy = "USD"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, GetEuroCurrencyCode);
+        // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "USD" (regardless of bank currency)
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, CurrencyCode);
     end;
 
     [Test]
@@ -914,14 +985,14 @@ codeunit 144101 "Test SEPA CT v03"
         TotalAmount: Decimal;
         FileName: Text;
         CurrencyCode: Code[10];
-        IncCurrencyCode: Code[10];
+        InvCurrencyCode: Code[10];
     begin
         // [FEATURE] [XML]
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Euro", "Currency Euro" = "",
         // [SCENARIO 294684] "LCY Code" = "EUR", bank currency = "USD", vendor currrency = "GBP"
         Initialize;
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        IncCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        InvCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Euro", "Currency Euro" = "", "LCY Code" = "EUR"
@@ -929,15 +1000,16 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Posted purchase invoice with currency code = "GBP", total amount including vat = 1000 GBP (2000 USD)
         PrepareGenericSEPAScenario(
           VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
-          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, CurrencyCode, IncCurrencyCode);
+        DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, CurrencyCode, InvCurrencyCode);
 
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
-        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "EUR", CdtTrfTxInf.Amt.InstdAmt<Ccy = "USD"> = 2000
+        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "EUR", CdtTrfTxInf.Amt.InstdAmt<Ccy = "GBP"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, CurrencyCode);
+        // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "GBP" (regardless of bank currency)
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, InvCurrencyCode);
     end;
 
     [Test]
@@ -1010,10 +1082,11 @@ codeunit 144101 "Test SEPA CT v03"
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
-        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "EUR"> = 2000
+        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "GBP"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode);
+        // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "GBP" (regardless of bank currency)
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode);
     end;
 
     [Test]
@@ -1048,10 +1121,11 @@ codeunit 144101 "Test SEPA CT v03"
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
-        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "GBP"> = 2000
+        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "EUR"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode);
+        // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "EUR" (regardless of bank currency)
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode);
     end;
 
     [Test]
@@ -1126,10 +1200,11 @@ codeunit 144101 "Test SEPA CT v03"
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
-        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "USD"> = 2000
+        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "GBP"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode);
+        // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "GBP" (regardless of bank currency)
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode);
     end;
 
     [Test]
@@ -1166,10 +1241,11 @@ codeunit 144101 "Test SEPA CT v03"
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
-        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "GBP"> = 2000
+        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "USD"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, LclCurrencyCode);
+        // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "USD" (regardless of bank currency)
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode);
     end;
 
     [Test]
@@ -1246,10 +1322,11 @@ codeunit 144101 "Test SEPA CT v03"
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
-        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "EUR"> = 2000
+        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "USD"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode);
+        // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "USD" (regardless of bank currency)
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode);
     end;
 
     [Test]
@@ -1286,10 +1363,11 @@ codeunit 144101 "Test SEPA CT v03"
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
-        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "USD"> = 2000
+        // [THEN] XML "PmtInf" includes: PmtTpInf.SvcLvl.Cd = "SDVA", ChrgBr = "SHAR", DbtrAcct.Ccy = "GBP", CdtTrfTxInf.Amt.InstdAmt<Ccy = "EUR"> = 1000
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, USDCurrencyCode);
+        // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "EUR" (regardless of bank currency)
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode);
     end;
 
     [Test]
@@ -1367,6 +1445,34 @@ codeunit 144101 "Test SEPA CT v03"
         VerifyChargeBearerValue('CRED');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckSEPAISO20022_AnyCurrencyIsAllowed()
+    var
+        DummyGLSetup: Record "General Ledger Setup";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 363009] Codeunit 11000010 "Check SEPA ISO20022" allows any proposal line Currency Code regardless of G\L Setup
+        CheckSEPAISO20022_Scenario(DummyGLSetup."Local Currency"::Euro, '', '');
+        CheckSEPAISO20022_Scenario(DummyGLSetup."Local Currency"::Euro, '', 'USD');
+        CheckSEPAISO20022_Scenario(DummyGLSetup."Local Currency"::Other, '', '');
+        CheckSEPAISO20022_Scenario(DummyGLSetup."Local Currency"::Other, 'USD', '');
+        CheckSEPAISO20022_Scenario(DummyGLSetup."Local Currency"::Other, '', 'USD');
+        CheckSEPAISO20022_Scenario(DummyGLSetup."Local Currency"::Other, 'USD', 'USD');
+    end;
+
+    local procedure CheckSEPAISO20022_Scenario(GLSetupLocalCurrency: Option; CurrencyEuro: Code[10]; ProposalLineCurrency: Code[10])
+    var
+        DummyProposalLine: Record "Proposal Line";
+    begin
+        UpdateGLSetupCurrency(GLSetupLocalCurrency, CurrencyEuro, '');
+        DummyProposalLine."Currency Code" := ProposalLineCurrency;
+        Codeunit.Run(Codeunit::"Check SEPA ISO20022", DummyProposalLine);
+        DummyProposalLine.TestField(
+          "Error Message",
+          StrSubstNo(MustBeEnteredMsg, DummyProposalLine.FIELDCAPTION(IBAN), DummyProposalLine.TABLECAPTION));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test SEPA CT v03");
@@ -1412,7 +1518,6 @@ codeunit 144101 "Test SEPA CT v03"
         CreateVendorWithBankAccount(Vendor, BankAccount, VendorCurrencyCode);
         VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
         TotalAmount := CreateAndPostPurchInvoice(Vendor."No.", true);
-        TotalAmount := LibraryERM.ConvertCurrency(TotalAmount, VendorCurrencyCode, BankCurrencyCode, WorkDate);
     end;
 
     local procedure SetupForExport(var BankAccount: Record "Bank Account"; var VendorBankAccount: Record "Vendor Bank Account"; ExportProtocolCode: Code[20]; var TotalAmount: Decimal; var NoOfDocuments: Integer)
@@ -1688,6 +1793,13 @@ codeunit 144101 "Test SEPA CT v03"
           PaymentHistoryLine, PaymentHistory, PaymentHistoryLine.Status::New, LibraryRandom.RandDecInRange(100, 200, 2));
         PaymentHistoryLine.Validate("Account No.", LibrarySales.CreateCustomerNo);
         PaymentHistoryLine.Modify(true);
+    end;
+
+    local procedure MockPaymentHistoryLineWithAmounts(var PaymentHistoryLine: Record "Payment History Line"; PaymentHistory: Record "Payment History"; Amount: Decimal; ForeignAmount: Decimal)
+    begin
+        MockPaymentHistoryLine(PaymentHistoryLine, PaymentHistory, PaymentHistoryLine.Status::New, Amount);
+        PaymentHistoryLine."Foreign Amount" := ForeignAmount;
+        PaymentHistoryLine.Modify;
     end;
 
     local procedure MockSEPADirectDebitMandate(): Code[35]

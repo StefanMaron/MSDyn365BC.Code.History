@@ -89,15 +89,25 @@ codeunit 11400 "Local Functionality Mgt."
 
     [Scope('OnPrem')]
     procedure GetPmtHistLineCountAndAmtForSEPAISO20022Pain(PaymentHistory: Record "Payment History"; var PaymentHistoryLine: Record "Payment History Line"; var TotalAmount: Text[50]; var LineCount: Text[20])
+    var
+        TotalAmountDecimal: Decimal;
     begin
         with PaymentHistoryLine do begin
             SetRange("Our Bank", PaymentHistory."Our Bank");
             SetRange("Run No.", PaymentHistory."Run No.");
             SetFilter(Status, '%1|%2|%3', Status::New, Status::Transmitted, Status::"Request for Cancellation");
-            CalcSums(Amount);
-
-            TotalAmount := Format(Abs(Amount), 0, '<Precision,2:2><Standard Format,9>');
             LineCount := Format(Count);
+
+            TotalAmountDecimal := 0;
+            SetFilter("Foreign Amount", '<>0');
+            CalcSums("Foreign Amount");
+            TotalAmountDecimal += "Foreign Amount";
+
+            SetFilter("Foreign Amount", '=0');
+            CalcSums(Amount);
+            TotalAmountDecimal += Amount;
+
+            TotalAmount := Format(Abs(TotalAmountDecimal), 0, '<Precision,2:2><Standard Format,9>');
         end;
     end;
 

@@ -67,6 +67,15 @@ codeunit 143000 "Library - NL Localization"
     end;
 
     [Scope('OnPrem')]
+    procedure CheckAndCreateFreelyTransferableMaximum(CountryRegionCode: Code[10]; CurrencyCode: Code[10])
+    var
+        FreelyTransferableMaximum: Record "Freely Transferable Maximum";
+    begin
+        if not FreelyTransferableMaximum.Get(CountryRegionCode, CurrencyCode) then
+            CreateFreelyTransferableMaximum(CountryRegionCode, CurrencyCode);
+    end;
+
+    [Scope('OnPrem')]
     procedure CreateTransactionMode(var TransactionMode: Record "Transaction Mode"; AccountType: Option)
     begin
         TransactionMode.Init();

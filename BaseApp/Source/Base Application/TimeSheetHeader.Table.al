@@ -22,11 +22,19 @@ table 950 "Time Sheet Header"
             TableRelation = Resource;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 ResourcesSetup.Get();
                 if "Resource No." <> '' then begin
                     Resource.Get("Resource No.");
                     CheckResourcePrivacyBlocked(Resource);
+
+                    IsHandled := false;
+                    OnValidateResourceNoOnBeforeTestFields(Resource, IsHandled);
+                    if IsHandled then
+                        exit;
+
                     Resource.TestField(Blocked, false);
                     Resource.TestField("Time Sheet Owner User ID");
                     Resource.TestField("Time Sheet Approver User ID");
@@ -49,7 +57,7 @@ table 950 "Time Sheet Header"
         }
         field(12; "Open Exists"; Boolean)
         {
-            CalcFormula = Exist ("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
+            CalcFormula = Exist("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
                                                          Status = CONST(Open)));
             Caption = 'Open Exists';
             Editable = false;
@@ -57,7 +65,7 @@ table 950 "Time Sheet Header"
         }
         field(13; "Submitted Exists"; Boolean)
         {
-            CalcFormula = Exist ("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
+            CalcFormula = Exist("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
                                                          Status = CONST(Submitted)));
             Caption = 'Submitted Exists';
             Editable = false;
@@ -65,7 +73,7 @@ table 950 "Time Sheet Header"
         }
         field(14; "Rejected Exists"; Boolean)
         {
-            CalcFormula = Exist ("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
+            CalcFormula = Exist("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
                                                          Status = CONST(Rejected)));
             Caption = 'Rejected Exists';
             Editable = false;
@@ -73,7 +81,7 @@ table 950 "Time Sheet Header"
         }
         field(15; "Approved Exists"; Boolean)
         {
-            CalcFormula = Exist ("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
+            CalcFormula = Exist("Time Sheet Line" WHERE("Time Sheet No." = FIELD("No."),
                                                          Status = CONST(Approved)));
             Caption = 'Approved Exists';
             Editable = false;
@@ -81,14 +89,14 @@ table 950 "Time Sheet Header"
         }
         field(16; "Posted Exists"; Boolean)
         {
-            CalcFormula = Exist ("Time Sheet Posting Entry" WHERE("Time Sheet No." = FIELD("No.")));
+            CalcFormula = Exist("Time Sheet Posting Entry" WHERE("Time Sheet No." = FIELD("No.")));
             Caption = 'Posted Exists';
             Editable = false;
             FieldClass = FlowField;
         }
         field(20; Quantity; Decimal)
         {
-            CalcFormula = Sum ("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
+            CalcFormula = Sum("Time Sheet Detail".Quantity WHERE("Time Sheet No." = FIELD("No."),
                                                                   Status = FIELD("Status Filter"),
                                                                   "Job No." = FIELD("Job No. Filter"),
                                                                   "Job Task No." = FIELD("Job Task No. Filter"),
@@ -100,13 +108,13 @@ table 950 "Time Sheet Header"
         }
         field(21; "Posted Quantity"; Decimal)
         {
-            CalcFormula = Sum ("Time Sheet Posting Entry".Quantity WHERE("Time Sheet No." = FIELD("No.")));
+            CalcFormula = Sum("Time Sheet Posting Entry".Quantity WHERE("Time Sheet No." = FIELD("No.")));
             Caption = 'Posted Quantity';
             FieldClass = FlowField;
         }
         field(26; Comment; Boolean)
         {
-            CalcFormula = Exist ("Time Sheet Comment Line" WHERE("No." = FIELD("No."),
+            CalcFormula = Exist("Time Sheet Comment Line" WHERE("No." = FIELD("No."),
                                                                  "Time Sheet Line No." = CONST(0)));
             Caption = 'Comment';
             Editable = false;
@@ -313,6 +321,11 @@ table 950 "Time Sheet Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTimeSheetLine(TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateResourceNoOnBeforeTestFields(Resource: Record Resource; var IsHandled: Boolean)
     begin
     end;
 }

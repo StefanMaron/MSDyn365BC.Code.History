@@ -657,11 +657,15 @@ table 901 "Assembly Line"
     var
         WhseAssemblyRelease: Codeunit "Whse.-Assembly Release";
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         TestStatusOpen;
         WhseValidateSourceLine.AssemblyLineDelete(Rec);
         WhseAssemblyRelease.DeleteLine(Rec);
         AssemblyLineReserve.DeleteLine(Rec);
+        ItemTrackingMgt.DeleteWhseItemTrkgLines(
+          DATABASE::"Assembly Line", "Document Type", "Document No.", '', 0, "Line No.", "Location Code", true);
+
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
     end;

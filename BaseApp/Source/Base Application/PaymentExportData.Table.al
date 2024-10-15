@@ -617,6 +617,7 @@
         "Recipient Bank Acc. No." := CopyStr(Employee.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
         "Recipient Bank BIC" := Employee."SWIFT Code";
         "Recipient Bank Country/Region" := Employee."Country/Region Code";
+        OnAfterSetEmployeeAsRecipient(Employee);
     end;
 
     procedure SetBankAsSenderBank(BankAccount: Record "Bank Account")
@@ -631,6 +632,7 @@
         "Sender Bank BIC" := BankAccount."SWIFT Code";
         "Sender Bank Clearing Std." := BankAccount."Bank Clearing Standard";
         "Sender Bank Clearing Code" := BankAccount."Bank Clearing Code";
+        OnAfterSetBankAsSenderBank(BankAccount);
     end;
 
     procedure SetCreditorIdentifier(BankAccount: Record "Bank Account")
@@ -683,8 +685,18 @@
         end;
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetBankAsSenderBank(BankAccount: Record "Bank Account")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCustomerAsRecipient(var PaymentExportData: Record "Payment Export Data"; var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account");
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetEmployeeAsRecipient(Employee: Record Employee)
     begin
     end;
 

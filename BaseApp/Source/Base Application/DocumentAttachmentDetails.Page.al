@@ -246,7 +246,7 @@ page 1173 "Document Attachment Details"
                 end;
         end;
 
-        OnAfterOpenForRecRef(Rec, RecRef);
+        OnAfterOpenForRecRef(Rec, RecRef, FlowFieldsEditable);
     end;
 
     local procedure ImportWithFilter(var TempBlob: Codeunit "Temp Blob"; var FileName: Text)
@@ -264,7 +264,7 @@ page 1173 "Document Attachment Details"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOpenForRecRef(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
+    local procedure OnAfterOpenForRecRef(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef; var FlowFieldsEditable: Boolean)
     begin
     end;
 

@@ -607,17 +607,17 @@ table 11000003 "Detail Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSerialNoEntryOnBeforeValidateAmountFromCustLedgEntry(var DetailLineRec: Record "Detail Line"; TrMode: Record "Transaction Mode"; CustLedgEntry: Record "Cust. Ledger Entry"; IsHandled: Boolean)
+    local procedure OnValidateSerialNoEntryOnBeforeValidateAmountFromCustLedgEntry(var DetailLineRec: Record "Detail Line"; TrMode: Record "Transaction Mode"; CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSerialNoEntryOnBeforeValidateAmountFromVendLedgEntry(var DetailLineRec: Record "Detail Line"; TrMode: Record "Transaction Mode"; VendLedgEntry: Record "Vendor Ledger Entry"; IsHandled: Boolean)
+    local procedure OnValidateSerialNoEntryOnBeforeValidateAmountFromVendLedgEntry(var DetailLineRec: Record "Detail Line"; TrMode: Record "Transaction Mode"; VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateSerialNoEntryOnBeforeValidateAmountFromEmplLedgEntry(var DetailLineRec: Record "Detail Line"; TrMode: Record "Transaction Mode"; EmplLedgEntry: Record "Employee Ledger Entry"; IsHandled: Boolean)
+    local procedure OnValidateSerialNoEntryOnBeforeValidateAmountFromEmplLedgEntry(var DetailLineRec: Record "Detail Line"; TrMode: Record "Transaction Mode"; EmplLedgEntry: Record "Employee Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

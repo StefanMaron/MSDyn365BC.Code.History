@@ -209,35 +209,35 @@ table 5965 "Service Contract Header"
         }
         field(8; Name; Text[100])
         {
-            CalcFormula = Lookup (Customer.Name WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.Name WHERE("No." = FIELD("Customer No.")));
             Caption = 'Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(9; Address; Text[100])
         {
-            CalcFormula = Lookup (Customer.Address WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.Address WHERE("No." = FIELD("Customer No.")));
             Caption = 'Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(10; "Address 2"; Text[50])
         {
-            CalcFormula = Lookup (Customer."Address 2" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Address 2" WHERE("No." = FIELD("Customer No.")));
             Caption = 'Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(11; "Post Code"; Code[20])
         {
-            CalcFormula = Lookup (Customer."Post Code" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Post Code" WHERE("No." = FIELD("Customer No.")));
             Caption = 'Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(12; City; Text[30])
         {
-            CalcFormula = Lookup (Customer.City WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.City WHERE("No." = FIELD("Customer No.")));
             Caption = 'City';
             Editable = false;
             FieldClass = FlowField;
@@ -344,35 +344,35 @@ table 5965 "Service Contract Header"
         }
         field(17; "Bill-to Name"; Text[100])
         {
-            CalcFormula = Lookup (Customer.Name WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer.Name WHERE("No." = FIELD("Bill-to Customer No.")));
             Caption = 'Bill-to Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(18; "Bill-to Address"; Text[100])
         {
-            CalcFormula = Lookup (Customer.Address WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer.Address WHERE("No." = FIELD("Bill-to Customer No.")));
             Caption = 'Bill-to Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(19; "Bill-to Address 2"; Text[50])
         {
-            CalcFormula = Lookup (Customer."Address 2" WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer."Address 2" WHERE("No." = FIELD("Bill-to Customer No.")));
             Caption = 'Bill-to Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(20; "Bill-to Post Code"; Code[20])
         {
-            CalcFormula = Lookup (Customer."Post Code" WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer."Post Code" WHERE("No." = FIELD("Bill-to Customer No.")));
             Caption = 'Bill-to Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(21; "Bill-to City"; Text[30])
         {
-            CalcFormula = Lookup (Customer.City WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer.City WHERE("No." = FIELD("Bill-to Customer No.")));
             Caption = 'Bill-to City';
             Editable = false;
             FieldClass = FlowField;
@@ -395,7 +395,7 @@ table 5965 "Service Contract Header"
         }
         field(23; "Ship-to Name"; Text[100])
         {
-            CalcFormula = Lookup ("Ship-to Address".Name WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Lookup("Ship-to Address".Name WHERE("Customer No." = FIELD("Customer No."),
                                                                Code = FIELD("Ship-to Code")));
             Caption = 'Ship-to Name';
             Editable = false;
@@ -403,7 +403,7 @@ table 5965 "Service Contract Header"
         }
         field(24; "Ship-to Address"; Text[100])
         {
-            CalcFormula = Lookup ("Ship-to Address".Address WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Lookup("Ship-to Address".Address WHERE("Customer No." = FIELD("Customer No."),
                                                                   Code = FIELD("Ship-to Code")));
             Caption = 'Ship-to Address';
             Editable = false;
@@ -411,7 +411,7 @@ table 5965 "Service Contract Header"
         }
         field(25; "Ship-to Address 2"; Text[50])
         {
-            CalcFormula = Lookup ("Ship-to Address"."Address 2" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Lookup("Ship-to Address"."Address 2" WHERE("Customer No." = FIELD("Customer No."),
                                                                       Code = FIELD("Ship-to Code")));
             Caption = 'Ship-to Address 2';
             Editable = false;
@@ -419,7 +419,7 @@ table 5965 "Service Contract Header"
         }
         field(26; "Ship-to Post Code"; Code[20])
         {
-            CalcFormula = Lookup ("Ship-to Address"."Post Code" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Lookup("Ship-to Address"."Post Code" WHERE("Customer No." = FIELD("Customer No."),
                                                                       Code = FIELD("Ship-to Code")));
             Caption = 'Ship-to Post Code';
             Editable = false;
@@ -427,7 +427,7 @@ table 5965 "Service Contract Header"
         }
         field(27; "Ship-to City"; Text[30])
         {
-            CalcFormula = Lookup ("Ship-to Address".City WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Lookup("Ship-to Address".City WHERE("Customer No." = FIELD("Customer No."),
                                                                Code = FIELD("Ship-to Code")));
             Caption = 'Ship-to City';
             Editable = false;
@@ -749,7 +749,7 @@ table 5965 "Service Contract Header"
         field(40; "Calcd. Annual Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Service Contract Line"."Line Amount" WHERE("Contract Type" = FIELD("Contract Type"),
+            CalcFormula = Sum("Service Contract Line"."Line Amount" WHERE("Contract Type" = FIELD("Contract Type"),
                                                                            "Contract No." = FIELD("Contract No.")));
             Caption = 'Calcd. Annual Amount';
             Editable = false;
@@ -890,7 +890,7 @@ table 5965 "Service Contract Header"
         }
         field(57; "No. of Posted Invoices"; Integer)
         {
-            CalcFormula = Count ("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
+            CalcFormula = Count("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
                                                                    "Source Document No." = FIELD("Contract No."),
                                                                    "Destination Document Type" = CONST("Posted Invoice")));
             Caption = 'No. of Posted Invoices';
@@ -899,7 +899,7 @@ table 5965 "Service Contract Header"
         }
         field(58; "No. of Unposted Invoices"; Integer)
         {
-            CalcFormula = Count ("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
+            CalcFormula = Count("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
                                                                    "Source Document No." = FIELD("Contract No."),
                                                                    "Destination Document Type" = CONST(Invoice)));
             Caption = 'No. of Unposted Invoices';
@@ -1107,7 +1107,7 @@ table 5965 "Service Contract Header"
         }
         field(84; Comment; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Contract"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Contract"),
                                                               "Table Subtype" = FIELD("Contract Type"),
                                                               "No." = FIELD("Contract No."),
                                                               "Table Line No." = FILTER(0)));
@@ -1158,7 +1158,7 @@ table 5965 "Service Contract Header"
         }
         field(89; "Bill-to County"; Text[30])
         {
-            CalcFormula = Lookup (Customer.County WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer.County WHERE("No." = FIELD("Bill-to Customer No.")));
             CaptionClass = '5,1,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
             Editable = false;
@@ -1166,7 +1166,7 @@ table 5965 "Service Contract Header"
         }
         field(90; County; Text[30])
         {
-            CalcFormula = Lookup (Customer.County WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.County WHERE("No." = FIELD("Customer No.")));
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
             Editable = false;
@@ -1174,7 +1174,7 @@ table 5965 "Service Contract Header"
         }
         field(91; "Ship-to County"; Text[30])
         {
-            CalcFormula = Lookup ("Ship-to Address".County WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Lookup("Ship-to Address".County WHERE("Customer No." = FIELD("Customer No."),
                                                                  Code = FIELD("Ship-to Code")));
             CaptionClass = '5,1,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
@@ -1183,21 +1183,21 @@ table 5965 "Service Contract Header"
         }
         field(92; "Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup (Customer."Country/Region Code" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Country/Region Code" WHERE("No." = FIELD("Customer No.")));
             Caption = 'Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(93; "Bill-to Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup (Customer."Country/Region Code" WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer."Country/Region Code" WHERE("No." = FIELD("Bill-to Customer No.")));
             Caption = 'Bill-to Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(94; "Ship-to Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup ("Ship-to Address"."Country/Region Code" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Lookup("Ship-to Address"."Country/Region Code" WHERE("Customer No." = FIELD("Customer No."),
                                                                                 Code = FIELD("Ship-to Code")));
             Caption = 'Ship-to Country/Region Code';
             Editable = false;
@@ -1205,21 +1205,21 @@ table 5965 "Service Contract Header"
         }
         field(95; "Name 2"; Text[50])
         {
-            CalcFormula = Lookup (Customer."Name 2" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Name 2" WHERE("No." = FIELD("Customer No.")));
             Caption = 'Name 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(96; "Bill-to Name 2"; Text[50])
         {
-            CalcFormula = Lookup (Customer."Name 2" WHERE("No." = FIELD("Bill-to Customer No.")));
+            CalcFormula = Lookup(Customer."Name 2" WHERE("No." = FIELD("Bill-to Customer No.")));
             Caption = 'Bill-to Name 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(97; "Ship-to Name 2"; Text[50])
         {
-            CalcFormula = Lookup ("Ship-to Address"."Name 2" WHERE("Customer No." = FIELD("Customer No."),
+            CalcFormula = Lookup("Ship-to Address"."Name 2" WHERE("Customer No." = FIELD("Customer No."),
                                                                    Code = FIELD("Ship-to Code")));
             Caption = 'Ship-to Name 2';
             Editable = false;
@@ -1238,7 +1238,7 @@ table 5965 "Service Contract Header"
         field(100; "Contract Invoice Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Service Ledger Entry"."Amount (LCY)" WHERE("Service Contract No." = FIELD("Contract No."),
+            CalcFormula = - Sum("Service Ledger Entry"."Amount (LCY)" WHERE("Service Contract No." = FIELD("Contract No."),
                                                                             "Entry Type" = CONST(Sale),
                                                                             "Moved from Prepaid Acc." = CONST(true),
                                                                             Type = FIELD("Type Filter"),
@@ -1251,7 +1251,7 @@ table 5965 "Service Contract Header"
         field(101; "Contract Prepaid Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Service Ledger Entry"."Amount (LCY)" WHERE("Service Contract No." = FIELD("Contract No."),
+            CalcFormula = - Sum("Service Ledger Entry"."Amount (LCY)" WHERE("Service Contract No." = FIELD("Contract No."),
                                                                             "Entry Type" = CONST(Sale),
                                                                             "Moved from Prepaid Acc." = CONST(false),
                                                                             Type = CONST("Service Contract"),
@@ -1265,7 +1265,7 @@ table 5965 "Service Contract Header"
         field(102; "Contract Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Service Ledger Entry"."Contract Disc. Amount" WHERE("Service Contract No." = FIELD("Contract No."),
+            CalcFormula = Sum("Service Ledger Entry"."Contract Disc. Amount" WHERE("Service Contract No." = FIELD("Contract No."),
                                                                                     "Entry Type" = CONST(Sale),
                                                                                     "Moved from Prepaid Acc." = CONST(true),
                                                                                     Type = FIELD("Type Filter"),
@@ -1278,7 +1278,7 @@ table 5965 "Service Contract Header"
         field(103; "Contract Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Service Ledger Entry"."Cost Amount" WHERE("Service Contract No." = FIELD("Contract No."),
+            CalcFormula = Sum("Service Ledger Entry"."Cost Amount" WHERE("Service Contract No." = FIELD("Contract No."),
                                                                           "Entry Type" = CONST(Usage),
                                                                           "Moved from Prepaid Acc." = CONST(true),
                                                                           Type = FIELD("Type Filter"),
@@ -1291,7 +1291,7 @@ table 5965 "Service Contract Header"
         field(104; "Contract Gain/Loss Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Contract Gain/Loss Entry".Amount WHERE("Contract No." = FIELD("Contract No."),
+            CalcFormula = Sum("Contract Gain/Loss Entry".Amount WHERE("Contract No." = FIELD("Contract No."),
                                                                        "Reason Code" = FIELD("Reason Code Filter"),
                                                                        "Change Date" = FIELD("Date Filter")));
             Caption = 'Contract Gain/Loss Amount';
@@ -1300,7 +1300,7 @@ table 5965 "Service Contract Header"
         }
         field(106; "No. of Posted Credit Memos"; Integer)
         {
-            CalcFormula = Count ("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
+            CalcFormula = Count("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
                                                                    "Source Document No." = FIELD("Contract No."),
                                                                    "Destination Document Type" = CONST("Posted Credit Memo")));
             Caption = 'No. of Posted Credit Memos';
@@ -1309,7 +1309,7 @@ table 5965 "Service Contract Header"
         }
         field(107; "No. of Unposted Credit Memos"; Integer)
         {
-            CalcFormula = Count ("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
+            CalcFormula = Count("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
                                                                    "Source Document No." = FIELD("Contract No."),
                                                                    "Destination Document Type" = CONST("Credit Memo")));
             Caption = 'No. of Unposted Credit Memos';
@@ -2104,12 +2104,14 @@ table 5965 "Service Contract Header"
                 "Service Zone Code" := '';
     end;
 
-    local procedure ContractLinesExist(): Boolean
+    local procedure ContractLinesExist() Result: Boolean
     begin
         ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", "Contract Type");
         ServContractLine.SetRange("Contract No.", "Contract No.");
-        exit(ServContractLine.Find('-'));
+        Result := ServContractLine.Find('-');
+
+        OnAfterContractLinesExist(ServContractLine, Result);
     end;
 
     procedure UpdateShiptoCode()
@@ -2268,7 +2270,13 @@ table 5965 "Service Contract Header"
         ContBusinessRelation: Record "Contact Business Relation";
         Cust: Record Customer;
         Cont: Record Contact;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateCust(Rec, ContactNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if Cont.Get(ContactNo) then begin
             "Contact No." := Cont."No.";
             "Phone No." := Cont."Phone No.";
@@ -2608,8 +2616,18 @@ table 5965 "Service Contract Header"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateCust(var ServiceContractHeader: Record "Service Contract Header"; ContactNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnIsInvoicePeriodInTimeSegment(ServiceContractHeader: Record "Service Contract Header"; var InvoicePeriodInTimeSegment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterContractLinesExist(var ServContractLine: Record "Service Contract Line"; var Result: Boolean)
     begin
     end;
 }

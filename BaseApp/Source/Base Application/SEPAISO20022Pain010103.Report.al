@@ -296,6 +296,8 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         XMLParent: DotNet XmlNode;
         AddrLine: array[3] of Text[70];
         UnstructuredRemitInfo: Text[250];
+        Amount: Decimal;
+        CurrencyCode: Code[10];
     begin
         XMLParent := XMLNodeCurr;
         AddElement(XMLNodeCurr, 'CdtTrfTxInf', '', '', XMLNewChild);
@@ -309,11 +311,20 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
 
         AddElement(XMLNodeCurr, 'Amt', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
+
+        if PaymentHistoryLine."Foreign Amount" <> 0 then begin
+            Amount := PaymentHistoryLine."Foreign Amount";
+            CurrencyCode := PaymentHistoryLine."Foreign Currency";
+        end else begin
+            Amount := PaymentHistoryLine.Amount;
+            CurrencyCode := PaymentHistoryLine."Currency Code";
+        end;
+
         AddElement(
           XMLNodeCurr, 'InstdAmt',
-          Format(PaymentHistoryLine.Amount, 0, '<Precision,2:2><Standard Format,9>'),
+          Format(Amount, 0, '<Precision,2:2><Standard Format,9>'),
           '', XMLNewChild);
-        AddAttribute(XMLDomDoc, XMLNewChild, 'Ccy', GetCurrencyCode(PaymentHistoryLine."Currency Code"));
+        AddAttribute(XMLDomDoc, XMLNewChild, 'Ccy', GetCurrencyCode(CurrencyCode));
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
         AddElement(XMLNodeCurr, 'CdtrAgt', '', '', XMLNewChild);

@@ -649,7 +649,7 @@ table 11401 "CBG Statement Line"
         CBGStatementLine.Reset();
         CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
         CBGStatementLine.SetRange("No.", CBGStatement."No.");
-        if (CBGStatement.Type = CBGStatement.Type::"Bank/Giro") and CBGStatementLine.IsEmpty then
+        if (CBGStatement.Type = CBGStatement.Type::"Bank/Giro") and CBGStatementLine.IsEmpty and (Date = 0D) then
             Date := CBGStatement.Date;
     end;
 
@@ -1602,17 +1602,17 @@ table 11401 "CBG Statement Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteAppliesToIDOnAfterSetCustomerLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; CustLedgEntry: Record "Cust. Ledger Entry");
+    local procedure OnDeleteAppliesToIDOnAfterSetCustomerLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; var CustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteAppliesToIDOnAfterSetEmployeeLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; EmployeeLedgEntry: Record "Employee Ledger Entry");
+    local procedure OnDeleteAppliesToIDOnAfterSetEmployeeLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; var EmployeeLedgEntry: Record "Employee Ledger Entry");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDeleteAppliesToIDOnAfterSetVendorLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; VendorLedgEntry: Record "Vendor Ledger Entry");
+    local procedure OnDeleteAppliesToIDOnAfterSetVendorLedgerEntryFilters(var CBGStatementLine: Record "CBG Statement Line"; var VendorLedgEntry: Record "Vendor Ledger Entry");
     begin
     end;
 }

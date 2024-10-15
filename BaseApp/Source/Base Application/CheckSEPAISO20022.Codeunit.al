@@ -6,29 +6,6 @@ codeunit 11000010 "Check SEPA ISO20022"
     begin
         OnBeforeOnRun(Rec);
 
-        // Check whether the currency being used is Euro
-        GLSetup.Get();
-        case GLSetup."Local Currency" of
-            GLSetup."Local Currency"::Euro:
-                begin
-                    if "Currency Code" <> '' then begin
-                        "Error Message" := Text000;
-                        exit;
-                    end;
-                end;
-            GLSetup."Local Currency"::Other:
-                begin
-                    if "Currency Code" <> GLSetup."Currency Euro" then begin
-                        "Error Message" := Text000;
-                        exit;
-                    end;
-                    if GLSetup."Currency Euro" = '' then begin
-                        "Error Message" := StrSubstNo(Text001, GLSetup.FieldCaption("Currency Euro"), GLSetup.TableCaption);
-                        exit;
-                    end;
-                end;
-        end;
-
         // Check Vendor/Customer Bank Account
         if IBAN = '' then begin
             "Error Message" := StrSubstNo(Text001, FieldCaption(IBAN), TableCaption);
@@ -141,8 +118,6 @@ codeunit 11000010 "Check SEPA ISO20022"
     end;
 
     var
-        GLSetup: Record "General Ledger Setup";
-        Text000: Label 'Currency is not Euro in the proposal lines. ';
         Text001: Label '%1 must be entered in %2.';
         Text002: Label '%1 must not exceed 11 characters.';
         Country: Record "Country/Region";

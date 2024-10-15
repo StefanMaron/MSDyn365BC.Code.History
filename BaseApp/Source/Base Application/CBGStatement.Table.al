@@ -421,6 +421,7 @@ table 11400 "CBG Statement"
     begin
         OnBeforeProcessStatementASGenJournal(Rec);
 
+        TelebankInterface.CheckCBGStatementCurrencyBeforePost(Rec);
         CheckBalance;
         TelebankInterface.CheckPaymReceived(Rec);
         Status.Open(Text1000010);

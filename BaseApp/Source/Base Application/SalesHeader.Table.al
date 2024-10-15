@@ -686,7 +686,6 @@
             var
                 SalesLine: Record "Sales Line";
                 Currency: Record Currency;
-                ConfirmManagement: Codeunit "Confirm Management";
                 RecalculatePrice: Boolean;
                 VatFactor: Decimal;
                 LineInvDiscAmt: Decimal;
@@ -709,15 +708,7 @@
                     SalesLine.SetFilter("Unit Price", '<>%1', 0);
                     SalesLine.SetFilter("VAT %", '<>%1', 0);
                     if SalesLine.FindFirst then begin
-                        if GetHideValidationDialog or not GuiAllowed then
-                            RecalculatePrice := true
-                        else
-                            RecalculatePrice :=
-                              ConfirmManagement.GetResponseOrDefault(
-                                StrSubstNo(
-                                  Text024,
-                                  FieldCaption("Prices Including VAT"), SalesLine.FieldCaption("Unit Price")),
-                                true);
+                        RecalculatePrice := ConfirmRecalculatePrice(SalesLine);
                         OnAfterConfirmSalesPrice(Rec, SalesLine, RecalculatePrice);
                         SalesLine.SetSalesHeader(Rec);
 
@@ -1171,13 +1162,8 @@
             Caption = 'Sell-to Address';
 
             trigger OnValidate()
-            var
-                PhoneNo: Text[30];
-                FaxNo: Text[30];
             begin
-                PostCodeMgt.FindStreetNameFromAddress(
-                  "Sell-to Address", "Sell-to Address 2", "Sell-to Post Code", "Sell-to City",
-                  "Sell-to Country/Region Code", PhoneNo, FaxNo);
+                FindStreetNameFromSellToAddress();
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to Address"));
                 ModifyCustomerAddress;
             end;
@@ -1543,7 +1529,14 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShippingNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Shipping No. Series" <> '' then begin
                     GetSalesSetup;
                     SalesSetup.TestField("Posted Shipment Nos.");
@@ -2119,7 +2112,13 @@
             var
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupSellToContactNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Sell-to Customer No." <> '' then
                     if Cont.Get("Sell-to Contact No.") then
                         Cont.SetRange("Company No.", Cont."Company No.")
@@ -2200,7 +2199,13 @@
             var
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupBillToContactNo(IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Bill-to Customer No." <> '' then
                     if Cont.Get("Bill-to Contact No.") then
                         Cont.SetRange("Company No.", Cont."Company No.")
@@ -2759,7 +2764,14 @@
     end;
 
     trigger OnRename()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRename(Rec, IsHandled, xRec);
+        if IsHandled then
+            exit;
+
         Error(Text003, TableCaption);
     end;
 
@@ -3009,13 +3021,13 @@
         OnAfterInitNoSeries(Rec, xRec);
     end;
 
-    procedure AssistEdit(OldSalesHeader: Record "Sales Header"): Boolean
+    procedure AssistEdit(OldSalesHeader: Record "Sales Header") Result: Boolean
     var
         SalesHeader2: Record "Sales Header";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssistEdit(Rec, OldSalesHeader, IsHandled);
+        OnBeforeAssistEdit(Rec, OldSalesHeader, IsHandled, Result);
         if IsHandled then
             exit;
 
@@ -3507,6 +3519,7 @@
         LockTable();
         if SalesLine.FindSet then begin
             Modify;
+            OnUpdateSalesLineAmountsOnAfterSalesHeaderModify(Rec, SalesLine);
             repeat
                 if (SalesLine."Quantity Invoiced" <> SalesLine.Quantity) or
                    ("Shipping Advice" = "Shipping Advice"::Complete) or
@@ -3967,8 +3980,7 @@
         end;
 
         if ContactBusinessRelationFound then begin
-            if ("Sell-to Customer No." <> '') and ("Sell-to Customer No." <> ContBusinessRelation."No.") then
-                Error(Text037, Cont."No.", Cont.Name, "Sell-to Customer No.");
+            CheckCustomerContactRelation(Cont, "Sell-to Customer No.", ContBusinessRelation."No.");
 
             if "Sell-to Customer No." = '' then begin
                 SkipSellToContact := true;
@@ -4035,10 +4047,40 @@
         OnAfterUpdateSellToCust(Rec, Cont);
     end;
 
+    local procedure UpdateSellToCustContact(Customer: Record Customer; Cont: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateSellToCustContact(Rec, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (Cont.Type = Cont.Type::Company) and Customer.Get("Sell-to Customer No.") then
+            "Sell-to Contact" := Customer.Contact
+        else
+            if Cont.Type = Cont.Type::Company then
+                "Sell-to Contact" := ''
+            else
+                "Sell-to Contact" := Cont.Name;
+    end;
+
+    local procedure CheckCustomerContactRelation(Cont: Record Contact; CustomerNo: Code[20]; ContBusinessRelationNo: Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCustomerContactRelation(Rec, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (CustomerNo <> '') and (CustomerNo <> ContBusinessRelationNo) then
+            Error(Text037, Cont."No.", Cont.Name, CustomerNo);
+    end;
+
     local procedure UpdateBillToCust(ContactNo: Code[20])
     var
         ContBusinessRelation: Record "Contact Business Relation";
-        Cust: Record Customer;
         Cont: Record Contact;
         CustTemplate: Record "Customer Template";
         SearchContact: Record Contact;
@@ -4056,13 +4098,7 @@
         end;
         "Bill-to Contact No." := Cont."No.";
 
-        if Cust.Get("Bill-to Customer No.") and (Cont.Type = Cont.Type::Company) then
-            "Bill-to Contact" := Cust.Contact
-        else
-            if Cont.Type = Cont.Type::Company then
-                "Bill-to Contact" := ''
-            else
-                "Bill-to Contact" := Cont.Name;
+        UpdateBillToCustContact(Cont);
 
         if Cont.Type = Cont.Type::Person then
             ContactBusinessRelationFound := ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."No.");
@@ -4080,8 +4116,7 @@
                 SkipBillToContact := false;
                 "Bill-to Customer Template Code" := '';
             end else
-                if "Bill-to Customer No." <> ContBusinessRelation."No." then
-                    Error(Text037, Cont."No.", Cont.Name, "Bill-to Customer No.");
+                CheckCustomerContactRelation(Cont, "Bill-to Customer No.", ContBusinessRelation."No.");
         end else begin
             if "Document Type" = "Document Type"::Quote then begin
                 if not GetContactAsCompany(Cont, SearchContact) then
@@ -4111,6 +4146,24 @@
         end;
 
         OnAfterUpdateBillToCust(SalesHeader, Cont);
+    end;
+
+    local procedure UpdateBillToCustContact(Cont: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateBillToCustContact(Rec, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Cust.Get("Bill-to Customer No.") and (Cont.Type = Cont.Type::Company) then
+            "Bill-to Contact" := Cust.Contact
+        else
+            if Cont.Type = Cont.Type::Company then
+                "Bill-to Contact" := ''
+            else
+                "Bill-to Contact" := Cont.Name;
     end;
 
     local procedure UpdateSellToCustTemplateCode()
@@ -4284,6 +4337,16 @@
         end;
     end;
 
+    local procedure ConfirmUpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer) Confirmed: Boolean;
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmUpdateAllLineDim(Rec, xRec, NewParentDimSetID, OldParentDimSetID, Confirmed, IsHandled);
+        if not IsHandled then
+            Confirmed := Confirm(Text064);
+    end;
+
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     var
         ATOLink: Record "Assemble-to-Order Link";
@@ -4299,7 +4362,7 @@
         if NewParentDimSetID = OldParentDimSetID then
             exit;
         if not GetHideValidationDialog and GuiAllowed then
-            if not Confirm(Text064) then
+            if not ConfirmUpdateAllLineDim(NewParentDimSetID, OldParentDimSetID) then
                 exit;
 
         SalesLine.Reset();
@@ -4408,13 +4471,27 @@
         PAGE.RunModal(0, TempValueEntry);
     end;
 
-    procedure GetCustomerVATRegistrationNumber(): Text
+    procedure GetCustomerVATRegistrationNumber() ReturnValue: Text
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustomerVATRegistrationNumber(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         exit("VAT Registration No.");
     end;
 
-    procedure GetCustomerVATRegistrationNumberLbl(): Text
+    procedure GetCustomerVATRegistrationNumberLbl() ReturnValue: Text
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustomerVATRegistrationNumberLbl(Rec, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         exit(FieldCaption("VAT Registration No."));
     end;
 
@@ -4705,12 +4782,13 @@
     procedure GetDocTypeTxt() TypeText: Text[50]
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
+        TypeText := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         if "Document Type" = "Document Type"::Quote then
             if EnvInfoProxy.IsInvoicing then
                 TypeText := EstimateTxt;
-
-        TypeText := Format("Document Type");
 
         OnAfterGetDocTypeText(Rec, TypeText);
     end;
@@ -5298,13 +5376,10 @@
         end;
     end;
 
-    procedure IsCreditDocType(): Boolean
-    var
-        CreditDocType: Boolean;
+    procedure IsCreditDocType() CreditDocType: Boolean
     begin
         CreditDocType := "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"];
         OnBeforeIsCreditDocType(Rec, CreditDocType);
-        exit(CreditDocType);
     end;
 
     procedure HasSellToAddress(): Boolean
@@ -5611,6 +5686,22 @@
         exit(IsShipToAddressEqualToSellToAddress(Rec, Rec));
     end;
 
+    local procedure FindStreetNameFromSellToAddress()
+    var
+        PhoneNo: Text[30];
+        FaxNo: Text[30];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindStreetNameFromSellToAddress(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        PostCodeMgt.FindStreetNameFromAddress(
+      "Sell-to Address", "Sell-to Address 2", "Sell-to Post Code", "Sell-to City",
+      "Sell-to Country/Region Code", PhoneNo, FaxNo);
+    end;
+
     local procedure IsShipToAddressEqualToSellToAddress(SalesHeaderWithSellTo: Record "Sales Header"; SalesHeaderWithShipTo: Record "Sales Header"): Boolean
     var
         Result: Boolean;
@@ -5674,6 +5765,8 @@
     end;
 
     local procedure UpdateShipToContact()
+    var
+        IsHandled: Boolean;
     begin
         if not (CurrFieldNo in [FieldNo("Sell-to Contact"), FieldNo("Sell-to Contact No.")]) then
             exit;
@@ -5681,7 +5774,10 @@
         if IsCreditDocType then
             exit;
 
-        Validate("Ship-to Contact", "Sell-to Contact");
+        IsHandled := FALSE;
+        OnUpdateShipToContactOnBeforeValidateShipToContact(Rec, xRec, CurrFieldNo, IsHandled);
+        if not IsHandled then
+            Validate("Ship-to Contact", "Sell-to Contact");
     end;
 
     procedure ConfirmCloseUnposted(): Boolean
@@ -6272,6 +6368,24 @@
                 Error(Text038, Contact."No.", Contact.Name, CustomerNo);
     end;
 
+    local procedure ConfirmRecalculatePrice(var SalesLine: Record "Sales Line") Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmRecalculatePrice(Rec, xRec, CurrFieldNo, Result, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GetHideValidationDialog or not GuiAllowed then
+            Result := true
+        else
+            Result :=
+              ConfirmManagement.GetResponseOrDefault(
+                StrSubstNo(Text024, FieldCaption("Prices Including VAT"), SalesLine.FieldCaption("Unit Price")), true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var SalesHeader: Record "Sales Header")
     begin
@@ -6398,6 +6512,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesLineAmountsOnAfterSalesHeaderModify(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateShipToContactOnBeforeValidateShipToContact(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
@@ -6478,7 +6602,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssistEdit(var SalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeAssistEdit(var SalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -6503,7 +6627,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustomerContactRelation(var SalesHeader: Record "Sales Header"; Cont: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckShipmentInfo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; BillTo: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmUpdateAllLineDim(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header"; NewParentDimSetID: Integer; OldParentDimSetID: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -6553,6 +6687,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindStreetNameFromSellToAddress(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomerVATRegistrationNumber(var SalesHeader: Record "Sales Header"; var ReturnValue: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomerVATRegistrationNumberLbl(var SalesHeader: Record "Sales Header"; var ReturnValue: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNoSeriesCode(var SalesHeader: Record "Sales Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -6594,6 +6743,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupBillToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupSellToContactNo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6708,6 +6862,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateBillToCustContact(var SalesHeader: Record "Sales Header"; Conact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSellToCust(var SalesHeader: Record "Sales Header"; var Contact: Record Contact; var Customer: Record Customer; ContactNo: Code[20])
     begin
     end;
@@ -6729,6 +6888,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesLinesByFieldNo(var SalesHeader: Record "Sales Header"; ChangedFieldNo: Integer; var AskQuestion: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSellToCustContact(var SalesHeader: Record "Sales Header"; Conact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 
@@ -7024,6 +7188,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnShowDocDimOnBeforeUpdateSalesLines(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmRecalculatePrice(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var Result: Boolean; var HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShippingNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRename(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeLookupBillToContactNo(var IsHandled: Boolean)
     begin
     end;
 }

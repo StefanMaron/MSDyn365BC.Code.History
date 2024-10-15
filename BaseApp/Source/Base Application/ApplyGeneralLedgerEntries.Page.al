@@ -564,7 +564,14 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     local procedure AfterGetCurrentRecord()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAfterGetCurrentRecord(IsHandled);
+        if IsHandled then
+            exit;
+
         xRec := Rec;
         UpdateAmounts;
     end;
@@ -576,6 +583,11 @@ page 11309 "Apply General Ledger Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostApplication(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; var TempGLEntryBuf: Record "G/L Entry Application Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeAfterGetCurrentRecord(var IsHandled: Boolean)
     begin
     end;
 

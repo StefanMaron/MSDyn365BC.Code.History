@@ -1,7 +1,5 @@
 codeunit 144009 "ERM Cash Bank Giro Journal"
 {
-    //  // [FEATURE] [Bank Giro Journal]
-    // 
     //  1 - 2: Verify Document Date on Cash Journal line with Single and Multiple Line.
     //  3 - 4: Verify that correct Journal Page opened when selected from respective General Journal Batches Page.
     //  5 - 6: Verify that correct entries posted when Cash/ Bank Giro Journal created from Cash/ Bank Giro Journal Template Page.
@@ -77,6 +75,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
     trigger OnRun()
     begin
+        // [FEATURE] [Bank Giro Journal]
     end;
 
     var
@@ -89,6 +88,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryVariableStorageConfirmHandler: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryRandom: Codeunit "Library - Random";
@@ -112,6 +112,8 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         EarlierPostingDateErr: Label 'You cannot apply to an entry with a posting date before the posting date of the entry that you want to apply.';
         EmptyDateErr: Label 'Date must have a value in CBG Statement Line: Journal Template Name=%1, No.=%2, Line No.=%3. It cannot be zero or empty.';
         ProposalLinesProcessedMsg: Label 'The proposal lines were processed.';
+        DifferentCurrencyQst: Label 'One of the applied document currency codes is different from the bank account''s currency code. This will lead to different currencies in the detailed ledger entries between the document and the applied payment. Document details:\Account Type: %1-%2\Ledger Entry No.: %3\Document Currency: %4\Bank Currency: %5\\Do you want to continue?', Comment = '%1 - account type (vendor\customer), %2 - account number, %3 - ledger entry no., %4 - document currency code, %5 - bank currency code';
+        ProcessProposalLinesQst: Label 'Process proposal lines?';
 
     [Test]
     [Scope('OnPrem')]
@@ -580,7 +582,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
         PostedDocumentNo :=
-          CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", Customer."No.", WorkDate);
+          CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", Customer."No.", WorkDate, '');
         CreateAndUpdateCBGStatementLine(CBGStatementLine, SalesLine, PostedDocumentNo);
         CBGStatement.Get(CBGStatementLine."Journal Template Name", CBGStatementLine."No.");
 
@@ -633,12 +635,12 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // Excercise.
         // Create and Post Sales Documents
         for Index := 1 to NotAppliedSalesDocCount do
-            CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, WorkDate);
+            CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, WorkDate, '');
 
         // Create, Post and Apply Sales Documents
         for Index := 1 to AppliedSalesDocCount do begin
             PostedDocumentNo :=
-              CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, WorkDate);
+              CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, WorkDate, '');
             CreateCBGLine(
               CBGStatementLine,
               CBGStatement,
@@ -657,7 +659,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
               LibraryRandom.RandDec(10, 2),
               LibraryRandom.RandDec(10, 2),
               VendorNo,
-              WorkDate);
+              WorkDate, '');
 
         // Create, Post and Apply Purchase Documents
         for Index := 1 to AppliedPurchaseDocCount do begin
@@ -668,7 +670,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
                 LibraryRandom.RandDec(10, 2),
                 LibraryRandom.RandDec(10, 2),
                 VendorNo,
-                WorkDate);
+                WorkDate, '');
             CreateCBGLine(
               CBGStatementLine,
               CBGStatement,
@@ -831,7 +833,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CompanyInformation.Get();
         AccountNumber := CompanyInformation.IBAN;
         CreateAndPostSalesDocument(
-          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomerWithBankAccountIBAN(AccountNumber), WorkDate);
+          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomerWithBankAccountIBAN(AccountNumber), WorkDate, '');
 
         // Add CBG Statement Line and CBG Statement Line Add. Info..
         CreateCBGStatement(CBGStatement);
@@ -867,7 +869,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Initialize;
         AccountNumber := 'FR1420041010050500013M' + Format(LibraryRandom.RandIntInRange(10, 99));
         CreateAndPostSalesDocument(
-          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomerWithBankAccountIBAN(AccountNumber), WorkDate);
+          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomerWithBankAccountIBAN(AccountNumber), WorkDate, '');
 
         // Add CBG Statement Line and CBG Statement Line Add. Info..
         CreateCBGStatement(CBGStatement);
@@ -1442,7 +1444,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             SalesLine,
             SalesLine."Document Type"::Invoice,
             CreateCustomer,
-            WorkDate);
+            WorkDate, '');
 
         // [GIVEN] Create Bank Giro Journal applied to created Sales Document.
         CreateCBGStatement(CBGStatement);
@@ -1482,7 +1484,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             LibraryRandom.RandDec(10, 2),
             LibraryRandom.RandDec(10, 2),
             CreateVendor,
-            WorkDate);
+            WorkDate, '');
 
         // [GIVEN] Create Bank Giro Journal applied to created Purchase Document.
         CreateCBGStatement(CBGStatement);
@@ -1952,7 +1954,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Customer with Bank Account, Posted Sales Invoice for this Customer.
         InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, BalAccountNo);
-        CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WorkDate);
+        CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WorkDate, '');
         FindCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerBankAccount."Customer No.");
 
         // [GIVEN] History Line, created from Posted Invoice on Bank Account.
@@ -2011,7 +2013,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         InitVendorForExport(VendorBankAccount, ExportProtocolCode, BalAccountNo);
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice, 1, LibraryRandom.RandDecInRange(100, 200, 2),
-          VendorBankAccount."Vendor No.", WorkDate);
+          VendorBankAccount."Vendor No.", WorkDate, '');
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorBankAccount."Vendor No.");
 
         // [GIVEN] History Line, created from Posted Invoice on Bank Account.
@@ -2044,6 +2046,524 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         VerifyVendorLedgerEntryClosed(VendorLedgerEntry."Entry No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CBGStatementLineDefaultDateOverwritesEmpty()
+    var
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+    begin
+        // [FEATURE] [UT] [CBG Statement]
+        // [SCENARIO 363560] CBG Statement Line takes Date from CBG Statement if not specified
+        Initialize();
+
+        // [GIVEN] Created CBG Statement with Date = 02.01
+        CreateCBGStatement(CBGStatement);
+        CBGStatement.Validate(Date, WorkDate + 1);
+        CBGStatement.Modify(true);
+
+        // [WHEN] Insert CBG Statement Line without specifying Date
+        InitializeCBGStatementLine(CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.");
+        CBGStatementLine.Insert(true);
+
+        // [THEN] Date on CBG Statement Line is 02.01
+        CBGStatementLine.TestField(Date, CBGStatement.Date);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CBGStatementLineDefaultDateDoesnotOverwriteSpecified()
+    var
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+    begin
+        // [FEATURE] [UT] [CBG Statement]
+        // [SCENARIO 363560] CBG Statement Line does not overwrite specified Date
+        Initialize();
+
+        // [GIVEN] Created CBG Statement with Date = 02.01
+        CreateCBGStatement(CBGStatement);
+        CBGStatement.Validate(Date, WorkDate + 1);
+        CBGStatement.Modify(true);
+
+        // [WHEN] Insert CBG Statement Line with Date = 01.01
+        InitializeCBGStatementLine(CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.");
+        CBGStatementLine.Validate(Date, WorkDate);
+        CBGStatementLine.Insert(true);
+
+        // [THEN] Date on CBG Statement Line is 01.01
+        CBGStatementLine.TestField(Date, WorkDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementEURForSalesInvoiceUSD_Confirm()
+    var
+        CBGStatement: Record "CBG Statement";
+        CustomerNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Sales]
+        // [SCENARIO 364806] Confirmation is shown on posting EUR CBG Statement for USD sales invoice (confirm posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := '';
+        DocumentCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Posted sales invoice USD
+        // [GIVEN] EUR CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForCutomerWithDifferentCurrencies(
+          CBGStatement, CustomerNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(true); // Confirm post on currency check
+        LibraryVariableStorage.Enqueue(true); // Confirm change closing balance
+        CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Accept posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Customer', CustomerNo, LedgerEntryNo, DocumentCurrency, GetLocalCurrencyCode),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        Assert.ExpectedMessage('The opening balance', LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is posted
+        Assert.RecordIsEmpty(CBGStatement);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementEURForSalesInvoiceUSD_Deny()
+    var
+        CBGStatement: Record "CBG Statement";
+        CustomerNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Sales]
+        // [SCENARIO 364806] Confirmation is shown on posting EUR CBG Statement for USD sales invoice (deny posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := '';
+        DocumentCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Posted sales invoice USD
+        // [GIVEN] EUR CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForCutomerWithDifferentCurrencies(
+          CBGStatement, CustomerNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(FALSE); // Deny post on currency check
+        asserterror CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Deny posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Customer', CustomerNo, LedgerEntryNo, DocumentCurrency, GetLocalCurrencyCode),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is not posted
+        Assert.RecordIsNotEmpty(CBGStatement);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('');
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementUSDForSalesInvoiceEUR_Confirm()
+    var
+        CBGStatement: Record "CBG Statement";
+        CustomerNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Sales]
+        // [SCENARIO 364806] Confirmation is shown on posting USD CBG Statement for EUR sales invoice (confirm posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentCurrency := '';
+
+        // [GIVEN] Posted sales invoice EUR
+        // [GIVEN] USD CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForCutomerWithDifferentCurrencies(
+          CBGStatement, CustomerNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(true); // Confirm post on currency check
+        LibraryVariableStorage.Enqueue(true); // Confirm change closing balance
+        CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Accept posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Customer', CustomerNo, LedgerEntryNo, GetLocalCurrencyCode, CBGBankCurrency),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        Assert.ExpectedMessage('The opening balance', LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is posted
+        Assert.RecordIsEmpty(CBGStatement);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementUSDForSalesInvoiceEUR_Deny()
+    var
+        CBGStatement: Record "CBG Statement";
+        CustomerNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Sales]
+        // [SCENARIO 364806] Confirmation is shown on posting USD CBG Statement for EUR sales invoice (deny posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentCurrency := '';
+
+        // [GIVEN] Posted sales invoice EUR
+        // [GIVEN] USD CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForCutomerWithDifferentCurrencies(
+          CBGStatement, CustomerNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(FALSE); // Deny post on currency check
+        asserterror CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Deny posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Customer', CustomerNo, LedgerEntryNo, GetLocalCurrencyCode, CBGBankCurrency),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is not posted
+        Assert.RecordIsNotEmpty(CBGStatement);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('');
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementUSDForSalesInvoiceGBP_Confirm()
+    var
+        CBGStatement: Record "CBG Statement";
+        CustomerNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Sales]
+        // [SCENARIO 364806] Confirmation is shown on posting USD CBG Statement for GBP sales invoice (confirm posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Posted sales invoice GBP
+        // [GIVEN] USD CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForCutomerWithDifferentCurrencies(
+          CBGStatement, CustomerNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(true); // Confirm post on currency check
+        LibraryVariableStorage.Enqueue(true); // Confirm change closing balance
+        CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Accept posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Customer', CustomerNo, LedgerEntryNo, DocumentCurrency, CBGBankCurrency),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        Assert.ExpectedMessage('The opening balance', LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is posted
+        Assert.RecordIsEmpty(CBGStatement);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementUSDForSalesInvoiceGBP_Deny()
+    var
+        CBGStatement: Record "CBG Statement";
+        CustomerNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Sales]
+        // [SCENARIO 364806] Confirmation is shown on posting USD CBG Statement for GBP sales invoice (deny posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Posted sales invoice GBP
+        // [GIVEN] USD CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForCutomerWithDifferentCurrencies(
+          CBGStatement, CustomerNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(FALSE); // Deny post on currency check
+        asserterror CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Deny posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Customer', CustomerNo, LedgerEntryNo, DocumentCurrency, CBGBankCurrency),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is not posted
+        Assert.RecordIsNotEmpty(CBGStatement);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('');
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementEURForPurchInvoiceUSD_Confirm()
+    var
+        CBGStatement: Record "CBG Statement";
+        VendorNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Purchases]
+        // [SCENARIO 364806] Confirmation is shown on posting EUR CBG Statement for USD purchase invoice (confirm posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := '';
+        DocumentCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Posted purchase invoice USD
+        // [GIVEN] EUR CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForVendorWithDifferentCurrencies(
+          CBGStatement, VendorNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(true); // Confirm post on currency check
+        LibraryVariableStorage.Enqueue(true); // Confirm change closing balance
+        CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Accept posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Vendor', VendorNo, LedgerEntryNo, DocumentCurrency, GetLocalCurrencyCode),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        Assert.ExpectedMessage('The opening balance', LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is posted
+        Assert.RecordIsEmpty(CBGStatement);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementEURForPurchInvoiceUSD_Deny()
+    var
+        CBGStatement: Record "CBG Statement";
+        VendorNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Purchases]
+        // [SCENARIO 364806] Confirmation is shown on posting EUR CBG Statement for USD purchase invoice (deny posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := '';
+        DocumentCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Posted purchase invoice USD
+        // [GIVEN] EUR CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForVendorWithDifferentCurrencies(
+          CBGStatement, VendorNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(FALSE); // Deny post on currency check
+        asserterror CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Deny posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Vendor', VendorNo, LedgerEntryNo, DocumentCurrency, GetLocalCurrencyCode),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is not posted
+        Assert.RecordIsNotEmpty(CBGStatement);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('');
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementUSDForPurchInvoiceEUR_Confirm()
+    var
+        CBGStatement: Record "CBG Statement";
+        VendorNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Purchases]
+        // [SCENARIO 364806] Confirmation is shown on posting USD CBG Statement for EUR purchase invoice (confirm posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentCurrency := '';
+
+        // [GIVEN] Posted purchase invoice EUR
+        // [GIVEN] USD CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForVendorWithDifferentCurrencies(
+          CBGStatement, VendorNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(true); // Confirm post on currency check
+        LibraryVariableStorage.Enqueue(true); // Confirm change closing balance
+        CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Accept posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Vendor', VendorNo, LedgerEntryNo, GetLocalCurrencyCode, CBGBankCurrency),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        Assert.ExpectedMessage('The opening balance', LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is posted
+        Assert.RecordIsEmpty(CBGStatement);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementUSDForPurchInvoiceEUR_Deny()
+    var
+        CBGStatement: Record "CBG Statement";
+        VendorNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Purchases]
+        // [SCENARIO 364806] Confirmation is shown on posting USD CBG Statement for EUR purchase invoice (deny posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentCurrency := '';
+
+        // [GIVEN] Posted purchase invoice EUR
+        // [GIVEN] USD CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForVendorWithDifferentCurrencies(
+          CBGStatement, VendorNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(FALSE); // Deny post on currency check
+        asserterror CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Deny posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Vendor', VendorNo, LedgerEntryNo, GetLocalCurrencyCode, CBGBankCurrency),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is not posted
+        Assert.RecordIsNotEmpty(CBGStatement);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('');
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementUSDForPurchInvoiceGBP_Confirm()
+    var
+        CBGStatement: Record "CBG Statement";
+        VendorNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Purchases]
+        // [SCENARIO 364806] Confirmation is shown on posting USD CBG Statement for GBP purchase invoice (confirm posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Posted purchase invoice GBP
+        // [GIVEN] USD CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForVendorWithDifferentCurrencies(
+          CBGStatement, VendorNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(true); // Confirm post on currency check
+        LibraryVariableStorage.Enqueue(true); // Confirm change closing balance
+        CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Accept posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Vendor', VendorNo, LedgerEntryNo, DocumentCurrency, CBGBankCurrency),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        Assert.ExpectedMessage('The opening balance', LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is posted
+        Assert.RecordIsEmpty(CBGStatement);
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerOption,RequestPageHandlerExportSEPAISO20022,PaymentHistoryListModalPageHandler')]
+    procedure PostCBGStatementUSDForPurchInvoiceGBP_Deny()
+    var
+        CBGStatement: Record "CBG Statement";
+        VendorNo: Code[20];
+        LedgerEntryNo: Integer;
+        CBGBankCurrency: Code[10];
+        DocumentCurrency: Code[10];
+    begin
+        // [FEATURE] [CBG Statement] [Currency] [Purchases]
+        // [SCENARIO 364806] Confirmation is shown on posting USD CBG Statement for GBP purchase invoice (deny posting)
+        Initialize();
+        UpdateSEPAAllowedOnCountryRegion(true);
+        CBGBankCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentCurrency := LibraryERM.CreateCurrencyWithRandomExchRates();
+
+        // [GIVEN] Posted purchase invoice GBP
+        // [GIVEN] USD CBG Statement with inserted payment history (after telebank proposal with get entries, process and export)
+        PrepareCBGStatementPostingForVendorWithDifferentCurrencies(
+          CBGStatement, VendorNo, LedgerEntryNo, CBGBankCurrency, DocumentCurrency);
+
+        // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(FALSE); // Deny post on currency check
+        asserterror CBGStatement.ProcessStatementASGenJournal();
+
+        // [THEN] Confirmation about different currencies is shown. Deny posting.
+        Assert.ExpectedMessage(
+          StrSubstNo(DifferentCurrencyQst, 'Vendor', VendorNo, LedgerEntryNo, DocumentCurrency, CBGBankCurrency),
+          LibraryVariableStorageConfirmHandler.DequeueText());
+        // [THEN] The statement is not posted
+        Assert.RecordIsNotEmpty(CBGStatement);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('');
+
+        LibraryVariableStorageConfirmHandler.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2052,6 +2572,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cash Bank Giro Journal");
         LibraryVariableStorage.Clear;
+        LibraryVariableStorageConfirmHandler.Clear();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         GenJournalTemplate.DeleteAll();
         GenJournalBatch.DeleteAll();
@@ -2065,6 +2586,78 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Bank Giro Journal");
+    end;
+
+    local procedure PrepareCBGStatementPostingForCutomerWithDifferentCurrencies(var CBGStatement: Record "CBG Statement"; var CustomerNo: Code[20]; var LedgerEntryNo: Integer; CBGBankCurrency: Code[10]; DocumentCurrency: Code[10])
+    var
+        SalesLine: Record 37;
+        CustomerBankAccount: Record 287;
+        BankAccount: Record 270;
+        CustLedgerEntry: Record 21;
+        CBGBankAccountNo: Code[20];
+        ExportProtocolCode: Code[20];
+    begin
+        InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, CBGBankAccountNo);
+        BankAccount.Get(CBGBankAccountNo);
+        BankAccount.Validate("Currency Code", CBGBankCurrency);
+        BankAccount.Modify(true);
+        LibraryNLLocalization.CheckAndCreateFreelyTransferableMaximum(BankAccount."Country/Region Code", BankAccount."Currency Code");
+
+        CreateAndPostSalesDocument(
+          SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WORKDATE, DocumentCurrency);
+        FindCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerBankAccount."Customer No.");
+        GetEntriesProcessAndExportProposalCreateCBGStatementAndInsertPaymentHistory(
+          CBGStatement, CustomerBankAccount."Customer No.", CustomerBankAccount."Bank Account No.", CBGBankAccountNo);
+        CustomerNo := CustomerBankAccount."Customer No.";
+        LedgerEntryNo := CustLedgerEntry."Entry No.";
+    end;
+
+    local procedure PrepareCBGStatementPostingForVendorWithDifferentCurrencies(var CBGStatement: Record "CBG Statement"; var VendorNo: Code[20]; var LedgerEntryNo: Integer; CBGBankCurrency: Code[10]; DocumentCurrency: Code[10])
+    var
+        PurchaseLine: Record 39;
+        VendorBankAccount: Record 288;
+        BankAccount: Record 270;
+        VendorLedgerEntry: Record 25;
+        CBGBankAccountNo: Code[20];
+        ExportProtocolCode: Code[20];
+    begin
+        InitVendorForExport(VendorBankAccount, ExportProtocolCode, CBGBankAccountNo);
+        BankAccount.Get(CBGBankAccountNo);
+        BankAccount.Validate("Currency Code", CBGBankCurrency);
+        BankAccount.Modify(true);
+        LibraryNLLocalization.CheckAndCreateFreelyTransferableMaximum(BankAccount."Country/Region Code", BankAccount."Currency Code");
+
+        CreateAndPostPurchaseDocument(
+          PurchaseLine, PurchaseLine."Document Type"::Invoice, 1, LibraryRandom.RandDecInRange(100, 200, 2),
+          VendorBankAccount."Vendor No.", WORKDATE, DocumentCurrency);
+        FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorBankAccount."Vendor No.");
+        GetEntriesProcessAndExportProposalCreateCBGStatementAndInsertPaymentHistory(
+          CBGStatement, VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.", CBGBankAccountNo);
+        VendorNo := VendorBankAccount."Vendor No.";
+        LedgerEntryNo := VendorLedgerEntry."Entry No.";
+    end;
+
+    local procedure GetEntriesProcessAndExportProposalCreateCBGStatementAndInsertPaymentHistory(var CBGStatement: Record "CBG Statement"; AccountNo: Code[20]; AccountBankCode: Text[30]; CBGBankAccountNo: Code[20])
+    var
+        CBGJournalTelebankInterface: Codeunit "CBG Journal Telebank Interface";
+    begin
+        GetEntriesViaReportRun(AccountNo, AccountBankCode);
+        ProcessProposalViaCodeunitRun(AccountBankCode);
+        ExportPaymentHistoryViaTable(AccountBankCode);
+        CreateCBGStatementWithBankAccount(CBGStatement, CBGBankAccountNo);
+        CBGJournalTelebankInterface.InsertPaymentHistory(CBGStatement);
+        CBGStatement.SetRecFilter();
+    end;
+
+    local procedure InitializeCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; JournalTemplateName: Code[10]; No: Integer)
+    var
+        RecRef: RecordRef;
+    begin
+        CBGStatementLine.Init();
+        CBGStatementLine.Validate("Journal Template Name", JournalTemplateName);
+        CBGStatementLine.Validate("No.", No);
+        RecRef.GetTable(CBGStatementLine);
+        CBGStatementLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, CBGStatementLine.FieldNo("Line No.")));
     end;
 
     local procedure CBGJournalFromJournalBatches(Type: Option; BalAccountType: Option; BalAccountNo: Code[20])
@@ -2227,7 +2820,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         end;
         CustomerBankAccount.Modify();
 
-        CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", WorkDate);
+        CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", WorkDate, '');
 
         CreateCBGStatement(CBGStatement);
         AddCBGStatementLineAndCBGStatementLineAddInfo(CBGStatement, CBGStatementLine, 0, SalesLine."Amount Including VAT", AccountNumber);
@@ -2380,7 +2973,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         end;
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; PostingDate: Date): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         Item: Record Item;
@@ -2389,6 +2982,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item,
@@ -2457,7 +3051,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         exit(SalesLine."Dimension Set ID");
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Quantity: Decimal; DirectUnitCost: Decimal; VendorNo: Code[20]; PostingDate: Date): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Quantity: Decimal; DirectUnitCost: Decimal; VendorNo: Code[20]; PostingDate: Date; CurrencyCode: Code[10]): Code[20]
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -2466,6 +3060,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), Quantity);
@@ -2983,6 +3578,18 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         TelebankProposal.GetEntries.Invoke;
     end;
 
+    local procedure GetEntriesViaReportRun(AccountNo: Code[20]; AccountBankCode: Text[30])
+    var
+        TransactionMode: Record "Transaction Mode";
+    begin
+        LibraryVariableStorage.Enqueue(AccountNo);  // Enqueue for GetProposalEntriesRequestPageHandler.
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(CalcDate('<1M>', WorkDate()));  // Enqueue for GetProposalEntriesRequestPageHandler.
+        TransactionMode.SETRANGE("Our Bank", AccountBankCode);
+        Commit();
+        Report.RunModal(Report::"Get Proposal Entries", true, true, TransactionMode);
+    end;
+
     local procedure GetVendorAccountType(): Integer
     var
         DummyGenJournalLine: Record "Gen. Journal Line";
@@ -2995,6 +3602,14 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         DummyGenJournalLine: Record "Gen. Journal Line";
     begin
         exit(DummyGenJournalLine."Account Type"::Customer)
+    end;
+
+    local procedure GetLocalCurrencyCode(): Code[10]
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        exit(GLSetup.GetCurrencyCode(''));
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -3025,6 +3640,16 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryVariableStorage.Enqueue(PaymentDiscountDate);  // Enqueue for GetProposalEntriesRequestPageHandler.
         LibraryVariableStorage.Enqueue(ProposalLinesProcessedMsg);
         HandleTelebankExportForSeveralAccounts(AccountNo, BankAccountNo, ExportProtocolCode);
+    end;
+
+    local procedure ExportPaymentHistoryViaTable(AccountBankCode: Text[30])
+    var
+        PaymentHistory: Record "Payment History";
+    begin
+        PaymentHistory.SetRange("Our Bank", AccountBankCode);
+        PaymentHistory.FindFirst();
+        Commit();
+        PaymentHistory.ExportToPaymentFile();
     end;
 
     local procedure InitCustomerForExport(var CustomerBankAccount: Record "Customer Bank Account"; var ExportProtocolCode: Code[20]; var BalAccountNo: Code[20])
@@ -3078,6 +3703,19 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryVariableStorage.Enqueue(WorkDate);  // Enqueue for GetSalesProposalEntriesRequestPageHandler.
         LibraryVariableStorage.Enqueue(WorkDate);
         HandleTelebankExport(CustomerBankAccount."Customer No.", BankAccountNo, ExportProtocolCode);
+    end;
+
+    local procedure ProcessProposalViaCodeunitRun(AccountBankCode: Text[30])
+    var
+        ProposalLine: Record "Proposal Line";
+        ProcessProposalLines: Codeunit "Process Proposal Lines";
+    begin
+        ProposalLine.SetRange("Our Bank No.", AccountBankCode);
+        ProposalLine.FindFirst();
+        ProcessProposalLines.Run(ProposalLine);
+        LibraryVariableStorage.Enqueue(true); // Confirm Process Proposal
+        ProcessProposalLines.ProcessProposallines();
+        Assert.ExpectedMessage(ProcessProposalLinesQst, LibraryVariableStorageConfirmHandler.DequeueText());
     end;
 
     local procedure HandleTelebankExportForSeveralAccounts(AccountNo: array[3] of Code[20]; BankAccountCode: Code[30]; ExportProtocolCode: Code[20])
@@ -3208,14 +3846,14 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Quantity := LibraryRandom.RandDecInRange(10, 100, 2);  // Take Random Quantity.
         DirectUnitCost := LibraryRandom.RandDec(100, 2);  // Take Random Direct Unit Cost.
         CreateAndPostPurchaseDocument(
-          PurchaseLine, PurchaseHeader."Document Type"::Invoice, Quantity, DirectUnitCost, VendorBankAccount."Vendor No.", WorkDate);
+          PurchaseLine, PurchaseHeader."Document Type"::Invoice, Quantity, DirectUnitCost, VendorBankAccount."Vendor No.", WorkDate, '');
         CreateAndPostPurchaseDocument(
           PurchaseLine,
           PurchaseHeader."Document Type"::"Credit Memo",
           Quantity / 2,
           DirectUnitCost,
           VendorBankAccount."Vendor No.",
-          WorkDate);
+          WorkDate, '');
     end;
 
     local procedure PostPurchaseInvoicesWithVendorBankAccount(var VendorNo: array[3] of Code[20]; ExportProtocol: Code[20]; OurBank: Code[20])
@@ -3231,7 +3869,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             VendorNo[i] := VendorBankAccount."Vendor No.";
             CreateAndPostPurchaseDocument(
               PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-              LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDec(100, 2), VendorNo[i], WorkDate);
+              LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDec(100, 2), VendorNo[i], WorkDate, '');
         end;
     end;
 
@@ -3246,7 +3884,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         for i := 1 to ArrayLen(CustomerNo) do begin
             CreateCustomerBankAccountAndUpdateCustomer(CustomerBankAccount, ExportProtocol, OurBank, true);
             CustomerNo[i] := CustomerBankAccount."Customer No.";
-            CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, CustomerNo[i], WorkDate);
+            CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, CustomerNo[i], WorkDate, '');
         end;
     end;
 
@@ -3600,6 +4238,14 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         if StrPos(Question, DateQst) > 0 then
             Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerOption(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
+        LibraryVariableStorageConfirmHandler.Enqueue(Question);
     end;
 
     [MessageHandler]

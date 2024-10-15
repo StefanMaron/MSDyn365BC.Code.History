@@ -878,6 +878,7 @@ page 234 "Apply Employee Entries"
                 Rec := TempApplyingEmplLedgEntry;
                 ApplicationDate := EmplEntryApplyPostedEntries.GetApplicationDate(Rec);
 
+                OnPostDirectApplicationBeforeSetValues(ApplicationDate);
                 PostApplication.SetValues("Document No.", ApplicationDate);
                 if ACTION::OK = PostApplication.RunModal then begin
                     PostApplication.GetValues(NewDocumentNo, NewApplicationDate);
@@ -886,6 +887,7 @@ page 234 "Apply Employee Entries"
                 end else
                     Error(ApplicationProcessCanceledErr);
 
+                OnPostDirectApplicationBeforeApply();
                 if PreviewMode then
                     EmplEntryApplyPostedEntries.PreviewApply(Rec, NewDocumentNo, NewApplicationDate)
                 else
@@ -954,6 +956,16 @@ page 234 "Apply Employee Entries"
 
         until not TempAppliedEmplLedgEntry.FindFirst;
         CheckRounding;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeSetValues(var ApplicationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeApply()
+    begin
     end;
 }
 

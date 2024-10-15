@@ -1,4 +1,4 @@
-table 5876 "Phys. Invt. Order Line"
+﻿table 5876 "Phys. Invt. Order Line"
 {
     Caption = 'Phys. Invt. Order Line';
     DrillDownPageID = "Physical Inventory Order Lines";
@@ -60,7 +60,7 @@ table 5876 "Phys. Invt. Order Line"
                 Validate("Gen. Bus. Posting Group", PhysInvtOrderHeader."Gen. Bus. Posting Group");
                 Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
                 Validate("Inventory Posting Group", Item."Inventory Posting Group");
-
+                OnValidateItemNoOnAfterInitFromItem(Rec, xRec, Item, PhysInvtOrderHeader);
                 CreateDim(DATABASE::Item, "Item No.");
 
                 "Location Code" := PhysInvtOrderHeader."Location Code";
@@ -932,6 +932,11 @@ table 5876 "Phys. Invt. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterInitFromItem(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; xPhysInvtOrderLine: Record "Phys. Invt. Order Line"; Item: Record Item; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
 }

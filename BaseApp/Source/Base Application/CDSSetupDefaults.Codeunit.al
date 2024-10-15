@@ -20,7 +20,13 @@ codeunit 7204 "CDS Setup Defaults"
     procedure ResetConfiguration(var CDSConnectionSetup: Record "CDS Connection Setup")
     var
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeResetConfiguration(CDSConnectionSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         CDSIntegrationMgt.RegisterConnection();
         CDSIntegrationMgt.ActivateConnection();
 
@@ -1226,6 +1232,11 @@ codeunit 7204 "CDS Setup Defaults"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterResetContactContactMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetConfiguration(var CDSConnectionSetup: Record "CDS Connection Setup"; var IsHandled: Boolean)
     begin
     end;
 }

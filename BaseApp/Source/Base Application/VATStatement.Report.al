@@ -326,6 +326,7 @@ report 12 "VAT Statement"
                                 Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Base", VATEntry."Add.-Curr. Rem. Unreal. Base");
                             end;
                     end;
+                    OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -407,6 +408,11 @@ report 12 "VAT Statement"
     procedure SetElectronicVAT(ElectronicVAT2: Boolean)
     begin
         ElectronicVAT := ElectronicVAT2;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal)
+    begin
     end;
 }
 

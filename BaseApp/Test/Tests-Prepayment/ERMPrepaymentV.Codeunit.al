@@ -1,4 +1,4 @@
-codeunit 134106 "ERM Prepayment V"
+﻿codeunit 134106 "ERM Prepayment V"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -2695,6 +2695,154 @@ codeunit 134106 "ERM Prepayment V"
         TempSalesLine.TestField("Prepmt. Line Amount", TempSalesLine."Line Amount");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderPartialPostWithPrepayment100PctAndInvoiceDiscountAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        PostedDocNo1: Code[20];
+        PostedDocNo2: Code[20];
+        Quantity: Integer;
+        UnitPrice: Decimal;
+        UnitInvDiscAmt: Decimal;
+    begin
+        // [FEATURE] [Sales] [Invoice Discount]
+        // [SCENARIO 361949] Post Sales Order partially with Prepayment % = 100 and Invoice Discount Amount.
+        Initialize;
+
+        // [GIVEN] VAT Posting Setup with VAT Rate = 10. Sales Order with Prepayment % = 100.
+        // [GIVEN] Sales Line with Item, Quantity = 3, "Unit Price" = 1000; Invoice Discount Amount = 300.
+        // [GIVEN] Posted Prepayment Invoice.
+        Quantity := LibraryRandom.RandIntInRange(3, 5);
+        UnitPrice := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        UnitInvDiscAmt := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20));
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateSalesHeader(
+          SalesHeader,
+          LibrarySales.CreateCustomerWithBusPostingGroups(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"),
+          100, false);
+        Item.Get(
+          LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
+        CreateCustomItemSalesLine(SalesLine, SalesHeader, Item."No.", Quantity, UnitPrice);
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(Quantity * UnitInvDiscAmt, SalesHeader);
+
+        // [GIVEN] Prepayment invoice is posted with Amount = 2700 (3000 - 300)
+        UpdateSalesPrepmtAccount(
+          CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+          SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] Post sales invoice partially with "Qty. to Ship" = 1 as "Inv1"
+        // [GIVEN] "Inv. Disc. Amount to Invoice" = 100, "Prepmt Amt to Deduct" = 900
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Ship", 1);
+        SalesLine.Modify(true);
+        SalesLine.TestField("Inv. Disc. Amount to Invoice", UnitInvDiscAmt);
+        SalesLine.TestField("Prepmt Amt to Deduct", UnitPrice - UnitInvDiscAmt);
+        PostedDocNo1 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Post final sales invoice as "Inv2"
+        PostedDocNo2 := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Posted Sales Invoices have Amount = 0, Amount Including VAT = 0, Remaining Amount = 0
+        // [THEN] Deducted prepayment amount = -900 in "Inv1"
+        // [THEN] Deducted prepayment amount = -1800 in "Inv2"
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        VerifyPostedSalesInvoiceWithPrepmt(
+          PostedDocNo1, SalesLine.Type::Item, Item."No.", GeneralPostingSetup."Sales Prepayments Account",
+          UnitPrice, UnitInvDiscAmt);
+        VerifyGLEntriesAmount(
+          UnitPrice - UnitInvDiscAmt, PostedDocNo1, GeneralPostingSetup."Sales Prepayments Account");
+        VerifyPostedSalesInvoiceWithPrepmt(
+          PostedDocNo2, SalesLine.Type::Item, Item."No.", GeneralPostingSetup."Sales Prepayments Account",
+          UnitPrice * (Quantity - 1), UnitInvDiscAmt * (Quantity - 1));
+        VerifyGLEntriesAmount(
+          (UnitPrice - UnitInvDiscAmt) * (Quantity - 1), PostedDocNo2, GeneralPostingSetup."Sales Prepayments Account");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderPartialPostWithPrepayment100PctAndInvoiceDiscountAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+        PostedDocNo1: Code[20];
+        PostedDocNo2: Code[20];
+        Quantity: Integer;
+        UnitCost: Decimal;
+        UnitInvDiscAmt: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice Discount]
+        // [SCENARIO 361949] Post Purchase Order partially with Prepayment % = 100 and Invoice Discount Amount.
+        Initialize;
+
+        // [GIVEN] VAT Posting Setup with VAT Rate = 10. Purchase Order with Prepayment % = 100.
+        // [GIVEN] Purchase Line with Item, Quantity = 3, "Unit Price" = 1000; Invoice Discount Amount = 300.
+        // [GIVEN] Posted Prepayment Invoice.
+        Quantity := LibraryRandom.RandIntInRange(3, 5);
+        UnitCost := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        UnitInvDiscAmt := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20));
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreatePurchaseHeader(
+          PurchaseHeader,
+          LibraryPurchase.CreateVendorWithBusPostingGroups(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"),
+          100, false);
+        Item.Get(
+          LibraryInventory.CreateItemNoWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
+        CreateCustomItemPurchaseLine(PurchaseLine, PurchaseHeader, Item."No.", Quantity, UnitCost);
+        PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(Quantity * UnitInvDiscAmt, PurchaseHeader);
+
+        // [GIVEN] Prepayment invoice is posted with Amount = 2700 (3000 - 300)
+        UpdatePurchasePrepmtAccount(
+          CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+          PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] Post purchase invoice partially with "Qty. to Receive" = 1 as "Inv1"
+        // [GIVEN] "Inv. Disc. Amount to Invoice" = 100, "Prepmt Amt to Deduct" = 900
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate("Qty. to Receive", 1);
+        PurchaseLine.Modify(true);
+        PurchaseLine.TestField("Inv. Disc. Amount to Invoice", UnitInvDiscAmt);
+        PurchaseLine.TestField("Prepmt Amt to Deduct", UnitCost - UnitInvDiscAmt);
+        PostedDocNo1 := PostPurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Post final purchase invoice as "Inv2"
+        PostedDocNo2 := PostPurchaseDocument(PurchaseHeader);
+
+        // [THEN] Posted Purchase Invoices have Amount = 0, Amount Including VAT = 0, Remaining Amount = 0
+        // [THEN] Deducted prepayment amount = -900 in "Inv1"
+        // [THEN] Deducted prepayment amount = -1800 in "Inv2"
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        VerifyPostedPurchaseInvoiceWithPrepmt(
+          PostedDocNo1, PurchaseLine.Type::Item, Item."No.", GeneralPostingSetup."Purch. Prepayments Account",
+          UnitCost, UnitInvDiscAmt);
+        VerifyGLEntriesAmount(
+          -(UnitCost - UnitInvDiscAmt), PostedDocNo1, GeneralPostingSetup."Purch. Prepayments Account");
+        VerifyPostedPurchaseInvoiceWithPrepmt(
+          PostedDocNo2, PurchaseLine.Type::Item, Item."No.", GeneralPostingSetup."Purch. Prepayments Account",
+          UnitCost * (Quantity - 1), UnitInvDiscAmt * (Quantity - 1));
+        VerifyGLEntriesAmount(
+          -(UnitCost - UnitInvDiscAmt) * (Quantity - 1), PostedDocNo2, GeneralPostingSetup."Purch. Prepayments Account");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3814,8 +3962,10 @@ codeunit 134106 "ERM Prepayment V"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceHeader.Get(PostedSalesInvoiceNo);
-        SalesInvoiceHeader.CalcFields(Amount);
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT", "Remaining Amount");
         SalesInvoiceHeader.TestField(Amount, 0);
+        SalesInvoiceHeader.TestField("Amount Including VAT", 0);
+        SalesInvoiceHeader.TestField("Remaining Amount", 0);
 
         SalesInvoiceLine.SetRange("Document No.", PostedSalesInvoiceNo);
         SalesInvoiceLine.SetRange(Type, LineType);
@@ -3837,8 +3987,10 @@ codeunit 134106 "ERM Prepayment V"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvHeader.Get(PostedPurchaseInvoiceNo);
-        PurchInvHeader.CalcFields(Amount);
+        PurchInvHeader.CalcFields(Amount, "Amount Including VAT", "Remaining Amount");
         PurchInvHeader.TestField(Amount, 0);
+        PurchInvHeader.TestField("Amount Including VAT", 0);
+        PurchInvHeader.TestField("Remaining Amount", 0);
 
         PurchInvLine.SetRange("Document No.", PostedPurchaseInvoiceNo);
         PurchInvLine.SetRange(Type, LineType);
