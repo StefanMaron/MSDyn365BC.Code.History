@@ -1701,6 +1701,79 @@
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
+    procedure SendTwoFCYPaymentsForFCYInvoice()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        InStream: InStream;
+        OriginalStr: Text;
+        PaymentNo1: Code[20];
+        PaymentNo2: Code[20];
+        FileName: Text;
+    begin
+        // [FEATURE] [Payment] [Currency]
+        // [SCENARIO 473884] Request stamp for 2 LCY payments applied to FCY invoice with higher amount
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 233,352.56 USD / 4,325,421.37 MXN with Exch. Rate = 18.6428
+        Customer.Get(CreateCustomer);
+        UpdateCustomerSATPaymentFields(Customer."No.");
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT());
+        SalesHeader.Validate("Posting Date", WorkDate() - 1);
+        SalesHeader.Validate(
+          "Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate() - 1, 1 / 18.1185, 1 / 18.1185));
+        SalesHeader.Validate("Currency Factor", 1 / 18.6428);
+        SalesHeader.Modify();
+        SalesHeader.Modify(true);
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem, 1, 0, 16, false, false);
+        SalesLine.Validate("Unit Price", 201166.0);
+        SalesLine.Modify(true);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+
+        // [GIVEN] Payment1 of 845949.70 MXN with Exch. Rate = 18.1185 is applied to the invoice with 46689.83 USD
+        PaymentNo1 :=
+          CreatePostPayment(
+            SalesInvoiceHeader."Sell-to Customer No.", SalesInvoiceHeader."No.", -845949.7, '');
+        // [GIVEN] Payment2 of 422060.11 MXN with Exch. Rate = 18.6232 is applied to the invoice with 22663.14 USD
+        LibraryERM.CreateExchangeRate(SalesHeader."Currency Code", WorkDate(), 1 / 18.6232, 1 / 18.6232);
+        PaymentNo2 :=
+          CreatePostPayment(
+            SalesInvoiceHeader."Sell-to Customer No.", SalesInvoiceHeader."No.", -422060.11, '');
+
+        // [WHEN] Request stamp for the payments
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo1, ResponseOption::Success, ActionOption::"Request Stamp");
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo2, ResponseOption::Success, ActionOption::"Request Stamp");
+
+        // [THEN] First payment has 'DoctoRelacionado' node with ImpSaldoAnt=233352.56 ImpPagado=46689.83 ImpSaldoInsoluto=186662.73
+        // [THEN] Second invoice has 'DoctoRelacionado' node with ImpSaldoAnt=186662.73 ImpPagado=22663.14 ImpSaldoInsoluto=163999.59
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo1);
+        InitXMLReaderForPagos20(FileName);
+        CustLedgerEntry.CalcFields("Original String");
+        CustLedgerEntry."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+        VerifyComplementoPago(
+          OriginalStr, 233352.56, 46689.83, 186662.73, SalesInvoiceHeader."Fiscal Invoice Number PAC", '1', 0);
+
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo2);
+        InitXMLReaderForPagos20(FileName);
+        CustLedgerEntry.CalcFields("Original String");
+        CustLedgerEntry."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+        VerifyComplementoPago(
+          OriginalStr, 186662.73, 22663.14, 163999.59, SalesInvoiceHeader."Fiscal Invoice Number PAC", '2', 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
     procedure SendPaymentWithGainLosses()
     var
         Customer: Record Customer;
@@ -2824,7 +2897,7 @@
         VATProdPostingGroup: Code[20];
     begin
         // [FEATURE] [Sales] [Rounding]
-        // [SCENARIO 446557] Request Stamp for Sales Invoice with three lines
+        // [SCENARIO 446557] Request Stamp for Sales Invoice with four lines and line discount
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
@@ -2879,6 +2952,77 @@
           OriginalStr, 2362.36, 16, '002', 0, 4, 0);
         VerifyTotalImpuestos(
           OriginalStr, 'TotalImpuestosTrasladados', 2362.36, 87);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRounding_LCYTreeLinesDecimalQuantity()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
+    begin
+        // [FEATURE] [Sales] [Rounding]
+        // [SCENARIO 472193] Request Stamp for Sales Invoice with three lines
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with next Qty/Unit price.
+        // [GIVEN] Line 1: 1796.256/ 7.44, Line 2: 771.12/ 5.70, Line 3: 680.4/ 4.35
+        Customer.Get(CreateCustomer);
+        VATProdPostingGroup := CreateVATPostingSetup(Customer."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.", CreatePaymentMethodForSAT);
+        CreateSalesLineItemWithVATSetup(SalesLine[1], SalesHeader, CreateItem, VATProdPostingGroup, 1796.256, 7.44, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[2], SalesHeader, CreateItem, VATProdPostingGroup, 771.12, 5.7, 0);
+        CreateSalesLineItemWithVATSetup(SalesLine[3], SalesHeader, CreateItem, VATProdPostingGroup, 680.4, 4.35, 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", Amount, "Amount Including VAT");
+
+        InsertNameValueBufferRounding('3'); // RoundingModel::Model4-DecimalBased
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        BindSubscription(MXCFDI);
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        UnbindSubscription(MXCFDI);
+        NameValueBuffer.Delete;
+        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto' ValorUnitario, Importe, Descuento are exported
+        VerifyLineAmountsByIndex(0, 13364.144, 7.44, 2138.26304, 13364.144, 0);
+        VerifyLineAmountsByIndex(0, 4395.38, 5.7, 703.2608, 4395.38, 1);
+        VerifyLineAmountsByIndex(0, 2959.74, 4.35, 473.5584, 2959.74, 2);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has VAT data for each line
+        // [THEN] 1st line: 'Base' = 13364.144000, 'Importe' = 2138.263040.
+        // [THEN] 2nd line: 'Base' = 4395.380000, 'Importe' = 703.260800.
+        // [THEN] 3rd line: 'Base' = 2959.740000, 'Importe' = 473.558400.
+        VerifyVATAmountLines(OriginalStr, 13364.144, 2138.26304, 16, '002', 0, 0);
+        VerifyVATAmountLines(OriginalStr, 4395.38, 703.2608, 16, '002', 0, 1);
+        VerifyVATAmountLines(OriginalStr, 2959.74, 473.5584, 16, '002', 0, 2);
+
+        // [THEN] Total VAT line in 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has 'Importe' = 3315.08
+        // [THEN] Total VAT Amount in 'cfdi:Impuestos/TotalImpuestosTrasladados' = 3315.08
+        VerifyVATTotalLine(
+          OriginalStr, 3315.08, 16, '002', 0, 3, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 3315.08, 72);
 
         LibraryVariableStorage.AssertEmpty();
     end;
