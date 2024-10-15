@@ -114,6 +114,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
                 SetPurchaserCode(Vendor."Purchaser Code", "Purchaser Code");
                 Validate("Payment Terms Code");
                 Validate("Payment Method Code");
+                Validate("VAT Bus. Posting Group");
                 Validate("Currency Code");
 
                 Validate("Bank Account Code", Vendor."Preferred Bank Account Code");

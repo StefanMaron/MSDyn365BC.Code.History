@@ -101,6 +101,7 @@ table 31004 "Sales Adv. Letter Header CZZ"
 
                 Validate("Payment Terms Code");
                 Validate("Payment Method Code");
+                Validate("VAT Bus. Posting Group");
                 Validate("Currency Code");
 
                 if not SkipBillToContact then
