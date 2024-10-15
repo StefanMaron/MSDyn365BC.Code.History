@@ -561,8 +561,8 @@ page 7000036 "Cartera Journal"
         ReportPrint: Codeunit "Test Report-Print";
         CurrentJnlBatchName: Code[10];
         PassedCurrentJnlBatchName: Code[10];
-        AccName: Text[50];
-        BalAccName: Text[50];
+        AccName: Text[100];
+        BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
         ShowBalance: Boolean;

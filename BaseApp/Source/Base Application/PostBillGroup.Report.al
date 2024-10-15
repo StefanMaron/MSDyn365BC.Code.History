@@ -46,66 +46,48 @@ report 7000099 "Post Bill Group"
                         AccountNo := CustPostingGr."Discted. Bills Acc.";
                         if "Due Date" < BillGr."Posting Date" then
                             FieldError("Due Date",
-                              StrSubstNo(
-                                Text1100004,
-                                BillGr.FieldCaption("Posting Date"),
-                                BillGr.TableCaption));
+                                StrSubstNo(Text1100004, BillGr.FieldCaption("Posting Date"), BillGr.TableCaption));
                         FeeRange.CalcDiscExpensesAmt(
-                          BankAcc."Operation Fees Code",
-                          BankAcc."Currency Code",
-                          "Remaining Amount",
-                          CustLedgEntry."Entry No.");
+                            BankAcc."Operation Fees Code", BankAcc."Currency Code", "Remaining Amount", CustLedgEntry."Entry No.");
                         FeeRange.CalcDiscInterestsAmt(
-                          BankAcc."Operation Fees Code",
-                          BankAcc."Currency Code",
-                          "Due Date" - BillGr."Posting Date",
-                          "Remaining Amount",
-                          CustLedgEntry."Entry No.");
+                            BankAcc."Operation Fees Code", BankAcc."Currency Code", "Due Date" - BillGr."Posting Date",
+                            "Remaining Amount", CustLedgEntry."Entry No.");
                     end else begin
                         CustPostingGr.TestField("Bills on Collection Acc.");
                         AccountNo := CustPostingGr."Bills on Collection Acc.";
                         FeeRange.CalcCollExpensesAmt(
-                          BankAcc."Operation Fees Code",
-                          BankAcc."Currency Code",
-                          "Remaining Amount",
-                          CustLedgEntry."Entry No.");
+                            BankAcc."Operation Fees Code", BankAcc."Currency Code", "Remaining Amount", CustLedgEntry."Entry No.");
                     end;
 
                     CustPostingGr.TestField("Bills Account");
                     BalanceAccount := CustPostingGr."Bills Account";
                     OnAfterGetBillsAccounts(Doc, CustLedgEntry, AccountNo, BalanceAccount);
-                    if BGPOPostBuffer.Get(AccountNo, BalanceAccount, CustLedgEntry."Entry No.") then begin
-                        BGPOPostBuffer.Amount := BGPOPostBuffer.Amount + "Remaining Amount";
+                    if TempBGPOPostBuffer.Get(AccountNo, BalanceAccount, CustLedgEntry."Entry No.") then begin
+                        TempBGPOPostBuffer.Amount := TempBGPOPostBuffer.Amount + "Remaining Amount";
                         if "Currency Code" <> '' then
-                            BGPOPostBuffer."Gain - Loss Amount (LCY)" := BGPOPostBuffer."Gain - Loss Amount (LCY)" + GainLossManagement(
-                                "Remaining Amount",
-                                "Posting Date",
-                                "Currency Code");
-                        BGPOPostBuffer.Modify;
+                            TempBGPOPostBuffer."Gain - Loss Amount (LCY)" += GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
+                        TempBGPOPostBuffer.Modify;
                     end else begin
-                        BGPOPostBuffer.Account := AccountNo;
-                        BGPOPostBuffer."Balance Account" := BalanceAccount;
-                        BGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
-                        BGPOPostBuffer."Global Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
-                        BGPOPostBuffer."Global Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
-                        BGPOPostBuffer.Amount := "Remaining Amount";
+                        TempBGPOPostBuffer.Account := AccountNo;
+                        TempBGPOPostBuffer."Balance Account" := BalanceAccount;
+                        TempBGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
+                        TempBGPOPostBuffer."Global Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
+                        TempBGPOPostBuffer."Global Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
+                        TempBGPOPostBuffer.Amount := "Remaining Amount";
                         if "Currency Code" <> '' then
-                            BGPOPostBuffer."Gain - Loss Amount (LCY)" := GainLossManagement(
-                                "Remaining Amount",
-                                "Posting Date",
-                                "Currency Code");
-                        BGPOPostBuffer.Insert;
+                            TempBGPOPostBuffer."Gain - Loss Amount (LCY)" := GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
+                        TempBGPOPostBuffer.Insert;
                     end;
 
-                    PostedDocBuffer.Init;
-                    PostedDocBuffer.TransferFields(Doc);
-                    PostedDocBuffer."Original Document No." := "Original Document No.";
-                    PostedDocBuffer."Category Code" := "Category Code";
-                    PostedDocBuffer."Bank Account No." := BillGr."Bank Account No.";
-                    PostedDocBuffer."Dealing Type" := BillGr."Dealing Type";
-                    PostedDocBuffer."Remaining Amount" := "Remaining Amount";
-                    PostedDocBuffer."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-                    PostedDocBuffer.Insert;
+                    TempPostedDocBuffer.Init;
+                    TempPostedDocBuffer.TransferFields(Doc);
+                    TempPostedDocBuffer."Original Document No." := "Original Document No.";
+                    TempPostedDocBuffer."Category Code" := "Category Code";
+                    TempPostedDocBuffer."Bank Account No." := BillGr."Bank Account No.";
+                    TempPostedDocBuffer."Dealing Type" := BillGr."Dealing Type";
+                    TempPostedDocBuffer."Remaining Amount" := "Remaining Amount";
+                    TempPostedDocBuffer."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
+                    TempPostedDocBuffer.Insert;
                 end;
 
                 trigger OnPostDataItem()
@@ -113,9 +95,11 @@ report 7000099 "Post Bill Group"
                     TempCurrencyCode: Code[10];
                     CustLedgEntry2: Record "Cust. Ledger Entry";
                 begin
+                    OnBeforeDocOnPostDataItem(Doc, TempBGPOPostBuffer);
+
                     GroupAmount := 0;
                     SumLCYAmt := 0;
-                    if not BGPOPostBuffer.Find('-') then
+                    if not TempBGPOPostBuffer.Find('-') then
                         exit;
 
                     GenJnlLine.LockTable;
@@ -127,53 +111,36 @@ report 7000099 "Post Bill Group"
                     end;
 
                     repeat
-                        CustLedgEntry2.Get(BGPOPostBuffer."Entry No.");
+                        CustLedgEntry2.Get(TempBGPOPostBuffer."Entry No.");
                         InsertGenJournalLine(
-                          GenJnlLine."Account Type"::"G/L Account",
-                          BGPOPostBuffer.Account,
-                          BGPOPostBuffer.Amount,
-                          BillGr."Posting Description",
-                          CustLedgEntry2,
-                          CustLedgEntry."Original Currency Factor");
+                            GenJnlLine."Account Type"::"G/L Account", TempBGPOPostBuffer.Account, TempBGPOPostBuffer.Amount,
+                            BillGr."Posting Description", CustLedgEntry2, CustLedgEntry."Original Currency Factor");
                         SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
 
                         InsertGenJournalLine(
-                          GenJnlLine."Account Type"::"G/L Account",
-                          BGPOPostBuffer."Balance Account",
-                          -BGPOPostBuffer.Amount,
-                          BillGr."Posting Description",
-                          CustLedgEntry2,
-                          CustLedgEntry."Original Currency Factor");
+                            GenJnlLine."Account Type"::"G/L Account", TempBGPOPostBuffer."Balance Account", -TempBGPOPostBuffer.Amount,
+                            BillGr."Posting Description", CustLedgEntry2, CustLedgEntry."Original Currency Factor");
                         SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
 
                         if CheckCurrFact(Doc, BillGr) then begin
-                            if BGPOPostBuffer."Gain - Loss Amount (LCY)" <> 0 then begin
+                            if TempBGPOPostBuffer."Gain - Loss Amount (LCY)" <> 0 then begin
                                 TempCurrencyCode := BillGr."Currency Code";
                                 BillGr."Currency Code" := '';
-                                if BGPOPostBuffer."Gain - Loss Amount (LCY)" > 0 then begin
+                                if TempBGPOPostBuffer."Gain - Loss Amount (LCY)" > 0 then begin
                                     Currency.TestField("Realized Gains Acc.");
                                     InsertGenJournalLine(
-                                      GenJnlLine."Account Type"::"G/L Account",
-                                      Currency."Realized Gains Acc.",
-                                      -BGPOPostBuffer."Gain - Loss Amount (LCY)",
-                                      BillGr."Posting Description",
-                                      CustLedgEntry2, 0);
+                                      GenJnlLine."Account Type"::"G/L Account", Currency."Realized Gains Acc.", -TempBGPOPostBuffer."Gain - Loss Amount (LCY)",
+                                      BillGr."Posting Description", CustLedgEntry2, 0);
                                 end else begin
                                     Currency.TestField("Realized Losses Acc.");
                                     InsertGenJournalLine(
-                                      GenJnlLine."Account Type"::"G/L Account",
-                                      Currency."Realized Losses Acc.",
-                                      -BGPOPostBuffer."Gain - Loss Amount (LCY)",
-                                      BillGr."Posting Description",
-                                      CustLedgEntry2, 0);
+                                        GenJnlLine."Account Type"::"G/L Account", Currency."Realized Losses Acc.", -TempBGPOPostBuffer."Gain - Loss Amount (LCY)",
+                                      BillGr."Posting Description", CustLedgEntry2, 0);
                                 end;
                                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
                                 InsertGenJournalLine(
-                                  GenJnlLine."Account Type"::"G/L Account",
-                                  BGPOPostBuffer."Balance Account",
-                                  BGPOPostBuffer."Gain - Loss Amount (LCY)",
-                                  BillGr."Posting Description",
-                                  CustLedgEntry2, 0);
+                                  GenJnlLine."Account Type"::"G/L Account", TempBGPOPostBuffer."Balance Account", TempBGPOPostBuffer."Gain - Loss Amount (LCY)",
+                                  BillGr."Posting Description", CustLedgEntry2, 0);
                                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
                                 BillGr."Currency Code" := TempCurrencyCode;
                             end;
@@ -186,18 +153,14 @@ report 7000099 "Post Bill Group"
                             if BillGr.Factoring = BillGr.Factoring::" " then begin
                                 BankAccPostingGr.TestField("Liabs. for Disc. Bills Acc.");
                                 InsertGenJournalLine(
-                                  GenJnlLine."Account Type"::"G/L Account",
-                                  BankAccPostingGr."Liabs. for Disc. Bills Acc.",
-                                  -BGPOPostBuffer.Amount,
-                                  BillGr."Posting Description",
-                                  CustLedgEntry2, 0);
+                                  GenJnlLine."Account Type"::"G/L Account", BankAccPostingGr."Liabs. for Disc. Bills Acc.", -TempBGPOPostBuffer.Amount,
+                                  BillGr."Posting Description", CustLedgEntry2, 0);
                                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
-                                CalcBankAccount(BillGr."Bank Account No.", BGPOPostBuffer.Amount,
-                                  CustLedgEntry2."Entry No.");
+                                CalcBankAccount(BillGr."Bank Account No.", TempBGPOPostBuffer.Amount, CustLedgEntry2."Entry No.");
                             end;
                         end;
-                        GroupAmount := GroupAmount + BGPOPostBuffer.Amount;
-                    until BGPOPostBuffer.Next = 0;
+                        GroupAmount := GroupAmount + TempBGPOPostBuffer.Amount;
+                    until TempBGPOPostBuffer.Next = 0;
 
                     if (BillGr.Factoring <> BillGr.Factoring::" ") and
                        (BillGr."Dealing Type" <> BillGr."Dealing Type"::Collection)
@@ -221,17 +184,13 @@ report 7000099 "Post Bill Group"
                             BankAccPostingGr.TestField("Bank Services Acc.");
                             NoRegs := FeeRange.NoRegsDiscExpenses;
                             for i := 0 to NoRegs - 1 do begin
-                                FeeRange.GetDiscExpensesAmt(BGPOPostBuffer, i);
-                                CustLedgEntry2.Get(BGPOPostBuffer."Entry No.");
+                                FeeRange.GetDiscExpensesAmt(TempBGPOPostBuffer, i);
+                                CustLedgEntry2.Get(TempBGPOPostBuffer."Entry No.");
                                 InsertGenJournalLine(
-                                  GenJnlLine."Account Type"::"G/L Account",
-                                  BankAccPostingGr."Bank Services Acc.",
-                                  BGPOPostBuffer.Amount,
-                                  BillGr."Posting Description",
-                                  CustLedgEntry2, 0);
+                                    GenJnlLine."Account Type"::"G/L Account", BankAccPostingGr."Bank Services Acc.", TempBGPOPostBuffer.Amount,
+                                    BillGr."Posting Description", CustLedgEntry2, 0);
                                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
-                                CalcBankAccount(BillGr."Bank Account No.", -BGPOPostBuffer.Amount,
-                                  CustLedgEntry2."Entry No.");
+                                CalcBankAccount(BillGr."Bank Account No.", -TempBGPOPostBuffer.Amount, CustLedgEntry2."Entry No.");
                             end;
                         end;
                     end else begin
@@ -241,17 +200,13 @@ report 7000099 "Post Bill Group"
                         then begin
                             NoRegs := FeeRange.NoRegUnriskFactExpenses;
                             for i := 0 to NoRegs - 1 do begin
-                                FeeRange.GetUnriskFactExpenses(BGPOPostBuffer, i);
-                                CustLedgEntry2.Get(BGPOPostBuffer."Entry No.");
+                                FeeRange.GetUnriskFactExpenses(TempBGPOPostBuffer, i);
+                                CustLedgEntry2.Get(TempBGPOPostBuffer."Entry No.");
                                 InsertGenJournalLine(
-                                  GenJnlLine."Account Type"::"G/L Account",
-                                  BankAccPostingGr."Bank Services Acc.",
-                                  BGPOPostBuffer.Amount,
-                                  BillGr."Posting Description",
-                                  CustLedgEntry2, 0);
+                                    GenJnlLine."Account Type"::"G/L Account", BankAccPostingGr."Bank Services Acc.", TempBGPOPostBuffer.Amount,
+                                    BillGr."Posting Description", CustLedgEntry2, 0);
                                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
-                                CalcBankAccount(BillGr."Bank Account No.", -BGPOPostBuffer.Amount,
-                                  CustLedgEntry2."Entry No.");
+                                CalcBankAccount(BillGr."Bank Account No.", -TempBGPOPostBuffer.Amount, CustLedgEntry2."Entry No.");
                             end;
                         end;
                         if (BillGr.Factoring = BillGr.Factoring::Risked)
@@ -259,17 +214,13 @@ report 7000099 "Post Bill Group"
                         then begin
                             NoRegs := FeeRange.NoRegRiskFactExpenses;
                             for i := 0 to NoRegs - 1 do begin
-                                FeeRange.GetRiskFactExpenses(BGPOPostBuffer, i);
-                                CustLedgEntry2.Get(BGPOPostBuffer."Entry No.");
+                                FeeRange.GetRiskFactExpenses(TempBGPOPostBuffer, i);
+                                CustLedgEntry2.Get(TempBGPOPostBuffer."Entry No.");
                                 InsertGenJournalLine(
-                                  GenJnlLine."Account Type"::"G/L Account",
-                                  BankAccPostingGr."Bank Services Acc.",
-                                  BGPOPostBuffer.Amount,
-                                  BillGr."Posting Description",
-                                  CustLedgEntry2, 0);
+                                    GenJnlLine."Account Type"::"G/L Account", BankAccPostingGr."Bank Services Acc.", TempBGPOPostBuffer.Amount,
+                                    BillGr."Posting Description", CustLedgEntry2, 0);
                                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
-                                CalcBankAccount(BillGr."Bank Account No.", -BGPOPostBuffer.Amount,
-                                  CustLedgEntry2."Entry No.");
+                                CalcBankAccount(BillGr."Bank Account No.", -TempBGPOPostBuffer.Amount, CustLedgEntry2."Entry No.");
                             end;
                         end;
                     end;
@@ -278,31 +229,24 @@ report 7000099 "Post Bill Group"
                         BankAccPostingGr.TestField("Discount Interest Acc.");
                         NoRegs := FeeRange.NoRegsDiscInterests;
                         for i := 0 to NoRegs - 1 do begin
-                            FeeRange.GetDiscInterestsAmt(BGPOPostBuffer, i);
-                            CustLedgEntry2.Get(BGPOPostBuffer."Entry No.");
+                            FeeRange.GetDiscInterestsAmt(TempBGPOPostBuffer, i);
+                            CustLedgEntry2.Get(TempBGPOPostBuffer."Entry No.");
                             InsertGenJournalLine(
-                              GenJnlLine."Account Type"::"G/L Account",
-                              BankAccPostingGr."Discount Interest Acc.",
-                              BGPOPostBuffer.Amount,
-                              BillGr."Posting Description",
-                              CustLedgEntry2, 0);
+                                GenJnlLine."Account Type"::"G/L Account", BankAccPostingGr."Discount Interest Acc.", TempBGPOPostBuffer.Amount,
+                                BillGr."Posting Description", CustLedgEntry2, 0);
                             SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
-                            CalcBankAccount(BillGr."Bank Account No.", -BGPOPostBuffer.Amount,
-                              CustLedgEntry2."Entry No.");
+                            CalcBankAccount(BillGr."Bank Account No.", -TempBGPOPostBuffer.Amount, CustLedgEntry2."Entry No.");
                         end;
                     end;
 
-                    if BankAccPostBuffer.Find('-') then
+                    if TempBankAccPostBuffer.Find('-') then
                         repeat
-                            CustLedgEntry2.Get(BankAccPostBuffer."Entry No.");
+                            CustLedgEntry2.Get(TempBankAccPostBuffer."Entry No.");
                             InsertGenJournalLine(
-                              GenJnlLine."Account Type"::"Bank Account",
-                              BillGr."Bank Account No.",
-                              BankAccPostBuffer.Amount,
-                              BillGr."Posting Description",
-                              CustLedgEntry2, 0);
+                                GenJnlLine."Account Type"::"Bank Account", BillGr."Bank Account No.", TempBankAccPostBuffer.Amount,
+                                BillGr."Posting Description", CustLedgEntry2, 0);
                             SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
-                        until BankAccPostBuffer.Next = 0;
+                        until TempBankAccPostBuffer.Next = 0;
 
                     if BillGr."Currency Code" <> '' then begin
                         Currency.SetFilter(Code, BillGr."Currency Code");
@@ -324,11 +268,7 @@ report 7000099 "Post Bill Group"
                                 CustLedgEntry2."Global Dimension 2 Code" := '';
                                 CustLedgEntry2."Dimension Set ID" := 0;
                                 InsertGenJournalLine(
-                                  "Account Type"::"G/L Account",
-                                  Account,
-                                  -SumLCYAmt,
-                                  BillGr."Posting Description",
-                                  CustLedgEntry2, 0);
+                                    "Account Type"::"G/L Account", Account, -SumLCYAmt, BillGr."Posting Description", CustLedgEntry2, 0);
                                 BillGr."Currency Code" := TempCode;
                                 BillGr."Posting Description" := TempText;
                             end;
@@ -493,10 +433,10 @@ report 7000099 "Post Bill Group"
         CustPostingGr: Record "Customer Posting Group";
         CustLedgEntry: Record "Cust. Ledger Entry";
         SourceCodeSetup: Record "Source Code Setup";
-        PostedDocBuffer: Record "Posted Cartera Doc." temporary;
+        TempPostedDocBuffer: Record "Posted Cartera Doc." temporary;
         GenJnlLine: Record "Gen. Journal Line";
-        BGPOPostBuffer: Record "BG/PO Post. Buffer" temporary;
-        BankAccPostBuffer: Record "BG/PO Post. Buffer" temporary;
+        TempBGPOPostBuffer: Record "BG/PO Post. Buffer" temporary;
+        TempBankAccPostBuffer: Record "BG/PO Post. Buffer" temporary;
         PostedDoc: Record "Posted Cartera Doc.";
         PostedBillGr: Record "Posted Bill Group";
         BankAccPostingGr: Record "Bank Account Posting Group";
@@ -549,15 +489,15 @@ report 7000099 "Post Bill Group"
 
     local procedure UpdateTables()
     begin
-        PostedDocBuffer.Find('-');
+        TempPostedDocBuffer.Find('-');
         repeat
-            PostedDoc.Copy(PostedDocBuffer);
+            PostedDoc.Copy(TempPostedDocBuffer);
             PostedDoc.Insert;
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Posted BG/PO";
             CustLedgEntry."Document Status" := PostedDoc.Status + 1;
             CustLedgEntry.Modify;
-        until PostedDocBuffer.Next = 0;
+        until TempPostedDocBuffer.Next = 0;
 
         BillGr.CalcFields(Amount);
         PostedBillGr.TransferFields(BillGr);
@@ -604,7 +544,7 @@ report 7000099 "Post Bill Group"
             "Shortcut Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
             "Shortcut Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
             "Dimension Set ID" :=
-              CarteraManagement.GetDimSetIDFromCustPostDocBuffer(GenJnlLine, CustLedgEntry, PostedDocBuffer);
+                CarteraManagement.GetDimSetIDFromCustPostDocBuffer(GenJnlLine, CustLedgEntry, TempPostedDocBuffer);
             if AccType = "Account Type"::"G/L Account" then begin
                 "Source No." := CustLedgEntry."Customer No.";
                 "Source Type" := "Source Type"::Customer;
@@ -644,71 +584,51 @@ report 7000099 "Post Bill Group"
                         BillGr.TableCaption));
                 if BillGr.Factoring = BillGr.Factoring::Risked then
                     FeeRange.CalcRiskFactExpensesAmt(
-                      BankAcc."Operation Fees Code",
-                      BankAcc."Currency Code",
-                      "Remaining Amount",
-                      CustLedgEntry."Entry No.")
+                        BankAcc."Operation Fees Code", BankAcc."Currency Code", "Remaining Amount", CustLedgEntry."Entry No.")
                 else
                     FeeRange.CalcUnriskFactExpensesAmt(
-                      BankAcc."Operation Fees Code",
-                      BankAcc."Currency Code",
-                      "Remaining Amount",
-                      CustLedgEntry."Entry No.");
+                       BankAcc."Operation Fees Code", BankAcc."Currency Code", "Remaining Amount", CustLedgEntry."Entry No.");
                 FeeRange.CalcDiscInterestsAmt(
-                  BankAcc."Operation Fees Code",
-                  BankAcc."Currency Code",
-                  "Due Date" - BillGr."Posting Date",
-                  DocPost.FindDisctdAmt("Remaining Amount", "Account No.", BillGr."Bank Account No."),
-                  CustLedgEntry."Entry No.");
+                    BankAcc."Operation Fees Code", BankAcc."Currency Code", "Due Date" - BillGr."Posting Date",
+                    DocPost.FindDisctdAmt("Remaining Amount", "Account No.", BillGr."Bank Account No."), CustLedgEntry."Entry No.");
             end else begin
                 CustPostingGr.TestField("Factoring for Collection Acc.");
                 if BillGr.Factoring = BillGr.Factoring::Risked then
                     FeeRange.CalcRiskFactExpensesAmt(
-                      BankAcc."Operation Fees Code",
-                      BankAcc."Currency Code",
-                      "Remaining Amount",
-                      CustLedgEntry."Entry No.")
+                        BankAcc."Operation Fees Code", BankAcc."Currency Code", "Remaining Amount", CustLedgEntry."Entry No.")
                 else
                     FeeRange.CalcUnriskFactExpensesAmt(
-                      BankAcc."Operation Fees Code",
-                      BankAcc."Currency Code",
-                      "Remaining Amount",
-                      CustLedgEntry."Entry No.");
+                        BankAcc."Operation Fees Code", BankAcc."Currency Code", "Remaining Amount", CustLedgEntry."Entry No.");
                 AccountNo := CustPostingGr."Factoring for Collection Acc.";
             end;
             CustPostingGr.TestField("Receivables Account");
             BalanceAccount := CustPostingGr."Receivables Account";
-            if BGPOPostBuffer.Get(AccountNo, BalanceAccount, CustLedgEntry."Entry No.") then begin
-                BGPOPostBuffer.Amount := BGPOPostBuffer.Amount + "Remaining Amount";
+            if TempBGPOPostBuffer.Get(AccountNo, BalanceAccount, CustLedgEntry."Entry No.") then begin
+                TempBGPOPostBuffer.Amount := TempBGPOPostBuffer.Amount + "Remaining Amount";
                 if "Currency Code" <> '' then
-                    BGPOPostBuffer."Gain - Loss Amount (LCY)" := BGPOPostBuffer."Gain - Loss Amount (LCY)" + GainLossManagement(
-                        "Remaining Amount",
-                        "Posting Date",
-                        "Currency Code");
-                BGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
-                BGPOPostBuffer.Modify;
+                    TempBGPOPostBuffer."Gain - Loss Amount (LCY)" += GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
+                TempBGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
+                TempBGPOPostBuffer.Modify;
             end else begin
-                BGPOPostBuffer.Account := AccountNo;
-                BGPOPostBuffer."Balance Account" := BalanceAccount;
-                BGPOPostBuffer.Amount := "Remaining Amount";
+                TempBGPOPostBuffer.Account := AccountNo;
+                TempBGPOPostBuffer."Balance Account" := BalanceAccount;
+                TempBGPOPostBuffer.Amount := "Remaining Amount";
                 if "Currency Code" <> '' then
-                    BGPOPostBuffer."Gain - Loss Amount (LCY)" := GainLossManagement(
-                        "Remaining Amount",
-                        "Posting Date",
-                        "Currency Code");
-                BGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
-                BGPOPostBuffer.Insert;
+                    TempBGPOPostBuffer."Gain - Loss Amount (LCY)" := GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
+                TempBGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
+                TempBGPOPostBuffer.Insert;
             end;
-            PostedDocBuffer.Init;
-            PostedDocBuffer.TransferFields(Doc);
-            PostedDocBuffer."Original Document No." := "Original Document No.";
-            PostedDocBuffer."Category Code" := '';
-            PostedDocBuffer."Bank Account No." := BillGr."Bank Account No.";
-            PostedDocBuffer."Dealing Type" := BillGr."Dealing Type";
-            PostedDocBuffer.Factoring := BillGr.Factoring;
-            PostedDocBuffer."Remaining Amount" := "Remaining Amount";
-            PostedDocBuffer."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-            PostedDocBuffer.Insert;
+
+            TempPostedDocBuffer.Init;
+            TempPostedDocBuffer.TransferFields(Doc);
+            TempPostedDocBuffer."Original Document No." := "Original Document No.";
+            TempPostedDocBuffer."Category Code" := '';
+            TempPostedDocBuffer."Bank Account No." := BillGr."Bank Account No.";
+            TempPostedDocBuffer."Dealing Type" := BillGr."Dealing Type";
+            TempPostedDocBuffer.Factoring := BillGr.Factoring;
+            TempPostedDocBuffer."Remaining Amount" := "Remaining Amount";
+            TempPostedDocBuffer."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
+            TempPostedDocBuffer.Insert;
         end;
     end;
 
@@ -737,12 +657,8 @@ report 7000099 "Post Bill Group"
             end;
 
             repeat
-                DisctedAmt := Round(
-                    DocPost.FindDisctdAmt(
-                      "Remaining Amount",
-                      "Account No.",
-                      BillGr."Bank Account No."),
-                    RoundingPrec);
+                DisctedAmt :=
+                    Round(DocPost.FindDisctdAmt("Remaining Amount", "Account No.", BillGr."Bank Account No."), RoundingPrec);
                 CustLedgEntry2.Get("Entry No.");
                 if BillGr.Factoring = BillGr.Factoring::Risked then begin
                     BankAccPostingGr.TestField("Liabs. for Factoring Acc.");
@@ -753,13 +669,9 @@ report 7000099 "Post Bill Group"
                     AccNo := BankAccPostingGr."Liabs. for Factoring Acc.";
                 end;
                 InsertGenJournalLine(
-                  GenJnlLine."Account Type"::"G/L Account",
-                  AccNo,
-                  -DisctedAmt,
-                  BillGr."Posting Description" + StrSubstNo(Text1100009, "Account No."),
-                  CustLedgEntry2, 0);
-                CalcBankAccount(BillGr."Bank Account No.", DisctedAmt,
-                  CustLedgEntry2."Entry No.");
+                  GenJnlLine."Account Type"::"G/L Account", AccNo, -DisctedAmt,
+                  BillGr."Posting Description" + StrSubstNo(Text1100009, "Account No."), CustLedgEntry2, 0);
+                CalcBankAccount(BillGr."Bank Account No.", DisctedAmt, CustLedgEntry2."Entry No.");
                 TotalDisctedAmt := TotalDisctedAmt + DisctedAmt;
                 SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
             until Next = 0;
@@ -786,15 +698,15 @@ report 7000099 "Post Bill Group"
     [Scope('OnPrem')]
     procedure CalcBankAccount(BankAcc2: Code[20]; Amount2: Decimal; EntryNo: Integer)
     begin
-        if BankAccPostBuffer.Get(BankAcc2, '', EntryNo) then begin
-            BankAccPostBuffer.Amount := BankAccPostBuffer.Amount + Amount2;
-            BankAccPostBuffer.Modify;
+        if TempBankAccPostBuffer.Get(BankAcc2, '', EntryNo) then begin
+            TempBankAccPostBuffer.Amount := TempBankAccPostBuffer.Amount + Amount2;
+            TempBankAccPostBuffer.Modify;
         end else begin
-            BankAccPostBuffer.Init;
-            BankAccPostBuffer.Account := BankAcc2;
-            BankAccPostBuffer."Entry No." := EntryNo;
-            BankAccPostBuffer.Amount := Amount2;
-            BankAccPostBuffer.Insert;
+            TempBankAccPostBuffer.Init;
+            TempBankAccPostBuffer.Account := BankAcc2;
+            TempBankAccPostBuffer."Entry No." := EntryNo;
+            TempBankAccPostBuffer.Amount := Amount2;
+            TempBankAccPostBuffer.Insert;
         end;
     end;
 
@@ -830,6 +742,11 @@ report 7000099 "Post Bill Group"
     begin
         if BatchName = '' then
             exit;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDocOnPostDataItem(var CarteraDoc: Record "Cartera Doc."; var BGPOPostBuffer: Record "BG/PO Post. Buffer" temporary)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

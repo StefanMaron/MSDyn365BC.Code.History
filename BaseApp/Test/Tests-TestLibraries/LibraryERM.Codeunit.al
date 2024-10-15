@@ -1694,9 +1694,16 @@ codeunit 131300 "Library - ERM"
         end;
     end;
 
-    local procedure MinDate(Date1: Date; Date2: Date): Date
+    procedure MinDate(Date1: Date; Date2: Date): Date
     begin
         if Date1 < Date2 then
+            exit(Date1);
+        exit(Date2);
+    end;
+
+    procedure MaxDate(Date1: Date; Date2: Date): Date
+    begin
+        if Date1 > Date2 then
             exit(Date1);
         exit(Date2);
     end;
@@ -2411,6 +2418,20 @@ codeunit 131300 "Library - ERM"
     begin
         GeneralLedgerSetup.Get;
         GeneralLedgerSetup."Additional Reporting Currency" := AdditionalReportingCurrency;
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    procedure SetAllowDDExportWitoutIBANAndSWIFT(ExportWithoutIBANAndSWIFT: Boolean)
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("SEPA Export w/o Bank Acc. Data", ExportWithoutIBANAndSWIFT);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
+    procedure SetAllowNonEuroExport(AllowNonEuroExport: Boolean)
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("SEPA Non-Euro Export", AllowNonEuroExport);
         GeneralLedgerSetup.Modify(true);
     end;
 

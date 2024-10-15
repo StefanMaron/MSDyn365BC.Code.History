@@ -197,6 +197,8 @@ page 5339 "Integration Synch. Error List"
     trigger OnOpenPage()
     begin
         SetDataIntegrationUIElementsVisible(ShowDataIntegrationActions);
+        if CRMConnectionSetup.IsEnabled then
+            CRMConnectionSetup.RegisterUserConnection();
         ShowD365SIntegrationActions := CRMConnectionSetup.IsEnabled;
     end;
 

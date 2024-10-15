@@ -21,10 +21,14 @@ table 10751 "SII Setup"
         }
         field(3; Certificate; BLOB)
         {
+            ObsoleteReason = 'Will be replaced with the Certificate Code field in next version.';
+            ObsoleteState = Pending;
             Caption = 'Certificate';
         }
         field(4; Password; Text[250])
         {
+            ObsoleteReason = 'Will be replaced with the Certificate Code field in next version.';
+            ObsoleteState = Pending;
             Caption = 'Password';
 
             trigger OnValidate()

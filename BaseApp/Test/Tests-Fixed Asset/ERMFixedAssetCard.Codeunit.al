@@ -267,7 +267,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FALedgerEntriesList: TestPage "FA Ledger Entries";
         BookValue: Decimal;
     begin
-        // [GIVEN] FA Setup in place, and a disposed fixed asset with a default depreciation book
+        // [GIVEN] FA Setup in place, and a disposed fixed asset with a default depreciation book with Amount "A"
         FixedAsset.DeleteAll;
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
         FASetup.Get;
@@ -287,11 +287,9 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [WHEN] Drill Down on "Book Value"
         FALedgerEntriesList.Trap;
         FixedAssetCard.BookValue.DrillDown;
-        // [THEN] Page "FA Ledger Entries" showing 2 entries, where total "Amount" is 0
+        // [THEN] Page "FA Ledger Entries" showing 1 entries, where total "Amount" is equal to "A"
         FALedgerEntriesList.First;
         FALedgerEntriesList.Amount.AssertEquals(BookValue);
-        FALedgerEntriesList.Last;
-        FALedgerEntriesList.Amount.AssertEquals(-BookValue);
         FALedgerEntriesList.Close;
         FixedAssetCard.Close;
     end;
@@ -599,14 +597,17 @@ codeunit 134456 "ERM Fixed Asset Card"
         BookValue: Decimal;
     begin
         // [FEATURE] [Disposal] [Book Value]
-        // [SCENARIO 318607] Create FA document and disposed it. Than, open this card for this FA. From FA card drilldown to BookValue.
-      	// [SCENARIO 318607] As a result, in opened FALedgerEntriesList should be 2 FA Ledger Entries Line
-        // [GIVEN] FA Setup in place, and a disposed fixed asset with a default depreciation book
+        // [SCENARIO 283324] Create FA document and disposed it. As a result should be 2 FA Ledger Entries Line.
+        // [GIVEN] FA Setup in place, and a disposed fixed asset with a default depreciation book and Amount = "A"
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
         FASetup.Get;
         BookValue := LibraryRandom.RandDecInRange(10, 1000, 2);
         CreateFADepreciationBookWithValue(
-	  FADepreciationBook,FixedAsset."No.",FASetup."Default Depr. Book",FAPostingGroup.Code,BookValue);
+          FADepreciationBook,
+          FixedAsset."No.",
+          FASetup."Default Depr. Book",
+          FAPostingGroup.Code,
+          BookValue);
         DisposeFADepreciationBook(FADepreciationBook, BookValue);
 
         // [WHEN] Fixed Asset Card is loaded and Drill Down on "Book Value"
@@ -615,21 +616,20 @@ codeunit 134456 "ERM Fixed Asset Card"
         FALedgerEntriesList.Trap;
         FixedAssetCard.BookValue.DrillDown;
 
-        // [THEN] Page "FA Ledger Entries" have 2 lines.
-        // [THEN] Page "FA Ledger Entries" showing 2 entries, where total "Amount" is 0,
-        // [THEN] First line's amount = Ammount from FA doc. ,
-        // [THEN] "FA Posting Type" = Acquisition Cost and "FA Posting Category" = ' '
+        // [THEN] Page "FA Ledger Entries" have 1 line.
+        // [THEN] Page "FA Ledger Entries" showing 1 entries, where total "Amount" is "A",
+        // [THEN] First line's amount = "A" ,
+        // [THEN] "FA Posting Type" = "Book Value on Disposal" and "FA Posting Category" = 'Disposal'
         FALedgerEntriesList.First;
-        FALedgerEntriesList.Amount.ASSERTEQUALS(BookValue);
-      	FALedgerEntriesList."FA Posting Type".ASSERTEQUALS(FALedgerEntry."FA Posting Type"::"Acquisition Cost");
-     	FALedgerEntriesList."FA Posting Category".ASSERTEQUALS(FALedgerEntry."FA Posting Category"::" ");
-
-        // [THEN] Second line have Amount from disposed line,
-        // [THEN] "FA Posting Type" = Acquisition Cost and "FA Posting Category" = 'Disposal'
-        FALedgerEntriesList.Next;
-        FALedgerEntriesList.Amount.ASSERTEQUALS(-BookValue);
-      	FALedgerEntriesList."FA Posting Type".ASSERTEQUALS(FALedgerEntry."FA Posting Type"::"Acquisition Cost");
-      	FALedgerEntriesList."FA Posting Category".ASSERTEQUALS(FALedgerEntry."FA Posting Category"::Disposal);
+        Assert.AreEqual(FALedgerEntriesList.Amount.Value, Format(BookValue), 'FA doc.');
+        Assert.AreEqual(
+          FALedgerEntriesList."FA Posting Type".Value,
+          Format(FALedgerEntry."FA Posting Type"::"Book Value on Disposal"),
+          FALedgerEntry.FieldCaption("FA Posting Type"));
+        Assert.AreEqual(
+          FALedgerEntriesList."FA Posting Category".Value,
+          Format(FALedgerEntry."FA Posting Category"::Disposal),
+          FALedgerEntry.FieldCaption("FA Posting Category"));
 
         // [THEN] There are no more "FA Ledger Entries" lines.
         Assert.IsFalse(FALedgerEntriesList.Next, 'No more records expected');
@@ -789,6 +789,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FAPostingGroup: Record "FA Posting Group";
         FASetup: Record "FA Setup";
         FADepreciationBook: Record "FA Depreciation Book";
+        DummyFALedgerEntry: Record "FA Ledger Entry";
         FixedAssetStatistics: TestPage "Fixed Asset Statistics";
         FixedAssetCard: TestPage "Fixed Asset Card";
         FALedgerEntries: TestPage "FA Ledger Entries";
@@ -798,6 +799,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         // [SCENARIO 330253] It should be no lines in FA Ledger Entries when drilldown Disposal Value from FA Statistics page for FA Document that was not disposed.
         // [GIVEN] FA Setup in place, and a disposed fixed asset with
         // [GIVEN] FA Posting Type = Book Value on Disposal
+        // [GIVEN] Disposal Amount = "D"
         FASetup.Get;
         CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
         DisposalValue := LibraryRandom.RandDecInRange(10, 1000, 2);
@@ -816,7 +818,21 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetStatistics.DisposalValue.DrillDown;
 
         // [THEN] There are no lines in opened page FALedgerEntries.
-        Assert.IsFalse(FALedgerEntries.First, 'FA Ledger Entry exists after drilldown DispovalValue');
+        Assert.IsTrue(FALedgerEntries.First, 'FA Ledger Entry does not exist after drilldown DispovalValue');
+
+        // [THEN] Line have next parametrs: Amount = "D", FA Posting Type = "Acquisition Cost", FA Posting Category =' '
+        Assert.AreEqual(FALedgerEntries.Amount.Value, Format(DisposalValue), 'FA doc.');
+        Assert.AreEqual(
+          FALedgerEntries."FA Posting Type".Value,
+          Format(DummyFALedgerEntry."FA Posting Type"::"Acquisition Cost"),
+          DummyFALedgerEntry.FieldCaption("FA Posting Type"));
+        Assert.AreEqual(
+          FALedgerEntries."FA Posting Category".Value,
+          Format(DummyFALedgerEntry."FA Posting Category"::" "),
+          DummyFALedgerEntry.FieldCaption("FA Posting Category"));
+
+        // [THEN] There are no more "FA Ledger Entries" lines.
+        Assert.IsFalse(FALedgerEntries.Next, 'No more records expected');
 
         FALedgerEntries.Close;
         FixedAssetCard.Close;
@@ -875,6 +891,11 @@ codeunit 134456 "ERM Fixed Asset Card"
           FADepreciationBook."Depreciation Book Code",
           WorkDate, BookValue,
           DummyFALedgerEntry."FA Posting Type"::"Acquisition Cost");
+        MockFALedgerEntryDisposal(
+          FADepreciationBook."FA No.",
+          FADepreciationBook."Depreciation Book Code",
+          WorkDate, -BookValue,
+          DummyFALedgerEntry."FA Posting Type"::"Book Value on Disposal");
         FADepreciationBook."Disposal Date" := WorkDate;
         FADepreciationBook.Modify(true);
     end;

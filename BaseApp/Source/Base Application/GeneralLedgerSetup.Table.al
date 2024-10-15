@@ -661,6 +661,14 @@ table 98 "General Ledger Setup"
             OptionCaption = 'Amount Only,Debit/Credit Only,All Amounts';
             OptionMembers = "Amount Only","Debit/Credit Only","All Amounts";
         }
+        field(170; "SEPA Non-Euro Export"; Boolean)
+        {
+            Caption = 'SEPA Non-Euro Export';
+        }
+        field(171; "SEPA Export w/o Bank Acc. Data"; Boolean)
+        {
+            Caption = 'SEPA Export w/o Bank Acc. Data';
+        }
         field(10701; "Payment Discount Type"; Option)
         {
             Caption = 'Payment Discount Type';

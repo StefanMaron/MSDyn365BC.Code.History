@@ -520,6 +520,8 @@
                                 ShipToAddress: Record "Ship-to Address";
                                 ShipToAddressList: Page "Ship-to Address List";
                             begin
+                                OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+
                                 case ShipToOptions of
                                     ShipToOptions::"Default (Sell-to Address)":
                                         begin
@@ -534,6 +536,7 @@
 
                                             if ShipToAddressList.RunModal = ACTION::LookupOK then begin
                                                 ShipToAddressList.GetRecord(ShipToAddress);
+                                                OnValidateShipToOptionsOnAfterShipToAddressListGetRecord(ShipToAddress);
                                                 Validate("Ship-to Code", ShipToAddress.Code);
                                                 IsShipToCountyVisible := FormatAddress.UseCounty(ShipToAddress."Country/Region Code");
                                             end else
@@ -856,6 +859,12 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies that the shipment of one or more lines has been delayed, or that the shipment date is before the work date.';
+                }
+                field("Combine Shipments"; "Combine Shipments")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether the order will be included when you use the Combine Shipments function.';
                 }
             }
             group("Foreign Trade")
@@ -2116,8 +2125,6 @@
 
     trigger OnAfterGetRecord()
     begin
-        ShowQuoteNo := "Quote No." <> '';
-
         SetControlVisibility;
         UpdateShipToBillToGroupVisibility;
         WorkDescription := GetWorkDescription;
@@ -2181,8 +2188,6 @@
         IsOfficeHost := OfficeMgt.IsAvailable;
         IsSaas := EnvironmentInfo.IsSaaS;
 
-        if "Quote No." <> '' then
-            ShowQuoteNo := true;
         if ("No." <> '') and ("Sell-to Customer No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
 
@@ -2239,8 +2244,6 @@
         PaymentServiceVisible: Boolean;
         PaymentServiceEnabled: Boolean;
         CallNotificationCheck: Boolean;
-        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
-        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
@@ -2251,6 +2254,10 @@
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    protected var
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
 
     local procedure ActivateFields()
     begin
@@ -2383,6 +2390,7 @@
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
+        ShowQuoteNo := "Quote No." <> '';
         SetExtDocNoMandatoryCondition;
 
         OpenApprovalEntriesExistForCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);
@@ -2451,12 +2459,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToOptions(SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostOnAfterSetDocumentIsPosted(SalesHeader: Record "Sales Header"; var IsScheduledPosting: Boolean; var DocumentIsPosted: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipToOptionsOnAfterShipToAddressListGetRecord(var ShipToAddress: Record "Ship-to Address")
     begin
     end;
 }

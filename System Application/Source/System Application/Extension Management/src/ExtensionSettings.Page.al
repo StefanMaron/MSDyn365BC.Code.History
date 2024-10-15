@@ -3,12 +3,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
+/// <summary>
+/// Displays settings for the selected extension, and allows users to edit them.
+/// </summary>
 page 2511 "Extension Settings"
 {
     Extensible = false;
-    DataCaptionExpression = AppName;
+    DataCaptionExpression = AppNameValue;
     PageType = Card;
     SourceTable = "NAV App Setting";
+    ContextSensitiveHelpPage = 'ui-extensions';
 
     layout
     {
@@ -16,21 +20,21 @@ page 2511 "Extension Settings"
         {
             group(Group)
             {
-                field(AppId; AppId)
+                field(AppId; AppIdValue)
                 {
                     ApplicationArea = All;
                     Caption = 'App ID';
                     Editable = false;
                     ToolTip = 'Specifies the App ID of the extension.';
                 }
-                field(AppName; AppName)
+                field(AppName; AppNameValue)
                 {
                     ApplicationArea = All;
                     Caption = 'Name';
                     Editable = false;
                     ToolTip = 'Specifies the name of the extension.';
                 }
-                field(AppPublisher; AppPublisher)
+                field(AppPublisher; AppPublisherValue)
                 {
                     ApplicationArea = All;
                     Caption = 'Publisher';
@@ -59,9 +63,9 @@ page 2511 "Extension Settings"
         NAVApp.SetRange(ID, "App ID");
 
         if NAVApp.FindFirst() then begin
-            AppName := NAVApp.Name;
-            AppPublisher := NAVApp.Publisher;
-            AppId := LowerCase(DelChr(Format(NAVApp.ID), '=', '{}'));
+            AppNameValue := NAVApp.Name;
+            AppPublisherValue := NAVApp.Publisher;
+            AppIdValue := LowerCase(DelChr(Format(NAVApp.ID), '=', '{}'));
         end
     end;
 
@@ -78,13 +82,13 @@ page 2511 "Extension Settings"
             Insert();
         end;
 
-        HasExtensionManagementPermissions := NAVAppObjectMetadata.ReadPermission();
+        HasExtensionManagementPermissions := NavAppObjectMetadata.ReadPermission()
     end;
 
     var
-        AppName: Text;
-        AppPublisher: Text;
-        AppId: Text;
+        AppNameValue: Text;
+        AppPublisherValue: Text;
+        AppIdValue: Text;
         HasExtensionManagementPermissions: Boolean;
 }
 

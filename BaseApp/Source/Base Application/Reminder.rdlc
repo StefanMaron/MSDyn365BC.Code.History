@@ -14025,7 +14025,7 @@
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
                               <Left>0.08206cm</Left>
-                              <Height>13.19267cm</Height>
+                              <Height>13.61568cm</Height>
                               <Width>17.77776cm</Width>
                               <Style>
                                 <FontSize>7pt</FontSize>
@@ -17674,7 +17674,7 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>13.22751cm</Top>
+                              <Top>13.67201cm</Top>
                               <Left>0.08206cm</Left>
                               <Height>0.42301cm</Height>
                               <Width>17.77776cm</Width>
@@ -18357,7 +18357,7 @@
         <Height>20.62927cm</Height>
         <Style />
       </Body>
-      <Width>18cm</Width>
+      <Width>18.02395cm</Width>
       <Page>
         <PageHeader>
           <Height>0.846cm</Height>

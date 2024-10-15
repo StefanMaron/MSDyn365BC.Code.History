@@ -2552,6 +2552,9 @@ table 5902 "Service Line"
 
     fieldgroups
     {
+        fieldgroup(DropDown; Type, "No.", Description, Quantity, "Unit of Measure Code", "Line Amount")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -2883,6 +2886,7 @@ table 5902 "Service Line"
         if ServItemLineNo <> 0 then begin
             ServItemLine.Get("Document Type", "Document No.", ServItemLineNo);
             if (ServItemLine."Service Item No." = '') or
+               (ServItemLine."Item No." = '') or
                (ServItemLine."Item No." <> "No.")
             then
                 exit;
@@ -3327,7 +3331,13 @@ table 5902 "Service Line"
     local procedure CopyFromItem()
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyFromItem(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetItem(Item);
         Item.TestField(Blocked, false);
         if Item.IsInventoriableType then
@@ -3380,7 +3390,7 @@ table 5902 "Service Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCopyFromServItem(Rec, ServItem, ServItemComponent, IsHandled);
+        OnBeforeCopyFromServItem(Rec, ServItem, ServItemComponent, IsHandled, HideReplacementDialog);
         if IsHandled then
             exit;
 
@@ -4840,11 +4850,11 @@ table 5902 "Service Line"
     var
         ServHeader: Record "Service Header";
     begin
-        if StatusCheckSuspended then
-            exit;
-
         ServHeader.Get("Document Type", "Document No.");
         OnBeforeTestStatusOpen(Rec, ServHeader);
+
+        if StatusCheckSuspended then
+            exit;
 
         if (Type = Type::Item) or (xRec.Type = Type::Item) then
             ServHeader.TestField("Release Status", ServHeader."Release Status"::Open);
@@ -4940,7 +4950,13 @@ table 5902 "Service Line"
     procedure TestBinCode()
     var
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestBinCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Location Code" = '') or (Type <> Type::Item) then
             exit;
         Location.Get("Location Code");
@@ -4993,6 +5009,22 @@ table 5902 "Service Line"
         if ServiceLine.Get("Document Type", "Document No.", NextLineNo) then
             exit(0);
         exit(NextLineNo);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetLineNo(): Integer
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        if "Line No." <> 0 then
+            if not ServiceLine.Get("Document Type", "Document No.", "Line No.") then
+                exit("Line No.");
+
+        ServiceLine.SetRange("Document Type", "Document Type");
+        ServiceLine.SetRange("Document No.", "Document No.");
+        if ServiceLine.FindLast() then
+            exit(ServiceLine."Line No." + 10000);
+        exit(10000);
     end;
 
     procedure DeleteWithAttachedLines()
@@ -5160,7 +5192,7 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterResourseFindCost(var ServiceLine: Record "Service Line"; ResourceCost: Record "Resource Cost")
+    local procedure OnAfterResourseFindCost(var ServiceLine: Record "Service Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
 
@@ -5220,7 +5252,17 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyFromServItem(var ServiceLine: Record "Service Line"; ServiceItem: Record "Service Item"; ServItemComponent: Record "Service Item Component"; var IsHandled: Boolean)
+    local procedure OnBeforeCopyFromItem(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromServItem(var ServiceLine: Record "Service Line"; ServiceItem: Record "Service Item"; ServItemComponent: Record "Service Item Component"; var IsHandled: Boolean; var HideReplacementDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestBinCode(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 

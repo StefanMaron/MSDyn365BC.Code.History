@@ -441,6 +441,44 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         FindReminderHeader(ReminderHeader, Customer."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerCreateReminderCheckAutoInsertReminderNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        Reminder: TestPage Reminder;
+        CustomerList: TestPage "Customer List";
+    begin
+        // [FEATURE] [Reminder]
+        // [SCENARIO 334720] The new reminder is created from Customer List
+        Initialize;
+
+        // [GIVEN] The New Customer with outstanding balance was created
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Customer List page was run
+        CustomerList.OpenEdit;
+        CustomerList.FILTER.SetFilter("No.", Customer."No.");
+        CustomerList.First;
+        Reminder.Trap;
+
+        // [WHEN] "New Reminder" action is running
+        CustomerList.NewReminder.Invoke;
+
+        // [THEN] Reminder No. field is automatically inserted
+        Assert.AreNotEqual(Reminder."No.".Value, '', 'Reminder."No."');
+
+        Reminder.Close;
+        CustomerList.Close;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

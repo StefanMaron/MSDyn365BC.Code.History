@@ -140,8 +140,14 @@ codeunit 10753 "SII Job Upload Pending Docs."
     var
         SIISetup: Record "SII Setup";
         SIIDocUploadState: Record "SII Doc. Upload State";
+        IsHandled: Boolean;
     begin
         if not SIISetup.IsEnabled then
+            exit;
+
+        IsHandled := false;
+        OnBeforeCreateSIIRequestForCustLedgEntry(CustLedgEntry, IsHandled);
+        if IsHandled then
             exit;
 
         with CustLedgEntry do begin
@@ -164,8 +170,14 @@ codeunit 10753 "SII Job Upload Pending Docs."
     var
         SIISetup: Record "SII Setup";
         SIIDocUploadState: Record "SII Doc. Upload State";
+        IsHandled: Boolean;
     begin
         if not SIISetup.IsEnabled then
+            exit;
+
+        IsHandled := false;
+        OnBeforeCreateSIIRequestForVendLedgEntry(VendorLedgerEntry, IsHandled);
+        if IsHandled then
             exit;
 
         with VendorLedgerEntry do begin
@@ -189,8 +201,14 @@ codeunit 10753 "SII Job Upload Pending Docs."
         SIISetup: Record "SII Setup";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         SIIDocUploadState: Record "SII Doc. Upload State";
+        IsHandled: Boolean;
     begin
         if not SIISetup.IsEnabled then
+            exit;
+
+        IsHandled := false;
+        OnBeforeCreateSIIRequestForDtldVendLedgEntry(DetailedVendorLedgEntry, IsHandled);
+        if IsHandled then
             exit;
 
         with DetailedVendorLedgEntry do begin
@@ -226,8 +244,14 @@ codeunit 10753 "SII Job Upload Pending Docs."
         SIISetup: Record "SII Setup";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SIIDocUploadState: Record "SII Doc. Upload State";
+        IsHandled: Boolean;
     begin
         if not SIISetup.IsEnabled then
+            exit;
+
+        IsHandled := false;
+        OnBeforeCreateSIIRequestForDtldCustLedgEntry(DetailedCustLedgEntry, IsHandled);
+        if IsHandled then
             exit;
 
         with DetailedCustLedgEntry do begin
@@ -275,6 +299,26 @@ codeunit 10753 "SII Job Upload Pending Docs."
     begin
         DataTypeManagement.GetRecordRef(DetailedCustLedgEntry, DetailedCustomerLedgerRecRef);
         exit(SIIManagement.IsDetailedLedgerCashFlowBased(DetailedCustomerLedgerRecRef));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSIIRequestForCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSIIRequestForDtldCustLedgEntry(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSIIRequestForVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSIIRequestForDtldVendLedgEntry(DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

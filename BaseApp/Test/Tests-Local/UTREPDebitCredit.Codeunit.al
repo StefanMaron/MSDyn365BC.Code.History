@@ -612,6 +612,103 @@ codeunit 144040 "UT REP Debit Credit"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('TrialBalanceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalBalanceAtDateMultipleGLAccountsTrialBalanceReport()
+    var
+        AmountWithinPeriod: array[2] of Decimal;
+        GLAccountNo: array[2] of Code[20];
+        PeriodStart: Date;
+        PeriodEnd: Date;
+        RunAsOption: Option XML,Excel;
+    begin
+        // [FEATURE] [Trial Balance] [Balance at date]
+        // [SCENARIO 334810] Calculation of the Total value for "Balance at date" in case "Include Opening/Closing Entries" are not set.
+        Initialize();
+
+        // [GIVEN] Reporting period from 01-01-15 to 31-12-15 (1 year)
+        PeriodStart := CalcDate('<-CY>', WorkDate);
+        PeriodEnd := CalcDate('<CY>', WorkDate);
+
+        // [GIVEN] Two G/L Accounts.
+        GLAccountNo[1] := LibraryERM.CreateGLAccountNo();
+        GLAccountNo[2] := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Each G/L Account has a G/L Entry before the reporting period.
+        CreateGLEntryWithSpecifiedAmount(GLAccountNo[1], PeriodStart - 1);
+        CreateGLEntryWithSpecifiedAmount(GLAccountNo[2], PeriodStart - 1);
+
+        // [GIVEN] Each G/L Account has a G/L Entry within the reporting period. Amount[1] = 500, Amount[2] = 600.
+        AmountWithinPeriod[1] := CreateGLEntryWithSpecifiedAmount(GLAccountNo[1], WorkDate);
+        AmountWithinPeriod[2] := CreateGLEntryWithSpecifiedAmount(GLAccountNo[2], WorkDate);
+
+        // [GIVEN] Each G/L Account has a G/L Entry after the reporting period.
+        CreateGLEntryWithSpecifiedAmount(GLAccountNo[1], PeriodEnd + 1);
+        CreateGLEntryWithSpecifiedAmount(GLAccountNo[2], PeriodEnd + 1);
+        Commit();
+
+        // [WHEN] Run Trial Balance report with "Include Opening/Closing Entries" = False.
+        RunTrialBalanceReportWithParams(
+          false, StrSubstNo('%1|%2', GLAccountNo[1], GLAccountNo[2]), PeriodStart, PeriodEnd, false, RunAsOption::XML);
+
+        // [THEN] The Total value for "Balance at date" column is calculated as sum of "Amount" of entries within period (500 + 600 = 1100).
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('TotalBalanceAtEnd', AmountWithinPeriod[1] + AmountWithinPeriod[2]);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('TrialBalanceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TotalBalanceAtDateMultipleGLAccountsAddnlCurrencyTrialBalanceReport()
+    var
+        GLEntryWithin: array[2] of Record "G/L Entry";
+        GLEntryBeforeAfter: Record "G/L Entry";
+        GLAccountNo: array[2] of Code[20];
+        PeriodStart: Date;
+        PeriodEnd: Date;
+        RunAsOption: Option XML,Excel;
+    begin
+        // [FEATURE] [Trial Balance] [Balance at date] [ACY]
+        // [SCENARIO 334810] Calculation of the Total value for "Balance at date" in case "Include Opening/Closing Entries" are not set and "Show Amts in Add. Currency" is set.
+        Initialize();
+
+        // [GIVEN] Reporting period from 01-01-15 to 31-12-15 (1 year)
+        PeriodStart := CalcDate('<-CY>', WorkDate);
+        PeriodEnd := CalcDate('<CY>', WorkDate);
+
+        // [GIVEN] Two G/L Accounts.
+        GLAccountNo[1] := LibraryERM.CreateGLAccountNo();
+        GLAccountNo[2] := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Each G/L Account has a G/L Entry before the reporting period.
+        CreateGLEntryWithAdditionalCurrency(GLEntryBeforeAfter, GLAccountNo[1], PeriodStart - 1);
+        CreateGLEntryWithAdditionalCurrency(GLEntryBeforeAfter, GLAccountNo[2], PeriodStart - 1);
+
+        // [GIVEN] Each G/L Account has a G/L Entry within the reporting period.
+        // [GIVEN] Additional-Currency Amount[1] = 50, Additional-Currency Amount[2] = 60.
+        CreateGLEntryWithAdditionalCurrency(GLEntryWithin[1], GLAccountNo[1], WorkDate);
+        CreateGLEntryWithAdditionalCurrency(GLEntryWithin[2], GLAccountNo[2], WorkDate);
+
+        // [GIVEN] Each G/L Account has a G/L Entry after the reporting period.
+        CreateGLEntryWithAdditionalCurrency(GLEntryBeforeAfter, GLAccountNo[1], PeriodEnd + 1);
+        CreateGLEntryWithAdditionalCurrency(GLEntryBeforeAfter, GLAccountNo[2], PeriodEnd + 1);
+        Commit();
+
+        // [WHEN] Run Trial Balance report with "Include Opening/Closing Entries" = False, "Show Amts in Add. Currency" = True.
+        RunTrialBalanceReportWithParams(
+          false, StrSubstNo('%1|%2', GLAccountNo[1], GLAccountNo[2]), PeriodStart, PeriodEnd, true, RunAsOption::XML);
+
+        // [THEN] The Total value for "Balance at date" column is calculated as sum of "Additional-Currency Amount" of entries within period (50 + 60 = 110).
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(
+          'TotalBalanceAtEnd', GLEntryWithin[1]."Additional-Currency Amount" + GLEntryWithin[2]."Additional-Currency Amount");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -820,10 +917,10 @@ codeunit 144040 "UT REP Debit Credit"
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Amount, AmountLCY);
     end;
 
-    local procedure RunTrialBalanceReportWithParams(AcumBalanceAtDate: Boolean; GLAccountNo: Code[20]; PeriodStart: Date; PeriodEnd: Date; ShowAmountsInAddCurrency: Boolean; RunAsOption: Option XML,Excel)
+    local procedure RunTrialBalanceReportWithParams(AcumBalanceAtDate: Boolean; GLAccountNoFilter: Text; PeriodStart: Date; PeriodEnd: Date; ShowAmountsInAddCurrency: Boolean; RunAsOption: Option XML,Excel)
     begin
         LibraryVariableStorage.Enqueue(AcumBalanceAtDate);
-        LibraryVariableStorage.Enqueue(GLAccountNo);
+        LibraryVariableStorage.Enqueue(GLAccountNoFilter);
         LibraryVariableStorage.Enqueue(PeriodStart);
         LibraryVariableStorage.Enqueue(PeriodEnd);
         LibraryVariableStorage.Enqueue(ShowAmountsInAddCurrency);

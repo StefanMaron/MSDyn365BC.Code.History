@@ -15,6 +15,7 @@ codeunit 134091 "ERM Additional Currency II"
         LibraryService: Codeunit "Library - Service";
         LibraryERMUnapply: Codeunit "Library - ERM Unapply";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
@@ -749,9 +750,13 @@ codeunit 134091 "ERM Additional Currency II"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Additional Currency II");
+
         // Lazy Setup.
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Additional Currency II");
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -759,7 +764,9 @@ codeunit 134091 "ERM Additional Currency II"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Additional Currency II");
     end;
 
     local procedure CreateCurrencyAndExchangeRate() CurrencyCode: Code[10]

@@ -485,6 +485,7 @@
                 trigger OnAction()
                 begin
                     PurchRcptHeader := Rec;
+                    OnBeforePrintRecords(Rec, PurchRcptHeader);
                     CurrPage.SetSelectionFilter(PurchRcptHeader);
                     PurchRcptHeader.PrintRecords(true);
                 end;
@@ -525,6 +526,11 @@
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(PurchRcptHeaderRec: Record "Purch. Rcpt. Header"; var ToPrint: Record "Purch. Rcpt. Header")
+    begin
     end;
 }
 

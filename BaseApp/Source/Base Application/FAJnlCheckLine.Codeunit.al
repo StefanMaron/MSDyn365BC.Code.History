@@ -290,6 +290,9 @@ codeunit 5631 "FA Jnl.-Check Line"
             FAPostingType::"Salvage Value":
                 GLIntegration := false;
         end;
+
+        OnAfterSetGLIntegration(FAPostingType, GLIntegration, GenJnlPosting);
+
         if GLIntegration and not GenJnlPosting then
             FAJnlLine.FieldError(
               "FA Posting Type",
@@ -460,8 +463,13 @@ codeunit 5631 "FA Jnl.-Check Line"
                         "Salvage Value" <> 0:
                             FieldError("Salvage Value", FieldErrorText);
                         Quantity <> 0:
-                            if "FA Posting Type" <> "FA Posting Type"::Maintenance then
-                                FieldError(Quantity, FieldErrorText);
+                            begin
+                                IsHandled := false;
+                                OnCheckConsistencyOnBeforeCheckQuantity(GenJnlLine, IsHandled);
+                                if not IsHandled then
+                                    if "FA Posting Type" <> "FA Posting Type"::Maintenance then
+                                        FieldError(Quantity, FieldErrorText);
+                            end;
                         "Insurance No." <> '':
                             FieldError("Insurance No.", FieldErrorText);
                     end;
@@ -556,6 +564,11 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckFAJnlLine(var FAJnlLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetGLIntegration(FAPostingType: Option; var GLIntegration: Boolean; GnlJnlPosting: Boolean)
     begin
     end;
 

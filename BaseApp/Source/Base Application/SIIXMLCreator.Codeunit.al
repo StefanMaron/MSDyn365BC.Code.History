@@ -33,29 +33,36 @@ codeunit 10750 "SII XML Creator"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        RecordRef: RecordRef;
+        RecRef: RecordRef;
+        IsHandled: Boolean;
+        ResultValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGenerateXML(LedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval, ResultValue, IsHandled);
+        IF IsHandled THEN
+            EXIT(ResultValue);
+
         GetSIISetup;
         if not IsInitialized then
             XMLDocOut := XMLDocOut.XmlDocument;
 
-        RecordRef.GetTable(LedgerEntry);
-        case RecordRef.Number of
+        RecRef.GetTable(LedgerEntry);
+        case RecRef.Number of
             DATABASE::"Cust. Ledger Entry":
                 begin
-                    RecordRef.SetTable(CustLedgerEntry);
+                    RecRef.SetTable(CustLedgerEntry);
                     if UploadType = UploadTypeGlb::"Collection In Cash" then
                         exit(CreateCollectionInCashXml(XMLDocOut, CustLedgerEntry, UploadType));
                     exit(CreateInvoicesIssuedLedgerXml(CustLedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval));
                 end;
             DATABASE::"Vendor Ledger Entry":
                 begin
-                    RecordRef.SetTable(VendorLedgerEntry);
+                    RecRef.SetTable(VendorLedgerEntry);
                     exit(CreateInvoicesReceivedLedgerXml(VendorLedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval));
                 end;
             DATABASE::"Detailed Cust. Ledg. Entry":
                 begin
-                    RecordRef.SetTable(DetailedCustLedgEntry);
+                    RecRef.SetTable(DetailedCustLedgEntry);
                     if DetailedCustLedgEntry."Document Type" <> DetailedCustLedgEntry."Document Type"::Payment then
                         ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentErr, Format(DetailedCustLedgEntry."Document Type"));
                     CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
@@ -63,7 +70,7 @@ codeunit 10750 "SII XML Creator"
                 end;
             DATABASE::"Detailed Vendor Ledg. Entry":
                 begin
-                    RecordRef.SetTable(DetailedVendorLedgEntry);
+                    RecRef.SetTable(DetailedVendorLedgEntry);
                     if DetailedVendorLedgEntry."Document Type" <> DetailedVendorLedgEntry."Document Type"::Payment then
                         ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentErr, Format(DetailedVendorLedgEntry."Document Type"));
                     VendorLedgerEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
@@ -834,35 +841,6 @@ codeunit 10750 "SII XML Creator"
         exit(Round(Base * ECPercentage / 100, GeneralLedgerSetup."Amount Rounding Precision"));
     end;
 
-    local procedure CalculateNonTaxableAmountCustomer(CustLedgerEntry: Record "Cust. Ledger Entry"): Decimal
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        RecRef: RecordRef;
-        InvoiceAmount: Decimal;
-        NonTaxableAmount: Decimal;
-    begin
-        if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice then begin
-            if SalesInvoiceHeader.Get(CustLedgerEntry."Document No.") then
-                InvoiceAmount := CalculateSalesInvoiceAmount(SalesInvoiceHeader)
-            else
-                if ServiceInvoiceHeader.Get(CustLedgerEntry."Document No.") then
-                    InvoiceAmount := CalculateServiceInvoiceAmount(ServiceInvoiceHeader)
-        end else
-            if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::"Credit Memo" then
-                if SalesCrMemoHeader.Get(CustLedgerEntry."Document No.") then
-                    InvoiceAmount := CalculateSalesCrMemoAmount(SalesCrMemoHeader)
-                else
-                    if ServiceCrMemoHeader.Get(CustLedgerEntry."Document No.") then
-                        InvoiceAmount := CalculateServiceCrMemoAmount(ServiceCrMemoHeader);
-
-        DataTypeManagement.GetRecordRef(CustLedgerEntry, RecRef);
-        NonTaxableAmount := CalculateNonTaxableAmountFromVATEntry(RecRef, InvoiceAmount);
-        exit(NonTaxableAmount);
-    end;
-
     local procedure CalculateNonTaxableAmountVendor(VendLedgEntry: Record "Vendor Ledger Entry"): Decimal
     var
         NoTaxableEntry: Record "No Taxable Entry";
@@ -873,23 +851,9 @@ codeunit 10750 "SII XML Creator"
              VendLedgEntry."Document No.", VendLedgEntry."Posting Date")
         then begin
             NoTaxableEntry.CalcSums("Amount (LCY)");
-            exit(Abs(NoTaxableEntry."Amount (LCY)"));
+            exit(NoTaxableEntry."Amount (LCY)");
         end;
         exit(0);
-    end;
-
-    local procedure CalculateNonTaxableAmountFromVATEntry(RecRef: RecordRef; Amount: Decimal): Decimal
-    var
-        VATEntry: Record "VAT Entry";
-        NonTaxableAmount: Decimal;
-        VATBaseAmount: Decimal;
-    begin
-        SIIManagement.FindVatEntriesFromLedger(RecRef, VATEntry);
-        VATEntry.CalcSums(Base);
-        VATBaseAmount := Abs(VATEntry.Base + VATEntry."Unrealized Base");
-
-        NonTaxableAmount := Amount - VATBaseAmount;
-        exit(NonTaxableAmount);
     end;
 
     local procedure CalcNonExemptVATEntriesWithCuotaDeducible(var TempVATEntry: Record "VAT Entry" temporary; var CuotaDeducible: Decimal; VendorLedgerEntry: Record "Vendor Ledger Entry"; Sign: Integer)
@@ -1186,7 +1150,6 @@ codeunit 10750 "SII XML Creator"
         NonEUServiceXMLNode: DotNet XmlNode;
         EUXMLNode: DotNet XmlNode;
         VATXMLNode: DotNet XmlNode;
-        NonTaxableAmount: Decimal;
         TotalAmount: Decimal;
         EUService: Boolean;
         EntriesFound: Boolean;
@@ -1199,8 +1162,7 @@ codeunit 10750 "SII XML Creator"
         GenerateFacturasRectificadasNode(XMLNode, OldCustLedgerEntry."Document No.", OldCustLedgerEntry."Posting Date");
         RegimeCode := GenerateClaveRegimenNodeSales(XMLNode, SIIDocUploadState, CustLedgerEntry, Customer);
 
-        NonTaxableAmount := CalculateNonTaxableAmountCustomer(CustLedgerEntry);
-        TotalAmount := -TotalBase - Abs(NonTaxableAmount) - TotalVATAmount;
+        TotalAmount := -TotalBase - TotalVATAmount;
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, -TotalNonExemptBase);
         FillOperationDescription(
@@ -1440,10 +1402,10 @@ codeunit 10750 "SII XML Creator"
         RegimeCode := GenerateClaveRegimenNodePurchases(XMLNode, SIIDocUploadState, VendorLedgerEntry, Vendor);
         VendNo := SIIManagement.GetVendFromLedgEntryByGLSetup(VendorLedgerEntry);
 
-        FillNoTaxableVATEntriesPurch(TempVATEntryNormalCalculated, VendorLedgerEntry);
         if not TempVATEntryNormalCalculated.IsEmpty then
             TotalBase -= Abs(TempVATEntryNormalCalculated.Base);
         TotalAmount := TotalBase + TotalVATAmount;
+        FillNoTaxableVATEntriesPurch(TempVATEntryNormalCalculated, VendorLedgerEntry);
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt, TempXMLNode);
         FillBaseImponibleACosteNode(XMLNode, RegimeCode, TotalNonExemptBase);
@@ -1608,48 +1570,6 @@ codeunit 10750 "SII XML Creator"
                 TotalVATAmount += VATEntry.Amount;
             until VATEntry.Next = 0;
         end;
-    end;
-
-    local procedure CalculateSalesInvoiceAmount(SalesInvoiceHeader: Record "Sales Invoice Header"): Decimal
-    begin
-        SalesInvoiceHeader.CalcFields(Amount);
-        exit(
-          ExchangeToLCYAmount(
-            SalesInvoiceHeader."Posting Date", SalesInvoiceHeader."Currency Code",
-            SalesInvoiceHeader."Currency Factor", SalesInvoiceHeader.Amount));
-    end;
-
-    local procedure CalculateSalesCrMemoAmount(SalesCrMemoHeader: Record "Sales Cr.Memo Header"): Decimal
-    begin
-        SalesCrMemoHeader.CalcFields(Amount);
-        exit(
-          ExchangeToLCYAmount(
-            SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."Currency Code",
-            SalesCrMemoHeader."Currency Factor", SalesCrMemoHeader.Amount));
-    end;
-
-    local procedure CalculateServiceInvoiceAmount(ServiceInvoiceHeader: Record "Service Invoice Header"): Decimal
-    var
-        ServiceInvoiceLine: Record "Service Invoice Line";
-    begin
-        ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.CalcSums(Amount);
-        exit(
-          ExchangeToLCYAmount(
-            ServiceInvoiceHeader."Posting Date", ServiceInvoiceHeader."Currency Code",
-            ServiceInvoiceHeader."Currency Factor", ServiceInvoiceLine.Amount));
-    end;
-
-    local procedure CalculateServiceCrMemoAmount(ServiceCrMemoHeader: Record "Service Cr.Memo Header"): Decimal
-    var
-        ServiceCrMemoLine: Record "Service Cr.Memo Line";
-    begin
-        ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        ServiceCrMemoLine.CalcSums(Amount);
-        exit(
-          ExchangeToLCYAmount(
-            ServiceCrMemoHeader."Posting Date", ServiceCrMemoHeader."Currency Code",
-            ServiceCrMemoHeader."Currency Factor", ServiceCrMemoLine.Amount));
     end;
 
     local procedure GenerateFacturasRectificadasNode(var XMLNode: DotNet XmlNode; DocNo: Code[35]; PostingDate: Date)
@@ -2029,24 +1949,6 @@ codeunit 10750 "SII XML Creator"
         exit(Amount);
     end;
 
-    local procedure ExchangeToLCYAmount(PostingDate: Date; CurrencyCode: Code[10]; CurrencyFactor: Decimal; Amount: Decimal): Decimal
-    var
-        Currency: Record Currency;
-        CurrExchRate: Record "Currency Exchange Rate";
-    begin
-        if CurrencyCode = '' then
-            exit(Amount);
-
-        Currency.Get(CurrencyCode);
-        Currency.InitRoundingPrecision;
-        exit(
-          Round(
-            CurrExchRate.ExchangeAmtFCYToLCY(
-              PostingDate, Currency.Code,
-              Amount, CurrencyFactor),
-            Currency."Amount Rounding Precision"));
-    end;
-
     local procedure UseReverseChargeNotIntracommunity(VATCalcType: Option; VendNo: Code[20]; PostingDate: Date): Boolean
     var
         VATEntry: Record "VAT Entry";
@@ -2403,6 +2305,11 @@ codeunit 10750 "SII XML Creator"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddVATAmountPurchDiffElement(var TempVATEntry: Record "VAT Entry" temporary; var VATAmountDiff: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateXML(LedgerEntry: Variant; var XMLDocOut: DotNet XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean; var ResultValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -303,14 +303,14 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
                         if Item.IsInventoriableType then
                             TestInventoryPostingSetup(PurchInvLine);
-
-                        TestGenPostingSetup(PurchInvLine);
-                        TestVendorPostingGroup(PurchInvLine, PurchInvHeader."Vendor Posting Group");
-                        TestVATPostingSetup(PurchInvLine);
-
-                        if not DimensionManagement.CheckDimIDComb(PurchInvLine."Dimension Set ID") then
-                            ErrorHelperLine(ErrorType::DimCombErr, PurchInvLine);
                     end;
+
+                    TestGenPostingSetup(PurchInvLine);
+                    TestVendorPostingGroup(PurchInvLine, PurchInvHeader."Vendor Posting Group");
+                    TestVATPostingSetup(PurchInvLine);
+
+                    if not DimensionManagement.CheckDimIDComb(PurchInvLine."Dimension Set ID") then
+                        ErrorHelperLine(ErrorType::DimCombErr, PurchInvLine);
                 end;
             until PurchInvLine.Next = 0;
     end;
@@ -328,9 +328,12 @@ codeunit 1313 "Correct Posted Purch. Invoice"
             ErrorHelperAccount(ErrorType::AccountBlocked, GLAccount.TableCaption, AccountNo, '', '');
         TableID[1] := DATABASE::"G/L Account";
         No[1] := AccountNo;
-        Item.Get(PurchInvLine."No.");
-        if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvLine."Dimension Set ID") then
-            ErrorHelperAccount(ErrorType::DimErr, GLAccount.TableCaption, AccountNo, Item."No.", Item.Description);
+
+        if PurchInvLine.Type = PurchInvLine.Type::Item then begin
+            Item.Get(PurchInvLine."No.");
+            if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvLine."Dimension Set ID") then
+                ErrorHelperAccount(ErrorType::DimErr, GLAccount.TableCaption, AccountNo, Item."No.", Item.Description);
+        end;
     end;
 
     local procedure TestIfInvoiceIsPaid(PurchInvHeader: Record "Purch. Inv. Header")
@@ -411,10 +414,12 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
         with GenPostingSetup do begin
             Get(PurchInvLine."Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group");
-            TestField("Purch. Account");
-            TestGLAccount("Purch. Account", PurchInvLine);
-            TestField("Purch. Credit Memo Account");
-            TestGLAccount("Purch. Credit Memo Account", PurchInvLine);
+            if PurchInvLine.Type <> PurchInvLine.Type::"G/L Account" then begin
+                TestField("Purch. Account");
+                TestGLAccount("Purch. Account", PurchInvLine);
+                TestField("Purch. Credit Memo Account");
+                TestGLAccount("Purch. Credit Memo Account", PurchInvLine);
+            end;
             TestField("Direct Cost Applied Account");
             TestGLAccount("Direct Cost Applied Account", PurchInvLine);
             if PurchasesPayablesSetup."Discount Posting" <> PurchasesPayablesSetup."Discount Posting"::"No Discounts" then begin

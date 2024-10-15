@@ -238,7 +238,6 @@ report 6 "Trial Balance"
                 GLAcc.CalcFields("Debit Amount", "Credit Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount",
                   "Net Change", "Balance at Date");
                 if not PrintAmountsInAddCurrency then begin
-                    BalanceAtEnd := BalanceAtEnd + PreviousBalance;
                     DebitAmtAtEnd := GLAcc2."Debit Amount";
                     CreditAmtAtEnd := GLAcc2."Credit Amount";
                     I := I + 1;
@@ -264,10 +263,9 @@ report 6 "Trial Balance"
                         if OpenEntries or CloseEntries then
                             TotalBalanceAtEnd := TotalBalanceAtEnd + BalanceType
                         else
-                            TotalBalanceAtEnd := TotalBalanceAtEnd + BalanceAtEnd;
+                            TotalBalanceAtEnd := TotalBalanceAtEnd + PreviousBalance;
                     end;
                 end else begin
-                    BalanceAtEnd := BalanceAtEnd + PreviousBalance;
                     DebitAmtAtEnd := GLAcc2."Add.-Currency Debit Amount";
                     CreditAmtAtEnd := GLAcc2."Add.-Currency Credit Amount";
                     if CopyStr("No.", 1, 1) <> PrevAccount then begin
@@ -290,7 +288,7 @@ report 6 "Trial Balance"
                         if OpenEntries or CloseEntries then
                             TotalBalanceAtEnd := TotalBalanceAtEnd + BalanceType
                         else
-                            TotalBalanceAtEnd := TotalBalanceAtEnd + BalanceAtEnd;
+                            TotalBalanceAtEnd := TotalBalanceAtEnd + PreviousBalance;
                     end;
                 end;
 
@@ -344,7 +342,6 @@ report 6 "Trial Balance"
                 end;
                 DebitAmtAtEnd := 0;
                 CreditAmtAtEnd := 0;
-                BalanceAtEnd := 0;
                 GLFilter := "G/L Account".GetFilter("G/L Account"."Account Type");
                 if GLFilter <> '' then begin
                     // Only accept single account type filter, to display both 2 types user should leave this filter blank.
@@ -458,7 +455,6 @@ report 6 "Trial Balance"
         PreviousCredit: Decimal;
         IsOpenDate: Boolean;
         PrintAmountsInAddCurrency: Boolean;
-        BalanceAtEnd: Decimal;
         DebitAmtAtEnd: Decimal;
         CreditAmtAtEnd: Decimal;
         TotalPeriodDebitAmt: Decimal;

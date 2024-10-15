@@ -42,7 +42,7 @@ page 5335 "Integration Table Mapping List"
                         if TableFilter <> '' then
                             FilterPageBuilder.SetView(TableCaptionValue, TableFilter);
                         if FilterPageBuilder.RunModal then begin
-                            TableFilter := FilterPageBuilder.GetView(TableCaptionValue, true);
+                            TableFilter := FilterPageBuilder.GetView(TableCaptionValue, false);
                             SetTableFilter(TableFilter);
                         end;
                     end;
@@ -101,7 +101,7 @@ page 5335 "Integration Table Mapping List"
                         if IntegrationTableFilter <> '' then
                             FilterPageBuilder.SetView(IntegrationTableCaptionValue, IntegrationTableFilter);
                         if FilterPageBuilder.RunModal then begin
-                            IntegrationTableFilter := FilterPageBuilder.GetView(IntegrationTableCaptionValue, true);
+                            IntegrationTableFilter := FilterPageBuilder.GetView(IntegrationTableCaptionValue, false);
                             SetIntegrationTableFilter(IntegrationTableFilter);
                         end;
                     end;

@@ -1391,6 +1391,60 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('QtyBase_WhseActivLine', WarehouseActivityLine."Qty. (Base)");
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RunningCombineShipmentsForSelectedOrders()
+    var
+        Customer: Record Customer;
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesOrder: TestPage "Sales Order";
+        SalesShipmentNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Combine Shipments]
+        // [SCENARIO 335308] A user can select which sales orders will be included to a single invoice with Combine Shipments control on sales order page.
+        Initialize;
+
+        // [GIVEN] Customer with "Combine Shipments" = TRUE.
+        CreateCustomer(Customer);
+
+        // [GIVEN] Two sales orders "SO1", "SO2".
+        // [GIVEN] Ship both sales orders.
+        CreateSalesOrder(SalesHeader[1], '', LibraryInventory.CreateItemNo, Customer."No.", LibraryRandom.RandInt(10));
+        SalesShipmentNo[1] := LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+        CreateSalesOrder(SalesHeader[2], '', LibraryInventory.CreateItemNo, Customer."No.", LibraryRandom.RandInt(10));
+        SalesShipmentNo[2] := LibrarySales.PostSalesDocument(SalesHeader[2], true, false);
+
+        // [GIVEN] Open sales order page positioned on sales order "SO1".
+        // [GIVEN] Uncheck "Combine Shipments".
+        SalesOrder.OpenEdit;
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader[1]."No.");
+        SalesOrder."Combine Shipments".SetValue(false);
+        SalesOrder.Close;
+
+        // [WHEN] Run "Combine Shipments" batch job for both shipped sales orders.
+        SalesHeader[1].SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
+        SalesShipmentHeader.SetFilter("No.", '%1|%2', SalesShipmentNo[1], SalesShipmentNo[2]);
+        LibraryVariableStorage.Enqueue(CombineShipmentMsg);
+        LibrarySales.CombineShipments(SalesHeader[1], SalesShipmentHeader, WorkDate, WorkDate, false, false, false, false);
+
+        // [THEN] One sales invoice is created.
+        SalesHeaderInvoice.SetRange("Document Type", SalesHeaderInvoice."Document Type"::Invoice);
+        SalesHeaderInvoice.SetRange("Sell-to Customer No.", Customer."No.");
+        Assert.RecordCount(SalesHeaderInvoice, 1);
+
+        // [THEN] Only sales order "SO2" is included to the combined invoice.
+        SalesHeader[2].Find;
+        SalesHeader[2].CalcFields(Amount);
+        SalesHeaderInvoice.FindFirst;
+        SalesHeaderInvoice.CalcFields(Amount);
+        SalesHeaderInvoice.TestField(Amount, SalesHeader[2].Amount);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

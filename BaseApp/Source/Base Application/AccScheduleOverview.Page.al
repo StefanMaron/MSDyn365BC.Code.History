@@ -6,7 +6,7 @@ page 490 "Acc. Schedule Overview"
     InsertAllowed = false;
     LinksAllowed = false;
     ModifyAllowed = false;
-    PageType = ListPlus;
+    PageType = Worksheet;
     PromotedActionCategories = 'New,Process,Report,Column,Period';
     SaveValues = true;
     ShowFilter = false;

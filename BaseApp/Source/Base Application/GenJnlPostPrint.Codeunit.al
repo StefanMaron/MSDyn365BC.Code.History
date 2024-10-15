@@ -74,6 +74,8 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                 end;
 
                 CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
+                OnAfterPostJournalBatch(GenJnlLine);
+
                 GLReg2.SetRange("No.", GLReg2."No." + 1, "Line No.");
                 if GLReg.Get("Line No.") then begin
                     if GenJnlTemplate."Cust. Receipt Report ID" <> 0 then begin
@@ -112,6 +114,11 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                 "Line No." := 1;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostJournalBatch(var GenJournalLine: Record "Gen. Journal Line");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

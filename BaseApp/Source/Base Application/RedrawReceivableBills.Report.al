@@ -774,7 +774,13 @@ report 7000096 "Redraw Receivable Bills"
         Text1100101: Label 'You can not redraw a bill when this contains Unrealized VAT.';
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         CustLedgEntry2: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckUnrealizedVAT(CustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         CustLedgEntry2.SetCurrentKey("Document No.", "Document Type", "Customer No.");
         CustLedgEntry2.SetRange("Document No.", CustLedgEntry."Document No.");
         CustLedgEntry2.SetRange("Document Type", CustLedgEntry."Document Type");
@@ -795,6 +801,11 @@ report 7000096 "Redraw Receivable Bills"
     begin
         if BatchName = '' then
             exit;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUnrealizedVAT(var CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

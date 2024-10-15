@@ -69,6 +69,8 @@ page 10751 "SII Setup"
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be replaced by the Certificate Code in the next version.';
                 }
                 field(Password; Password)
                 {
@@ -76,6 +78,8 @@ page 10751 "SII Setup"
                     Enabled = CertificateHasValue;
                     ExtendedDatatype = Masked;
                     ToolTip = 'Specifies the password to the SII service.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Will be replaced by the Certificate Code in the next version.';
                 }
             }
             group(Endpoints)
@@ -126,6 +130,8 @@ page 10751 "SII Setup"
             {
                 ApplicationArea = All;
                 Caption = 'Import certificate';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This action will not be is use in the next version and replaced by the Certificate Code.';
                 Image = UserCertificate;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -142,6 +148,8 @@ page 10751 "SII Setup"
             {
                 ApplicationArea = All;
                 Caption = 'Delete certificate';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This action will not be is use in the next version and replaced by the Certificate Code.';
                 Image = Delete;
                 Promoted = true;
                 PromotedCategory = Process;

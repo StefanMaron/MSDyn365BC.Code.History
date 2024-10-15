@@ -30,6 +30,7 @@ report 7000097 "Reject Docs."
                     FromJnl := false;
                     if PostedDoc."From Journal" then
                         FromJnl := true;
+                    OnBeforeCustFindVATSetup(VATPostingSetup, CustLedgEntry, FromJnl);
                     ExistsNoRealVAT := GenJnlPostLine.CustFindVATSetup(VATPostingSetup, CustLedgEntry, FromJnl);
                 end;
 
@@ -677,6 +678,11 @@ report 7000097 "Reject Docs."
                 GenJnlLine2 := GenJnlLine;
                 GenJnlPostLine.RunWithCheck(GenJnlLine2);
             until GenJnlLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustFindVATSetup(var VATPostingSetup: Record "VAT Posting Setup"; CustLedgEntry: Record "Cust. Ledger Entry"; var IsFromJnl: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

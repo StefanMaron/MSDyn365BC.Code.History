@@ -1502,6 +1502,51 @@ codeunit 137407 "SCM Warehouse IV"
 
     [Test]
     [Scope('OnPrem')]
+    procedure PostedInvtPickCanBeDeletedWhenBinNotMandatoryOnLocation()
+    var
+        Location: Record Location;
+        PostedInvtPickHeader: Record "Posted Invt. Pick Header";
+    begin
+        // [FEATURE] [Inventory Pick] [Bin Mandatory] [UT]
+        // [SCENARIO 340180] Posted inventory put-away can be deleted if bin is not mandatory on location.
+        Initialize();
+
+        // [GIVEN] Posted inventory put-away on location with bin not mandatory.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        MockPostedInvtPick(PostedInvtPickHeader, Location.Code);
+
+        // [WHEN] Delete posted inventory put-away.
+        PostedInvtPickHeader.Delete(true);
+
+        // [THEN] Delete succeeded.
+        PostedInvtPickHeader.SetRange("Location Code", Location.Code);
+        Assert.RecordIsEmpty(PostedInvtPickHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedInvtPickCannotBeDeletedWhenBinMandatoryOnLocation()
+    var
+        Location: Record Location;
+        PostedInvtPickHeader: Record "Posted Invt. Pick Header";
+    begin
+        // [FEATURE] [Inventory Pick] [Bin Mandatory] [UT]
+        // [SCENARIO 340180] Posted inventory put-away cannot be deleted if bin is mandatory on location.
+        Initialize();
+
+        // [GIVEN] Posted inventory put-away on location with mandatory bin.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, false);
+        MockPostedInvtPick(PostedInvtPickHeader, Location.Code);
+
+        // [WHEN] Delete posted inventory put-away.
+        asserterror PostedInvtPickHeader.Delete(true);
+
+        // [THEN] Delete failed.
+        Assert.ExpectedError(BinMandatoryTxt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure OnCreatingStockkeepingUnitValidatePhysInvtCountingPeriodCode()
     var
         Location: Record Location;
@@ -2469,6 +2514,16 @@ codeunit 137407 "SCM Warehouse IV"
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Posted Invt. Put-away Header");
             "Location Code" := LocationCode;
             Insert;
+        end;
+    end;
+
+    local procedure MockPostedInvtPick(var PostedInvtPickHeader: Record "Posted Invt. Pick Header"; LocationCode: Code[10])
+    begin
+        with PostedInvtPickHeader do begin
+            Init();
+            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Posted Invt. Pick Header");
+            "Location Code" := LocationCode;
+            Insert();
         end;
     end;
 

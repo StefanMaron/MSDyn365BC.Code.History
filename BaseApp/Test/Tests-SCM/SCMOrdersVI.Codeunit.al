@@ -747,6 +747,7 @@ codeunit 137163 "SCM Orders VI"
     begin
         // Setup: Create two Purchase Return Orders.
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         LibraryInventory.CreateItem(Item);
