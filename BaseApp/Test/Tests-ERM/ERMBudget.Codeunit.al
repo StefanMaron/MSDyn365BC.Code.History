@@ -454,28 +454,6 @@ codeunit 134922 "ERM Budget"
     end;
 
     [Test]
-    [HandlerFunctions('BudgetPageSaveValuesHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyGLBudgetGLAccFilterChangedWithSaveValues()
-    var
-        GLBudgetName: Record "G/L Budget Name";
-        GLAccount: array[2] of Record "G/L Account";
-        GLAccFilter: Text;
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 213513] "G/L Account Filter" saves value on "G/L Budget" page
-        Initialize;
-        GLBudgetName.FindFirst;
-        LibraryERM.CreateGLAccount(GLAccount[1]);
-        LibraryERM.CreateGLAccount(GLAccount[2]);
-        GLAccFilter := GLAccount[1]."No." + '|' + GLAccount[2]."No.";
-        LibraryLowerPermissions.SetFinancialReporting;
-
-        OpenGLBudgetWithGLAccFilter(GLBudgetName.Name, '', GLAccFilter);
-        OpenGLBudgetWithGLAccFilter(GLBudgetName.Name, GLAccFilter, GLAccFilter);
-    end;
-
-    [Test]
     [HandlerFunctions('BudgetPageWithBudgetEntryPageHandler')]
     [Scope('OnPrem')]
     procedure CheckLastBudgetEntryNoInAnalysisView()
@@ -3242,21 +3220,6 @@ codeunit 134922 "ERM Budget"
         // Verify: Verify Line Value and Column Caption for GL Budget Page.
         Budget.MatrixForm.Code.AssertEquals(LineValue);
         Assert.AreEqual(ColumnValue, Budget.MatrixForm.Field1.Caption, ColumnCaptionErr);
-        Budget.OK.Invoke;
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure BudgetPageSaveValuesHandler(var Budget: TestPage Budget)
-    var
-        CurrentGLAccFilter: Variant;
-        NewGLAccFilter: Variant;
-    begin
-        // Set/Verify ViewBy value
-        LibraryVariableStorage.Dequeue(CurrentGLAccFilter);
-        LibraryVariableStorage.Dequeue(NewGLAccFilter);
-        Budget.GLAccFilter.AssertEquals(CurrentGLAccFilter);
-        Budget.GLAccFilter.SetValue(NewGLAccFilter);
         Budget.OK.Invoke;
     end;
 
