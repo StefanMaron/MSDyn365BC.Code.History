@@ -249,13 +249,33 @@ page 7024 "Prices Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
+                    ShowMandatory = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
                     ToolTip = 'Specifies the unique identifier of the job on the price list line.';
+                    Visible = UseCustomLookup;
                 }
                 field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
+                    ShowMandatory = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
                     ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                    Visible = UseCustomLookup;
+                }
+                field("Assign-to Parent No."; Rec."Assign-to Parent No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
+                    ShowMandatory = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the unique identifier of the job on the price list line.';
+                    Visible = not UseCustomLookup;
+                }
+                field("Assign-to No."; Rec."Assign-to No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
+                    ShowMandatory = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                    Visible = not UseCustomLookup;
                 }
                 field("Asset Type"; Rec."Asset Type")
                 {
@@ -269,14 +289,33 @@ page 7024 "Prices Overview"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = PriceLineEditable;
+                    ShowMandatory = PriceLineEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify;
                     ToolTip = 'Specifies the number of the product.';
+                    Visible = UseCustomLookup;
+                }
+                field("Product No."; Rec."Product No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = PriceLineEditable;
+                    ShowMandatory = PriceLineEditable;
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
+                    ToolTip = 'Specifies the number of the product.';
+                    Visible = not UseCustomLookup;
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = ItemAssetVisible;
+                    Visible = ItemAssetVisible and UseCustomLookup;
+                    Editable = PriceLineEditable and ItemAsset;
+                    ToolTip = 'Specifies the variant of the item on the line.';
+                }
+                field("Variant Code Lookup"; Rec."Variant Code Lookup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = ItemAssetVisible and not UseCustomLookup;
                     Editable = PriceLineEditable and ItemAsset;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
@@ -296,7 +335,14 @@ page 7024 "Prices Overview"
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = ItemAssetVisible or ResourceAssetVisible;
+                    Visible = (ItemAssetVisible or ResourceAssetVisible) and UseCustomLookup;
+                    Editable = PriceLineEditable;
+                    ToolTip = 'Specifies the unit price of the product.';
+                }
+                field("Unit of Measure Code Lookup"; Rec."Unit of Measure Code Lookup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = (ItemAssetVisible or ResourceAssetVisible) and not UseCustomLookup;
                     Editable = PriceLineEditable;
                     ToolTip = 'Specifies the unit price of the product.';
                 }
@@ -530,12 +576,14 @@ page 7024 "Prices Overview"
 
     trigger OnAfterGetRecord()
     begin
+        Rec.SyncDropDownLookupFields();
+        CalcSourceNoEditable();
         SetFieldsStyle();
     end;
 
     trigger OnOpenPage()
     begin
-        PriceUXManagement.InitSmartListDesigner();
+        UseCustomLookup := Rec.UseCustomizedLookup();
         GetRecFilters();
         SetRecFilters();
         SetCaption();
@@ -549,14 +597,20 @@ page 7024 "Prices Overview"
         PriceUXManagement: Codeunit "Price UX Management";
         FilterRecordRef: RecordRef;
         AmountTypeFilter: Enum "Price Amount Type";
+        [InDataSet]
         ParentSourceNoEditable: Boolean;
+        [InDataSet]
         SourceTypeEditable: Boolean;
+        [InDataSet]
         SourceNoEditable: Boolean;
         ParentSourceNoFilter: Text;
+        [InDataSet]
         ParentSourceNoFilterEditable: Boolean;
         SourceNoFilter: Text;
+        [InDataSet]
         SourceNoFilterEditable: Boolean;
         AssetNoFilter: Text;
+        [InDataSet]
         AssetNoFilterEditable: Boolean;
         CurrencyCodeFilter: Text;
         StartingDateFilter: Text;
@@ -565,27 +619,50 @@ page 7024 "Prices Overview"
         Description3Lbl: Label '%1 %2 %3', Locked = true;
         Description5Lbl: Label '%1 %2 %3 %4 %5', Locked = true;
         WithinFilterLbl: Label 'No %1 within the filter %2.', Comment = '%1 - the unique entity id, %2 - the filter string ';
+        [InDataSet]
         PriceTypeVisible: Boolean;
+        [InDataSet]
         AmountTypeIsEditable: Boolean;
+        [InDataSet]
         AmountTypeIsVisible: Boolean;
+        [InDataSet]
         PriceVisible: Boolean;
+        [InDataSet]
         DiscountVisible: Boolean;
+        [InDataSet]
         DiscountOnlyVisible: Boolean;
+        [InDataSet]
         SalesVisible: Boolean;
+        [InDataSet]
         PurchVisible: Boolean;
+        [InDataSet]
         ItemAssetVisible: Boolean;
+        [InDataSet]
         ResourceAssetVisible: Boolean;
+        [InDataSet]
         ItemAsset: Boolean;
+        [InDataSet]
         ResourceAsset: Boolean;
+        [InDataSet]
         PriceLineEditable: Boolean;
+        [InDataSet]
         AssetTypeEditable: Boolean;
+        [InDataSet]
         DiscountEditable: Boolean;
+        [InDataSet]
         PriceEditable: Boolean;
+        [InDataSet]
         LineToVerify: Boolean;
+        [InDataSet]
         SalesPriceLine: Boolean;
+        [InDataSet]
         PurchPriceLine: Boolean;
+        [InDataSet]
         AllowUpdatingDefaults: Boolean;
+        [InDataSet]
         LineExists: Boolean;
+        [InDataSet]
+        UseCustomLookup: Boolean;
 
     procedure SetRecFilters()
     begin
@@ -603,6 +680,7 @@ page 7024 "Prices Overview"
     local procedure CalcSourceNoEditable()
     begin
         SourceNoEditable := Rec.IsSourceNoAllowed();
+        ParentSourceNoEditable := PriceSource.IsParentSourceAllowed();
     end;
 
     local procedure CheckFilters(TableNo: Integer; FilterTxt: Text)
@@ -683,7 +761,7 @@ page 7024 "Prices Overview"
             PriceSource."Source Type"::"All Customers":
                 begin
                     SalesSrcTableName := Format(PriceSource."Source Type");
-                    exit(StrSubstNo(Description3Lbl, SalesSrcTableName, SourceTableName, AssetNoFIlter));
+                    exit(StrSubstNo(Description3Lbl, SalesSrcTableName, SourceTableName, AssetNoFilter));
                 end;
         end;
 
@@ -730,7 +808,6 @@ page 7024 "Prices Overview"
                 AllowUpdatingDefaults := CurrPriceListHeader."Allow Updating Defaults";
         end;
 
-        ParentSourceNoEditable := PriceSource.IsParentSourceAllowed();
         AmountTypeIsEditable := Rec."Asset Type" <> Rec."Asset Type"::"Item Discount Group";
         ItemAsset := Rec.IsAssetItem();
         ResourceAsset := Rec.IsAssetResource();

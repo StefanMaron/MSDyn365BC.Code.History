@@ -1,10 +1,11 @@
 page 742 "VAT Report Statement Subform"
 {
     Caption = 'BAS Report Statement Lines';
-    InsertAllowed = false;
     PageType = ListPart;
     ShowFilter = false;
     SourceTable = "VAT Statement Report Line";
+    InsertAllowed = false;
+    DeleteAllowed = false;
 
     layout
     {
@@ -29,6 +30,12 @@ page 742 "VAT Report Statement Subform"
                     Editable = false;
                     ToolTip = 'Specifies the number on the box that the VAT statement applies to.';
                 }
+                field(Note; Note)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the free text to report for the certain line.';
+                    Visible = ShowVATNote;
+                }
                 field(Base; Base)
                 {
                     ApplicationArea = Basic, Suite;
@@ -40,7 +47,6 @@ page 742 "VAT Report Statement Subform"
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies the amount of the entry in the report statement.';
-
                     trigger OnDrillDown()
                     var
                         BASManagement: Codeunit "BAS Management";
@@ -72,6 +78,7 @@ page 742 "VAT Report Statement Subform"
 
     var
         ShowBase: Boolean;
+        ShowVATNote: Boolean;
 
     trigger OnOpenPage()
     var
@@ -79,6 +86,7 @@ page 742 "VAT Report Statement Subform"
     begin
         VATReportSetup.Get();
         ShowBase := VATReportSetup."Report VAT Base";
+        ShowVATNote := VATReportSetup."Report VAT Note";
     end;
 
     procedure SelectFirst()

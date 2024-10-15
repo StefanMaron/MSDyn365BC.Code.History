@@ -33,7 +33,7 @@ table 7022 "Price Worksheet Line"
         }
         field(4; "Source No."; Code[20])
         {
-            Caption = 'Assign-to';
+            Caption = 'Assign-to No.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -44,6 +44,7 @@ table 7022 "Price Worksheet Line"
                     PriceSource.Validate("Source No.", "Source No.");
                 end;
                 CopyFrom(PriceSource);
+                "Assign-to No." := "Source No.";
             end;
 
             trigger OnLookup()
@@ -67,6 +68,7 @@ table 7022 "Price Worksheet Line"
                 CopyRecTo(PriceSource);
                 PriceSource.Validate("Parent Source No.", "Parent Source No.");
                 CopyFrom(PriceSource);
+                "Assign-to Parent No." := "Parent Source No.";
             end;
 
             trigger OnLookup()
@@ -131,6 +133,9 @@ table 7022 "Price Worksheet Line"
                     PriceAsset.Validate("Asset No.", "Asset No.");
                 end;
                 CopyFrom(PriceAsset);
+                "Product No." := "Asset No.";
+                "Variant Code Lookup" := "Variant Code";
+                "Unit of Measure Code Lookup" := "Unit of Measure Code";
             end;
 
             trigger OnLookup()
@@ -155,6 +160,7 @@ table 7022 "Price Worksheet Line"
                     PriceAsset.Validate("Variant Code", "Variant Code");
                 end;
                 CopyFrom(PriceAsset);
+                "Variant Code Lookup" := "Variant Code";
             end;
 
             trigger OnLookup()
@@ -236,6 +242,7 @@ table 7022 "Price Worksheet Line"
                     PriceAsset.Validate("Unit of Measure Code", "Unit of Measure Code");
                 end;
                 CopyFrom(PriceAsset);
+                "Unit of Measure Code Lookup" := "Unit of Measure Code";
             end;
 
             trigger OnLookup()
@@ -461,6 +468,90 @@ table 7022 "Price Worksheet Line"
         {
             DataClassification = CustomerContent;
         }
+        field(33; "Product No."; Code[20])
+        {
+            Caption = 'Product No.';
+            DataClassification = CustomerContent;
+            TableRelation = IF ("Asset Type" = CONST(Item)) Item where("No." = field("Product No."))
+            ELSE
+            IF ("Asset Type" = CONST("G/L Account")) "G/L Account"
+            ELSE
+            IF ("Asset Type" = CONST(Resource)) Resource
+            ELSE
+            IF ("Asset Type" = CONST("Resource Group")) "Resource Group"
+            ELSE
+            IF ("Asset Type" = CONST("Item Discount Group")) "Item Discount Group"
+            ELSE
+            IF ("Asset Type" = CONST("Service Cost")) "Service Cost";
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                Validate("Asset No.", "Product No.");
+            end;
+        }
+        field(34; "Assign-to No."; Code[20])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = IF ("Source Type" = CONST(Campaign)) Campaign
+            ELSE
+            IF ("Source Type" = CONST(Contact)) Contact
+            ELSE
+            IF ("Source Type" = CONST(Customer)) Customer
+            ELSE
+            IF ("Source Type" = CONST("Customer Disc. Group")) "Customer Discount Group"
+            ELSE
+            IF ("Source Type" = CONST("Customer Price Group")) "Customer Price Group"
+            ELSE
+            IF ("Source Type" = CONST(Job)) Job
+            ELSE
+            IF ("Source Type" = CONST("Job Task")) "Job Task"."Job Task No." where("Job No." = field("Parent Source No."), "Job Task Type" = CONST(Posting))
+            ELSE
+            IF ("Source Type" = CONST(Vendor)) Vendor;
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                Validate("Source No.", "Assign-to No.");
+            end;
+        }
+        field(35; "Assign-to Parent No."; Code[20])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = IF ("Source Type" = CONST("Job Task")) Job;
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                Validate("Parent Source No.", "Assign-to Parent No.");
+            end;
+        }
+        field(36; "Variant Code Lookup"; Code[10])
+        {
+            Caption = 'Variant Code';
+            TableRelation = IF ("Asset Type" = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("Asset No."));
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                Validate("Variant Code", "Variant Code Lookup");
+            end;
+        }
+        field(37; "Unit of Measure Code Lookup"; Code[10])
+        {
+            Caption = 'Unit of Measure Code';
+            TableRelation = IF ("Asset Type" = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("Asset No."))
+            ELSE
+            IF ("Asset Type" = CONST(Resource)) "Resource Unit of Measure".Code WHERE("Resource No." = FIELD("Asset No."))
+            ELSE
+            IF ("Asset Type" = CONST("Resource Group")) "Unit of Measure";
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                Validate("Unit of Measure Code", "Unit of Measure Code Lookup");
+            end;
+        }
         field(100; "Existing Line"; Boolean)
         {
             DataClassification = SystemMetadata;
@@ -661,8 +752,7 @@ table 7022 "Price Worksheet Line"
     begin
         "Source Group" := PriceListHeader."Source Group";
         "Source Type" := PriceListHeader."Source Type";
-        "Parent Source No." := PriceListHeader."Parent Source No.";
-        "Source No." := PriceListHeader."Source No.";
+        SetSourceNo(PriceListHeader."Parent Source No.", PriceListHeader."Source No.");
         "Source ID" := PriceListHeader."Source ID";
     end;
 
@@ -691,8 +781,7 @@ table 7022 "Price Worksheet Line"
         "Price Type" := PriceSource."Price Type";
         "Source Group" := PriceSource."Source Group";
         "Source Type" := PriceSource."Source Type";
-        "Source No." := PriceSource."Source No.";
-        "Parent Source No." := PriceSource."Parent Source No.";
+        SetSourceNo(PriceSource."Parent Source No.", PriceSource."Source No.");
         "Source ID" := PriceSource."Source ID";
 
         if not GetHeader() or PriceListHeader."Allow Updating Defaults" then begin
@@ -711,7 +800,7 @@ table 7022 "Price Worksheet Line"
     begin
         "Price Type" := PriceAsset."Price Type";
         "Asset Type" := PriceAsset."Asset Type";
-        "Asset No." := PriceAsset."Asset No.";
+        SetAssetNo(PriceAsset."Asset No.");
         "Asset ID" := PriceAsset."Asset ID";
         Description := PriceAsset.Description;
         "Unit of Measure Code" := PriceAsset."Unit of Measure Code";
@@ -821,6 +910,30 @@ table 7022 "Price Worksheet Line"
     begin
         PriceSourceGroup := PriceListHeader."Source Group";
         exit(PriceSourceGroup.IsSourceTypeSupported("Source Type"));
+    end;
+
+    local procedure SetAssetNo(AssetNo: Code[20])
+    begin
+        "Asset No." := AssetNo;
+        "Product No." := AssetNo;
+    end;
+
+    local procedure SetSourceNo(ParentSourceNo: Code[20]; SourceNo: Code[20])
+    begin
+        "Parent Source No." := ParentSourceNo;
+        "Source No." := SourceNo;
+
+        "Assign-to Parent No." := ParentSourceNo;
+        "Assign-to No." := SourceNo;
+    end;
+
+    procedure SyncDropDownLookupFields()
+    begin
+        "Assign-to Parent No." := "Parent Source No.";
+        "Assign-to No." := "Source No.";
+        "Product No." := "Asset No.";
+        "Unit of Measure Code Lookup" := "Unit of Measure Code";
+        "Variant Code Lookup" := "Variant Code";
     end;
 
     local procedure TestHeadersValue(FieldId: Integer)
