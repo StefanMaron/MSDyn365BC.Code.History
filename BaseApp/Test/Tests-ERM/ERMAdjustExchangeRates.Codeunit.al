@@ -1,5 +1,6 @@
-codeunit 134083 "ERM Adjust Exchange Rates"
+﻿codeunit 134083 "ERM Adjust Exchange Rates"
 {
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -17,6 +18,8 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         ExpectNoAdjustmentErr: Label 'Expect no adjustment for entries before %1';
         ExchangeRateAdjmtTxt: Label 'Exchange Rate Adjmt. of %1 %2';
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+        InconsistenceTxt: Label 'The transaction will cause G/L entries to be inconsistent. Typical causes for this are mismatched amounts, including amounts in additional currencies, and posting dates.';
+        MakeInconsistent: Boolean;
 
     [Test]
     [HandlerFunctions('StatisticsMessageHandler')]
@@ -122,6 +125,63 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         Currencies.Code.AssertEquals(Currency.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure InconsistentAdjustmentPreview()
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GLAccount: Record "G/L Account";
+        GLAccount2: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        ERMAdjustExchangeRates: Codeunit "ERM Adjust Exchange Rates";
+        GLEntriesPreview: TestPage "G/L Entries Preview";
+        DocumentNo: Code[20];
+        TotalBalance: Decimal;
+        Amount: Decimal;
+    begin
+        // [SCENARIO] G/L Entry Posting preview of inconsistent exchange rate adjustment
+        Initialize();
+
+        // [GIVEN] Subscribe on OnPostGenJnlLineOnBeforeGenJnlPostLineRun to cause inconsintence
+        BindSubscription(ERMAdjustExchangeRates);
+        ERMAdjustExchangeRates.SetMakeInconsistent();
+
+        // [GIVEN] Create gen. journal line
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+        LibraryERM.SetAddReportingCurrency(CurrencyExchangeRate."Currency Code");
+
+        // Create two GL Entries for two different GL Accounts having different Exchange Rate Adjustment.
+        CreateGLEntryForAccount(
+          GLAccount, CurrencyExchangeRate."Currency Code", GLAccount."Exchange Rate Adjustment"::"Adjust Amount", WorkDate);
+        CreateGLEntryForAccount(
+          GLAccount2, CurrencyExchangeRate."Currency Code", GLAccount2."Exchange Rate Adjustment"::"Adjust Additional-Currency Amount",
+          WorkDate);
+        CreateNewExchangeRate(CurrencyExchangeRate);
+
+        // 2. Exercise: Run the report Adjust Exchange Rate.
+        GLEntriesPreview.Trap();
+        RunAdjustExchangeRatesReport(
+            CurrencyExchangeRate."Currency Code", WorkDate, WorkDate, ExchangeRateAdjmtTxt, WorkDate, DocumentNo, true);
+
+        // [THEN] Check Document No. in G/L Entries Preview
+        TotalBalance := 0;
+        GLEntriesPreview.First();
+        repeat
+            Assert.AreEqual(DocumentNo, Format(GLEntriesPreview."Document No."), 'Wrong Document No. in G/L Entries Preview');
+            Evaluate(Amount, GLEntriesPreview.Amount.Value);
+            TotalBalance := TotalBalance + Amount;
+        until not GLEntriesPreview.Next();
+        GLEntriesPreview.Close();
+        Assert.AreNotEqual(0, TotalBalance, 'Total balance should not be 0');
+
+        asserterror Commit();
+        Assert.IsTrue(
+            StrPos(
+                GetLastErrorText(),
+                'The transaction cannot be completed because it will cause inconsistencies') > 0, 'Missing inconsistency error');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -212,6 +272,35 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
         Currency.Validate("Realized G/L Losses Account", Currency."Realized Losses Acc.");
         Currency.Modify(true);
+    end;
+
+    procedure SetMakeInconsistent()
+    begin
+        MakeInconsistent := true;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Adjust Exchange Rates", 'OnPostGenJnlLineOnBeforeGenJnlPostLineRun', '', false, false)]
+    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        if MakeInconsistent then
+            if GenJnlLine.Amount > 0 then
+                GenJnlLine.Amount := Round(GenJnlLine.Amount * 1.1);
+    end;
+
+    local procedure RunAdjustExchangeRatesReport(CurrencyCode: Code[10]; StartDate: Date; EndDate: Date; PostingDescription: Text[50]; PostingDate: Date; var PostingDocNo: Code[20]; AdjGLAcc: Boolean)
+    var
+        Currency: Record Currency;
+        GenJnlBatch: Record "Gen. Journal Batch";
+        AdjustExchangeRates: Report "Adjust Exchange Rates";
+    begin
+        Currency.SetRange(Code, CurrencyCode);
+        AdjustExchangeRates.SetTableView(Currency);
+        PostingDocNo := LibraryERM.GetNextDocNoByBatch(GenJnlBatch);
+        AdjustExchangeRates.InitializeRequest2(
+            StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, AdjGLAcc,
+            GenJnlBatch."Journal Template Name", GenJnlBatch.Name);
+        AdjustExchangeRates.UseRequestPage(false);
+        AdjustExchangeRates.Run();
     end;
 
     local procedure UpdateExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; ExchangeRateAmount: Decimal; RelationalExchRateAmount: Decimal)

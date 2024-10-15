@@ -54,6 +54,7 @@ codeunit 5760 "Whse.-Post Receipt"
     local procedure "Code"()
     var
         WhseManagement: Codeunit "Whse. Management";
+        ShouldCreatePutAway: Boolean;
         IsHandled: Boolean;
     begin
         with WhseRcptLine do begin
@@ -125,7 +126,9 @@ codeunit 5760 "Whse.-Post Receipt"
             GetLocation("Location Code");
             PutAwayRequired := Location.RequirePutaway("Location Code");
             OnCodeOnAfterSetPutAwayRequired(WhseRcptHeader, PutAwayRequired);
-            if PutAwayRequired and not Location."Use Put-away Worksheet" then begin
+            ShouldCreatePutAway := PutAwayRequired and not Location."Use Put-away Worksheet";
+            OnCodeOnAfterCalcShouldCreatePutAway(WhseRcptHeader, Location, PutAwayRequired, SuppressCommit, HideValidationDialog, ShouldCreatePutAway);
+            if ShouldCreatePutAway then begin
                 CreatePutAwayDoc(WhseRcptHeader);
                 if not SuppressCommit then
                     Commit();
@@ -210,7 +213,7 @@ codeunit 5760 "Whse.-Post Receipt"
             case "Source Type" of
                 DATABASE::"Purchase Line":
                     begin
-                        OnInitSourceDocumentOnBeforePurchHeaderInit(PurchHeader, WhseRcptHeader, WhseRcptLine);
+                        OnInitSourceDocumentOnBeforePurchHeaderInit(PurchHeader, WhseRcptHeader, WhseRcptLine, ModifyHeader);
                         if (PurchHeader."Posting Date" = 0D) or
                            (PurchHeader."Posting Date" <> WhseRcptHeader."Posting Date")
                         then begin
@@ -234,7 +237,7 @@ codeunit 5760 "Whse.-Post Receipt"
                     end;
                 DATABASE::"Sales Line": // Return Order
                     begin
-                        OnInitSourceDocumentOnBeforeSalesHeaderInit(SalesHeader, WhseRcptHeader, WhseRcptLine);
+                        OnInitSourceDocumentOnBeforeSalesHeaderInit(SalesHeader, WhseRcptHeader, WhseRcptLine, ModifyHeader);
                         if (SalesHeader."Posting Date" = 0D) or
                            (SalesHeader."Posting Date" <> WhseRcptHeader."Posting Date")
                         then begin
@@ -253,7 +256,7 @@ codeunit 5760 "Whse.-Post Receipt"
                     end;
                 DATABASE::"Transfer Line":
                     begin
-                        OnInitSourceDocumentOnBeforeTransferHeaderInit(TransHeader, WhseRcptHeader, WhseRcptLine);
+                        OnInitSourceDocumentOnBeforeTransferHeaderInit(TransHeader, WhseRcptHeader, WhseRcptLine, ModifyHeader);
                         if (TransHeader."Posting Date" = 0D) or
                            (TransHeader."Posting Date" <> WhseRcptHeader."Posting Date")
                         then begin
@@ -513,6 +516,8 @@ codeunit 5760 "Whse.-Post Receipt"
                     OnPostSourceDocument(WhseRcptHeader, WhseRcptLine);
             end;
         end;
+
+        OnAfterPostSourceDocument(WhseRcptLine);
     end;
 
     local procedure PostPurchErrorsNotProcessed(var PurchPost: Codeunit "Purch.-Post")
@@ -672,7 +677,7 @@ codeunit 5760 "Whse.-Post Receipt"
             WhseRcptLine2."Qty. to Cross-Dock" := 0;
             WhseRcptLine2."Qty. to Cross-Dock (Base)" := 0;
             WhseRcptLine2.Status := WhseRcptLine2.GetLineStatus;
-            OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(WhseRcptLine2);
+            OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(WhseRcptLine2, WhseRcptLineBuf);
             WhseRcptLine2.Modify();
             OnAfterPostUpdateWhseRcptLine(WhseRcptLine2);
         end;
@@ -1140,6 +1145,11 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostSourceDocument(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostUpdateWhseRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var WarehouseReceiptLineBuf: Record "Warehouse Receipt Line"; var DeleteWhseRcptLine: Boolean; var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
@@ -1166,6 +1176,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterPostSourceDocuments(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCalcShouldCreatePutAway(WhseRcptHeader: Record "Warehouse Receipt Header"; Location: Record Location; PutAwayRequired: Boolean; SuppressCommit: Boolean; HideValidationDialog: Boolean; var ShouldCreatePutAway: Boolean)
     begin
     end;
 
@@ -1385,7 +1400,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitSourceDocumentOnBeforePurchHeaderInit(var PurchaseHeader: Record "Purchase Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    local procedure OnInitSourceDocumentOnBeforePurchHeaderInit(var PurchaseHeader: Record "Purchase Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var ModifyHeader: Boolean)
     begin
     end;
 
@@ -1405,7 +1420,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitSourceDocumentOnBeforeSalesHeaderInit(var SalesHeader: Record "Sales Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    local procedure OnInitSourceDocumentOnBeforeSalesHeaderInit(var SalesHeader: Record "Sales Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var ModifyHeader: Boolean)
     begin
     end;
 
@@ -1420,7 +1435,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitSourceDocumentOnBeforeTransferHeaderInit(var TransferHeader: Record "Transfer Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    local procedure OnInitSourceDocumentOnBeforeTransferHeaderInit(var TransferHeader: Record "Transfer Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var ModifyHeader: Boolean)
     begin
     end;
 
@@ -1505,7 +1520,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    local procedure OnPostUpdateWhseDocumentsOnBeforeWhseRcptLineModify(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var WhseRcptLineBuf: Record "Warehouse Receipt Line" temporary)
     begin
     end;
 

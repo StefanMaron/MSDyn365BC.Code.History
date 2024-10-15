@@ -1,4 +1,4 @@
-report 595 "Adjust Exchange Rates"
+﻿report 595 "Adjust Exchange Rates"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Adjust Exchange Rates';
@@ -755,12 +755,15 @@ report 595 "Adjust Exchange Rates"
 
     trigger OnPostReport()
     begin
-        UpdateAnalysisView.UpdateAll(0, true);
-
-        if TotalCustomersAdjusted + TotalVendorsAdjusted + TotalBankAccountsAdjusted + TotalGLAccountsAdjusted < 1 then
-            Message(NothingToAdjustMsg)
-        else
-            Message(RatesAdjustedMsg);
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries()
+        else begin    
+            UpdateAnalysisView.UpdateAll(0, true);
+            if TotalCustomersAdjusted + TotalVendorsAdjusted + TotalBankAccountsAdjusted + TotalGLAccountsAdjusted < 1 then
+                Message(NothingToAdjustMsg)
+            else
+                Message(RatesAdjustedMsg);
+        end;
 
         OnAfterPostReport(ExchRateAdjReg, PostingDate);
     end;
@@ -1530,7 +1533,7 @@ report 595 "Adjust Exchange Rates"
               Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)", "Original Amt. (LCY)",
               "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
 
-            // Calculate Old Unrealized GainLoss
+            // Calculate Old Unrealized Gains and Losses
             SetUnrealizedGainLossFilterCust(DtldCustLedgEntry, "Entry No.");
             DtldCustLedgEntry.CalcSums("Amount (LCY)");
 
@@ -1548,7 +1551,7 @@ report 595 "Adjust Exchange Rates"
                 Modify;
             end;
 
-            // Calculate New Unrealized GainLoss
+            // Calculate New Unrealized Gains and Losses
             AdjAmount :=
               Round(
                 CurrExchRate.ExchangeAmtFCYToLCYAdjmt(
@@ -1718,7 +1721,7 @@ report 595 "Adjust Exchange Rates"
                 Modify;
             end;
 
-            // Calculate New Unrealized GainLoss
+            // Calculate New Unrealized Gains and Losses
             AdjAmount :=
               Round(
                 CurrExchRate.ExchangeAmtFCYToLCYAdjmt(

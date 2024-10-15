@@ -189,11 +189,14 @@ table 9657 "Custom Report Selection"
     var
         CustomReportSelection: Record "Custom Report Selection";
         ReportLayoutSelection: Record "Report Layout Selection";
+        ShowEmailBodyDefinedError: Boolean;
     begin
         if "Use for Email Body" then begin
             CustomReportSelection.FilterEmailBodyUsage("Source Type", "Source No.", Usage.AsInteger());
             CustomReportSelection.SetFilter(Sequence, '<>%1', Sequence);
-            if not CustomReportSelection.IsEmpty() then
+            ShowEmailBodyDefinedError := not CustomReportSelection.IsEmpty();
+            OnCheckEmailBodyUsageOnAfterCalcShowEmailBodyDefinedError(Rec, CustomReportSelection, ShowEmailBodyDefinedError);
+            if ShowEmailBodyDefinedError then
                 Error(EmailBodyIsAlreadyDefinedErr, Usage);
 
             if "Email Body Layout Code" = '' then
@@ -487,6 +490,11 @@ table 9657 "Custom Report Selection"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetSendToEmail(Update: Boolean; var Result: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckEmailBodyUsageOnAfterCalcShowEmailBodyDefinedError(var Rec: Record "Custom Report Selection"; var CustomReportSelection: Record "Custom Report Selection"; var ShowEmailBodyDefinedError: Boolean)
     begin
     end;
 

@@ -24,6 +24,18 @@ codeunit 338 "VAT Entry - Edit"
     var
         VATEntry: Record "VAT Entry";
 
+    procedure SetGLAccountNo(var VATEntryModify: Record "VAT Entry"; GLAccountNo: Code[20])
+    begin
+        VATEntryModify."G/L Acc. No." := GLAccountNo;
+        VATEntryModify.Modify();
+    end;
+
+    procedure SetGLAccountNo(VATEntryNo: Integer; GLAccountNo: Code[20])
+    begin
+        VATEntry.SetRange("Entry No.", VATEntryNo);
+        VATEntry.ModifyAll("G/L Acc. No.", GLAccountNo, false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVATEntryModify(var VATEntry: Record "VAT Entry"; FromVATEntry: Record "VAT Entry")
     begin

@@ -1231,10 +1231,12 @@ report 2 "General Journal - Test"
             GLAccNetChange."No." := GLAcc."No.";
             GLAccNetChange.Name := GLAcc.Name;
             GLAccNetChange."Balance after Posting" := GLAcc."Balance at Date";
+            OnReconcileGLAccNoOnBeforeGLAccNetChangeInsert(GLAccNo, ReconcileAmount, GLAccNetChange);
             GLAccNetChange.Insert();
         end;
         GLAccNetChange."Net Change in Jnl." := GLAccNetChange."Net Change in Jnl." + ReconcileAmount;
         GLAccNetChange."Balance after Posting" := GLAccNetChange."Balance after Posting" + ReconcileAmount;
+        OnReconcileGLAccNoOnBeforeGLAccNetChangeModify(GLAccNo, ReconcileAmount, GLAccNetChange);
         GLAccNetChange.Modify();
     end;
 
@@ -2216,6 +2218,16 @@ report 2 "General Journal - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordGenJournalLineOnAfterCheckAccTypeGLAccAccNo(GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReconcileGLAccNoOnBeforeGLAccNetChangeInsert(GLAccNo: Code[20]; ReconcileAmount: Decimal; var GLAccNetChange: Record "G/L Account Net Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReconcileGLAccNoOnBeforeGLAccNetChangeModify(GLAccNo: Code[20]; ReconcileAmount: Decimal; var GLAccNetChange: Record "G/L Account Net Change")
     begin
     end;
 }

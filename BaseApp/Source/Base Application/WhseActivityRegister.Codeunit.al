@@ -98,6 +98,7 @@
             TempWhseActivityLineGrouped.DeleteAll();
 
             WhseActivLine.LockTable();
+            WhseJnlRegisterLine.LockTables();
 
             // breakbulk first to provide quantity for pick lines in smaller UoM
             WhseActivLine.SetFilter("Breakbulk No.", '<>0');
@@ -948,6 +949,7 @@
                     TempWhseActivLine.SetRange("Item No.", TempWhseActivLine."Item No.");
                     if ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLine."Item No.", WhseItemTrackingSetup) then
                         repeat
+                            TempWhseActivLine.TestNonSpecificItemTracking();
                             TempWhseActivLine.TestTrackingIfRequired(WhseItemTrackingSetup);
                         until TempWhseActivLine.Next() = 0
                     else begin

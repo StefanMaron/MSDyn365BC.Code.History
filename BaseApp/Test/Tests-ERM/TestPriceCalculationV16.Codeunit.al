@@ -4252,7 +4252,7 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListHeader: Record "Price List Header";
     begin
         PriceListHeader."Price Type" := "Price Type"::Sale;
-        PriceListHeader."Source Type" := "Price Source Type"::"All Jobs";
+        PriceListHeader."Source Type" := "Price Source Type"::"All Customers";
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, ResourceNo);
         PriceListLine.Validate("Work Type Code", WorkTypeCode);
@@ -4260,7 +4260,6 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Status := "Price Status"::Active;
         PriceListLine.Modify(true);
     end;
-
 
     local procedure CreateResourceWithGroup(var Resource: Record Resource; var ResourceGroup: Record "Resource Group")
     begin
@@ -4276,7 +4275,7 @@ codeunit 134159 "Test Price Calculation - V16"
     var
         myInt: Integer;
     begin
-        LibraryPriceCalculation.CreatePurchPriceLine(PriceListLine, '', "Price Source Type"::"All Jobs", '', AssetType, AssetNo);
+        LibraryPriceCalculation.CreatePurchPriceLine(PriceListLine, '', "Price Source Type"::"All Vendors", '', AssetType, AssetNo);
         PriceListLine."Work Type Code" := WorkTypeCode;
         PriceListLine."Direct Unit Cost" := LibraryRandom.RandDec(100, 2);
         PriceListLine."Unit Cost" := Round(PriceListLine."Direct Unit Cost" * 1.3);
@@ -4511,9 +4510,6 @@ codeunit 134159 "Test Price Calculation - V16"
 
     local procedure VerifyPurchaseResourceSources(var TempPriceSource: Record "Price Source" temporary; Vendor: Record Vendor; Contact: Record Contact)
     begin
-        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Jobs");
-        Assert.RecordIsEmpty(TempPriceSource);
-
         TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Vendors");
         Assert.RecordCount(TempPriceSource, 1);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::Vendor);
@@ -4526,9 +4522,6 @@ codeunit 134159 "Test Price Calculation - V16"
 
     local procedure VerifySaleResourceSources(var TempPriceSource: Record "Price Source" temporary; Customer: Record Customer; Contact: Record Contact)
     begin
-        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Jobs");
-        Assert.RecordCount(TempPriceSource, 1);
-
         TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Customers");
         Assert.RecordCount(TempPriceSource, 1);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::Customer);
