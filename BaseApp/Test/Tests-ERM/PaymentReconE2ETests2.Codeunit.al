@@ -1726,6 +1726,32 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         BankAccReconciliationLine.FindFirst;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckTableRelationStatementNoInPostedPmtPeconLineToPostedPmtReconHdr()
+    var
+        PostedPaymentReconLine: Record "Posted Payment Recon. Line";
+        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
+    begin
+        // [SCENARIO 346379] Field Statement No. in the table Posted Payment Recon. Line has a relation to table Posted Payment Recon. Hdr.
+        Initialize();
+
+        // [GIVEN] Created Posted Payment Recon. Header
+        PostedPaymentReconHdr.Init();
+        PostedPaymentReconHdr."Bank Account No." := LibraryERM.CreateBankAccountno();
+        PostedPaymentReconHdr."Statement No." := LibraryUtility.GenerateGUID();
+        PostedPaymentReconHdr.Insert();
+        Commit();
+
+        // [WHEN] Validate field "Statement No." in "Posted Payment Recon. Line"
+        PostedPaymentReconLine.Init();
+        PostedPaymentReconLine.Validate("Bank Account No.", PostedPaymentReconHdr."Bank Account No.");
+        PostedPaymentReconLine.Validate("Statement No.", PostedPaymentReconHdr."Statement No.");
+
+        // [THEN] The field validated correctly
+        PostedPaymentReconLine.TestField("Statement No.", PostedPaymentReconHdr."Statement No.");
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";

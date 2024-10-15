@@ -26,7 +26,6 @@ codeunit 148051 "OIOUBL-ERM Sales/Service Docs"
         DescriptionErr: Label 'The %1 %2 contains lines in which the Type and the No. are specified, but the Description is empty.', Comment = '%1 = Field Caption, %2 = Field Value';
         ExternalDocumentNoErr: Label 'You must specify the External Document No.';
         InvoicePathTxt: Label 'OIOUBL Service Invoice Path';
-        PaymentTermsCodeErr: Label 'Payment Terms Code must have a value in Service Header';
         SalesInvoiceFieldsErr: Label '%1 must have a value in Sales Header: Document Type=Invoice, No.=%2. It cannot be zero or empty';
         ServiceFieldsErr: Label '%1 must have a value in Service Header: Document Type=Credit Memo, No.=%2. It cannot be zero or empty.';
         UOMErr: Label 'The %1 %2 contains lines in which the Unit of Measure field is empty.', Comment = '%1 = Field Caption, %2 = Field Value';
@@ -108,6 +107,24 @@ codeunit 148051 "OIOUBL-ERM Sales/Service Docs"
     begin
         // Verify error using blank Unit Of Measure on Sales Credit Memo Line.
         SetupForBlankUOMError(SalesHeader."Document Type"::"Credit Memo");
+    end;
+
+    [Test]
+    procedure SalesCrMemoPaymentTermsCodeNotNeeded();
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // Setup: Create Sales Document and modify Sales Header.
+        Initialize();
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo", LibraryUtility.GenerateGUID(), WORKDATE());
+        ModifySalesHeader(SalesHeader."Document Type"::"Credit Memo", SalesLine."Document No.", '', '');
+        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesLine."Document No.");
+
+        // Exercise.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // Verify: Not error.
     end;
 
     [Test]
@@ -357,18 +374,6 @@ codeunit 148051 "OIOUBL-ERM Sales/Service Docs"
           FindPaymentTerms(), YourReferenceErr);
     end;
 
-    [Test]
-    procedure ServiceCrMemoPaymentTermsCodeError();
-    var
-        ServiceHeader: Record "Service Header";
-    begin
-        // Verify error using blank Payment Terms Code on Service Credit Memo.
-        CreateAndPostModifiedServiceDocument(
-          ServiceHeader."Document Type"::"Credit Memo", LibraryUtility.GenerateGUID(),
-          '', PaymentTermsCodeErr);
-    end;
-
-
     local procedure CreateAndPostModifiedServiceDocument(DocumentType: Option; YourReference: Text[35]; PaymentTermsCode: Code[10]; ExpectedError: Text[1024]);
     var
         ServiceHeader: Record "Service Header";
@@ -384,6 +389,25 @@ codeunit 148051 "OIOUBL-ERM Sales/Service Docs"
         // Verify: Verify error on Service Document.
         Assert.ExpectedError(ExpectedError);
     end;
+
+    [Test]
+    procedure ServiceCrMemoPaymentTermsCodeNotNeeded();
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // Setup: Create Service Document and modify Service Header.
+        Initialize();
+        CreateServiceDocument(ServiceLine, ServiceHeader."Document Type"::"Credit Memo");
+        ServiceHeader.Get(ServiceHeader."Document Type"::"Credit Memo", ServiceLine."Document No.");
+        ModifyServiceHeader(ServiceHeader, LibraryUtility.GenerateGUID(), '');
+
+        // Exercise.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // Verify: Not error.
+    end;
+
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
