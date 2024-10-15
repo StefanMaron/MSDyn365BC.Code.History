@@ -135,7 +135,8 @@ report 5801 "Invt. Valuation - Cost Spec."
                         CalcRemainingQty(ItemLedgerEntry);
                         CalcUnitCost(ItemLedgerEntry);
                         for i := 1 to ArrayLen(TotalCostTotal) do begin
-                            TotalCostTotal[i] := TotalCostTotal[i] * Abs(RemainingQty);
+                            if Item."Costing Method" <> Item."Costing Method"::Average then
+                                TotalCostTotal[i] := TotalCostTotal[i] * Abs(RemainingQty);
                             TotalCost := TotalCost + TotalCostTotal[i];
                             TotalCostAvg[i] += TotalCostTotal[i];
                         end;
@@ -350,7 +351,10 @@ report 5801 "Invt. Valuation - Cost Spec."
 
     local procedure SumUnitCost(var UnitCost: Decimal; CostAmount: Decimal; Quantity: Decimal)
     begin
-        UnitCost := UnitCost + CostAmount / Abs(Quantity);
+        if Item."Costing Method" = Item."Costing Method"::Average then
+            UnitCost := UnitCost + CostAmount
+        else
+            UnitCost := UnitCost + CostAmount / Abs(Quantity);
     end;
 
     procedure InitializeRequest(NewValuationDate: Date)

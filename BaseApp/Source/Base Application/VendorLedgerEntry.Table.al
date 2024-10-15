@@ -517,6 +517,10 @@
         {
             Caption = 'Applies-to Ext. Doc. No.';
         }
+        field(175; "Invoice Received Date"; Date)
+        {
+
+        }
         field(288; "Recipient Bank Account"; Code[20])
         {
             Caption = 'Recipient Bank Account';
@@ -627,7 +631,7 @@
         field(11000002; "Payments in Process"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Detail Line"."Amount (Entry)" WHERE("Serial No. (Entry)" = FIELD("Entry No."),
+            CalcFormula = Sum("Detail Line"."Amount (Entry)" WHERE("Serial No. (Entry)" = FIELD("Entry No."),
                                                                     Status = CONST("In process"),
                                                                     "Account Type" = CONST(Vendor),
                                                                     "Connect Batches" = FIELD("Connect Batches Filter"),
@@ -909,6 +913,7 @@
         "Vendor No." := GenJnlLine."Account No.";
         "Posting Date" := GenJnlLine."Posting Date";
         "Document Date" := GenJnlLine."Document Date";
+        "Invoice Received Date" := GenJnlLine."Invoice Received Date";
         "Document Type" := GenJnlLine."Document Type";
         "Document No." := GenJnlLine."Document No.";
         "External Document No." := GenJnlLine."External Document No.";

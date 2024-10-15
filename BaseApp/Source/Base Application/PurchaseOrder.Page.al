@@ -195,6 +195,12 @@
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+                field("Invoice Received Date"; Rec."Invoice Received Date")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the date when the related document was received.';
+                }
                 field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Suite;
