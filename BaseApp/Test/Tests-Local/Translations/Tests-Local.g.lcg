@@ -5351,6 +5351,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Vendor 1099 - NamedType GetAmtMISC02)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 3305012081" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[GetAmtNEC01]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Vendor 1099 - NamedType GetAmtNEC01Tok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3749231957 - NamedType 635758642" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[GetAmtCombinedDivCodeAB]]></Val>
@@ -5396,6 +5405,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Vendor 1099 - NamedType LineSequenceNoErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 2321655795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MISC-01]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[MISC - miscellaneous]D;]A;(LookupHint=Codeunit UT REP Vendor 1099 - NamedType IRS1099CodeMisc01Tok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 3419181167" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MISC-05]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[MISC - miscellaneous]D;]A;(LookupHint=Codeunit UT REP Vendor 1099 - NamedType IRS1099CodeMisc05Tok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 1384624817" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MISC-07]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[MISC - miscellaneous]D;]A;(LookupHint=Codeunit UT REP Vendor 1099 - NamedType IRS1099CodeMisc07Tok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3749231957 - NamedType 1474618443" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[MISC-09]]></Val>
@@ -5403,6 +5439,42 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[MISC - miscellaneous]D;]A;(LookupHint=Codeunit UT REP Vendor 1099 - NamedType IRS1099CodeMisc09Tok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 2023738155" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MISC-10]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[MISC - miscellaneous]D;]A;(LookupHint=Codeunit UT REP Vendor 1099 - NamedType IRS1099CodeMisc10Tok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 2889390253" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MISC-12]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[MISC - miscellaneous]D;]A;(LookupHint=Codeunit UT REP Vendor 1099 - NamedType IRS1099CodeMisc12Tok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 2844012846" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MISC-13]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[MISC - miscellaneous]D;]A;(LookupHint=Codeunit UT REP Vendor 1099 - NamedType IRS1099CodeMisc13Tok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3749231957 - NamedType 354513335" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[NEC-01]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Vendor 1099 - NamedType IRS1099CodeNec01Tok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3749231957 - NamedType 2433141880" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -140,7 +140,7 @@ report 10116 "Vendor 1099 Misc 2020"
                         CurrReport.Break();
                 end else begin
                     PrintThis := false;
-                    ProcessVendorInvoices("No.", PeriodDate);
+                    IRS1099Management.ProcessVendorInvoices(Amounts, "No.", PeriodDate, Codes, LastLineNo, 'MISC*');
 
                     PrintThis := IRS1099Management.AnyCodeHasAmountExceedMinimum(Codes, Amounts, LastLineNo);
                     if not PrintThis then

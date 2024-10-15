@@ -122,6 +122,16 @@ codeunit 10500 "IRS 1099 Management"
     end;
 
     [Scope('OnPrem')]
+    procedure GetAdjustmentRec(var IRS1099Adjustment: Record "IRS 1099 Adjustment"; VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
+    begin
+        if VendorLedgerEntry."IRS 1099 Code" = '' then
+            exit(false);
+        exit(
+          IRS1099Adjustment.Get(
+            VendorLedgerEntry."Vendor No.", VendorLedgerEntry."IRS 1099 Code", Date2DMY(VendorLedgerEntry."Posting Date", 3)));
+    end;
+
+    [Scope('OnPrem')]
     procedure UpgradeFormBoxesFromNotification(Notification: Notification)
     begin
         UpgradeFormBoxes;
@@ -174,7 +184,7 @@ codeunit 10500 "IRS 1099 Management"
             i := i + 1;
 
         if (Codes[i] = Code) and (i <= LastLineNo) then
-            Amounts[i] += Amount + GetAdjustmentAmount(ApplVendorLedgerEntry)
+            Amounts[i] += Amount
         else
             Error(UnkownCodeErr, ApplVendorLedgerEntry."Entry No.", ApplVendorLedgerEntry."Vendor No.", Code);
         exit(i);
@@ -263,6 +273,37 @@ codeunit 10500 "IRS 1099 Management"
             exit(Amounts[i]);
 
         Error(IRS1099CodeHasNotBeenSetupErr, Code);
+    end;
+
+    procedure ProcessVendorInvoices(var Amounts: array[20] of Decimal; VendorNo: Code[20]; PeriodDate: array[2] of Date; Codes: array[20] of Code[10]; LastLineNo: Integer; "Filter": Text)
+    var
+        TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        TempIRS1099Adjustment: Record "IRS 1099 Adjustment" temporary;
+        EntryApplicationManagement: Codeunit "Entry Application Management";
+        Invoice1099Amount: Decimal;
+    begin
+        EntryApplicationManagement.GetAppliedVendorEntries(
+          TempVendorLedgerEntry, VendorNo, PeriodDate, true);
+        with TempVendorLedgerEntry do begin
+            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
+            SetFilter("IRS 1099 Amount", '<>0');
+            if Filter <> '' then
+                SetFilter("IRS 1099 Code", Filter);
+            if FindSet() then
+                repeat
+                    Calculate1099Amount(
+                      Invoice1099Amount, Amounts, Codes, LastLineNo, TempVendorLedgerEntry, "Amount to Apply");
+                    if GetAdjustmentRec(IRS1099Adjustment, TempVendorLedgerEntry) then begin
+                        TempIRS1099Adjustment := IRS1099Adjustment;
+                        if not TempIRS1099Adjustment.Find() then begin
+                            UpdateLines(
+                              Amounts, Codes, LastLineNo, TempVendorLedgerEntry, "IRS 1099 Code", IRS1099Adjustment.Amount);
+                            TempIRS1099Adjustment.Insert();
+                        end;
+                    end;
+                until Next() = 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]
