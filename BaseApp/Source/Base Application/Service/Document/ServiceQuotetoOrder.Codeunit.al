@@ -141,19 +141,23 @@ codeunit 5923 "Service-Quote to Order"
         ServOrderHeader."Finishing Date" := 0D;
         ServOrderHeader."Finishing Time" := 0T;
 
-        TestNoSeries();
-        ServOrderHeader."No. Series" := GetNoSeriesCode();
-#if not CLEAN24
-        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(ServOrderHeader."No. Series", '', 0D, ServOrderHeader."No.", ServOrderHeader."No. Series", IsHandled);
+        IsHandled := false;
+        OnMakeOrderOnBeforeTestNoSeries(ServOrderHeader, IsHandled);
         if not IsHandled then begin
-#endif
-            ServOrderHeader."No." := NoSeries.GetNextNo(ServOrderHeader."No. Series");
+            TestNoSeries();
+            ServOrderHeader."No. Series" := GetNoSeriesCode();
 #if not CLEAN24
-            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(ServOrderHeader."No. Series", ServMgtSetup."Service Order Nos.", 0D, ServOrderHeader."No.");
-        end;
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(ServOrderHeader."No. Series", '', 0D, ServOrderHeader."No.", ServOrderHeader."No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                ServOrderHeader."No." := NoSeries.GetNextNo(ServOrderHeader."No. Series");
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(ServOrderHeader."No. Series", ServMgtSetup."Service Order Nos.", 0D, ServOrderHeader."No.");
+            end;
 #endif
 
-        ServOrderHeader."Quote No." := ServiceHeader."No.";
+            ServOrderHeader."Quote No." := ServiceHeader."No.";
+        end;
         RecordLinkManagement.CopyLinks(ServiceHeader, ServOrderHeader);
         InsertServHeader(ServOrderHeader, ServiceHeader);
 
@@ -407,6 +411,11 @@ codeunit 5923 "Service-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferQuoteToOrderLinesOnAfterServiceQuoteLineSetFilters(var QuoteServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnMakeOrderOnBeforeTestNoSeries(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

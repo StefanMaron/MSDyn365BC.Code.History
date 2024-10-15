@@ -1520,6 +1520,137 @@ codeunit 136323 "Jobs - Multiple Customers"
         SalesLine.TestField("Document No.", SalesHeader."No.");
     end;
 
+    [Test]
+    procedure CopyTotalsProjectTasksTypeIntoProjectsWithMultipleCustomerBillingOption()
+    var
+        JobTasks: array[3] of Record "Job Task";
+        Jobs: array[2] of Record Job;
+        Customers: array[2] of Record Customer;
+        CopyJob: Codeunit "Copy Job";
+    begin
+        // [SCENARIO 522645] Copy Totals Project Tasks Type into Projects with Multiple Customer Billing Option
+        Initialize();
+
+        // [GIVEN] Set One Customer Billing option on Project Setup
+        SetOneCustomerBillingMethodOnProjectSetup();
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customers[1]);
+
+        // [GIVEN] Create new Project
+        LibraryJob.CreateJob(Jobs[1], Customers[1]."No.");
+
+        // [GIVEN] Create new Project Task of Type Begin Total
+        LibraryJob.CreateJobTask(Jobs[1], JobTasks[1]);
+        JobTasks[1]."Job Task Type" := JobTasks[1]."Job Task Type"::"Begin-Total";
+        JobTasks[1].Modify(true);
+
+        // [GIVEN] Create new Project Task
+        LibraryJob.CreateJobTask(Jobs[1], JobTasks[2]);
+
+        // [GIVEN] Set Multiple Customers on Project Setup
+        SetMultiupleCustomersOnProjectSetup();
+
+        // [GIVEN] Create new Project
+        LibraryJob.CreateJob(Jobs[2], Customers[1]."No.");
+
+        // [WHEN] Copy Project Tasks
+        CopyJob.CopyJobTasks(Jobs[1], Jobs[2]);
+
+        // [THEN] Verify results
+        JobTasks[3].Get(Jobs[2]."No.", JobTasks[1]."Job Task No.");
+        JobTasks[3].TestField("Sell-to Customer No.", '');
+        JobTasks[3].TestField("Bill-to Customer No.", '');
+
+        JobTasks[3].Get(Jobs[2]."No.", JobTasks[2]."Job Task No.");
+        JobTasks[3].TestField("Sell-to Customer No.", Jobs[2]."Sell-to Customer No.");
+        JobTasks[3].TestField("Bill-to Customer No.", Jobs[2]."Bill-to Customer No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandler')]
+    procedure BillToCustomerUpdateIsNotAllowedForJobWithOpenSalesInvoice()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        Customers: array[2] of Record Customer;
+    begin
+        // [SCENARIO 527084] Bill-to Customer Update is not Allowed for Job with Open Sales Invoice
+        Initialize();
+
+        // [GIVEN] Set One Customer billing method on Project Setup
+        SetOneCustomerBillingMethodOnProjectSetup();
+
+        // [GIVEN] Create Customers
+        LibrarySales.CreateCustomer(Customers[1]);
+        LibrarySales.CreateCustomer(Customers[2]);
+
+        // [GIVEN] Create new Project
+        LibraryJob.CreateJob(Job, Customers[1]."No.");
+
+        // [GIVEN] Create new Project Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Job Planning Line
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        Commit();
+
+        // [GIVEN] Enqueue data
+        LibraryVariableStorage.Enqueue(LinesTransferedToInvoiceMsg);
+
+        // [GIVEN] Create Sales Invoice        
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [WHEN] Update Bill-to Customer on Project
+        asserterror Job.Validate("Bill-to Customer No.", Customers[2]."No.");
+
+        // [THEN] Verify results
+        Assert.ExpectedError(StrSubstNo(AssociatedEntriesExistErr, Job.FieldCaption("Bill-to Customer No."), Job.TableCaption()));
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandler')]
+    procedure BillToCustomerUpdateIsNotAllowedForJobTaskWithOpenSalesInvoice()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        Customers: array[2] of Record Customer;
+    begin
+        // [SCENARIO 527084] Bill-to Customer Update is not Allowed for Job Task with Open Sales Invoice
+        Initialize();
+
+        // [GIVEN] Set Multiple Customers on Project Setup
+        SetMultiupleCustomersOnProjectSetup();
+
+        // [GIVEN] Create Customers
+        LibrarySales.CreateCustomer(Customers[1]);
+        LibrarySales.CreateCustomer(Customers[2]);
+
+        // [GIVEN] Create new Project
+        LibraryJob.CreateJob(Job, Customers[1]."No.");
+
+        // [GIVEN] Create new Project Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Job Planning Line
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        Commit();
+
+        // [GIVEN] Enqueue data
+        LibraryVariableStorage.Enqueue(LinesTransferedToInvoiceMsg);
+
+        // [GIVEN] Create Sales Invoice        
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [WHEN] Update Bill-to Customer on Project
+        asserterror JobTask.Validate("Bill-to Customer No.", Customers[2]."No.");
+
+        // [THEN] Verify results
+        Assert.ExpectedError(StrSubstNo(AssociatedEntriesExistErr, JobTask.FieldCaption("Bill-to Customer No."), JobTask.TableCaption()));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Jobs - Multiple Customers");

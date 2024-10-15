@@ -17,6 +17,7 @@ using Microsoft.Purchases.Vendor;
 using System;
 using System.IO;
 using System.Xml;
+using System.Utilities;
 
 report 13403 "Export SEPA Payment File"
 {
@@ -44,10 +45,16 @@ report 13403 "Export SEPA Payment File"
             end;
 
             trigger OnPostDataItem()
+            var
+                XmlDoc: XmlDocument;
+                XMLDocText: Text;
+                BlobOutStream: OutStream;
             begin
-                XMLDomDoc.Save(TmpFileNameServer);
+                XmlDocument.ReadFrom(XMLDomDoc.OuterXml, XmlDoc);
+                TempBlob.CreateOutStream(BlobOutStream, TextEncoding::UTF8);
+                XMLDoc.WriteTo(XMLDocText);
+                BlobOutStream.WriteText(XMLDocText);
                 Clear(XMLDomDoc);
-                FormatOutput();
             end;
 
             trigger OnPreDataItem()
@@ -108,11 +115,13 @@ report 13403 "Export SEPA Payment File"
 
     trigger OnPostReport()
     var
+        BlobInStream: InStream;
         CancelDownload: Boolean;
     begin
-        OnBeforeFileDownload(XMLFileNameServer, CancelDownload);
+        OnBeforeDownloadFromBlob(TempBlob, CancelDownload);
         if not CancelDownload then begin
-            FileMgt.DownloadHandler(XMLFileNameServer, '', '', '', FileName);
+            TempBlob.CreateInStream(BlobInStream);
+            DownloadFromStream(BlobInStream, '', '', '', FileName);
             Message(Text13400, FileName);
         end;
     end;
@@ -134,11 +143,12 @@ report 13403 "Export SEPA Payment File"
         GLSetup: Record "General Ledger Setup";
         FileMgt: Codeunit "File Management";
         XMLDomMgt: Codeunit "XML DOM Management";
+        TempBlob: Codeunit "Temp Blob";
         XMLDomDoc: DotNet XmlDocument;
         XMLNodeCurr: DotNet XmlNode;
-        XMLFileNameServer: Text[250];
-        TmpFileNameServer: Text[250];
-        FileName: Text[250];
+        XMLFileNameServer: Text;
+        TmpFileNameServer: Text;
+        FileName: Text;
         MessageId: Text[20];
         Text13400: Label 'Transfer File %1 Created Successfully.';
         Text13403: Label 'There is nothing to send.';
@@ -157,7 +167,7 @@ report 13403 "Export SEPA Payment File"
         xsiNameSpace: Text;
         xsdName: Text;
     begin
-        xsdName := 'pain.001.001.02';
+        xsdName := 'pain.001.001.09';
         xmlNameSpace := 'urn:iso:std:iso:20022:tech:xsd:' + xsdName;
         xsiNameSpace := 'http://www.w3.org/2001/XMLSchema-instance';
 
@@ -225,7 +235,10 @@ report 13403 "Export SEPA Payment File"
 
         XMLDomMgt.AddElement(XMLNodeCurr, 'PmtInfId', MessageId, '', XMLNewChild);
         XMLDomMgt.AddElement(XMLNodeCurr, 'PmtMtd', 'TRF', '', XMLNewChild);
-        XMLDomMgt.AddElement(XMLNodeCurr, 'ReqdExctnDt', Format(RefPaymentExported."Payment Date", 0, 9), '', XMLNewChild); // r30
+        XMLDomMgt.AddElement(XMLNodeCurr, 'ReqdExctnDt', '', '', XMLNewChild); // r30
+        XMLNodeCurr := XMLNewChild;
+        XMLDomMgt.AddElement(XMLNodeCurr, 'Dt', Format(RefPaymentExported."Payment Date", 0, 9), '', XMLNewChild); // r30
+        XMLNodeCurr := XMLNodeCurr.ParentNode;
         XMLDomMgt.AddElement(XMLNodeCurr, 'Dbtr', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
@@ -397,7 +410,7 @@ report 13403 "Export SEPA Payment File"
         RefPaymentExported."Transfer Time" := Time;
         RefPaymentExported."Batch Code" := MessageId;
         RefPaymentExported."Payment Execution Date" := RefPaymentExported."Payment Date";
-        RefPaymentExported."File Name" := FileName;
+        RefPaymentExported."File Name" := CopyStr(FileName, 1, MaxStrLen(RefPaymentExported."File Name"));
         RefPaymentExported.Modify();
         RefPaymentExported.MarkAffiliatedAsTransferred();
 
@@ -445,31 +458,6 @@ report 13403 "Export SEPA Payment File"
 
                 ControlSum += RefPaymentExported.Amount;
             until RefPaymentExported.Next() = 0;
-    end;
-
-    local procedure FormatOutput()
-    var
-        File: File;
-        NewFile: File;
-        InStream: InStream;
-        OutStream: OutStream;
-        Char: Char;
-        NeedsCRLF: Boolean;
-    begin
-        File.TextMode(true);
-        File.Open(TmpFileNameServer);
-        File.CreateInStream(InStream);
-        NewFile.Create(XMLFileNameServer);
-        NewFile.CreateOutStream(OutStream);
-        NeedsCRLF := false;
-        repeat
-            InStream.Read(Char);
-            if AddCRLF(Char, NeedsCRLF) then
-                OutStream.WriteText();
-            OutStream.Write(Char);
-        until InStream.EOS;
-        File.Close();
-        NewFile.Close();
     end;
 
     [Scope('OnPrem')]
@@ -525,9 +513,16 @@ report 13403 "Export SEPA Payment File"
             exit(GLSetup."LCY Code");
         exit(CurrencyCode);
     end;
+#if not CLEAN25
+    [IntegrationEvent(false, false)]
+    [Obsolete('File is not downloaded anymore, use OnBeforeDownloadFromBlob event to get xml file content.', '25.0')]
+    local procedure OnBeforeFileDownload(FileName: Text; var CancelDownload: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFileDownload(FileName: Text; var CancelDownload: Boolean)
+    local procedure OnBeforeDownloadFromBlob(var TempBlob: Codeunit "Temp Blob"; var CancelDownload: Boolean)
     begin
     end;
 }

@@ -13,6 +13,7 @@ codeunit 137023 "SCM Reservation Worksheet"
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryAssembly: Codeunit "Library - Assembly";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
@@ -941,6 +942,60 @@ codeunit 137023 "SCM Reservation Worksheet"
         VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(1), 0);
         VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(2), 0);
         VerifyQtyToReserveOnReservWkshLine(ReservationWkshLine, SalesOrderList.Get(3), GetOutstandingQtyOnSalesLine(SalesOrderList.Get(3)));
+    end;
+
+    [Test]
+    [HandlerFunctions('GetDemandToReserveRequestPageHandler')]
+    procedure ItemWithReserveNeverNotInReservationWorksheet()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ReservationWkshBatch: Record "Reservation Wksh. Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationWkshLine: Record "Reservation Wksh. Line";
+        ItemList: List of [Code[20]];
+        Qty: Decimal;
+    begin
+        // [Reservation Worksheet]
+        // [SCENARIO 502388] Item with "Reserve" = "Never" should not be included in the reservation worksheet.
+        Initialize();
+
+        // [GIVEN] Item "X" with "Reserve" = "Never".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reserve", Item."Reserve"::Never);
+        Item.Modify(true);
+        ItemList.Add(Item."No.");
+
+        // [GIVEN] New location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Item "X" available in the inventory.
+        Qty := Random(100);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for the item "X" with "Reserve" = "Never".
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty / 2, Location.Code, WorkDate());
+        SalesLine.TestField(Reserve, SalesLine.Reserve::Never);
+
+        // [GIVEN] Assembly order with line - item "X" with "Reserve" = "Never".
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), Location.Code, Qty / 2, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", '', 1, 1, '');
+        AssemblyLine.TestField(Reserve, AssemblyLine.Reserve::Never);
+
+        // [WHEN] Run CalculateDemand for item "X" to fill ReservationWorksheetLine.
+        LibraryVariableStorage.Enqueue(Item."No.");
+        ReservationWkshBatch.FindFirst();
+        GetDemand(ReservationWkshBatch.Name, ItemList);
+
+        // [THEN] Verify that reservation worksheet line for the item with "Reserve" = "Never" should not be created.
+        ReservationWkshLine.SetRange("Journal Batch Name", ReservationWkshBatch.Name);
+        ReservationWkshLine.SetRange("Item No.", Item."No.");
+        Assert.IsTrue(ReservationWkshLine.IsEmpty, 'Reservation Worksheet line for the item with "Reserve" = "Never" should not be created.');
     end;
 
     local procedure Initialize()

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -278,7 +278,8 @@ report 596 "Exch. Rate Adjustment"
             Clear(PostingDocNo);
             GenJournalBatch.Get(GenJournalLineReq."Journal Template Name", GenJournalLineReq."Journal Batch Name");
             GenJournalBatch.TestField("No. Series");
-            PostingDocNo := NoSeries.GetNextNo(GenJournalBatch."No. Series", PostingDate);
+            if not PreviewPosting then
+                PostingDocNo := NoSeries.GetNextNo(GenJournalBatch."No. Series", PostingDate);
         end else
             if (PostingDocNo = '') and (not PreviewPosting) then
                 Error(MustBeEnteredErr, GenJournalLineReq.FieldCaption("Document No."));

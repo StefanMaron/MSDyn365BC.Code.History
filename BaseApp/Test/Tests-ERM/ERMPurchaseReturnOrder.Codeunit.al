@@ -48,6 +48,8 @@ codeunit 134329 "ERM Purchase Return Order"
         ContactShouldBeEditableErr: Label 'Contact should be editable when vendorr is selected.';
         FunctionMustNotBeCalledErr: Label 'Function %1 must not be called.', Comment = '%1 - function name';
         BatchPostingErrrorNotificationMsg: Label 'An error or warning occured during operation Batch processing of Purchase Header records.';
+        ReturnQtyToShipMustBeZeroErr: Label ' Return Qty. to Ship must be zero.';
+        QtyToAssignErr: Label '%1 must be %2 in %3', Comment = '%1 = Qty. to Assign, %2 = Quantity, %3 = Purchase Return Order Subform';
 
     [Test]
     [Scope('OnPrem')]
@@ -1376,6 +1378,83 @@ codeunit 134329 "ERM Purchase Return Order"
                 PurchaseLine.TableCaption));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SuggestItemChargeAssignmentPageHandler,PostedPurchDocumentLinesPageHandler')]
+    procedure GetPostedDocumentLinesToReverseCopiesLinesWhenDefaultQtyToReceiveIsBlankInPurchPayablesSetup()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        PurchasePayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Quantity: Decimal;
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+        PurchaseReturnOrderSubform: TestPage "Purchase Return Order Subform";
+    begin
+        // [SCENARIO 500596] Get Posted Document Lines to Reverse action on Purchase Return Order copies Purchase Invoice Lines of Type Item Charge Even when Default Qty to Receive on Purchase & Payables Setup is set to Blank.
+        Initialize();
+
+        // [GIVEN] Validate Default Qty. to Receive in Purchase & Payables Setup.
+        PurchasePayablesSetup.Get();
+        PurchasePayablesSetup.Validate("Default Qty. to Receive", PurchasePayablesSetup."Default Qty. to Receive"::Blank);
+        PurchasePayablesSetup.Modify(true);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create an Item Charge.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Generate and Save Quantity in a Variable.
+        Quantity := LibraryRandom.RandIntInRange(25, 25);
+
+        // [GIVEN] Create a Purchase Order with Item Charge.
+        CreatePurchaseOrderWithItemCharge(PurchaseHeader, ItemCharge."No.", Item."No.", Quantity);
+
+        // [GIVEN] Set Purchase Order Lines Qty. to Receive.
+        SetPurchaseLinesQtyToReceive(PurchaseHeader, Quantity);
+
+        // [GIVEN] Update Qty. to Assign on Item Charge Assignment.
+        UpdateQtyToAssignOnItemChargeAssignment(PurchaseHeader);
+
+        // [GIVEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create a Purchase Return Order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::"Return Order", PurchaseHeader."Buy-from Vendor No.");
+
+        // [GIVEN] Open Purchase Return Order page and run Get Posted Document Lines to Reverse action.
+        PurchaseReturnOrder.OpenEdit();
+        PurchaseReturnOrder.GoToRecord(PurchaseHeader2);
+        LibraryVariableStorage.Enqueue(ItemCharge."No.");
+        PurchaseReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
+
+        // [WHEN] Find Purchase Line of Purchase Return Order.
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Return Order");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader2."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        PurchaseLine.FindFirst();
+
+        // [VERIFY] Return Qty. to Receive in Purchase Line is 0.
+        Assert.AreEqual(0, PurchaseLine."Return Qty. to Ship", ReturnQtyToShipMustBeZeroErr);
+
+        // [WHEN] Open Purchase Return Order Subform page.
+        PurchaseReturnOrderSubform.OpenEdit();
+        PurchaseReturnOrderSubform.GoToRecord(PurchaseLine);
+
+        // [VERIFY] Quantity and Qty. to Assign in Purchase Line are same.
+        Assert.AreEqual(
+            Quantity,
+            PurchaseReturnOrderSubform."Qty. to Assign".AsDecimal(),
+            StrSubstNo(
+                QtyToAssignErr,
+                PurchaseReturnOrderSubform."Qty. to Assign".Caption(),
+                Quantity,
+                PurchaseReturnOrderSubform.Caption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2072,6 +2151,64 @@ codeunit 134329 "ERM Purchase Return Order"
         if Confirm(StrSubstNo(ExpectedMessage)) then;
     end;
 
+    local procedure CreatePurchaseOrderWithItemCharge(
+        var PurchaseHeader: Record "Purchase Header";
+        ItemChargeNo: Code[20];
+        ItemNo: Code[20];
+        Quantity: Decimal)
+    var
+        PurchaseLineItemCharge: Record "Purchase Line";
+        PurchaseLineItem: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineItem,
+            PurchaseHeader,
+            PurchaseLineItem.Type::Item,
+            ItemNo,
+            Quantity);
+
+        PurchaseLineItem.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLineItem.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineItemCharge,
+            PurchaseHeader,
+            PurchaseLineItemCharge.Type::"Charge (Item)",
+            ItemChargeNo,
+            Quantity);
+
+        PurchaseLineItemCharge.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLineItemCharge.Modify(true);
+    end;
+
+    local procedure SetPurchaseLinesQtyToReceive(var PurchaseHeader: Record "Purchase Header"; Quantity: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindSet();
+        repeat
+            PurchaseLine.Validate("Qty. to Receive", Quantity);
+            PurchaseLine.Modify(true);
+        until PurchaseLine.Next() = 0;
+    end;
+
+    local procedure UpdateQtyToAssignOnItemChargeAssignment(PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
+        PurchaseLine.FindFirst();
+        PurchaseLine.ShowItemChargeAssgnt();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -2170,6 +2307,21 @@ codeunit 134329 "ERM Purchase Return Order"
     procedure GetReturnShipmentLinesPageHandler(var GetReturnShipmentLines: TestPage "Get Return Shipment Lines")
     begin
         GetReturnShipmentLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchDocumentLinesPageHandler(var PostedPurchaseDocumentLines: TestPage "Posted Purchase Document Lines")
+    begin
+        PostedPurchaseDocumentLines.PostedInvoices.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        PostedPurchaseDocumentLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestItemChargeAssignmentPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
     end;
 
     [SendNotificationHandler]

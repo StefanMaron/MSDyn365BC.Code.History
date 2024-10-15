@@ -404,7 +404,7 @@ codeunit 5870 "Calculate BOM Tree"
                             OnGenerateProdCompSubTreeOnBeforeBOMBufferModify(BOMBuffer, ParentBOMBuffer, ParentItem);
                             BOMBuffer.Modify();
                         end;
-                        OnGenerateProdCompSubTreeOnAfterBOMBufferModify(BOMBuffer, RoutingLine, LotSize, ParentItem, ParentBOMBuffer);
+                        OnGenerateProdCompSubTreeOnAfterBOMBufferModify(BOMBuffer, RoutingLine, LotSize, ParentItem, ParentBOMBuffer, TreeType);
                     end;
                 until RoutingLine.Next() = 0;
                 FoundSubTree := true;
@@ -714,9 +714,11 @@ codeunit 5870 "Calculate BOM Tree"
             end;
             BOMBuffer.RoundCosts(1 / LotSize);
         end else
-            if HasBomStructure(BOMBuffer."No.") then begin
+            if IsProductionOrAssemblyItem(BOMBuffer."No.") then begin
                 BOMBuffer.CalcOvhdCost();
                 BOMBuffer.RoundCosts(1 / LotSize);
+                if not HasBomStructure(BOMBuffer."No.") then
+                    BOMBuffer.GetItemUnitCost();
             end else
                 if BOMBuffer.Type = BOMBuffer.Type::Item then begin
                     BOMBuffer.RoundCosts(1 / LotSize);
@@ -998,6 +1000,16 @@ codeunit 5870 "Calculate BOM Tree"
         end;
     end;
 
+    local procedure IsProductionOrAssemblyItem(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+    begin
+        if not Item.Get(ItemNo) then
+            exit(false);
+
+        exit(Item.IsMfgItem() or Item.IsAssemblyItem());
+    end;
+
     procedure SetItemFilter(var Item: Record Item)
     begin
         ItemFilter.CopyFilters(Item);
@@ -1145,7 +1157,7 @@ codeunit 5870 "Calculate BOM Tree"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGenerateProdCompSubTreeOnAfterBOMBufferModify(var BOMBuffer: Record "BOM Buffer"; RoutingLine: Record "Routing Line"; LotSize: Decimal; ParentItem: Record Item; ParentBOMBuffer: Record "BOM Buffer")
+    local procedure OnGenerateProdCompSubTreeOnAfterBOMBufferModify(var BOMBuffer: Record "BOM Buffer"; RoutingLine: Record "Routing Line"; LotSize: Decimal; ParentItem: Record Item; ParentBOMBuffer: Record "BOM Buffer"; TreeType: Option)
     begin
     end;
 

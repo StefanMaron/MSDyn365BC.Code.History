@@ -2492,10 +2492,10 @@
         GLAccount: array[3] of Record "G/L Account";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         GLEntry: Record "G/L Entry";
-        AllocationAccountPage: TestPage "Allocation Account";
         AllocationAccountCode: Code[20];
         Share: array[3] of Decimal;
         Amount: array[3] of Decimal;
+        i: Integer;
     begin
         // [SCENARIO 494674] Allocation accounts and discount setup in a purchase document
         Initialize();
@@ -2507,34 +2507,24 @@
         PurchasesPayablesSetup.Modify(true);
 
         // [GIVEN] Create Allocation Account with Fixed Distribution and save it in a Variable.
-        AllocationAccountCode := CreateAllocationAccountWithFixedDistribution(AllocationAccountPage);
+        AllocationAccountCode := CreateAllocationAccountWithFixedDistribution();
 
         // [GIVEN] Generate and save Shares in three Variables.
         Share[1] := LibraryRandom.RandDecInDecimalRange(0.85, 0.85, 2);
         Share[2] := LibraryRandom.RandDecInDecimalRange(0.10, 0.10, 2);
         Share[3] := LibraryRandom.RandDecInDecimalRange(0.05, 0.05, 2);
 
-        // [GIVEN] Add GL Account 1 with Share in Fixed Account Distribution.
-        AddGLDestinationAccountForFixedDistribution(AllocationAccountPage, GLAccount[1]);
-        AllocationAccountPage.FixedAccountDistribution.Share.SetValue(Share[1]);
-        AllocationAccountPage.FixedAccountDistribution.Next();
+        // [GIVEN] Add GL Accounts with Share in Fixed Account Distribution.
+        for i := 1 to ArrayLen(GLAccount) do
+            AddGLDestinationAccountForFixedDistribution(AllocationAccountCode, GLAccount[i], Share[i]);
 
-        // [GIVEN] Add GL Account 2 with Share in Fixed Account Distribution.
-        AddGLDestinationAccountForFixedDistribution(AllocationAccountPage, GLAccount[2]);
-        AllocationAccountPage.FixedAccountDistribution.Share.SetValue(Share[2]);
-        AllocationAccountPage.FixedAccountDistribution.Next();
-
-        // [GIVEN] Add GL Account 3 with Share in Fixed Account Distribution.
-        AddGLDestinationAccountForFixedDistribution(AllocationAccountPage, GLAccount[3]);
-        AllocationAccountPage.FixedAccountDistribution.Share.SetValue(Share[3]);
 
         // [GIVEN] Create Purchase Invoice with Allocation Account.
         CreatePurchInvoiceWithAllocationAccount(PurchaseHeader, PurchaseLine, AllocationAccountCode);
 
         // [GIVEN] Generate and save distributed Amounts in three Variables.
-        Amount[1] := PurchaseLine.Amount * Share[1];
-        Amount[2] := PurchaseLine.Amount * Share[2];
-        Amount[3] := PurchaseLine.Amount * Share[3];
+        for i := 1 to ArrayLen(Amount) do
+            Amount[i] := PurchaseLine.Amount * Share[i];
 
         // [GIVEN] Post Purchase Invoice.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
@@ -2543,22 +2533,67 @@
         GLEntry.SetRange("G/L Account No.", GLAccount[1]."No.");
         GLEntry.FindFirst();
 
-        // [VERIFY] Verify Amount 1 and GL Entry Amount are same.
+        // [THEN] Verify Amount 1 and GL Entry Amount are same.
         Assert.AreEqual(Amount[1], GLEntry.Amount, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount[1], GLEntry.TableCaption()));
 
         // [WHEN] Find GL Entry of GL Account 2.
         GLEntry.SetRange("G/L Account No.", GLAccount[2]."No.");
         GLEntry.FindFirst();
 
-        // [VERIFY] Verify Amount 2 and GL Entry Amount are same.
+        // [THEN] Verify Amount 2 and GL Entry Amount are same.
         Assert.AreEqual(Amount[2], GLEntry.Amount, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount[2], GLEntry.TableCaption()));
 
         // [WHEN] Find GL Entry of GL Account 3.
         GLEntry.SetRange("G/L Account No.", GLAccount[3]."No.");
         GLEntry.FindFirst();
 
-        // [VERIFY] Verify Amount 3 and GL Entry Amount are same.
+        // [THEN] Verify Amount 3 and GL Entry Amount are same.
         Assert.AreEqual(Amount[3], GLEntry.Amount, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount[3], GLEntry.TableCaption()));
+    end;
+
+    [Test]
+    procedure DestinationAccountNumberTableRelationOnAllocationAccounts()
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+        BankAccountNo: Code[20];
+        GLAccountNo: array[2] of Code[20];
+        i: Integer;
+        ExpectedErrorCodeLbl: Label 'DB:NothingInsideFilter', Locked = true;
+        ValidateFieldErr: Label 'Validation field error.', Locked = true;
+    begin
+        // [SCENARIO 524460] "Destination Account Number" on "Alloc. Account Distribution" table has table relation filters:
+        // for "Destination Account Type" = "G/L Account": "G/L Account" where "Account Type" = Posting and "Direct Posting" = true
+        // for "Destination Account Type" = "Bank Account": "Bank Account"
+        Initialize();
+
+        // [GIVEN] Create a bank account
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
+
+        // [GIVEN] Create two G/L accounts
+        // [GIVEN] G/L account "A" has "Account Type" = "Begin Total" and "Direct Posting" = true
+        GLAccountNo[1] := CreateGLAccount("G/L Account Type"::"Begin-Total", true);
+        // [GIVEN] G/L account "B" has "Account Type" = "Posting" and "Direct Posting" = false
+        GLAccountNo[2] := CreateGLAccount("G/L Account Type"::Posting, false);
+
+        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with created Bank account 
+        AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"Bank Account");
+        AllocAccountDistribution.Validate("Destination Account Number", BankAccountNo);
+
+        //[THEN] Bank account no. is inserted on "Alloc. Account Distribution"
+        Assert.IsTrue(AllocAccountDistribution."Destination Account Number" = BankAccountNo, ValidateFieldErr);
+
+        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with random code for bank account
+        AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"Bank Account");
+        asserterror AllocAccountDistribution.Validate("Destination Account Number", LibraryRandom.RandText(20));
+
+        //[WHEN] Validate "Destination Account Number" on the "Alloc. Account Distribution" with G/L accounts 
+        for i := 1 to ArrayLen(GLAccountNo) do begin
+            AllocAccountDistribution.Validate("Destination Account Type", AllocAccountDistribution."Destination Account Type"::"G/L Account");
+            asserterror AllocAccountDistribution.Validate("Destination Account Number", GLAccountNo[i]);
+        end;
+
+        //[THEN] The errors "Bank Acount No. can't be found in Bank Account table" and "G/L Acount No. can't be found in G/L Account table" are executed
+        Assert.ExpectedErrorCode(ExpectedErrorCodeLbl);
     end;
 
     local procedure Initialize()
@@ -3509,15 +3544,45 @@
         exit(AllocationAccountNo);
     end;
 
-    local procedure AddGLDestinationAccountForFixedDistribution(var AllocationAccountPage: TestPage "Allocation Account"; var GLAccount: Record "G/L Account")
+    local procedure CreateGLAccount(GLAccountType: Enum Microsoft.Finance.GeneralLedger.Account."G/L Account Type"; DirectPosting: Boolean): Code[20]
     var
-        DummyAllocAccountDistribution: Record "Alloc. Account Distribution";
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount."No." := PadStr(
+            '1' + LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."),
+            DATABASE::"G/L Account"), MaxStrLen(GLAccount."No."), '0');
+        GLAccount."Account Type" := GLAccountType;
+        GLAccount."Direct Posting" := DirectPosting;
+        GLAccount.Insert();
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateAllocationAccountWithFixedDistribution(): Code[20]
+    var
+        AllocationAccount: Record "Allocation Account";
+    begin
+        AllocationAccount."No." := Format(LibraryRandom.RandText(5));
+        AllocationAccount."Account Type" := AllocationAccount."Account Type"::Fixed;
+        AllocationAccount.Name := Format(LibraryRandom.RandText(10));
+        AllocationAccount.Insert();
+
+        exit(AllocationAccount."No.");
+    end;
+
+    local procedure AddGLDestinationAccountForFixedDistribution(AllocationAccountNo: Code[20]; var GLAccount: Record "G/L Account"; Shape: Decimal)
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
     begin
         if GLAccount."No." = '' then
             GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
 
-        AllocationAccountPage.FixedAccountDistribution."Destination Account Type".SetValue(DummyAllocAccountDistribution."Destination Account Type"::"G/L Account");
-        AllocationAccountPage.FixedAccountDistribution."Destination Account Number".SetValue(GLAccount."No.");
+        AllocAccountDistribution."Allocation Account No." := AllocationAccountNo;
+        AllocAccountDistribution."Line No." := LibraryUtility.GetNewRecNo(AllocAccountDistribution, AllocAccountDistribution.FieldNo("Line No."));
+        AllocAccountDistribution."Account Type" := AllocAccountDistribution."Account Type"::Fixed;
+        AllocAccountDistribution."Destination Account Type" := AllocAccountDistribution."Destination Account Type"::"G/L Account";
+        AllocAccountDistribution."Destination Account Number" := GLAccount."No.";
+        AllocAccountDistribution.Validate(Share, Shape);
+        AllocAccountDistribution.Insert();
     end;
 
     [RequestPageHandler]

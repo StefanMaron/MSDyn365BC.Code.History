@@ -8,6 +8,7 @@ page 258 "Cons. for Business Units"
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
+    DataCaptionExpression = Caption();
 
     layout
     {
@@ -42,4 +43,10 @@ page 258 "Cons. for Business Units"
             }
         }
     }
+
+    local procedure Caption(): Text;
+    begin
+        exit(Format(Rec."Starting Date") + ' - ' + Format(Rec."Ending Date"));
+    end;
+
 }

@@ -2,7 +2,7 @@
     "id":  "6723f320-28a1-40cc-bf4d-d4dce362cb39",
     "name":  "Sustainability Tests",
     "publisher":  "Microsoft",
-    "version":  "24.0.16410.18056",
+    "version":  "24.1.18927.19498",
     "brief":  "Tests for Microsoft Sustainability app.",
     "description":  "Tests for Microsoft Sustainability app.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?linkid=724009",
@@ -16,13 +16,13 @@
                              "id":  "b3780cd9-f8f8-4a83-a4d5-0c2ad87b28af",
                              "name":  "Sustainability",
                              "publisher":  "Microsoft",
-                             "version":  "24.0.0.0"
+                             "version":  "24.1.0.0"
                          },
                          {
                              "id":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "24.0.0.0"
+                             "version":  "24.1.0.0"
                          }
                      ],
     "internalsVisibleTo":  [
@@ -32,7 +32,7 @@
 
                     ],
     "platform":  "24.0.0.0",
-    "application":  "24.0.0.0",
+    "application":  "24.1.0.0",
     "idRanges":  [
                      {
                          "from":  148180,

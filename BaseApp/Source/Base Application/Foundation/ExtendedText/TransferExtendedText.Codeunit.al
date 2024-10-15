@@ -471,17 +471,25 @@ codeunit 378 "Transfer Extended Text"
     local procedure DeleteSalesLines(var SalesLine: Record "Sales Line"): Boolean
     var
         SalesLine2: Record "Sales Line";
+        IsHandled: Boolean;
+        Found: Boolean;
     begin
         SalesLine2.SetRange("Document Type", SalesLine."Document Type");
         SalesLine2.SetRange("Document No.", SalesLine."Document No.");
         SalesLine2.SetRange("Attached to Line No.", SalesLine."Line No.");
         OnDeleteSalesLinesOnAfterSetFilters(SalesLine2, SalesLine);
         SalesLine2 := SalesLine;
+        Found := false;
         if SalesLine2.Find('>') then begin
             repeat
-                SalesLine2.Delete(true);
+                IsHandled := false;
+                OnDeleteSalesLinesOnBeforeDelete(SalesLine, SalesLine2, IsHandled);
+                if not IsHandled then begin
+                    SalesLine2.Delete(true);
+                    Found := true;
+                end;
             until SalesLine2.Next() = 0;
-            exit(true);
+            exit(Found);
         end;
     end;
 
@@ -1043,6 +1051,11 @@ codeunit 378 "Transfer Extended Text"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServCheckIfAnyExtText(var ServiceLine: Record "Service Line"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean; var AutoText: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteSalesLinesOnBeforeDelete(var SalesLine: Record "Sales Line"; var SalesLineToDelete: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }
