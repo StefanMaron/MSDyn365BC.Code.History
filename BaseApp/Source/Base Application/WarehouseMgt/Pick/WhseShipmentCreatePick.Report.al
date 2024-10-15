@@ -61,16 +61,11 @@ report 7318 "Whse.-Shipment - Create Pick"
                 end;
 
                 trigger OnPreDataItem()
-                var
-                    SalesLine: Record "Sales Line";
                 begin
                     if not "Warehouse Shipment Line"."Assemble to Order" then
                         CurrReport.Break();
 
-                    SalesLine.Get("Warehouse Shipment Line"."Source Subtype",
-                      "Warehouse Shipment Line"."Source No.",
-                      "Warehouse Shipment Line"."Source Line No.");
-                    SalesLine.AsmToOrderExists("Assembly Header");
+                    CheckIfAsmToOrderExists("Warehouse Shipment Line", "Assembly Header");
                     SetRange("Document Type", "Document Type");
                     SetRange("No.", "No.");
                 end;
@@ -405,6 +400,20 @@ report 7318 "Whse.-Shipment - Create Pick"
         BreakbulkFilter := BreakbulkFilter2;
     end;
 
+    local procedure CheckIfAsmToOrderExists(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var AssemblyHeader: Record "Assembly Header")
+    var
+        SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOnPreDataItemAssemblyHeader(AssemblyHeader, IsHandled, WarehouseShipmentLine);
+        if IsHandled then
+            exit;
+
+        SalesLine.Get(WarehouseShipmentLine."Source Subtype", WarehouseShipmentLine."Source No.", WarehouseShipmentLine."Source Line No.");
+        SalesLine.AsmToOrderExists(AssemblyHeader);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateQuantityToPick(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var QtyToPick: Decimal; var QtyToPickBase: Decimal)
     begin
@@ -462,6 +471,11 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordWarehouseShipmentLineOnBeforeCreatePickTempLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreDataItemAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

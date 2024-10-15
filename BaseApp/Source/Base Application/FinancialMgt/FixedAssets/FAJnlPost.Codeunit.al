@@ -24,7 +24,11 @@ codeunit 5636 "FA. Jnl.-Post"
         Text004: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
 
     local procedure "Code"()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeCode(FAJnlLine);
+
         with FAJnlLine do begin
             FAJnlTemplate.Get("Journal Template Name");
             FAJnlTemplate.TestField("Force Posting Report", false);
@@ -40,15 +44,18 @@ codeunit 5636 "FA. Jnl.-Post"
             FAJnlPostBatch.Run(FAJnlLine);
 
             if not PreviewMode then begin
-                if "Line No." = 0 then
-                    Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
-                else
-                    if TempJnlBatchName = "Journal Batch Name" then
-                        Message(Text003)
+                IsHandled := false;
+                OnCodeOnBeforeShowMessage(FAJnlLine, IsHandled);
+                if not IsHandled then
+                    if "Line No." = 0 then
+                        Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
                     else
-                        Message(
-                          Text004,
-                          "Journal Batch Name");
+                        if TempJnlBatchName = "Journal Batch Name" then
+                            Message(Text003)
+                        else
+                            Message(
+                              Text004,
+                              "Journal Batch Name");
 
                 if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
                     Reset();
@@ -99,6 +106,16 @@ codeunit 5636 "FA. Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmPost(var FAJnlLine: Record "FA Journal Line"; PreviewMode: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeShowMessage(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }
