@@ -53,7 +53,8 @@ codeunit 143015 "E-Invoice Fin. Ch. Memo Helper"
         end;
     end;
 
-    local procedure CreateFinChMemoHeader(var FinChMemoHeader: Record "Finance Charge Memo Header")
+    [Scope('OnPrem')]
+    procedure CreateFinChMemoHeader(var FinChMemoHeader: Record "Finance Charge Memo Header")
     var
         FinanceChargeTerms: Record "Finance Charge Terms";
         Customer: Record Customer;

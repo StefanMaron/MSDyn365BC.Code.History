@@ -2219,6 +2219,7 @@
 
             trigger OnValidate()
             begin
+                UpdateSalesLinesByFieldNo(FieldNo("Campaign No."), CurrFieldNo <> 0);
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
@@ -3944,6 +3945,7 @@
     var
         "Field": Record "Field";
         JobTransferLine: Codeunit "Job Transfer Line";
+        JobPostLine: Codeunit "Job Post-Line";
         Question: Text[250];
         IsHandled: Boolean;
         ShouldConfirmReservationDateConflict: Boolean;
@@ -4051,6 +4053,12 @@
                         FieldNo("Account Code"):
                             if SalesLine."No." <> '' then
                                 SalesLine.Validate("Account Code", "Account Code");
+                        FieldNo("Campaign No."):
+                            if SalesLine."No." <> '' then begin
+                                if SalesLine."Job No." <> '' then
+                                    JobPostLine.TestSalesLine(SalesLine);
+                                SalesLine.UpdateUnitPrice(0);
+                            end;
                         else
                             OnUpdateSalesLineByChangedFieldName(Rec, SalesLine, Field.FieldName, ChangedFieldNo, xRec);
                     end;

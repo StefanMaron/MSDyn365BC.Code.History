@@ -68,7 +68,7 @@ page 253 "Sales Journal"
                     trigger OnValidate()
                     begin
                         // Update amount based on doc type
-                        if "Document Type" = "Document Type"::" " then
+                        if (Rec."Document Type" = Rec."Document Type"::" ") and (Rec.Amount <> 0) then
                             Error(EmptyDocumentTypeErr, "Document No.");
 
                         if xRec."Document Type" <> "Document Type" then

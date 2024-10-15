@@ -13199,6 +13199,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Warehouse Orange - NamedType SHIP)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3297607540 - NamedType 327821707" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Available expected quantity must be %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Value]D;]A;(LookupHint=Codeunit Service Orders - NamedType AvailableExpectedQuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3297607540 - NamedType 4066618471" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot delete customer %1 because there is at least one outstanding Service Order for this customer.]]></Val>
