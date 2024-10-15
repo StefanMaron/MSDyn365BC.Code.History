@@ -837,6 +837,61 @@ codeunit 132570 "Credit Transfer Register UT"
         VerifyCreditTransferEntry(CreditTransferEntryFiltered2, EmployeeLedgerEntry2."Entry No.", EmployeeLedgerEntry2."Employee No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestTotalExportedAmountForCreditMemoInvoiceDiffDates()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        BankAcc: Record "Bank Account";
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJnlLine: Record "Gen. Journal Line";
+        VendLedgerEntry: array[3] of Record "Vendor Ledger Entry";
+        Amounts: array[2] of integer;
+        PaymentNo: Code[10];
+        AppliesToID: Code[10];
+    begin
+        // [SCENARIO 387966] Total Exported Amount should show correct value for scenario with Credit Memo and Invoice posted later then Credit Memo
+        Initialize();
+        PaymentNo := LibraryUtility.GenerateGUID();
+        AppliesToID := LibraryUtility.GenerateGUID();
+        LibraryERM.CreateBankAccount(BankAcc);
+        CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
+
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
+
+        // [GIVEN] Posted Gen. Journal Lines: Credit Memo with Posting Date = Workdate, Amount = Am1, 
+        // [GIVEN] Invoice 1 with Posting Date Workdate + 2, Amout = Am2
+        Amounts[1] := LibraryRandom.RandIntInRange(100, 300);
+        CreateAndPostGenJournalLine(
+          GenJnlBatch, GenJnlLine."Document Type"::"Credit Memo", GenJnlLine."Account Type"::Vendor,
+          Vendor."No.", Amounts[1], WorkDate(), AppliesToID, VendLedgerEntry[1]);
+        Amounts[2] := -LibraryRandom.RandIntInRange(400, 500);
+        CreateAndPostGenJournalLine(
+          GenJnlBatch, GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Vendor,
+          Vendor."No.", Amounts[2], WorkDate() + 2, AppliesToID, VendLedgerEntry[2]);
+
+        // [GIVEN] Payment Journal Line applied to Vendor Ledger Entries
+        GenJournalLine.Init();
+        GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
+        GenJournalLine."Document No." := PaymentNo;
+        GenJournalLine."Account Type" := GenJournalLine."Account Type"::Vendor;
+        GenJournalLine."Account No." := Vendor."No.";
+        GenJournalLine."Applies-to ID" := AppliesToID;
+
+        // [WHEN] Payment Line exported
+        CreateCreditTransferRegisterEntryApplied(
+          CreditTransferEntry, GenJnlBatch, GenJournalLine, VendLedgerEntry[2]."Entry No.", -Amounts[2] - Amounts[1]);
+
+        // [THEN] Payment Line "Total Exported Amount" = summarized amounts AM1 and AM2
+        Assert.AreNearlyEqual(
+          -(Amounts[1] + Amounts[2]), GenJournalLine.TotalExportedAmount,
+          LibraryERM.GetAmountRoundingPrecision, 'Total Exported Amount wrongly calculated.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -994,6 +1049,22 @@ codeunit 132570 "Credit Transfer Register UT"
         GenJnlLine."Applies-to Doc. No." := PurchInvoiceNo;
         GenJnlLine."Source Line No." := VendorLedgerEntry."Entry No.";
         GenJnlLine.Modify();
+    end;
+
+    local procedure CreateAndPostGenJournalLine(GenJnlBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; VendorNo: Code[20]; Amount: Decimal; PostingDate: Date; AppliesToId: Code[50]; var VendLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
+          DocumentType, AccountType, VendorNo,
+          GenJnlLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        GenJnlLine.Modify(true);
+        LibraryErm.PostGeneralJnlLine(GenJnlLine);
+        LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, DocumentType, GenJnlLine."Document No.");
+        VendLedgerEntry."Applies-to ID" := AppliesToId;
+        VendLedgerEntry.Modify();
     end;
 
     local procedure PreSetupForEmployee(var BankAcc: Record "Bank Account"; var Employee: Record Employee; var GenJnlLine: Record "Gen. Journal Line")

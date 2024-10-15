@@ -304,7 +304,7 @@
   </Item>
   <Item ItemId=";Codeunit 1011923276 - NamedType 782289373" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Could not transfer general ledger entries to Cost Accounting.]]></Val>
+      <Val><![CDATA[There are no G/L entries that meet the criteria for transfer to cost accounting.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -709,7 +709,7 @@
   </Item>
   <Item ItemId=";Codeunit 2061240834 - NamedType 4276299430" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Could not transfer general ledger entries to Cost Accounting.]]></Val>
+      <Val><![CDATA[There are no G/L entries that meet the criteria for transfer to cost accounting.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

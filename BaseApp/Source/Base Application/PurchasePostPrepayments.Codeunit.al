@@ -102,7 +102,6 @@
         CalcPmtDiscOnCrMemos: Boolean;
         PostingDescription: Text[100];
         GenJnlLineDocType: Enum "Gen. Journal Document Type";
-        PrevLineNo: Integer;
         LineCount: Integer;
         PostedDocTabNo: Integer;
         LineNo: Integer;
@@ -180,30 +179,9 @@
             TempVATAmountLine.DeductVATAmountLine(TempVATAmountLineDeduct);
             UpdateVATOnLines(PurchHeader, PurchLine, TempVATAmountLine, DocumentType);
             BuildInvLineBuffer(PurchHeader, PurchLine, DocumentType, TempPrepmtInvLineBuffer, true);
-            TempPrepmtInvLineBuffer.Find('-');
-            repeat
-                LineCount := LineCount + 1;
-                Window.Update(2, LineCount);
-                if TempPrepmtInvLineBuffer."Line No." <> 0 then
-                    LineNo := PrevLineNo + TempPrepmtInvLineBuffer."Line No."
-                else
-                    LineNo := PrevLineNo + 10000;
-                case DocumentType of
-                    DocumentType::Invoice:
-                        begin
-                            InsertPurchInvLine(PurchInvHeader, LineNo, TempPrepmtInvLineBuffer, PurchHeader);
-                            PostedDocTabNo := DATABASE::"Purch. Inv. Line";
-                        end;
-                    DocumentType::"Credit Memo":
-                        begin
-                            InsertPurchCrMemoLine(PurchCrMemoHeader, LineNo, TempPrepmtInvLineBuffer, PurchHeader);
-                            PostedDocTabNo := DATABASE::"Purch. Cr. Memo Line";
-                        end;
-                end;
-                PrevLineNo := LineNo;
-                InsertExtendedText(
-                  PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
-            until TempPrepmtInvLineBuffer.Next = 0;
+
+            CreateLinesFromBuffer(PurchHeader, PurchInvHeader, PurchCrMemoHeader, TempPrepmtInvLineBuffer, Window,
+                PostedDocTabNo, GenJnlLineDocNo, DocumentType, LineNo);
 
             if "Compress Prepayment" then
                 case DocumentType of
@@ -276,8 +254,7 @@
 
             // Update lines & header
             UpdatePurchaseDocument(PurchHeader, PurchLine, DocumentType, GenJnlLineDocNo);
-            if TestStatusIsNotPendingPrepayment then
-                Status := Status::"Pending Prepayment";
+            SetStatusPendingPrepayment(PurchHeader);
             Modify;
         end;
 
@@ -289,6 +266,58 @@
         end;
 
         OnAfterPostPrepayments(PurchHeader2, DocumentType, SuppressCommit, PurchInvHeader, PurchCrMemoHeader);
+    end;
+
+    local procedure CreateLinesFromBuffer(var PurchHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; var Window: Dialog; var PostedDocTabNo: Integer; GenJnlLineDocNo: Code[20]; DocumentType: Option Invoice,"Credit Memo"; var LineNo: Integer)
+    var
+        LineCount: Integer;
+        PrevLineNo: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateLinesFromBuffer(PurchHeader, TempPrepmtInvLineBuffer, LineCount, Window, PurchInvHeader, PurchCrMemoHeader, PostedDocTabNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        with PurchHeader do begin
+            TempPrepmtInvLineBuffer.Find('-');
+            repeat
+                LineCount := LineCount + 1;
+                Window.Update(2, LineCount);
+                if TempPrepmtInvLineBuffer."Line No." <> 0 then
+                    LineNo := PrevLineNo + TempPrepmtInvLineBuffer."Line No."
+                else
+                    LineNo := PrevLineNo + 10000;
+                case DocumentType of
+                    DocumentType::Invoice:
+                        begin
+                            InsertPurchInvLine(PurchInvHeader, LineNo, TempPrepmtInvLineBuffer, PurchHeader);
+                            PostedDocTabNo := DATABASE::"Purch. Inv. Line";
+                        end;
+                    DocumentType::"Credit Memo":
+                        begin
+                            InsertPurchCrMemoLine(PurchCrMemoHeader, LineNo, TempPrepmtInvLineBuffer, PurchHeader);
+                            PostedDocTabNo := DATABASE::"Purch. Cr. Memo Line";
+                        end;
+                end;
+                PrevLineNo := LineNo;
+                InsertExtendedText(
+                  PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
+            until TempPrepmtInvLineBuffer.Next() = 0;
+        end;
+    end;
+
+    local procedure SetStatusPendingPrepayment(var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetStatusPendingPrepayment(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchHeader.TestStatusIsNotPendingPrepayment then
+            PurchHeader.Status := "Purchase Document Status"::"Pending Prepayment";
     end;
 
     procedure CheckPrepmtDoc(PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo")
@@ -1089,12 +1118,19 @@
     local procedure PostVendorEntry(PurchHeader: Record "Purchase Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20]; CalcPmtDisc: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostVendorEntryProcedure(PurchHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, DocumentType, PostingDescription, DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode, CalcPmtDisc, GenJnlPostLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             InitNewLine(
               PurchHeader."Posting Date", PurchHeader."Document Date", PostingDescription,
               PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code",
               PurchHeader."Dimension Set ID", PurchHeader."Reason Code");
+            OnPostVendorEntryOnAfterInitNewLine(GenJnlLine, PurchHeader);
 
             CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
 
@@ -1275,6 +1311,7 @@
                             PurchLine."Prepmt VAT Diff. to Deduct" :=
                               PurchLine."Prepmt VAT Diff. to Deduct" + PurchLine."Prepayment VAT Difference";
                             PurchLine."Prepayment VAT Difference" := 0;
+                            OnUpdatePurchaseDocumentOnBeforeModifyInvoicePurchLine(PurchLine);
                             PurchLine.Modify();
                         end;
                     until PurchLine.Next = 0;
@@ -1297,6 +1334,7 @@
                         PurchLine."Prepmt Amt to Deduct" := 0;
                         PurchLine."Prepmt VAT Diff. to Deduct" := 0;
                         PurchLine."Prepayment VAT Difference" := 0;
+                        OnUpdatePurchaseDocumentOnBeforeModifyCrMemoPurchLine(PurchLine);
                         PurchLine.Modify();
                     until PurchLine.Next = 0;
             end;
@@ -1619,7 +1657,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateLinesFromBuffer(var PurchHeader: Record "Purchase Header"; var TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary; var LineCount: Integer; var Window: Dialog; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var PostedDocTabNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostPrepayments(var PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo"; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostVendorEntryProcedure(var PurchHeader: Record "Purchase Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20]; CalcPmtDisc: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1659,12 +1707,32 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetStatusPendingPrepayment(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDocNos(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo"; var DocNo: Code[20]; var NoSeriesCode: Code[20]; var ModifyHeader: Boolean; var PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostVendorEntryOnAfterInitNewLine(var GenJnlLine: Record "Gen. Journal Line"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRoundAmountsOnBeforeIncrAmoutns(PurchaseHeader: Record "Purchase Header"; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; var TotalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; var TotalPrepmtInvLineBufLCY: Record "Prepayment Inv. Line Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchaseDocumentOnBeforeModifyCrMemoPurchLine(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchaseDocumentOnBeforeModifyInvoicePurchLine(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
