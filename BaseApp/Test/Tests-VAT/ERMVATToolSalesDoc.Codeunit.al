@@ -1,0 +1,2113 @@
+codeunit 134051 "ERM VAT Tool - Sales Doc"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [VAT Rate Change] [Sales]
+        isInitialized := false;
+    end;
+
+    var
+        VATRateChangeSetup2: Record "VAT Rate Change Setup";
+        SalesHeader2: Record "Sales Header";
+        Assert: Codeunit Assert;
+        ERMVATToolHelper: Codeunit "ERM VAT Tool - Helper";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPlanning: Codeunit "Library - Planning";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
+        isInitialized: Boolean;
+        GroupFilter: Label '%1|%2';
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        ERMVATToolHelper.ResetToolSetup;  // This resets the setup table for all test cases.
+
+        if isInitialized then
+            exit;
+
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        ERMVATToolHelper.SetupItemNos;
+        ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
+
+        isInitialized := true;
+        Commit;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesDocConvFalse()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // Run VAT Rate Change with Perform Conversion = FALSE, expect no updates.
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create data with groups to update.
+        ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', 1);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, false, false);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: No data was updated
+        ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::"Sales Line");
+
+        // Verify: Log entries
+        ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"Sales Line", false);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesDocPShConvFalse()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // Run VAT Rate Change with Perform Conversion = FALSE, expect no updates.
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create data with groups to update.
+        ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', 1);
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, false, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify that no data was updated
+        ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::"Sales Line");
+
+        // Verify log entries
+        ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"Sales Line", true);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesLineWithZeroOutstandingQty()
+    var
+        SalesHeader: Record "Sales Header";
+        VATRateChangeSetup: Record "VAT Rate Change Setup";
+        VatProdPostingGroup: Code[20];
+    begin
+        // Check Description field value when out standing quantity is zero on sales order.
+
+        // Setup: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        Initialize;
+        ERMVATToolHelper.UpdateVatRateChangeSetup(VATRateChangeSetup);
+        SetupToolSales(VATRateChangeSetup."Update Sales Documents"::"VAT Prod. Posting Group", true, true);
+        ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', LibraryRandom.RandInt(5));
+        VatProdPostingGroup := GetVatProdPostingGroupFromSalesLine(SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Verify Description field on vat rate change log entry.
+        ERMVATToolHelper.VerifyValueOnZeroOutstandingQty(VatProdPostingGroup, DATABASE::"Sales Line");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolReminderVAT()
+    begin
+        VATToolReminderLine(VATRateChangeSetup2."Update Reminders"::"VAT Prod. Posting Group", 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolReminderNo()
+    begin
+        asserterror VATToolReminderLine(VATRateChangeSetup2."Update Reminders"::No, 1);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolFinChargeMemoVAT()
+    begin
+        VATToolFinChargeMemoLine(VATRateChangeSetup2."Update Finance Charge Memos"::"VAT Prod. Posting Group", 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolFinChargeMemoNo()
+    begin
+        asserterror VATToolFinChargeMemoLine(VATRateChangeSetup2."Update Finance Charge Memos"::No, 1);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolProdOrderGen()
+    begin
+        VATToolProductionOrder(VATRateChangeSetup2."Update Production Orders"::"Gen. Prod. Posting Group", 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolProdOrderNo()
+    begin
+        asserterror VATToolProductionOrder(VATRateChangeSetup2."Update Production Orders"::No, 1);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlanketOrderVAT()
+    begin
+        // Sales Blanket Order with one line, update VAT group only.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", false,
+          SalesHeader2."Document Type"::"Blanket Order", false, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlanketOrderGen()
+    begin
+        // Sales Blanket Order with one line, update Gen. group only.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::"Gen. Prod. Posting Group", false,
+          SalesHeader2."Document Type"::"Blanket Order", false, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlanketOrderBoth()
+    begin
+        // Sales Blanket Order with one line, update both groups.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::Both, false,
+          SalesHeader2."Document Type"::"Blanket Order", false, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlanketOrderNo()
+    begin
+        // Sales Blanket Order with one line, don't update groups.
+        asserterror VATToolSalesLine(
+            VATRateChangeSetup2."Update Sales Documents"::No, false, SalesHeader2."Document Type"::"Blanket Order", false, false, false);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlanketOrdMakeFull()
+    begin
+        // Sales Blanket Order with one line, Make Sales Order, update VAT group only.
+        VATToolMakeSalesOrder(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group",
+          SalesHeader2."Document Type"::"Blanket Order", false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlanketOrdMakePart()
+    begin
+        // Sales Blanket Order with one line, Make Sales Order, update VAT group only.
+        VATToolMakeSalesOrder(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group",
+          SalesHeader2."Document Type"::"Blanket Order", true, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlOrdMakePartMake()
+    begin
+        // Sales Blanket Order with one line, Make Sales Order, update VAT group only, Make Order.
+        VATToolMakeSalesOrderMake(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group",
+          SalesHeader2."Document Type"::"Blanket Order", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlOrdMakeOrderFShp()
+    begin
+        // Sales Blanket Order with one line, Make Sales Order, Fully Ship Sales Order, update VAT group only. Do not expect update.
+        VATToolMakeSalesOrderSh(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlOrdMakeOrderPShp()
+    begin
+        // Sales Blanket Order with one line, Make Sales Order, Partially Ship Sales Order, update VAT group only.
+        VATToolMakeSalesOrderSh(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlOrdMakeFShpPost()
+    begin
+        // Sales Blanket Order with one line, Make Sales Order, Partially Ship Sales Order, Post, update VAT group only.
+        VATToolMakeSalesOrderShPost(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlOrdMakePShpPost()
+    begin
+        // Sales Blanket Order with one line, Make Sales Order, Partially Ship Sales Order, Post, update VAT group only.
+        VATToolMakeSalesOrderShPost(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesBlOrdMakePShpMake()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrderHeader: Record "Sales Header";
+    begin
+        // Sales Blanket Order with one line, Partial Make Sales Order, Partially Ship Sales Order, Make.
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create Blanket Order.
+        ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '', GetLineCount(false));
+
+        // SETUP: Make Order (Partial).
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        ERMVATToolHelper.MakeOrderSales(SalesHeader, SalesOrderHeader);
+
+        // SETUP: Post Partial Shipment.
+        ERMVATToolHelper.UpdateQtyToShip(SalesOrderHeader);
+        LibrarySales.PostSalesDocument(SalesOrderHeader, true, false);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Make Sales Order Is Completed Successfully.
+        UpdateQtyBlanketOrder(SalesHeader);
+        ERMVATToolHelper.MakeOrderSales(SalesHeader, SalesOrderHeader);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesQuoteVAT()
+    begin
+        // Sales Blanket Order with one line, update VAT group only.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", false,
+          SalesHeader2."Document Type"::Quote, false, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesQuoteGen()
+    begin
+        // Sales Blanket Order with one line, update Gen. group only.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::"Gen. Prod. Posting Group", false,
+          SalesHeader2."Document Type"::Quote, false, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesQuoteBoth()
+    begin
+        // Sales Blanket Order with one line, update both groups.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::Both, false,
+          SalesHeader2."Document Type"::Quote, false, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesQuoteNo()
+    begin
+        // Sales Blanket Order with one line, don't update groups.
+        asserterror VATToolSalesLine(
+            VATRateChangeSetup2."Update Sales Documents"::No, false, SalesHeader2."Document Type"::Quote, false, false, false);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesQuoteMakeOrd()
+    begin
+        // Sales Blanket Order with one line, Make Sales Order, update VAT group only.
+        VATToolMakeSalesOrder(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group",
+          SalesHeader2."Document Type"::Quote, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesInvoiceVAT()
+    begin
+        // Sales Invoice with Multiple Lines, update VAT group only.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", false,
+          SalesHeader2."Document Type"::Invoice, false, false, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesInvoiceVATAmount()
+    begin
+        // Sales Invoice with Multiple Lines, Update VAT Group, Verify Amount.
+        VATToolSalesLineAmount(SalesHeader2."Document Type"::Invoice, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderVAT()
+    begin
+        // Sales Order with one line, update VAT group only.
+        VATToolSalesLine(
+          VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", false, SalesHeader2."Document Type"::Order, false,
+          false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderVATAmount()
+    begin
+        // Sales Order with Multiple Lines, Update VAT Group, Verify Amount.
+        VATToolSalesLineAmount(SalesHeader2."Document Type"::Order, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderGen()
+    begin
+        // Sales Order with one line, update Gen. group only.
+        VATToolSalesLine(
+          VATRateChangeSetup2."Update Sales Documents"::"Gen. Prod. Posting Group", false, SalesHeader2."Document Type"::Order, false,
+          false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderBoth()
+    begin
+        // Sales Order with one line, update both groups.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::Both, false, SalesHeader2."Document Type"::Order, false, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderNo()
+    begin
+        // Sales Order with one line, don't update groups.
+        asserterror VATToolSalesLine(
+            VATRateChangeSetup2."Update Sales Documents"::No, false, SalesHeader2."Document Type"::Order, false, false, false);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderMultipleLines()
+    begin
+        // Sales Order with multiple lines, update both groups.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::Both, false, SalesHeader2."Document Type"::Order, false, false, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderMultipleLinesUpdateFirst()
+    begin
+        VATToolSalesOrderMultipleLinesSplit(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderMultipleLinesUpdateSecond()
+    begin
+        VATToolSalesOrderMultipleLinesSplit(false);
+    end;
+
+    local procedure VATToolSalesOrderMultipleLinesSplit(First: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GenProdPostingGroup: Code[20];
+        VATProdPostingGroup: Code[20];
+        LineCount: Integer;
+    begin
+        // Sales Order with multiple lines, update one line only.
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Update VAT Change Tool Setup table and get new VAT group Code
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, true);
+        ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroup, GenProdPostingGroup, DATABASE::"Sales Line");
+
+        // SETUP: Create a Sales Order with 2 lines and Save data to update in a temporary table.
+        ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', 2);
+
+        // SETUP: Change VAT Prod. Posting Group to new on one of the lines.
+        GetSalesLine(SalesHeader, SalesLine);
+        LineCount := SalesLine.Count;
+        if First then
+            SalesLine.Next
+        else
+            SalesLine.FindFirst;
+        SalesLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        SalesLine.Modify(true);
+
+        // SETUP: Ship (Partially).
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        GetSalesLine(SalesHeader, SalesLine);
+        Assert.AreEqual(LineCount + 1, SalesLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrdPartShpVAT()
+    begin
+        // Sales Order with one partially shipped and released line, update VAT group and ignore header status.
+        VATToolSalesLinePartShip(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group",
+          SalesHeader2."Document Type"::Order, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrdPartShpVATAmt()
+    begin
+        // Sales Order with one partially shipped and released line, update VAT group and ignore header status. Verify Amount.
+        VATToolSalesLineAmount(SalesHeader2."Document Type"::Order, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrdPartShpGen()
+    begin
+        // Sales Order with one partially shipped and released line, update Gen group and ignore header status.
+        VATToolSalesLinePartShip(VATRateChangeSetup2."Update Sales Documents"::"Gen. Prod. Posting Group",
+          SalesHeader2."Document Type"::Order, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrdPartShpBoth()
+    begin
+        // Sales Order with one partially shipped and released line, update both groups and ignore header status.
+        VATToolSalesLinePartShip(VATRateChangeSetup2."Update Sales Documents"::Both,
+          SalesHeader2."Document Type"::Order, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrdPartShpBothMultipleLines()
+    begin
+        // Sales Order with multiple partially shipped and released lines, update both groups and ignore header status.
+        VATToolSalesLinePartShip(VATRateChangeSetup2."Update Sales Documents"::Both,
+          SalesHeader2."Document Type"::Order, false, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalOrdPShpAutoInsSetup()
+    begin
+        // Sales Order with one partially shipped and released line, update both groups and ignore header status.
+        VATToolSalesLinePartShip(VATRateChangeSetup2."Update Sales Documents"::Both,
+          SalesHeader2."Document Type"::Order, true, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSaRetOrdPartShpBoth()
+    begin
+        // Sales Return Order with one partially shipped and released line, update both groups and ignore header status.
+        // No update expected.
+        VATToolSalesLinePartShip(VATRateChangeSetup2."Update Sales Documents"::Both,
+          SalesHeader2."Document Type"::"Return Order", false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderFullyShip()
+    begin
+        // Sales Order with one fully shipped line, update both groups and ignore header status. No update expected.
+        // Since the line is shipped, it is by default also released (it is important for ignore status option).
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::Both, true,
+          SalesHeader2."Document Type"::Order, true, true, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderReleasedIgn()
+    begin
+        // Sales Order with one released line, update both groups and ignore header status.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::Both, true,
+          SalesHeader2."Document Type"::Order, true, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderReleasedNoIgn()
+    begin
+        // Sales Order with one released line, update both groups and don't ignore header status. No update expected.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::Both, false,
+          SalesHeader2."Document Type"::Order, true, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesCreditMemo()
+    begin
+        // Sales Credit Memo with one line, update both groups. Do not expect update.
+        VATToolSalesLine(VATRateChangeSetup2."Update Sales Documents"::Both, false,
+          SalesHeader2."Document Type"::"Credit Memo", false, false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesInvoiceForShipment()
+    var
+        TempRecRef: RecordRef;
+    begin
+        // Sales Invoice with one line, related to a Shipment Line, update both groups. No update expected.
+        Initialize;
+
+        // Setup
+        // Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // Create and Save data to update in a temporary table.
+        PrepareSalesInvoiceForShipment(TempRecRef);
+
+        // Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, false);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Log Data
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, false);
+
+        // Verify: Log Entries
+        ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, false);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderWhse()
+    begin
+        // Sales Order with one line with warehouse integration, update both groups. Expect update.
+        VATToolSalesLineWhse(VATRateChangeSetup2."Update Sales Documents"::Both, 1, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderWhsePartShip()
+    begin
+        // Sales Order with one partially shipped line with warehouse integration, update both groups. No update expected.
+        VATToolSalesLineWhse(VATRateChangeSetup2."Update Sales Documents"::Both, 1, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderReserve()
+    begin
+        // Sales Order with one partially shipped line with reservation, update both groups. Update of reservation line expected.
+        VATToolSalesLineReserve(VATRateChangeSetup2."Update Sales Documents"::Both, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,QuantityToCreatePageHandler')]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderItemTracking()
+    begin
+        // Sales Order with one line with Item Tracking with Serial No., update both groups.
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in a temporary table.
+        PrepareSalesDocItemTracking;
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        VerifySalesDocWithReservation(true);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderItemCharge()
+    begin
+        // Sales Order with one line with Charge (Item), update both groups.
+        VATToolSalesOrderItemChrgDiffDoc(false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderItemChrgPShip()
+    begin
+        // Sales Order with one line with Charge (Item), partially shipped, update both groups. No update of Item Charge Assignment (Sales)
+        // expected.
+        VATToolSalesOrderItemChrgDiffDoc(true, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderItemChrgPInvoiced()
+    begin
+        // Sales Order with one line with Charge (Item), partially shipped, update both groups. No update of Item Charge Assignment (Sales)
+        // expected.
+        VATToolSalesOrderItemChrgDiffDoc(true, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderItemChargeSameDoc()
+    begin
+        // Sales Order with one line with Charge (Item), update both groups.
+        VATToolSalesOrderItemChrgSameDoc(false, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderItemChrgPShipSameDoc()
+    begin
+        // Sales Order with one line with Charge (Item), partially shipped, update both groups. No update of Item Charge Assignment (Sales)
+        // expected.
+        VATToolSalesOrderItemChrgSameDoc(true, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderItemChrgPInvoicedSameDoc()
+    begin
+        // Sales Order with one line with Charge (Item), partially shipped, update both groups. No update of Item Charge Assignment (Sales)
+        // expected.
+        VATToolSalesOrderItemChrgSameDoc(true, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderDimensions()
+    var
+        SalesHeader: Record "Sales Header";
+        TempRecRef: RecordRef;
+    begin
+        // Sales Order with one partially shipped line with Dimensions assigned, update both groups.
+        // Verify that dimensions are copied to the new line.
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in a temporary table.
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, SalesHeader."Document Type"::Order, '', 1);
+
+        // SETUP: Add Dimensions to the Sales Lines and save them in a temporary table
+        AddDimensionsForSalesLines(SalesHeader);
+
+        // SETUP: Ship (Partially).
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        VerifySalesLnPartShipped(TempRecRef);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderPrepayment()
+    var
+        SalesHeader: Record "Sales Header";
+        TempRecRef: RecordRef;
+    begin
+        // Sales Order with prepayment, update both groups. No update expected.
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and Save data to update in a temporary table.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer);
+        SalesHeader.Validate("Prices Including VAT", true);
+        ERMVATToolHelper.CreateSalesLines(SalesHeader, '', GetLineCount(false));
+        TempRecRef.Open(DATABASE::"Sales Line", true);
+        ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);
+
+        // SETUP: Post prepayment.
+        PostSalesPrepayment(SalesHeader);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, false);
+
+        // Verify: Log Entries
+        ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, true);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderWithNegativeQty()
+    begin
+        VATToolSalesLineWithNegativeQty(false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderWithNegativeQtyShip()
+    begin
+        VATToolSalesLineWithNegativeQty(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSalesOrderNoSpaceForNewLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LineCount: Integer;
+    begin
+        // Sales Order with two lines, first partially shipped, no line number available between them. Update both groups.
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and Save data to update in a temporary table.
+        ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', 1);
+        AddLineWithNextLineNo(SalesHeader);
+        GetSalesLine(SalesHeader, SalesLine);
+        LineCount := SalesLine.Count;
+
+        // SETUP: Ship
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check that each line was splitted.
+        GetSalesLine(SalesHeader, SalesLine);
+        Assert.AreEqual(LineCount * 2, SalesLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolDropShipmentBoth()
+    begin
+        // Sales Order and Purchase Order with one line, defined as drop shipment, update both groups. No update expected.
+        VATToolDropShipment(VATRateChangeSetup2."Update Sales Documents"::Both,
+          VATRateChangeSetup2."Update Purchase Documents"::Both);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolSpecialOrderBoth()
+    begin
+        // Sales Order and Purchase Order with one line, defined as special order, update both groups. No update expected.
+        VATToolSpecialOrder(VATRateChangeSetup2."Update Sales Documents"::Both,
+          VATRateChangeSetup2."Update Sales Documents"::Both);
+    end;
+
+    local procedure VATToolReminderLine(FieldOption: Option; "Count": Integer)
+    var
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in a temporary table.
+        CreateReminderLines(TempRecRef, Count);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        ERMVATToolHelper.SetupToolOption(VATRateChangeSetup2.FieldNo("Update Reminders"), FieldOption);
+        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
+
+        // Verify: Log Entries
+        ERMVATToolHelper.VerifyLogEntries(TempRecRef);
+
+        // Tear Down
+        ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolFinChargeMemoLine(FieldOption: Option; "Count": Integer)
+    var
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in a temporary table.
+        CreateFinChargeMemoLines(TempRecRef, Count);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        ERMVATToolHelper.SetupToolOption(VATRateChangeSetup2.FieldNo("Update Finance Charge Memos"), FieldOption);
+        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
+
+        // Verify: Log Entries
+        ERMVATToolHelper.VerifyLogEntries(TempRecRef);
+
+        // Tear Down
+        ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolProductionOrder(FieldOption: Option; "Count": Integer)
+    var
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in a temporary table.
+        CreateProductionOrders(TempRecRef, Count);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        ERMVATToolHelper.SetupToolOption(VATRateChangeSetup2.FieldNo("Update Production Orders"), FieldOption);
+        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
+
+        // Verify: Log Entries
+        ERMVATToolHelper.VerifyLogEntries(TempRecRef);
+
+        // Tear Down
+        ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolMakeSalesOrder(FieldOption: Option; DocumentType: Option; Partial: Boolean; MultipleLines: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrderHeader: Record "Sales Header";
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and Save data to update in a temporary table.
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, DocumentType, '', GetLineCount(MultipleLines));
+
+        // SETUP: Update Qty. To Ship
+        if Partial then
+            ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+
+        // SETUP: Make Order and Create Reference Lines.
+        ERMVATToolHelper.MakeOrderSales(SalesHeader, SalesOrderHeader);
+        if DocumentType = SalesHeader."Document Type"::"Blanket Order" then
+            ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader) // Update Reference after Make
+        else
+            TempRecRef.DeleteAll(false); // Quote Deleted after Make
+        ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesOrderHeader);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Blanket Order & Sales Order.
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
+
+        // Verify: Log Entries
+        ERMVATToolHelper.VerifyLogEntries(TempRecRef);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolMakeSalesOrderMake(FieldOption: Option; DocumentType: Option; MultipleLines: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrderHeader: Record "Sales Header";
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and Save data to update in a temporary table.
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, DocumentType, '', GetLineCount(MultipleLines));
+
+        // SETUP: Update Qty. To Ship
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+
+        // SETUP: Make Order
+        ERMVATToolHelper.MakeOrderSales(SalesHeader, SalesOrderHeader);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Make Order is Successful
+        SalesHeader.Find;
+        // update Qty. to Ship
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+
+        ERMVATToolHelper.MakeOrderSales(SalesHeader, SalesOrderHeader);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolMakeSalesOrderSh(FieldOption: Option; Partial: Boolean; MultipleLines: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrderHeader: Record "Sales Header";
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and Save data to update in a temporary table.
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, SalesHeader."Document Type"::"Blanket Order", '',
+          GetLineCount(MultipleLines));
+
+        // SETUP: Make Order and Create Reference Lines.
+        ERMVATToolHelper.MakeOrderSales(SalesHeader, SalesOrderHeader);
+        ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);
+
+        // SETUP: Ship Sales Order.
+        if Partial then
+            ERMVATToolHelper.UpdateQtyToShip(SalesOrderHeader);
+        ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesOrderHeader);
+        LibrarySales.PostSalesDocument(SalesOrderHeader, true, false);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Blanket Order & Sales Order.
+        if Partial then begin
+            VerifySalesLnPartShipped(TempRecRef);
+            ERMVATToolHelper.VerifyDocumentSplitLogEntries(TempRecRef);
+        end else begin
+            ERMVATToolHelper.VerifyUpdate(TempRecRef, false);
+            ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, true);
+        end;
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolMakeSalesOrderShPost(FieldOption: Option; Partial: Boolean; MultipleLines: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrderHeader: Record "Sales Header";
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create Blanket Order.
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, SalesHeader."Document Type"::"Blanket Order", '',
+          GetLineCount(MultipleLines));
+
+        // SETUP: Make Order.
+        ERMVATToolHelper.MakeOrderSales(SalesHeader, SalesOrderHeader);
+
+        // SETUP: Ship Sales Order.
+        if Partial then
+            ERMVATToolHelper.UpdateQtyToShip(SalesOrderHeader);
+        LibrarySales.PostSalesDocument(SalesOrderHeader, true, false);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Sales Order Posted Successfully.
+        SalesOrderHeader.Find;
+        LibrarySales.PostSalesDocument(SalesOrderHeader, true, true);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolSalesLine(FieldOption: Option; IgnoreStatus: Boolean; DocumentType: Option; Release: Boolean; Ship: Boolean; MultipleLines: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        TempRecRef: RecordRef;
+        Update: Boolean;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and Save data to update in a temporary table.
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, DocumentType, '', GetLineCount(MultipleLines));
+
+        // SETUP: Release.
+        if Release then
+            LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // SETUP: Ship (Fully).
+        if Ship then
+            LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, IgnoreStatus);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        Update := ExpectUpdate(SalesHeader."Document Type", Ship, Release, IgnoreStatus);
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, Update);
+        // Verify: Log Entries
+        if Update then
+            ERMVATToolHelper.VerifyLogEntries(TempRecRef)
+        else
+            ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, ExpectLogEntries(SalesHeader."Document Type", Release, IgnoreStatus));
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolSalesLineAmount(DocumentType: Option; PartialShip: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // Sales Order with one partially shipped and released line, update VAT group and ignore header status. Verify Amount.
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and Save data to update in a temporary table.
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, ERMVATToolHelper.CreateCustomer);
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+        ERMVATToolHelper.CreateSalesLines(SalesHeader, '', GetLineCount(true));
+
+        // SETUP: Ship (Partially).
+        if PartialShip then begin
+            ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+            LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        end;
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check VAT%, Unit Price and Line Amount Including VAT.
+        VerifySalesDocAmount(SalesHeader);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolSalesLinePartShip(FieldOption: Option; DocumentType: Option; AutoInsertDefault: Boolean; MultipleLines: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(AutoInsertDefault);
+
+        // SETUP: Create and Save data to update in a temporary table.
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, DocumentType, '', GetLineCount(MultipleLines));
+
+        // SETUP: Ship (Partially).
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            VerifySalesLnPartShipped(TempRecRef);
+            ERMVATToolHelper.VerifyDocumentSplitLogEntries(TempRecRef);
+        end else begin
+            ERMVATToolHelper.VerifyUpdate(TempRecRef, false);
+            ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, false);
+        end;
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolSalesLineReserve(FieldOption: Option; MultipleLines: Boolean)
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in a temporary table.
+        PrepareSalesDocWithReservation(GetLineCount(MultipleLines));
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        VerifySalesDocWithReservation(false);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolSalesLineWhse(FieldOption: Option; LineCount: Integer; Ship: Boolean)
+    var
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in a temporary table.
+        ERMVATToolHelper.CreateWarehouseDocument(TempRecRef, DATABASE::"Sales Line", LineCount, Ship);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, not Ship);
+        // Verify: Log Entries
+        if not Ship then
+            ERMVATToolHelper.VerifyLogEntries(TempRecRef)
+        else
+            ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, true);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolSalesOrderItemChrgDiffDoc(Ship: Boolean; Invoice: Boolean)
+    var
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in a temporary table.
+        PrepareSalesDocItemCharge(TempRecRef, Ship, Invoice);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        ERMVATToolHelper.VerifyUpdate(TempRecRef, not Ship);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolSalesOrderItemChrgSameDoc(Ship: Boolean; Invoice: Boolean)
+    var
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in a temporary table.
+        PrepareSalesDocItemChargeSameDoc(TempRecRef, Ship, Invoice);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        if not Ship then
+            VerifyItemChrgAssignmentSales(TempRecRef)
+        else
+            ERMVATToolHelper.VerifyUpdate(TempRecRef, false);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolSalesLineWithNegativeQty(Ship: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        TempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and Save data to update in a temporary table.
+        ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', 1);
+        AddLineWithNegativeQty(SalesHeader);
+        TempRecRef.Open(DATABASE::"Sales Line", true);
+        ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);
+
+        // SETUP: Ship
+        if Ship then begin
+            ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+            ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);
+            LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        end;
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        if Ship then
+            VerifySalesLnPartShipped(TempRecRef)
+        else
+            ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolDropShipment(FieldOption: Option; FieldOption2: Option)
+    var
+        SalesTempRecRef: RecordRef;
+        PurchaseTempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in temporary tables.
+        CreateSpecialDocs(SalesTempRecRef, PurchaseTempRecRef, true);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, true);
+        ERMVATToolHelper.SetupToolOption(VATRateChangeSetup2.FieldNo("Update Purchase Documents"), FieldOption2);
+        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Ignore Status on Purch. Docs."), true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        VerifySpecialDocUpdate(SalesTempRecRef, PurchaseTempRecRef);
+
+        // Verify: Log Entries
+        ERMVATToolHelper.VerifySpecialDocLogEntries(SalesTempRecRef);
+        ERMVATToolHelper.VerifySpecialDocLogEntries(PurchaseTempRecRef);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure VATToolSpecialOrder(FieldOption: Option; FieldOption2: Option)
+    var
+        SalesTempRecRef: RecordRef;
+        PurchaseTempRecRef: RecordRef;
+    begin
+        Initialize;
+
+        // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
+        ERMVATToolHelper.CreatePostingGroups(false);
+
+        // SETUP: Create and save data to update in temporary tables.
+        CreateSpecialDocs(SalesTempRecRef, PurchaseTempRecRef, false);
+
+        // SETUP: Update VAT Change Tool Setup table.
+        SetupToolSales(FieldOption, true, true);
+        ERMVATToolHelper.SetupToolOption(VATRateChangeSetup2.FieldNo("Update Purchase Documents"), FieldOption2);
+        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Ignore Status on Purch. Docs."), true);
+
+        // Excercise: Run VAT Rate Change Tool.
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // Verify: Check if proper data was updated.
+        VerifySpecialDocUpdate(SalesTempRecRef, PurchaseTempRecRef);
+
+        // Verify: Log Entries
+        ERMVATToolHelper.VerifySpecialDocLogEntries(SalesTempRecRef);
+        ERMVATToolHelper.VerifySpecialDocLogEntries(PurchaseTempRecRef);
+
+        // Cleanup: Delete Groups.
+        ERMVATToolHelper.DeleteGroups;
+    end;
+
+    local procedure AddDimensionsForSalesLines(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DimensionSetID: Integer;
+    begin
+        GetSalesLine(SalesHeader, SalesLine);
+        repeat
+            DimensionSetID := SalesLine."Dimension Set ID";
+            LibraryDimension.FindDimension(Dimension);
+            LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
+            DimensionSetID := LibraryDimension.CreateDimSet(DimensionSetID, DimensionValue."Dimension Code", DimensionValue.Code);
+            SalesLine.Validate("Dimension Set ID", DimensionSetID);
+            SalesLine.Modify(true);
+        until SalesLine.Next = 0;
+    end;
+
+    local procedure AddLineWithNegativeQty(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
+    begin
+        GetSalesLine(SalesHeader, SalesLine3);
+        SalesLine3.FindLast;
+        ERMVATToolHelper.CreateSalesLine(SalesLine, SalesHeader, '', SalesLine3."No.", -SalesLine3.Quantity);
+    end;
+
+    local procedure AddLineWithNextLineNo(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
+    begin
+        GetSalesLine(SalesHeader, SalesLine3);
+        SalesLine3.FindLast;
+
+        with SalesLine do begin
+            Init;
+            Validate("Document Type", SalesHeader."Document Type");
+            Validate("Document No.", SalesHeader."No.");
+            Validate("Line No.", SalesLine3."Line No." + 1);
+            Insert(true);
+
+            Validate(Type, SalesLine3.Type);
+            Validate("No.", SalesLine3."No.");
+            Validate(Quantity, SalesLine3.Quantity);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CopySalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesLine3: Record "Sales Line")
+    begin
+        ERMVATToolHelper.CreateSalesLine(SalesLine, SalesHeader, SalesLine3."Location Code", SalesLine3."No.", SalesLine3.Quantity);
+        SalesLine.Validate("VAT Prod. Posting Group", SalesLine3."VAT Prod. Posting Group");
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSpecialDocs(var SalesTempRecRef: RecordRef; var PurchaseTempRecRef: RecordRef; DropShipment: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        ReqWkshName: Record "Requisition Wksh. Name";
+        ReqLine: Record "Requisition Line";
+        PurchaseLine: Record "Purchase Line";
+        RecRef: RecordRef;
+        VATProdPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
+    begin
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
+
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, SalesTempRecRef, SalesHeader."Document Type"::Order, '', 1);
+        UpdateSpecialSalesLine(SalesHeader, DropShipment);
+        ReqWkshTemplate.SetRange(Type, ReqWkshName."Template Type"::"Req.");
+        ReqWkshTemplate.FindFirst;
+        LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, ReqWkshTemplate.Name);
+        ReqLine.Init;
+        ReqLine.Validate("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
+        ReqLine.Validate("Journal Batch Name", ReqWkshName.Name);
+        // No INSERT.
+        RunGetSalesOrders(ReqLine, SalesHeader, DropShipment);
+        ReqLine.SetRange("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
+        ReqLine.SetRange("Journal Batch Name", ReqWkshName.Name);
+        ReqLine.FindFirst;
+        ReqLine.Validate("Vendor No.", ERMVATToolHelper.CreateVendor);
+        ReqLine.Modify(true);
+        LibraryPlanning.CarryOutActionMsgPlanWksh(ReqLine);
+
+        PurchaseTempRecRef.Open(DATABASE::"Purchase Line", true);
+        if DropShipment then
+            PurchaseLine.SetFilter("Sales Order No.", SalesHeader."No.")
+        else
+            PurchaseLine.SetFilter("Special Order Sales No.", SalesHeader."No.");
+        PurchaseLine.FindFirst;
+        RecRef.GetTable(PurchaseLine);
+        ERMVATToolHelper.CopyRecordRef(RecRef, PurchaseTempRecRef);
+    end;
+
+    local procedure CreateFinChargeMemoLines(var TempRecRef: RecordRef; "Count": Integer)
+    var
+        FinChargeMemoHeader: Record "Finance Charge Memo Header";
+        FinChargeMemoLine: Record "Finance Charge Memo Line";
+        RecRef: RecordRef;
+        VATProdPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
+        I: Integer;
+    begin
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
+        TempRecRef.Open(DATABASE::"Finance Charge Memo Line", true);
+
+        LibraryERM.CreateFinanceChargeMemoHeader(FinChargeMemoHeader, ERMVATToolHelper.CreateCustomer);
+        FinChargeMemoHeader.Modify(true);
+        for I := 1 to Count do begin
+            LibraryERM.CreateFinanceChargeMemoLine(FinChargeMemoLine, FinChargeMemoHeader."No.", FinChargeMemoLine.Type::"G/L Account");
+            FinChargeMemoLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+            FinChargeMemoLine.Modify(true);
+            RecRef.GetTable(FinChargeMemoLine);
+            ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
+        end;
+    end;
+
+    local procedure CreateProductionOrders(var TempRecRef: RecordRef; "Count": Integer)
+    var
+        ProductionOrder: Record "Production Order";
+        RecRef: RecordRef;
+        VATProdPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
+        I: Integer;
+    begin
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
+        TempRecRef.Open(DATABASE::"Production Order", true);
+
+        for I := 1 to Count do begin
+            Clear(ProductionOrder);
+            ProductionOrder.Init;
+            ProductionOrder.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
+            ProductionOrder.Insert(true);
+            RecRef.GetTable(ProductionOrder);
+            ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
+        end;
+    end;
+
+    local procedure CreateReminderLines(var TempRecRef: RecordRef; "Count": Integer)
+    var
+        ReminderHeader: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        RecRef: RecordRef;
+        VATProdPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
+        I: Integer;
+    begin
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
+        TempRecRef.Open(DATABASE::"Reminder Line", true);
+
+        LibraryERM.CreateReminderHeader(ReminderHeader);
+        ReminderHeader.Validate("Customer No.", ERMVATToolHelper.CreateCustomer);
+        ReminderHeader.Modify(true);
+        for I := 1 to Count do begin
+            ReminderLine.Init;
+            ReminderLine.Validate("Reminder No.", ReminderHeader."No.");
+            ReminderLine.Validate(Type, ReminderLine.Type::"G/L Account");
+            RecRef.GetTable(ReminderLine);
+            ReminderLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, ReminderLine.FieldNo("Line No.")));
+            ReminderLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+            ReminderLine.Insert(true);
+            RecRef.GetTable(ReminderLine);
+            ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
+        end;
+    end;
+
+    local procedure CreateSalesItemChargeLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    var
+        ItemCharge: Record "Item Charge";
+        VATProdPostingGroupCode: Code[20];
+        GenProdPostingGroupCode: Code[20];
+    begin
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroupCode, GenProdPostingGroupCode);
+        ERMVATToolHelper.CreateItemCharge(ItemCharge);
+        // Create Sales Line with Quantity > 1 to be able to partially ship it
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)",
+          ItemCharge."No.", ERMVATToolHelper.GetQuantity);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Location Code", '');
+        SalesLine.Modify(true);
+    end;
+
+    local procedure GetLineCount(MultipleLines: Boolean) "Count": Integer
+    begin
+        if MultipleLines then
+            Count := LibraryRandom.RandInt(2) + 1
+        else
+            Count := 1;
+    end;
+
+    local procedure GetSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        SalesHeader.Find;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet;
+    end;
+
+    local procedure GetSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header")
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentHeader.FindFirst;
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentLine.FindFirst;
+    end;
+
+    local procedure GetShipmentLineForSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesShipmentLine: Record "Sales Shipment Line")
+    var
+        SalesGetShpt: Codeunit "Sales-Get Shipment";
+    begin
+        SalesGetShpt.SetSalesHeader(SalesHeader);
+        SalesGetShpt.CreateInvLines(SalesShipmentLine);
+    end;
+
+    local procedure GetVatProdPostingGroupFromSalesLine(var SalesHeader: Record "Sales Header"): Code[20]
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst;
+        exit(SalesLine."VAT Prod. Posting Group");
+    end;
+
+    local procedure ExpectLogEntries(DocumentType: Option; Release: Boolean; IgnoreStatus: Boolean): Boolean
+    var
+        Update: Boolean;
+    begin
+        Update := true;
+
+        if (not IgnoreStatus) and Release then
+            Update := false;
+
+        if (DocumentType = SalesHeader2."Document Type"::"Credit Memo") or
+           (DocumentType = SalesHeader2."Document Type"::"Return Order")
+        then
+            Update := false;
+
+        exit(Update);
+    end;
+
+    local procedure ExpectUpdate(DocumentType: Option; Ship: Boolean; Release: Boolean; IgnoreStatus: Boolean): Boolean
+    var
+        Update: Boolean;
+    begin
+        Update := true;
+
+        if (not IgnoreStatus) and Release then
+            Update := false;
+
+        if Ship then
+            Update := false;
+
+        if (DocumentType = SalesHeader2."Document Type"::"Credit Memo") or
+           (DocumentType = SalesHeader2."Document Type"::"Return Order")
+        then
+            Update := false;
+
+        exit(Update);
+    end;
+
+    local procedure PrepareSalesDocItemCharge(var TempRecRef: RecordRef; Ship: Boolean; Invoice: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        RecRef: RecordRef;
+    begin
+        ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', 1);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        GetSalesShipmentLine(SalesShipmentLine, SalesHeader);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+        CreateSalesItemChargeLine(SalesLine, SalesHeader);
+        with SalesShipmentLine do
+            LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
+              SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment, "Document No.", "Line No.", "No.");
+        RecRef.GetTable(SalesLine);
+        TempRecRef.Open(DATABASE::"Sales Line", true);
+        ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
+
+        if Ship then begin
+            ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+            ERMVATToolHelper.UpdateQtyToAssignSales(ItemChargeAssignmentSales, SalesLine);
+            LibrarySales.PostSalesDocument(SalesHeader, true, Invoice);
+        end;
+    end;
+
+    local procedure PrepareSalesDocItemChargeSameDoc(var TempRecRef: RecordRef; Ship: Boolean; Invoice: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        RecRef: RecordRef;
+    begin
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, SalesHeader."Document Type"::Order, '', 1);
+        CreateSalesItemChargeLine(SalesLine, SalesHeader);
+        SalesLine3.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine3.SetRange("Document No.", SalesHeader."No.");
+        SalesLine3.FindFirst;
+        with SalesLine3 do
+            LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
+              SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Order, "Document No.", "Line No.", "No.");
+
+        SalesLine.Find;
+        RecRef.GetTable(SalesLine);
+        ERMVATToolHelper.CopyRecordRef(RecRef, TempRecRef);
+
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+
+        // If Item Charge should not be shipped, change Qty. to Ship to 0.
+        if not Ship then begin
+            SalesLine.Find;
+            SalesLine.Validate("Qty. to Ship", 0);
+            SalesLine.Modify(true);
+        end;
+
+        // If Item Charge should be invoiced, Qty. to Assign should be equal Qty. to Invoice.
+        if Invoice then
+            ERMVATToolHelper.UpdateQtyToAssignSales(ItemChargeAssignmentSales, SalesLine);
+
+        // Line with Item is only split, if Item Charge is not partially shipped.
+        if not Ship then
+            ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, Invoice);
+    end;
+
+    local procedure PrepareSalesInvoiceForShipment(var TempRecRef: RecordRef)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, TempRecRef, SalesHeader."Document Type"::Order, '', 1);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        GetSalesShipmentLine(SalesShipmentLine, SalesHeader);
+
+        LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        GetShipmentLineForSalesInvoice(SalesHeader2, SalesShipmentLine);
+        ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader2);
+    end;
+
+    local procedure PrepareSalesDocItemTracking()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Qty: Integer;
+    begin
+        // Create Item with tracking and purchase it
+        ERMVATToolHelper.CreateItemWithTracking(Item, true);
+        Qty := ERMVATToolHelper.GetQuantity;
+        ERMVATToolHelper.PostItemPurchase(Item, '', Qty);
+
+        // Create Sales Order with Item with tracking
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer);
+        ERMVATToolHelper.CreateSalesLine(SalesLine, SalesHeader, '', Item."No.", Qty);
+
+        // Assign Serial Nos
+        SalesLine.OpenItemTrackingLines;
+
+        // Partially Ship Order
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        ERMVATToolHelper.UpdateQtyToHandleSales(SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure PrepareSalesDocWithReservation(LineCount: Integer)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', LineCount);
+        ERMVATToolHelper.AddReservationLinesForSales(SalesHeader);
+        ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure RunGetSalesOrders(RequisitionLine: Record "Requisition Line"; SalesHeader: Record "Sales Header"; DropShipment: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        GetSalesOrders: Report "Get Sales Orders";
+        RetrieveDimensions: Option "Sales Line",Item;
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        Clear(GetSalesOrders);
+        GetSalesOrders.SetTableView(SalesLine);
+        GetSalesOrders.InitializeRequest(RetrieveDimensions::"Sales Line");
+        if DropShipment then
+            GetSalesOrders.SetReqWkshLine(RequisitionLine, 0)
+        else
+            GetSalesOrders.SetReqWkshLine(RequisitionLine, 1);
+        GetSalesOrders.UseRequestPage(false);
+        GetSalesOrders.Run;
+    end;
+
+    local procedure PostSalesPrepayment(var SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
+    begin
+        // Mandatory field for IT
+        SalesHeader.Validate("Prepayment Due Date", WorkDate);
+        SalesHeader.Modify(true);
+        GetSalesLine(SalesHeader, SalesLine);
+
+        repeat
+            UpdateSalesLinePrepayment(SalesLine);
+        until SalesLine.Next = 0;
+
+        SalesPostPrepayments.Invoice(SalesHeader);
+    end;
+
+    local procedure SetTempTableSales(TempRecRef: RecordRef; var TempSalesLn: Record "Sales Line" temporary)
+    begin
+        // SETTABLE call required for each record of the temporary table.
+        TempRecRef.Reset;
+        if TempRecRef.FindSet then begin
+            TempSalesLn.SetView(TempRecRef.GetView);
+            repeat
+                TempRecRef.SetTable(TempSalesLn);
+                TempSalesLn.Insert(false);
+            until TempRecRef.Next = 0;
+        end;
+    end;
+
+    local procedure SetupToolSales(FieldOption: Option; PerformConversion: Boolean; IgnoreStatus: Boolean)
+    var
+        VATRateChangeSetup: Record "VAT Rate Change Setup";
+    begin
+        ERMVATToolHelper.SetupToolOption(VATRateChangeSetup.FieldNo("Update Sales Documents"), FieldOption);
+        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup.FieldNo("Ignore Status on Sales Docs."), IgnoreStatus);
+        ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup.FieldNo("Perform Conversion"), PerformConversion);
+    end;
+
+    local procedure UpdateSpecialSalesLine(SalesHeader: Record "Sales Header"; DropShipment: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        Purchasing: Record Purchasing;
+    begin
+        SalesLine.SetFilter("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst;
+        if DropShipment then
+            Purchasing.SetRange("Drop Shipment", true)
+        else
+            Purchasing.SetRange("Special Order", true);
+        Purchasing.FindFirst;
+        SalesLine.Validate("Purchasing Code", Purchasing.Code);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateSalesLinePrepayment(var SalesLine: Record "Sales Line")
+    begin
+        SalesLine.Validate("Prepayment %", LibraryRandom.RandInt(20));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateQtyBlanketOrder(SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        QtyShipped: Integer;
+    begin
+        GetSalesLine(SalesHeader, SalesLine);
+        QtyShipped := SalesLine."Qty. Shipped Not Invoiced";
+        SalesLine.Next;
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity - QtyShipped);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure VerifySalesDocAmount(SalesHeader: Record "Sales Header")
+    var
+        SalesHeader3: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
+    begin
+        GetSalesLine(SalesHeader, SalesLine);
+        LibrarySales.CreateSalesHeader(SalesHeader3, SalesHeader3."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+        SalesHeader3.Validate("Prices Including VAT", true);
+        SalesHeader3.Modify(true);
+        repeat
+            CopySalesLine(SalesHeader3, SalesLine3, SalesLine);
+            VerifySalesLineAmount(SalesLine, SalesLine3);
+        until SalesLine.Next = 0;
+    end;
+
+    local procedure VerifySalesLineAmount(SalesLine: Record "Sales Line"; SalesLine3: Record "Sales Line")
+    begin
+        SalesLine.TestField("VAT %", SalesLine3."VAT %");
+        SalesLine.TestField("Unit Price", SalesLine3."Unit Price");
+        SalesLine.TestField("Line Amount", SalesLine3."Line Amount");
+    end;
+
+    local procedure VerifyItemChrgAssignmentSales(TempRecRef: RecordRef)
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        TempSalesLn: Record "Sales Line" temporary;
+        QtyItemCharge: Integer;
+        QtyItem: Integer;
+        QtyShippedItem: Integer;
+    begin
+        SetTempTableSales(TempRecRef, TempSalesLn);
+        TempSalesLn.SetRange(Type, TempSalesLn.Type::"Charge (Item)");
+        TempSalesLn.FindFirst;
+        QtyItemCharge := TempSalesLn.Quantity;
+        TempSalesLn.SetRange(Type, TempSalesLn.Type::Item);
+        TempSalesLn.FindSet;
+        QtyItem := TempSalesLn.Quantity;
+        QtyShippedItem := TempSalesLn."Qty. to Ship";
+        TempSalesLn.Next;
+        QtyItem += TempSalesLn.Quantity;
+
+        with ItemChargeAssignmentSales do begin
+            SetRange("Document Type", TempSalesLn."Document Type");
+            SetFilter("Document No.", TempSalesLn."Document No.");
+            FindSet;
+            Assert.AreEqual(2, Count, ERMVATToolHelper.GetItemChargeErrorCount);
+            Assert.AreNearlyEqual(QtyShippedItem / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount);
+            Next;
+            Assert.AreNearlyEqual(
+              (QtyItem - QtyShippedItem) / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount);
+        end;
+    end;
+
+    local procedure VerifySalesDocWithReservation(Tracking: Boolean)
+    var
+        SalesLine: Record "Sales Line";
+        ReservationEntry: Record "Reservation Entry";
+        VATProdPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
+    begin
+        ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroup, GenProdPostingGroup, DATABASE::"Sales Line");
+
+        SalesLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
+        SalesLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
+        SalesLine.FindSet;
+
+        repeat
+            ERMVATToolHelper.GetReservationEntrySales(ReservationEntry, SalesLine);
+            if Tracking then
+                Assert.AreEqual(SalesLine.Quantity, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate)
+            else
+                Assert.AreEqual(1, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
+        until SalesLine.Next = 0;
+
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
+
+        SalesLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
+        SalesLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
+        SalesLine.FindSet;
+
+        repeat
+            ERMVATToolHelper.GetReservationEntrySales(ReservationEntry, SalesLine);
+            Assert.AreEqual(0, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
+        until SalesLine.Next = 0;
+    end;
+
+    local procedure VerifySalesLnPartShipped(TempRecRef: RecordRef)
+    var
+        VATRateChangeSetup: Record "VAT Rate Change Setup";
+        TempSalesLn: Record "Sales Line" temporary;
+        SalesLn: Record "Sales Line";
+        VATProdPostingGroupOld: Code[20];
+        GenProdPostingGroupOld: Code[20];
+        VATProdPostingGroupNew: Code[20];
+        GenProdPostingGroupNew: Code[20];
+    begin
+        VATRateChangeSetup.Get;
+        ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroupOld, GenProdPostingGroupOld);
+        ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroupNew, GenProdPostingGroupNew, TempRecRef.Number);
+
+        SalesLn.Reset;
+        SalesLn.SetFilter("VAT Prod. Posting Group", StrSubstNo(GroupFilter, VATProdPostingGroupOld, VATProdPostingGroupNew));
+        SalesLn.SetFilter("Gen. Prod. Posting Group", StrSubstNo(GroupFilter, GenProdPostingGroupOld, GenProdPostingGroupNew));
+        SalesLn.FindSet;
+
+        // Compare Number of lines.
+        Assert.AreEqual(TempRecRef.Count, SalesLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, SalesLn.GetFilters));
+
+        TempRecRef.Reset;
+        SetTempTableSales(TempRecRef, TempSalesLn);
+        TempSalesLn.FindSet;
+
+        repeat
+            if TempSalesLn."Description 2" = Format(TempSalesLn."Line No.") then
+                VerifySplitNewLineSales(TempSalesLn, SalesLn, VATProdPostingGroupNew, GenProdPostingGroupNew)
+            else
+                VerifySplitOldLineSales(TempSalesLn, SalesLn);
+            SalesLn.Next;
+        until TempSalesLn.Next = 0;
+    end;
+
+    local procedure VerifySplitOldLineSales(var SalesLn1: Record "Sales Line"; SalesLn2: Record "Sales Line")
+    begin
+        // Splitted Line should have Quantity = Quantity to Ship/Receive of the Original Line and old Product Posting Groups.
+        with SalesLn2 do begin
+            TestField("Line No.", SalesLn1."Line No.");
+            case "Document Type" of
+                "Document Type"::Order:
+                    TestField(Quantity, SalesLn1."Qty. to Ship");
+                "Document Type"::"Return Order":
+                    TestField(Quantity, SalesLn1."Return Qty. to Receive");
+            end;
+            TestField("Qty. to Ship", 0);
+            TestField("Return Qty. to Receive", 0);
+            TestField("Quantity Shipped", SalesLn1."Qty. to Ship");
+            TestField("Return Qty. Received", SalesLn1."Return Qty. to Receive");
+            TestField("Blanket Order No.", SalesLn1."Blanket Order No.");
+            TestField("Blanket Order Line No.", SalesLn1."Blanket Order Line No.");
+            TestField("VAT Prod. Posting Group", SalesLn1."VAT Prod. Posting Group");
+            TestField("Gen. Prod. Posting Group", SalesLn1."Gen. Prod. Posting Group");
+        end;
+    end;
+
+    local procedure VerifySplitNewLineSales(var SalesLn1: Record "Sales Line"; SalesLn2: Record "Sales Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    begin
+        // Line should have Quantity = Original Quantity - Quantity Shipped/Received,
+        // Quantity Shipped/Received = 0 and new Posting Groups.
+        with SalesLn2 do begin
+            TestField(Quantity, SalesLn1.Quantity);
+            TestField("Qty. to Ship", SalesLn1."Qty. to Ship");
+            TestField("Return Qty. to Receive", SalesLn1."Return Qty. to Receive");
+            TestField("Dimension Set ID", SalesLn1."Dimension Set ID");
+            TestField("Blanket Order No.", SalesLn1."Blanket Order No.");
+            TestField("Blanket Order Line No.", SalesLn1."Blanket Order Line No.");
+            TestField("VAT Prod. Posting Group", VATProdPostingGroup);
+            TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
+        end;
+    end;
+
+    local procedure VerifySpecialDocUpdate(SalesTempRecRef: RecordRef; PurchaseTempRecRef: RecordRef)
+    begin
+        ERMVATToolHelper.VerifyUpdate(SalesTempRecRef, false);
+        ERMVATToolHelper.VerifyUpdate(PurchaseTempRecRef, false);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Assign Serial No.".Invoke;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK.Invoke;
+    end;
+}
+
