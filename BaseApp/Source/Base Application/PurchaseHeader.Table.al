@@ -2533,8 +2533,6 @@
     end;
 
     trigger OnInsert()
-    var
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         InitInsert();
 
@@ -2546,7 +2544,7 @@
             SetDefaultPurchaser();
 
         if "Buy-from Vendor No." <> '' then
-            StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
+            StandardCodesMgtGlobal.CheckCreatePurchRecurringLines(Rec);
     end;
 
     trigger OnRename()
@@ -2620,6 +2618,7 @@
         UserSetupMgt: Codeunit "User Setup Management";
         LeadTimeMgt: Codeunit "Lead-Time Management";
         PostingSetupMgt: Codeunit PostingSetupManagement;
+        StandardCodesMgtGlobal: Codeunit "Standard Codes Mgt.";
         CurrencyDate: Date;
         Confirmed: Boolean;
         Text034: Label 'You cannot change the %1 when the %2 has been filled in.';
@@ -2791,6 +2790,11 @@
         end;
 
         OnAfterInitNoSeries(Rec, xRec);
+    end;
+
+    procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
+    begin
+        StandardCodesMgtGlobal := StandardCodesMgtNew;
     end;
 
     procedure AssistEdit(OldPurchHeader: Record "Purchase Header"): Boolean

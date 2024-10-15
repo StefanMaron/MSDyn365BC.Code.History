@@ -47,7 +47,7 @@ codeunit 134922 "ERM Budget"
         AnalysisViewBudgetEntryExistsErr: Label 'You cannot change the amount on this G/L budget entry because one or more related analysis view budget entries exist.\\You must make the change on the related entry in the G/L Budget window.';
         DimValueBlockedErr: Label 'Dimension Value %1 - %2 is blocked.', Comment = '%1 = Dim Code, %2 = Dim Value';
         DimValueMustNotBeErr: Label 'Dimension Value Type for Dimension Value %1 - %2 must not be %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 = Dimension Value Type value';
-        DimValueMissingErr: Label 'Dimension Value for %1 is missing.', Comment = '%1 = Dim Code';
+        DimValueMissingErr: Label 'Dimension Value %1 - %2 is missing.', Comment = ' %1 = Dim Code, %2 = Dim Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -2073,6 +2073,7 @@ codeunit 134922 "ERM Budget"
         GLBudgetName: Record "G/L Budget Name";
         GLBudgetEntry: Record "G/L Budget Entry";
         Dimension: Record Dimension;
+        DimValueCode: Code[20];
     begin
         // [FEATURE] [G/L Budget Entries] [Dimension]
         // [SCENARIO 343318] Missing dimension values can't be added to G/L Budget Entries
@@ -2086,10 +2087,11 @@ codeunit 134922 "ERM Budget"
         LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, LibraryERM.CreateGLAccountNo(), GLBudgetName.Name);
 
         // [WHEN] Budget Dimension "D" set to a missing value on G/L Budget Entry
-        asserterror GLBudgetEntry.Validate("Budget Dimension 1 Code", LibraryUtility.GenerateGUID());
+        DimValueCode := LibraryUtility.GenerateGUID();
+        asserterror GLBudgetEntry.Validate("Budget Dimension 1 Code", DimValueCode);
 
         // [THEN] An error occurs that the dimension value for "D" is missing
-        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code));
+        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code, DimValueCode));
     end;
 
     [Test]
@@ -2158,6 +2160,7 @@ codeunit 134922 "ERM Budget"
         ItemBudgetName: Record "Item Budget Name";
         ItemBudgetEntry: Record "Item Budget Entry";
         Dimension: Record Dimension;
+        DimValueCode: Code[20];
     begin
         // [FEATURE] [Item Budget] [Dimension]
         // [SCENARIO 343318] Missing dimension values can't be added to Item Budget Entries
@@ -2172,10 +2175,11 @@ codeunit 134922 "ERM Budget"
           ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ItemBudgetName.Name, WorkDate(), LibraryInventory.CreateItemNo());
 
         // [WHEN] Budget Dimension "D" set to a missing value on Item Budget Entry
-        asserterror ItemBudgetEntry.Validate("Budget Dimension 1 Code", LibraryUtility.GenerateGUID());
+        DimValueCode := LibraryUtility.GenerateGUID();
+        asserterror ItemBudgetEntry.Validate("Budget Dimension 1 Code", DimValueCode);
 
         // [THEN] An error occurs that the dimension value for "D" is missing
-        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code));
+        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code, DimValueCode));
     end;
 
     [Test]

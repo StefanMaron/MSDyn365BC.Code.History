@@ -146,6 +146,8 @@
                     begin
                         QuantityOnAfterValidate();
                         DeltaUpdateTotals();
+                        if SalesReceivablesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Qty. to Assemble to Order"; Rec."Qty. to Assemble to Order")
@@ -1006,6 +1008,7 @@
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
 #if not CLEAN19
         [InDataSet]
