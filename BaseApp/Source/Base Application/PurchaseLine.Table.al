@@ -6111,9 +6111,7 @@
             LockTable();
             if FindSet() then
                 repeat
-                    if not ZeroAmountLine(QtyType) and
-                       ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
-                    then begin
+                    if not ZeroAmountLine(QtyType) then begin
                         FullGST :=
                           ("Prepayment Line" or ("Prepmt. Line Amount" <> 0)) and
                           GLSetup.CheckFullGSTonPrepayment("VAT Bus. Posting Group", "VAT Prod. Posting Group");
