@@ -307,8 +307,11 @@
                 end;
                 "Bin Code" := '';
 
-                if Type = Type::Item then
-                    UpdateDirectUnitCost(FieldNo("Location Code"));
+                if Type = Type::Item then begin
+                    GetPurchHeader;
+                    PurchPriceCalcMgt.FindPurchLinePrice(PurchHeader, Rec, FieldNo("Location Code"));
+                    Validate("Direct Unit Cost");
+                end;
 
                 if "Location Code" = '' then begin
                     if InvtSetup.Get then
