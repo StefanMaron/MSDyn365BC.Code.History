@@ -618,6 +618,8 @@
                 if (Quantity * xRec.Quantity < 0) or (Quantity = 0) then
                     InitItemAppl(false);
 
+                OnValidateQuantityOnBeforeCheckQuantityChangeForPriceCalc(Rec, xRec);
+
                 if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then
                     PlanPriceCalcByField(FieldNo(Quantity));
 
@@ -1498,7 +1500,7 @@
                     TestField(Type, Type::Item);
                     TestField("No.");
                     GetItem(Item);
-                    if Item.Type = Item.Type::"Non-Inventory" then
+                    if IsNonInventoriableItem() then
                         Error(NonInvReserveTypeErr, Item."No.", Reserve);
                 end;
 
@@ -1754,7 +1756,7 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidatePrepmtLineAmount(Rec, PrePaymentLineAmountEntered, IsHandled);
+                OnBeforeValidatePrepmtLineAmount(Rec, PrePaymentLineAmountEntered, IsHandled, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -2958,8 +2960,8 @@
                         "Shipping Time" := SalesHeader."Shipping Time";
                     end;
 
-                if ShippingAgentServices."Shipping Time" <> xRec."Shipping Time" then
-                    Validate("Shipping Time", "Shipping Time");
+                if "Shipping Time" <> xRec."Shipping Time" then
+                    Validate("Shipping Time");
             end;
         }
         field(5800; "Allow Item Charge Assignment"; Boolean)
@@ -3625,7 +3627,7 @@
         CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
-        NonInvReserveTypeErr: Label 'Non-inventory items must have the reserve type Never. The current reserve type for item %1 is %2.', Comment = '%1 is Item No., %2 is Reserve';
+        NonInvReserveTypeErr: Label 'Non-inventory and service items must have the reserve type Never. The current reserve type for item %1 is %2.', Comment = '%1 is Item No., %2 is Reserve';
 
     protected var
         HideValidationDialog: Boolean;
@@ -3782,6 +3784,8 @@
         if IsCreditDocType() then
             exit("Return Qty. Received" + "Return Qty. to Receive" - "Quantity Invoiced");
 
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit(Quantity - "Quantity Invoiced");
         exit("Quantity Shipped" + "Qty. to Ship" - "Quantity Invoiced");
     end;
 
@@ -3797,7 +3801,8 @@
 
         if IsCreditDocType() then
             exit("Return Qty. Received (Base)" + "Return Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
-
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit("Quantity (Base)" - "Qty. Invoiced (Base)");
         exit("Qty. Shipped (Base)" + "Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
     end;
 
@@ -4508,7 +4513,13 @@
     local procedure CheckPrepmtAmounts()
     var
         RemLineAmountToInvoice: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPrepmtAmounts(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Prepayment %" <> 0 then begin
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text047, FieldCaption("Prepayment %")));
@@ -4521,7 +4532,7 @@
                     Error(CannotChangePrepaidServiceChargeErr);
                 if "Inv. Discount Amount" <> 0 then
                     Error(InvDiscForPrepmtExceededErr, "Document No.");
-                FieldError("Prepmt. Line Amount", StrSubstNo(Text049, "Prepmt. Amt. Inv."));
+                ThrowWrongAmountError();
             end;
             if "Prepmt. Line Amount" <> 0 then begin
                 RemLineAmountToInvoice := GetLineAmountToHandleInclPrepmt(Quantity - "Quantity Invoiced");
@@ -4536,6 +4547,18 @@
                     FieldError("Line Amount", StrSubstNo(Text044, xRec."Line Amount"));
                 FieldError("Line Amount", StrSubstNo(Text045, xRec."Line Amount"));
             end;
+    end;
+
+    local procedure ThrowWrongAmountError()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeThrowWrongAmountError(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        FieldError("Prepmt. Line Amount", StrSubstNo(Text049, "Prepmt. Amt. Inv."));
     end;
 
     local procedure CheckPrepmtAmtInvEmpty()
@@ -4936,7 +4959,7 @@
         TestField(Type, Type::Item);
         TestField("No.");
         GetItem(Item);
-        if (Item.Type = Item.Type::"Non-Inventory") and (Reserve = Reserve::Never) then
+        if IsNonInventoriableItem() and (Reserve = Reserve::Never) then
             Error(NonInvReserveTypeErr, Item."No.", Reserve);
 
         SalesLineReserve.ReservQuantity(Rec, QtyToReserve, QtyToReserveBase);
@@ -5565,6 +5588,8 @@
         ItemChargeAssgnts.Initialize(Rec, ItemChargeAssgntLineAmt);
         ItemChargeAssgnts.RunModal();
         CalcFields("Qty. to Assign");
+
+        OnAfterShowItemChargeAssgnt(Rec, ItemChargeAssgntSales);
     end;
 
     procedure UpdateItemChargeAssgnt()
@@ -6978,14 +7003,14 @@
         SetFilter("Shipment Date", AvailabilityFilter);
         if DocumentType = "Document Type"::"Return Order" then
             if Positive then
-            SetFilter("Quantity (Base)", '>0')
+                SetFilter("Quantity (Base)", '>0')
+            else
+                SetFilter("Quantity (Base)", '<0')
         else
-            SetFilter("Quantity (Base)", '<0')
-        else
-        if Positive then
-            SetFilter("Quantity (Base)", '<0')
-        else
-            SetFilter("Quantity (Base)", '>0');
+            if Positive then
+                SetFilter("Quantity (Base)", '<0')
+            else
+                SetFilter("Quantity (Base)", '>0');
         SetRange("Job No.", ' ');
 
         OnAfterFilterLinesForReservation(Rec, ReservationEntry, DocumentType, AvailabilityFilter, Positive);
@@ -7023,7 +7048,7 @@
             "Qty. to Asm. to Order (Base)" := "Quantity (Base)";
         end;
 
-        OnAfterInitQtyToAsm(Rec, CurrFieldNo, xRec);
+        OnAfterInitQtyToAsm(Rec, CurrFieldNo, xRec, ShouldUpdateQtyToAsm);
     end;
 
     procedure AsmToOrderExists(var AsmHeader: Record "Assembly Header"): Boolean
@@ -8348,6 +8373,97 @@
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
+    internal procedure SaveLookupSelection(Selected: RecordRef)
+    var
+        GLAccount: Record "G/L Account";
+        Item: Record Item;
+        Resource2: Record Resource;
+        FixedAsset: Record "Fixed Asset";
+        ItemCharge2: Record "Item Charge";
+        LookupStateMgr: Codeunit "Lookup State Manager";
+        RecVariant: Variant;
+    begin
+        case Rec.Type of
+            Rec.Type::Item:
+                begin
+                    Selected.SetTable(Item);
+                    RecVariant := Item;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+            Rec.Type::"G/L Account":
+                begin
+                    Selected.SetTable(GLAccount);
+                    RecVariant := GLAccount;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+            Rec.Type::Resource:
+                begin
+                    Selected.SetTable(Resource2);
+                    RecVariant := Resource2;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+            Rec.Type::"Fixed Asset":
+                begin
+                    Selected.SetTable(FixedAsset);
+                    RecVariant := FixedAsset;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+            Rec.Type::"Charge (Item)":
+                begin
+                    Selected.SetTable(ItemCharge2);
+                    RecVariant := ItemCharge2;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+        end;
+    end;
+
+    internal procedure RestoreLookupSelection()
+    var
+        GLAccount: Record "G/L Account";
+        Item: Record Item;
+        Resource2: Record Resource;
+        FixedAsset: Record "Fixed Asset";
+        ItemCharge2: Record "Item Charge";
+        LookupStateMgr: Codeunit "Lookup State Manager";
+        RecVariant: Variant;
+    begin
+        if LookupStateMgr.IsRecordSaved() then begin
+            case Rec.Type of
+                Rec.Type::Item:
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        Item := RecVariant;
+                        Rec.Validate("No.", Item."No.");
+                    end;
+                Rec.Type::"G/L Account":
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        GLAccount := RecVariant;
+                        Rec.Validate("No.", GLAccount."No.");
+                    end;
+                Rec.Type::Resource:
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        Resource2 := RecVariant;
+                        Rec.Validate("No.", Resource2."No.");
+                    end;
+                Rec.Type::"Fixed Asset":
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        FixedAsset := RecVariant;
+                        Rec.Validate("No.", FixedAsset."No.");
+                    end;
+                Rec.Type::"Charge (Item)":
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        ItemCharge2 := RecVariant;
+                        Rec.Validate("No.", ItemCharge2."No.");
+                    end;
+            end;
+            LookupStateMgr.ClearSavedRecord();
+        end;
+    end;
+
 #if not CLEAN20
     local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
     var
@@ -8539,7 +8655,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitQtyToAsm(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer; xSalesLine: Record "Sales Line")
+    local procedure OnAfterInitQtyToAsm(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer; xSalesLine: Record "Sales Line"; ShouldUpdateQtyToAsm: Boolean)
     begin
     end;
 
@@ -8570,6 +8686,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowNonStock(var SalesLine: Record "Sales Line"; NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowItemChargeAssgnt(var SalesLine: Record "Sales Line"; var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
     end;
 
@@ -8640,6 +8761,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAsmToOrder(var SalesLine: Record "Sales Line"; AsmHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPrepmtAmounts(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8854,6 +8980,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeThrowWrongAmountError(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDates(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -8939,7 +9070,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePrepmtLineAmount(var SalesLine: Record "Sales Line"; PrePaymentLineAmountEntered: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeValidatePrepmtLineAmount(var SalesLine: Record "Sales Line"; PrePaymentLineAmountEntered: Boolean; var IsHandled: Boolean; FieldNo: Integer)
     begin
     end;
 
@@ -9277,6 +9408,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnAfterCalcBaseQty(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeCheckQuantityChangeForPriceCalc(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 

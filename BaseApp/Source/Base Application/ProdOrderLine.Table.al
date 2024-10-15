@@ -1077,8 +1077,11 @@ table 5406 "Prod. Order Line"
 
     local procedure GetItem()
     begin
-        if Item."No." <> "Item No." then
-            Item.Get("Item No.");
+        if Item."No." = "Item No." then
+            exit;
+
+        Item.Get("Item No.");
+        OnAfterGetItem(Item, Rec);
     end;
 
     local procedure GetSKU() Result: Boolean
@@ -1102,21 +1105,21 @@ table 5406 "Prod. Order Line"
     begin
         IsHandled := false;
         OnBeforeGetUpdateFromSKU(Rec, SKU, Item, IsHandled);
-        if IsHandled then
-            exit;
-
-        GetItem();
-        if GetSKU then begin
-            "Unit Cost" := SKU."Unit Cost";
-            if (SKU."Routing No." <> "Routing No.") and (SKU."Routing No." <> '') then
-                Validate("Routing No.", SKU."Routing No.");
-            if (SKU."Production BOM No." <> "Production BOM No.") and (SKU."Production BOM No." <> '') then
-                Validate("Production BOM No.", SKU."Production BOM No.");
-        end else begin
-            "Unit Cost" := Item."Unit Cost";
-            "Routing No." := Item."Routing No.";
-            "Production BOM No." := Item."Production BOM No.";
+        if not IsHandled then begin
+            GetItem();
+            if GetSKU() then begin
+                "Unit Cost" := SKU."Unit Cost";
+                if (SKU."Routing No." <> "Routing No.") and (SKU."Routing No." <> '') then
+                    Validate("Routing No.", SKU."Routing No.");
+                if (SKU."Production BOM No." <> "Production BOM No.") and (SKU."Production BOM No." <> '') then
+                    Validate("Production BOM No.", SKU."Production BOM No.");
+            end else begin
+                "Unit Cost" := Item."Unit Cost";
+                "Routing No." := Item."Routing No.";
+                "Production BOM No." := Item."Production BOM No.";
+            end;
         end;
+        OnAfterGetUpdateFromSKU(Rec);
     end;
 
     local procedure ValidateUnitofMeasureCodeFromItem()
@@ -1602,7 +1605,17 @@ table 5406 "Prod. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItem(var Item: Record Item; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(ProdOrderLine: Record "Prod. Order Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetUpdateFromSKU(var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 

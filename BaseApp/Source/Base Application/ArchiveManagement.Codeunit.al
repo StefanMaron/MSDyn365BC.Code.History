@@ -348,6 +348,7 @@ codeunit 5063 ArchiveManagement
     var
         SalesLine: Record "Sales Line";
         SalesLineArchive: Record "Sales Line Archive";
+        ShouldValidateQuantity: Boolean;
     begin
         RestoreSalesLineComments(SalesHeaderArchive, SalesHeader);
 
@@ -371,7 +372,9 @@ codeunit 5063 ArchiveManagement
                         if SalesLineArchive."Unit of Measure Code" <> '' then
                             Validate("Unit of Measure Code", SalesLineArchive."Unit of Measure Code");
                         Validate("Location Code", SalesLineArchive."Location Code");
-                        if Quantity <> 0 then
+                        ShouldValidateQuantity := Quantity <> 0;
+                        OnRestoreSalesLinesOnAfterCalcShouldValidateQuantity(SalesLine, SalesLineArchive, ShouldValidateQuantity);
+                        if ShouldValidateQuantity then
                             Validate(Quantity, SalesLineArchive.Quantity);
                         OnRestoreSalesLinesOnAfterValidateQuantity(SalesLine, SalesLineArchive);
                         Validate("Unit Price", SalesLineArchive."Unit Price");
@@ -927,6 +930,11 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnRestoreDocumentOnBeforeDeleteSalesHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestoreSalesLinesOnAfterCalcShouldValidateQuantity(var SalesLine: Record "Sales Line"; var SalesLineArchive: Record "Sales Line Archive"; var ShouldValidateQuantity: Boolean)
     begin
     end;
 

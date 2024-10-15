@@ -10,6 +10,7 @@ page 148 "Customer Posting Group Card"
         {
             group(General)
             {
+                Caption = 'General';
                 field("Code"; Code)
                 {
                     ApplicationArea = Basic, Suite;
@@ -34,7 +35,8 @@ page 148 "Customer Posting Group Card"
                 }
                 group(Discounts)
                 {
-                    field("Payment Disc. Debit Acc."; "Payment Disc. Debit Acc.")
+                    Caption = 'Discounts';
+                    field("Payment Disc. Debit Acc."; Rec."Payment Disc. Debit Acc.")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -65,7 +67,8 @@ page 148 "Customer Posting Group Card"
                 }
                 group(Rounding)
                 {
-                    field("Invoice Rounding Account"; "Invoice Rounding Account")
+                    Caption = 'Rounding';
+                    field("Invoice Rounding Account"; Rec."Invoice Rounding Account")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;
@@ -101,7 +104,8 @@ page 148 "Customer Posting Group Card"
                 }
                 group(Reminders)
                 {
-                    field("Interest Account"; "Interest Account")
+                    Caption = 'Reminders';
+                    field("Interest Account"; Rec."Interest Account")
                     {
                         ApplicationArea = Basic, Suite;
                         Importance = Additional;

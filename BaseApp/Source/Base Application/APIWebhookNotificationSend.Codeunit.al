@@ -964,7 +964,7 @@ codeunit 6154 "API Webhook Notification Send"
         foreach SubscriptionId in DeletedSubscriptionList do begin
             Session.LogMessage('0000EVF', StrSubstNo(DeleteNotificationsForDeletedSubscriptionMsg, SubscriptionId), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             APIWebhookNotification.SetRange("Subscription ID", SubscriptionId);
-            APIWebhookNotification.DeleteAll();
+            APIWebhookNotificationMgt.ForceDeleteAPIWebhookNotifications(APIWebhookNotification);
         end;
     end;
 
@@ -1039,10 +1039,8 @@ codeunit 6154 "API Webhook Notification Send"
         foreach SubscriptionId in SubscriptionIdList do begin
             APIWebhookNotification.SetRange("Subscription ID", SubscriptionId);
             APIWebhookNotification.SetFilter("Last Modified Date Time", '<=%1', ProcessingDateTime);
-            if not APIWebhookNotification.IsEmpty() then
-                APIWebhookNotification.DeleteAll(true);
+            APIWebhookNotificationMgt.ForceDeleteAPIWebhookNotifications(APIWebhookNotification);
         end;
-        ;
     end;
 
     local procedure SaveFailedAggregateNotifications(var EarliestScheduledDateTime: DateTime)

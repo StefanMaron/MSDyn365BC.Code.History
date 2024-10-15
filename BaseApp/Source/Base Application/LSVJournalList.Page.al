@@ -27,6 +27,11 @@ page 3010832 "LSV Journal List"
                     ApplicationArea = Basic, Suite;
                     Editable = LSVBankCodeEditable;
                     ToolTip = 'Specifies the code for the bank that should carry out the collection.';
+
+                    trigger OnValidate()
+                    begin
+                        FeatureTelemetry.LogUptake('1000HZ1', CHLSVTok, Enum::"Feature Uptake Status"::"Set up");
+                    end;
                 }
                 field("LSV Status"; "LSV Status")
                 {
@@ -231,9 +236,11 @@ page 3010832 "LSV Journal List"
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('1000HZ2', CHLSVTok, Enum::"Feature Uptake Status"::"Used");
                         Clear(WriteLSVFile);
                         WriteLSVFile.SetGlobals(Rec);
                         WriteLSVFile.RunModal();
+                        FeatureTelemetry.LogUsage('1000HZ3', CHLSVTok, 'CH LSV Payment Collection File Exported');
                     end;
                 }
                 action("&Send LSV File")
@@ -353,6 +360,11 @@ page 3010832 "LSV Journal List"
         LSVJournalDescriptionEditable := true;
     end;
 
+    trigger OnOpenPage()
+    begin
+        FeatureTelemetry.LogUptake('1000HZ0', CHLSVTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
     var
         LsvSetup: Record "LSV Setup";
         LsvJournal: Record "LSV Journal";
@@ -364,6 +376,8 @@ page 3010832 "LSV Journal List"
         WriteLSVFile: Report "Write LSV File";
         WriteDebitDirect: Report "LSV Write DebitDirect File";
         LsvMgt: Codeunit LSVMgt;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        CHLSVTok: Label 'CH Process an LSV Collection', Locked = true;
         [InDataSet]
         LSVJournalDescriptionEditable: Boolean;
         [InDataSet]

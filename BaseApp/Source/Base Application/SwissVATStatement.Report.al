@@ -746,7 +746,15 @@ report 26100 "Swiss VAT Statement"
         GetEndDateOfOldRates;
     end;
 
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HY7', CHVATTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('1000HY8', CHVATTok, 'CH VAT Statement Created and Printed');
+    end;
+
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        CHVATTok: Label 'CH Creat and Print VAT Statement', Locked = true;
         Text000: Label 'VAT entries before and within the period';
         Text004: Label 'VAT entries within the period';
         Text005: Label 'Period: %1..%2', Comment = '%1=Start Date;%2=End Date';

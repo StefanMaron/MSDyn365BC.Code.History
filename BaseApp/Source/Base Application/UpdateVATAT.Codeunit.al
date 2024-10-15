@@ -21,7 +21,14 @@ codeunit 11110 "Update VAT-AT"
 
     [Scope('OnPrem')]
     procedure UpdateVATStatementTemplate(TemplateName: Code[10]; TemplateDescription: Text[80]; AgricultureVATProdPostingGroups: Text)
+    var
+      IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateVATStatementTemplate(TemplateName, IsHandled);
+        if IsHandled then
+            exit;
+
         if VATStatementTemplate.Get(TemplateName) then begin
             if not Confirm(DeleteVATStatementQst, true, TemplateName) then
                 Error(NoTemplateUpdatedErr)
@@ -368,6 +375,11 @@ codeunit 11110 "Update VAT-AT"
             TextString := InsStr(TextString, ToCharacters, Position);
         end;
         exit(TextString);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateVATStatementTemplate(TemplateName: Code[10]; var IsHandled: Boolean)
+    begin
     end;
 }
 

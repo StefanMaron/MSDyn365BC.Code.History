@@ -637,6 +637,7 @@ page 255 "Cash Receipt Journal"
                         begin
                             Clear(EsrManagement);
                             EsrManagement.ImportEsrFile(Rec);
+                            FeatureTelemetry.LogUsage('1000HY9', CHESRTok, 'CH ESR Payments Imported');
                         end;
                     }
                     action("Print ESR Journal")
@@ -1258,8 +1259,10 @@ page 255 "Cash Receipt Journal"
         ClientTypeManagement: Codeunit "Client Type Management";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
+        CHESRTok: Label 'CH Import ESR Payment', Locked = true;
         CurrentJnlBatchName: Code[10];
         AccName: Text[100];
         BalAccName: Text[100];

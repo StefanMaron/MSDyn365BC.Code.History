@@ -418,11 +418,11 @@ table 17 "G/L Entry"
         }
         key(Key2; "G/L Account No.", "Posting Date")
         {
-            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "Amount (FCY)", "VAT Amount";
+            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", Quantity, "Amount (FCY)";
         }
         key(Key3; "G/L Account No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date")
         {
-            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "Amount (FCY)", "VAT Amount";
+            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "VAT Amount", "Amount (FCY)";
         }
         key(Key4; "G/L Account No.", "Business Unit Code", "Posting Date")
         {

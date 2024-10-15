@@ -105,11 +105,19 @@ report 11112 "Update VAT Statement Template"
 
     trigger OnInitReport()
     begin
+        FeatureTelemetry.LogUptake('1000HY5', CHVATTok, Enum::"Feature Uptake Status"::Discovered);
         TemplateName := 'UVA-2020';
         TemplateDescription := 'Österreichische USt ab 2020';
     end;
 
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HY6', CHVATTok, Enum::"Feature Uptake Status"::"Set Up");
+    end;
+
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        CHVATTok: Label 'CH Creat and Print VAT Statement', Locked = true;
         SpecifyVATStatementTemplateNameErr: Label 'Please specify a VAT Statement Template Name.';
         TemplateName: Code[10];
         TemplateDescription: Text[80];

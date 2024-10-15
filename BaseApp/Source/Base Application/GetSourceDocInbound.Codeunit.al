@@ -190,6 +190,8 @@
 
         WhsePutAwayDocSelection.GetResult(WhsePutAwayRqst);
 
+        OnGetSingleWhsePutAwayDocOnAfterGetResultWhsePutAwayRqst(WhsePutAwayRqst);
+
         GetWhseSourceDocuments.SetWhseWkshName(
           CurrentWkshTemplateName, CurrentWkshName, LocationCode);
 
@@ -380,6 +382,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSourceDocumentsRun(var GetSourceDocuments: Report "Get Source Documents"; var WarehouseRequest: Record "Warehouse Request"; ServVendDocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSingleWhsePutAwayDocOnAfterGetResultWhsePutAwayRqst(WhsePutAwayRequest: Record "Whse. Put-away Request")
     begin
     end;
 

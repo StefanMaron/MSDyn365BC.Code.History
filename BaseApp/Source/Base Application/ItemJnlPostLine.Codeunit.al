@@ -1178,6 +1178,7 @@
                 OnItemQtyPostingOnAfterInsertApplEntry(ItemJnlLine, TempSplitItemJnlLine, GlobalItemLedgEntry);
             end;
         end;
+        OnAfterItemQtyPosting(ItemJnlLine);
     end;
 
     local procedure CheckRunItemValuePosting()
@@ -1324,6 +1325,7 @@
         CalledFromInvtPutawayPick := false;
 
         GetProdOrderRoutingLine(ProdOrderRoutingLine, OldItemJnlLine);
+        OnFlushOperationOnBeforeCheckRoutingLinkCode(ProdOrder, ProdOrderLine, ProdOrderRoutingLine, ItemJnlLine, LastOperation);
         if ProdOrderRoutingLine."Routing Link Code" <> '' then
             with ProdOrderComp do begin
                 SetCurrentKey(Status, "Prod. Order No.", "Routing Link Code", "Flushing Method");
@@ -5945,6 +5947,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterItemQtyPosting(ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeItemApplnEntryInsert(var ItemApplicationEntry: Record "Item Application Entry"; GlobalItemLedgerEntry: Record "Item Ledger Entry"; OldItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -5999,7 +6006,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeFlushOperation(var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line"; LastOperation: Boolean);
     begin
     end;
@@ -6361,6 +6368,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCorrectOutputValuationDateOnBeforeCheckProdOrder(ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFlushOperationOnBeforeCheckRoutingLinkCode(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ItemJournalLine: Record "Item Journal Line"; LastOperation: Boolean)
     begin
     end;
 

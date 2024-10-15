@@ -14,6 +14,7 @@ permissionset 1001 "LOCAL"
                   tabledata "Data Export Record Field" = RIMD,
                   tabledata "Data Export Record Source" = RIMD,
                   tabledata "Data Export Record Type" = RIMD,
+                  tabledata "Data Export Setup" = RIMD,
                   tabledata "Data Export Table Relation" = RIMD,
                   tabledata "Delivery Reminder Comment Line" = RIMD,
                   tabledata "Delivery Reminder Header" = RIMD,

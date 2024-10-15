@@ -272,6 +272,7 @@
             OutboxTransaction."Posting Date" := "Posting Date";
             OutboxTransaction."Document Date" := "Document Date";
             OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
+            OnCreateOutboxSalesInvTransOnBeforeOutboxTransactionInsert(OutboxTransaction);
             OutboxTransaction.Insert();
         end;
         ICOutBoxSalesHeader.TransferFields(SalesInvHdr);
@@ -388,6 +389,7 @@
             OutboxTransaction."Posting Date" := "Posting Date";
             OutboxTransaction."Document Date" := "Document Date";
             OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
+            OnCreateOutboxSalesCrMemoTransOnBeforeOutboxTransactionInsert(OutboxTransaction);
             OutboxTransaction.Insert();
         end;
         ICOutBoxSalesHeader.TransferFields(SalesCrMemoHdr);
@@ -902,7 +904,7 @@
                     else
                         Precision := 0.01;
                 end;
-                SalesLine.Validate(Quantity, Quantity);
+                ValidateQuantityFromICInboxSalesLine(SalesLine, ICInboxSalesLine);
                 SalesLine.Validate("Unit of Measure Code", "Unit of Measure Code");
                 if SalesHeader."Prices Including VAT" then
                     SalesLine.Validate("Unit Price", Round("Amount Including VAT" / Quantity, Precision))
@@ -935,6 +937,18 @@
             OnAfterCreateSalesLines(ICInboxSalesLine, SalesLine, SalesHeader);
             SalesLine.Modify();
         end;
+    end;
+
+    local procedure ValidateQuantityFromICInboxSalesLine(var SalesLine: Record "Sales Line"; ICInboxSalesLine: Record "IC Inbox Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityFromICInboxSalesLine(SalesLine, ICInboxSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine.Validate(Quantity, ICInboxSalesLine.Quantity)
     end;
 
     local procedure ValidateSalesLineDeliveryDates(var SalesLine: Record "Sales Line"; ICInboxSalesLine: Record "IC Inbox Sales Line")
@@ -2817,12 +2831,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityFromICInboxSalesLine(var SalesLine: Record "Sales Line"; ICInboxSalesLine: Record "IC Inbox Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateOutboxSalesInvTransOnAfterTransferFieldsFromSalesInvHeader(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; SalesInvHdr: Record "Sales Invoice Header"; ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxSalesInvTransOnBeforeOutboxTransactionInsert(var OutboxTransaction: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateOutboxSalesCrMemoTransOnAfterTransferFieldsFromSalesCrMemoHeader(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; SalesCrMemoHdr: Record "Sales Cr.Memo Header"; ICOutboxTransaction: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOutboxSalesCrMemoTransOnBeforeOutboxTransactionInsert(var OutboxTransaction: Record "IC Outbox Transaction")
     begin
     end;
 

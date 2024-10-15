@@ -14,6 +14,7 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Data Export Record Field" = R,
                   tabledata "Data Export Record Source" = R,
                   tabledata "Data Export Record Type" = R,
+                  tabledata "Data Export Setup" = R,
                   tabledata "Data Export Table Relation" = R,
                   tabledata "Delivery Reminder Comment Line" = R,
                   tabledata "Delivery Reminder Header" = R,

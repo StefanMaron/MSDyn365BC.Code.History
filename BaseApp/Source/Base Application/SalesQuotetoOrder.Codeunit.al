@@ -324,6 +324,12 @@ codeunit 86 "Sales-Quote to Order"
                         SalesOrderLine.AutoReserve();
                 end;
             until SalesQuoteLine.Next() = 0;
+        OnAfterTransferQuoteToOrderLines(SalesQuoteLine, SalesQuoteHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferQuoteToOrderLines(var SalesQuoteLine: Record "Sales Line"; var SalesQuoteHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

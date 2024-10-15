@@ -450,13 +450,23 @@
     begin
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by RunOnPrepareLineOnBeforePreparePurchase() with extended parameters', '21.0')]
     procedure RunOnPrepareLineOnBeforePreparePurchase(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line")
+    var
+        DummyGeneralPostingSetup: Record "General Posting Setup";
     begin
-        OnPrepareLineOnBeforePreparePurchase(PurchHeader, PurchLine);
+        OnPrepareLineOnBeforePreparePurchase(PurchHeader, PurchLine, DummyGeneralPostingSetup);
+    end;
+#endif
+
+    procedure RunOnPrepareLineOnBeforePreparePurchase(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; var GeneralPostingSetup: Record "General Posting Setup")
+    begin
+        OnPrepareLineOnBeforePreparePurchase(PurchHeader, PurchLine, GeneralPostingSetup);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPrepareLineOnBeforePreparePurchase(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line")
+    local procedure OnPrepareLineOnBeforePreparePurchase(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; var GeneralPostingSetup: Record "General Posting Setup")
     begin
     end;
 
@@ -489,6 +499,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPrepareDeferralLineOnBeforePrepareInitialAmounts(var DeferralPostBuffer: Record "Deferral Posting Buffer"; PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; AmountLCY: Decimal; AmountACY: Decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; PurchAccount: Code[20])
+    begin
+    end;
+
+    procedure RunOnPrepareDeferralLineOnAfterInitFromDeferralLine(var DeferralPostingBuffer: Record "Deferral Posting Buffer"; DeferralLine: Record "Deferral Line"; PurchaseLine: Record "Purchase Line"; DeferralTemplate: Record "Deferral Template")
+    begin
+        OnPrepareDeferralLineOnAfterInitFromDeferralLine(DeferralPostingBuffer, DeferralLine, PurchaseLine, DeferralTemplate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareDeferralLineOnAfterInitFromDeferralLine(var DeferralPostingBuffer: Record "Deferral Posting Buffer"; DeferralLine: Record "Deferral Line"; PurchaseLine: Record "Purchase Line"; DeferralTemplate: Record "Deferral Template")
     begin
     end;
 
