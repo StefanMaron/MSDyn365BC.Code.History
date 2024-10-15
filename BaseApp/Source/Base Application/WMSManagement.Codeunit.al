@@ -2139,9 +2139,7 @@
         MachineCenter: Record "Machine Center";
     begin
         if MachineCenter.Get(MachineCenterNo) then begin
-            if (MachineCenter."Location Code" = LocationCode) and
-               (MachineCenter."From-Production Bin Code" <> '')
-            then
+            if MachineCenter."Location Code" = LocationCode then
                 exit(MachineCenter.GetBinCode(UseFlushingMethod, FlushingMethod.AsInteger()));
 
             exit(GetWorkCenterBinCode(MachineCenter."Work Center No.", LocationCode, UseFlushingMethod, FlushingMethod));
