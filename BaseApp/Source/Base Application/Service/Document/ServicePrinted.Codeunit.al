@@ -6,15 +6,26 @@ codeunit 5905 "Service-Printed"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec, SuppressCommit);
+
         Rec.Find();
         Rec."No. Printed" := Rec."No. Printed" + 1;
         OnBeforeModify(Rec);
         Rec.Modify();
-        Commit();
+        if not SuppressCommit then
+            Commit();
     end;
+
+    var
+        SuppressCommit: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModify(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ServiceHeader: Record "Service Header"; var SuppressCommit: Boolean)
     begin
     end;
 }

@@ -1005,6 +1005,7 @@ codeunit 7312 "Create Pick"
         FromItemUnitOfMeasure.SetRange("Item No.", ItemNo);
         FromItemUnitOfMeasure.SetFilter("Qty. per Unit of Measure", '>=%1', ToQtyPerUOM);
         FromItemUnitOfMeasure.SetFilter(Code, '<>%1', ToUOMCode);
+        OnFindBreakBulkBinOnAfterFromItemUnitOfMeasureSetFilters(FromItemUnitOfMeasure, ItemNo, TotalQtytoPickBase, CreatePickParameters);
         if FromItemUnitOfMeasure.Find('-') then
             repeat
                 if GetBinContent(
@@ -1379,7 +1380,13 @@ codeunit 7312 "Create Pick"
     local procedure CreateBreakBulkTempLines(LocationCode: Code[10]; FromUOMCode: Code[10]; ToUOMCode: Code[10]; FromBinCode: Code[20]; ToBinCode: Code[20]; FromQtyPerUOM: Decimal; ToQtyPerUOM: Decimal; BreakbulkNo2: Integer; ToQtyToPick: Decimal; ToQtyToPickBase: Decimal; FromQtyToPick: Decimal; FromQtyToPickBase: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
     var
         QtyToBreakBulk: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateBreakBulkTempLines(LocationCode, FromUOMCode, ToUOMCode, FromBinCode, ToBinCode, FromQtyPerUOM, ToQtyPerUOM, BreakbulkNo2, ToQtyToPick, ToQtyToPickBase, FromQtyToPick, FromQtyToPickBase, QtyRndPrec, QtyRndPrecBase, IsHandled);
+        if IsHandled then
+            exit;
+
         // Directed put-away and pick
         if FromUOMCode <> ToUOMCode then begin
             CreateTempActivityLine(
@@ -1911,6 +1918,7 @@ codeunit 7312 "Create Pick"
         end;
 
         QtyReservedOnPickShip := WarehouseAvailabilityMgt.CalcReservQtyOnPicksShips(CurrLocation.Code, ItemNo, VariantCode, TempWarehouseActivityLine);
+        OnCalcAvailableQtyOnAfterCalcReservQtyOnPicksShips(QtyReservedOnPickShip, CurrLocation.Code, ItemNo, VariantCode, TempWarehouseActivityLine);
         QtyOnDedicatedBins := WarehouseAvailabilityMgt.CalcQtyOnDedicatedBins(CurrLocation.Code, ItemNo, VariantCode);
 
         exit(AvailableQtyBase + LineReservedQty + QtyReservedOnPickShip - QtyOnDedicatedBins);
@@ -3131,7 +3139,7 @@ codeunit 7312 "Create Pick"
         WhseSource2: Option;
         ShouldCalcMaxQty: Boolean;
     begin
-        OnBeforeCreateTempActivityLine(BinCode, QtyToPick, QtyToPickBase, ActionType);
+        OnBeforeCreateTempActivityLine(BinCode, QtyToPick, QtyToPickBase, ActionType, LocationCode, UOMCode, QtyPerUOM, CurrWarehouseShipmentLine, CreatePickParameters, TempWarehouseActivityLine, CurrBin, WhseItemTrkgExists);
 
         GetCurrBin(LocationCode, BinCode);
 
@@ -4129,7 +4137,7 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateTempActivityLine(BinCode: Code[20]; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer)
+    local procedure OnBeforeCreateTempActivityLine(BinCode: Code[20]; QtyToPick: Decimal; QtyToPickBase: Decimal; ActionType: Integer; LocationCode: Code[10]; UOMCode: Code[10]; QtyPerUOM: Decimal; WarehouseShipmentLine: Record "Warehouse Shipment Line"; CreatePickParameters: Record "Create Pick Parameters"; TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var Bin: Record Bin; WhseItemTrkgExists: Boolean)
     begin
     end;
 
@@ -4557,6 +4565,21 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcBinAvailQtyToPick(var QtyToPickBase: Decimal; var BinContent: Record "Bin Content"; var TempWarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailableQtyOnAfterCalcReservQtyOnPicksShips(var QtyReservedOnPickShip: Decimal; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnFindBreakBulkBinOnAfterFromItemUnitOfMeasureSetFilters(var ItemUnitOfMeasure: Record "Item Unit of Measure"; ItemNo: Code[20]; TotalQtytoPickBase: Decimal; CreatePickParameters: Record "Create Pick Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCreateBreakBulkTempLines(LocationCode: Code[10]; FromUOMCode: Code[10]; ToUOMCode: Code[10]; FromBinCode: Code[20]; ToBinCode: Code[20]; FromQtyPerUOM: Decimal; ToQtyPerUOM: Decimal; BreakbulkNo2: Integer; ToQtyToPick: Decimal; ToQtyToPickBase: Decimal; FromQtyToPick: Decimal; FromQtyToPickBase: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

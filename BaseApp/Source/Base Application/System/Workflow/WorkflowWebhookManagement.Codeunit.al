@@ -7,6 +7,7 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using System.Security.User;
+using System.Security.AccessControl;
 
 codeunit 1543 "Workflow Webhook Management"
 {
@@ -21,15 +22,17 @@ codeunit 1543 "Workflow Webhook Management"
         ResponseNotExpectedErr: Label 'A response is not expected.';
         UnsupportedRecordTypeErr: Label 'Record type %1 is not supported.', Comment = 'Record type Customer is not supported by this workflow response.';
         UserUnableToCancelErr: Label 'User %1 does not have the permission necessary to cancel the item.', Comment = '%1 = a NAV user ID, for example "MEGANB"';
+        EmailNotAssociatedWithUserErr: Label 'Email %1 is not associated with any user.', Comment = '%1 = an email, for example "test@microsoft.com"';
+        EmailNotProvidedErr: Label 'You must specify an email address for the requestor.';
+        UserNotFoundErr: Label 'User %1 has not been configured in the "Approval User Setup".', Comment = '%1 = a NAV user ID, for example "MEGANB"';
+        ApproverNotFoundErr: Label 'Approver for user %1 could not be found.', Comment = '%1 = a NAV user ID, for example "MEGANB"';
         EntryIsNotPendingErr: Label 'The %1 you are trying to act on is not in a pending state.', Comment = '%1 = the table caption for "Workflow Webhook Entry"';
-        UserNotSetAsApproverErr: Label 'User %1 does not have the permission necessary to act on the item. Make sure the user is set as approver or substitute in page %2, or check the "Workflows" section of the documentation.', Comment = '%1 = a NAV user ID, for example "MEGANB"; %2 = the page caption for "Approval User Setup"';
         UserUnableToDeleteErr: Label 'User %1 does not have the permission necessary to delete the item.', Comment = '%1 = a NAV user ID, for example "MEGANB"';
         DifferentUserExpectedErr: Label 'User %1 cannot act on this step. Make sure the user who created the webhook (%2) is the same who is trying to act.', Comment = '%1, %2 = two distinct NAV user IDs, for example "MEGANB" and "WILLIAMC"';
         WorkflowStepInstanceIdNotFoundErr: Label 'The workflow step instance id %1 was not found.', Comment = '%1 = Id value of a record.';
         WorkflowNotWaitingForUserErr: Label 'The requested action cannot be completed because the %1 is not waiting for a user.', Comment = '%1 = the table caption for "Workflow Step Argument"';
         TelemetryCategoryTxt: Label 'AL Workflow Webhook', Locked = true;
         CheckingUserActionsTelemetryMsg: Label 'Checking if the user can act on the webhook. Response type: %1. Response argument null: %2.', Locked = true;
-        CanActFinishedTelemetryMsg: Label 'Checking if the list of users is empty: %1.', Locked = true;
 
     [IntegrationEvent(false, FALSE)]
     local procedure OnCancelWorkflow(WorkflowWebhookEntry: Record "Workflow Webhook Entry"; OnDeletion: Boolean)
@@ -230,9 +233,7 @@ codeunit 1543 "Workflow Webhook Management"
 
     local procedure VerifyCanAct(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
     var
-        UserSetup: Record "User Setup";
         WorkflowStepArgument: Record "Workflow Step Argument";
-        DummyApprovalUserSetup: Page "Approval User Setup";
     begin
         Session.LogMessage('0000G8Y', StrSubstNo(CheckingUserActionsTelemetryMsg, WorkflowWebhookEntry.Response, IsNullGuid(WorkflowWebhookEntry."Response Argument")), Verbosity::Normal,
             DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
@@ -244,21 +245,8 @@ codeunit 1543 "Workflow Webhook Management"
 
         case WorkflowStepArgument."Response Type" of
             WorkflowStepArgument."Response Type"::"User ID":
-                begin
-                    if WorkflowStepArgument."Response User ID" <> UserId then
-                        Error(DifferentUserExpectedErr, UserId, WorkflowStepArgument."Response User ID");
-
-                    UserSetup.Init();
-                    UserSetup.FilterGroup(-1);
-                    UserSetup.SetFilter("Approver ID", '%1', UserId);
-                    UserSetup.SetFilter(Substitute, '%1', UserId);
-
-                    Session.LogMessage('0000G8Z', StrSubstNo(CanActFinishedTelemetryMsg, UserSetup.IsEmpty()), Verbosity::Normal,
-                        DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
-
-                    if UserSetup.IsEmpty() then
-                        Error(UserNotSetAsApproverErr, UserId, DummyApprovalUserSetup.Caption());
-                end
+                if WorkflowStepArgument."Response User ID" <> UserId then
+                    Error(DifferentUserExpectedErr, UserId, WorkflowStepArgument."Response User ID");
             else
                 Error(WorkflowNotWaitingForUserErr, WorkflowStepArgument.TableCaption());
         end;
@@ -383,6 +371,35 @@ codeunit 1543 "Workflow Webhook Management"
         exit(not WorkflowWebhookEntry.IsEmpty());
     end;
 
+    procedure GetDirectApproverForRequestor(RequestorEmailAddress: Text): Text
+    var
+        UserSetup: Record "User Setup";
+        User: Record User;
+        UserName: Code[50];
+    begin
+        if RequestorEmailAddress = '' then
+            Error(EmailNotProvidedErr);
+
+        // Get user name based on the requestor email address
+        UserName := GetUserBasedOnEmail(RequestorEmailAddress);
+
+        UserSetup.Reset();
+        // Find a user's approval setup
+        if not UserSetup.Get(UserName) then
+            Error(UserNotFoundErr, UserName);
+
+        User.Reset();
+        // Find a user based on the approver id
+        User.SetFilter("User Name", '%1', UserSetup."Approver ID");
+
+        if not User.FindFirst() then
+            Error(ApproverNotFoundErr, UserSetup."User ID");
+
+        // Return the approver email address
+        exit(User."Authentication Email");
+
+    end;
+
     procedure FindAndCancel(RecordId: RecordID)
     begin
         FindAndCancel(RecordId, false);
@@ -425,6 +442,19 @@ codeunit 1543 "Workflow Webhook Management"
             WorkflowWebhookEntry.ModifyAll("Record ID", NewRecordId, true);
     end;
 
+    local procedure GetUserBasedOnEmail(Email: Text): Code[50]
+    var
+        User: Record User;
+    begin
+        // Find a user based on the authentication email address
+        User.SetFilter("Authentication Email", '%1', Email);
+
+        if not User.FindFirst() then
+            Error(EmailNotAssociatedWithUserErr, Email);
+
+        exit(User."User Name");
+    end;
+
     local procedure VerifyResponseExpected(WorkflowWebhookEntry: Record "Workflow Webhook Entry")
     begin
         if WorkflowWebhookEntry.Response = WorkflowWebhookEntry.Response::NotExpected then
@@ -439,4 +469,3 @@ codeunit 1543 "Workflow Webhook Management"
     begin
     end;
 }
-

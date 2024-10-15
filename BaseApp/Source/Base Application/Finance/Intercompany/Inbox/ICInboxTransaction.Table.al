@@ -171,36 +171,40 @@ table 418 "IC Inbox Transaction"
         ICInboxJnlLines: Page "IC Inbox Jnl. Lines";
         ICInboxSalesDoc: Page "IC Inbox Sales Doc.";
         ICInboxPurchDoc: Page "IC Inbox Purchase Doc.";
+        IsHandled: Boolean;
     begin
-        case "Source Type" of
-            "Source Type"::Journal:
-                begin
-                    ICInBoxJnlLine.SetRange("Transaction No.", "Transaction No.");
-                    ICInBoxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
-                    ICInBoxJnlLine.SetRange("Transaction Source", "Transaction Source");
-                    Clear(ICInboxJnlLines);
-                    ICInboxJnlLines.SetTableView(ICInBoxJnlLine);
-                    ICInboxJnlLines.RunModal();
-                end;
-            "Source Type"::"Sales Document":
-                begin
-                    ICInboxSalesHeader.SetRange("IC Transaction No.", "Transaction No.");
-                    ICInboxSalesHeader.SetRange("IC Partner Code", "IC Partner Code");
-                    ICInboxSalesHeader.SetRange("Transaction Source", "Transaction Source");
-                    Clear(ICInboxSalesDoc);
-                    ICInboxSalesDoc.SetTableView(ICInboxSalesHeader);
-                    ICInboxSalesDoc.RunModal();
-                end;
-            "Source Type"::"Purchase Document":
-                begin
-                    ICInboxPurchHeader.SetRange("IC Partner Code", "IC Partner Code");
-                    ICInboxPurchHeader.SetRange("IC Transaction No.", "Transaction No.");
-                    ICInboxPurchHeader.SetRange("Transaction Source", "Transaction Source");
-                    Clear(ICInboxPurchDoc);
-                    ICInboxPurchDoc.SetTableView(ICInboxPurchHeader);
-                    ICInboxPurchDoc.RunModal();
-                end;
-        end;
+        IsHandled := false;
+        OnBeforeShowDetails(Rec, IsHandled);
+        if not IsHandled then
+            case "Source Type" of
+                "Source Type"::Journal:
+                    begin
+                        ICInBoxJnlLine.SetRange("Transaction No.", "Transaction No.");
+                        ICInBoxJnlLine.SetRange("IC Partner Code", "IC Partner Code");
+                        ICInBoxJnlLine.SetRange("Transaction Source", "Transaction Source");
+                        Clear(ICInboxJnlLines);
+                        ICInboxJnlLines.SetTableView(ICInBoxJnlLine);
+                        ICInboxJnlLines.RunModal();
+                    end;
+                "Source Type"::"Sales Document":
+                    begin
+                        ICInboxSalesHeader.SetRange("IC Transaction No.", "Transaction No.");
+                        ICInboxSalesHeader.SetRange("IC Partner Code", "IC Partner Code");
+                        ICInboxSalesHeader.SetRange("Transaction Source", "Transaction Source");
+                        Clear(ICInboxSalesDoc);
+                        ICInboxSalesDoc.SetTableView(ICInboxSalesHeader);
+                        ICInboxSalesDoc.RunModal();
+                    end;
+                "Source Type"::"Purchase Document":
+                    begin
+                        ICInboxPurchHeader.SetRange("IC Partner Code", "IC Partner Code");
+                        ICInboxPurchHeader.SetRange("IC Transaction No.", "Transaction No.");
+                        ICInboxPurchHeader.SetRange("Transaction Source", "Transaction Source");
+                        Clear(ICInboxPurchDoc);
+                        ICInboxPurchDoc.SetTableView(ICInboxPurchHeader);
+                        ICInboxPurchDoc.RunModal();
+                    end;
+            end;
 
         OnAfterShowDetails(Rec);
     end;
@@ -291,6 +295,11 @@ table 418 "IC Inbox Transaction"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnSourceTypeCase(var ICInboxTransaction: Record "IC Inbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDetails(var ICInboxTransaction: Record "IC Inbox Transaction"; var IsHandled: Boolean)
     begin
     end;
 }
