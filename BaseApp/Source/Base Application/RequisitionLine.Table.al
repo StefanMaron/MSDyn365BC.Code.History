@@ -64,7 +64,7 @@ table 246 "Requisition Line"
                 DeleteRelations;
 
                 if "No." = '' then begin
-                    CreateDim(DimMgt.TypeToTableID3(Type.AsInteger()), "No.", DATABASE::Vendor, "Vendor No.");
+                    CreateDimFromDefaultDim();
                     Init();
                     Type := xRec.Type;
                     exit;
@@ -94,7 +94,7 @@ table 246 "Requisition Line"
                     else
                         Validate("Unit of Measure Code", Item."Base Unit of Measure");
 
-                CreateDim(DimMgt.TypeToTableID3(Type.AsInteger()), "No.", DATABASE::Vendor, "Vendor No.");
+                CreateDimFromDefaultDim();
             end;
         }
         field(6; Description; Text[100])
@@ -192,6 +192,7 @@ table 246 "Requisition Line"
                         Validate("Currency Code", Vend."Currency Code");
                         "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                         ValidateItemDescriptionAndQuantity(Vend);
+                        SetPurchaserCode(Vend."Purchaser Code", "Purchaser Code");
                     end else begin
                         if ValidateFields then
                             Error(Text005, FieldCaption("Vendor No."), "Vendor No.");
@@ -222,7 +223,7 @@ table 246 "Requisition Line"
                 end;
                 "Supply From" := "Vendor No.";
 
-                UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type.AsInteger()), "No.");
+                UpdateDim();
             end;
         }
         field(10; "Direct Unit Cost"; Decimal)
@@ -485,6 +486,16 @@ table 246 "Requisition Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(43; "Purchaser Code"; Code[20])
+        {
+            Caption = 'Purchaser Code';
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
+
+            trigger OnValidate()
+            begin
+                CreateDimFromDefaultDim();
+            end;
         }
         field(73; "Drop Shipment"; Boolean)
         {
@@ -2004,6 +2015,68 @@ table 246 "Requisition Line"
         Validate("Dimension Set ID", DimSetIDArr[1]);
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        InitDefaultDimensionSources(TableID, No);
+        CreateDim(TableId, No);
+    end;
+
+    local procedure UpdateDim()
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        InitDefaultDimensionSources(TableID, No);
+        UpdateDim(TableID, No);
+    end;
+
+    local procedure InitDefaultDimensionSources(var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+        DimMgt.AddLastToTableIdArray(TableID, No, DimMgt.TypeToTableID3(Type.AsInteger()), "No.");
+        DimMgt.AddLastToTableIdArray(TableID, No, Database::Vendor, "Vendor No.");
+        DimMgt.AddLastToTableIdArray(TableID, No, Database::"Salesperson/Purchaser", "Purchaser Code");
+    end;
+
+    procedure CreateDim(var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        if "Ref. Order No." <> '' then
+            GetDimFromRefOrderLine(true);
+
+        OnAfterCreateDim(Rec, xRec);
+    end;
+
+    procedure UpdateDim(var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        DimManagement: Codeunit DimensionManagement;
+        DimSetIDArr: array[10] of Integer;
+    begin
+        CreateDim(TableID, No);
+        if "Demand Type" <> DATABASE::"Sales Line" then
+            exit;
+        SalesLine.Get("Demand Subtype", "Demand Order No.", "Demand Line No.");
+        DimSetIDArr[2] := SalesLine."Dimension Set ID";
+        DimSetIDArr[1] := "Dimension Set ID";
+        DimSetIDArr[1] := DimManagement.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        Validate("Dimension Set ID", DimSetIDArr[1]);
+    end;
+
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -2872,7 +2945,7 @@ table 246 "Requisition Line"
         "Action Message" := ReqLine."Action Message"::New;
         "User ID" := UserId;
 
-        UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type.AsInteger()), "No.");
+        UpdateDim();
 
         OnAfterTransferFromUnplannedDemand(Rec, UnplannedDemand);
     end;
@@ -3561,6 +3634,38 @@ table 246 "Requisition Line"
         exit('0');
     end;
 
+    local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetPurchaserCode(Rec, PurchaserCodeToCheck, PurchaserCodeToAssign, IsHandled);
+        if IsHandled then
+            exit;
+        
+        if PurchaserCodeToCheck = '' then
+            PurchaserCodeToCheck := GetUserSetupPurchaserCode();
+        if SalespersonPurchaser.Get(PurchaserCodeToCheck) then begin
+            if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                PurchaserCodeToAssign := ''
+            else
+                PurchaserCodeToAssign := PurchaserCodeToCheck;
+        end else
+            PurchaserCodeToAssign := '';
+    end;
+
+    local procedure GetUserSetupPurchaserCode(): Code[20]
+    var
+        UserSetup: Record "User Setup";
+    begin
+        UserSetup.SetLoadFields("Salespers./Purch. Code");
+        if not UserSetup.Get(UserId) then
+            exit('');
+ 
+        exit(UserSetup."Salespers./Purch. Code");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item)
     begin
@@ -3963,6 +4068,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupFromLocationOnAfterSetFilters(RequisitionLine: Record "Requisition Line"; var Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPurchaserCode(var RequisitionLine: Record "Requisition Line"; PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }
