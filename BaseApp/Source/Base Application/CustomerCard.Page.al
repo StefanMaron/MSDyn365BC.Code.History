@@ -162,6 +162,11 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer''s enterprise number.';
                 }
+                field("VAT Liable"; "VAT Liable")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the customer must be included in the VAT annual listing that you must submit to the Belgian tax authorities.';
+                }
                 field("Last Date Modified"; "Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
@@ -654,7 +659,7 @@ page 21 "Customer Card"
                     field("Balance Due"; CalcOverdueBalance)
                     {
                         ApplicationArea = Basic, Suite;
-                        CaptionClass = Format(StrSubstNo(OverduePaymentsMsg, Format(WorkDate)));
+                        CaptionClass = OverduePaymentsMsg;
                         ToolTip = 'Specifies the sum of outstanding payments from the customer.';
 
                         trigger OnDrillDown()
@@ -2252,7 +2257,7 @@ page 21 "Customer Card"
         CustInvDiscAmountLCY: Decimal;
         CustPaymentsLCY: Decimal;
         CustSalesLCY: Decimal;
-        OverduePaymentsMsg: Label 'Overdue Payments as of %1', Comment = 'Overdue Payments as of 27-02-2012';
+        OverduePaymentsMsg: Label 'Overdue Payments';
         DaysPastDueDate: Decimal;
         PostedInvoicesMsg: Label 'Posted Invoices (%1)', Comment = 'Invoices (5)';
         CreditMemosMsg: Label 'Posted Credit Memos (%1)', Comment = 'Credit Memos (3)';

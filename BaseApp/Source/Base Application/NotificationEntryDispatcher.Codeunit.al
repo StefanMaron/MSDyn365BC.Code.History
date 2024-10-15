@@ -100,6 +100,7 @@ codeunit 1509 "Notification Entry Dispatcher"
         NotificationSetup: Record "Notification Setup";
         DocumentMailing: Codeunit "Document-Mailing";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        FileManagement: Codeunit "File Management";
         BodyText: Text;
         MailSubject: Text;
     begin
@@ -118,6 +119,7 @@ codeunit 1509 "Notification Entry Dispatcher"
             NotificationEntry.Modify(true);
             ErrorMessageMgt.LogError(NotificationEntry, GetLastErrorText(), '');
         end;
+        FileManagement.DeleteServerFile(HtmlBodyFilePath);
     end;
 
     local procedure CreateNoteAndDispatch(var NotificationEntry: Record "Notification Entry")
@@ -223,7 +225,6 @@ codeunit 1509 "Notification Entry Dispatcher"
         end;
 
         ConvertHtmlFileToText(HtmlBodyFilePath, BodyTextOut);
-        FileManagement.DeleteServerFile(HtmlBodyFilePath);
         exit(true);
     end;
 

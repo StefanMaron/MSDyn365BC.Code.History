@@ -11,6 +11,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
         // Country
         PerCompanyUpgradeTags.Add(GetUpdateCountyNameTag);
         PerCompanyUpgradeTags.Add(GetCopyInvNoToPmtRefTag());
+        PerCompanyUpgradeTags.Add(GetCustomerVATLiableTag());
     end;
 
     procedure GetUpdateCountyNameTag(): Code[250]
@@ -23,5 +24,9 @@ codeunit 9997 "Upgrade Tag Def - Country"
         exit('MS-BE-362612-CopyInvNoToPmtRef-20200715');
     end;
 
+    procedure GetCustomerVATLiableTag(): Code[250]
+    begin
+        exit('MS-BE-388486-VATLiableCustomer-20200203');
+    end;
 }
 
