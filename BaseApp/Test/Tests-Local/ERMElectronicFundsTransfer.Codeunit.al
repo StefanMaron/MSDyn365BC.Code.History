@@ -46,6 +46,8 @@
         RemitAdvFileNotFoundTxt: Label 'Remittance Advice file has not been found';
         ForceDocBalanceFalseQst: Label 'Warning:  Transactions cannot be financially voided when Force Doc. Balance is set to No';
         CheckTransmittedErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty', Locked = true;
+        CheckExportedErr: Label 'Check Exported must be true.';
+        DocumentNoBlankErr: Label 'Document No. must be blank.';
 
     [Test]
     [HandlerFunctions('ExportElectronicPaymentsXMLRequestPageHandler')]
@@ -2696,6 +2698,47 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ExportElectronicPaymentsWordLayoutRequestPageHandler,ApplyVendorEntriesWithSetAppliesToIDModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportPaymentJournalPostPurchaseOrderVerifyDocumentNoBlank()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 534209] Export Payment Journal When Apllies-to ID set and during Void Document No. will be blank and Applies to Entry updated by correct Document No. 
+        Initialize();
+
+        // [GIVEN] Set Client Type and bindsubscription
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        // [GIVEN] Create Export Report Selection
+        CreateExportReportSelection(Layout::Word);
+
+        // [GIVEN] Create Electronic Payment Journal with Applies-to ID set
+        CreateElectronicPaymentJournalsWithApplication(GenJournalLine);
+
+        // [WHEN] Export Payment Journals
+        PaymentJournal.OpenEdit();
+        ExportPaymentJournal(PaymentJournal, GenJournalLine);
+        PaymentJournal.Close();
+
+        // [THEN] VerifyCheck Exported as true
+        GenJournalLine.Find();
+        Assert.IsTrue(GenJournalLine."Check Exported", CheckExportedErr);
+
+        // [WHEN] Void the Transaction as exported
+        PerformVoidTransmitElecPayments(GenJournalLine);
+
+        // [THEN] Verify GenJournalLine Document No. is blank after void the Exported file 
+        GenJournalLine.Find();
+        Assert.AreEqual('', GenJournalLine."Document No.", DocumentNoBlankErr);
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -4800,6 +4843,58 @@
         EFTExport.FindFirst();
     end;
 
+    local procedure CreateElectronicPaymentJournalsWithApplication(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        FindAndUpdateVendorBankAccount(VendorBankAccount);
+        CreateBankAccount(BankAccount, VendorBankAccount."Transit No.", BankAccount."Export Format"::US);
+        CreateBankAccWithBankStatementSetup(BankAccount, 'US EFT DEFAULT');
+        CreateMultiplePaymentJournalsAndApplyAfterPostPurchaseOrder(GenJournalLine, VendorBankAccount."Vendor No.",
+          BankAccount."No.", VendorBankAccount.Code);
+        Commit();
+    end;
+
+    local procedure CreateMultiplePaymentJournalsAndApplyAfterPostPurchaseOrder(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; BankAccountNo: Code[20]; BankAccountCode: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreatePurchaseOrder(PurchaseHeader, VendorNo);
+        PurchaseHeader.CalcFields(Amount);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccountNo);
+
+        CreatePaymentGLLine(
+            GenJournalLine, GenJournalBatch,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor,
+            VendorNo,
+            GenJournalLine."Applies-to Doc. Type"::" ",
+            '',
+            GenJournalLine."Bal. Account Type"::"Bank Account",
+            BankAccountNo,
+            PurchaseHeader.Amount);
+        GenJournalLine.Validate("Recipient Bank Account", BankAccountCode);
+        GenJournalLine.Validate("Document No.", LibraryRandom.RandText(MaxStrLen(GenJournalLine."Document No.")));
+        GenJournalLine.Modify();
+
+        ApplyVendorEntryFromPaymentJournal(GenJournalLine);
+
+        LibraryVariableStorage.Enqueue(BankAccountNo);  // Enqueue for ExportElectronicPaymentsRequestPageHandler.
+    end;
+
+    local procedure ApplyVendorEntryFromPaymentJournal(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.ApplyEntries.Invoke();
+        PaymentJournal.Close();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -4819,6 +4914,14 @@
     begin
         ConfirmFinancialVoid.InitializeRequest(WorkDate(), LibraryVariableStorage.DequeueInteger());
         Response := Action::Yes;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesWithSetAppliesToIDModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnIsTestMode', '', false, false)]
@@ -4905,5 +5008,18 @@
         IsCodeunitRun := true;
         LibraryVariableStorage.Enqueue(IsCodeunitRun);
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Export EFT (ACH)", 'OnBeforeDownloadWebclientZip', '', false, false)]
+    local procedure VerifyBlobContentOnBeforeDownloadWebclientZip(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; TempEraseFileNameValueBuffer: Record "Name/Value Buffer" temporary; ZipFileName: Text; var DataCompression: Codeunit "Data Compression")
+    begin
+        if not TempNameValueBuffer.FindSet() then
+            exit;
+        TempNameValueBuffer.SetAutoCalcFields("Value BLOB");
+        repeat
+            TempNameValueBuffer.TestField("Value BLOB");
+        until TempNameValueBuffer.Next() = 0;
+        TempNameValueBuffer.FindSet();
+    end;
+
 }
 

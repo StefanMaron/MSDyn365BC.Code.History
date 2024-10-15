@@ -1212,6 +1212,11 @@ codeunit 99000774 "Calculate Routing Line"
         TotalCapacityPerOperation: Decimal;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateRoutingLine(ProdOrderRoutingLine2, Direction, CalcStartEndDate, IsHandled);
+        if IsHandled then
+            exit;
+
         MfgSetup.Get();
 
         ProdOrderRoutingLine := ProdOrderRoutingLine2;
@@ -2269,6 +2274,11 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateLoadForwardOnAfterScheduleProdOrderRoutingLineManually(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; RoutingTimeType: Enum "Routing Time Type"; var RunStartingDateTime: DateTime; var ProdStartingDate: Date; var ProdStartingTime: Time; var RemainNeedQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeCalculateRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Direction: Option Forward,Backward; CalcStartEndDate: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

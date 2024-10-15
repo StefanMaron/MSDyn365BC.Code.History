@@ -55,6 +55,7 @@ report 10084 "Void/Transmit Elec. Payments"
                     "Check Exported" := false;
                     "Check Printed" := false;
                     "Document No." := '';
+                    ClearApplication("Gen. Journal Line");
                     CleanEFTExportTable("Gen. Journal Line");
                     "EFT Export Sequence No." := 0;
                 end else
@@ -173,6 +174,14 @@ report 10084 "Void/Transmit Elec. Payments"
             GenJournalLine."EFT Export Sequence No.")
         then
             EFTExport.Delete();
+    end;
+
+    local procedure ClearApplication(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        if GenJournalLine."Applies-to ID" <> '' then
+            GenJournalLine.Validate("Applies-to ID", '');
+        if GenJournalLine."Applies-to Doc. No." <> '' then
+            GenJournalLine.Validate("Applies-to Doc. No.", '');
     end;
 }
 

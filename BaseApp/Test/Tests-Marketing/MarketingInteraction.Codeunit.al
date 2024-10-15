@@ -2669,18 +2669,23 @@ codeunit 136208 "Marketing Interaction"
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('MessageHandler,ModalReportHandler,ConfirmHandler')]
-    procedure LogSegmentWithWordTemplate2Lines1PDF()
+    procedure LogSegmentWithWordTemplate2Lines1PZip()
     var
         SegmentHeader: Record "Segment Header";
+        Contact: Array[2] of Record Contact;
+        DataCompression: Codeunit "Data Compression";
         LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
         Segment: TestPage Segment;
         WizardAction: Enum "Interaction Template Wizard Action";
+        InStreamVar: InStream;
+        ZipEntryList: List of [Text];
     begin
         // [SCENARIO] Segment with Word Template when logged for 2 contacts generates 1 pdf file
         Initialize();
 
         // [GIVEN] Segment for Interaction Template with Word template and given wizard action and 2 Contacts
-        PrepareSegmentWordTemplate(SegmentHeader, WizardAction::"Merge");
+        PrepareSegmentWordTemplate(SegmentHeader, WizardAction::"Merge", Contact);
 
         // [WHEN] Log Segment
         Segment.OpenView();
@@ -2689,8 +2694,18 @@ codeunit 136208 "Marketing Interaction"
         BindSubscription(LibraryFileMgtHandler);
         Segment.LogSegment.Invoke();
 
-        // [THEN] 1 pdf file is generated
-        Assert.TextEndsWith(LibraryFileMgtHandler.GetDownloadFromSreamToFileName(), SegmentHeader."Subject (Default)" + '.pdf');
+        // [THEN] 1 zip file with name = SegmentHeader.'No.'
+        Assert.TextEndsWith(LibraryFileMgtHandler.GetDownloadFromSreamToFileName(), SegmentHeader."No." + '.zip');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        TempBlob.CreateInStream(InStreamVar);
+        DataCompression.OpenZipArchive(InStreamVar, false);
+        DataCompression.GetEntryList(ZipEntryList);
+
+        // [THEN] Zip file contains 2 pdf files. 
+        Assert.AreEqual(2, ZipEntryList.Count, '');
+        Assert.IsTrue(ZipEntryList.Contains(Contact[1]."No." + '.pdf'), '');
+        Assert.IsTrue(ZipEntryList.Contains(Contact[2]."No." + '.pdf'), '');
+        DataCompression.CloseZipArchive();
         ClearVariables(SegmentHeader);
     end;
 
@@ -3766,6 +3781,12 @@ codeunit 136208 "Marketing Interaction"
     local procedure PrepareSegmentWordTemplate(var SegmentHeader: Record "Segment Header"; WizardAction: Enum "Interaction Template Wizard Action")
     var
         Contact: Array[2] of Record Contact;
+    begin
+        PrepareSegmentWordTemplate(SegmentHeader, WizardAction, Contact);
+    end;
+
+    local procedure PrepareSegmentWordTemplate(var SegmentHeader: Record "Segment Header"; WizardAction: Enum "Interaction Template Wizard Action"; var Contact: Array[2] of Record Contact)
+    var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         InteractionTemplate: Record "Interaction Template";
         WordTemplateCode: Code[30];
@@ -3783,7 +3804,6 @@ codeunit 136208 "Marketing Interaction"
         SegmentHeader.Modify();
         CreateSegmentLineWithContactSalesPerson(SegmentHeader."No.", Contact[2]."No.", SalespersonPurchaser.Code);
         Commit();
-
     end;
 
     local procedure PrepareSegmentWithAttachment(var SegmentHeader: Record "Segment Header"; FileExtension: Text[250]; Contact: Record Contact)

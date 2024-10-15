@@ -456,7 +456,7 @@ codeunit 30103 "Shpfy Communication Mgt."
         ShopifyLogEntry."Retry Count" := RetryCount;
         ShopifyLogEntry."Query Cost" := GetQueryCost(Response);
         if HttpResponseMessage.Headers().GetValues('X-Request-ID', Values) then
-            if Evaluate(ShopifyLogEntry."Request Id", Values[1]) then;
+            ShopifyLogEntry."Shpfy Request Id" := Values[1];
         ShopifyLogEntry.Insert();
         if Request <> '' then
             ShopifyLogEntry.SetRequest(Request);

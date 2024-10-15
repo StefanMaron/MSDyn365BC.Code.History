@@ -10,7 +10,7 @@ page 672 "Job Queue Entries"
     CardPageID = "Job Queue Entry Card";
     PageType = List;
     SourceTable = "Job Queue Entry";
-    SourceTableView = sorting("Last Ready State");
+    SourceTableView = sorting("Entry No.");
     UsageCategory = Lists;
 
     layout
@@ -57,6 +57,11 @@ page 672 "Job Queue Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the job queue category to which the job queue entry belongs. Choose the field to select a code from the list.';
+                }
+                field("Priority Within Category"; Rec."Priority Within Category")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the priority of the job within the job queue category. Only relevant when job queue category code is specified.';
                 }
                 field("User Session Started"; Rec."User Session Started")
                 {
@@ -230,6 +235,47 @@ page 672 "Job Queue Entries"
                             Rec.Restart();
                     end;
                 }
+                group(SetPriority)
+                {
+                    Caption = 'Set Priority';
+                    Image = TaskList;
+                    ToolTip = 'Set the priority of the entry. Only relevant for jobs with a category code.';
+                    Enabled = (Rec."Job Queue Category Code" <> '');
+
+                    action(SetPriorityLow)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Low';
+                        ToolTip = 'Set priority to low.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.SetPriority(Rec."Priority Within Category"::Low);
+                        end;
+                    }
+                    action(SetPriorityNormal)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Normal';
+                        ToolTip = 'Set priority to Normal.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.SetPriority(Rec."Priority Within Category"::Normal);
+                        end;
+                    }
+                    action(SetPriorityHigh)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'High';
+                        ToolTip = 'Set priority to High.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.SetPriority(Rec."Priority Within Category"::High);
+                        end;
+                    }
+                }
                 action(RunInForeground)
                 {
                     ApplicationArea = Basic, Suite;
@@ -282,7 +328,7 @@ page 672 "Job Queue Entries"
 
                     trigger OnAction()
                     begin
-                        RemoveFailedJobs();
+                        Rec.RemoveFailedJobs(false);
                     end;
                 }
                 action(RunNow)
@@ -339,7 +385,6 @@ page 672 "Job Queue Entries"
     var
         AzureADGraphUser: Codeunit "Azure AD Graph User";
     begin
-        JobQueueManagement.FindStaleJobsAndSetError();
         JobQueueManagement.TooManyScheduledTasksNotification();
         IsUserDelegated := AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk();
     end;
@@ -361,20 +406,6 @@ page 672 "Job Queue Entries"
         JobQueueManagement: Codeunit "Job Queue Management";
         IsUserDelegated: Boolean;
         UserDoesNotExist: Boolean;
-
-    local procedure RemoveFailedJobs()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        FailedJobQueueEntry: Query "Failed Job Queue Entry";
-    begin
-        // Don't remove jobs that have just failed (i.e. last 30 sec)
-        FailedJobQueueEntry.SetRange(End_Date_Time, 0DT, CurrentDateTime - 30000);
-        FailedJobQueueEntry.Open();
-
-        while FailedJobQueueEntry.Read() do
-            if JobQueueEntry.Get(FailedJobQueueEntry.ID) then
-                JobQueueEntry.Delete(true);
-    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnActionRunNow(JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
