@@ -54,7 +54,7 @@ codeunit 143009 "Library - Remittance"
         // E.g. just putting Vendor.Code in each field doesn't work.
         Vendor.Validate(Address, '222 Reagan Drive');
         Vendor.Validate("Post Code", 'US-SC 27136');
-        Vendor.Validate(City, 'Columbia');
+        Vendor.Validate(City, 'Colombia');
 
         if IsRemittanceSepa then begin
             VendorBankAccount.Reset();

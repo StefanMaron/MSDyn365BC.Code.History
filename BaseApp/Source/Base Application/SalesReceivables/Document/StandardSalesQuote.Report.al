@@ -1,6 +1,6 @@
-﻿report 1304 "Standard Sales - Quote"
+report 1304 "Standard Sales - Quote"
 {
-    RDLCLayout = './StandardSalesQuote.rdlc';
+    RDLCLayout = './SalesReceivables/Document/StandardSalesQuote.rdlc';
     WordLayout = './StandardSalesQuote.docx';
     Caption = 'Sales - Quote';
     DefaultLayout = Word;

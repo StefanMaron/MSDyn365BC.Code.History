@@ -51,12 +51,12 @@ codeunit 2584 "Dim Corr Analysis View"
     local procedure UpdateSelectedAnalysisViews(var DimensionCorrection: Record "Dimension Correction")
     var
         AnalysisView: Record "Analysis View";
-
         UpdatedAnalysisView: Record "Analysis View";
         UpdateAnalysisView: Codeunit "Update Analysis View";
     begin
         AnalysisView.SetRange(Blocked, false);
         AnalysisView.SetRange("Account Source", AnalysisView."Account Source"::"G/L Account");
+        OnUpdateSelectedAnalysisViewsOnAfterSetFilter(AnalysisView);
         if AnalysisView.IsEmpty() then
             exit;
 
@@ -91,6 +91,11 @@ codeunit 2584 "Dim Corr Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShouldUpdateAnalysisView(var AnalysisView: Record "Analysis View"; var DimensionCorrection: Record "Dimension Correction"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSelectedAnalysisViewsOnAfterSetFilter(var AnalysisView: Record "Analysis View");
     begin
     end;
 }

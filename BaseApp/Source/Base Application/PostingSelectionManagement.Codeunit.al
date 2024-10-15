@@ -37,6 +37,7 @@ codeunit 99 "Posting Selection Management"
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Order:
                 begin
+                    OnConfirmPostSalesDocumentOnBeforeSalesOrderGetSalesInvoicePostingPolicy(SalesHeader);
                     UserSetupManagement.GetSalesInvoicePostingPolicy(SalesHeader.Ship, SalesHeader.Invoice);
                     case true of
                         not SalesHeader.Ship and not SalesHeader.Invoice:
@@ -57,6 +58,7 @@ codeunit 99 "Posting Selection Management"
                 end;
             SalesHeader."Document Type"::"Return Order":
                 begin
+                    OnConfirmPostSalesDocumentOnBeforeSalesOrderReturnGetSalesInvoicePostingPolicy(SalesHeader);
                     UserSetupManagement.GetSalesInvoicePostingPolicy(SalesHeader.Receive, SalesHeader.Invoice);
                     case true of
                         not SalesHeader.Receive and not SalesHeader.Invoice:
@@ -336,5 +338,15 @@ codeunit 99 "Posting Selection Management"
     local procedure GetReceiveInvoiceConfirmationMessage(): Text
     begin
         exit(ReceiveInvoiceConfirmQst);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmPostSalesDocumentOnBeforeSalesOrderGetSalesInvoicePostingPolicy(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmPostSalesDocumentOnBeforeSalesOrderReturnGetSalesInvoicePostingPolicy(var SalesHeader: Record "Sales Header")
+    begin
     end;
 }

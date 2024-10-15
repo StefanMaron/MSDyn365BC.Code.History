@@ -36,6 +36,7 @@ codeunit 137159 "SCM Warehouse VII"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJob: Codeunit "Library - Job";
+        LibraryPatterns: Codeunit "Library - Patterns";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -67,6 +68,7 @@ codeunit 137159 "SCM Warehouse VII"
         BlankCodeErr: Label 'Code must be filled in. Enter a value.';
         UsageNotLinkedToBlankLineTypeMsg: Label 'Usage will not be linked to the job planning line because the Line Type field is empty';
         ReservationSpecificTrackingConfirmMessage: Label 'Do you want to reserve specific tracking numbers?';
+        CrossDockQtyIsNotCalculatedMsg: Label 'Cross-dock quantity is not calculated';
 
     [Test]
     [Scope('OnPrem')]
@@ -2184,6 +2186,50 @@ codeunit 137159 "SCM Warehouse VII"
         Assert.RecordIsEmpty(WhseItemTrackingLine);
     end;
 
+    [Test]
+    procedure VerifyCrossDockQtyIsCalcualtedOnWarehouseReceiptForBackflushedComponentOnProductionOrder()
+    var
+        Location: Record Location;
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
+    begin
+        // [SCENARIO 471933] Verify that the cross-dock quantity is calculated on the warehouse receipt for the backflushed component on the production order 
+        Initialize();
+
+        // [GIVEN] Location "L" without bins with enabled "Use Cross-Docking", put-away and receive are required;
+        CreateCrossDockLocationWithoutBins(Location);
+        Evaluate(Location."Cross-Dock Due Date Calc.", '<10D>');
+        Location.Modify(true);
+
+        // [GIVEN] Create Items
+        CreateCompItem(CompItem, CompItem."Flushing Method"::Backward);
+        LibraryPatterns.MAKEItemSimple(ProdItem, ProdItem."Costing Method"::FIFO, 0);
+
+        // [GIVEN] Create Released Production Order
+        CreateReleasedProdOrder(ProdItem, CompItem, Location, 1);
+
+        // [GIVEN] Create and Release purchase document
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', CompItem."No.", 1, Location.Code, WorkDate());
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceipt(WarehouseReceiptHeader, CompItem."No.");
+
+        // [WHEN] Calculate cross-dock lines
+        LibraryWarehouse.CalculateCrossDockLines(WhseCrossDockOpportunity, '', WarehouseReceiptHeader."No.", Location.Code);
+
+        // [THEN] Verify results
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.");
+        Assert.AreEqual(WarehouseReceiptLine."Qty. to Cross-Dock", 1, CrossDockQtyIsNotCalculatedMsg);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3989,6 +4035,23 @@ codeunit 137159 "SCM Warehouse VII"
         JobPlanningLines.Filter.SetFilter("Job No.", JobNo);
         JobPlanningLines.Filter.SetFilter("Job Task No.", JobTaskNo);
         JobPlanningLines.Reserve.Invoke;
+    end;
+
+    local procedure CreateCompItem(var Item: Record Item; FlushingType: Enum "Flushing Method")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Flushing Method", FlushingType);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateReleasedProdOrder(ProdItem: Record Item; CompItem: Record Item; Location: Record Location; Qty: Decimal)
+    var
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdOrder: Record "Production Order";
+    begin
+        LibraryPatterns.MAKEProductionBOM(ProdBOMHeader, ProdItem, CompItem, 1, '');
+        LibraryPatterns.MAKEProductionOrder(ProdOrder, ProdOrder.Status::Released, ProdItem, Location.Code, '', Qty, WorkDate());
     end;
 
     [ConfirmHandler]

@@ -1098,6 +1098,7 @@ report 1306 "Standard Sales - Invoice"
                 DocumentTools: Codeunit DocumentTools;
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Sales Inv.-Printed", Header);

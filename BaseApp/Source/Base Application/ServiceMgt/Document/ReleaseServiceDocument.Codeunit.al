@@ -17,6 +17,7 @@ codeunit 416 "Release Service Document"
         ServiceHeader: Record "Service Header";
         InvtSetup: Record "Inventory Setup";
         WhseServiceRelease: Codeunit "Whse.-Service Release";
+        SkipWhseRequestOperations: Boolean;
 
     local procedure "Code"()
     var
@@ -69,7 +70,8 @@ codeunit 416 "Release Service Document"
             Modify(true);
 
             if "Document Type" = "Document Type"::Order then
-                WhseServiceRelease.Release(ServiceHeader);
+                if not SkipWhseRequestOperations then
+                    WhseServiceRelease.Release(ServiceHeader);
 
             OnAfterReleaseServiceDoc(ServiceHeader);
         end;
@@ -85,7 +87,8 @@ codeunit 416 "Release Service Document"
             Validate("Release Status", "Release Status"::Open);
             Modify(true);
             if "Document Type" in ["Document Type"::Order] then
-                WhseServiceRelease.Reopen(ServHeader);
+                if not SkipWhseRequestOperations then
+                    WhseServiceRelease.Reopen(ServHeader);
             OnAfterReopenServiceDoc(ServHeader);
         end;
     end;
@@ -115,6 +118,11 @@ codeunit 416 "Release Service Document"
                     exit;
 
         ServLine.TestField("Location Code");
+    end;
+
+    internal procedure SetSkipWhseRequestOperations(NewSkipWhseRequestOperations: Boolean)
+    begin
+        SkipWhseRequestOperations := NewSkipWhseRequestOperations;
     end;
 
     [IntegrationEvent(false, false)]

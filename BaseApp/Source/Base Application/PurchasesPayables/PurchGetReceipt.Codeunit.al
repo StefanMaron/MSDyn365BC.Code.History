@@ -28,6 +28,7 @@ codeunit 74 "Purch.-Get Receipt"
         PurchRcptLine: Record "Purch. Rcpt. Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         GetReceipts: Page "Get Receipt Lines";
+        LineListHasAttachments: Dictionary of [Code[20], Boolean];
 
     procedure CreateInvLines(var PurchRcptLine2: Record "Purch. Rcpt. Line")
     var
@@ -35,6 +36,7 @@ codeunit 74 "Purch.-Get Receipt"
         PrepmtAmtToDeductRounding: Decimal;
         IsHandled: Boolean;
         ShowDifferentPayToVendMsg: Boolean;
+        OrderNoList: List of [Code[20]];
     begin
         IsHandled := false;
         OnBeforeCreateInvLines(PurchRcptLine2, TransferLine, IsHandled);
@@ -78,6 +80,9 @@ codeunit 74 "Purch.-Get Receipt"
                         OnBeforeTransferLineToPurchaseDoc(PurchRcptHeader, PurchRcptLine2, PurchHeader, TransferLine);
                     end;
                     InsertInvoiceLineFromReceiptLine(PurchRcptLine2, TransferLine, PrepmtAmtToDeductRounding);
+                    if PurchRcptLine2."Order No." <> '' then
+                        if not OrderNoList.Contains(PurchRcptLine2."Order No.") then
+                            OrderNoList.Add(PurchRcptLine2."Order No.");
                 until Next() = 0;
 
                 UpdateItemChargeLines();
@@ -91,6 +96,7 @@ codeunit 74 "Purch.-Get Receipt"
 
                 if TransferLine then
                     AdjustPrepmtAmtToDeductRounding(PurchLine, PrepmtAmtToDeductRounding);
+                CopyDocumentAttachments(OrderNoList, PurchHeader);
             end;
         end;
     end;
@@ -125,6 +131,7 @@ codeunit 74 "Purch.-Get Receipt"
             PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
             OnInsertInvoiceLineFromRcptLineOnBeforeCalcUpdatePrepmtAmt(PurchRcptLine);
             CalcUpdatePrepmtAmtToDeductRounding(PurchRcptLine, PurchLine, PrepmtAmtToDeductRounding);
+            CopyDocumentAttachments(PurchRcptLine, PurchLine);
         end;
         OnAfterInsertInvoiceLineFromReceiptLine(PurchRcptLine, PurchLine, PurchRcptLine2, TransferLine);
     end;
@@ -356,6 +363,59 @@ codeunit 74 "Purch.-Get Receipt"
             exit;
 
         PurchRcptLine.TestField("VAT Bus. Posting Group", PurchHeader."VAT Bus. Posting Group");
+    end;
+
+    local procedure CopyDocumentAttachments(var PurchRcptLine2: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line")
+    var
+        OrderPurchaseLine: Record "Purchase Line";
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
+    begin
+        if (PurchRcptLine2."Order No." = '') or (PurchRcptLine2."Order Line No." = 0) then
+            exit;
+        if not AnyLineHasAttachments(PurchRcptLine2."Order No.") then
+            exit;
+        OrderPurchaseLine.ReadIsolation := IsolationLevel::ReadCommitted;
+        OrderPurchaseLine.SetLoadFields("Document Type", "Document No.", "Line No.");
+        if OrderPurchaseLine.Get(OrderPurchaseLine."Document Type"::Order, PurchRcptLine2."Order No.", PurchRcptLine2."Order Line No.") then
+            DocumentAttachmentMgmt.CopyAttachments(OrderPurchaseLine, PurchaseLine);
+    end;
+
+
+    local procedure CopyDocumentAttachments(OrderNoList: List of [Code[20]]; var PurchaseHeader: Record "Purchase Header")
+    var
+        OrderPurchaseHeader: Record "Purchase Header";
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
+        OrderNo: Code[20];
+    begin
+        OrderPurchaseHeader.ReadIsolation := IsolationLevel::ReadCommitted;
+        OrderPurchaseHeader.SetLoadFields("Document Type", "No.");
+        foreach OrderNo in OrderNoList do
+            if OrderHasAttachments(OrderNo) then
+                if OrderPurchaseHeader.Get(OrderPurchaseHeader."Document Type"::Order, OrderNo) then
+                    DocumentAttachmentMgmt.CopyAttachments(OrderPurchaseHeader, PurchaseHeader);
+    end;
+
+    local procedure OrderHasAttachments(DocNo: Code[20]): boolean
+    begin
+        exit(EntityHasAttachments(DocNo, Database::"Purchase Header"));
+    end;
+
+    local procedure AnyLineHasAttachments(DocNo: Code[20]): boolean
+    begin
+        if not LineListHasAttachments.ContainsKey(DocNo) then
+            LineListHasAttachments.Add(DocNo, EntityHasAttachments(DocNo, Database::"Purchase Line"));
+        exit(LineListHasAttachments.Get(DocNo));
+    end;
+
+    local procedure EntityHasAttachments(DocNo: Code[20]; TableNo: Integer): boolean
+    var
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        DocumentAttachment.ReadIsolation := IsolationLevel::ReadUncommitted;
+        DocumentAttachment.SetRange("Table ID", TableNo);
+        DocumentAttachment.SetRange("Document Type", DocumentAttachment."Document Type"::Order);
+        DocumentAttachment.SetRange("No.", DocNo);
+        exit(not DocumentAttachment.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]

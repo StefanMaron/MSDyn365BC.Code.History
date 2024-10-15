@@ -1468,16 +1468,17 @@ codeunit 137407 "SCM Warehouse IV"
         LocationCard: TestPage "Location Card";
     begin
         // [FEATURE] [FEFO] [Bin Mandatory] [UI]
-        // [SCENARIO 372104] "Pick According to FEFO" on Location Card should be disabled while "Require Pick" = Yes,"Bin Mandatory" = No
+        // [SCENARIO 372104] "Pick According to FEFO" on Location Card should be disabled while "Require Pick" = Yes,"Bin Mandatory" = No,"Require Shipment" = Yes
 
         // [GIVEN] Open Location Card
         LibraryWarehouse.CreateLocation(Location);
 
-        // [WHEN] "Require Pick" is set to TRUE, "Bin Mandatory" is set to FALSE
+        // [WHEN] "Require Pick" is set to TRUE, "Bin Mandatory" is set to FALSE, "Require Shipment" is set to TRUE
         LocationCard.Trap;
         LocationCard.OpenEdit;
         LocationCard.GotoRecord(Location);
         LocationCard."Require Pick".SetValue(true);
+        LocationCard."Require Shipment".SetValue(true);
 
         // [THEN] "Pick According to FEFO" is disabled
         Assert.IsFalse(

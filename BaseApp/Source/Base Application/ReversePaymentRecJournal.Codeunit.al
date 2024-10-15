@@ -263,6 +263,7 @@ codeunit 386 "Reverse Payment Rec. Journal"
             BankAccReconciliationLine.TransferFromPostedPaymentReconLine(PostedPaymentReconLine);
             BankAccReconciliationLine."Statement No." := BankAccReconciliation."Statement No.";
             BankAccReconciliationLine.Insert(true);
+            OnCopyPaymentRecJournalFromPostedPaymentReconLinesOnAfterInsertBankAccReconciliationLine(PostedPaymentReconLine, BankAccReconciliationLine);
             // if unapplied create application entry for the new BankAccReconciliationLine
             PmtRecAppliedToEntry.Reset();
             PmtRecAppliedToEntry.SetRange("Bank Account No.", PostedPaymentReconHdr."Bank Account No.");
@@ -321,6 +322,7 @@ codeunit 386 "Reverse Payment Rec. Journal"
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         ReversalEntry: Record "Reversal Entry";
     begin
+        OnBeforeReverseEntry(PaymentRecRelatedEntry);
         if not ShowEntriesToPost then
             ReversalEntry.SetHideWarningDialogs()
         else
@@ -348,6 +350,7 @@ codeunit 386 "Reverse Payment Rec. Journal"
                 end;
         end;
         RefreshRelatedEntryReversalStatus(PaymentRecRelatedEntry);
+        OnAfterReverseEntry();
     end;
 
     [CommitBehavior(CommitBehavior::Ignore)]
@@ -876,12 +879,35 @@ codeunit 386 "Reverse Payment Rec. Journal"
     local procedure ErrorIfEntryIsNotReversable(Reversed: Boolean; TableCaption: Text; EntryNo: Integer; TransactionNo: Integer; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AmountToApply: Decimal; AppliesToDocNo: Code[20]; AppliesToID: Code[50]; SourceCode: Code[10])
     var
         ReversalEntry: Record "Reversal Entry";
+        IsHandled: Boolean;
     begin
         if Reversed then
             ReversalEntry.AlreadyReversedEntry(TableCaption, EntryNo);
-        if not EntryIsReversable(JournalBatchName, DocumentType, AmountToApply, AppliesToDocNo, AppliesToID, SourceCode) then
-            ReversalEntry.TestFieldError();
+        IsHandled := false;
+        OnErrorIfEntryIsNotReversableOnBeforeEntryIsReversable(IsHandled);
+        if not IsHandled then
+            if not EntryIsReversable(JournalBatchName, DocumentType, AmountToApply, AppliesToDocNo, AppliesToID, SourceCode) then
+                ReversalEntry.TestFieldError();
         if TransactionNo = 0 then
             Error(EmptyTransactionNoErr, EntryNo);
+    end;
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReverseEntry()
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReverseEntry(var PaymentRecRelatedEntry: Record "Payment Rec. Related Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnErrorIfEntryIsNotReversableOnBeforeEntryIsReversable(var IsHandled: Boolean)
+    begin
+    end;     
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyPaymentRecJournalFromPostedPaymentReconLinesOnAfterInsertBankAccReconciliationLine(var PostedPaymentReconLine: Record "Posted Payment Recon. Line"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
     end;
 }
