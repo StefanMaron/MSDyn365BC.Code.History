@@ -937,7 +937,8 @@ page 256 "Payment Journal"
                             GenJnlLineRecordRef: RecordRef;
                             ExportNewLines: Boolean;
                         begin
-                            CheckIfPrivacyBlocked;
+                            FeatureTelemetry.LogUptake('0000H8H', ElectronicPaymentTok, Enum::"Feature Uptake Status"::Discovered);
+                            Rec.CheckIfPrivacyBlocked();
 
                             GenJournalBatch.Get("Journal Template Name", CurrentJnlBatchName);
                             GenJournalBatch.TestField("Posting No. Series", '');
@@ -947,7 +948,8 @@ page 256 "Payment Journal"
                                 // Export Format is either empty or 'OTHER'
                                 GenJnlLine.CopyFilters(Rec);
                                 GenJnlLine.FindFirst();
-                                GenJnlLine.ExportPaymentFile;
+                                GenJnlLine.ExportPaymentFile();
+                                FeatureTelemetry.LogUptake('0000HC0', ElectronicPaymentTok, Enum::"Feature Uptake Status"::"Set up");
                             end else begin
                                 CompanyInformation.Get();
                                 CompanyInformation.TestField("Federal ID No.");
@@ -957,15 +959,17 @@ page 256 "Payment Journal"
                                 GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
 
                                 if GenJnlLine.FindSet() then begin
+                                    // Clear all erorrs in the batch, all lines will be re-checked in the loop below
+                                    GenJnlLine.DeletePaymentFileBatchErrors();
                                     repeat
                                         CheckPaymentLineBeforeExport(GenJnlLine, GenJournalBatch, BankAccount);
                                     until GenJnlLine.Next() = 0;
                                 end;
 
                                 if BankAccount."Last Remittance Advice No." = '' then
-                                    InsertPaymentFileError(LastRemittanceErr);
+                                    Rec.InsertPaymentFileError(LastRemittanceErr);
 
-                                if GenJnlLine.HasPaymentFileErrorsInBatch then begin
+                                if GenJnlLine.HasPaymentFileErrorsInBatch() then begin
                                     Commit();
                                     Error(HasErrorsErr);
                                 end;
@@ -987,6 +991,7 @@ page 256 "Payment Journal"
                                     GenJnlLineRecordRef.SetView(GenJnlLine.GetView);
                                     BulkVendorRemitReporting.RunWithRecord(GenJnlLine)
                                 end;
+                                FeatureTelemetry.LogUptake('0000HC0', ElectronicPaymentTok, Enum::"Feature Uptake Status"::"Set up");
                             end;
                         end;
                     }
@@ -1256,9 +1261,11 @@ page 256 "Payment Journal"
                         GenJournalBatch: Record "Gen. Journal Batch";
                         GenerateEFTFiles: Page "Generate EFT Files";
                     begin
+                        FeatureTelemetry.LogUptake('0000H8I', ElectronicPaymentTok, Enum::"Feature Uptake Status"::"Used");
                         GenJournalBatch.Get("Journal Template Name", CurrentJnlBatchName);
                         GenerateEFTFiles.SetBalanceAccount(GenJournalBatch."Bal. Account No.");
                         GenerateEFTFiles.Run();
+                        FeatureTelemetry.LogUsage('0000H8J', ElectronicPaymentTok, 'EFT generated');
                     end;
                 }
             }
@@ -1804,6 +1811,7 @@ page 256 "Payment Journal"
         CheckManagement: Codeunit CheckManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1844,6 +1852,7 @@ page 256 "Payment Journal"
         UseForElecPaymentCheckedErr: Label 'The Use for Electronic Payments check box must be selected on the vendor or customer bank account card.';
         NoExportDiffCurrencyErr: Label 'You cannot export journal entries if Currency Code is different in Gen. Journal Line and Bank Account.';
         RecipientBankAccountEmptyErr: Label 'Recipient Bank Account must be filled.';
+        ElectronicPaymentTok: Label 'Electronic Payment', Locked = true;
         IsAllowPaymentExport: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         RecipientBankAccountMandatory: Boolean;
@@ -2005,7 +2014,7 @@ page 256 "Payment Journal"
     var
         PaymentExportGenJnlCheck: Codeunit "Payment Export Gen. Jnl Check";
     begin
-        GenJnlLine.DeletePaymentFileErrors;
+        GenJnlLine.DeletePaymentFileErrors();
         if GenJnlLine."Currency Code" <> BankAccount."Currency Code" then
             GenJnlLine.InsertPaymentFileError(NoExportDiffCurrencyErr);
         if ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Bank Account") or

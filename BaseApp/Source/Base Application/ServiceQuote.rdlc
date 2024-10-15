@@ -7,7 +7,6 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
-      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>74ffd5e4-9060-4fdc-9a3d-dbedc92fc8cb</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -1073,8 +1072,8 @@
                                 </Filter>
                               </Filters>
                               <Top>2.57874in</Top>
-                              <Height>1.33228in</Height>
-                              <Width>7.20472in</Width>
+                              <Height>1.33229in</Height>
+                              <Width>7.20473in</Width>
                               <Style />
                             </Tablix>
                             <Tablix Name="table2">
@@ -1431,7 +1430,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <Height>0.07874in</Height>
-                              <Width>0.58795in</Width>
+                              <Width>0.58793in</Width>
                               <ZIndex>1</ZIndex>
                               <Style />
                             </Tablix>
@@ -1595,8 +1594,8 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <Top>0.07874in</Top>
-                              <Height>0.33307in</Height>
-                              <Width>7.08661in</Width>
+                              <Height>0.33308in</Height>
+                              <Width>7.08662in</Width>
                               <ZIndex>2</ZIndex>
                               <Visibility>
                                 <Hidden>= IIF(Fields!DimensionLoopNumber.Value &gt;= 1, FALSE, TRUE)</Hidden>
@@ -2870,7 +2869,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                               </Filters>
                               <Top>0.57835in</Top>
                               <Height>1.99843in</Height>
-                              <Width>7.08661in</Width>
+                              <Width>7.08664in</Width>
                               <ZIndex>4</ZIndex>
                               <Style>
                                 <FontSize>7pt</FontSize>
@@ -3149,7 +3148,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                                 </Filter>
                               </Filters>
                               <Top>3.91732in</Top>
-                              <Height>1.33228in</Height>
+                              <Height>1.33231in</Height>
                               <Width>2.3622in</Width>
                               <ZIndex>5</ZIndex>
                               <Style />
@@ -3335,27 +3334,31 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
       <Width>7.28346in</Width>
       <Page>
         <PageHeader>
-          <Height>2.68391in</Height>
+          <Height>3.28957in</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
             <Image Name="CompanyInfo2_Picture1">
               <Source>Database</Source>
-              <Value>=Convert.FromBase64String(Code.GetPicture(3))</Value>
+              <Value>=Convert.ToBase64String(Fields!CompanyInfo2_Picture.Value)</Value>
               <MIMEType>image/bmp</MIMEType>
               <Sizing>FitProportional</Sizing>
               <Left>12cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
               <Visibility>
-                <Hidden>=iif(Code.GetPicture(3) = "",true,false)</Hidden>
+                <Hidden>=iif(IsNothing(Fields!CompanyInfo2_Picture.Value) = true, true, false)</Hidden>
               </Visibility>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Image>
             <Image Name="CompanyInfo1_Picture1">
               <Source>Database</Source>
-              <Value>=Convert.FromBase64String(Code.GetPicture(2))</Value>
+              <Value>=Convert.ToBase64String(Fields!CompanyInfo1_Picture.Value)</Value>
               <MIMEType>image/bmp</MIMEType>
               <Sizing>FitProportional</Sizing>
               <Left>6cm</Left>
@@ -3363,24 +3366,32 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
               <Width>60mm</Width>
               <ZIndex>1</ZIndex>
               <Visibility>
-                <Hidden>=iif(Code.GetPicture(2) = "",true,false)</Hidden>
+                <Hidden>=iif(IsNothing(Fields!CompanyInfo1_Picture.Value) = true, true, false)</Hidden>
               </Visibility>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Image>
             <Image Name="CompanyInfo_Picture1">
               <Source>Database</Source>
-              <Value>=Convert.FromBase64String(Code.GetPicture(1))</Value>
+              <Value>=Convert.ToBase64String(Fields!CompanyInfo_Picture.Value)</Value>
               <MIMEType>image/bmp</MIMEType>
               <Sizing>FitProportional</Sizing>
               <Height>14mm</Height>
               <Width>60mm</Width>
               <ZIndex>2</ZIndex>
               <Visibility>
-                <Hidden>=iif(Code.GetPicture(1) = "",true,false)</Hidden>
+                <Hidden>=iif(IsNothing(Fields!CompanyInfo_Picture.Value) = true, true, false)</Hidden>
               </Visibility>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Image>
             <Textbox Name="Service_Header___E_Mail_Caption1">
               <KeepTogether>true</KeepTogether>
@@ -3397,7 +3408,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.66535in</Top>
+              <Top>2.29035in</Top>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
               <ZIndex>3</ZIndex>
@@ -3420,7 +3431,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.49882in</Top>
+              <Top>2.12382in</Top>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
               <ZIndex>4</ZIndex>
@@ -3443,7 +3454,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.66535in</Top>
+              <Top>2.29035in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
@@ -3467,7 +3478,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.49882in</Top>
+              <Top>2.12382in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
@@ -3492,7 +3503,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.16496in</Top>
+              <Top>2.78996in</Top>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
               <ZIndex>7</ZIndex>
@@ -3516,7 +3527,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.99975in</Top>
+              <Top>2.62475in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -3541,7 +3552,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.16496in</Top>
+              <Top>2.78996in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -3566,7 +3577,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.49803in</Top>
+              <Top>3.12303in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -3591,7 +3602,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.3315in</Top>
+              <Top>2.9565in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -3615,7 +3626,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.49882in</Top>
+              <Top>2.12382in</Top>
               <Left>0.88583in</Left>
               <Height>0.16654in</Height>
               <Width>1.65354in</Width>
@@ -3639,7 +3650,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.66535in</Top>
+              <Top>2.29035in</Top>
               <Left>0.88583in</Left>
               <Height>0.16654in</Height>
               <Width>2.83465in</Width>
@@ -3663,7 +3674,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.66535in</Top>
+              <Top>2.29035in</Top>
               <Left>5.51575in</Left>
               <Height>0.16654in</Height>
               <Width>1.65354in</Width>
@@ -3687,7 +3698,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.49882in</Top>
+              <Top>2.12382in</Top>
               <Left>5.51575in</Left>
               <Height>0.16654in</Height>
               <Width>1.65354in</Width>
@@ -3711,6 +3722,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
+              <Top>1.5875cm</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -3735,7 +3747,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.49961in</Top>
+              <Top>1.12461in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -3759,7 +3771,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.66614in</Top>
+              <Top>1.29114in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -3783,7 +3795,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.83268in</Top>
+              <Top>1.45768in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -3807,7 +3819,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.99921in</Top>
+              <Top>1.62421in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -3833,7 +3845,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.3315in</Top>
+              <Top>2.9565in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>21</ZIndex>
@@ -3856,7 +3868,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.16575in</Top>
+              <Top>1.79075in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -3880,7 +3892,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.33228in</Top>
+              <Top>1.95728in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -3906,7 +3918,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.49961in</Top>
+              <Top>1.12461in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>24</ZIndex>
@@ -3931,7 +3943,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.66614in</Top>
+              <Top>1.29114in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>25</ZIndex>
@@ -3956,7 +3968,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.83268in</Top>
+              <Top>1.45768in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>26</ZIndex>
@@ -3981,7 +3993,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.99921in</Top>
+              <Top>1.62421in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>27</ZIndex>
@@ -4006,7 +4018,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.16575in</Top>
+              <Top>1.79075in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>28</ZIndex>
@@ -4031,7 +4043,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.33228in</Top>
+              <Top>1.95728in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>29</ZIndex>
@@ -4056,7 +4068,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.99843in</Top>
+              <Top>2.62343in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -4080,7 +4092,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.16496in</Top>
+              <Top>2.78996in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -4107,7 +4119,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.3315in</Top>
+              <Top>2.9565in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -4134,7 +4146,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.49803in</Top>
+              <Top>3.12303in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -4160,7 +4172,7 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.16654in</Top>
+              <Top>0.79154in</Top>
               <Left>5.05512in</Left>
               <Height>0.16654in</Height>
               <Width>0.66142in</Width>
@@ -4188,97 +4200,13 @@ Fields!CompanyAddr_5_.Value + Chr(177) + Fields!CompanyAddr_6_.Value, 2)</Hidden
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.16654in</Top>
+              <Top>0.79154in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>0.44882in</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="DataPictureLeft">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value />
-                      <Style>
-                        <Color>Red</Color>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Left>1.24984in</Left>
-              <Height>0.12498in</Height>
-              <Width>0.37495in</Width>
-              <ZIndex>41</ZIndex>
-              <Visibility>
-                <Hidden>=Code.SetPicture(ReportItems!CompanyInfo_Picture.Value,1)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
-              </Style>
-            </Textbox>
-            <Textbox Name="DataPictureCenter">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value />
-                      <Style>
-                        <Color>Red</Color>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Left>1.74978in</Left>
-              <Height>0.12498in</Height>
-              <Width>0.37495in</Width>
-              <ZIndex>42</ZIndex>
-              <Visibility>
-                <Hidden>=Code.SetPicture(ReportItems!CompanyInfo1_Picture.Value,2)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
-              </Style>
-            </Textbox>
-            <Textbox Name="DataPictureRight">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value />
-                      <Style>
-                        <Color>Red</Color>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Left>2.24972in</Left>
-              <Height>0.12498in</Height>
-              <Width>0.37495in</Width>
-              <ZIndex>43</ZIndex>
-              <Visibility>
-                <Hidden>=Code.SetPicture(ReportItems!CompanyInfo2_Picture.Value,3)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
               </Style>
             </Textbox>
           </ReportItems>

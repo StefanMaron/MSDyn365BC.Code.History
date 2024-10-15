@@ -4287,6 +4287,28 @@
 
     [Test]
     [HandlerFunctions('StandardPurchaseOrderReportDataHandler')]
+    procedure DoNotThrowErrorOnPrintPurchOrderWithMixedDropShipmentAndNonInvtItem()
+    var
+        NonInvtItem: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Drop Shipment] [Non-Inventory Item] [UT]
+        // [SCENARIO 431276] No error when trying to print purchase order having lines for drop shipment and non-inventory items.
+        Initialize();
+
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, NonInvtItem."No.", LibraryRandom.RandInt(10));
+        CreateDropShipmentPurchaseLine(PurchaseLine, PurchaseHeader);
+
+        PurchaseHeader.PrintRecords(false);
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardPurchaseOrderReportDataHandler')]
     [Scope('OnPrem')]
     procedure PrintPurchOrderWithDropshipmentAndCommentLines()
     var

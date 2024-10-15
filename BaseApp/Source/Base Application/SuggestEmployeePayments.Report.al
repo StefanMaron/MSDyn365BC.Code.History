@@ -672,6 +672,8 @@
                   "Shortcut Dimension 2 Code");
             end;
         end;
+
+        OnAfterUpdateDimensions(GenJnlLine, SummarizePerEmpl);
     end;
 
     local procedure ShowMessage(Text: Text)
@@ -827,6 +829,11 @@
         GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         GenJnlLine2."Bal. Account Type" := GenJnlBatch."Bal. Account Type";
         GenJnlLine2."Bal. Account No." := GenJnlBatch."Bal. Account No.";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDimensions(var GenJournalLine: Record "Gen. Journal Line"; SummarizePerEmpl: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

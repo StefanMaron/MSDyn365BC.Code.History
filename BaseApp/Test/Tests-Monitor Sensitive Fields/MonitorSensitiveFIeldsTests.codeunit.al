@@ -177,9 +177,14 @@ codeunit 139064 "Monitor Sensitive Field Test"
         ChangeLogEntry.SetRange("Field No.", FieldMonitoringSetup.FieldNo("Monitor Status"));
         ChangeLogEntry.SetRange("Field Log Entry Feature", ChangeLogEntry."Field Log Entry Feature"::"Monitor Sensitive Fields");
         Assert.IsTrue(ChangeLogEntry.FindFirst(), 'A log entry should have been added when changing sensitive field');
-        Assert.IsFalse(IsNullGuid(ChangeLogEntry."Notification Message Id"), 'Message Id should have been populated in the log entry');
-        Assert.AreEqual(ChangeLogEntry."Notification Status"::"Email Enqueued", ChangeLogEntry."Notification Status", 'Notification status should be sent');
-  end;
+        if TaskScheduler.CanCreateTask() then begin
+            Assert.IsFalse(IsNullGuid(ChangeLogEntry."Notification Message Id"), 'Message Id should have been populated in the log entry');
+            Assert.AreEqual(ChangeLogEntry."Notification Status"::"Email Enqueued", ChangeLogEntry."Notification Status", 'Notification status should be sent');
+        end else begin
+            Assert.IsTrue(IsNullGuid(ChangeLogEntry."Notification Message Id"), 'Fail to send email, Message Id should not be populated');
+            Assert.AreEqual(ChangeLogEntry."Notification Status"::"Sending Email Failed", ChangeLogEntry."Notification Status", 'Notification status should be failed');
+        end;
+    end;
 
     [Test]
     [TestPermissions(TestPermissions::Disabled)]

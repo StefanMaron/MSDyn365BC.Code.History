@@ -62,6 +62,7 @@
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Payment Method Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CFDI Cancellation Reason");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CFDI Export Code");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CFDI Subject to Tax");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CFDI Documents");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CFDI Relation Document");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CFDI Transport Operator");

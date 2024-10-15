@@ -178,6 +178,11 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'CFDI Non-Taxable';
         }
+        field(10003; "CFDI Subject to Tax"; Code[10])
+        {
+            Caption = 'CFDI Subject to Tax';
+            TableRelation = "CFDI Subject to Tax";
+        }
         field(27010; "DIOT-WHT %"; Decimal)
         {
             Caption = 'DIOT WHT Percent';

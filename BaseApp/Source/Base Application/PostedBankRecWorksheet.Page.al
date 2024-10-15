@@ -283,7 +283,7 @@ page 10125 "Posted Bank Rec. Worksheet"
                 trigger OnAction()
                 begin
                     CurrPage.SetSelectionFilter(Rec);
-                    PrintRecords(true);
+                    Rec.PrintRecords(true);
                 end;
             }
             action(Navigate)

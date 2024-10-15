@@ -414,6 +414,7 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="ItemNo_TransLine">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -442,6 +443,7 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="Desc_TransLine">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>

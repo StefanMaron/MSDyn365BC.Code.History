@@ -553,7 +553,7 @@ page 291 "Req. Worksheet"
                     Promoted = true;
                     PromotedCategory = Category6;
                     PromotedIsBig = true;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -583,6 +583,7 @@ page 291 "Req. Worksheet"
                     trigger OnAction()
                     begin
                         CalculatePlan.SetTemplAndWorksheet("Worksheet Template Name", "Journal Batch Name");
+                        OnCalculatePlanOnBeforeCalculatePlanRunModal(CalculatePlan, Rec);
                         CalculatePlan.RunModal();
                         Clear(CalculatePlan);
                     end;
@@ -890,6 +891,11 @@ page 291 "Req. Worksheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCarryOutActionMsg(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculatePlanOnBeforeCalculatePlanRunModal(var CalculatePlan: Report "Calculate Plan - Req. Wksh."; var RequisitionLine: Record "Requisition Line");
     begin
     end;
 

@@ -60,6 +60,9 @@
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
+      "path": "./ReportLayouts/test/Report Layouts Tests"
+    },
+    {
       "path": "./EnvestnetYodleeBankFeeds/Test/Envestnet Yodlee Bank Feeds Tests"
     },
     {

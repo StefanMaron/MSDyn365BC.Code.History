@@ -47,7 +47,7 @@ codeunit 134922 "ERM Budget"
         AnalysisViewBudgetEntryExistsErr: Label 'You cannot change the amount on this G/L budget entry because one or more related analysis view budget entries exist.\\You must make the change on the related entry in the G/L Budget window.';
         DimValueBlockedErr: Label 'Dimension Value %1 - %2 is blocked.', Comment = '%1 = Dim Code, %2 = Dim Value';
         DimValueMustNotBeErr: Label 'Dimension Value Type for Dimension Value %1 - %2 must not be %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 = Dimension Value Type value';
-        DimValueMissingErr: Label 'Dimension Value for %1 is missing.', Comment = '%1 = Dim Code';
+        DimValueMissingErr: Label 'Dimension Value %1 - %2 is missing.', Comment = '%1 = Dim Code, %2 = Dim Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -2073,6 +2073,7 @@ codeunit 134922 "ERM Budget"
         GLBudgetName: Record "G/L Budget Name";
         GLBudgetEntry: Record "G/L Budget Entry";
         Dimension: Record Dimension;
+        DimValueCode: Code[20];
     begin
         // [FEATURE] [G/L Budget Entries] [Dimension]
         // [SCENARIO 343318] Missing dimension values can't be added to G/L Budget Entries
@@ -2086,10 +2087,11 @@ codeunit 134922 "ERM Budget"
         LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, LibraryERM.CreateGLAccountNo(), GLBudgetName.Name);
 
         // [WHEN] Budget Dimension "D" set to a missing value on G/L Budget Entry
-        asserterror GLBudgetEntry.Validate("Budget Dimension 1 Code", LibraryUtility.GenerateGUID());
+        DimValueCode := LibraryUtility.GenerateGUID();
+        asserterror GLBudgetEntry.Validate("Budget Dimension 1 Code", DimValueCode);
 
         // [THEN] An error occurs that the dimension value for "D" is missing
-        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code));
+        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code, DimValueCode));
     end;
 
     [Test]
@@ -2158,6 +2160,7 @@ codeunit 134922 "ERM Budget"
         ItemBudgetName: Record "Item Budget Name";
         ItemBudgetEntry: Record "Item Budget Entry";
         Dimension: Record Dimension;
+        DimValueCode: Code[20];
     begin
         // [FEATURE] [Item Budget] [Dimension]
         // [SCENARIO 343318] Missing dimension values can't be added to Item Budget Entries
@@ -2172,10 +2175,11 @@ codeunit 134922 "ERM Budget"
           ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ItemBudgetName.Name, WorkDate(), LibraryInventory.CreateItemNo());
 
         // [WHEN] Budget Dimension "D" set to a missing value on Item Budget Entry
-        asserterror ItemBudgetEntry.Validate("Budget Dimension 1 Code", LibraryUtility.GenerateGUID());
+        DimValueCode := LibraryUtility.GenerateGUID();
+        asserterror ItemBudgetEntry.Validate("Budget Dimension 1 Code", DimValueCode);
 
         // [THEN] An error occurs that the dimension value for "D" is missing
-        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code));
+        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code, DimValueCode));
     end;
 
     [Test]
@@ -2335,6 +2339,37 @@ codeunit 134922 "ERM Budget"
 
         SalesBudgetOverview.Close();
         BudgetNamesSales.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ImportItemBudgetfromExcelRequestPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ItemBudgetToExcelImportComplexItemFilter()
+    var
+        ItemBudgetName: Record "Item Budget Name";
+        FileName: Text;
+        ItemNo: array[3] of Code[20];
+        i: Integer;
+        ItemFilter: Text;
+    begin
+        // [FEATURE] [Item Budget]
+        // [SCENARIO 428920] Item budget imported without error if it contains complex item filter
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] Items I1, I2, I3
+        for i := 1 to 3 do
+            ItemNo[i] := CreateShortNoItem(i);
+
+        // [GIVEN] Item budged "IB"
+        LibraryERM.CreateItemBudgetName(ItemBudgetName, "Analysis Area Type"::Sales);
+        // [GIVEN] Export item budget to excel with item filter "I1..I2|I3"
+        ItemFilter := StrSubstNo('%1..%2|%3', ItemNo[1], ItemNo[2], ItemNo[3]);
+        FileName := RunExportItemBudgetToExcel(ItemBudgetName, ItemFilter);
+
+        // [WHEN] Import created file
+        RunImportItemBudgetFromExcel(ItemBudgetName, FileName);
+        // [THEN] No "The filter expression applied..." error
     end;
 
     local procedure Initialize()
@@ -2504,6 +2539,50 @@ codeunit 134922 "ERM Budget"
         BusinessUnit.Init();
         BusinessUnit.Validate(Code, LibraryUtility.GenerateRandomCode20(BusinessUnit.FieldNo(Code), DATABASE::"Business Unit"));
         BusinessUnit.Insert(true);
+    end;
+
+    local procedure CreateShortNoItem(i: Integer): Code[20]
+    var
+        Item: Record Item;
+    begin
+        if not Item.Get(Format(i)) then begin
+            Item."No." := Format(i);
+            Item.Insert(true);
+        end;
+
+        exit(Item."No.");
+    end;
+
+    local procedure RunExportItemBudgetToExcel(ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text) FileName: Text
+    var
+        ExportItemBudgettoExcel: Report "Export Item Budget to Excel";
+    begin
+        LibraryReportValidation.SetFileName(ItemBudgetName.Name);
+        FileName := LibraryReportValidation.GetFileName();
+
+        ExportItemBudgetToExcel.SetParameters(
+            ItemBudgetName."Analysis Area",
+            ItemBudgetName.Name,
+            "Item Analysis Value Type"::"Sales Amount",
+            '', '',
+            '', '', '',
+            Format(WorkDate()),
+            "Analysis Source Type"::Item, '',
+            ItemFilter,
+            '', true, "Analysis Period Type"::Day,
+            "Item Budget Dimension Type"::Item, "Item Budget Dimension Type"::Period, '', '', "Analysis Rounding Factor"::None);
+        ExportItemBudgetToExcel.SetFileNameSilent(FileName);
+        ExportItemBudgetToExcel.Run();
+    end;
+
+    local procedure RunImportItemBudgetFromExcel(ItemBudgetName: Record "Item Budget Name"; FileName: Text)
+    var
+        ImportItemBudgetFromExcel: Report "Import Item Budget from Excel";
+    begin
+        Commit();
+        ImportItemBudgetFromExcel.SetParameters(ItemBudgetName.Name, ItemBudgetName."Analysis Area".AsInteger(), "Item Analysis Value Type"::"Sales Amount".AsInteger());
+        ImportItemBudgetFromExcel.SetFileNameSilent(FileName);
+        ImportItemBudgetFromExcel.RunModal();
     end;
 
     local procedure UpdateAnalysisView(var AnalysisView: Record "Analysis View"; FirstChangedGLBudgetEntryNo: Integer)
@@ -3505,6 +3584,13 @@ codeunit 134922 "ERM Budget"
         ExportBudgettoExcel.ColumnDimensions.SetValue(LibraryVariableStorage.DequeueText);
         ExportBudgettoExcel.OK.Invoke;
         Sleep(200);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ImportItemBudgetfromExcelRequestPageHandler(var ImportItemBudgetfromExcel: TestRequestPage "Import Item Budget from Excel")
+    begin
+        ImportItemBudgetfromExcel.OK().Invoke();
     end;
 
     [ModalPageHandler]

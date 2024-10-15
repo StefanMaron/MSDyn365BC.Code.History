@@ -384,12 +384,12 @@
 
         if DelayedInsert then begin
             IsHandled := false;
-            OnModifyRecordDataFieldsOnBeforeRecRefInsert(RecRef, ConfigPackageTable, IsHandled);
+            OnModifyRecordDataFieldsOnBeforeRecRefInsert(RecRef, ConfigPackageTable, IsHandled, ConfigPackageRecord);
             if not IsHandled then
                 RecRef.Insert(true);
         end else begin
             IsHandled := false;
-            OnModifyRecordDataFieldsOnBeforeRecRefModify(RecRef, ConfigPackageTable, RecordsModifiedCount, IsHandled);
+            OnModifyRecordDataFieldsOnBeforeRecRefModify(RecRef, ConfigPackageTable, RecordsModifiedCount, IsHandled, ConfigPackageRecord);
             if not IsHandled then
                 RecRef.Modify(not ConfigPackageTable."Skip Table Triggers");
             OnModifyRecordDataFieldsOnAfterRecRefModify(RecRef);
@@ -2569,12 +2569,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnModifyRecordDataFieldsOnBeforeRecRefInsert(var RecRef: RecordRef; ConfigPackageTable: Record "Config. Package Table"; var IsHandled: Boolean)
+    local procedure OnModifyRecordDataFieldsOnBeforeRecRefInsert(var RecRef: RecordRef; ConfigPackageTable: Record "Config. Package Table"; var IsHandled: Boolean; ConfigPackageRecord: Record "Config. Package Record")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnModifyRecordDataFieldsOnBeforeRecRefModify(var RecRef: RecordRef; ConfigPackageTable: Record "Config. Package Table"; var RecordsModifiedCount: Integer; var IsHandled: Boolean)
+    local procedure OnModifyRecordDataFieldsOnBeforeRecRefModify(var RecRef: RecordRef; ConfigPackageTable: Record "Config. Package Table"; var RecordsModifiedCount: Integer; var IsHandled: Boolean; ConfigPackageRecord: Record "Config. Package Record")
     begin
     end;
 }

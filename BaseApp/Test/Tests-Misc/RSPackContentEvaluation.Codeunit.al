@@ -13,9 +13,9 @@ codeunit 138400 "RS Pack Content - Evaluation"
         LibraryDemoData: Codeunit "Library - Demo Data";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        PostingAfterWDIsOnErr: Label 'Posting After Working Date option is on';
         XOUTGOINGTxt: Label 'OUTGOING';
         XINCOMETxt: Label 'INCOME';
-        PostingOutsideFYIsOnErr: Label 'Posting Outside Fiscal Year option is on';
         NonStockNoSeriesTok: Label 'NS-ITEM';
         TransShipmentNoSeriesTok: Label 'T-SHPT';
         TransReceiptNoSeriesTok: Label 'T-RCPT';
@@ -59,14 +59,14 @@ codeunit 138400 "RS Pack Content - Evaluation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PostingOutsideFYIsOn()
+    procedure PostingAfterWDIsOn()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        // [SCENARIO 169269] "Posting Outside Fiscal Year Not Allowed" is on in "My Settings"
+        // [SCENARIO 169269] "Posting After Working Date Not Allowed" is on in "My Settings"
         Initialize();
 
-        Assert.IsTrue(InstructionMgt.IsEnabled(InstructionMgt.PostingAfterCurrentCalendarDateNotAllowedCode), PostingOutsideFYIsOnErr);
+        Assert.IsTrue(InstructionMgt.IsEnabled(InstructionMgt.PostingAfterWorkingDateNotAllowedCode()), PostingAfterWDIsOnErr);
     end;
 
     [Test]

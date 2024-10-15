@@ -117,7 +117,7 @@
                     ToolTip = 'Specifies that the bank reconciliations are ready to post.';
                     Visible = NOT BankReconWithAutoMatch;
                 }
-#if not CLEAN20
+#if not CLEAN21
                 field("Deposits to Post"; "Deposits to Post")
                 {
                     ApplicationArea = Basic, Suite;
@@ -187,8 +187,10 @@
     end;
 
     trigger OnOpenPage()
+#if not CLEAN21
     var
         BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
+#endif
     begin
         Rec.Reset();
         if not Rec.Get() then begin
@@ -198,7 +200,10 @@
 
         Rec.SetFilter("Due Date Filter", '<=%1', WorkDate());
         Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
+        BankDepositFeatureEnabled := true;
+#if not CLEAN21
         BankDepositFeatureEnabled := BankDepositFeatureMgt.IsEnabled();
+#endif
     end;
 
     var

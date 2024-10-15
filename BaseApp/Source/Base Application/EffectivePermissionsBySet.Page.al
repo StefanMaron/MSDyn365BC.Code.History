@@ -14,7 +14,7 @@ page 9853 "Effective Permissions By Set"
             repeater(Control5)
             {
                 ShowCaption = false;
-                field("Permission Set"; "Permission Set")
+                field("Permission Set"; Rec."Permission Set")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -24,31 +24,31 @@ page 9853 "Effective Permissions By Set"
                     var
                         TenantPermission: Record "Tenant Permission";
                     begin
-                        if Source = Source::Entitlement then
+                        if Rec.Source = Rec.Source::Entitlement then
                             exit;
                         OpenPermissionsPage(true);
-                        if Type = Type::"User-Defined" then begin
-                            TenantPermission.Get(GetAppID, "Permission Set", CurrObjectType, CurrObjectID);
-                            "Read Permission" := TenantPermission."Read Permission";
-                            "Insert Permission" := TenantPermission."Insert Permission";
-                            "Modify Permission" := TenantPermission."Modify Permission";
-                            "Delete Permission" := TenantPermission."Delete Permission";
-                            "Execute Permission" := TenantPermission."Execute Permission";
-                            Modify;
-                            RefreshDisplayTexts;
+                        if Rec.Type = Rec.Type::"User-Defined" then begin
+                            TenantPermission.Get(GetAppID, Rec."Permission Set", CurrObjectType, CurrObjectID);
+                            Rec."Read Permission" := TenantPermission."Read Permission";
+                            Rec."Insert Permission" := TenantPermission."Insert Permission";
+                            Rec."Modify Permission" := TenantPermission."Modify Permission";
+                            Rec."Delete Permission" := TenantPermission."Delete Permission";
+                            Rec."Execute Permission" := TenantPermission."Execute Permission";
+                            Rec.Modify();
+                            RefreshDisplayTexts();
                         end;
                     end;
                 }
-                field(Source; Source)
+                field(Source; Rec.Source)
                 {
                     ApplicationArea = All;
                     Enabled = false;
                     Style = Strong;
-                    StyleExpr = Source = Source::Entitlement;
+                    StyleExpr = Rec.Source = Rec.Source::Entitlement;
                     ToolTip = 'Specifies the origin of the permission set that gives the user permissions for the object chosen in the Permissions section. Note that rows with the type Entitlement originate from the subscription plan. The permission values of the entitlement overrule values that give increased permissions in other permission sets. In those cases, the permission level is Conflict.';
                     Visible = IsSaaS;
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = All;
                     Enabled = false;
@@ -63,7 +63,7 @@ page 9853 "Effective Permissions By Set"
 
                     trigger OnDrillDown()
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict(ReadPermissions, ReadEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(ReadPermissions, ReadEntitlementPermissions, Rec.Source = Rec.Source::Entitlement);
                     end;
                 }
                 field(InsertTxt; InsertPermissionsTxt)
@@ -75,7 +75,7 @@ page 9853 "Effective Permissions By Set"
 
                     trigger OnDrillDown()
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict(InsertPermissions, InsertEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(InsertPermissions, InsertEntitlementPermissions, Rec.Source = Rec.Source::Entitlement);
                     end;
                 }
                 field(ModifyTxt; ModifyPermissionsTxt)
@@ -87,7 +87,7 @@ page 9853 "Effective Permissions By Set"
 
                     trigger OnDrillDown()
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict(ModifyPermissions, ModifyEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(ModifyPermissions, ModifyEntitlementPermissions, Rec.Source = Rec.Source::Entitlement);
                     end;
                 }
                 field(DeleteTxt; DeletePermissionsTxt)
@@ -99,7 +99,7 @@ page 9853 "Effective Permissions By Set"
 
                     trigger OnDrillDown()
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict(DeletePermissions, DeleteEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(DeletePermissions, DeleteEntitlementPermissions, Rec.Source = Rec.Source::Entitlement);
                     end;
                 }
                 field(ExecuteTxt; ExecutePermissionsTxt)
@@ -112,7 +112,7 @@ page 9853 "Effective Permissions By Set"
                     trigger OnDrillDown()
                     var
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict(ExecutePermissions, ExecuteEntitlementPermissions, Source = Source::Entitlement, Type = Type::"User-Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(ExecutePermissions, ExecuteEntitlementPermissions, Rec.Source = Rec.Source::Entitlement);
                     end;
                 }
             }
@@ -128,7 +128,7 @@ page 9853 "Effective Permissions By Set"
 
     trigger OnAfterGetRecord()
     begin
-        RefreshDisplayTexts;
+        RefreshDisplayTexts();
     end;
 
     trigger OnInit()
@@ -137,12 +137,12 @@ page 9853 "Effective Permissions By Set"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         CurrentUserCanManageUser := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS();
     end;
 
     trigger OnOpenPage()
     begin
-        SetCurrentKey(Source, Type);
+        Rec.SetCurrentKey(Source, Type);
     end;
 
     var
@@ -184,11 +184,11 @@ page 9853 "Effective Permissions By Set"
     var
         IsSourceEntitlement: Boolean;
     begin
-        ReadPermissions := EffectivePermissionsMgt.ConvertToPermission("Read Permission");
-        InsertPermissions := EffectivePermissionsMgt.ConvertToPermission("Insert Permission");
-        ModifyPermissions := EffectivePermissionsMgt.ConvertToPermission("Modify Permission");
-        DeletePermissions := EffectivePermissionsMgt.ConvertToPermission("Delete Permission");
-        ExecutePermissions := EffectivePermissionsMgt.ConvertToPermission("Execute Permission");
+        ReadPermissions := EffectivePermissionsMgt.ConvertToPermission(Rec."Read Permission");
+        InsertPermissions := EffectivePermissionsMgt.ConvertToPermission(Rec."Insert Permission");
+        ModifyPermissions := EffectivePermissionsMgt.ConvertToPermission(Rec."Modify Permission");
+        DeletePermissions := EffectivePermissionsMgt.ConvertToPermission(Rec."Delete Permission");
+        ExecutePermissions := EffectivePermissionsMgt.ConvertToPermission(Rec."Execute Permission");
 
         ReadEntitlementPermissions := EffectivePermissionsMgt.ConvertToPermission(EntitlementPermissionBuffer."Read Permission");
         InsertEntitlementPermissions := EffectivePermissionsMgt.ConvertToPermission(EntitlementPermissionBuffer."Insert Permission");
@@ -196,7 +196,7 @@ page 9853 "Effective Permissions By Set"
         DeleteEntitlementPermissions := EffectivePermissionsMgt.ConvertToPermission(EntitlementPermissionBuffer."Delete Permission");
         ExecuteEntitlementPermissions := EffectivePermissionsMgt.ConvertToPermission(EntitlementPermissionBuffer."Execute Permission");
 
-        IsSourceEntitlement := (Source = Source::Entitlement);
+        IsSourceEntitlement := (Rec.Source = Rec.Source::Entitlement);
 
         ReadPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(ReadPermissions, ReadEntitlementPermissions, IsSourceEntitlement);
         InsertPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(InsertPermissions, InsertEntitlementPermissions, IsSourceEntitlement);

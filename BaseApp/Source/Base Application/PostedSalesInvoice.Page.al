@@ -1283,7 +1283,13 @@
                     var
                         SalesHeader: Record "Sales Header";
                         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCreateCreditMemoOnAction(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         if CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(Rec, SalesHeader) then begin
                             PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
                             CurrPage.Close;
@@ -1414,6 +1420,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCreditMemoOnAction(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 }

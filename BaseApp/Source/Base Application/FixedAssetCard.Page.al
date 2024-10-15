@@ -796,14 +796,14 @@
         ConfirmManagement: Codeunit "Confirm Management";
         UpdateAllowed: Boolean;
         UpdateConfirmed: Boolean;
+        IsDifferentFAPostingGr: Boolean;
     begin
         if FASubclass.Get("FA Subclass Code") then;
         UpdateAllowed := true;
         UpdateConfirmed := true;
+        IsDifferentFAPostingGr := FADepreciationBook."FA Posting Group" <> FASubclass."Default FA Posting Group";
 
-        if (FADepreciationBook."FA Posting Group" <> '') and
-           (FADepreciationBook."FA Posting Group" <> FASubclass."Default FA Posting Group")
-        then begin
+        if (FADepreciationBook."FA Posting Group" <> '') and IsDifferentFAPostingGr then begin
             FALedgerEntry.SetRange("FA No.", "No.");
             UpdateAllowed := FALedgerEntry.IsEmpty();
 
@@ -819,13 +819,15 @@
 
         if UpdateConfirmed and UpdateAllowed then begin
             Validate("FA Posting Group", FASubclass."Default FA Posting Group");
-            FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
-            if Simple then
-                SaveSimpleDepreciationBook("No.")
-            else
-                UpdateDepreciationBook("No.");
+            if IsDifferentFAPostingGr then begin
+                FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
+                if Simple then
+                    SaveSimpleDepreciationBook("No.")
+                else
+                    UpdateDepreciationBook("No.");
+            end;
         end;
-        if not UpdateAllowed then
+        if not UpdateAllowed and IsDifferentFAPostingGr then
             Message(
                 FAPostingGroupChangeDeniedMsg,
                 FADepreciationBook."FA Posting Group",

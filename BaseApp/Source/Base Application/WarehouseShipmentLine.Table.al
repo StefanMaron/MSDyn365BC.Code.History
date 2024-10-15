@@ -170,13 +170,7 @@ table 7321 "Warehouse Shipment Line"
                 GetLocation("Location Code");
                 "Qty. Outstanding" := UOMMgt.RoundAndValidateQty("Qty. Outstanding", "Qty. Rounding Precision", FieldCaption("Qty. Outstanding"));
                 "Qty. Outstanding (Base)" := MaxQtyOutstandingBase(CalcBaseQty("Qty. Outstanding", FieldCaption("Qty. Outstanding"), FieldCaption("Qty. Outstanding (Base)")));
-                if Location."Require Pick" then begin
-                    if "Assemble to Order" then
-                        Validate("Qty. to Ship", 0)
-                    else
-                        Validate("Qty. to Ship", "Qty. Picked" - (Quantity - "Qty. Outstanding"));
-                end else
-                    Validate("Qty. to Ship", "Qty. Outstanding");
+                InitQtyToShip();
 
                 if Location."Directed Put-away and Pick" then
                     WMSMgt.CalcCubageAndWeight(
@@ -204,7 +198,7 @@ table 7321 "Warehouse Shipment Line"
                 GetLocation("Location Code");
 
                 IsHandled := false;
-                OnBeforeCompareShipAndPickQty(Rec, IsHandled);
+                OnBeforeCompareShipAndPickQty(Rec, IsHandled, CurrFieldNo);
                 if not IsHandled then
                     if ("Qty. to Ship" > "Qty. Picked" - "Qty. Shipped") and Location."Require Pick" and not "Assemble to Order" then
                         FieldError("Qty. to Ship", StrSubstNo(Text002, "Qty. Picked" - "Qty. Shipped"));
@@ -988,6 +982,19 @@ table 7321 "Warehouse Shipment Line"
         "Qty. Outstanding (Base)" := "Qty. (Base)" - "Qty. Shipped (Base)";
     end;
 
+    local procedure InitQtyToShip()
+    begin
+        if Location."Require Pick" then begin
+            if "Assemble to Order" then
+                Validate("Qty. to Ship", 0)
+            else
+                Validate("Qty. to Ship", "Qty. Picked" - (Quantity - "Qty. Outstanding"));
+        end else
+            Validate("Qty. to Ship", "Qty. Outstanding");
+
+        OnAfterInitQtyToShip(Rec, CurrFieldNo);
+    end;
+
     procedure GetWhseShptLine(ShipmentNo: Code[20]; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer): Boolean
     begin
         SetRange("No.", ShipmentNo);
@@ -1065,6 +1072,8 @@ table 7321 "Warehouse Shipment Line"
         SetRange("Source No.", SourceNo);
         if SourceLineNo >= 0 then
             SetRange("Source Line No.", SourceLineNo);
+
+        OnAfterSetSourceFilter(Rec, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
 
     procedure ClearSourceFilter()
@@ -1131,7 +1140,17 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterOpenItemTrackingLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var SecondSourceQtyArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFilter(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     begin
     end;
 
@@ -1171,7 +1190,7 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCompareShipAndPickQty(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCompareShipAndPickQty(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 

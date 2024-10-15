@@ -163,7 +163,7 @@ table 5902 "Service Line"
                        not ReplaceServItemAction
                     then
                         Validate(Quantity, xRec.Quantity);
-                    UpdateUnitPriceByField(FieldNo("No."));
+                    UpdateUnitPriceByField(FieldNo("No."), true);
                     UpdateAmounts();
                 end;
                 UpdateReservation(FieldNo("No."));
@@ -304,7 +304,7 @@ table 5902 "Service Line"
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
 
-                UpdateUnitPriceByField(FieldNo(Quantity));
+                UpdateUnitPriceByField(FieldNo(Quantity), true);
             end;
         }
         field(16; "Outstanding Quantity"; Decimal)
@@ -684,6 +684,7 @@ table 5902 "Service Line"
                     ItemLedgEntry.TestField(Positive, true);
                     Validate("Unit Cost (LCY)", CalcUnitCost(ItemLedgEntry));
                     "Location Code" := ItemLedgEntry."Location Code";
+                    OnValidateApplToItemEntryOnBeforeShowNotOpenItemLedgerEntryMessage(Rec, xRec, ItemLedgEntry, CurrFieldNo);
                     if not ItemLedgEntry.Open then
                         Message(Text042, "Appl.-to Item Entry");
                 end;
@@ -724,7 +725,7 @@ table 5902 "Service Line"
                 if Type = Type::Item then begin
                     if "Customer Price Group" <> xRec."Customer Price Group" then
                         PlanPriceCalcByField(FieldNo("Customer Price Group"));
-                    UpdateUnitPriceByField(FieldNo("Customer Price Group"));
+                    UpdateUnitPriceByField(FieldNo("Customer Price Group"), false);
                 end;
             end;
         }
@@ -784,7 +785,6 @@ table 5902 "Service Line"
             trigger OnValidate()
             var
                 WorkType: Record "Work Type";
-                PriceType: Enum "Price Type";
             begin
                 if Type = Type::Resource then begin
                     TestStatusOpen;
@@ -792,10 +792,7 @@ table 5902 "Service Line"
                         Validate("Unit of Measure Code", WorkType."Unit of Measure Code");
                     if "Work Type Code" <> xRec."Work Type Code" then
                         PlanPriceCalcByField(FieldNo("Work Type Code"));
-                    UpdateUnitPriceByField(FieldNo("Work Type Code"));
-                    Validate("Unit Price");
-                    ApplyPrice(PriceType::Purchase, ServHeader, FieldNo("Work Type Code"));
-                    Validate("Unit Cost (LCY)");
+                    UpdateUnitPriceByField(FieldNo("Work Type Code"), true);
                 end;
             end;
         }
@@ -1421,11 +1418,11 @@ table 5902 "Service Line"
                 "Description 2" := ItemVariant."Description 2";
                 OnValidateVariantCodeOnAssignItemVariant(Rec, ItemVariant);
 
-                GetServHeader;
+                GetServHeader();
                 if ServHeader."Language Code" <> '' then
-                    GetItemTranslation;
+                    GetItemTranslation();
 
-                UpdateUnitPriceByField(FieldNo("Variant Code"));
+                UpdateUnitPriceByField(FieldNo("Variant Code"), true);
             end;
         }
         field(5403; "Bin Code"; Code[20])
@@ -1519,7 +1516,6 @@ table 5902 "Service Line"
                 UnitOfMeasure: Record "Unit of Measure";
                 UnitOfMeasureTranslation: Record "Unit of Measure Translation";
                 ResUnitofMeasure: Record "Resource Unit of Measure";
-                PriceType: Enum "Price Type";
             begin
                 TestField("Quantity Shipped", 0);
                 TestField("Qty. Shipped (Base)", 0);
@@ -1575,15 +1571,13 @@ table 5902 "Service Line"
                             "Qty. per Unit of Measure" := ResUnitofMeasure."Qty. per Unit of Measure";
                             if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
                                 PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
-                            ApplyPrice(PriceType::Purchase, ServHeader, FieldNo("Unit of Measure Code"));
-                            Validate("Unit Cost (LCY)");
                         end;
                     Type::"G/L Account", Type::" ", Type::Cost:
                         "Qty. per Unit of Measure" := 1;
                 end;
 
                 Validate(Quantity);
-                UpdateUnitPriceByField(FieldNo("Unit of Measure Code"));
+                UpdateUnitPriceByField(FieldNo("Unit of Measure Code"), true);
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
                 UpdateReservation(FieldNo("Unit of Measure Code"));
             end;
@@ -1624,10 +1618,7 @@ table 5902 "Service Line"
                     FieldError("Quantity (Base)", Text029);
 
                 TestField("Qty. per Unit of Measure", 1);
-                if "Quantity (Base)" <> xRec."Quantity (Base)" then
-                    PlanPriceCalcByField(FieldNo("Quantity (Base)"));
                 Validate(Quantity, "Quantity (Base)");
-                UpdateUnitPriceByField(FieldNo("Quantity (Base)"));
             end;
         }
         field(5416; "Outstanding Qty. (Base)"; Decimal)
@@ -2381,8 +2372,8 @@ table 5902 "Service Line"
             begin
                 if Warranty <> xRec.Warranty then
                     PlanPriceCalcByField(FieldNo(Warranty));
-                UpdateUnitPriceByField(FieldNo(Warranty));
-                UpdateAmounts;
+                UpdateUnitPriceByField(FieldNo(Warranty), false);
+                UpdateAmounts();
             end;
         }
         field(5965; "Component Line No."; Integer)
@@ -2529,7 +2520,7 @@ table 5902 "Service Line"
                         if "Unit Price" = 0 then
                             PlanPriceCalcByField(FieldNo("Return Reason Code"));
                 end;
-                UpdateUnitPriceByField(FieldNo("Return Reason Code"));
+                UpdateUnitPriceByField(FieldNo("Return Reason Code"), false);
             end;
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
@@ -2551,7 +2542,7 @@ table 5902 "Service Line"
                 if Type = Type::Item then begin
                     if "Customer Disc. Group" <> xRec."Customer Disc. Group" then
                         PlanPriceCalcByField(FieldNo("Customer Disc. Group"));
-                    UpdateUnitPriceByField(FieldNo("Customer Disc. Group"));
+                    UpdateUnitPriceByField(FieldNo("Customer Disc. Group"), false);
                 end;
             end;
         }
@@ -3504,10 +3495,10 @@ table 5902 "Service Line"
     begin
         ClearFieldCausedPriceCalculation();
         PlanPriceCalcByField(CalledByFieldNo);
-        UpdateUnitPriceByField(CalledByFieldNo);
+        UpdateUnitPriceByField(CalledByFieldNo, false);
     end;
 
-    local procedure UpdateUnitPriceByField(CalledByFieldNo: Integer)
+    local procedure UpdateUnitPriceByField(CalledByFieldNo: Integer; CalcCost: Boolean)
     var
         PriceType: Enum "Price Type";
     begin
@@ -3522,6 +3513,10 @@ table 5902 "Service Line"
         CalculateDiscount;
         ApplyPrice(PriceType::Sale, ServHeader, CalledByFieldNo);
         Validate("Unit Price");
+        if CalcCost then begin
+            ApplyPrice(PriceType::Purchase, ServHeader, CalledByFieldNo);
+            Validate("Unit Cost (LCY)");
+        end;
 
         ClearFieldCausedPriceCalculation();
         OnAfterUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
@@ -3552,14 +3547,20 @@ table 5902 "Service Line"
         else
             "Dimension Set ID" :=
               DimMgt.EditDimensionSet(
-                "Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."),
+                Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."),
                 "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
     procedure ShowReservation()
     var
         Reservation: Page Reservation;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReservation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField(Type, Type::Item);
         TestField("No.");
         TestField(Reserve);
@@ -3688,19 +3689,20 @@ table 5902 "Service Line"
         ServCost: Record "Service Cost";
         GLAcc: Record "G/L Account";
         ConfirmManagement: Codeunit "Confirm Management";
+        ShouldShowConfirm: Boolean;
     begin
         ServCost.Get("No.");
-        if ServCost."Cost Type" = ServCost."Cost Type"::Travel then
-            if ServHeader."Service Zone Code" <> ServCost."Service Zone Code" then
-                if not HideCostWarning then
-                    if not ConfirmManagement.GetResponseOrDefault(
-                         StrSubstNo(
-                           Text004, ServCost.TableCaption, "No.",
-                           ServCost.FieldCaption("Service Zone Code"),
-                           ServHeader.FieldCaption("Service Zone Code"),
-                           ServHeader.TableCaption, ServHeader."No."), true)
-                    then
-                        Error(Text005);
+        ShouldShowConfirm := (ServCost."Cost Type" = ServCost."Cost Type"::Travel) and (ServHeader."Service Zone Code" <> ServCost."Service Zone Code") and not HideCostWarning;
+        OnCopyFromCostOnAfterCalcShouldShowConfirm(Rec, ServCost, HideCostWarning, ShouldShowConfirm);
+        if ShouldShowConfirm then
+            if not ConfirmManagement.GetResponseOrDefault(
+                 StrSubstNo(
+                   Text004, ServCost.TableCaption, "No.",
+                   ServCost.FieldCaption("Service Zone Code"),
+                   ServHeader.FieldCaption("Service Zone Code"),
+                   ServHeader.TableCaption, ServHeader."No."), true)
+            then
+                Error(Text005);
         Description := ServCost.Description;
         Validate("Unit Cost (LCY)", ServCost."Default Unit Cost");
         "Unit Price" := ServCost."Default Unit Price";
@@ -4045,7 +4047,7 @@ table 5902 "Service Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetSKU(Rec, Result, IsHandled);
+        OnBeforeGetSKU(Rec, Result, IsHandled, SKU);
         if IsHandled then
             exit(Result);
 
@@ -6098,7 +6100,7 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSKU(var ServiceLine: Record "Service Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeGetSKU(var ServiceLine: Record "Service Line"; var Result: Boolean; var IsHandled: Boolean; var SKU: Record "Stockkeeping Unit")
     begin
     end;
 
@@ -6227,6 +6229,11 @@ table 5902 "Service Line"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnCopyFromCostOnAfterCalcShouldShowConfirm(var ServiceLine: Record "Service Line"; ServiceCost: Record "Service Cost"; HideCostWarning: Boolean; var ShouldShowConfirm: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnInitQtyToShipOnBeforeInitQtyToInvoice(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
@@ -6288,6 +6295,11 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReservation(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDeleteOnAfterServiceLineSetFilter(var ServiceLine2: Record "Service Line"; var ServiceLine: Record "Service Line")
     begin
     end;
@@ -6329,6 +6341,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAmountsOnAfterCalcShouldCheckCrLimit(var ServiceLine: Record "Service Line"; IsCustCrLimitChecked: Boolean; CurrentFieldNo: Integer; var ShouldCheckCrLimit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateApplToItemEntryOnBeforeShowNotOpenItemLedgerEntryMessage(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; CurrentFieldNo: Integer)
     begin
     end;
 }

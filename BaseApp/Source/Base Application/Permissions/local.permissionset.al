@@ -23,6 +23,7 @@
 #endif
                   tabledata "CFDI Cancellation Reason" = RIMD,
                   tabledata "CFDI Export Code" = RIMD,
+                  tabledata "CFDI Subject to Tax" = RIMD,
                   tabledata "CFDI Documents" = RIMD,
                   tabledata "CFDI Relation Document" = RIMD,
                   tabledata "CFDI Transport Operator" = RIMD,

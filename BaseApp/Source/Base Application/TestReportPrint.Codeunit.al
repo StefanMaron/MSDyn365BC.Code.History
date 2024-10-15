@@ -38,7 +38,14 @@ codeunit 228 "Test Report-Print"
     end;
 
     procedure PrintGenJnlLine(var NewGenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintGenJnlLine(NewGenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlLine.Copy(NewGenJnlLine);
         OnPrintGenJnlLineOnAfterGenJnlLineCopy(GenJnlLine);
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
@@ -341,6 +348,11 @@ codeunit 228 "Test Report-Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcPurchDiscount(var PurchHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintGenJnlLine(var NewGenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

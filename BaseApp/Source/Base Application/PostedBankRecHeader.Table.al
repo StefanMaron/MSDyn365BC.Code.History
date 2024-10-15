@@ -223,25 +223,20 @@ table 10123 "Posted Bank Rec. Header"
     end;
 
     var
+#if not CLEAN20
         PostedBankRecHdr: Record "Posted Bank Rec. Header";
+#endif
         PostedBankRecLines: Record "Posted Bank Rec. Line";
         PostedBankRecDelete: Codeunit "Posted Bank Rec.-Delete";
         DimMgt: Codeunit DimensionManagement;
         Text001: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     procedure PrintRecords(ShowRequestForm: Boolean)
-    var
-        ReportSelection: Record "Report Selections";
     begin
-        with PostedBankRecHdr do begin
-            Copy(Rec);
-            ReportSelection.SetRange(Usage, ReportSelection.Usage::"B.Stmt");
-            ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.Find('-');
-            repeat
-                REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PostedBankRecHdr);
-            until ReportSelection.Next() = 0;
-        end;
+#if not CLEAN20
+        PostedBankRecHdr.Copy(Rec);
+        Report.RunModal(Report::"Bank Reconciliation", ShowRequestForm, false, PostedBankRecHdr);
+#endif
     end;
 
     procedure Navigate()

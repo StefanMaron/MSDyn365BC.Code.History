@@ -2678,6 +2678,11 @@
                 ShippingAgentServices: Record "Shipping Agent Services";
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePurchasingCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 TestField(Type, Type::Item);
                 CheckAssocPurchOrder(FieldCaption("Purchasing Code"));
@@ -2839,7 +2844,7 @@
                 CheckPromisedDeliveryDate();
 
                 if "Requested Delivery Date" <> 0D then
-                    Validate("Planned Delivery Date", "Requested Delivery Date")
+                    Validate("Planned Delivery Date", CalcPlannedDeliveryDate(FieldNo("Requested Delivery Date")))
                 else begin
                     GetSalesHeader();
                     Validate("Shipment Date", SalesHeader."Shipment Date");
@@ -3329,6 +3334,9 @@
         key(Key19; SystemModifiedAt)
         {
         }
+        key(Key20; "Completely Shipped")
+        {
+        }
     }
 
     fieldgroups
@@ -3791,7 +3799,7 @@
         StandardText.Get("No.");
         Description := StandardText.Description;
         "Allow Item Charge Assignment" := false;
-        OnAfterAssignStdTxtValues(Rec, StandardText);
+        OnAfterAssignStdTxtValues(Rec, StandardText, SalesHeader);
     end;
 
     procedure CalcShipmentDateForLocation()
@@ -3815,7 +3823,7 @@
         "Allow Invoice Disc." := false;
         "Allow Item Charge Assignment" := false;
         InitDeferralCode();
-        OnAfterAssignGLAccountValues(Rec, GLAcc);
+        OnAfterAssignGLAccountValues(Rec, GLAcc, SalesHeader);
     end;
 
     local procedure CopyFromItem()
@@ -3903,7 +3911,7 @@
         "Allow Item Charge Assignment" := false;
         ApplyResUnitCost(FieldNo("No."));
         InitDeferralCode();
-        OnAfterAssignResourceValues(Rec, Res);
+        OnAfterAssignResourceValues(Rec, Res, SalesHeader);
     end;
 
     local procedure CopyFromFixedAsset()
@@ -3918,7 +3926,7 @@
         "Description 2" := FixedAsset."Description 2";
         "Allow Invoice Disc." := false;
         "Allow Item Charge Assignment" := false;
-        OnAfterAssignFixedAssetValues(Rec, FixedAsset);
+        OnAfterAssignFixedAssetValues(Rec, FixedAsset, SalesHeader);
     end;
 
     local procedure CopyFromItemCharge()
@@ -3930,7 +3938,7 @@
         "Tax Group Code" := ItemCharge."Tax Group Code";
         "Allow Invoice Disc." := false;
         "Allow Item Charge Assignment" := false;
-        OnAfterAssignItemChargeValues(Rec, ItemCharge);
+        OnAfterAssignItemChargeValues(Rec, ItemCharge, SalesHeader);
     end;
 
     [Scope('OnPrem')]
@@ -4111,8 +4119,15 @@
         RemainingQtyBase := "Outstanding Qty. (Base)" - Abs("Reserved Qty. (Base)");
     end;
 
-    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetReservationQty(Rec, QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
         if "Document Type" = "Document Type"::"Return Order" then begin
             "Reserved Quantity" := -"Reserved Quantity";
@@ -4472,7 +4487,7 @@
                 FieldError("Unit Price", StrSubstNo(Text047, FieldCaption("Prepayment %")));
         end;
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
-            if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
+            if ("Prepmt. Line Amount" < "Prepmt. Amt. Inv.") and (SalesHeader.Status <> SalesHeader.Status::Released) then begin
                 if IsServiceChargeLine() then
                     Error(CannotChangePrepaidServiceChargeErr);
                 if "Inv. Discount Amount" <> 0 then
@@ -4970,6 +4985,9 @@
         OnBeforeCalcPlannedDeliveryDate(Rec, PlannedDeliveryDate, CurrFieldNo, IsHandled);
         if IsHandled then
             exit(PlannedDeliveryDate);
+
+        if CurrFieldNo = FieldNo("Requested Delivery Date") then
+            exit("Requested Delivery Date");
 
         if "Shipment Date" = 0D then
             exit("Planned Delivery Date");
@@ -5927,6 +5945,7 @@
                             VATAmountLine.InsertNewLine(
                               "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Tax Area Code", false, "VAT %", "Line Amount" >= 0, false);
 
+                        OnCalcVATAmountLinesOnBeforeQtyTypeCase(VATAmountLine, SalesLine, SalesHeader);
                         case QtyType of
                             QtyType::General:
                                 begin
@@ -6021,11 +6040,17 @@
         OnAfterCalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, QtyType);
     end;
 
-    procedure GetCPGInvRoundAcc(var SalesHeader: Record "Sales Header"): Code[20]
+    procedure GetCPGInvRoundAcc(var SalesHeader: Record "Sales Header") AccountNo: Code[20]
     var
         Cust: Record Customer;
         CustPostingGroup: Record "Customer Posting Group";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCPGInvRoundAcc(SalesHeader, Cust, AccountNo, IsHandled);
+        if IsHandled then
+            exit(AccountNo);
+
         GetSalesSetup();
         if SalesSetup."Invoice Rounding" then
             if Cust.Get(SalesHeader."Bill-to Customer No.") then
@@ -6512,7 +6537,13 @@
     var
         QtyNotReturned: Decimal;
         QtyReturned: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckApplFromItemLedgEntry(Rec, xRec, ItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Appl.-from Item Entry" = 0 then
             exit;
 
@@ -6906,14 +6937,14 @@
         SetFilter("Shipment Date", AvailabilityFilter);
         if DocumentType = "Document Type"::"Return Order" then
             if Positive then
-                SetFilter("Quantity (Base)", '>0')
-            else
-                SetFilter("Quantity (Base)", '<0')
+            SetFilter("Quantity (Base)", '>0')
         else
-            if Positive then
-                SetFilter("Quantity (Base)", '<0')
-            else
-                SetFilter("Quantity (Base)", '>0');
+            SetFilter("Quantity (Base)", '<0')
+        else
+        if Positive then
+            SetFilter("Quantity (Base)", '<0')
+        else
+            SetFilter("Quantity (Base)", '>0');
         SetRange("Job No.", ' ');
 
         OnAfterFilterLinesForReservation(Rec, ReservationEntry, DocumentType, AvailabilityFilter, Positive);
@@ -6930,6 +6961,8 @@
     end;
 
     protected procedure InitQtyToAsm()
+    var
+        ShouldUpdateQtyToAsm: Boolean;
     begin
         OnBeforeInitQtyToAsm(Rec, CurrFieldNo);
 
@@ -6939,11 +6972,12 @@
             exit;
         end;
 
-        if ((xRec."Qty. to Asm. to Order (Base)" = 0) and IsAsmToOrderRequired and ("Qty. Shipped (Base)" = 0)) or
+        ShouldUpdateQtyToAsm := ((xRec."Qty. to Asm. to Order (Base)" = 0) and IsAsmToOrderRequired and ("Qty. Shipped (Base)" = 0)) or
            ((xRec."Qty. to Asm. to Order (Base)" <> 0) and
             (xRec."Qty. to Asm. to Order (Base)" = xRec."Quantity (Base)")) or
-           ("Qty. to Asm. to Order (Base)" > "Quantity (Base)")
-        then begin
+           ("Qty. to Asm. to Order (Base)" > "Quantity (Base)");
+        OnInitQtyToAsmOnAfterCalcShouldUpdateQtyToAsm(Rec, CurrFieldNo, xRec, ShouldUpdateQtyToAsm);
+        if ShouldUpdateQtyToAsm then begin
             "Qty. to Assemble to Order" := Quantity;
             "Qty. to Asm. to Order (Base)" := "Quantity (Base)";
         end;
@@ -8347,12 +8381,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignStdTxtValues(var SalesLine: Record "Sales Line"; StandardText: Record "Standard Text")
+    local procedure OnAfterAssignStdTxtValues(var SalesLine: Record "Sales Line"; StandardText: Record "Standard Text"; SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignGLAccountValues(var SalesLine: Record "Sales Line"; GLAccount: Record "G/L Account")
+    local procedure OnAfterAssignGLAccountValues(var SalesLine: Record "Sales Line"; GLAccount: Record "G/L Account"; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8362,17 +8396,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemChargeValues(var SalesLine: Record "Sales Line"; ItemCharge: Record "Item Charge")
+    local procedure OnAfterAssignItemChargeValues(var SalesLine: Record "Sales Line"; ItemCharge: Record "Item Charge"; SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignResourceValues(var SalesLine: Record "Sales Line"; Resource: Record Resource)
+    local procedure OnAfterAssignResourceValues(var SalesLine: Record "Sales Line"; Resource: Record Resource; SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignFixedAssetValues(var SalesLine: Record "Sales Line"; FixedAsset: Record "Fixed Asset")
+    local procedure OnAfterAssignFixedAssetValues(var SalesLine: Record "Sales Line"; FixedAsset: Record "Fixed Asset"; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8580,6 +8614,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckApplFromItemLedgEntry(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBinCodeRelation(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -8625,6 +8664,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCPGInvRoundAcc(SalesHeader: Record "Sales Header"; Customer: Record Customer; var AccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAbsMin(SalesLine: Record "Sales Line"; QtyToHandle: Decimal; QtyHandled: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -8656,6 +8700,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralAmount(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var DeferralAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetReservationQty(var SalesLine: Record "Sales Line"; var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -8835,6 +8884,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePurchasingCode(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateUnitOfMeasureCodeFromNo(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -8906,6 +8960,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeAssignQuantities(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: record "VAT Amount Line"; var QtyToHandle: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeQtyTypeCase(var VATAmountLine: Record "VAT Amount Line"; var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9088,6 +9147,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitQtyToShip2OnBeforeCalcInvDiscToInvoice(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitQtyToAsmOnAfterCalcShouldUpdateQtyToAsm(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer; xSalesLine: Record "Sales Line"; var ShouldUpdateQtyToAsm: Boolean)
     begin
     end;
 

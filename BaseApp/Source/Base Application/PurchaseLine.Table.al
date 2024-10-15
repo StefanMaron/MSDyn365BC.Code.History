@@ -78,6 +78,7 @@
                           xRec."Document Type".AsInteger(), xRec."Document No.", xRec."Line No.",
                           xRec.GetDeferralAmount(), PurchHeader."Posting Date", '', xRec."Currency Code", true);
                 end;
+                OnValidateTypeOnBeforeInitRec(Rec, xRec, CurrFieldNo);
                 TempPurchLine := Rec;
                 Init();
                 SystemId := TempPurchLine.SystemId;
@@ -1607,6 +1608,7 @@
                 GetPurchHeader();
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
                 MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
+                OnValidateLineAmountOnAfterCalcMaxLineAmount(Rec, MaxLineAmount);
 
                 CheckLineAmount(MaxLineAmount);
 
@@ -3904,9 +3906,9 @@
             "Qty. Rcd. Not Invoiced (Base)" := "Qty. Received (Base)" - "Qty. Invoiced (Base)";
         end;
 
-        OnAfterInitOutstandingQty(Rec);
+        OnAfterInitOutstandingQty(Rec, xRec);
         "Completely Received" := (Quantity <> 0) and ("Outstanding Quantity" = 0);
-        OnInitOutstandingOnBeforeInitOutstandingAmount(Rec);
+        OnInitOutstandingOnBeforeInitOutstandingAmount(Rec, xRec);
         InitOutstandingAmount();
     end;
 
@@ -4279,7 +4281,7 @@
         "Allow Invoice Disc." := false;
         "Allow Item Charge Assignment" := false;
         InitDeferralCode();
-        OnAfterAssignGLAccountValues(Rec, GLAcc);
+        OnAfterAssignGLAccountValues(Rec, GLAcc, PurchHeader);
     end;
 
     local procedure CopyFromItem()
@@ -4350,7 +4352,7 @@
         else
             "Unit of Measure Code" := Item."Base Unit of Measure";
         InitDeferralCode();
-        OnAfterAssignItemValues(Rec, Item, CurrFieldNo);
+        OnAfterAssignItemValues(Rec, Item, CurrFieldNo, PurchHeader);
     end;
 
     local procedure UpdateUnitPriceLCYFromItem(Item: Record Item)
@@ -4417,7 +4419,7 @@
         "Allow Invoice Disc." := false;
         "Allow Item Charge Assignment" := false;
         "GST/HST" := "GST/HST"::Acquisition;
-        OnAfterAssignFixedAssetValues(Rec, FixedAsset);
+        OnAfterAssignFixedAssetValues(Rec, FixedAsset, PurchHeader);
     end;
 
     local procedure CopyFromItemCharge()
@@ -4431,7 +4433,7 @@
         "Allow Item Charge Assignment" := false;
         "Indirect Cost %" := 0;
         "Overhead Rate" := 0;
-        OnAfterAssignItemChargeValues(Rec, ItemCharge);
+        OnAfterAssignItemChargeValues(Rec, ItemCharge, PurchHeader);
     end;
 
     local procedure SelectItemEntry()
@@ -4523,17 +4525,23 @@
     end;
 
     procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
-        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
-        if "Document Type" = "Document Type"::"Return Order" then begin
-            "Reserved Quantity" := -"Reserved Quantity";
-            "Reserved Qty. (Base)" := -"Reserved Qty. (Base)";
+        IsHandled := false;
+        OnBeforeGetReservationQty(Rec, QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, Result, IsHandled);
+        if not IsHandled then begin
+            CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+            if "Document Type" = "Document Type"::"Return Order" then begin
+                "Reserved Quantity" := -"Reserved Quantity";
+                "Reserved Qty. (Base)" := -"Reserved Qty. (Base)";
+            end;
+            QtyReserved := "Reserved Quantity";
+            QtyReservedBase := "Reserved Qty. (Base)";
+            QtyToReserve := "Outstanding Quantity";
+            QtyToReserveBase := "Outstanding Qty. (Base)";
+            Result := "Qty. per Unit of Measure";
         end;
-        QtyReserved := "Reserved Quantity";
-        QtyReservedBase := "Reserved Qty. (Base)";
-        QtyToReserve := "Outstanding Quantity";
-        QtyToReserveBase := "Outstanding Qty. (Base)";
-        Result := "Qty. per Unit of Measure";
         OnAfterGetReservationQty(Rec, QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, Result);
     end;
 
@@ -4648,7 +4656,7 @@
                 begin
                     GetPurchHeader();
                     IsHandled := false;
-                    OnUpdateDirectUnitCostOnBeforeFindPrice(PurchHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
+                    OnUpdateDirectUnitCostOnBeforeFindPrice(PurchHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled, xRec);
                     if not IsHandled then begin
                         GetPriceCalculationHandler(PurchHeader, PriceCalculation);
                         if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
@@ -6757,13 +6765,19 @@
         exit(QtyToHandle);
     end;
 
-    local procedure CheckApplToItemLedgEntry(): Code[10]
+    local procedure CheckApplToItemLedgEntry() Result: Code[10]
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ApplyRec: Record "Item Application Entry";
         ReturnedQty: Decimal;
         RemainingtobeReturnedQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckApplToItemLedgEntry(Rec, ItemLedgEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "Appl.-to Item Entry" = 0 then
             exit;
 
@@ -7455,7 +7469,7 @@
     begin
         if CurrFieldNo <> 0 then
             CheckLocationOnWMS();
-        if ("Job No." <> '') then
+        if ("Job No." <> '') and (Type = Type::Item) then
             if Location.Get("Location Code") then
                 EnsureDirectedPutawayandPickFalse(Location);
     end;
@@ -7475,7 +7489,13 @@
     procedure CheckLocationOnWMS()
     var
         DialogText: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckLocationOnWMS(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::Item then begin
             DialogText := Text033;
             if "Quantity (Base)" <> 0 then
@@ -7642,21 +7662,26 @@
         DimSetArrID: array[10] of Integer;
         DimValue1: Code[20];
         DimValue2: Code[20];
+        IsHandled: Boolean;
     begin
-        SourceCodeSetup.Get();
-        DimSetArrID[1] := "Dimension Set ID";
-        DimSetArrID[2] :=
-          DimMgt.CreateDimSetFromJobTaskDim("Job No.",
-            "Job Task No.", DimValue1, DimValue2);
-        DimMgt.CreateDimForPurchLineWithHigherPriorities(
-          Rec, CurrFieldNo, DimSetArrID[3], DimValue1, DimValue2, SourceCodeSetup.Purchases, DATABASE::Job);
+        IsHandled := false;
+        OnBeforeUpdateDimensionsFromJobTask(Rec, CurrFieldNo, IsHandled);
+        if not IsHandled then begin
+            SourceCodeSetup.Get();
+            DimSetArrID[1] := "Dimension Set ID";
+            DimSetArrID[2] :=
+                DimMgt.CreateDimSetFromJobTaskDim("Job No.",
+                "Job Task No.", DimValue1, DimValue2);
+            DimMgt.CreateDimForPurchLineWithHigherPriorities(
+                Rec, CurrFieldNo, DimSetArrID[3], DimValue1, DimValue2, SourceCodeSetup.Purchases, DATABASE::Job);
 
-        "Dimension Set ID" :=
-          DimMgt.GetCombinedDimensionSetID(
-            DimSetArrID, DimValue1, DimValue2);
+            "Dimension Set ID" :=
+                DimMgt.GetCombinedDimensionSetID(
+                DimSetArrID, DimValue1, DimValue2);
 
-        "Shortcut Dimension 1 Code" := DimValue1;
-        "Shortcut Dimension 2 Code" := DimValue2;
+            "Shortcut Dimension 1 Code" := DimValue1;
+            "Shortcut Dimension 2 Code" := DimValue2;
+        end;
     end;
 
     local procedure UpdateItemReference()
@@ -8064,7 +8089,7 @@
                 FieldError("Direct Unit Cost", StrSubstNo(Text043, FieldCaption("Prepayment %")));
         end;
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
-            if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
+            if ("Prepmt. Line Amount" < "Prepmt. Amt. Inv.") and (PurchHeader.Status <> PurchHeader.Status::Released) then begin
                 if IsServiceCharge() then
                     Error(CannotChangePrepaidServiceChargeErr);
                 if "Inv. Discount Amount" <> 0 then
@@ -8404,22 +8429,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignGLAccountValues(var PurchLine: Record "Purchase Line"; GLAccount: Record "G/L Account")
+    local procedure OnAfterAssignGLAccountValues(var PurchLine: Record "Purchase Line"; GLAccount: Record "G/L Account"; PurchHeader: Record "Purchase Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemValues(var PurchLine: Record "Purchase Line"; Item: Record Item; CurrentFieldNo: Integer)
+    local procedure OnAfterAssignItemValues(var PurchLine: Record "Purchase Line"; Item: Record Item; CurrentFieldNo: Integer; PurchHeader: Record "Purchase Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemChargeValues(var PurchLine: Record "Purchase Line"; ItemCharge: Record "Item Charge")
+    local procedure OnAfterAssignItemChargeValues(var PurchLine: Record "Purchase Line"; ItemCharge: Record "Item Charge"; PurchHeader: Record "Purchase Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignFixedAssetValues(var PurchLine: Record "Purchase Line"; FixedAsset: Record "Fixed Asset")
+    local procedure OnAfterAssignFixedAssetValues(var PurchLine: Record "Purchase Line"; FixedAsset: Record "Fixed Asset"; PurchHeader: Record "Purchase Header")
     begin
     end;
 
@@ -8559,7 +8584,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitOutstandingQty(var PurchaseLine: Record "Purchase Line")
+    local procedure OnAfterInitOutstandingQty(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -8811,6 +8836,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLocationOnWMS(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromItem(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)
     begin
     end;
@@ -8887,6 +8917,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetVPGInvRoundAcc(PurchHeader: Record "Purchase Header"; Vendor: Record Vendor; var AccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetReservationQty(var PurchaseLine: Record "Purchase Line"; var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -9291,7 +9326,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitOutstandingOnBeforeInitOutstandingAmount(var PurchaseLine: Record "Purchase Line")
+    local procedure OnInitOutstandingOnBeforeInitOutstandingAmount(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -9301,7 +9336,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateDirectUnitCostOnBeforeFindPrice(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnUpdateDirectUnitCostOnBeforeFindPrice(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -9371,6 +9406,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateLineAmountOnAfterCalcMaxLineAmount(var PurchaseLine: Record "Purchase Line"; var MaxLineAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateLineDiscountPercentOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -9392,6 +9432,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateTypeOnAfterCheckItem(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateTypeOnBeforeInitRec(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer)
     begin
     end;
 
@@ -9650,6 +9695,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckApplToItemLedgEntry(var PurchaseLine: Record "Purchase Line"; ItemLedgEntry: Record "Item Ledger Entry"; var Result: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReceiptRelation(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -9751,6 +9801,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateLocationCodeOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDimensionsFromJobTask(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

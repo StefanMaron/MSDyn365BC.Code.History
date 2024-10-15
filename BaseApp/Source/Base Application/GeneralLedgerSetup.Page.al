@@ -189,11 +189,16 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank reconciliation adjustment document number for general ledger setup. You can select the document number from the No. Series table.';
                 }
+#if not CLEAN21
                 field("Deposit Nos."; "Deposit Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the deposit number for general ledger setup. You can select the deposit number from the No. Series table.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Bank Deposits feature will be enabled by default';
+                    ObsoleteTag = '21.0';
                 }
+#endif
                 field("Bill-to/Sell-to VAT Calc."; "Bill-to/Sell-to VAT Calc.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -289,7 +294,7 @@
 #if not CLEAN20       
                     Visible = BackgroundValidationEnabled;
 #endif
-                    ToolTip = 'Specifies whether Business Central will validate the data you enter in documents and journals while you work. Messages will be shown in the Journal Check FactBox.';
+                    ToolTip = 'Specifies whether Business Central validates the data you enter in documents and journals while you type. For documents, you can turn on the check and messages will be shown in the Document Check FactBox. For journals, messages are always shown in the Journal Check FactBox.';
                 }
             }
             group(Control1900309501)
@@ -833,8 +838,10 @@
     end;
 
     trigger OnOpenPage()
+#if not CLEAN21
     var
         BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
+#endif
     begin
         Rec.Reset();
         if not Rec.Get() then begin
@@ -843,11 +850,13 @@
         end;
         xGeneralLedgerSetup := Rec;
 
-#if not CLEAN20        
+#if not CLEAN20
         BackgroundValidationEnabled := BackgroundErrorHandlingMgt.IsEnabled();
 #endif
-        IsJournalTemplatesVisible := Rec."Journal Templ. Name Mandatory";
+#if not CLEAN21
         BankReconWithAutoMatchVisible := not BankDepositFeatureMgt.IsEnabled();
+#endif
+        IsJournalTemplatesVisible := Rec."Journal Templ. Name Mandatory";
     end;
 
     var
@@ -862,10 +871,10 @@
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         [InDataSet]
         BackgroundValidationEnabled: Boolean;
+        BankReconWithAutoMatchVisible: Boolean;
 #endif
         [InDataSet]
         IsJournalTemplatesVisible: Boolean;
-        BankReconWithAutoMatchVisible: Boolean;
 
     local procedure IsShortcutDimensionModified(): Boolean
     begin

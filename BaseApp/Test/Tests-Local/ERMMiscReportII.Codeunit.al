@@ -1302,9 +1302,7 @@ codeunit 142061 "ERM Misc. Report II"
         Job: Record Job;
         LibraryJob: Codeunit "Library - Job";
     begin
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Bill-to Customer No.", CreateCustomer(''));
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
 

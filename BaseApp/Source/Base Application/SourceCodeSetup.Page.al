@@ -467,15 +467,20 @@ page 279 "Source Code Setup"
     }
 
     trigger OnOpenPage()
+#if not CLEAN21
     var
         BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
+#endif
     begin
         Reset;
         if not Get then begin
             Init;
             Insert;
         end;
+        BankDepositFeatureEnabled := true;
+#if not CLEAN21
         BankDepositFeatureEnabled := BankDepositFeatureMgt.IsEnabled();
+#endif
     end;
 
     var
