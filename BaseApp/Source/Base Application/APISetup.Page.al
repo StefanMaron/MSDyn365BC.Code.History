@@ -82,6 +82,30 @@ page 5469 "API Setup"
                         CODEUNIT.Run(CODEUNIT::"Graph Mgt - General Tools");
                 end;
             }
+
+            action(FixSalesAndPurchaseApiRecords)
+            {
+                ApplicationArea = All;
+                Caption = 'Fix Sales and Purchase API Records';
+                Image = Setup;
+                Promoted = false;
+                ObsoleteReason = 'This action will be removed together with the upgrade code.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '18.0';
+                ToolTip = 'Update records that are used by the salesInvoices, salesOrders, salesCreditMemos, and purchaseInvoices APIs.';
+                
+                trigger OnAction()
+                var
+                    SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+                    GraphMgtSalesOrderBuffer: Codeunit "Graph Mgt - Sales Order Buffer";
+                    PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
+                begin
+                    SalesInvoiceAggregator.FixInvoicesCreatedFromOrders();
+                    PurchInvAggregator.FixInvoicesCreatedFromOrders();
+                    GraphMgtSalesOrderBuffer.DeleteOrphanedRecords();
+                    Message(AllRecordsHaveBeenUpdatedMsg);
+                end;
+            }
         }
     }
 
@@ -107,5 +131,6 @@ page 5469 "API Setup"
         SetupActionVisible: Boolean;
         ConditionsText: Text;
         ConfirmApiSetupQst: Label 'This action will populate the integration tables for all APIs and may take several minutes to complete. Do you want to continue?';
+        AllRecordsHaveBeenUpdatedMsg: Label 'All records have been sucessfully updated.';
 }
 
