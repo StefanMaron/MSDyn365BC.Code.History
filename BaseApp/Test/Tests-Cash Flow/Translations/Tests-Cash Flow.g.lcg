@@ -239,6 +239,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Expected Amount %2 = Actual Amount.]D;]A;(LookupHint=Codeunit ERM Cash Flow Filling I - NamedType AmountError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2834294265 - NamedType 1370282335" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cash Flow WorkSheet Lines are not equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Flow Filling I - NamedType CashFlowWorkSheetLineCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2834294265 - NamedType 1493663470" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 exists in Cash Flow Journal.]]></Val>

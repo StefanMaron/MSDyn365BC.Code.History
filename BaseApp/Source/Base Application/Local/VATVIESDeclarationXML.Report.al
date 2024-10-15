@@ -114,12 +114,7 @@ report 11108 "VAT - VIES Declaration XML"
         
             trigger OnPreDataItem()
             begin
-                case VATDateType of 
-                    VATDateType::"VAT Reporting Date": SetFilter("VAT Reporting Date", '%1..%2', RepPeriodFrom, RepPeriodTo);
-                    VATDateType::"Posting Date": SetFilter("Posting Date", '%1..%2', RepPeriodFrom, RepPeriodTo);
-                    VATDateType::"Document Date": SetFilter("Document Date", '%1..%2', RepPeriodFrom, RepPeriodTo);
-                end;
-               
+                SetFilter("VAT Reporting Date", '%1..%2', RepPeriodFrom, RepPeriodTo);
                 NoOfRecs := 0;
                 Clear(Customer);
             end;
@@ -264,12 +259,18 @@ report 11108 "VAT - VIES Declaration XML"
                     group("Statement Period")
                     {
                         Caption = 'Statement Period';
+#if not CLEAN23
                         field(VATDateTypeField; VATDateType)
                         {
                             ApplicationArea = VAT;
                             Caption = 'Period Date Type';
                             ToolTip = 'Specifies the type of date used for the report period.';
+                            Visible = false;
+                            ObsoleteReason = 'Selected VAT Date type no longer supported.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '23.0';
                         }
+#endif
                         field(RepPeriodFrom; RepPeriodFrom)
                         {
                             ApplicationArea = Basic, Suite;
@@ -398,7 +399,9 @@ report 11108 "VAT - VIES Declaration XML"
         "Sum": Decimal;
         SumPrn: Decimal;
         Reportingtype: Option "Normal transmission","Recall of an earlier report";
+#if not CLEAN23
         VATDateType: Enum "VAT Date Type";
+#endif       
         PaketNr: Code[9];
         AmountsInReportCurrency: Boolean;
         GesamtrueckDone: Boolean;
