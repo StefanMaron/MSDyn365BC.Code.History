@@ -230,8 +230,13 @@ report 10715 "Telematic VAT Declaration"
     [Scope('OnPrem')]
     procedure CalcTotLine(VATStatementLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
     begin
-        if Level = 0 then
+        if Level = 0 then begin
             TotalAmount := 0;
+            Amount := 0;
+            VATAmount := 0;
+            VATAmountAC := 0;
+        end;
+
         case VATStatementLine2.Type of
             VATStatementLine2.Type::"Account Totaling":
                 begin

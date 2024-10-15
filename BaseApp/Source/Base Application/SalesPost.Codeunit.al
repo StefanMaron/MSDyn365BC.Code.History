@@ -5248,7 +5248,7 @@ codeunit 80 "Sales-Post"
                                 CheckTotalPrepmtAmtToDeduct(TempSalesLine, TempTotalSalesLine, MaxAmtToDeduct);
 
                                 if (TempTotalSalesLine."Qty. to Invoice" = SalesOrderLine.Quantity - SalesOrderLine."Quantity Invoiced") and
-                                   (TempTotalSalesLine."Prepmt Amt to Deduct" <> MaxAmtToDeduct)
+                                   (SalesOrderLine."Prepmt Amt to Deduct" <> MaxAmtToDeduct)
                                 then
                                     Error(PrepAmountToDeductToSmallErr, FieldCaption("Prepmt Amt to Deduct"), MaxAmtToDeduct);
                             end;

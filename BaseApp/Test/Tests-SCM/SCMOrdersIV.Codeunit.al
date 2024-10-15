@@ -2800,6 +2800,29 @@ codeunit 137156 "SCM Orders IV"
         SalesOrder.SalesLines."Reserved Quantity".AssertEquals(3);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllowLocationForNonInventoryItemsOnServiceLine()
+    var
+        Location: Record Location;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        NonInventoryItem: Record Item;
+    begin
+        // [SCENARIO] It is allowed to set location for non-inventory items on service lines.
+        Initialize();
+
+        // [GIVEN] A service order with a service item.
+        LibraryWarehouse.CreateLocation(Location);
+        CreateNonInvItem(NonInventoryItem);
+        CreateServiceOrderSingleLine(ServiceHeader, ServiceLine, NonInventoryItem."No.", 1);
+
+        // [WHEN] Setting location for a non-inventory item on the service line.
+        ServiceLine.Validate("Location Code", Location.Code);
+
+        // [THEN] No error occurs.
+    end;
+
     local procedure Initialize()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
@@ -5308,6 +5331,14 @@ codeunit 137156 "SCM Orders IV"
         MoveNegSalesLines.InitializeRequest(FromDocType::Order, ToDocType::"Return Order", ToDocType::"Return Order");
         MoveNegSalesLines.UseRequestPage(false);
         MoveNegSalesLines.RunModal;
+    end;
+
+    local procedure CreateNonInvItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, Item.Type::"Non-Inventory");
+        Item.Modify(true);
+        Commit();
     end;
 
     [RequestPageHandler]

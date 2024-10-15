@@ -2,6 +2,9 @@ codeunit 1222 "SEPA CT-Prepare Source"
 {
     TableNo = "Gen. Journal Line";
 
+    var 
+        DescriptionTxt: Label '%1; %2', Comment = '%1=Vendor Invoice No., %2=Bill No.'; 
+
     trigger OnRun()
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -29,6 +32,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
     local procedure CreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
     var
         PaymentOrder: Record "Payment Order";
+        PurchInvHeader: Record "Purch. Inv. Header";
         CarteraDoc: Record "Cartera Doc.";
         IsHandled: Boolean;
     begin
@@ -61,6 +65,8 @@ codeunit 1222 "SEPA CT-Prepare Source"
                     "Bal. Account No." := PaymentOrder."Bank Account No.";
                     "Bill No." := CarteraDoc."Document No.";
                     "Document No." := PaymentOrder."No.";
+                    PurchInvHeader.Get(CarteraDoc."Document No.");
+                    Description := StrSubstNo(DescriptionTxt, PurchInvHeader."Vendor Invoice No.", CarteraDoc.Description);
                     "External Document No." := CarteraDoc."Original Document No.";
                     "Currency Code" := CarteraDoc."Currency Code";
                     Amount := CarteraDoc."Remaining Amount";
