@@ -156,15 +156,18 @@
             ClientTypeManagement: Codeunit "Client Type Management";
             VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         begin
-            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+            if not VATReportingDateMgt.IsVATDateEnabled() then begin
+                ReplaceVATDateReq := ReplacePostingDate;
+                VATDateReq := PostingDateReq;
+            end;
+            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then 
                 exit;
             PurchasesPayablesSetup.Get();
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
             PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
             VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-
-            OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
+            OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc, ReplaceVATDateReq, VATDateReq);
         end;
     }
 
@@ -196,7 +199,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)
+    local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean; var ReplaceVATDateReq: Boolean; var VATDateReq: Date)
     begin
     end;
 

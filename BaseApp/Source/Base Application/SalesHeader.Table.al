@@ -119,6 +119,8 @@
 
                 SetOperationType;
 
+                SetRcvdFromCountry(Customer."Country/Region Code");
+
                 if (xRec."Sell-to Customer No." <> "Sell-to Customer No.") or
                    (xRec."Currency Code" <> "Currency Code") or
                    (xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group") or
@@ -2273,6 +2275,11 @@
                     InitVATDate();
             end;
         }
+        field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -4185,6 +4192,7 @@
     local procedure UpdateDirectDebitPmtTermsCode()
     var
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        PaymentLines: Record "Payment Lines";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4199,6 +4207,14 @@
             "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Due Date");
             if "Payment Terms Code" = '' then
                 "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
+            if (Rec."Direct Debit Mandate ID" = '') and (Rec."Due Date" = 0D) then begin
+                PaymentLines.SetRange("Sales/Purchase", PaymentLines."Sales/Purchase"::Sales);
+                PaymentLines.SetRange(Type, Rec."Document Type");
+                PaymentLines.SetRange(Code, Rec."No.");
+                PaymentLines.SetFilter("Due Date", '>=%1', Rec."Document Date");
+                if PaymentLines.FindFirst() then
+                    Rec."Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate(Rec."Bill-to Customer No.", PaymentLines."Due Date");
+            end;
         end else
             "Direct Debit Mandate ID" := '';
     end;
@@ -5287,6 +5303,13 @@
         OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo);
     end;
 
+    local procedure SetRcvdFromCountry(RcvdFromCountryRegionCode: Code[10])
+    begin
+        if not IsCreditDocType() then
+            exit;
+        Rec."Rcvd-from Country/Region Code" := RcvdFromCountryRegionCode;
+    end;
+    
     local procedure UpdateShipToCodeFromCust()
     var
         IsHandled: Boolean;
@@ -5802,8 +5825,8 @@
                   StrSubstNo(
                       Text12100, FieldCaption("Shipping Agent Code"), "Shipping Agent Code",
                       FieldCaption("Shipment Method Code"), "Shipment Method Code"),
-                  true, 
-                  Rec));  
+                  true,
+                  Rec));
     end;
 
     [Scope('OnPrem')]
@@ -8376,6 +8399,24 @@
         OnAfterSalesLinesEditable(Rec, IsEditable);
     end;
 
+    internal procedure SetTrackInfoForCancellation()
+    var
+        CancelledDocument: Record "Cancelled Document";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        if Rec."Applies-to Doc. Type" <> Rec."Applies-to Doc. Type"::Invoice then
+            exit;
+        SalesInvoiceHeader.SetLoadFields("No.");
+        if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
+            exit;
+        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.");
+        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
+        if not SalesCreditMemoHeader.FindFirst() then
+            exit;
+        CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
+    end;
+
 #if not CLEAN20
     local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
     var
@@ -8442,7 +8483,7 @@
     local procedure OnAfterInitializeRoundingPrecision(var SalesHeader: Record "Sales Header"; var Currency: Record Currency)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitializeTotalingSalesLine(var TotalingSalesLine: Record "Sales Line"; SplitSalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup")
     begin

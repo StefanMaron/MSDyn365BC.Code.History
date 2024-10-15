@@ -1135,7 +1135,71 @@ codeunit 144050 "ERM Auto Payment"
 
         // [GIVEN] Create and post Purchase Invoice and create vendor bill header
         CreateAndPostPurchaseInvoiceWithGL(Vendor, LibraryRandom.RandDec(10, 2));
-        CreateAndModifyVendorBillHeaderWithPaymentMenthod(VendorBillHeader2, Vendor."Payment Method Code");
+        CreateAndModifyVendorBillHeaderWithPaymentMethod(VendorBillHeader2, Vendor."Payment Method Code");
+
+        // [THEN] Exercise: Run Suggest Vendor Bills line
+        RunSuggestVendorBills(VendorBillHeader2, Vendor."No.");
+
+        // [VERIFY] Verify: Vendor Bill Line Amount
+        FindAndVerifyVendorBillLinesAmount(Vendor."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestVendorBillLineVerifyWithholdingTaxAmount()
+    var
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorBillHeader2: Record "Vendor Bill Header";
+        VendorBillLine: Record "Vendor Bill Line";
+        Vendor: Record Vendor;
+        WithholdCode: Code[20];
+        DocumentDate: Date;
+    begin
+        // [SCENARIO 464755]: WWithholding tax amount not update correctly in Vendor bill in the Italian Localization
+
+        // [GIVEN] Setup: Create vendor, post Purchase Invoice, Issue Vendor Bill and delete Issued Vendor Bill Line, Create new Vendor Bill Header.
+        Initialize();
+        LibraryPurchase.CreateVendor(Vendor);
+        WithholdCode := CreateWithholdCodeWithLine();
+        Vendor.Validate("Withholding Tax Code", WithholdCode);
+        Vendor.Validate("Payment Method Code", FindPaymentMethodAndBill());
+        Vendor.Modify(true);
+
+        // [GIVEN] Create and post Purchase Invoice and create vendor bill header
+        CreateAndPostPurchaseInvoiceWithGLByUpdatingWithHoldingTotalAmount(Vendor, LibraryRandom.RandDec(10, 2));
+        CreateAndModifyVendorBillHeaderWithPaymentMethod(VendorBillHeader2, Vendor."Payment Method Code");
+
+        // [THEN] Exercise: Run Suggest Vendor Bills line
+        RunSuggestVendorBills(VendorBillHeader2, Vendor."No.");
+
+        // [VERIFY] Verify: Vendor Bill Line Amount
+        FindAndVerifyVendorBillLinesAmount(Vendor."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestVendorBillLineVerifyWithholdingTaxByUpdatingBaseExcludedAmount()
+    var
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorBillHeader2: Record "Vendor Bill Header";
+        VendorBillLine: Record "Vendor Bill Line";
+        Vendor: Record Vendor;
+        WithholdCode: Code[20];
+        DocumentDate: Date;
+    begin
+        // [SCENARIO 467725]: Withholding tax amount  when base excluded amount is used is  not update correctly in Vendor bill in the Italian Localization
+
+        // [GIVEN] Setup: Create vendor, post Purchase Invoice, Issue Vendor Bill and delete Issued Vendor Bill Line, Create new Vendor Bill Header.
+        Initialize();
+        LibraryPurchase.CreateVendor(Vendor);
+        WithholdCode := CreateWithholdCodeWithLine();
+        Vendor.Validate("Withholding Tax Code", WithholdCode);
+        Vendor.Validate("Payment Method Code", FindPaymentMethodAndBill());
+        Vendor.Modify(true);
+
+        // [GIVEN] Create and post Purchase Invoice and create vendor bill header
+        CreateAndPostPurchaseInvoiceWithGLByUpdatingWithHoldingBaseExcludedAmount(Vendor, LibraryRandom.RandDec(10, 2));
+        CreateAndModifyVendorBillHeaderWithPaymentMethod(VendorBillHeader2, Vendor."Payment Method Code");
 
         // [THEN] Exercise: Run Suggest Vendor Bills line
         RunSuggestVendorBills(VendorBillHeader2, Vendor."No.");
@@ -2091,7 +2155,7 @@ codeunit 144050 "ERM Auto Payment"
         exit(Bill.Code);
     end;
 
-    local procedure CreateAndModifyVendorBillHeaderWithPaymentMenthod(var VendorBillHeader: Record "Vendor Bill Header"; PaymentMethodCode: Code[10])
+    local procedure CreateAndModifyVendorBillHeaderWithPaymentMethod(var VendorBillHeader: Record "Vendor Bill Header"; PaymentMethodCode: Code[10])
     var
         BillPostingGroup: Record "Bill Posting Group";
     begin
@@ -2114,6 +2178,74 @@ codeunit 144050 "ERM Auto Payment"
           VendorBillLine."Remaining Amount",
           VendorBillLine."Amount to Pay" + VendorBillLine."Withholding Tax Amount",
           StrSubstNo(AmountErr, VendorBillLine.FieldCaption("Amount to Pay"), VendorBillLine."Remaining Amount", VendorBillLine.TableCaption()));
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceWithGLByUpdatingWithHoldingTotalAmount(Vendor: Record Vendor; DirectUnitCost: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WithholdCodeLine: Record "Withhold Code Line";
+        WithholdingContribution: Codeunit "Withholding - Contribution";
+    begin
+        WithholdCodeLine.SetRange("Withhold Code", Vendor."Withholding Tax Code");
+        WithholdCodeLine.FindFirst();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader."Check Total" := DirectUnitCost + DirectUnitCost * WithholdCodeLine."Withholding Tax %" / 100;
+        PurchaseHeader.Validate("Payment Method Code", Vendor."Payment Method Code");
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(1));  // Using random Quantity.
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        WithholdingContribution.CalculateWithholdingTax(PurchaseHeader, true);
+        UpdateWithHoldingTotalAmount(PurchaseHeader);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure UpdateWithHoldingTotalAmount(PurchHeader: Record "Purchase Header")
+    var
+        PurchWithSoc: Record "Purch. Withh. Contribution";
+    begin
+        if PurchWithSoc.Get(PurchHeader."Document Type", PurchHeader."No.") then begin
+            PurchWithSoc.Validate("Total Amount", PurchWithSoc."Total Amount" / 2);
+            PurchWithSoc.Modify();
+        end;
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceWithGLByUpdatingWithHoldingBaseExcludedAmount(Vendor: Record Vendor; DirectUnitCost: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WithholdCodeLine: Record "Withhold Code Line";
+        WithholdingContribution: Codeunit "Withholding - Contribution";
+    begin
+        WithholdCodeLine.SetRange("Withhold Code", Vendor."Withholding Tax Code");
+        WithholdCodeLine.FindFirst();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader."Check Total" := DirectUnitCost + DirectUnitCost * WithholdCodeLine."Withholding Tax %" / 100;
+        PurchaseHeader.Validate("Payment Method Code", Vendor."Payment Method Code");
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(1));  // Using random Quantity.
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        WithholdingContribution.CalculateWithholdingTax(PurchaseHeader, true);
+        UpdateWithHoldingBaseExcludedAmount(PurchaseHeader);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure UpdateWithHoldingBaseExcludedAmount(PurchHeader: Record "Purchase Header")
+    var
+        PurchWithSoc: Record "Purch. Withh. Contribution";
+    begin
+        if PurchWithSoc.Get(PurchHeader."Document Type", PurchHeader."No.") then begin
+            PurchWithSoc.Validate("Base - Excluded Amount", PurchWithSoc."Total Amount" / 2);
+            PurchWithSoc.Modify();
+        end;
     end;
 
     [ModalPageHandler]

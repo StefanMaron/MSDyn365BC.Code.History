@@ -493,6 +493,11 @@
             Caption = 'VAT Date';
             Editable = false;
         }
+        field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -728,7 +733,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Original Document Type" = CONST("Credit Memo"), "Original Document No." = FIELD("No.")));
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Original Document Type" = CONST("Credit Memo"), "Original Document No." = FIELD("No.")));
             Caption = 'Document Remaining Amount';
             Editable = false;
             FieldClass = FlowField;

@@ -655,6 +655,11 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'VAT Date';
         }
+        field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -948,7 +953,7 @@ table 5107 "Sales Header Archive"
         }
         field(12170; "Payment %"; Decimal)
         {
-            CalcFormula = Sum ("Payment Lines"."Payment %" WHERE("Sales/Purchase" = CONST(Sales),
+            CalcFormula = Sum("Payment Lines"."Payment %" WHERE("Sales/Purchase" = CONST(Sales),
                                                                  Type = FIELD("Document Type"),
                                                                  Code = FIELD("No.")));
             Caption = 'Payment %';

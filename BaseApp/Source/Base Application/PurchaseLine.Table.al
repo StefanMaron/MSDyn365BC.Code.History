@@ -3950,9 +3950,9 @@
             PurchLineReserve.VerifyQuantity(Rec, xRec);
         end;
         LockTable();
-        PurchHeader."No." := '';
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
+        PurchHeader."No." := '';
     end;
 
     trigger OnModify()

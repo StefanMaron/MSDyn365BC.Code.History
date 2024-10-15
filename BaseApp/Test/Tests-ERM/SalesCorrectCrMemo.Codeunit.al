@@ -1012,6 +1012,46 @@ codeunit 137026 "Sales Correct Cr. Memo"
             StrSubstNo(PostedSalesInvoiceNotCancelledErr, SalesInvoiceHeader."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure VerifyCancelledDocumentTrackingRecordExistOnCorrectiveCreditMemoActionFromPostedSalesInvoice()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        CancelledDocument: Record "Cancelled Document";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        PostedSalesHeaderNo: Code[20];
+    begin
+        // [SCENARIO 470260] Verify that Cancelled Document Tracking record is created when Corrective Credit Memo is called from Posted Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create and post Sales Order 
+        PostedSalesHeaderNo := CreateAndPostSalesOrder();
+
+        // [GIVEN] Get Sales Invoice Header
+        SalesInvHeader.Get(PostedSalesHeaderNo);
+
+        // [GIVEN] Create Correctiove Sales Credit Memo from Posted Sales Invoice
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvHeader, SalesHeader);
+
+        // [GIVEN] Set Applies-to Occurrence No. to 1
+        SalesHeader."Applies-to Occurrence No." := 1;
+        SalesHeader.Modify();
+
+        // [GIVEN] Open created Sales Credit Memo
+        SalesCreditMemo.OpenEdit();
+        SalesCreditMemo.GoToRecord(SalesHeader);
+
+        // [WHEN] Post Sales Credit Memo
+        SalesCreditMemo.Post.Invoke();
+
+        // [THEN] Verify that Cancelled Document record is created
+        CancelledDocument.SetRange("Source ID", Database::"Sales Invoice Header");
+        CancelledDocument.SetRange("Cancelled Doc. No.", SalesInvHeader."No.");
+        Assert.RecordIsNotEmpty(CancelledDocument);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1430,6 +1470,16 @@ codeunit 137026 "Sales Correct Cr. Memo"
               LibrarySales.GetInvRoundingAccountOfCustPostGroup(SalesInvHeader."Customer Posting Group"));
             Assert.IsFalse(IsEmpty, InvRoundingLineDoesNotExistErr);
         end;
+    end;
+
+    local procedure CreateAndPostSalesOrder(): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     [ConfirmHandler]

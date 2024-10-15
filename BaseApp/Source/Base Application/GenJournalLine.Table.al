@@ -2007,8 +2007,7 @@
 
             trigger OnValidate()
             begin
-                if "VAT Reporting Date" = 0D then
-                    InitVATDate();
+                InitVATDateIfEmpty();
             end;
         }
         field(160; "Job Queue Status"; Option)
@@ -3174,7 +3173,7 @@
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
 
-        InitVATDate();
+        InitVATDateIfEmpty();
 
         ShowSetDimFiltersNotification();
     end;
@@ -3317,9 +3316,10 @@
           (("Bal. Account No." = '') or not "System-Created Entry"));
     end;
 
-    local procedure InitVATDate()
+    local procedure InitVATDateIfEmpty()
     begin
-        "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
+        if "VAT Reporting Date" = 0D then
+            "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
     end;
 
     local procedure BlankJobNo(CurrentFieldNo: Integer)

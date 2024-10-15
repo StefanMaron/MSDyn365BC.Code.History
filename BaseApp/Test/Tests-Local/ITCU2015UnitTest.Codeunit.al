@@ -982,19 +982,19 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [THEN] AU001008 equals the total withholding tax amount of all lines (6)
         ValidateBlockValueOfStrictPosition(4, 'AU001004', ConstFormat::VP, TotalAmount, 114);
         ValidateBlockValueOfStrictPosition(4, 'AU001005', ConstFormat::VP, WithholdingTax."Non Taxable Amount By Treaty", 138);
-        ValidateBlockValueOfStrictPosition(4, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine[3]."Non-Taxable Income Type"), 162);
+        ValidateBlockValueOfStrictPosition(4, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine[3].GetNonTaxableIncomeTypeNumber()), 162);
         ValidateBlockValueOfStrictPosition(
           4, 'AU001007', ConstFormat::VP, WithholdingTaxLine[3]."Base - Excluded Amount" + WithholdingTax."Non Taxable Amount", 186);
         ValidateBlockValueOfStrictPosition(4, 'AU001008', ConstFormat::VP, TaxableBase, 210);
         ValidateBlockValueOfStrictPosition(4, 'AU001009', ConstFormat::VP, WithholdingTaxAmount, 234);
 
         // [THEN] Second H line has no AU001004, AU001008 and AU001009
-        // [THEN] AU001005 equals the total non-taxable amount by trety of the first and second lines (5 + 10 = 15)
+        // [THEN] AU001005 equals the total non-taxable amount by treaty of the first and second lines (5 + 10 = 15)
         // [THEN] AU001006 equals the sum of the total amount and non-taxable amount (300 + 30 = 330)
         ValidateBlockAbsence(5, 'AU001004');
         // Tfs Id 457147: A record does not contain blank reason and total amount values
         ValidateBlockValueOfStrictPosition(5, 'AU001005', ConstFormat::VP, CombinedNonTaxAmtByTreaty, 90);
-        ValidateBlockValueOfStrictPosition(5, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine[1]."Non-Taxable Income Type"), 114);
+        ValidateBlockValueOfStrictPosition(5, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine[1].GetNonTaxableIncomeTypeNumber()), 114);
         ValidateBlockValueOfStrictPosition(
           5, 'AU001007', ConstFormat::VP,
           WithholdingTaxLine[1]."Base - Excluded Amount" + WithholdingTaxLine[2]."Base - Excluded Amount" +
@@ -1105,7 +1105,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         end;
     end;
 
-    local procedure CreateWithholdingTaxLine(var WithholdingTaxLine: Record "Withholding Tax Line"; WithholdingTaxEntryNo: Integer; WithholdingTaxLineNo: Integer; BaseExcludedAmount: Decimal; NonTaxableIncomeType: Option)
+    local procedure CreateWithholdingTaxLine(var WithholdingTaxLine: Record "Withholding Tax Line"; WithholdingTaxEntryNo: Integer; WithholdingTaxLineNo: Integer; BaseExcludedAmount: Decimal; NonTaxableIncomeType: Enum "Non-Taxable Income Type")
     begin
         WithholdingTaxLine.Init();
         WithholdingTaxLine."Base - Excluded Amount" := BaseExcludedAmount;
@@ -1187,7 +1187,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         exit(WHTEntryNo);
     end;
 
-    local procedure CreateWithholdingTaxWithAU001006AndContributionEntry(VendorNo: Code[20]; WithholdingTaxReason: Option; CalcYear: Integer; Date: Date; RelatedDate: Date; NonTaxableIncomeType: Option " ","1","2","5","6"): Integer
+    local procedure CreateWithholdingTaxWithAU001006AndContributionEntry(VendorNo: Code[20]; WithholdingTaxReason: Option; CalcYear: Integer; Date: Date; RelatedDate: Date; NonTaxableIncomeType: Enum "Non-Taxable Income Type"): Integer
     var
         WHTEntryNo: Integer;
     begin
@@ -1210,7 +1210,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         WithholdingTax.Modify(true);
     end;
 
-    local procedure CreateWithholdingTaxWithAU001006(VendorNo: Code[20]; WithholdingTaxReason: Option; CalcYear: Integer; Date: Date; RelatedDate: Date; NonTaxableIncomeType: Option " ","1","2","5","6"): Integer
+    local procedure CreateWithholdingTaxWithAU001006(VendorNo: Code[20]; WithholdingTaxReason: Option; CalcYear: Integer; Date: Date; RelatedDate: Date; NonTaxableIncomeType: Enum "Non-Taxable Income Type"): Integer
     var
         WithholdingTax: Record "Withholding Tax";
     begin
@@ -1310,7 +1310,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     begin
         if TotalAmount <> 0 then
             ValidateBlockValue(LineNumber, 'AU001004', ConstFormat::VP, TotalAmount);
-        ValidateBlockValue(LineNumber, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine."Non-Taxable Income Type"));
+        ValidateBlockValue(LineNumber, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine.GetNonTaxableIncomeTypeNumber()));
         ValidateBlockValue(LineNumber, 'AU001007', ConstFormat::VP, WithholdingTaxLine."Base - Excluded Amount" + NonTaxableAmount);
     end;
 
@@ -1369,7 +1369,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         Assert.AreEqual(Expected, DelChr(LibrarySpesometro.ReadValue(TextFile, LineNumber, Position, Length), '<>', ' '), '');
     end;
 
-    local procedure ValidateRecordDAndH(VendorNo: Code[20]; SigningCompanyOfficialNo: Code[20]; WithholdingTaxReason: Option; LineNumber: Integer; Year: Text; NonTaxableIncomeType: Option " ","1","2","5","6"; RecordHEntryNumber: Integer)
+    local procedure ValidateRecordDAndH(VendorNo: Code[20]; SigningCompanyOfficialNo: Code[20]; WithholdingTaxReason: Option; LineNumber: Integer; Year: Text; NonTaxableIncomeType: Enum "Non-Taxable Income Type"; RecordHEntryNumber: Integer)
     var
         WithholdingTax: Record "Withholding Tax";
         TempWithholdingTax: Record "Withholding Tax" temporary;
@@ -1435,7 +1435,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateBlockValue(LineNumber + 1, 'AU001001', 0, Format(WithholdingTax.Reason));
         ValidateBlockValue(LineNumber + 1, 'AU001002', 0, Year);
         ValidateBlockValue(LineNumber + 1, 'AU001004', ConstFormat::VP, TempWithholdingTax."Total Amount");
-        ValidateBlockValue(LineNumber + 1, 'AU001006', ConstFormat::NP, Format(NonTaxableIncomeType));
+        ValidateBlockValue(LineNumber + 1, 'AU001006', ConstFormat::NP, Format(WithholdingTax."Non-Taxable Income Type".Names().Get(NonTaxableIncomeType.AsInteger() + 1)));
         ValidateBlockValue(LineNumber + 1, 'AU001007', ConstFormat::VP,
           TempWithholdingTax."Non Taxable Amount" + TempWithholdingTax."Base - Excluded Amount");
         ValidateBlockValue(LineNumber + 1, 'AU001008', ConstFormat::VP, TempWithholdingTax."Taxable Base");

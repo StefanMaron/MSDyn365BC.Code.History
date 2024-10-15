@@ -668,6 +668,7 @@
     var
         CertificateOfSupply: Record "Certificate of Supply";
     begin
+        PostSalesLinesDelete.IsDocumentDeletionAllowed("Posting Date");
         TestField("No. Printed");
         LockTable();
         PostSalesLinesDelete.DeleteSalesShptLines(Rec);

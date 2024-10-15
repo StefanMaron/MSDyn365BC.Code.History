@@ -140,6 +140,10 @@ report 498 "Batch Post Purch. Credit Memos"
             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
         begin
+            if not VATReportingDateMgt.IsVATDateEnabled() then begin
+                ReplaceVATDateReq := ReplacePostingDate;
+                VATDateReq := PostingDateReq;
+            end;
             if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
                 exit;
             PurchasesPayablesSetup.Get();

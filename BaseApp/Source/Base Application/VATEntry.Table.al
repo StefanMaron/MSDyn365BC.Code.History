@@ -439,7 +439,8 @@
             begin
                 if (Rec."VAT Reporting Date" = xRec."VAT Reporting Date") and (CurrFieldNo <> 0) then
                     exit;
-
+                // if type settlement then we error
+                Validate(Type);
                 if not VATDateReportingMgt.IsVATDateModifiable() or not VATDateReportingMgt.IsValidVATDate(Rec) or not VATDateReportingMgt.IsValidDate(xRec."VAT Reporting Date", true) then
                     Error('');
 

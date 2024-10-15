@@ -159,11 +159,9 @@ table 12116 "Withholding Tax"
             OptionCaption = ' ,A,B,C,D,E,G,H,I,L,L1,M,M1,M2,N,O,O1,P,Q,R,S,T,U,V,V1,V2,W,X,Y,ZO,K';
             OptionMembers = " ",A,B,C,D,E,G,H,I,L,L1,M,M1,M2,N,O,O1,P,Q,R,S,T,U,V,V1,V2,W,X,Y,ZO,K;
         }
-        field(53; "Non-Taxable Income Type"; Option)
+        field(53; "Non-Taxable Income Type"; Enum "Non-Taxable Income Type")
         {
             Caption = 'Non-Taxable Income Type';
-            OptionCaption = ' ,1,2,5,6,7,8,9,10,11,12,13,4,14,21,22,23,24';
-            OptionMembers = " ","1","2","5","6","7","8","9","10","11","12","13","4","14","21","22","23","24";
 
             trigger OnValidate()
             begin
@@ -315,6 +313,11 @@ table 12116 "Withholding Tax"
         SetRange("Posting Date", VendLedgEntry."Posting Date");
         if FindFirst() then
             Error(WithholdingTaxEntryAlreadyExistsErr, "Entry No.", "Document No.", "Posting Date");
+    end;
+
+    procedure GetNonTaxableIncomeTypeNumber(): Text
+    begin
+        exit(Rec."Non-Taxable Income Type".Names.Get(Rec."Non-Taxable Income Type".AsInteger() + 1));
     end;
 
     local procedure ClearRelatedNonTaxableLines()

@@ -534,7 +534,7 @@ codeunit 12132 "Withholding Tax Export"
         if (TempWithholdingTax."Non Taxable Amount By Treaty" + TempWithholdingTax."Base - Excluded Amount" <> 0) and
             (TempWithholdingTax."Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type"::" ")
         then
-            FlatFileManagement.WriteBlockValue('AU001006', ConstFormat::NP, Format(TempWithholdingTax."Non-Taxable Income Type"));
+            FlatFileManagement.WriteBlockValue('AU001006', ConstFormat::NP, Format(TempWithholdingTax.GetNonTaxableIncomeTypeNumber()));
         WriteBlockValueAmount('AU001007', ConstFormat::VP,
           TempWithholdingTax."Non Taxable Amount" + TempWithholdingTax."Base - Excluded Amount");
         if TempWithholdingTax."Taxable Base" = 0 then

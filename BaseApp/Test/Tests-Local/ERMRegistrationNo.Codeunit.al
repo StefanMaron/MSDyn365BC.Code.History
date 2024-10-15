@@ -29,6 +29,7 @@ codeunit 144184 "ERM Registration No."
         TotalForVendorCap: Label 'TotalForVendor';
         CustomerLedgerEntryLCYCap: Label 'CustLedgEntry1__Amount__LCY__';
         TotalForCustomerCap: Label 'TotalForCustomer';
+        BalanceDueCap: Label 'BalanceDue';
 
     [Test]
     [HandlerFunctions('CustomerBillsListRequestPageHandler')]
@@ -88,6 +89,39 @@ codeunit 144184 "ERM Registration No."
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(VendorLedgerEntryLCYCap, -PurchaseHeader."Amount Including VAT");
         LibraryReportDataset.AssertElementWithValueExists(TotalForVendorCap, 0);  // 0 for TotalForVendor.
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorAccountBillsListRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyBalanceOnVendorBillListWhenPaymentAppliedAndPostWithLaterDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 469728] The report Vendor Account Bills List shows wrongly applied documents depending on the Ending Date entered, in the Italian version
+        Initialize();
+
+        // [GIVEN] Setup: Create and post Purchase Invoice and General Journal Line.
+        CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Using true for Receive and Invoice.
+        LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");
+
+        // [THEN] Applied Invoice and Post Payment for Vendor
+        CreateAndPostGenJournalLineWithDifferentDate(
+            GenJournalLine."Account Type"::Vendor,
+            PurchaseHeader."Buy-from Vendor No.",
+            PurchaseHeader."Amount Including VAT",
+            DocumentNo);
+
+        // [WHEN] Exercise: Run "Vendor Account Bills List" report
+        REPORT.Run(REPORT::"Vendor Account Bills List");
+
+        // [VERIFY] Verify: Verify Balance value on Vendor Account Bills List report before payment posting.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(BalanceDueCap, -PurchaseHeader."Amount Including VAT");
     end;
 
     local procedure Initialize()
@@ -182,6 +216,26 @@ codeunit 144184 "ERM Registration No."
         Vendor.Validate("Payment Method Code", CreatePaymentMethod);
         Vendor.Modify(true);
         exit(Vendor."No.");
+    end;
+
+    local procedure CreateAndPostGenJournalLineWithDifferentDate(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Select Journal Batch Name and Template Name.
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, AccountType, AccountNo, Amount);
+
+        GenJournalLine.Validate("Posting Date", CalcDate('<1M>', WorkDate()));
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [RequestPageHandler]

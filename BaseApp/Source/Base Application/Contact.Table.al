@@ -130,6 +130,22 @@
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(25; "Registration Number"; Text[50])
+        {
+            Caption = 'Registration No.';
+
+            trigger OnValidate()
+            var
+                IsHandled: Boolean;
+            begin
+                IsHandled := false;
+                OnBeforeValidateRegistrationNumber(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+                if StrLen("Registration Number") > 20 then
+                    FieldError("Registration Number", FieldLengthErr);
+            end;
+        }
         field(29; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
@@ -1115,6 +1131,7 @@
         DifferentCustomerTemplateMsg: Label 'Sales quote %1 with original customer template %2 was assigned to the customer created from template %3.', Comment = '%1=Document No.,%2=Original Customer Template Code,%3=Customer Template Code';
         NoOriginalCustomerTemplateMsg: Label 'Sales quote %1 without an original customer template was assigned to the customer created from template %2.', Comment = '%1=Document No.,%2=Customer Template Code';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
+        FieldLengthErr: Label 'must not have the length more than 20 symbols';
 
     protected var
         HideValidationDialog: Boolean;
@@ -3645,6 +3662,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateEmail(var Contact: Record Contact; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateRegistrationNumber(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }
