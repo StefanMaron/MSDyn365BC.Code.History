@@ -7701,6 +7701,7 @@
         CancelledDocument: Record "Cancelled Document";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
         if Rec."Applies-to Doc. Type" <> Rec."Applies-to Doc. Type"::Invoice then
             exit;
@@ -7712,6 +7713,7 @@
         if not SalesCreditMemoHeader.FindFirst() then
             exit;
         CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
+        CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");      
     end;
 
 #if not CLEAN20
