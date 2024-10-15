@@ -2864,6 +2864,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [THEN] Destination Purchase Header has the same Purchase Line as Original Purchase Header.
         DestinationPurchHeader.Get(DestinationPurchHeader."Document Type", DestinationPurchHeader."No.");
         VerifyPurchaseLinesAreEqual(OriginalPurchHeader, DestinationPurchHeader);
+        LibraryWorkflow.DisableAllWorkflows();
     end;
 
     [Test]
@@ -2903,6 +2904,232 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [THEN] Destination Sales Header has the same Sales Line as Original Sales Header.
         DestinationSalesHeader.Get(DestinationSalesHeader."Document Type", DestinationSalesHeader."No.");
         VerifySalesLinesAreEqual(OriginalSalesHeader, DestinationSalesHeader);
+        LibraryWorkflow.DisableAllWorkflows();
+    end;
+
+    [Test]
+    procedure CorrectiveSalesCreditMemoLineOrder()
+    var
+        Item: Array[2] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Array[2] of Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+        ShipmentNo: Array[2] of Code[20];
+    begin
+        // [SCENARIO 412021] Corrective Sales Credit Memo should generate lines in correct order
+        Initialize();
+
+        // [GIVEN] Sales Order "1001" with two lines:
+        // [GIVEN] 1st line of Type "Item", where "No." is "Item1", Quantity = 1
+        // [GIVEN] 2nd line of Type "Item", where "No." is "Item2", Quantity = 1
+        CreateOneItemSalesDoc(SalesHeader, SalesHeader."Document Type"::Order);
+        DocumentNo := SalesHeader."No.";
+
+        LibrarySales.FindFirstSalesLine(SalesLine[1], SalesHeader);
+        Item[1].Get(SalesLine[1]."No.");
+        SalesLine[1].Validate("Shipment No.", '');
+        SalesLine[1].Validate(Quantity, 1);
+        SalesLine[1].Validate("Qty. to Ship", 1);
+        SalesLine[1].Modify();
+
+        LibraryInventory.CreateItem(Item[2]);
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, Item[2]."No.", 1);
+        //SalesLine[2].Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        SalesLine[2].Validate(Quantity, 1);
+        SalesLine[2].Validate("Qty. to Ship", 0);
+        SalesLine[2].Modify(true);
+
+        // [GIVEN] Ship "Item1" with Quantity = 1.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesLine[2].Find();
+        SalesLine[2].Validate("Qty. to Ship", 1);
+        SalesLine[2].Modify();
+
+        // [GIVEN] Ship "Item2" with Quantity = 1.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        //Clear(SalesHeader);
+        Clear(SalesLine[1]);
+        Clear(SalesLine[2]);
+
+        // [GIVEN] Sales Invoice
+        // [GIVEN] 1st Line created by using "Get Shipment Lines" for "Item2", ShipmentLine Document No. := SLDN1;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, SalesHeader."Bill-to Customer No.");
+        FindSalesShipmentLine(SalesShipmentLine, DocumentNo, Item[2]."No.", 1);
+
+        ShipmentNo[1] := SalesShipmentLine."Document No.";
+        SalesLine[1].Init();
+        SalesLine[1].Validate("Document Type", SalesHeader."Document Type");
+        SalesLine[1].Validate("Document No.", SalesHeader."No.");
+        SalesShipmentLine.InsertInvLineFromShptLine(SalesLine[1]);
+
+        // [GIVEN] 2nd Line created by using "Get Shipment Lines" for "Item1", ShipmentLine Document No. := SLDN2;
+        SalesLine[2].Reset();
+        SalesLine[2].SetRange("Document No.", SalesHeader."No.");
+        SalesLine[2].SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine[2].FindLast();
+        SalesShipmentLine.Reset();
+        FindSalesShipmentLine(SalesShipmentLine, DocumentNo, Item[1]."No.", 1);
+        ShipmentNo[2] := SalesShipmentLine."Document No.";
+        SalesShipmentLine.InsertInvLineFromShptLine(SalesLine[2]);
+
+        // [GIVEN] Sales Invoice posted, Posted Sales Invoice No. = PSIN
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(DocumentNo);
+        Clear(SalesHeader);
+
+        // [WHEN] "Create Corrective Credit Memo" is invoked
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
+
+        // [THEN] 1st line has Type = "" and Description = Invoice No. PSIN:
+        SalesLine[1].Reset();
+        SalesLine[1].SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine[1].SetRange("Document No.", SalesHeader."No.");
+        SalesLine[1].FindFirst();
+        VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", DocumentNo);
+
+        // [THEN] 2nd lines has Type = "" and Description = Inv. No. PSIN - Shpt. No. SLDN1:
+        SalesLine[1].Next();
+        VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", DocumentNo);
+        Assert.IsTrue(StrPos(SalesLine[1].Description, ShipmentNo[1]) > 0, SalesLine[1].FieldCaption(Description));
+
+        // [THEN] 3rd lines has Type = "" and Description = Shipment No. SLDN1:
+        SalesLine[1].Next();
+        VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", ShipmentNo[1]);
+
+        // [THEN] 4th line has Type = "Item" and "No."= Item2
+        SalesLine[1].Next();
+        SalesLine[1].TestField(Type, SalesLine[1].Type::Item);
+        SalesLine[1].TestField("No.", Item[2]."No.");
+
+        // [THEN] 5th lines has Type = "" and Description = Inv. No. PSIN - Shpt. No. SLDN2:
+        SalesLine[1].Next();
+        VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", DocumentNo);
+        Assert.IsTrue(StrPos(SalesLine[1].Description, ShipmentNo[2]) > 0, SalesLine[1].FieldCaption(Description));
+
+        // [THEN] 6th lines has Type = "" and Description = Shipment No. SLDN2:
+        SalesLine[1].Next();
+        VerifySalesLineTypeDescription(SalesLine[1], SalesLine[1].Type::" ", ShipmentNo[2]);
+
+        // [THEN] 7th line has Type = "Item" and "No."= Item1
+        SalesLine[1].Next();
+        SalesLine[1].TestField(Type, SalesLine[1].Type::Item);
+        SalesLine[1].TestField("No.", Item[1]."No.");
+    end;
+
+
+    [Test]
+    procedure CorrectivePurchCreditMemoLineOrder()
+    var
+        Item: Array[2] of Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Array[2] of Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        DocumentNo: Code[20];
+        ReceiptNo: Array[2] of Code[20];
+    begin
+        // [SCENARIO 412021] Corrective Purchase Credit Memo should generate lines in correct order
+        Initialize();
+
+        // [GIVEN] Purchase Order "1001" with two lines:
+        // [GIVEN] 1st line of Type "Item", where "No." is "Item1", Quantity = 1
+        // [GIVEN] 2nd line of Type "Item", where "No." is "Item2", Quantity = 1
+        CreateOneItemPurchDoc(PurchaseHeader, PurchaseHeader."Document Type"::Order);
+        DocumentNo := PurchaseHeader."No.";
+
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine[1], PurchaseHeader);
+        Item[1].Get(PurchaseLine[1]."No.");
+
+        PurchaseLine[1].Validate("Receipt No.", '');
+        PurchaseLine[1].Validate(Quantity, 1);
+        PurchaseLine[1].Validate("Qty. to Receive", 1);
+        PurchaseLine[1].Modify();
+
+        LibraryInventory.CreateItem(Item[2]);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, Item[2]."No.", 1);
+        PurchaseLine[2].Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        PurchaseLine[2].Validate(Quantity, 1);
+        PurchaseLine[2].Validate("Qty. to Receive", 0);
+        PurchaseLine[2].Modify(true);
+
+        // [GIVEN] Receive "Item1" with Quantity = 1.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        PurchaseLine[2].Find();
+        PurchaseLine[2].Validate("Qty. to Receive", 1);
+        PurchaseLine[2].Modify();
+
+        // [GIVEN] Receive "Item2" with Quantity = 1.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        Clear(PurchaseLine[1]);
+        Clear(PurchaseLine[2]);
+        // [GIVEN] Purchase Invoice
+        // [GIVEN] 1st Line created by using "Get Receipt Lines" for "Item2", ReceiptLine Document No. := PLDN1;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
+        FindPurchRcptLine(PurchRcptLine, DocumentNo, Item[2]."No.", 1);
+
+        ReceiptNo[1] := PurchRcptLine."Document No.";
+        PurchaseLine[1].Init();
+        PurchaseLine[1].Validate("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine[1].Validate("Document No.", PurchaseHeader."No.");
+        PurchRcptLine.InsertInvLineFromRcptLine(PurchaseLine[1]);
+
+        // [GIVEN] 2nd Line created by using "Get Receipt Lines" for "Item1", ReceiptLine Document No. := PLDN2;
+        PurchaseLine[2].Reset();
+        PurchaseLine[2].SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine[2].SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine[2].FindLast();
+        PurchRcptLine.Reset();
+        FindPurchRcptLine(PurchRcptLine, DocumentNo, Item[1]."No.", 1);
+        ReceiptNo[2] := PurchRcptLine."Document No.";
+        PurchRcptLine.InsertInvLineFromRcptLine(PurchaseLine[2]);
+
+        // [GIVEN] Purchase Invoice posted, Posted Purchase Invoice No. = PPIN
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(DocumentNo);
+        Clear(PurchaseHeader);
+
+        // [WHEN] "Create Corrective Credit Memo" is invoked
+        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchaseHeader);
+
+        // [THEN] 1st line has Type = "" and Description = Invoice No. PPIN:
+        PurchaseLine[1].Reset();
+        PurchaseLine[1].SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine[1].SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine[1].FindFirst();
+        VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", DocumentNo);
+
+        // [THEN] 3rd lines has Type = "" and Description = Receipt No. PLDN1:
+        PurchaseLine[1].Next();
+        VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", ReceiptNo[1]);
+
+        // [THEN] 2nd lines has Type = "" and Description = Inv. No. PPIN - Shpt. No. PLDN1:
+        PurchaseLine[1].Next();
+        VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", DocumentNo);
+        Assert.IsTrue(StrPos(PurchaseLine[1].Description, ReceiptNo[1]) > 0, PurchaseLine[1].FieldCaption(Description));
+
+        // [THEN] 4th line has Type = "Item" and "No."= Item2
+        PurchaseLine[1].Next();
+        PurchaseLine[1].TestField(Type, PurchaseLine[1].Type::Item);
+        PurchaseLine[1].TestField("No.", Item[2]."No.");
+
+        // [THEN] 6th lines has Type = "" and Description = Receit No. PLDN2:
+        PurchaseLine[1].Next();
+        VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", ReceiptNo[2]);
+
+        // [THEN] 5th lines has Type = "" and Description = Inv. No. PPIN - Shpt. No. PLDN2:
+        PurchaseLine[1].Next();
+        VerifyPurchLineTypeDescription(PurchaseLine[1], PurchaseLine[1].Type::" ", DocumentNo);
+        Assert.IsTrue(StrPos(PurchaseLine[1].Description, ReceiptNo[2]) > 0, PurchaseLine[1].FieldCaption(Description));
+
+        // [THEN] 7th line has Type = "Item" and "No."= Item1
+        PurchaseLine[1].Next();
+        PurchaseLine[1].TestField(Type, PurchaseLine[1].Type::Item);
+        PurchaseLine[1].TestField("No.", Item[1]."No.");
     end;
 
     local procedure Initialize()
@@ -3768,6 +3995,22 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.FindLast;
     end;
 
+    local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Integer)
+    begin
+        SalesShipmentLine.SetRange("Order No.", DocumentNo);
+        SalesShipmentLine.SetRange("No.", ItemNo);
+        SalesShipmentLine.SetRange(Quantity, Quantity);
+        SalesShipmentLine.FindFirst();
+    end;
+
+    local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; DocumentNo: Code[20]; ItemNo: Code[20]; Quantity: Integer)
+    begin
+        PurchRcptLine.SetRange("Order No.", DocumentNo);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.SetRange(Quantity, Quantity);
+        PurchRcptLine.FindFirst();
+    end;
+
     local procedure GetNumberOfOptions(TableID: Integer; FieldNo: Integer): Integer
     var
         "Field": Record "Field";
@@ -3926,6 +4169,18 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine.TestField("Line Discount %", LineDiscount);
         SalesLine.TestField("Shipment Line No.", 0);
         SalesLine.TestField("Shipment No.", '');
+    end;
+
+    local procedure VerifySalesLineTypeDescription(SalesLine: Record "Sales Line"; SalesLineType: Enum "Sales Line Type"; SalesLineDescription: Text[100])
+    begin
+        SalesLine.TestField(Type, SalesLineType);
+        Assert.IsTrue(StrPos(SalesLine.Description, SalesLineDescription) > 0, SalesLine.FieldCaption(Description));
+    end;
+
+    local procedure VerifyPurchLineTypeDescription(PurchaseLine: Record "Purchase Line"; PurchaseLineType: Enum "Purchase Line Type"; PurchLineDescription: Text[100])
+    begin
+        PurchaseLine.TestField(Type, PurchaseLineType);
+        Assert.IsTrue(StrPos(PurchaseLine.Description, PurchLineDescription) > 0, PurchaseLine.FieldCaption(Description));
     end;
 
     local procedure VerifyCopiedSalesLines(CopiedDocument: Variant; TypeFieldNo: Integer; DescriptionFieldNo: Integer; SalesDocType: Enum "Sales Document Type"; SalesDocNo: Code[20])

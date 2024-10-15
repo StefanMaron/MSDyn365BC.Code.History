@@ -46,6 +46,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         AcquisitionOptions: Option "G/L Account",Vendor,"Bank Account";
         isInitialized: Boolean;
+        SalvageValueErr: Label 'There is a reclassification salvage amount that must be posted first. Open the FA Journal page, and then post the relevant reclassification entry.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -2803,6 +2804,52 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Assert.AreEqual(FixedAssetAcquisitionWizard.GetDefaultGenJournalBatchName(),
             FixedAssetAcquisitionWizard.GetGenJournalBatchName(''),
             'Wrong Gen. Journal Batch Name.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorSalvageValueForReclassificationFALedgerEntry();
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FALedgerEntry: Record "FA Ledger Entry";
+        FAJournalLine: Record "FA Journal Line";
+        FADepreciationBook: Record "FA Depreciation Book";
+        Amount: Decimal;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 406530] Salvage Value error arrises when post FA Journal Line Acquisition Cost for reclassification and Salvage Value <> 0
+        Initialize();
+
+        // [GIVEN] Fixed asset
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateJournalSetupDepreciation(DepreciationBook);
+        CreateFADepreciationBook(
+            FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
+
+        // [GIVEN] Posted FA Journal Line with Amount = 100 and Salvage Value = -100
+        Amount := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateFAJournalLine(
+            FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
+            FAJournalLine."Document Type", FAJournalLine."FA Posting Type"::"Acquisition Cost");
+        FAJournalLine.Validate("Salvage Value", -FAJournalLine.Amount);
+        Amount := FAJournalLine.Amount;
+        FAJournalLine.Modify();
+
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+
+
+        // [WHEN] Post FA Journal Line with FA Reclassification Entry = true and Salvage Value = 0
+        CreateFAJournalLine(
+            FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
+            FAJournalLine."Document Type", FAJournalLine."FA Posting Type"::"Acquisition Cost");
+        FAJournalLine.Validate(Amount, -Amount / 2);
+        FAJournalLine.Validate("FA Reclassification Entry", true);
+        FAJournalLine.Modify();
+        asserterror LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+
+        // [THEN] Error arrises
+        Assert.ExpectedError(SalvageValueErr);
     end;
 
     local procedure Initialize()

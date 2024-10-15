@@ -127,10 +127,10 @@ page 5740 "Transfer Order"
             group(Shipment)
             {
                 Caption = 'Shipment';
-                Editable = (Status = Status::Open) AND EnableTransferFields;
                 field("Shipment Date"; "Shipment Date")
                 {
                     ApplicationArea = Location;
+                    Editable = (Status = Status::Open) AND EnableTransferFields;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
 
                     trigger OnValidate()
@@ -141,6 +141,7 @@ page 5740 "Transfer Order"
                 field("Outbound Whse. Handling Time"; "Outbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
+                    Editable = (Status = Status::Open) AND EnableTransferFields;
                     ToolTip = 'Specifies a date formula for the time it takes to get items ready to ship from this location. The time element is used in the calculation of the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
 
                     trigger OnValidate()
@@ -151,11 +152,13 @@ page 5740 "Transfer Order"
                 field("Shipment Method Code"; "Shipment Method Code")
                 {
                     ApplicationArea = Location;
+                    Editable = (Status = Status::Open) AND EnableTransferFields;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
                 field("Shipping Agent Code"; "Shipping Agent Code")
                 {
                     ApplicationArea = Location;
+                    Editable = (Status = Status::Open) AND EnableTransferFields;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
 
                     trigger OnValidate()
@@ -166,6 +169,7 @@ page 5740 "Transfer Order"
                 field("Shipping Agent Service Code"; "Shipping Agent Service Code")
                 {
                     ApplicationArea = Location;
+                    Editable = (Status = Status::Open) AND EnableTransferFields;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
 
@@ -177,6 +181,7 @@ page 5740 "Transfer Order"
                 field("Shipping Time"; "Shipping Time")
                 {
                     ApplicationArea = Location;
+                    Editable = (Status = Status::Open) AND EnableTransferFields;
                     ToolTip = 'Specifies how long it takes from when the items are shipped from the warehouse to when they are delivered.';
 
                     trigger OnValidate()
@@ -187,6 +192,7 @@ page 5740 "Transfer Order"
                 field("Shipping Advice"; "Shipping Advice")
                 {
                     ApplicationArea = Location;
+                    Editable = (Status = Status::Open) AND EnableTransferFields;
                     Importance = Additional;
                     ToolTip = 'Specifies an instruction to the warehouse that ships the items, for example, that it is acceptable to do partial shipment.';
 
@@ -200,6 +206,7 @@ page 5740 "Transfer Order"
                 field("Receipt Date"; "Receipt Date")
                 {
                     ApplicationArea = Location;
+                    Editable = Status = Status::Open;
                     ToolTip = 'Specifies the date that you expect the transfer-to location to receive the shipment.';
 
                     trigger OnValidate()

@@ -5967,9 +5967,17 @@
     local procedure UpdateDimSetupByDefaultDim(SourceID: Integer; SourceNo: Code[20]; var TempDimSetEntry: Record "Dimension Set Entry" temporary; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var LastAddedTableID: Integer)
     var
         DefaultDim: Record "Default Dimension";
+        SourceCodeSetup: Record "Source Code Setup";
+        DefaultDimensionPriority: Record "Default Dimension Priority";
         TableAdded: Boolean;
     begin
         if SourceNo = '' then
+            exit;
+
+        SourceCodeSetup.Get();
+        DefaultDimensionPriority.SetRange("Source Code", SourceCodeSetup."Service Management");
+        DefaultDimensionPriority.SetRange("Table ID", SourceID);
+        if DefaultDimensionPriority.IsEmpty() then
             exit;
 
         DefaultDim.SetRange("Table ID", SourceID);
