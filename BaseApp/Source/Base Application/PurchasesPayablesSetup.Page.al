@@ -239,6 +239,11 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = BasicBE;
                     ToolTip = 'Specifies the intercompany journal template to use for posting purchase credit memos.';
                 }
+                field("Price List Nos."; "Price List Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to purchase price lists.';
+                }
             }
             group("Background Posting")
             {

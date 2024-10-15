@@ -55,6 +55,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     var
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
     begin
+        OnBeforeApply(VendLedgEntry, DocumentNo, ApplicationDate);
         with VendLedgEntry do begin
             if not PreviewMode then
                 if not PaymentToleranceMgt.PmtTolVend(VendLedgEntry) then
@@ -277,6 +278,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         DtldVendLedgEntry.LockTable();
         VendLedgEntry.LockTable();
         VendLedgEntry.Get(DtldVendLedgEntry2."Vendor Ledger Entry No.");
+        OnPostUnApplyVendorOnAfterGetVendLedgEntry(VendLedgEntry);
         CheckPostingDate(PostingDate, MaxPostingDate, VendLedgEntry."Journal Template Name");
         if PostingDate < DtldVendLedgEntry2."Posting Date" then
             Error(MustNotBeBeforeErr);
@@ -290,6 +292,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         DtldVendLedgEntry.SetRange("Vendor No.", DtldVendLedgEntry2."Vendor No.");
         DtldVendLedgEntry.SetFilter("Entry Type", '<>%1', DtldVendLedgEntry."Entry Type"::"Initial Entry");
         DtldVendLedgEntry.SetRange(Unapplied, false);
+        OnPostUnApplyVendorOnAfterDtldVendLedgEntrySetFilters(DtldVendLedgEntry, DtldVendLedgEntry2);
         if DtldVendLedgEntry.Find('-') then
             repeat
                 if not AddCurrChecked then begin
@@ -377,6 +380,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         VendLedgEntry.Get(VendLedgEntryNo);
         if VendLedgEntry.Reversed then
             Error(CannotUnapplyInReversalErr, VendLedgEntryNo);
+        OnAfterCheckReversal(VendLedgEntry);
     end;
 
     procedure ApplyVendEntryFormEntry(var ApplyingVendLedgEntry: Record "Vendor Ledger Entry")
@@ -529,6 +533,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckReversal(VendLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostApplyVendLedgEntry(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
@@ -540,6 +549,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(var VendorLedgEntry: Record "Vendor Ledger Entry"; var ApplyToVendLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApply(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DocumentNo: Code[20]; var ApplicationDate: Date)
     begin
     end;
 
@@ -570,6 +584,16 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUnApplyVendor(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyVendorOnAfterDtldVendLedgEntrySetFilters(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyVendorOnAfterGetVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry");
     begin
     end;
 }

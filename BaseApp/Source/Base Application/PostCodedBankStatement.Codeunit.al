@@ -138,6 +138,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                     GenJnlLine."Applies-to ID" := "Applies-to ID";
                     GenJnlLine.Validate(Amount, -Amount);
                     GenJnlLine."System-Created Entry" := true;
+                    OnTransferCodBankStmtLinesOnBeforeGenJnlLineInsert(GenJnlLine, CodBankStmtLine);
                     GenJnlLine.Insert();
 
                     // Link Coded Bank Statement line to Gen. Jnl. Line
@@ -577,6 +578,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                 VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
 
             VendLedgEntry.SetRange(Description, Message);
+            OnDecodeVendLedgEntryOnAfterVendLedgEntrySetFilters(VendLedgEntry, CodBankStmtLine, Message);
             if VendLedgEntry.FindFirst then
                 PostVendLedgEntry;
         end
@@ -777,7 +779,17 @@ codeunit 2000042 "Post Coded Bank Statement"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDecodeVendLedgEntryOnAfterVendLedgEntrySetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; var CODAStatementLine: Record "CODA Statement Line"; var Message: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTransferCodBankStmtLinesOnBeforeInitGenJnlLine(CODAStatementLine: Record "CODA Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferCodBankStmtLinesOnBeforeGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; CodBankStmtLine: Record "CODA Statement Line")
     begin
     end;
 }

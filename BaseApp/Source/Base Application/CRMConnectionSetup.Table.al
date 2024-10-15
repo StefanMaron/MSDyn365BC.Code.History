@@ -74,6 +74,7 @@ table 5330 "CRM Connection Setup"
                 UpdateIsEnabledState;
                 RefreshDataFromCRM;
                 if "Is Enabled" then begin
+                    CRMIntegrationTelemetry.LogTelemetryWhenConnectionEnabled();
                     TestIntegrationUserRequirements;
                     CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
                     SetUseNewestUI
@@ -331,22 +332,29 @@ table 5330 "CRM Connection Setup"
 
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CantRegisterDisabledConnectionErr: Label 'A disabled connection cannot be registered.';
         ConnectionErr: Label 'The connection setup cannot be validated. Verify the settings and try again.\Detailed error description: %1.', Comment = '%1 Error message from the provider (.NET exception message)';
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
         ConnectionSuccessMsg: Label 'The connection test was successful. The settings are valid.';
         ConnectionSuccessNotEnabledForCurrentUserMsg: Label 'The connection test was successful. The settings are valid.\\However, because the %2 Users Must Map to %3 Users field is set, %3 integration is not enabled for %1.', Comment = '%1 = Current User ID, %2 - product name, %3 = CRM product name';
         CannotResolveUserFromConnectionSetupErr: Label 'The %1 user that is specified in the CRM connection setup does not exist.', Comment = '%1 = CRM product name';
-        DetailsMissingErr: Label 'A %1 URL, user name and password are required to enable a connection.', Comment = '%1 = CRM product name';
+        DetailsMissingErr: Label 'A %1 URL and user name are required to enable a connection.', Comment = '%1 = CRM product name';
         MissingUsernameTok: Label '{USER}', Locked = true;
         MissingPasswordTok: Label '{PASSWORD}', Locked = true;
         ProcessDialogMapTitleMsg: Label 'Synchronizing @1', Comment = '@1 Progress dialog map no.';
+        AccessTokenTok: Label 'AccessToken', Locked = true;
+        ClientSecretConnectionStringFormatTok: Label '%1; Url=%2; ClientId=%3; ClientSecret=%4; ProxyVersion=%5', Locked = true;
+        ClientSecretAuthTxt: Label 'AuthType=ClientSecret', Locked = true;
+        ClientSecretTok: Label '{CLIENTSECRET}', Locked = true;
+        ClientIdTok: Label '{CLIENTID}', Locked = true;
         UserCRMSetupTxt: Label 'User CRM Setup';
         CannotConnectCRMErr: Label 'The system is unable to connect to %2, and the connection has been disabled. Verify the credentials of the user account %1, and then enable the connection again in the Microsoft Dynamics 365 Connection Setup window.', Comment = '%1 - email of the user, %2 = CRM product name';
         LCYMustMatchBaseCurrencyErr: Label 'LCY Code %1 does not match ISO Currency Code %2 of the CRM base currency.', Comment = '%1,%2 - ISO currency codes';
         UserNameMustIncludeDomainErr: Label 'The user name must include the domain when the authentication type is set to Active Directory.';
         UserNameMustBeEmailErr: Label 'The user name must be a valid email address when the authentication type is set to Office 365.';
         ConnectionStringPwdPlaceHolderMissingErr: Label 'The connection string must include the password placeholder {PASSWORD}.';
+        ConnectionStringPwdOrClientSecretPlaceHolderMissingErr: Label 'The connection string must include either the password placeholder {PASSWORD} or the client secret placeholder {CLIENTSECRET}.', Comment = '{PASSWORD} and {CLIENTSECRET} are locked strings - do not translate them.';
         CannotDisableSalesOrderIntErr: Label 'You cannot disable CRM sales order integration when a CRM sales order has the Submitted status.';
         SetCRMSOPEnableQst: Label 'Enabling Sales Order Integration will allow you to create %1 Sales Orders from Dynamics CRM.\\To enable this setting, you must provide Dynamics CRM administrator credentials (user name and password).\\Do you want to continue?', Comment = '%1 - product name';
         SetCRMSOPEnableConfirmMsg: Label 'Sales Order Integration with %1 is enabled.', Comment = '%1 = CRM product name';
@@ -400,8 +408,10 @@ table 5330 "CRM Connection Setup"
                 "User Name" := CDSConnectionSetup."User Name";
                 "User Password Key" := CDSConnectionSetup."User Password Key";
                 "Authentication Type" := CDSConnectionSetup."Authentication Type";
+                "Proxy Version" := CDSConnectionSetup."Proxy Version";
                 if not Modify() then
                     Insert();
+                SetConnectionString(CDSConnectionSetup."Connection String");
                 exit;
             end;
 
@@ -409,19 +419,24 @@ table 5330 "CRM Connection Setup"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure DeployCRMSolution(ForceRedeploy: Boolean);
     var
         DummyCRMConnectionSetup: Record "CRM Connection Setup";
         AdminEmail: Text;
         AdminPassword: Text;
+        AccessToken: Text;
     begin
         if not ForceRedeploy and CRMIntegrationManagement.IsCRMSolutionInstalled() then
             exit;
 
         DummyCRMConnectionSetup.EnsureCDSConnectionIsEnabled();
-        if not PromptForCredentials(AdminEmail, AdminPassword) then
-            exit;
-        if CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, "Proxy Version") then
+        if "Authentication Type" = "Authentication Type"::Office365 then
+            CDSIntegrationImpl.GetAccessToken("Server Address", AccessToken)
+        else
+            if not PromptForCredentials(AdminEmail, AdminPassword) then
+                exit;
+        if CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, "Proxy Version", ForceRedeploy) then
             Message(DeploySucceedMsg)
         else
             Message(DeployFailedMsg);
@@ -515,7 +530,7 @@ table 5330 "CRM Connection Setup"
 
     procedure RegisterConnectionWithName(ConnectionName: Text)
     begin
-        RegisterTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName, GetConnectionStringWithPassword);
+        RegisterTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName, GetConnectionStringWithCredentials());
         SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, GetDefaultCRMConnection(ConnectionName));
     end;
 
@@ -532,19 +547,33 @@ table 5330 "CRM Connection Setup"
 
     local procedure ConstructConnectionStringWithCalledID(CallerID: Text): Text
     begin
-        exit(GetConnectionStringWithPassword + 'CallerID=' + CallerID);
+        exit(GetConnectionStringWithCredentials() + 'CallerID=' + CallerID);
     end;
 
     [Scope('OnPrem')]
-    procedure GetConnectionStringWithPassword() ConnectionString: Text
+    [NonDebuggable]
+    procedure GetConnectionStringWithCredentials() ConnectionString: Text
     var
         PasswordPlaceHolderPos: Integer;
     begin
-        ConnectionString := GetConnectionString;
-        if ConnectionString = '' then
-            ConnectionString := UpdateConnectionString;
-        if "User Name" = '' then
+        ConnectionString := GetConnectionString();
+
+        // if the setup record is temporary and connection string contains access token, this is a temp setup record constructed for the admin log-on
+        // in this case just use the connection string
+        if IsTemporary() and ConnectionString.Contains(AccessTokenTok) then
             exit(ConnectionString);
+
+        if ConnectionString = '' then
+            ConnectionString := UpdateConnectionString();
+
+        // if auth type is Office365 and connection string contains {ClientSecret} token
+        // then we will connect via OAuth client credentials grant flow, and construct the connection string accordingly, with the actual client secret
+        if "Authentication Type" = "Authentication Type"::Office365 then
+            if ConnectionString.Contains(ClientSecretTok) then begin
+                ConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTok, ClientSecretAuthTxt, "Server Address", CDSIntegrationImpl.GetCDSConnectionClientId(), CDSIntegrationImpl.GetCDSConnectionClientSecret(), "Proxy Version");
+                exit(ConnectionString);
+            end;
+
         PasswordPlaceHolderPos := StrPos(ConnectionString, MissingPasswordTok);
         ConnectionString :=
           CopyStr(ConnectionString, 1, PasswordPlaceHolderPos - 1) + GetPassword +
@@ -668,7 +697,7 @@ table 5330 "CRM Connection Setup"
     [Scope('OnPrem')]
     procedure VerifyTestConnection(): Boolean
     begin
-        if ("Server Address" = '') or ("User Name" = '') or not HasPassword then
+        if ("Server Address" = '') or ("User Name" = '') then
             Error(DetailsMissingErr, CRMProductName.SHORT);
 
         CRMIntegrationManagement.ClearState;
@@ -738,8 +767,9 @@ table 5330 "CRM Connection Setup"
         if CRMSystemuser.FindFirst then begin
             if CRMSystemuser.IsDisabled then
                 Error(UserNotActiveErr, "User Name", "Server Address");
-            if not CRMSystemuser.IsLicensed then
-                Error(UserNotLicensedErr, "User Name", "Server Address");
+            if "Authentication Type" <> "Authentication Type"::Office365 then
+                if not CRMSystemuser.IsLicensed then
+                    Error(UserNotLicensedErr, "User Name", "Server Address");
 
             CRMSystemuserroles.SetRange(SystemUserId, CRMSystemuser.SystemUserId);
             if CRMSystemuserroles.FindSet then
@@ -779,7 +809,7 @@ table 5330 "CRM Connection Setup"
 
     local procedure CreateOrganizationService(var CRMHelper: DotNet CrmHelper)
     begin
-        CRMHelper := CRMHelper.CrmHelper(GetConnectionStringWithPassword);
+        CRMHelper := CRMHelper.CrmHelper(GetConnectionStringWithCredentials());
     end;
 
     [TryFunction]
@@ -881,19 +911,24 @@ table 5330 "CRM Connection Setup"
         end;
     end;
 
+    [NonDebuggable]
     local procedure InstallIntegrationSolution()
     var
         AdminEmail: Text;
         AdminPassword: Text;
+        AccessToken: Text;
     begin
         if CRMIntegrationManagement.IsCRMSolutionInstalled() then
             exit;
 
-        if not PromptForCredentials(AdminEmail, AdminPassword) then
-            exit;
+        if "Authentication Type" = "Authentication Type"::Office365 then
+            CDSIntegrationImpl.GetAccessToken("Server Address", AccessToken)
+        else
+            if not PromptForCredentials(AdminEmail, AdminPassword) then
+                exit;
 
         CRMIntegrationManagement.ImportCRMSolution(
-            "Server Address", "User Name", AdminEmail, AdminPassword, "Proxy Version");
+            "Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, "Proxy Version", false);
     end;
 
     local procedure EnableIntegrationTables()
@@ -1222,9 +1257,11 @@ table 5330 "CRM Connection Setup"
     [Scope('OnPrem')]
     procedure UpdateConnectionString() ConnectionString: Text
     begin
-        ConnectionString :=
-          StrSubstNo(
-            ConnectionStringFormatTok, "Server Address", GetUserName, MissingPasswordTok, "Proxy Version", CrmAuthenticationType);
+        if "Authentication Type" <> "Authentication Type"::Office365 then
+            ConnectionString := StrSubstNo(ConnectionStringFormatTok, "Server Address", GetUserName, MissingPasswordTok, "Proxy Version", CrmAuthenticationType)
+        else
+            ConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTok, ClientSecretAuthTxt, "Server Address", ClientIdTok, ClientSecretTok, "Proxy Version");
+
         SetConnectionString(ConnectionString);
     end;
 
@@ -1270,7 +1307,6 @@ table 5330 "CRM Connection Setup"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         JobQueueEntry: Record "Job Queue Entry";
-        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         NewStatus: Option;
         JobQueueEntryCodeunitFilter: Text;
     begin
@@ -1320,8 +1356,14 @@ table 5330 "CRM Connection Setup"
         if ConnectionString = '' then
             Clear("Server Connection String")
         else begin
-            if StrPos(ConnectionString, MissingPasswordTok) = 0 then
-                Error(ConnectionStringPwdPlaceHolderMissingErr);
+            if "Authentication Type" <> "Authentication Type"::Office365 then
+                if StrPos(ConnectionString, MissingPasswordTok) = 0 then
+                    Error(ConnectionStringPwdPlaceHolderMissingErr);
+
+            if "Authentication Type" = "Authentication Type"::Office365 then
+                if (StrPos(ConnectionString, MissingPasswordTok) = 0) and (StrPos(ConnectionString, ClientSecretTok) = 0) then
+                    Error(ConnectionStringPwdOrClientSecretPlaceHolderMissingErr);
+
             Clear("Server Connection String");
             "Server Connection String".CreateOutStream(OutStream);
             OutStream.WriteText(ConnectionString);

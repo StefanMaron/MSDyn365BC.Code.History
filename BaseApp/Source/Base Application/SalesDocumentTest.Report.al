@@ -1516,6 +1516,8 @@ report 202 "Sales Document - Test"
                 OnBeforeCheckDimValuePostingHeader("Sales Header", TableID, No);
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                     AddError(DimMgt.GetDimValuePostingErr);
+
+                OnAfterCheckSalesDoc("Sales Header", ErrorText, ErrorCounter);
             end;
 
             trigger OnPreDataItem()
@@ -2258,6 +2260,11 @@ report 202 "Sales Document - Test"
                               StrSubstNo(Text010, Format("Posting Date")))
                     end;
                 end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckSalesDoc(SalesHeader: Record "Sales Header"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

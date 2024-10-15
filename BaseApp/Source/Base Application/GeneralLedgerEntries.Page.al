@@ -423,16 +423,11 @@ page 20 "General Ledger Entries"
                     trigger OnAction()
                     var
                         ReversalEntry: Record "Reversal Entry";
-                        SourceCodeSetup: Record "Source Code Setup";
                     begin
                         Clear(ReversalEntry);
                         if Reversed then
                             ReversalEntry.AlreadyReversedEntry(TableCaption, "Entry No.");
-                        SourceCodeSetup.Get();
-                        if ("Journal Batch Name" = '') or
-                           ("Source Code" in [SourceCodeSetup."Sales Entry Application", SourceCodeSetup."Purchase Entry Application"])
-                        then
-                            ReversalEntry.TestFieldError;
+                        CheckEntryPostedFromJournal();
                         TestField("Transaction No.");
                         ReversalEntry.ReverseTransaction("Transaction No.")
                     end;
@@ -616,6 +611,24 @@ page 20 "General Ledger Entries"
         ShowChangeHistoryEnabled := HasChangeLogEntries;
     end;
 
+    local procedure CheckEntryPostedFromJournal()
+    var
+        ReversalEntry: Record "Reversal Entry";
+        SourceCodeSetup: Record "Source Code Setup";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckEntryPostedFromJournal(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        SourceCodeSetup.Get();
+        if ("Journal Batch Name" = '') or
+           ("Source Code" in [SourceCodeSetup."Sales Entry Application", SourceCodeSetup."Purchase Entry Application"])
+        then
+            ReversalEntry.TestFieldError;
+    end;
+
     local procedure HasChangeLogEntries(): Boolean
     var
         ChangeLogEntry: Record "Change Log Entry";
@@ -628,6 +641,11 @@ page 20 "General Ledger Entries"
     begin
         ChangeLogEntry.SetRange("Table No.", DATABASE::"G/L Entry");
         ChangeLogEntry.SetRange("Primary Key Field 1 Value", Format("Entry No.", 0, 9));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEntryPostedFromJournal(var GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

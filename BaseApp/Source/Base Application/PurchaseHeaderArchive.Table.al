@@ -734,6 +734,10 @@ table 5109 "Purchase Header Archive"
             Caption = 'Last Return Shipment No.';
             TableRelation = "Return Shipment Header";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(9000; "Assigned User ID"; Code[50])
         {
             Caption = 'Assigned User ID';

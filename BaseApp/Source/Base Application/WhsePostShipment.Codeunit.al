@@ -146,18 +146,33 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     local procedure GetSourceDocument()
+    var
+        SourceHeader: Variant;
     begin
         with WhseShptLine do
             case "Source Type" of
                 DATABASE::"Sales Line":
-                    SalesHeader.Get("Source Subtype", "Source No.");
+                    begin
+                        SalesHeader.Get("Source Subtype", "Source No.");
+                        SourceHeader := SalesHeader;
+                    end;
                 DATABASE::"Purchase Line": // Return Order
-                    PurchHeader.Get("Source Subtype", "Source No.");
+                    begin
+                        PurchHeader.Get("Source Subtype", "Source No.");
+                        SourceHeader := PurchHeader;
+                    end;
                 DATABASE::"Transfer Line":
-                    TransHeader.Get("Source No.");
+                    begin
+                        TransHeader.Get("Source No.");
+                        SourceHeader := TransHeader;
+                    end;
                 DATABASE::"Service Line":
-                    ServiceHeader.Get("Source Subtype", "Source No.");
+                    begin
+                        ServiceHeader.Get("Source Subtype", "Source No.");
+                        SourceHeader := ServiceHeader;
+                    end;
             end;
+        OnAfterGetSourceDocument(SourceHeader);
     end;
 
     local procedure MakePreliminaryChecks()
@@ -568,6 +583,8 @@ codeunit 5763 "Whse.-Post Shipment"
                 DeleteAll();
             end;
 
+        OnPostUpdateWhseDocumentsOnBeforeUpdateWhseShptHeader(WhseShptHeaderParam);
+
         WhseShptLine2.SetRange("No.", WhseShptHeaderParam."No.");
         if not WhseShptLine2.FindFirst then begin
             WhseShptHeaderParam.DeleteRelatedLines;
@@ -686,6 +703,7 @@ codeunit 5763 "Whse.-Post Shipment"
             "Posting Date" := PostingDate;
             "Whse. Shipment No." := WhseShptLine."No.";
             "Whse Shipment Line No." := WhseShptLine."Line No.";
+            OnCreatePostedShptLineOnBeforePostedWhseShptLineInsert(PostedWhseShptLine, WhseShptLine);
             Insert;
         end;
 
@@ -1136,6 +1154,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSourceDocument(SourceHeader: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRun(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
@@ -1341,6 +1364,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreatePostedShptLineOnBeforePostedWhseShptLineInsert(var PostedWhseShptLine: Record "Posted Whse. Shipment Line"; WhseShptLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentHeaderOnBeforeReopenSalesHeader(var SalesHeader: Record "Sales Header"; Invoice: Boolean)
     begin
     end;
@@ -1382,6 +1410,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforePrintTransferShipment(var Transfer: Record "Transfer Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateWhseDocumentsOnBeforeUpdateWhseShptHeader(var WhseShptHeaderParam: Record "Warehouse Shipment Header")
     begin
     end;
 

@@ -2451,7 +2451,7 @@ codeunit 137408 "SCM Warehouse VI"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // [FEATURE] [Over-Receipt]
-        // [SCENARIO] "Over-Receip Code" is filled in with default value when validate "Over-Receipt Quantity"
+        // [SCENARIO] "Over-Receipt Code" is filled in with default value when validate "Over-Receipt Quantity"
         Initialize();
 
         // [GIVEN] Warehouse receipt       
@@ -2465,7 +2465,7 @@ codeunit 137408 "SCM Warehouse VI"
         // [WHEN] Enter "Over-Receipt Quantity"
         WarehouseReceiptLine.Validate("Over-Receipt Quantity", 5);
 
-        // [THEN] "Over-Receip Code" is filled with default over-receipt code
+        // [THEN] "Over-Receipt Code" is filled with default over-receipt code
         OverReceiptCode.SetRange(Default, true);
         OverReceiptCode.FindFirst();
         Assert.IsTrue(WarehouseReceiptLine."Over-Receipt Code" = OverReceiptCode.Code, 'Wrong over-receipt code');
@@ -2487,7 +2487,7 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseReceipt: TestPage "Warehouse Receipt";
     begin
         // [FEATURE] [Over-Receipt] [UI]
-        // [SCENARIO] "Over-Receip Code" is filled in with default value when validate "Qty. To Receive"
+        // [SCENARIO] "Over-Receipt Code" is filled in with default value when validate "Qty. To Receive"
         Initialize();
 
         // [GIVEN] Warehouse receipt       
@@ -2504,10 +2504,65 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseReceipt.GoToRecord(WarehouseReceiptHeader);
         WarehouseReceipt.WhseReceiptLines."Qty. to Receive".SetValue(106);
 
-        // [THEN] "Over-Receip Code" is filled with default over-receipt code
+        // [THEN] "Over-Receipt Code" is filled with default over-receipt code
         OverReceiptCode.SetRange(Default, true);
         OverReceiptCode.FindFirst();
         Assert.IsTrue(WarehouseReceipt.WhseReceiptLines."Over-Receipt Code".Value = OverReceiptCode.Code, 'Wrong over-receipt code');
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WarehouseRcptOverReceiptQtyClearsAfterClearOverReceiptCode()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        OverReceiptCode: Record "Over-Receipt Code";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        WarehouseReceipt: TestPage "Warehouse Receipt";
+        OverReceiptApprovalStatus: Enum "Over-Receipt Approval Status";
+        OldQtyValue: Decimal;
+    begin
+        // [FEATURE] [Over-Receipt] [UI]
+        // [SCENARIO] Over-Receipt quantity clears when Over-Receipt Code is cleared in Warehouse Receipt line
+        Initialize();
+
+        // [GIVEN] Warehouse receipt created from Purchaser Order "PO" with Quantity = Y      
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        OldQtyValue := 100;
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Location.Code, '', OldQtyValue);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.");
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+
+        // [GIVEN] Enter "Qty to Receive" = >Y, 'Over-Receipt Code' is populated
+        WarehouseReceipt.OpenEdit();
+        WarehouseReceipt.FILTER.SetFilter("No.", WarehouseReceiptHeader."No.");
+        WarehouseReceipt.WhseReceiptLines."Qty. to Receive".SetValue(106);
+        Assert.AreNotEqual('', WarehouseReceipt.WhseReceiptLines."Over-Receipt Code".Value, 'Over-Receipt Code should not be empty');
+
+        // [WHEN] 'Over-Receipt Code' is cleared
+        WarehouseReceipt.WhseReceiptLines."Over-Receipt Code".SetValue('');
+
+        // [THEN] "Over-Receipt Code" is cleared
+        // [THEN] 'Over-Receipt Quantity' = 0, Quantity = Qty. to Receive = Qty. To Invoice = Y. 
+        WarehouseReceipt.WhseReceiptLines."Over-Receipt Quantity".AssertEquals(0);
+        WarehouseReceipt.WhseReceiptLines."Over-Receipt Code".AssertEquals('');
+        WarehouseReceipt.WhseReceiptLines.Quantity.AssertEquals(OldQtyValue);
+        WarehouseReceipt.WhseReceiptLines."Qty. to Receive".AssertEquals(OldQtyValue);
+        PurchaseLine.Find();
+
+        // [THEN] Purchase Line in Purchase Order "PO" has 'Over-Receipt Status' = '', 
+        // [THEN] "Over-Receipt Quantity" = 0, Quantity = Y;.
+        PurchaseLine.TestField("Over-Receipt Approval Status", OverReceiptApprovalStatus::" ");
+        PurchaseLine.TestField("Over-Receipt Quantity", 0);
+        PurchaseLine.TestField(Quantity, OldQtyValue);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 

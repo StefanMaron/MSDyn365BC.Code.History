@@ -589,6 +589,10 @@ table 125 "Purch. Cr. Memo Line"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(11302; "Pmt. Discount Amount (Old)"; Decimal)
         {
             Caption = 'Pmt. Discount Amount (Old)';

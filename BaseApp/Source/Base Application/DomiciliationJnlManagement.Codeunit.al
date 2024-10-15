@@ -354,6 +354,7 @@ codeunit 2000020 DomiciliationJnlManagement
         end
     end;
 
+    [IntegrationEvent(false, false)]
     local procedure OnCreateDomiciliationsOnAfterSetFilters(var DomiciliationJournalLine: Record "Domiciliation Journal Line")
     begin
     end;

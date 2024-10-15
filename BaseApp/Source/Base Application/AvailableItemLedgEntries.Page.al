@@ -222,6 +222,7 @@ page 504 "Available - Item Ledg. Entries"
         MaxQtyToReserve: Decimal;
         MaxQtyDefined: Boolean;
         CaptionText: Text;
+        CannotReserveFromSpecialOrderErr: Label 'You cannot reserve from this item ledger entry because the associated special sales order %1 has not been posted yet.', Comment = '%1: Sales Order No.';
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
@@ -326,11 +327,15 @@ page 504 "Available - Item Ledg. Entries"
     local procedure CreateReservation(var ReserveQuantity: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
+        SpecialOrderSalesNo: Code[20];
     begin
         TestField("Drop Shipment", false);
         TestField("Item No.", ReservEntry."Item No.");
         TestField("Variant Code", ReservEntry."Variant Code");
         TestField("Location Code", ReservEntry."Location Code");
+        SpecialOrderSalesNo := ReservMgt.FindUnfinishedSpecialOrderSalesNo(Rec);
+        if SpecialOrderSalesNo <> '' then
+            Error(CannotReserveFromSpecialOrderErr, SpecialOrderSalesNo);
 
         if TotalAvailQty < 0 then begin
             ReserveQuantity := 0;

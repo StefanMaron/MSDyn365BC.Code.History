@@ -17,6 +17,8 @@ codeunit 9170 "Conf./Personalization Mgt."
         UrlConfigureParameterTxt: Label 'customize', Locked = true;
         UrlProfileParameterTxt: Label 'profile=%1', Comment = '%1 = the profile ID for the profile we want to load for the session', Locked = true;
         UserCreatedAppNameTxt: Label '(User-created)';
+        CouldNotExportProfilesErr: Label 'Cannot export the profiles because one or more of them contain an error.';
+        ExportProfilesWithWarningsQst: Label 'There is an error in one or more of the profiles that you are exporting. You can export the profiles anyway, but you should fix the errors before you import them. Typically, import fails for profiles with errors.';
 
     procedure DefaultRoleCenterID(): Integer
     var
@@ -295,6 +297,7 @@ codeunit 9170 "Conf./Personalization Mgt."
     var
         FileManagement: Codeunit "File Management";
         Designer: DotNet NavDesignerALFunctions;
+        NavDesignerALProfileExportResponse: DotNet NavDesignerALProfileExportResponse;
         profileConfigurationOutStream: OutStream;
         TempFile: File;
         ServerTempFileName: Text;
@@ -303,7 +306,18 @@ codeunit 9170 "Conf./Personalization Mgt."
         TempFile.Create(ServerTempFileName);
         TempFile.CreateOutStream(profileConfigurationOutStream);
 
-        Designer.GenerateProfileConfigurationPackageZip(profileConfigurationOutStream);
+        NavDesignerALProfileExportResponse := Designer.GenerateProfileConfigurationPackageZip(profileConfigurationOutStream);
+        if not NavDesignerALProfileExportResponse.Success then begin
+            if not NavDesignerALProfileExportResponse.ProposeForceExport then
+                Error(CouldNotExportProfilesErr);
+
+            if not Confirm(ExportProfilesWithWarningsQst) then
+                exit;
+
+            NavDesignerALProfileExportResponse := Designer.ForceGenerateProfileConfigurationPackageZip(profileConfigurationOutStream);
+            if not NavDesignerALProfileExportResponse.Success then
+                Error(CouldNotExportProfilesErr);
+        end;
 
         FileManagement.DownloadHandler(ServerTempFileName, '', '', '', 'profiles.zip');
         FileManagement.DeleteServerFile(ServerTempFileName);

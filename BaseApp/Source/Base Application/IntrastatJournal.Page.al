@@ -52,6 +52,7 @@ page 311 "Intrastat Journal"
                     ApplicationArea = BasicEU;
                     StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the document number on the entry.';
+                    ShowMandatory = true;
                 }
                 field("Item No."; "Item No.")
                 {
