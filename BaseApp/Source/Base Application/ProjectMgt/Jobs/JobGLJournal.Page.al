@@ -627,6 +627,11 @@ page 1020 "Job G/L Journal"
                               "Journal Batch Name" = FIELD("Journal Batch Name"),
                               "Line No." = FIELD("Line No.");
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -949,6 +954,8 @@ page 1020 "Job G/L Journal"
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         UpdateBalance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SetJobQueueVisibility();
     end;
 
@@ -975,6 +982,7 @@ page 1020 "Job G/L Journal"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         PreviewGuid := CreateGuid();
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
     end;
 
     trigger OnModifyRecord(): Boolean
