@@ -1155,7 +1155,7 @@
     begin
         if CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Invoice then begin
             GetCorrectionInfoFromDocument(
-              CustLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
+              true, CustLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
               CustLedgerEntry."Correction Type", CustLedgerEntry."Corrected Invoice No.");
             if FindCustLedgerEntryOfRefDocument(CustLedgerEntry, OldCustLedgerEntry, CorrectedInvoiceNo) then
                 if CorrectionType = SalesCrMemoHeader."Correction Type"::Removal then begin
@@ -1313,7 +1313,7 @@
     begin
         if VendorLedgerEntry."Document Type" <> VendorLedgerEntry."Document Type"::Invoice then begin
             GetCorrectionInfoFromDocument(
-              VendorLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
+              false, VendorLedgerEntry."Document No.", CorrectedInvoiceNo, CorrectionType,
               VendorLedgerEntry."Correction Type", VendorLedgerEntry."Corrected Invoice No.");
             if FindVendorLedgerEntryOfRefDocument(VendorLedgerEntry, OldVendorLedgerEntry, CorrectedInvoiceNo) then
                 if CorrectionType = PurchCrMemoHdr."Correction Type"::Removal then begin
@@ -1911,32 +1911,37 @@
         end;
     end;
 
-    local procedure GetCorrectionInfoFromDocument(DocumentNo: Code[20]; var CorrectedInvoiceNo: Code[20]; var CorrectionType: Option; EntryCorrType: Option; EntryCorrInvNo: Code[20])
+    local procedure GetCorrectionInfoFromDocument(IsSales: Boolean; DocumentNo: Code[20]; var CorrectedInvoiceNo: Code[20]; var CorrectionType: Option; EntryCorrType: Option; EntryCorrInvNo: Code[20])
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        case true of
-            PurchCrMemoHdr.Get(DocumentNo):
-                begin
-                    CorrectedInvoiceNo := PurchCrMemoHdr."Corrected Invoice No.";
-                    CorrectionType := PurchCrMemoHdr."Correction Type";
-                end;
-            SalesCrMemoHeader.Get(DocumentNo):
-                begin
-                    CorrectedInvoiceNo := SalesCrMemoHeader."Corrected Invoice No.";
-                    CorrectionType := SalesCrMemoHeader."Correction Type";
-                end;
-            ServiceCrMemoHeader.Get(DocumentNo):
-                begin
-                    CorrectedInvoiceNo := ServiceCrMemoHeader."Corrected Invoice No.";
-                    CorrectionType := ServiceCrMemoHeader."Correction Type";
-                end
-            else begin
-                    CorrectedInvoiceNo := EntryCorrInvNo;
-                    CorrectionType := EntryCorrType;
-                end;
+        if IsSales then begin
+            case true of
+                SalesCrMemoHeader.Get(DocumentNo):
+                    begin
+                        CorrectedInvoiceNo := SalesCrMemoHeader."Corrected Invoice No.";
+                        CorrectionType := SalesCrMemoHeader."Correction Type";
+                    end;
+                ServiceCrMemoHeader.Get(DocumentNo):
+                    begin
+                        CorrectedInvoiceNo := ServiceCrMemoHeader."Corrected Invoice No.";
+                        CorrectionType := ServiceCrMemoHeader."Correction Type";
+                    end
+                else begin
+                        CorrectedInvoiceNo := EntryCorrInvNo;
+                        CorrectionType := EntryCorrType;
+                    end;
+            end;
+            exit;
+        end;
+        if PurchCrMemoHdr.Get(DocumentNo) then begin
+            CorrectedInvoiceNo := PurchCrMemoHdr."Corrected Invoice No.";
+            CorrectionType := PurchCrMemoHdr."Correction Type";
+        end else begin
+            CorrectedInvoiceNo := EntryCorrInvNo;
+            CorrectionType := EntryCorrType;
         end;
     end;
 
