@@ -816,6 +816,7 @@ table 5065 "Interaction Log Entry"
     begin
         TempSegLine.CopyFromInteractLogEntry(Rec);
         TempSegLine.Validate(Date, WorkDate());
+        OnResumeInteractionOnAfterDateValidation(TempSegLine);
 
         if TempSegLine."To-do No." <> '' then
             TempSegLine.SetRange("To-do No.", TempSegLine."To-do No.");
@@ -904,6 +905,11 @@ table 5065 "Interaction Log Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnResumeInteractionOnBeforeStartWizard(InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResumeInteractionOnAfterDateValidation(var TempSegmentLine: Record "Segment Line" temporary)
     begin
     end;
 }

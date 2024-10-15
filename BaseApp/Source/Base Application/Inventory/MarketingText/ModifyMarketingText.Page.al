@@ -45,7 +45,7 @@ page 5839 "Modify Marketing Text"
                     Visible = IsCopilotEnabled;
                     InstructionalText = 'Get help writing engaging texts based on the item''s attributes';
                     ShowCaption = false;
-                    field(CopilotPrompt; 'Draft with Copilot')
+                    field(CopilotPrompt; DraftWithCopilotTxt)
                     {
                         Visible = IsCopilotEnabled;
                         Editable = false;
@@ -114,4 +114,5 @@ page 5839 "Modify Marketing Text"
         IsCopilotEnabled: Boolean;
         HasLoaded: Boolean;
         ConfirmTxt: Label 'If you generate a new text and keep it, the current text is replaced. Do you want to continue?';
+        DraftWithCopilotTxt: Label 'Draft with Copilot';
 }

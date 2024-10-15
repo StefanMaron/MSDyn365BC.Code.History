@@ -221,9 +221,7 @@ xmlport 9864 "Import Permission Sets"
 
     requestpage
     {
-        layout
-        {
-        }
+
     }
 
     var
@@ -237,7 +235,6 @@ xmlport 9864 "Import Permission Sets"
     end;
 
     trigger OnPostXmlPort()
-    var
     begin
         if TempMetadataPermissionSet.FindSet() then
             repeat

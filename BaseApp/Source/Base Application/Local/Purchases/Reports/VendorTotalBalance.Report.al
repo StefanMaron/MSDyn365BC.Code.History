@@ -222,6 +222,8 @@ report 11004 "Vendor Total-Balance"
             begin
                 SetRange("Date Filter", 0D, ClosingDate(YearStartDate - 1));
                 CalcFields("Net Change (LCY)");
+                OnAfterGetRecordVendorPeriodOnAfterCalcFieldsNetChangeLCY(Vendor);
+
                 if "Net Change (LCY)" <> 0 then
                     if "Net Change (LCY)" > 0 then
                         StartBalanceType := StartBalanceType::Credit
@@ -233,6 +235,8 @@ report 11004 "Vendor Total-Balance"
 
                 SetRange("Date Filter", StartDate, EndDate);
                 CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
+                OnAfterGetRecordVendorPeriodOnAfterCalcFieldsDebitCreditAmountLCY(Vendor);
+
                 PeriodDebitAmount := "Debit Amount (LCY)";
                 PeriodCreditAmount := "Credit Amount (LCY)";
 
@@ -244,6 +248,7 @@ report 11004 "Vendor Total-Balance"
                     DetailedVendorLedgEntry.SetRange("Posting Date", StartDate, EndDate);
                     DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::"Realized Loss",
                       DetailedVendorLedgEntry."Entry Type"::"Realized Gain");
+                    OnAfterGetRecordVendorPeriodOnAfterDetailedVendorLedgEntrySetFilters(DetailedVendorLedgEntry);  
                     if DetailedVendorLedgEntry.FindSet() then
                         repeat
                             DetailedVendorLedgEntry2.Reset();
@@ -285,6 +290,8 @@ report 11004 "Vendor Total-Balance"
 
                 SetRange("Date Filter", 0D, EndDate);
                 CalcFields("Net Change (LCY)");
+                OnAfterGetRecordVendorYearOnAfterCalcFieldsNetChangeLCY(Vendor);
+
                 if "Net Change (LCY)" <> 0 then
                     if "Net Change (LCY)" > 0 then
                         PeriodEndBalanceType := PeriodEndBalanceType::Credit
@@ -296,6 +303,7 @@ report 11004 "Vendor Total-Balance"
 
                 SetRange("Date Filter", YearStartDate, EndDate);
                 CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
+                OnAfterGetRecordVendorYearOnAfterCalcFieldsDebitCreditAmountLCY(Vendor);
                 YearDebitAmount := "Debit Amount (LCY)";
                 YearCreditAmount := "Credit Amount (LCY)";
 
@@ -307,6 +315,7 @@ report 11004 "Vendor Total-Balance"
                     DetailedVendorLedgEntry.SetRange("Posting Date", YearStartDate, EndDate);
                     DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::"Realized Loss",
                       DetailedVendorLedgEntry."Entry Type"::"Realized Gain");
+                    OnAfterGetRecordVendorYearOnAfterDetailedVendorLedgEntrySetFilters(DetailedVendorLedgEntry);
                     if DetailedVendorLedgEntry.FindSet() then
                         repeat
                             DetailedVendorLedgEntry2.Reset();
@@ -347,6 +356,7 @@ report 11004 "Vendor Total-Balance"
 
                 SetRange("Date Filter", 0D, AccountingPeriod."Starting Date" - 1);
                 CalcFields("Net Change (LCY)");
+                OnAfterGetRecordVendorEndOnAfterCalcFieldsNetChangeLCY(Vendor);
                 if "Net Change (LCY)" <> 0 then
                     if "Net Change (LCY)" > 0 then
                         EndBalanceType := EndBalanceType::Credit
@@ -502,6 +512,41 @@ report 11004 "Vendor Total-Balance"
                     AdjAmount := AdjAmount + DetailedVendorLedgEntry."Debit Amount (LCY)" + DetailedVendorLedgEntry."Credit Amount (LCY)";
             until DetailedVendorLedgEntry2.Next() = 0;
         exit(AdjAmount);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordVendorPeriodOnAfterCalcFieldsNetChangeLCY(var Vendor: Record "Vendor");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordVendorPeriodOnAfterCalcFieldsDebitCreditAmountLCY(var Vendor: Record "Vendor");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordVendorPeriodOnAfterDetailedVendorLedgEntrySetFilters(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordVendorYearOnAfterCalcFieldsNetChangeLCY(var Vendor: Record "Vendor");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordVendorYearOnAfterCalcFieldsDebitCreditAmountLCY(var Vendor: Record "Vendor");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordVendorYearOnAfterDetailedVendorLedgEntrySetFilters(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordVendorEndOnAfterCalcFieldsNetChangeLCY(var Vendor: Record "Vendor");
+    begin
     end;
 }
 

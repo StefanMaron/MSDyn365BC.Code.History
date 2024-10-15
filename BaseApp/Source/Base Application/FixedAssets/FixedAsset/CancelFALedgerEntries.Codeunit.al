@@ -49,26 +49,31 @@ codeunit 5624 "Cancel FA Ledger Entries"
                         Error(Text002, FieldCaption("Entry No."), "Entry No.");
                     FA.Get("FA No.");
                     DeprBook.Get("Depreciation Book Code");
-                    DeprBook.IndexGLIntegration(GLIntegration);
-                    CheckType(FALedgEntry);
-                    if NewPostingDate > 0D then begin
-                        "Posting Date" := NewPostingDate;
-                        DeprBook.TestField("Use Same FA+G/L Posting Dates", false);
-                    end;
                     IsHandled := false;
-                    OnTransferLineOnBeforeInsertJnlLine(FALedgEntry, BalAccount, FA."Budgeted Asset", IsHandled);
-                    if not IsHandled then
-                        if GLIntegration[ConvertPostingType() + 1] and not FA."Budgeted Asset" then
-                            InsertGenJnlLine(FALedgEntry, BalAccount)
-                        else
-                            InsertFAJnlLine(FALedgEntry);
+                    OnTransferLineOnBeforeIndexGLIntegration(DeprBook, IsHandled);
+                    if not IsHandled then begin
+                        DeprBook.IndexGLIntegration(GLIntegration);
+                        CheckType(FALedgEntry);
+                        if NewPostingDate > 0D then begin
+                            "Posting Date" := NewPostingDate;
+                            DeprBook.TestField("Use Same FA+G/L Posting Dates", false);
+                        end;
+                        IsHandled := false;
+                        OnTransferLineOnBeforeInsertJnlLine(FALedgEntry, BalAccount, FA."Budgeted Asset", IsHandled);
+                        if not IsHandled then
+                            if GLIntegration[ConvertPostingType() + 1] and not FA."Budgeted Asset" then
+                                InsertGenJnlLine(FALedgEntry, BalAccount)
+                            else
+                                InsertFAJnlLine(FALedgEntry);
+                    end;
                 until Next(-1) = 0;
 
         if not HideValidationDialog AND GuiAllowed then
             Message(Text003);
     end;
 
-    local procedure CheckType(var FALedgEntry: Record "FA Ledger Entry")
+    local procedure CheckType(var
+                                  FALedgEntry: Record "FA Ledger Entry")
     var
         IsHandled: Boolean;
     begin
@@ -184,6 +189,11 @@ codeunit 5624 "Cancel FA Ledger Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferLineOnBeforeInsertJnlLine(FALedgerEntry: Record "FA Ledger Entry"; BalAccount: Boolean; BudgetedAsset: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferLineOnBeforeIndexGLIntegration(DepreciationBook: Record "Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 }

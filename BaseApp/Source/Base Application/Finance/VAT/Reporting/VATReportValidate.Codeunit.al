@@ -157,10 +157,16 @@ codeunit 744 "VAT Report Validate"
             VATReportHeader2.SetRange("VAT Report Type", VATReportHeader."VAT Report Type");
             VATReportHeader2.SetRange("Trade Type", VATReportHeader."Trade Type");
             VATReportHeader2.SetFilter("No.", '<>%1', VATReportHeader."No.");
+            OnValidateVATReportPeriodOnAfterSetFilters(VATReportHeader2);
             if VATReportHeader2.FindFirst() then
                 Error(Text002,
                   VATReportHeader."Start Date", VATReportHeader."End Date", VATReportHeader2."No.");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATReportPeriodOnAfterSetFilters(var VATReportHeader2: Record "VAT Report Header")
+    begin
     end;
 }
 

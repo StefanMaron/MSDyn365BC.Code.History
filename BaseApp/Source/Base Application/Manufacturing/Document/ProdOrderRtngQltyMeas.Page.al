@@ -4,7 +4,7 @@ page 99000834 "Prod. Order Rtng Qlty Meas."
 {
     AutoSplitKey = true;
     Caption = 'Prod. Order Rtng Qlty Meas.';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Prod. Order Rtng Qlty Meas.";

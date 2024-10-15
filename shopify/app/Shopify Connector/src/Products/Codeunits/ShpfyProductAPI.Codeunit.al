@@ -376,10 +376,7 @@ codeunit 30176 "Shpfy Product API"
         Clear(ProductIds);
         GraphQLType := GraphQLType::GetProductIds;
         LastSyncTime := Shop.GetLastSyncTime("Shpfy Synchronization Type"::Products);
-        if LastSyncTime > 0DT then
-            Parameters.Add('Time', Format(LastSyncTime, 0, 9))
-        else
-            Parameters.Add('Time', '');
+        Parameters.Add('Time', Format(LastSyncTime, 0, 9));
         repeat
             JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
             if JsonHelper.GetJsonArray(JResponse, JProducts, 'data.products.edges') then begin

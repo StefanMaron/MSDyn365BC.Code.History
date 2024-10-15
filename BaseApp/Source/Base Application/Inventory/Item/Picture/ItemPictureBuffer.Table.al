@@ -110,20 +110,17 @@ table 31 "Item Picture Buffer"
         DeleteAll();
         foreach EntryListKey in EntryList do begin
             Init();
-            "File Name" :=
-                CopyStr(FileMgt.GetFileNameWithoutExtension(EntryListKey), 1, MaxStrLen("File Name"));
-            "File Extension" :=
-                CopyStr(FileMgt.GetExtension(EntryListKey), 1, MaxStrLen("File Extension"));
-            TempBlob.CreateOutStream(EntryOutStream);
-            Length := DataCompression.ExtractEntry(EntryListKey, EntryOutStream);
-            TempBlob.CreateInStream(EntryInStream);
-
-            if not IsNullGuid(Picture.ImportStream(EntryInStream, FileMgt.GetFileName(EntryListKey))) then begin
-                Window.Update(1, "File Name");
-                "File Size (KB)" := Length;
-                TotalCount += 1;
-                if StrLen("File Name") <= MaxStrLen(Item."No.") then
-                    if Item.Get("File Name") then begin
+            "File Name" := CopyStr(FileMgt.GetFileNameWithoutExtension(EntryListKey), 1, MaxStrLen("File Name"));
+            "File Extension" := CopyStr(FileMgt.GetExtension(EntryListKey), 1, MaxStrLen("File Extension"));
+            if StrLen("File Name") <= MaxStrLen(Item."No.") then
+                if Item.Get("File Name") then begin
+                    TempBlob.CreateOutStream(EntryOutStream);
+                    Length := DataCompression.ExtractEntry(EntryListKey, EntryOutStream);
+                    TempBlob.CreateInStream(EntryInStream);
+                    if not IsNullGuid(Picture.ImportStream(EntryInStream, FileMgt.GetFileName(EntryListKey))) then begin
+                        Window.Update(1, "File Name");
+                        "File Size (KB)" := Length;
+                        TotalCount += 1;
                         "Item No." := Item."No.";
                         if Item.Picture.Count > 0 then begin
                             "Picture Already Exists" := true;
@@ -132,8 +129,8 @@ table 31 "Item Picture Buffer"
                         end else
                             "Import Status" := "Import Status"::Pending;
                     end;
-                Insert();
-            end;
+                    Insert();
+                end;
         end;
 
         DataCompression.CloseZipArchive();

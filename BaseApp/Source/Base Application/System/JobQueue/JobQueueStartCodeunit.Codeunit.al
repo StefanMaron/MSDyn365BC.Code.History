@@ -22,6 +22,8 @@ codeunit 449 "Job Queue Start Codeunit"
         LastError: DotNet LastError;
         SuppressErrorLogging: Boolean;
     begin
+        OnBeforeRun(Rec);
+
         if Rec."User Language ID" <> 0 then
             GlobalLanguage(Rec."User Language ID");
 
@@ -78,6 +80,11 @@ codeunit 449 "Job Queue Start Codeunit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeActivateErrorMessageHandler(var JobQueueEntry: Record "Job Queue Entry"; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorMessageManagement: Codeunit "Error Message Management"; var SuppressErrorLogging: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRun(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

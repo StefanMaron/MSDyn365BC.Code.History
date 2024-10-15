@@ -100,9 +100,15 @@ codeunit 5005271 "Create Delivery Reminder"
     var
         DeliveryReminderLine: Record "Delivery Reminder Line";
         NextLineNo: Integer;
+         IsHandled: Boolean;
     begin
         PurchaseSetup.Get();
         PurchaseSetup.TestField("Default Del. Rem. Date Field");
+
+        IsHandled := false;
+        OnCreateDelivRemindLineOnBeforeSetNextLineNo(DeliveryReminderHeader, PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         DeliveryReminderLine.Reset();
         DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
@@ -187,7 +193,7 @@ codeunit 5005271 "Create Delivery Reminder"
         PurchHeader.SetCurrentKey("Document Type", "Buy-from Vendor No.");
         PurchHeader.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchHeader.SetRange("Buy-from Vendor No.", DeliveryReminderHeader."Vendor No.");
-        OnSuggestLinesOnAfterPurchHeaderSetFilters(PurchHeader);
+        OnSuggestLinesOnAfterPurchHeaderSetFilters(PurchHeader, DeliveryReminderHeader);
         if PurchHeader.Find('-') then
             repeat
                 PurchLine.Reset();
@@ -345,7 +351,7 @@ codeunit 5005271 "Create Delivery Reminder"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSuggestLinesOnAfterPurchHeaderSetFilters(var PurchHeader: Record "Purchase Header")
+    local procedure OnSuggestLinesOnAfterPurchHeaderSetFilters(var PurchHeader: Record "Purchase Header"; DeliveryReminderHeader: Record "Delivery Reminder Header")
     begin
     end;
 
@@ -356,6 +362,11 @@ codeunit 5005271 "Create Delivery Reminder"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSuggestLines(var DeliveryReminderHeader: Record "Delivery Reminder Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDelivRemindLineOnBeforeSetNextLineNo(DeliveryReminderHeader: Record "Delivery Reminder Header"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }
