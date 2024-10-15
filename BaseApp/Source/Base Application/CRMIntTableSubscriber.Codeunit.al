@@ -161,7 +161,6 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             'Item-CRM Product',
             'Resource-CRM Product',
             'Opportunity-CRM Opportunity',
-            'Sales Header-CRM Salesorder',
             'Customer Price Group-CRM Pricelevel':
                 UpdateOwnerIdType(DestinationRecordRef);
         end;
@@ -279,6 +278,26 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         end;
     end;
 
+    local procedure ChangeSalesOrderStateCode(var SourceRecordRef: RecordRef; NewStateCode: Option)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+    begin
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit;
+
+        SourceRecordRef.SetTable(CRMSalesorder);
+        // it is required to calculate these fields, otherwise CDS fails to modify the entity
+        if (CRMSalesorder.CreatedByName = '') or (CRMSalesorder.ModifiedByName = '') or (CRMSalesorder.TransactionCurrencyIdName = '') then begin
+            CRMSalesorder.SetAutoCalcFields(CreatedByName, ModifiedByName, TransactionCurrencyIdName);
+            CRMSalesorder.Find();
+        end;
+        if CRMSalesorder.StateCode = NewStateCode then
+            exit;
+        CRMSalesorder.StateCode := NewStateCode;
+        CRMSalesorder.Modify(true);
+        SourceRecordRef.GetTable(CRMSalesorder);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterInsertRecord', '', false, false)]
     [Scope('OnPrem')]
     procedure OnAfterInsertRecord(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
@@ -309,6 +328,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
+
+        // if the CDS entity already has a correct company id, do nothing
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
+            exit;
+
         SourceRecordRef.SetTable(CRMProduct);
         // it is required to calculate these fields, otherwise CDS fails to modify the entity
         if (CRMProduct.CreatedByName = '') or (CRMProduct.ModifiedByName = '') or (CRMProduct.TransactionCurrencyIdName = '') then begin
@@ -330,6 +354,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
+
+        // if the CDS entity already has a correct company id, do nothing
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
+            exit;
+
         SourceRecordRef.SetTable(CRMOpportunity);
         // it is required to calculate these fields, otherwise CDS fails to modify the entity
         if (CRMOpportunity.CreatedByName = '') or (CRMOpportunity.ModifiedByName = '') or (CRMOpportunity.TransactionCurrencyIdName = '') then begin
@@ -346,6 +375,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]
     [Scope('OnPrem')]
     procedure OnBeforeModifyRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
+    var
+        CRMSalesOrder: Record "CRM Salesorder";
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'Customer Price Group-CRM Pricelevel':
@@ -353,9 +384,13 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             'Item-CRM Product',
             'Resource-CRM Product',
             'Opportunity-CRM Opportunity',
-            'Sales Header-CRM Salesorder',
             'Sales Invoice Header-CRM Invoice':
                 UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);
+            'Sales Header-CRM Salesorder':
+                begin
+                    ChangeSalesOrderStateCode(DestinationRecordRef, CRMSalesOrder.StateCode::Active);
+                    UpdateCompanyId(DestinationRecordRef);
+                end;
         end;
     end;
 
@@ -421,6 +456,14 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
         JobQueueEntry.SetRange("Record ID to Process", Rec.RecordId());
         JobQueueEntry.DeleteTasks();
+    end;
+
+    local procedure UpdateCompanyId(var DestinationRecordRef: RecordRef)
+    var
+        CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
+    begin
+        if CDSIntegrationImpl.IsIntegrationEnabled() then
+            CDSIntTableSubscriber.SetCompanyId(DestinationRecordRef);
     end;
 
     local procedure UpdateOwnerIdAndCompanyId(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
@@ -1297,10 +1340,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         PaymentTermsEnumValue := DestinationRecordRef.Field(CRMAccount.FieldNo(PaymentTermsCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMAccount.FieldNo(PaymentTermsCode), CRMAccount.FieldNo(PaymentTermsCodeEnum), PaymentTermsEnumValue.AsInteger());
-        
+
         ShipmentMethodEnumValue := DestinationRecordRef.Field(CRMAccount.FieldNo(Address1_FreightTermsCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMAccount.FieldNo(Address1_FreightTermsCode), CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), ShipmentMethodEnumValue.AsInteger());
-        
+
         ShippingAgentEnumValue := DestinationRecordRef.Field(CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMAccount.FieldNo(Address1_ShippingMethodCode), CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), ShippingAgentEnumValue.AsInteger());
     end;
@@ -1313,7 +1356,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         PaymentTermsEnumValue := DestinationRecordRef.Field(CRMInvoice.FieldNo(PaymentTermsCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMInvoice.FieldNo(PaymentTermsCode), CRMInvoice.FieldNo(PaymentTermsCodeEnum), PaymentTermsEnumValue.AsInteger());
-        
+
         ShippingAgentEnumValue := DestinationRecordRef.Field(CRMInvoice.FieldNo(ShippingMethodCodeEnum)).Value();
         UpdateEnumFromOption(DestinationRecordRef, CRMInvoice.FieldNo(ShippingMethodCode), CRMInvoice.FieldNo(ShippingMethodCodeEnum), ShippingAgentEnumValue.AsInteger());
     end;

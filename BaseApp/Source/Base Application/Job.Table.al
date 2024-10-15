@@ -782,7 +782,6 @@ table 167 Job
 
     trigger OnDelete()
     var
-        CommentLine: Record "Comment Line";
         JobTask: Record "Job Task";
     begin
         MoveEntries.MoveJobEntries(Rec);
@@ -845,6 +844,7 @@ table 167 Job
     begin
         UpdateJobNoInReservationEntries;
         DimMgt.RenameDefaultDim(DATABASE::Job, xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::Job, xRec."No.", "No.");
         "Last Date Modified" := Today;
     end;
 
@@ -856,6 +856,7 @@ table 167 Job
         Cust: Record Customer;
         Cont: Record Contact;
         ContBusinessRelation: Record "Contact Business Relation";
+        CommentLine: Record "Comment Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         StatusChangeQst: Label 'This will delete any unposted WIP entries for this job and allow you to reverse the completion postings for this job.\\Do you wish to continue?';

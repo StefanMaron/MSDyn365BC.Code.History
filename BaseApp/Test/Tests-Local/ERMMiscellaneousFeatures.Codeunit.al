@@ -1,5 +1,6 @@
 codeunit 141020 "ERM Miscellaneous Features"
 {
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -290,33 +291,39 @@ codeunit 141020 "ERM Miscellaneous Features"
     end;
 
     [Test]
-    [HandlerFunctions('RemittanceAdviceEntriesRequestPageHandler')]
+    [HandlerFunctions('PrintRemitranceAdvanceStrMenuHandler,SelectSendingOptionModalPageHandler')]
     [Scope('OnPrem')]
     procedure RunRemittanceAdviceEntries()
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        NameValueBuffer: Record "Name/Value Buffer";
+        ERMMiscellaneousFeatures : Codeunit "ERM Miscellaneous Features";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
         // [FEATURE] [Purchase] [Remittance Advice]
         // [SCENARIO 272925] Remittance Advice - Entries report can be run from vendor ledger entries page with #Suite application area
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable Suite application area setup
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [GIVEN] Mock payment vendor ledger entry
         MockPaymentVendorLedgerEntry(VendorLedgerEntry);
 
         // [GIVEN] Open vendor ledger entries page with created entry
         Commit();
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.GotoRecord(VendorLedgerEntry);
 
-        // [WHEN] Print Remittance Advance is being hit
-        VendorLedgerEntries.RemittanceAdvance.Invoke;
+        BindSubscription(ERMMiscellaneousFeatures);
 
-        // [THEN] Report Remittance Advice - Entries opened
-        // Verified by having RemittanceAdviceEntriesRequestPageHandler
+        // [WHEN] Print Remittance Advance is being hit
+        VendorLedgerEntries.RemittanceAdvance.Invoke();
+
+        // [THEN] Report Remittance Advice - Entries run
+        NameValueBuffer.Get(SessionId);
+        Assert.IsTrue(FILE.Exists(NameValueBuffer.Value), '');
+        UnbindSubscription(ERMMiscellaneousFeatures);
     end;
 
     local procedure Initialize()
@@ -424,6 +431,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         EntryNo := VendorLedgerEntry."Entry No." + 1;
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := EntryNo;
+        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo();
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Payment;
         VendorLedgerEntry.Insert();
     end;
@@ -510,10 +518,36 @@ codeunit 141020 "ERM Miscellaneous Features"
     begin
     end;
 
-    [RequestPageHandler]
+    [StrMenuHandler]
     [Scope('OnPrem')]
-    procedure RemittanceAdviceEntriesRequestPageHandler(var RemittanceAdviceEntries: TestRequestPage "Remittance Advice - Entries")
+    procedure PrintRemitranceAdvanceStrMenuHandler(Options: Text; var Choice: Integer; Instructions: Text);
     begin
+        Choice := 1;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectSendingOptionModalPageHandler(var SelectSendingOptions: TestPage "Select Sending Options");
+    var
+        DocumentSendingProfile: Record "Document Sending Profile";
+    begin
+        SelectSendingOptions.Printer.SetValue(DocumentSendingProfile.Printer::No);
+        SelectSendingOptions."E-Mail".SetValue(DocumentSendingProfile."E-Mail"::No);
+        SelectSendingOptions.Disk.SetValue(DocumentSendingProfile.Disk::PDF);
+        SelectSendingOptions."Electronic Document".SetValue(DocumentSendingProfile."Electronic Document"::No);
+        SelectSendingOptions.OK.Invoke();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
+    local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
+    var
+        NameValueBuffer: Record "Name/Value Buffer";
+    begin
+        NameValueBuffer.Init();
+        NameValueBuffer.ID := SessionId;
+        NameValueBuffer.Value := FromFileName;
+        NameValueBuffer.Insert(true);
+        IsHandled := true;
     end;
 }
 

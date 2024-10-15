@@ -16,6 +16,9 @@ query 134 "OCR Vendors"
             column(VAT_Registration_No; "VAT Registration No.")
             {
             }
+            column(ABN; ABN)
+            {
+            }
             column(Name; Name)
             {
             }

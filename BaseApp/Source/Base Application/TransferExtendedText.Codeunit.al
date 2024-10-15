@@ -1,4 +1,4 @@
-codeunit 378 "Transfer Extended Text"
+﻿codeunit 378 "Transfer Extended Text"
 {
 
     trigger OnRun()
@@ -19,6 +19,12 @@ codeunit 378 "Transfer Extended Text"
     procedure SalesCheckIfAnyExtText(var SalesLine: Record "Sales Line"; Unconditionally: Boolean): Boolean
     var
         SalesHeader: Record "Sales Header";
+    begin
+        exit(SalesCheckIfAnyExtText(SalesLine, Unconditionally, SalesHeader));
+    end;
+
+    procedure SalesCheckIfAnyExtText(var SalesLine: Record "Sales Line"; Unconditionally: Boolean; SalesHeader: Record "Sales Header"): Boolean
+    var
         ExtTextHeader: Record "Extended Text Header";
     begin
         MakeUpdateRequired := false;
@@ -54,7 +60,10 @@ codeunit 378 "Transfer Extended Text"
 
         if AutoText then begin
             SalesLine.TestField("Document No.");
-            SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+
+            if SalesHeader."No." = '' then
+                SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+
             ExtTextHeader.SetRange("Table Name", SalesLine.Type.AsInteger());
             ExtTextHeader.SetRange("No.", SalesLine."No.");
             case SalesLine."Document Type" of
@@ -142,9 +151,15 @@ codeunit 378 "Transfer Extended Text"
         end;
     end;
 
-    procedure PurchCheckIfAnyExtText(var PurchLine: Record "Purchase Line"; Unconditionally: Boolean): Boolean
+    procedure PurchCheckIfAnyExtText(var PurchaseLine: Record "Purchase Line"; Unconditionally: Boolean): Boolean
     var
-        PurchHeader: Record "Purchase Header";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        exit(PurchCheckIfAnyExtText(PurchaseLine, Unconditionally, PurchaseHeader));
+    end;
+
+    procedure PurchCheckIfAnyExtText(var PurchLine: Record "Purchase Line"; Unconditionally: Boolean; PurchaseHeader: Record "Purchase Header"): Boolean
+    var
         ExtTextHeader: Record "Extended Text Header";
     begin
         MakeUpdateRequired := false;
@@ -178,7 +193,8 @@ codeunit 378 "Transfer Extended Text"
 
         if AutoText then begin
             PurchLine.TestField("Document No.");
-            PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+            if PurchaseHeader."No." = '' then
+                PurchaseHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
             ExtTextHeader.SetRange("Table Name", PurchLine.Type.AsInteger());
             ExtTextHeader.SetRange("No.", PurchLine."No.");
             case PurchLine."Document Type" of
@@ -195,8 +211,8 @@ codeunit 378 "Transfer Extended Text"
                 PurchLine."Document Type"::"Credit Memo":
                     ExtTextHeader.SetRange("Purchase Credit Memo", true);
             end;
-            OnPurchCheckIfAnyExtTextAutoText(ExtTextHeader, PurchHeader, PurchLine, Unconditionally, MakeUpdateRequired);
-            exit(ReadLines(ExtTextHeader, PurchHeader."Document Date", PurchHeader."Language Code"));
+            OnPurchCheckIfAnyExtTextAutoText(ExtTextHeader, PurchaseHeader, PurchLine, Unconditionally, MakeUpdateRequired);
+            exit(ReadLines(ExtTextHeader, PurchaseHeader."Document Date", PurchaseHeader."Language Code"));
         end;
     end;
 

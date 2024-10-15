@@ -2442,6 +2442,22 @@ codeunit 7201 "CDS Integration Impl."
         exit(TrySetAndCheckCompany(RecRef, false));
     end;
 
+    [Scope('OnPrem')]
+    procedure CheckCompanyIdNoTelemetry(var RecRef: RecordRef): Boolean
+    var
+        CompanyIdFldRef: FieldRef;
+        ActualCompanyId: Guid;
+        SavedCompanyId: Guid;
+    begin
+        if not FindCompanyIdField(RecRef, CompanyIdFldRef) then
+            exit(false);
+
+        ActualCompanyId := GetCachedCompanyId();
+        SavedCompanyId := CompanyIdFldRef.Value();
+
+        exit(ActualCompanyId = SavedCompanyId);
+    end;
+
     [TryFunction]
     local procedure TrySetAndCheckCompany(var RecRef: RecordRef; CheckOnly: Boolean)
     var

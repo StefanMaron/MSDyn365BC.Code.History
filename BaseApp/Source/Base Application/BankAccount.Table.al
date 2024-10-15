@@ -709,6 +709,7 @@
     trigger OnRename()
     begin
         DimMgt.RenameDefaultDim(DATABASE::"Bank Account", xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::"Bank Account", xRec."No.", "No.");
         "Last Date Modified" := Today;
 
         PostCodeCheck.MoveAllAddressID(
