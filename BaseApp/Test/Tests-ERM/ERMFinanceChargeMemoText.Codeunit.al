@@ -354,5 +354,82 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         IssuedFinChargeMemoLine.TestField("Remaining Amount", RemainingAmount);
         IssuedFinChargeMemoLine.TestField(Amount, Amount);
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IssueAndCancelFinChargeMemoWithInvRoundingAndWithoutAdditionalFeePosting()
+    var
+        Customer: Record Customer;
+        FinanceChargeTerm: Record "Finance Charge Terms";
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        CancelIssuedFinChargeMemo: Codeunit "Cancel Issued Fin. Charge Memo";
+    begin
+        // [SCENARIO 450977] Issue Finance Charge Memo with Invoice Rounding and Cancel it.
+        Initialize();
+
+        // [GIVEN] Invoice Rounding Precision =1 in G/L Setup        
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", 1.00);
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Finance Charge Term with Interest Rate 5 and Minimum Amount (LCY)=10 and Post Additional Fee = false
+        LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerm);
+        FinanceChargeTerm."Minimum Amount (LCY)" := 10;
+        FinanceChargeTerm."Interest Rate" := 5;
+        FinanceChargeTerm."Post Interest" := true;
+        FinanceChargeTerm."Post Additional Fee" := false;
+        FinanceChargeTerm.Modify();
+
+        // [GIVEN] Customer and Customer Ledger Entries
+        CreateCustomer(Customer, FinanceChargeTerm.Code, '');
+        CreateAndPostGenJournalLine(Customer."No.", Customer."Currency Code", LibraryRandom.RandDec(1000, 2));
+        CreateAndPostGenJournalLine(Customer."No.", Customer."Currency Code", LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] Created Fin. Charge Memo Header and generated lines
+        CreateSuggestFinanceChargeMemo(FinanceChargeMemoHeader, Customer."No.",
+                  CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'Y>',
+                  CalcDate(FinanceChargeTerm."Due Date Calculation", WorkDate())));
+
+        // [GIVEN] Issue Finance Charge Memo.
+        IssuingFinanceChargeMemos(FinanceChargeMemoHeader."No.");
+        IssuedFinChargeMemoHeader.SetRange("Customer No.", FinanceChargeMemoHeader."Customer No.");
+        IssuedFinChargeMemoHeader.SetRange("Pre-Assigned No.", FinanceChargeMemoHeader."No.");
+        IssuedFinChargeMemoHeader.FindLast();
+
+        // [WHEN] Issue Finance Charge Memo is canceled
+        CancelIssuedFinChargeMemo.SetParameters(true, false, WorkDate(), false);
+        CancelIssuedFinChargeMemo.Run(IssuedFinChargeMemoHeader);
+
+        // [THEN] Remaining amount on all Cust. Ledger Entries should be 0
+        CheckCustLedgerEntriesForIssuedFinancedChargeMemo(IssuedFinChargeMemoHeader);
+    end;
+
+    local procedure CreateAndPostGenJournalLine(CustomerNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CheckCustLedgerEntriesForIssuedFinancedChargeMemo(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
+        CustLedgerEntry.SetRange("Customer No.", IssuedFinChargeMemoHeader."Customer No.");
+        CustLedgerEntry.SetRange("Document No.", IssuedFinChargeMemoHeader."No.");
+        CustLedgerEntry.SetFilter("Remaining Amount", '<>0');
+        Assert.IsTrue(CustLedgerEntry.IsEmpty, 'Canceled Issued Fin. Charge Memo - Exist Remaining Amount on CLE');
+    end;
 }
 
