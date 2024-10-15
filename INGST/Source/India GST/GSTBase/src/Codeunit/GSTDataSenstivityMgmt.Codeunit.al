@@ -13,7 +13,9 @@ codeunit 18020 "GST Data Senstivity Mgmt."
         SetTableFieldsToNormal(Database::"Detailed GST Entry Buffer");
         SetTableFieldsToNormal(Database::"Detailed GST Ledger Entry");
         SetTableFieldsToNormal(Database::"Detailed GST Ledger Entry Info");
+#if not CLEAN23
         SetTableFieldsToNormal(Database::"E-Commerce Merchant");
+#endif
         SetTableFieldsToNormal(Database::"E-Comm. Merchant");
         SetTableFieldsToNormal(Database::"GST Claim Setoff");
         SetTableFieldsToNormal(Database::"GST Group");

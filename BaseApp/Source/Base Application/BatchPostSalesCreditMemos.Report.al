@@ -42,6 +42,11 @@ report 298 "Batch Post Sales Credit Memos"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that the program will use as the document and/or posting date when you post, if you place a checkmark in one or both of the fields below.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
                     }
                     field(VATDate; VATDateReq)
                     {
@@ -61,6 +66,10 @@ report 298 "Batch Post Sales Credit Memos"
                         begin
                             if ReplacePostingDate then
                                 Message(Text003);
+                            
+                            if VATReportingDateMgt.IsVATDateUsageSetToPostingDate() then
+                                ReplaceVATDateReq := ReplacePostingDate;
+                            UpdateVATDate();
                         end;
                     }
                     field(ReplaceDocumentDate; ReplaceDocumentDate)
@@ -68,6 +77,13 @@ report 298 "Batch Post Sales Credit Memos"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the document date of the credit memo with the date in the Posting/Document Date field.';
+                        
+                        trigger OnValidate()
+                        begin
+                            if VATReportingDateMgt.IsVATDateUsageSetToDocumentDate() then
+                                ReplaceVATDateReq := ReplaceDocumentDate;
+                            UpdateVATDate();
+                        end;
                     }
                     field(ReplaceVATDate; ReplaceVATDateReq)
                     {
@@ -121,7 +137,6 @@ report 298 "Batch Post Sales Credit Memos"
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
-            VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         begin
             if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
                 exit;
@@ -141,6 +156,7 @@ report 298 "Batch Post Sales Credit Memos"
     }
 
     var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         Text003: Label 'The exchange rate associated with the new posting date on the sales header will apply to the sales lines.';
 
     protected var
@@ -153,6 +169,12 @@ report 298 "Batch Post Sales Credit Memos"
         PrintDocVisible: Boolean;
         VATDateEnabled: Boolean;
 
+    local procedure UpdateVATDate()
+    begin
+        if ReplaceVATDateReq then
+            VATDateReq := PostingDateReq;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean; var PostingDateReq: Date)
     begin
@@ -161,6 +183,6 @@ report 298 "Batch Post Sales Credit Memos"
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSalesHeaderOnPreDataItem(var SalesHeader: Record "Sales Header"; var SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt."; var PrintDoc: Boolean)
     begin
-    end;
+    end;    
 }
 

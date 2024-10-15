@@ -30,6 +30,7 @@ codeunit 5972 "Service Info-Pane Management"
             Item.SetRange("Drop Shipment Filter", false);
             OnCalcAvailabilityOnAfterSetItemFilters(Item, ServLine);
 
+            Evaluate(LookaheadDateformula, '<0D>');
             Result :=
               AvailableToPromise.CalcQtyAvailabletoPromise(
                 Item,

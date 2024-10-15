@@ -119,6 +119,10 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetVATDateFieldGLEntriesUpgrade());
         PerCompanyUpgradeTags.Add(GetVATDateFieldVATEntriesUpgrade());
         PerCompanyUpgradeTags.Add(GetVATDateFieldSalesPurchUpgrade());
+        PerCompanyUpgradeTags.Add(GetVATDateFieldVATEntriesBlankUpgrade());
+        PerCompanyUpgradeTags.Add(GetVATDateFieldGLEntriesBlankUpgrade());
+        PerCompanyUpgradeTags.Add(GetVATDateFieldSalesPurchBlankUpgrade());
+        PerCompanyUpgradeTags.Add(GetVATDateFieldIssuedDocsBlankUpgrade());
         PerCompanyUpgradeTags.Add(GetSendCloudMigrationUpgradeTelemetryBaseAppTag());
         PerCompanyUpgradeTags.Add(GetVATDateFieldIssuedDocsUpgrade());
         PerCompanyUpgradeTags.Add(GetDeferralSourceCodeUpdateTag());
@@ -966,14 +970,34 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-447067-GetVATDateFieldVATEntriesUpgrade-20220830');
     end;
 
+    internal procedure GetVATDateFieldVATEntriesBlankUpgrade(): Code[250]
+    begin
+        exit('MS-465444-GetVATDateFieldVATEntriesBlankUpgrade-20230301');
+    end;
+
+    internal procedure GetVATDateFieldGLEntriesBlankUpgrade(): Code[250]
+    begin
+        exit('MS-465444-GetVATDateFieldGLEntriesBlankUpgrade-20230301');
+    end;
+
     procedure GetVATDateFieldSalesPurchUpgrade(): Code[250]
     begin
         exit('MS-447067-GetVATDateFieldSalesPurchUpgrade-20220830');
     end;
 
+    internal procedure GetVATDateFieldSalesPurchBlankUpgrade(): Code[250]
+    begin
+        exit('MS-465444-GetVATDateFieldSalesPurchBlankUpgrade-20230301');
+    end;
+
     procedure GetVATDateFieldIssuedDocsUpgrade(): Code[250]
     begin
         exit('MS-447067-GetVATDateFieldIssuedDocsUpgrade-20220830');
+    end;
+
+    internal procedure GetVATDateFieldIssuedDocsBlankUpgrade(): Code[250]
+    begin
+        exit('MS-465444-GetVATDateFieldIssuedDocsBlankUpgrade-20230301');
     end;
 
     procedure GetPurchaserOnRequisitionLineUpdateTag(): Code[250]
