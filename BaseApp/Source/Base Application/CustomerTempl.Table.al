@@ -1,6 +1,8 @@
 table 1381 "Customer Templ."
 {
     Caption = 'Customer Template';
+    LookupPageID = "Customer Templ. List";
+    DrillDownPageID = "Customer Templ. List";
 
     fields
     {

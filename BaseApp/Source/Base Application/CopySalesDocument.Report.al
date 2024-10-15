@@ -547,7 +547,7 @@ report 292 "Copy Sales Document"
         RecalculateLines :=
           (FromDocType in [FromDocType::"Posted Shipment", FromDocType::"Posted Return Receipt"]) or not IncludeHeader;
 
-        OnAfterValidateIncludeHeaderProcedure(IncludeHeader, RecalculateLines);
+        OnAfterValidateIncludeHeaderProcedure(IncludeHeader, RecalculateLines, SalesHeader, FromDocType);
     end;
 
     procedure SetParameters(NewFromDocType: Enum "Sales Document Type From"; NewFromDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
@@ -569,7 +569,7 @@ report 292 "Copy Sales Document"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterValidateIncludeHeaderProcedure(var IncludeHeader: Boolean; var RecalculateLines: Boolean)
+    local procedure OnAfterValidateIncludeHeaderProcedure(var IncludeHeader: Boolean; var RecalculateLines: Boolean; SalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From")
     begin
     end;
 

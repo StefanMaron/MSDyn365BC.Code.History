@@ -543,7 +543,6 @@ page 29 "Vendor Ledger Entries"
                         VendLedgEntry: Record "Vendor Ledger Entry";
                     begin
                         CurrPage.SetSelectionFilter(VendLedgEntry);
-                        VendLedgEntry.CopyFilters(Rec);
                         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
                         SendVendorRecords(VendLedgEntry);
                     end;

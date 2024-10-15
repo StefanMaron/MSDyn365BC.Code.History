@@ -188,10 +188,8 @@ table 222 "Ship-to Address"
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
-            var
-                MailManagement: Codeunit "Mail Management";
             begin
-                MailManagement.ValidateEmailAddressField("E-Mail");
+                ValidateEmail()
             end;
         }
         field(103; "Home Page"; Text[80])
@@ -292,6 +290,20 @@ table 222 "Ship-to Address"
                 exit(GetRangeMax("Customer No."));
     end;
 
+
+    local procedure ValidateEmail()
+    var
+        MailManagement: Codeunit "Mail Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateEmail(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        MailManagement.ValidateEmailAddressField("E-Mail");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupPostCode(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
     begin
@@ -314,6 +326,11 @@ table 222 "Ship-to Address"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCity(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEmail(var ShiptoAddress: Record "Ship-to Address"; xShiptoAddress: Record "Ship-to Address"; var IsHandled: Boolean)
     begin
     end;
 

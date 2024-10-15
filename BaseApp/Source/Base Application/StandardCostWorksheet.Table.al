@@ -290,6 +290,8 @@ table 5841 "Standard Cost Worksheet"
 
     local procedure GetItemCosts()
     begin
+        OnBeforeGetItemCosts(Rec, Item);
+
         "Standard Cost" := Item."Standard Cost";
         "New Standard Cost" := Item."Standard Cost";
         "Overhead Rate" := Item."Overhead Rate";
@@ -305,6 +307,8 @@ table 5841 "Standard Cost Worksheet"
 
     local procedure GetWorkCtrCosts()
     begin
+        OnBeforeGetWorkCtrCosts(Rec, WorkCtr);
+
         "Standard Cost" := WorkCtr."Unit Cost";
         "New Standard Cost" := WorkCtr."Unit Cost";
         "Overhead Rate" := WorkCtr."Overhead Rate";
@@ -315,6 +319,8 @@ table 5841 "Standard Cost Worksheet"
 
     local procedure GetMachCtrCosts()
     begin
+        OnBeforeGetMachCtrCosts(Rec, MachCtr);
+
         "Standard Cost" := MachCtr."Unit Cost";
         "New Standard Cost" := MachCtr."Unit Cost";
         "Overhead Rate" := MachCtr."Overhead Rate";
@@ -366,6 +372,8 @@ table 5841 "Standard Cost Worksheet"
            "New Rolled-up Subcontrd Cost" +
            "New Rolled-up Cap. Ovhd Cost");
         "New Rolled-up Material Cost" := "New Rolled-up Material Cost" + RoundingResidual;
+
+        OnAfterUpdateCostShares(Rec);
     end;
 
     local procedure RoundAmt(Amt: Decimal; AmtAdjustFactor: Decimal): Decimal
@@ -396,6 +404,8 @@ table 5841 "Standard Cost Worksheet"
         "New Rolled-up Cap. Ovhd Cost" := Item."Rolled-up Cap. Overhead Cost";
         "Rolled-up Mfg. Ovhd Cost" := Item."Rolled-up Mfg. Ovhd Cost";
         "New Rolled-up Mfg. Ovhd Cost" := Item."Rolled-up Mfg. Ovhd Cost";
+
+        OnAfterTransferManufCostsFromItem(Rec, Item);
     end;
 
     local procedure TransferStandardCostFromItem()
@@ -421,6 +431,39 @@ table 5841 "Standard Cost Worksheet"
         "New Rolled-up Cap. Ovhd Cost" := 0;
         "Rolled-up Mfg. Ovhd Cost" := 0;
         "New Rolled-up Mfg. Ovhd Cost" := 0;
+
+        OnAfterTransferStandardCostFromItem(Rec, Item);
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCostShares(var StandardCostWorksheet: Record "Standard Cost Worksheet")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferManufCostsFromItem(var StandardCostWorksheet: Record "Standard Cost Worksheet"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferStandardCostFromItem(var StandardCostWorksheet: Record "Standard Cost Worksheet"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemCosts(var StandardCostWorksheet: Record "Standard Cost Worksheet"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetWorkCtrCosts(var StandardCostWorksheet: Record "Standard Cost Worksheet"; var WorkCenter: Record "Work Center")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetMachCtrCosts(var StandardCostWorksheet: Record "Standard Cost Worksheet"; var MachineCenter: Record "Machine Center")
+    begin
+    end;
+
 }
 

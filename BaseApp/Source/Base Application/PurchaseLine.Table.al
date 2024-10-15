@@ -89,7 +89,7 @@
 
                 Type := TempPurchLine.Type;
                 "System-Created Entry" := TempPurchLine."System-Created Entry";
-                OnValidateTypeOnCopyFromTempPurchLine(Rec, TempPurchLine);
+                OnValidateTypeOnCopyFromTempPurchLine(Rec, TempPurchLine, xRec);
                 Validate("FA Posting Type");
 
                 if Type = Type::Item then
@@ -287,13 +287,13 @@
                 end;
 
                 IsHandled := false;
-                OnValidateLocationCodeOnBeforeDropShipmentError(Rec, IsHandled);
+                OnValidateLocationCodeOnBeforeDropShipmentError(Rec, IsHandled, xRec);
                 if not IsHandled then
                     if "Drop Shipment" then
                         Error(Text001, FieldCaption("Location Code"), "Sales Order No.");
 
                 IsHandled := false;
-                OnValidateLocationCodeOnBeforeSpecialOrderError(Rec, IsHandled, CurrFieldNo);
+                OnValidateLocationCodeOnBeforeSpecialOrderError(Rec, IsHandled, CurrFieldNo, xRec);
                 if not IsHandled then
                     if "Special Order" then
                         Error(Text001, FieldCaption("Location Code"), "Special Order Sales No.");
@@ -979,6 +979,7 @@
                 if CheckReservationForJobNo then
                     TestField("Job No.", '');
 
+                PlanPriceCalcByField(FieldNo("Job No."));
                 InitJobFields();
 
                 if "Job No." = '' then begin
@@ -999,6 +1000,8 @@
                 "Job Currency Code" := Job."Currency Code";
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
+
+                UpdateDirectUnitCostByField(FieldNo("Job No."));
             end;
         }
         field(54; "Indirect Cost %"; Decimal)
@@ -1937,6 +1940,7 @@
                     Validate("Job Planning Line No.", 0);
                     if "Document Type" = "Document Type"::Order then
                         TestField("Quantity Received", 0);
+                    PlanPriceCalcByField(FieldNo("Job Task No."));
                 end;
 
                 if "Job Task No." = '' then begin
@@ -1948,7 +1952,8 @@
                 end;
 
                 JobSetCurrencyFactor();
-                if JobTaskIsSet then begin
+                UpdateDirectUnitCostByField(FieldNo("Job Task No."));
+                if JobTaskIsSet() then begin
                     CreateTempJobJnlLine(true);
                     UpdateJobPrices();
                 end;
@@ -4129,7 +4134,8 @@
 
         if IsCreditDocType() then
             exit("Return Qty. Shipped" + "Return Qty. to Ship" - "Quantity Invoiced");
-
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit(Quantity - "Quantity Invoiced");
         exit("Quantity Received" + "Qty. to Receive" - "Quantity Invoiced");
     end;
 
@@ -4145,7 +4151,8 @@
 
         if IsCreditDocType() then
             exit("Return Qty. Shipped (Base)" + "Return Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
-
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit("Quantity (Base)" - "Qty. Invoiced (Base)");
         exit("Qty. Received (Base)" + "Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
     end;
 
@@ -5023,7 +5030,7 @@
                                 (TotalAmount + Amount) * (PurchHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection) -
                               TotalAmountInclVAT - TotalInvDiscAmount - "Inv. Discount Amount";
-                            OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesIncludingVAT(Rec, PurchHeader, Currency, TotalAmount, TotalAmountInclVAT);
+                            OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesIncludingVAT(Rec, PurchHeader, Currency, TotalAmount, TotalAmountInclVAT, PurchLine2);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -5086,7 +5093,7 @@
                                 (TotalLineAmountACY + "Amount (ACY)") * (1 - PurchHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection) -
                               TotalAmountInclVATACY;
-                            OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesExcludingVAT(Rec, PurchHeader, Currency, TotalAmount, TotalAmountInclVAT);
+                            OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesExcludingVAT(Rec, PurchHeader, Currency, TotalAmount, TotalAmountInclVAT, PurchLine2);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -8957,6 +8964,97 @@
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
+    internal procedure SaveLookupSelection(Selected: RecordRef)
+    var
+        GLAccount: Record "G/L Account";
+        Item: Record Item;
+        Resource: Record Resource;
+        FixedAsset: Record "Fixed Asset";
+        ItemCharge2: Record "Item Charge";
+        LookupStateMgr: Codeunit "Lookup State Manager";
+        RecVariant: Variant;
+    begin
+        case Rec.Type of
+            Rec.Type::Item:
+                begin
+                    Selected.SetTable(Item);
+                    RecVariant := Item;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+            Rec.Type::"G/L Account":
+                begin
+                    Selected.SetTable(GLAccount);
+                    RecVariant := GLAccount;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+            Rec.Type::Resource:
+                begin
+                    Selected.SetTable(Resource);
+                    RecVariant := Resource;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+            Rec.Type::"Fixed Asset":
+                begin
+                    Selected.SetTable(FixedAsset);
+                    RecVariant := FixedAsset;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+            Rec.Type::"Charge (Item)":
+                begin
+                    Selected.SetTable(ItemCharge2);
+                    RecVariant := ItemCharge2;
+                    LookupStateMgr.SaveRecord(RecVariant);
+                end;
+        end;
+    end;
+
+    internal procedure RestoreLookupSelection()
+    var
+        GLAccount: Record "G/L Account";
+        Item: Record Item;
+        Resource: Record Resource;
+        FixedAsset: Record "Fixed Asset";
+        ItemCharge2: Record "Item Charge";
+        LookupStateMgr: Codeunit "Lookup State Manager";
+        RecVariant: Variant;
+    begin
+        if LookupStateMgr.IsRecordSaved() then begin
+            case Rec.Type of
+                Rec.Type::Item:
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        Item := RecVariant;
+                        Rec.Validate("No.", Item."No.");
+                    end;
+                Rec.Type::"G/L Account":
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        GLAccount := RecVariant;
+                        Rec.Validate("No.", GLAccount."No.");
+                    end;
+                Rec.Type::Resource:
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        Resource := RecVariant;
+                        Rec.Validate("No.", Resource."No.");
+                    end;
+                Rec.Type::"Fixed Asset":
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        FixedAsset := RecVariant;
+                        Rec.Validate("No.", FixedAsset."No.");
+                    end;
+                Rec.Type::"Charge (Item)":
+                    begin
+                        RecVariant := LookupStateMgr.GetSavedRecord();
+                        ItemCharge2 := RecVariant;
+                        Rec.Validate("No.", ItemCharge2."No.");
+                    end;
+            end;
+            LookupStateMgr.ClearSavedRecord();
+        end;
+    end;
+
 #if not CLEAN20
     local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
     var
@@ -9377,7 +9475,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateTotalAmounts(var PurchaseLine: Record "Purchase Line"; PurchaseLine2: Record "Purchase Line"; var TotalAmount: Decimal; var TotalAmountInclVAT: Decimal; var TotalLineAmount: Decimal; var TotalInvDiscAmount: Decimal)
+    local procedure OnAfterUpdateTotalAmounts(var PurchaseLine: Record "Purchase Line"; var PurchaseLine2: Record "Purchase Line"; var TotalAmount: Decimal; var TotalAmountInclVAT: Decimal; var TotalLineAmount: Decimal; var TotalInvDiscAmount: Decimal)
     begin
     end;
 
@@ -9907,7 +10005,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyFromItemOnAfterCheck(PurchaseLine: Record "Purchase Line"; Item: Record Item; CallingFieldNo: Integer)
+    local procedure OnCopyFromItemOnAfterCheck(var PurchaseLine: Record "Purchase Line"; Item: Record Item; CallingFieldNo: Integer)
     begin
     end;
 
@@ -10052,12 +10150,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLocationCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnValidateLocationCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLocationCodeOnBeforeSpecialOrderError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; CurrFieldNo: Integer)
+    local procedure OnValidateLocationCodeOnBeforeSpecialOrderError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; CurrFieldNo: Integer; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -10072,7 +10170,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateTypeOnCopyFromTempPurchLine(var PurchLine: Record "Purchase Line"; TempPurchaseLine: Record "Purchase Line" temporary)
+    local procedure OnValidateTypeOnCopyFromTempPurchLine(var PurchLine: Record "Purchase Line"; TempPurchaseLine: Record "Purchase Line" temporary; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -10376,12 +10474,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesIncludingVAT(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; Currency: Record Currency; TotalAmount: Decimal; TotalAmountInclVAT: Decimal)
+    local procedure OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesIncludingVAT(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; Currency: Record Currency; TotalAmount: Decimal; TotalAmountInclVAT: Decimal; var PurchaseLine2: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesExcludingVAT(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; Currency: Record Currency; TotalAmount: Decimal; TotalAmountInclVAT: Decimal)
+    local procedure OnUpdateVATAmountsOnAfterCalcNormalVATAmountsForPricesExcludingVAT(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; Currency: Record Currency; TotalAmount: Decimal; TotalAmountInclVAT: Decimal; var PurchaseLine2: Record "Purchase Line")
     begin
     end;
 

@@ -2461,12 +2461,18 @@ codeunit 99000845 "Reservation Management"
         CreateReservEntry2.CreateRemainingReservEntry(SurplusEntry, QtyToSave, QtyToSaveBase);
     end;
 
-    procedure CalcIsAvailTrackedQtyInBin(ItemNo: Code[20]; BinCode: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer): Boolean
+    procedure CalcIsAvailTrackedQtyInBin(ItemNo: Code[20]; BinCode: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer) Result: Boolean
     var
         ReservationEntry: Record "Reservation Entry";
         WhseEntry: Record "Warehouse Entry";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcIsAvailTrackedQtyInBin(ItemNo, BinCode, LocationCode, VariantCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not ItemTrackingMgt.GetWhseItemTrkgSetup(ItemNo) or (BinCode = '') then
             exit(true);
 
@@ -2878,6 +2884,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoReserveOneLine(var IsHandled: Boolean; var AvailabilityDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcIsAvailTrackedQtyInBin(ItemNo: Code[20]; BinCode: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

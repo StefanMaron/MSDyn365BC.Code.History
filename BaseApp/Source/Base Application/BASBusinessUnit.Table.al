@@ -12,6 +12,12 @@ table 11603 "BAS Business Unit"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                FeatureTelemetry.LogUptake('0000HK6', APACBASTok, Enum::"Feature Uptake Status"::"Used");
+                FeatureTelemetry.LogUsage('0000HK7', APACBASTok, 'APAC Business Activity Statement Completed');
+            end;
         }
         field(4; "BAS Version"; Integer)
         {
@@ -86,5 +92,6 @@ table 11603 "BAS Business Unit"
     var
         GLSetup: Record "General Ledger Setup";
         BASCalcSheet: Record "BAS Calculation Sheet";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        APACBASTok: Label 'APAC Business Activity Statement', Locked = true;
 }
-

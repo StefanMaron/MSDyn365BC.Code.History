@@ -29,5 +29,13 @@ table 28041 "WHT Product Posting Group"
         {
         }
     }
-}
 
+    trigger OnInsert()
+    begin
+        FeatureTelemetry.LogUptake('0000HH2', APACWHTTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        APACWHTTok: Label 'APAC Set Up Withholding Tax', Locked = true;
+}

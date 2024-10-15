@@ -183,7 +183,13 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     procedure VerifyQuantity(var NewProdOrderComp: Record "Prod. Order Component"; var OldProdOrderComp: Record "Prod. Order Component")
     var
         ProdOrderComp: Record "Prod. Order Component";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyQuantity(NewProdOrderComp, OldProdOrderComp, ReservMgt, IsHandled);
+        if IsHandled then
+            exit;
+
         if Blocked then
             exit;
 
@@ -698,6 +704,11 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferPOCompToItemJnlLineCheckILE(var ProdOrderComp: Record "Prod. Order Component"; var ItemJnlLine: record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyQuantity(var NewProdOrderComponent: Record "Prod. Order Component"; OldProdOrderComponent: Record "Prod. Order Component"; var ReservationManagement: Codeunit "Reservation Management"; var IsHandled: Boolean)
     begin
     end;
 

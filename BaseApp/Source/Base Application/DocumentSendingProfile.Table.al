@@ -346,6 +346,7 @@
         SingleCustomerSelected: Boolean;
         ShowDialog: Boolean;
         IsHandled: Boolean;
+        Nos: Dictionary of [Code[20], Code[20]];
     begin
         IsHandled := false;
         OnBeforeSendCustomerRecords(ReportUsage, RecordVariant, DocName, CustomerNo, DocumentNo, CustomerFieldNo, DocumentFieldNo, IsHandled);
@@ -355,24 +356,27 @@
             if not CheckShowProfileSelectionMethodDialog(SingleCustomerSelected, ProfileSelectionMethod, CustomerNo, true) then
                 exit;
 
-            if SingleCustomerSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
+            if SingleCustomerSelected then begin
                 ShowDialog := true;
                 OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
                 if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
                     DocumentSendingProfile.Send(ReportUsage, RecordVariant, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
             end else begin
-                ShowDialog := ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach;
+                ShowDialog := (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach) or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault);
+
                 RecRefSource.GetTable(RecordVariant);
-                if RecRefSource.FindSet() then
-                    repeat
-                        RecRefToSend := RecRefSource.Duplicate();
-                        RecRefToSend.SetRecFilter();
-                        CustomerNo := RecRefToSend.Field(CustomerFieldNo).Value;
+                GetDistinctCustomerVendor(RecRefSource, CustomerFieldNo, Nos);
+
+                foreach CustomerNo in Nos.Keys() do begin
+                    RecRefToSend := RecRefSource.Duplicate();
+                    RecRefToSend.Field(CustomerFieldNo).SetRange(CustomerNo);
+                    if RecRefToSend.FindSet() then begin
                         DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value;
                         OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
                         if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
                             DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
-                    until RecRefSource.Next() = 0;
+                    end;
+                end;
             end;
         end;
 
@@ -388,6 +392,7 @@
         SingleVendorSelected: Boolean;
         ShowDialog: Boolean;
         Handled: Boolean;
+        Nos: Dictionary of [Code[20], Code[20]];
     begin
         OnBeforeSendVendorRecords(ReportUsage, RecordVariant, DocName, VendorNo, DocumentNo, VendorFieldNo, DocumentFieldNo, Handled);
         if Handled then
@@ -398,24 +403,27 @@
         if not CheckShowProfileSelectionMethodDialog(SingleVendorSelected, ProfileSelectionMethod, VendorNo, false) then
             exit;
 
-        if SingleVendorSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
+        if SingleVendorSelected then begin
             ShowDialog := true;
             OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
             if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
                 DocumentSendingProfile.SendVendor(ReportUsage, RecordVariant, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
         end else begin
-            ShowDialog := ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach;
+            ShowDialog := (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach) or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault);
+
             RecRef.GetTable(RecordVariant);
-            if RecRef.FindSet then
-                repeat
-                    RecRef2 := RecRef.Duplicate;
-                    RecRef2.SetRecFilter;
-                    VendorNo := RecRef2.Field(VendorFieldNo).Value;
+            GetDistinctCustomerVendor(RecRef, VendorFieldNo, Nos);
+
+            foreach VendorNo in Nos.Keys() do begin
+                RecRef2 := RecRef.Duplicate();
+                RecRef2.Field(VendorFieldNo).Setrange(VendorNo);
+                if RecRef2.FindSet() then begin
                     DocumentNo := RecRef2.Field(DocumentFieldNo).Value;
                     OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
                     if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
                         DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
-                until RecRef.Next() = 0;
+                end;
+            end;
         end;
     end;
 
@@ -550,9 +558,9 @@
                 DocumentNo := GetMultipleDocumentsNo(RecRef, DocumentNoFieldNo);
                 DocName := GetMultipleDocumentsName(DocName, ReportUsage, RecRef);
                 if IsCustomer then
-                    SendToEMail(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo)
+                    SendToEMail(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo, DocumentNoFieldNo)
                 else
-                    SendToEMailVendor(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo);
+                    SendToEMailVendor(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo, DocumentNoFieldNo);
             end;
         end
         else
@@ -564,9 +572,9 @@
                     DocumentNo := RecToSend.Field(DocumentNoFieldNo).Value;
                     DocName := ReportDistributionMgt.GetFullDocumentTypeText(RecToSend);
                     if IsCustomer then
-                        SendToEMail(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo)
+                        SendToEMail(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo, DocumentNoFieldNo)
                     else
-                        SendToEMailVendor(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo);
+                        SendToEMailVendor(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo, DocumentNoFieldNo);
                 until RecRef.Next() = 0;
     end;
 
@@ -662,7 +670,7 @@
         ReportSelections.PrintWithDialogForVend(ReportUsage, RecordVariant, ShowRequestForm, VendorNoFieldNo);
     end;
 
-    local procedure SendToEMail(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20])
+    local procedure SendToEMail(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20]; DocNoFieldNo: Integer)
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -689,7 +697,7 @@
 
         case "E-Mail Attachment" of
             "E-Mail Attachment"::PDF:
-                ReportSelections.SendEmailToCust(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToCust);
+                ReportSelections.SendEmailToCust(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToCust, DocNoFieldNo);
             "E-Mail Attachment"::"Electronic Document":
                 begin
                     ReportSelections.GetEmailBodyForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
@@ -726,7 +734,7 @@
         OnAfterSendToEMail(Rec, ReportUsage, RecordVariant, DocNo, DocName, ToCust);
     end;
 
-    local procedure SendToEmailVendor(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToVendor: Code[20])
+    local procedure SendToEmailVendor(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToVendor: Code[20]; VendorNoFieldNo: Integer)
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -752,7 +760,7 @@
 
         case "E-Mail Attachment" of
             "E-Mail Attachment"::PDF:
-                ReportSelections.SendEmailToVendor(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToVendor);
+                ReportSelections.SendEmailToVendor(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToVendor, VendorNoFieldNo);
             "E-Mail Attachment"::"Electronic Document":
                 begin
                     ReportSelections.GetEmailBodyForVend(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
@@ -1022,7 +1030,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCheckElectronicSendingEnabled(var ExchServiceEnabled: Boolean)
     begin
     end;
