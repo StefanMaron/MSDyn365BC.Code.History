@@ -938,6 +938,7 @@ page 52 "Purchase Credit Memo"
                     trigger OnAction()
                     begin
                         OpenDocumentStatistics();
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)

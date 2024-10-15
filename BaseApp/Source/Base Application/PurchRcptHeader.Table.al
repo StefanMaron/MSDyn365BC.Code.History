@@ -491,6 +491,10 @@
             Caption = 'Inbound Whse. Handling Time';
             Editable = false;
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(12100; "Operation Type"; Code[20])
         {
             Caption = 'Operation Type';
@@ -576,7 +580,7 @@
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()

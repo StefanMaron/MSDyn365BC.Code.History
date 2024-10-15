@@ -3329,7 +3329,13 @@ table 5902 "Service Line"
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
         ExpectedLineAmount: Decimal;
         ShouldCheckCrLimit: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAmounts(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if GuiAllowed and (CurrFieldNo <> 0) then
             ConfirmAdjPriceLineChange;
 
@@ -4205,6 +4211,7 @@ table 5902 "Service Line"
         "Qty. to Invoice" := MaxQtyToInvoice;
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase;
         "VAT Difference" := 0;
+        OnInitQtyToInvoiceOnBeforeCalcInvDiscToInvoice(Rec, CurrFieldNo);
         CalcInvDiscToInvoice;
 
         OnAfterInitQtyToInvoice(Rec, CurrFieldNo);
@@ -4249,6 +4256,8 @@ table 5902 "Service Line"
             "VAT Difference" := 0;
         end;
         NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
+
+        OnAfterCalcInvDiscToInvoice(Rec, OldInvDiscAmtToInv);
     end;
 
     procedure ItemExists(ItemNo: Code[20]): Boolean
@@ -5741,6 +5750,11 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcInvDiscToInvoice(var ServiceLine: Record "Service Line"; OldInvDiscAmtToInv: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckApplFromItemLedgEntry(var ServiceLine: Record "Service Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -5968,6 +5982,11 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmounts(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateLineDiscPct(var ServiceLine: Record "Service Line"; Currency: Record Currency; var IsHandled: Boolean)
     begin
     end;
@@ -6044,6 +6063,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitQtyToShipOnBeforeInitQtyToInvoice(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitQtyToInvoiceOnBeforeCalcInvDiscToInvoice(var ServiceLine: Record "Service Line"; CurrentFieldNo: Integer)
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 99000809 "Planning Line Management"
+﻿codeunit 99000809 "Planning Line Management"
 {
     Permissions = TableData "Manufacturing Setup" = rm,
                   TableData "Routing Header" = r,
@@ -84,6 +84,7 @@ codeunit 99000809 "Planning Line Management"
             TransferFromReqLine(ReqLine);
             TransferFromRoutingLine(RoutingLine);
 
+            OnTransferRoutingLineOnBeforeCalcRoutingCostPerUnit(PlanningRoutingLine, ReqLine, RoutingLine);
             if RoutingLine.Type = RoutingLine.Type::"Work Center" then
                 WorkCenter.Get(RoutingLine."Work Center No.");
 
@@ -1008,6 +1009,11 @@ codeunit 99000809 "Planning Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferRoutingLineOnBeforeValidateDirectUnitCost(var ReqLine: Record "Requisition Line"; var RoutingLine: Record "Routing Line"; var PlanningRoutingLine: Record "Planning Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferRoutingLineOnBeforeCalcRoutingCostPerUnit(var PlanningRoutingLine: Record "Planning Routing Line"; ReqLine: Record "Requisition Line"; RoutingLine: Record "Routing Line")
     begin
     end;
 

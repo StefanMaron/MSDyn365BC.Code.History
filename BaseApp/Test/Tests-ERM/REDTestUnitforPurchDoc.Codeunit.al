@@ -446,7 +446,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         FindPurchLine(PurchaseHeaderDest, PurchaseLineDest);
         PurchaseLineDest.TestField("Deferral Code", DeferralTemplateCode);
         PurchaseLineDest.TestField("Returns Deferral Start Date", 0D);
-        asserterror VerifyDeferralsAreEqual(PurchaseLine, PurchaseLineDest);
+        VerifyDeferralsAreEqual(PurchaseLine, PurchaseLineDest);
     end;
 
     [Test]

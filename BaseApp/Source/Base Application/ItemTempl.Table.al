@@ -395,6 +395,13 @@ table 1382 "Item Templ."
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Replenishment System';
         }
+        field(5422; "Rounding Precision"; Decimal)
+        {
+            AccessByPermission = TableData "Production Order" = R;
+            Caption = 'Rounding Precision';
+            DecimalPlaces = 0 : 5;
+            InitValue = 1;
+        }
         field(5428; "Time Bucket"; DateFormula)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;

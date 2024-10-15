@@ -54,9 +54,9 @@ page 133 "Posted Sales Invoice Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("IC Partner Code"; "IC Partner Code")
                 {
@@ -476,15 +476,12 @@ page 133 "Posted Sales Invoice Subform"
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
-        SetItemReferenceVisibility();
     end;
 
     var
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         IsFoundation: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
         TotalSalesInvoiceHeader: Record "Sales Invoice Header";
@@ -527,13 +524,6 @@ page 133 "Posted Sales Invoice Subform"
         Clear(DimMgt);
 
         OnAfterSetDimensionsVisibility();
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(true, false)]

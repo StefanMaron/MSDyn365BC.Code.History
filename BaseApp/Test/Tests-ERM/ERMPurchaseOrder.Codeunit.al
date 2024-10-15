@@ -6663,6 +6663,41 @@
         Assert.AreEqual(InventoryPostingGroupCode, InventoryPostingGroup.Code, 'The inventory posting group code is not the same as assigned.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RecreatePurchaseItemLineWithEmptyNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+    begin
+        // [FEATURE] 
+        // [SCENARIO 414831] The purchase line with "No." = '' and Type <> 'Item' must be recreated when Vendor No. is changed
+        Initialize();
+
+        // [GIVEN] Item with empty description
+        LibraryInventory.CreateItem(Item);
+        Item.Description := '';
+        Item.Modify();
+
+        // [GIVEN] Purchase Order with Vendor No. = '10000' Purchase Line with Type = "Item" and "No." is blank
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 0);
+        PurchaseLine.Validate("No.", '');
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Change Vendor No. in Purchase Header
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] Purchase Line with "No." = '' and Type = "Item" exists
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", '');
+        Assert.RecordCount(PurchaseLine, 1);
+    end;
 
     local procedure Initialize()
     var

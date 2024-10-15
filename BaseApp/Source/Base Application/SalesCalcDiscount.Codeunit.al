@@ -150,7 +150,7 @@ codeunit 60 "Sales-Calc. Discount"
                       SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, InvDiscBase);
 
                 DiscountNotificationMgt.NotifyAboutMissingSetup(
-                  SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group",
+                  SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group", SalesLine2."Gen. Prod. Posting Group",
                   SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
 
                 UpdateSalesHeaderInvoiceDiscount(SalesHeader, TempVATAmountLine, SalesSetup."Calc. Inv. Disc. per VAT ID");

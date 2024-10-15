@@ -391,7 +391,7 @@ page 8625 "Config. Package Subform"
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
-        FeatureTelemetry.LogUptake('0000E3C', 'Configuration packages', Enum::"Feature Uptake Status"::"Set up");
+        FeatureTelemetry.LogUptake('0000GD5', 'Configuration packages', Enum::"Feature Uptake Status"::"Set up");
         CheckFieldsMultiRelations();
     end;
 

@@ -248,7 +248,7 @@ codeunit 87 "Blanket Sales Order to Order"
                 SalesOrderHeader."Posting Date" := "Posting Date";
 
             SalesOrderHeader.InitFromSalesHeader(SalesHeader);
-            OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(SalesHeader, HideValidationDialog);
+            OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(SalesHeader, HideValidationDialog, SalesOrderHeader);
             if SalesOrderHeader."Document Date" > SalesOrderHeader."Posting Date" then
                 Error(Text1130000, FieldCaption("Document Date"), FieldCaption("Posting Date"));
             SalesOrderHeader.Validate("Operation Type", SalesOrderHeader."Operation Type");
@@ -440,7 +440,7 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(var SalesHeader: Record "Sales Header"; HideValidationDialog: Boolean)
+    local procedure OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(var SalesHeader: Record "Sales Header"; HideValidationDialog: Boolean; var SalesOrderHeader: Record "Sales Header")
     begin
     end;
 

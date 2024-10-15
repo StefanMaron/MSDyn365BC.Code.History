@@ -865,11 +865,11 @@
         trigger OnOpenPage()
         begin
             GetGLSetup();
+            GLSetup.TestField("Last Settlement Date");
             if GLSetup."Last Settlement Date" <> 0D then begin
                 EntrdStartDate := GLSetup."Last Settlement Date" + 1;
                 CalculateEndDate();
-            end else
-                Clear(EntrdStartDate);
+            end;
         end;
     }
 

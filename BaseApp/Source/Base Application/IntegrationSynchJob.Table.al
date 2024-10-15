@@ -1,6 +1,7 @@
 table 5338 "Integration Synch. Job"
 {
     Caption = 'Integration Synch. Job';
+    ReplicateData = false;
 
     fields
     {

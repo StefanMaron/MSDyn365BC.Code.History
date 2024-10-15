@@ -3184,7 +3184,7 @@
     begin
         GeneralPostingSetup.Get(GenBusPostingGroupCode, GenProdPostingGroupCode);
         GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
-        GLAccount.Validate("VAT Prod. Posting Group", NewVATProdPostingGroupCode);
+        GLAccount."VAT Prod. Posting Group" := NewVATProdPostingGroupCode;
         GLAccount.Modify();
     end;
 
@@ -3195,7 +3195,7 @@
     begin
         GeneralPostingSetup.Get(GenBusPostingGroupCode, GenProdPostingGroupCode);
         GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
-        GLAccount.Validate("VAT Prod. Posting Group", NewVATProdPostingGroupCode);
+        GLAccount."VAT Prod. Posting Group" := NewVATProdPostingGroupCode;
         GLAccount.Modify();
     end;
 

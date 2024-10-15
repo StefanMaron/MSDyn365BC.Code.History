@@ -1,5 +1,6 @@
 codeunit 12185 "Export Self-Billing Documents"
 {
+    Permissions = TableData "VAT Entry" = rm;
 
     trigger OnRun()
     begin
@@ -139,9 +140,21 @@ codeunit 12185 "Export Self-Billing Documents"
               ExportFatturaPADocument.GenerateXMLFile(TempFatturaLine, TempFatturaHeader, RecordExportBuffer.ClientFileName);
         end;
         RecordExportBuffer.Insert(true);
+        MarkVATEntryAsExported(TempVATEntry);
 
         TempErrorMessage.CopyFromContext(TempVATEntry);
         ErrorMessage.ClearLog;
+    end;
+
+    local procedure MarkVATEntryAsExported(var TempVATEntry: Record "VAT Entry" temporary)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        if not VATEntry.Get(TempVATEntry."Entry No.") then
+            exit;
+
+        VATEntry."Fattura File Exported" := true;
+        VATEntry.Modify();
     end;
 }
 

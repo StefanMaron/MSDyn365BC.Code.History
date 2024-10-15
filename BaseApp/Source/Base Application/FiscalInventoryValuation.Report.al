@@ -164,6 +164,9 @@ report 12135 "Fiscal Inventory Valuation"
         if CompetenceDate = 0D then
             Error(Text12100);
 
+        if Item.GetFilter("Date Filter") = '' then
+            Error(DateFilterErr);
+
         if Item.GetFilters <> '' then
             Filters := 'Filters: ' + Item.GetFilters + ', Competence Year: ' + Format(CompetenceDate)
         else
@@ -188,5 +191,6 @@ report 12135 "Fiscal Inventory Valuation"
         ValueCaptionLbl: Label 'Value';
         Total_QuantityCaptionLbl: Label 'Total Quantity';
         Inventory_ValueCaptionLbl: Label 'Inventory Value';
+        DateFilterErr: Label 'You must specify a date range in the Date Filter field in the request page, such as the past quarter or the current year.';
 }
 

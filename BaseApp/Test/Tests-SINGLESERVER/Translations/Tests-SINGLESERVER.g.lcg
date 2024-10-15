@@ -1058,6 +1058,15 @@
       <Cmt Name="Dev"><![CDATA[New permission set, D365 Basic Set, has been created.]D;]A;(LookupHint=Codeunit Test User Group Permissions - NamedType CopySuccessMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 114976220 - NamedType 3962022375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User Group Permission Set table can only reference permission sets present in the system.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test User Group Permissions - NamedType InvalidPermissionSetErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 114976220 - NamedType 3007163564" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[My subscription plan]]></Val>

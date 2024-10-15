@@ -57,10 +57,6 @@ page 6630 "Sales Return Order"
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
                         CurrPage.Update();
                     end;
 
@@ -319,8 +315,7 @@ page 6630 "Sales Return Order"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
-                        SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
+                        CurrPage.Update();
                     end;
                 }
                 field("Prices Including VAT"; "Prices Including VAT")
@@ -337,6 +332,11 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
                 }
                 field("Refers to Period"; "Refers to Period")
                 {
@@ -536,11 +536,7 @@ page 6630 "Sales Return Order"
                                 if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                                     SetRange("Bill-to Customer No.");
 
-                            CurrPage.SaveRecord;
-                            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
-                            CurrPage.Update(false);
+                            CurrPage.Update();
                         end;
                     }
                     field("Bill-to Address"; "Bill-to Address")
@@ -1524,7 +1520,6 @@ page 6630 "Sales Return Order"
         BillToContact: Record Contact;
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         CreateRetRelDocs: Report "Create Ret.-Related Documents";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ReportPrint: Codeunit "Test Report-Print";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";

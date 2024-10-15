@@ -1736,7 +1736,7 @@ table 5409 "Prod. Order Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcStartingEndingDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Direction: Option Forward,Backward; var IsHandled: Boolean)
+    local procedure OnBeforeCalcStartingEndingDates(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var Direction: Option Forward,Backward; var IsHandled: Boolean)
     begin
     end;
 

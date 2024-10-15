@@ -893,6 +893,38 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ValidateBlockValue(3, 'DA002011', ConstFormat::AN, '');
     end;
 
+    [Test]
+    procedure WithholdingTaxExportGroupsEmptyNonTaxableIncomeTypeWithFirstNonEmpty()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        VendorNo: Code[20];
+        Filename: Text;
+    begin
+        // [SCENARIO 416538] Withholding tax export groups empty non-taxable income type entries with the first non-empty one
+        Initialize();
+
+        // [GIVEN] Vendor
+        VendorNo := CreateVendor();
+
+        // [GIVEN] Withholding tax entry 1 with "Non-Taxable Income Type" = " "
+        CreateWithholdingTaxWithAU001006WithEmptyNonTaxable(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+
+        // [GIVEN] Withholding tax entry 2 with "Non-Taxable Income Type" = 2
+        CreateWithholdingTaxWithAU001006(VendorNo, ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"2");
+
+        // [GIVEN] Withholding Tax entry 3 with "Non-Taxable Income Type" = " "
+        CreateWithholdingTaxWithAU001006WithEmptyNonTaxable(VendorNo, ConstReason::A, 0, WorkDate, WorkDate);
+
+        // [WHEN] Export withholding taxes
+        Filename := Export(CreateCompanyOfficial);
+
+        // [THEN] File contains Records H
+        LoadFile(Filename);
+
+        // [THEN] All three records are grouped into one, so footer has number of D records = 1
+        ValidateFooter(5, 1);
+    end;
+
     local procedure Initialize()
     var
         WithholdingTax: Record "Withholding Tax";
@@ -1062,23 +1094,36 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         WithholdingTax: Record "Withholding Tax";
     begin
         with WithholdingTax do begin
-            if FindLast then;
+            Get(CreateWithholdingTaxWithAU001006WithEmptyNonTaxable(VendorNo, WithholdingTaxReason, CalcYear, Date, RelatedDate));
+            "Non Taxable Amount By Treaty" := LibraryRandom.RandDec(100, 2);
+            "Base - Excluded Amount" := LibraryRandom.RandDec(100, 2);
+            "Non-Taxable Income Type" := NonTaxableIncomeType;
+            Modify();
+        end;
+
+        exit(WithholdingTax."Entry No.");
+    end;
+
+    local procedure CreateWithholdingTaxWithAU001006WithEmptyNonTaxable(VendorNo: Code[20]; WithholdingTaxReason: Option; CalcYear: Integer; Date: Date; RelatedDate: Date): Integer
+    var
+        WithholdingTax: Record "Withholding Tax";
+    begin
+        with WithholdingTax do begin
+            if FindLast() then;
             "Entry No." += 1;
-            Init;
+            Init();
 
             "Vendor No." := VendorNo;
             Reason := WithholdingTaxReason;
 
             "Total Amount" := LibraryRandom.RandDec(100, 2);
-            "Non Taxable Amount By Treaty" := LibraryRandom.RandDec(100, 2);
-            "Base - Excluded Amount" := LibraryRandom.RandDec(100, 2);
             "Non Taxable Amount" := LibraryRandom.RandDec(100, 2);
             "Taxable Base" := LibraryRandom.RandDec(100, 2);
             "Withholding Tax Amount" := LibraryRandom.RandDec(100, 2);
             Year := Date2DMY(Date, 3) + CalcYear;
             "Related Date" := RelatedDate;
-            "Non-Taxable Income Type" := NonTaxableIncomeType;
-            Insert;
+            "Non-Taxable Income Type" := WithholdingTax."Non-Taxable Income Type"::" ";
+            Insert();
         end;
 
         exit(WithholdingTax."Entry No.");

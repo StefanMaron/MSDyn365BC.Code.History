@@ -149,7 +149,7 @@
                     GetVendInvDisc(PurchHeader, InvDiscBase);
 
                 DiscountNotificationMgt.NotifyAboutMissingSetup(
-                  PurchSetup.RecordId, PurchHeader."Gen. Bus. Posting Group",
+                  PurchSetup.RecordId, PurchHeader."Gen. Bus. Posting Group", PurchLine2."Gen. Prod. Posting Group",
                   PurchSetup."Discount Posting", PurchSetup."Discount Posting"::"Line Discounts");
 
                 PurchHeader."Invoice Discount Calculation" := PurchHeader."Invoice Discount Calculation"::"%";

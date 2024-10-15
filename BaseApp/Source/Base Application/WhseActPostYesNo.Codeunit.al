@@ -45,11 +45,28 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
                             exit;
                 end;
 
-            WhseActivityPost.SetInvoiceSourceDoc(Selection = 2);
-            WhseActivityPost.PrintDocument(PrintDoc);
-            WhseActivityPost.Run(WhseActivLine);
-            Clear(WhseActivityPost);
+            SetParamsAndRunWhseActivityPost(HideDialog);
         end;
+    end;
+
+    local procedure SetParamsAndRunWhseActivityPost(HideDialog: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetParamsAndRunWhseActivityPost(WhseActivLine, HideDialog, PrintDoc, Selection, IsHandled);
+        if IsHandled then
+            exit;
+
+        WhseActivityPost.SetInvoiceSourceDoc(Selection = 2);
+        WhseActivityPost.PrintDocument(PrintDoc);
+        WhseActivityPost.Run(WhseActivLine);
+        Clear(WhseActivityPost);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetParamsAndRunWhseActivityPost(var WarehouseActivityLine: Record "Warehouse Activity Line"; HideDialog: Boolean; PrintDoc: Boolean; Selection: Integer; var IsHandled: Boolean)
+    begin
     end;
 
     procedure PrintDocument(SetPrint: Boolean)

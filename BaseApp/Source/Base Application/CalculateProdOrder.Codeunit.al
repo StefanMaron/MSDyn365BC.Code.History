@@ -102,6 +102,7 @@
                 end;
         end;
 
+        OnTransferRoutingOnBeforeCalcRoutingCostPerUnit(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
         if (ProdOrderRoutingLine.Type = ProdOrderRoutingLine.Type::"Work Center") and
            (WorkCenter."Subcontractor No." <> '')
         then begin
@@ -1058,6 +1059,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferRoutingOnbeforeValidateDirectUnitCost(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; RoutingLine: Record "Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnTransferRoutingOnBeforeCalcRoutingCostPerUnit(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; RoutingLine: Record "Routing Line")
     begin
     end;
 

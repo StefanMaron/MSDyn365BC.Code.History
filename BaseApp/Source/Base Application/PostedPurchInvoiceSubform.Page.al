@@ -54,9 +54,9 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("IC Partner Code"; "IC Partner Code")
                 {
@@ -516,15 +516,12 @@
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
-        SetItemReferenceVisibility();
     end;
 
     var
         DocumentTotals: Codeunit "Document Totals";
         IsFoundation: Boolean;
         VATAmount: Decimal;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
         TotalPurchInvHeader: Record "Purch. Inv. Header";
@@ -567,13 +564,6 @@
         Clear(DimMgt);
 
         OnAfterSetDimensionsVisibility();
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(true, false)]

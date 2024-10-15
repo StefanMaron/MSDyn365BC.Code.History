@@ -340,7 +340,7 @@
         Text1130007Err: Label 'must not be prior to %1';
         Text1130008Err: Label 'It is not possible to post document with a customer with VAT exemption if an active VAT exemption doesn''t exist.';
         Text1130009Err: Label 'The error is in line no. %1.';
-        DownloadShipmentAlsoQst: Label 'You can also download the Sales - Shipment document now. Alternatively, you can access it from the Posted Sales Shipments window later.\\Do you want to download the Sales - Shipment document now?';
+        SendShipmentAlsoQst: Label 'You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?';
         SuppressCommit: Boolean;
         PostingPreviewNoTok: Label '***', Locked = true;
         InvPickExistsErr: Label 'One or more related inventory picks must be registered before you can post the shipment.';
@@ -1938,7 +1938,7 @@
             exit;
 
         with SalesLine do begin
-            if Amount = 0 then
+            if (Amount = 0) and (Quantity <> 0) then
                 Error(ItemChargeZeroAmountErr, "No.");
             TestField("Job No.", '');
             TestField("Job Contract Entry No.", 0);
@@ -6153,7 +6153,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostWhseShptLines(WhseShptLine2, SalesShptLine2, SalesLine2, IsHandled);
+        OnBeforePostWhseShptLines(WhseShptLine2, SalesShptLine2, SalesLine2, IsHandled, PostedWhseShptHeader);
         if IsHandled then
             exit;
 
@@ -6865,7 +6865,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostWhseRcptLineFromShipmentLine(WhseRcptLine, SalesShptLine, SalesLine, IsHandled);
+        OnBeforePostWhseRcptLineFromShipmentLine(WhseRcptLine, SalesShptLine, SalesLine, IsHandled, PostedWhseRcptHeader);
         if IsHandled then
             exit;
 
@@ -7136,7 +7136,7 @@
         if IsHandled then
             exit(Result);
 
-        if ConfirmManagement.GetResponseOrDefault(DownloadShipmentAlsoQst, true) then
+        if ConfirmManagement.GetResponseOrDefault(SendShipmentAlsoQst, true) then
             exit(true);
 
         exit(false);
@@ -8762,7 +8762,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary)
     begin
     end;
 
@@ -9202,7 +9202,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; TempItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; ItemLedgEntryNo: Integer)
+    local procedure OnBeforePostItemCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; ItemLedgEntryNo: Integer)
     begin
     end;
 
@@ -9252,7 +9252,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostWhseRcptLineFromShipmentLine(var WhseRcptLine: Record "Warehouse Receipt Line"; SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforePostWhseRcptLineFromShipmentLine(var WhseRcptLine: Record "Warehouse Receipt Line"; SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header")
     begin
     end;
 
@@ -9668,7 +9668,7 @@
     local procedure IsItemJnlPostLineHandled(var ItemJnlLine: Record "Item Journal Line"; var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header") IsHandled: Boolean
     begin
         IsHandled := false;
-        OnBeforeItemJnlPostLine(ItemJnlLine, SalesLine, SalesHeader, SuppressCommit, IsHandled);
+        OnBeforeItemJnlPostLine(ItemJnlLine, SalesLine, SalesHeader, SuppressCommit, IsHandled, TempItemChargeAssgntSales);
         exit(IsHandled);
     end;
 
@@ -9907,7 +9907,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostWhseShptLines(var WhseShptLine2: Record "Warehouse Shipment Line"; SalesShptLine2: Record "Sales Shipment Line"; var SalesLine2: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforePostWhseShptLines(var WhseShptLine2: Record "Warehouse Shipment Line"; SalesShptLine2: Record "Sales Shipment Line"; var SalesLine2: Record "Sales Line"; var IsHandled: Boolean; PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
     begin
     end;
 

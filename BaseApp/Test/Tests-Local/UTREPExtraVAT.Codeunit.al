@@ -86,6 +86,7 @@ codeunit 144077 "UT REP Extra VAT"
         TotalVATNondeducBaseCap: Label 'TotalVATNondeducBase';
         UnrealizedVATSellToBuyFromNoCap: Label 'UnrealizedVAT__Sell_to_Buy_from_No__';
         UnrealizedVATEntryNoCap: Label 'UnrealizedVAT_UnrealizedVAT__Entry_No__';
+        LastSettlementDateErr: Label 'Last Settlement Date must have a value in General Ledger Setup';
 
     [Test]
     [HandlerFunctions('VATRegisterGroupedRequestPageHandler')]
@@ -309,6 +310,26 @@ codeunit 144077 "UT REP Extra VAT"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(
           PeriodInputVATYearInputVATCap, FindPeriodicSettlementVATEntry(VATEntry."Operation Occurred Date"));
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementRequestSimplePageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CalcAndPostVATSettlementWithBlankLastSettlementDate()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // [SCENARIO 421454] Run Calc. and Post VAT Settlement if "Last Settlement Date" is blank in setup.
+        Initialize();
+        // [GIVEN] Blank "Last Settlement Date" in GLSetup
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Last Settlement Date" := 0D;
+        GeneralLedgerSetup.Modify();
+        // [WHEN] Run "Calc. and Post VAT Settlement"
+        asserterror REPORT.Run(REPORT::"Calc. and Post VAT Settlement");  // Opens handler - CalcAndPostVATSettlementRequestSimplePageHandler.
+        // [THEN] Error: "Last Settlement Date must havea value"
+        Assert.ExpectedError(LastSettlementDateErr);
     end;
 
     [Test]
@@ -656,6 +677,12 @@ codeunit 144077 "UT REP Extra VAT"
         CalcAndPostVATSettlement.Post.SetValue(true);
         CalcAndPostVATSettlement.ShowVATEntries.SetValue(ShowVATEntries);
         CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalcAndPostVATSettlementRequestSimplePageHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
+    begin
     end;
 
     [RequestPageHandler]

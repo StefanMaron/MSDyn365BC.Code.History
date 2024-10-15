@@ -431,11 +431,17 @@ codeunit 5705 "TransferOrder-Post Receipt"
             Error(Text008);
     end;
 
-    local procedure InsertRcptEntryRelation(var TransRcptLine: Record "Transfer Receipt Line"): Integer
+    local procedure InsertRcptEntryRelation(var TransRcptLine: Record "Transfer Receipt Line") Result: Integer
     var
         ItemEntryRelation: Record "Item Entry Relation";
         TempItemEntryRelation: Record "Item Entry Relation" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertRcptEntryRelation(TransRcptLine, ItemJnlLine, ItemJnlPostLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TempItemEntryRelation2.Reset();
         TempItemEntryRelation2.DeleteAll();
 
@@ -489,6 +495,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     var
         PurchOrderLine: Record "Purchase Line";
         IsHandled: Boolean;
+        ShouldRunPosting: Boolean;
     begin
         TransRcptLine.Init();
         TransRcptLine."Document No." := TransferReceiptHeader."No.";
@@ -533,8 +540,9 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 if WhseRcptLine.FindFirst then
                     CreatePostedRcptLineFromWhseRcptLine(TransRcptLine);
             end;
-            OnInsertTransRcptLineOnBeforePostWhseJnlLine(TransRcptLine, TransLine, SuppressCommit, WhsePosting);
-            if WhsePosting then
+            ShouldRunPosting := WhsePosting;
+            OnInsertTransRcptLineOnBeforePostWhseJnlLine(TransRcptLine, TransLine, SuppressCommit, WhsePosting, ShouldRunPosting);
+            if ShouldRunPosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempWhseSplitSpecification);
             OnAfterTransRcptLineModify(TransRcptLine, TransLine, SuppressCommit);
         end;
@@ -605,7 +613,13 @@ codeunit 5705 "TransferOrder-Post Receipt"
     local procedure SaveTempWhseSplitSpec(TransLine: Record "Transfer Line")
     var
         TempHandlingSpecification: Record "Tracking Specification" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSaveTempWhseSplitSpec(TransLine, ItemJnlPostLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TempWhseSplitSpecification.Reset();
         TempWhseSplitSpecification.DeleteAll();
         if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification) then
@@ -777,6 +791,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertRcptEntryRelation(var TransRcptLine: Record "Transfer Receipt Line"; var ItemJnlLine: Record "Item Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransRcptHeaderInsert(var TransferReceiptHeader: Record "Transfer Receipt Header"; TransferHeader: Record "Transfer Header")
     begin
     end;
@@ -793,6 +812,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReleaseDocument(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveTempWhseSplitSpec(TransLine: Record "Transfer Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -822,7 +846,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertTransRcptLineOnBeforePostWhseJnlLine(var TransRcptLine: Record "Transfer Receipt Line"; var TransLine: Record "Transfer Line"; SuppressCommit: Boolean; var WhsePosting: Boolean)
+    local procedure OnInsertTransRcptLineOnBeforePostWhseJnlLine(var TransRcptLine: Record "Transfer Receipt Line"; var TransLine: Record "Transfer Line"; SuppressCommit: Boolean; var WhsePosting: Boolean; var ShouldRunPosting: Boolean)
     begin
     end;
 

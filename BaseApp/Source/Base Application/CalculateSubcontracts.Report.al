@@ -42,6 +42,7 @@ report 99001015 "Calculate Subcontracts"
                                 (CostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, "Prod. Order Routing Line") +
                                  CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, "Prod. Order Routing Line"));
                             QtyToPurch := Round(BaseQtyToPurch / ProdOrderLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                            OnAfterCalcQtyToPurch(ProdOrderLine, QtyToPurch);
                             if QtyToPurch > 0 then
                                 InsertReqWkshLine();
                         until ProdOrderLine.Next() = 0;
@@ -166,7 +167,7 @@ report 99001015 "Calculate Subcontracts"
             Validate(Quantity, QtyToPurch);
             GetGLSetup();
             IsHandled := false;
-            OnBeforeValidateUnitCost(ReqLine, "Work Center", IsHandled);
+            OnBeforeValidateUnitCost(ReqLine, "Work Center", IsHandled, ProdOrderLine, "Prod. Order Routing Line");
             if not IsHandled then
                 if Quantity <> 0 then begin
                     if "Work Center"."Unit Cost Calculation" = "Work Center"."Unit Cost Calculation"::Units then
@@ -285,6 +286,11 @@ report 99001015 "Calculate Subcontracts"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyToPurch(ProdOrderLine: Record "Prod. Order Line"; var QtyToPurch: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferProdOrderRoutingLine(var RequisitionLine: Record "Requisition Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
@@ -295,7 +301,7 @@ report 99001015 "Calculate Subcontracts"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateUnitCost(var RequisitionLine: Record "Requisition Line"; var WorkCenter: Record "Work Center"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateUnitCost(var RequisitionLine: Record "Requisition Line"; var WorkCenter: Record "Work Center"; var IsHandled: Boolean; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 

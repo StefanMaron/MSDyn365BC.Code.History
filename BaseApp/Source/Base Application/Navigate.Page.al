@@ -418,6 +418,7 @@
         PostedReturnShipmentTxt: Label 'Posted Return Shipment';
         PostedTransferShipmentTxt: Label 'Posted Transfer Shipment';
         PostedTransferReceiptTxt: Label 'Posted Transfer Receipt';
+        PostedDirectTransferTxt: Label 'Posted Direct Transfer';
         SalesQuoteTxt: Label 'Sales Quote';
         SalesOrderTxt: Label 'Sales Order';
         SalesInvoiceTxt: Label 'Sales Invoice';
@@ -470,6 +471,8 @@
         TransShptHeader: Record "Transfer Shipment Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         TransRcptHeader: Record "Transfer Receipt Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        DirectTransHeader: Record "Direct Trans. Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedWhseRcptLine: Record "Posted Whse. Receipt Line";
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -711,8 +714,6 @@
                             ServCrMemoHeader.SetFilter("Customer No.", ContactNo);
                             InsertIntoDocEntry(Rec, DATABASE::"Service Cr.Memo Header", PostedServiceCreditMemoTxt, ServCrMemoHeader.Count);
                         end;
-
-                    DocExists := Rec.FindFirst();
 
                     OnFindExtRecordsOnBeforeFormUpdate(Rec, SalesInvHeader, SalesCrMemoHeader);
                     UpdateFormAfterFindRecords();
@@ -1103,6 +1104,7 @@
         FindPostedAssemblyHeader();
         FindTransShptHeader();
         FindTransRcptHeader();
+        FindDirectTransHeader();
         FindPstdPhysInvtOrderHdr();
         FindPostedWhseShptLine();
         FindPostedWhseRcptLine();
@@ -1345,6 +1347,16 @@
         end;
     end;
 
+    local procedure FindDirectTransHeader()
+    begin
+        if DirectTransHeader.ReadPermission() then begin
+            DirectTransHeader.Reset();
+            DirectTransHeader.SetFilter("No.", DocNoFilter);
+            DirectTransHeader.SetFilter("Posting Date", PostingDateFilter);
+            InsertIntoDocEntry(Rec, DATABASE::"Direct Trans. Header", PostedDirectTransferTxt, DirectTransHeader.Count);
+        end;
+    end;
+
     local procedure FindPostedInvtReceipt()
     begin
         if PostedInvtRcptHeader.ReadPermission() then begin
@@ -1367,13 +1379,12 @@
 
     local procedure UpdateFormAfterFindRecords()
     begin
-        OnBeforeUpdateFormAfterFindRecords;
+        OnBeforeUpdateFormAfterFindRecords();
 
+        DocExists := Rec.FindFirst();
         ShowEnable := DocExists;
         PrintEnable := DocExists;
         CurrPage.Update(false);
-        DocExists := FindFirst();
-        if DocExists then;
     end;
 
     procedure InsertIntoDocEntry(var TempDocumentEntry: Record "Document Entry" temporary; DocTableID: Integer; DocTableName: Text; DocNoOfRecords: Integer)
@@ -2119,6 +2130,7 @@
                 ContactNo := '';
                 ExtDocNo := '';
                 ClearTrackingInfo();
+                OnFindRecordsOnOpenOnAfterSetDocuentFilters(Rec, DocNoFilter, PostingDateFilter, ExtDocNo, NewSourceRecVar);
                 FindRecords();
             end;
     end;
@@ -2267,6 +2279,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnFindRecordsOnAfterSetSource(var DocumentEntry: Record "Document Entry"; var PostingDate: Date; var DocType2: Text[100]; var DocNo: Code[20]; var SourceType2: Integer; var SourceNo: Code[20]; var DocNoFilter: Text; var PostingDateFilter: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordsOnOpenOnAfterSetDocuentFilters(var Rec: Record "Document Entry"; var DocNoFilter: Text; var PostingDateFilter: Text; ExtDocNo: Code[250]; NewSourceRecVar: Variant)
     begin
     end;
 

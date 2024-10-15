@@ -529,9 +529,9 @@ page 31 "Item List"
 #endif
                 action("Item Refe&rences")
                 {
+                    AccessByPermission = TableData "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item References';
-                    Visible = ItemReferenceVisible;
                     Image = Change;
                     Promoted = true;
                     PromotedCategory = Category4;
@@ -2316,7 +2316,6 @@ page 31 "Item List"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ClientTypeManagement: Codeunit "Client Type Management";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         if CRMIntegrationEnabled then
@@ -2328,7 +2327,6 @@ page 31 "Item List"
         IsFoundationEnabled := ApplicationAreaMgmtFacade.IsFoundationEnabled;
         SetWorkflowManagementEnabledState;
         IsOnPhone := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
@@ -2362,8 +2360,6 @@ page 31 "Item List"
         IsNonInventoriable: Boolean;
         [InDataSet]
         IsInventoriable: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
         PowerBIVisible: Boolean;
         [InDataSet]
         SocialListeningSetupVisible: Boolean;
