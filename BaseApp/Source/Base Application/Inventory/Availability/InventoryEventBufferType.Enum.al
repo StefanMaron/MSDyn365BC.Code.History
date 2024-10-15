@@ -35,7 +35,7 @@ enum 5530 "Inventory Event Buffer Type"
     }
     value(9; Job)
     {
-        Caption = 'Job';
+        Caption = 'Project';
     }
     value(10; Forecast)
     {

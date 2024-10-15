@@ -149,7 +149,7 @@ report 5882 "Copy Phys. Invt. Order"
         if NoOfNoInsertedLines = 0 then
             Message(
               StrSubstNo(
-                LinesInsertedMsg, NoOfInsertedLines, PhysInvtOrderHeader."No."))
+                LinesInsertedToOrderMsg, NoOfInsertedLines, PhysInvtOrderHeader."No."))
         else
             Message(
               StrSubstNo(LinesInsertedMsg, NoOfInsertedLines, NoOfNoInsertedLines, PhysInvtOrderHeader."No."));
@@ -174,6 +174,7 @@ report 5882 "Copy Phys. Invt. Order"
         EnterDocumentNoErr: Label 'Please enter a Document No.';
         CannotCopyToItSelfErr: Label 'Order %1 cannot be copied onto itself.', Comment = '%1 = Order No.';
         LinesInsertedMsg: Label '%1 lines inserted and %2 lines not inserted into the order %3.', Comment = '%1,%2 = counters, %3 = Order No.';
+        LinesInsertedToOrderMsg: Label '%1 lines inserted into the order %2.', Comment = '%1 = counters, %2 = Order No.';
 
     protected var
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";

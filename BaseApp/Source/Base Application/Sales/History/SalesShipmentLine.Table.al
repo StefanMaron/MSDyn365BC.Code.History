@@ -802,6 +802,8 @@ table 111 "Sales Shipment Line"
                     Error(Text001);
             end;
 
+            OnInsertInvLineFromShptLineOnBeforeAssigneSalesLine(Rec, SalesInvHeader, SalesOrderHeader, SalesLine, SalesOrderLine, Currency);
+
             SalesLine := SalesOrderLine;
             SalesLine."Line No." := NextLineNo;
             SalesLine."Document Type" := TempSalesLine."Document Type";
@@ -1275,6 +1277,11 @@ table 111 "Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromShptLineOnBeforeAssigneSalesLine(var SalesShipmentLine: Record "Sales Shipment Line"; SalesHeaderInv: Record "Sales Header"; SalesHeaderOrder: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line"; Currency: Record Currency)
     begin
     end;
 }

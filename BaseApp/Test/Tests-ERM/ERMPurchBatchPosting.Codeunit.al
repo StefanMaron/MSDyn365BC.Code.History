@@ -1192,6 +1192,32 @@
         // [THEN] The saved request page values are overridden.
     end;
 
+    [Test]
+    [HandlerFunctions('RequestPageHandlerBatchPostPurchaseOrders,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostPurchaseOrderReplacePostingDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 495353] Batch Posting of Purchase Order with Replace Posting Date for special Purchase Setup
+        Initialize();
+        LibraryPurchase.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Create and Release the Purchase Order 
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, false);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Run Batch Post Purchase Order with Replace Posting Date, Replace Document Date options
+        RunBatchPostPurchase(PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseHeader."Posting Date" + 1, false);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
+
+        // [THEN] Posting Date is replaced with new Posting Date in the Purchase Order
+        VerifyPostedPurchaseOrder(PurchaseHeader."No.", PurchaseHeader."Posting Date" + 1, false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

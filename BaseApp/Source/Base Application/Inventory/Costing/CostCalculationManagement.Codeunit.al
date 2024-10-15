@@ -527,10 +527,10 @@ codeunit 5836 "Cost Calculation Management"
         if IsHandled then
             exit(Result);
 
-        if ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Backward then
-            CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure"
+        if ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::"Pick + Backward" then
+            CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity per" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure"
         else
-            CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity per" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure";
+            CompQtyBasePerMfgQtyBase := (ProdOrderComp."Quantity" * ProdOrderComp."Qty. per Unit of Measure") / ProdOrderLine."Qty. per Unit of Measure";
 
         if (ProdOrderComp."Calculation Formula" = ProdOrderComp."Calculation Formula"::"Fixed Quantity") and (OutputQtyBase <> 0) then
             exit(CalcQtyAdjdForBOMScrap(CompQtyBasePerMfgQtyBase, ProdOrderComp."Scrap %"))
@@ -754,7 +754,12 @@ codeunit 5836 "Cost Calculation Management"
     var
         PostedQtyBase: Decimal;
         RemQtyToCalcBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcSalesLineCostLCY(SalesLine, QtyType, IsHandled, TotalAdjCostLCY);
+        if IsHandled then
+            exit;
         case SalesLine."Document Type" of
             SalesLine."Document Type"::Order, SalesLine."Document Type"::Invoice:
                 if ((SalesLine."Quantity Shipped" <> 0) or (SalesLine."Shipment No." <> '')) and
@@ -769,7 +774,7 @@ codeunit 5836 "Cost Calculation Management"
         end;
     end;
 
-    local procedure CalcSalesLineShptAdjCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing; var TotalAdjCostLCY: Decimal; var PostedQtyBase: Decimal; var RemQtyToCalcBase: Decimal)
+    procedure CalcSalesLineShptAdjCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing; var TotalAdjCostLCY: Decimal; var PostedQtyBase: Decimal; var RemQtyToCalcBase: Decimal)
     var
         SalesShptLine: Record "Sales Shipment Line";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -785,6 +790,7 @@ codeunit 5836 "Cost Calculation Management"
             SalesShptLine.SetRange("Order Line No.", SalesLine."Line No.");
         end;
         SalesShptLine.SetRange(Correction, false);
+        OnCalcSalesLineShptAdjCostLCYBeforeSalesShptLineFind(SalesShptLine, SalesLine);
         if QtyType = QtyType::Invoicing then begin
             SalesShptLine.SetFilter(SalesShptLine."Qty. Shipped Not Invoiced", '<>0');
             RemQtyToCalcBase := SalesLine."Qty. to Invoice (Base)" - SalesLine."Qty. to Ship (Base)";
@@ -828,7 +834,7 @@ codeunit 5836 "Cost Calculation Management"
             until (SalesShptLine.Next() = 0) or (RemQtyToCalcBase = 0);
     end;
 
-    local procedure CalcSalesLineRcptAdjCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing; var TotalAdjCostLCY: Decimal; var PostedQtyBase: Decimal; var RemQtyToCalcBase: Decimal)
+    procedure CalcSalesLineRcptAdjCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing; var TotalAdjCostLCY: Decimal; var PostedQtyBase: Decimal; var RemQtyToCalcBase: Decimal)
     var
         ReturnRcptLine: Record "Return Receipt Line";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -1421,6 +1427,16 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcSalesLineCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing; var IsHandled: Boolean; var TotalAdjCostLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcSalesLineShptAdjCostLCYBeforeSalesShptLineFind(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 

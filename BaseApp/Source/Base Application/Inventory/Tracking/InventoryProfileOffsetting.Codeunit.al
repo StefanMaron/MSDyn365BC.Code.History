@@ -1449,6 +1449,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         NeedOfPublishSurplus: Boolean;
         IsHandled: Boolean;
         DemandForAdditionalProfile: Boolean;
+        ProcessSupplyBeforeStartDate: Boolean;
     begin
         ReqLine.Reset();
         ReqLine.SetRange("Worksheet Template Name", CurrTemplateName);
@@ -1590,6 +1591,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
                     SupplyInvtProfile.SetFilter("Untracked Quantity", '>=0');
                     SupplyExists := SupplyInvtProfile.FindSet();
+
+                    ProcessSupplyBeforeStartDate := SupplyExists;
+                    while ProcessSupplyBeforeStartDate do begin
+                        if (SupplyInvtProfile."Due Date" < PlanningStartDate) and (SupplyInvtProfile."Due Date" > 0D) and (SupplyInvtProfile."Untracked Quantity" = 0) then
+                            SupplyExists := SupplyInvtProfile.Next() <> 0;
+                        ProcessSupplyBeforeStartDate := SupplyExists and (SupplyInvtProfile."Due Date" < PlanningStartDate) and (SupplyInvtProfile."Due Date" > 0D) and (SupplyInvtProfile."Untracked Quantity" = 0);
+                    end;
 
                     SupplyInvtProfile.SetRange("Untracked Quantity");
                     SupplyInvtProfile.SetRange("Due Date");

@@ -69,7 +69,7 @@ table 606 "Buffer IC Inbox Purchase Line"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             Editable = false;
         }
         field(54; "Indirect Cost %"; Decimal)

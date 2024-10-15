@@ -10,5 +10,6 @@ permissionset 738 "D365 Fin Cons Setup"
     IncludedPermissionSets = "D365 Fin. Consolid";
 
     Permissions = tabledata "Business Unit" = RIM,
-                    tabledata "Consolidation Setup" = RIM;
+                    tabledata "Consolidation Setup" = RIM,
+                    tabledata "Consolidation Log Entry" = RIMD;
 }

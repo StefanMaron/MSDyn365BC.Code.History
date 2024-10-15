@@ -22,6 +22,6 @@ enum 5779 "Whse. Reference Document Type"
     value(14; Pick) { Caption = 'Pick'; }
     value(15; Movement) { Caption = 'Movement'; }
     value(16; "BOM Journal") { Caption = 'BOM Journal'; }
-    value(17; "Job Journal") { Caption = 'Job Journal'; }
+    value(17; "Job Journal") { Caption = 'Project Journal'; }
     value(18; "Assembly") { Caption = 'Assembly'; }
 }
