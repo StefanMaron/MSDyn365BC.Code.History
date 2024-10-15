@@ -33,7 +33,7 @@ codeunit 6500 "Item Tracking Management"
         Text012: Label 'Only one expiration date is allowed per lot number.\%1 currently has two different expiration dates: %2 and %3.';
         IsPick: Boolean;
         DeleteReservationEntries: Boolean;
-        CannotMatchItemTrackingErr: Label 'Cannot match item tracking.';
+        CannotMatchItemTrackingErr: Label 'Cannot match item tracking.\Document No.: %1, Line No.: %2, Item: %3 %4', Comment = '%1 - source document no., %2 - source document line no., %3 - item no., %4 - item description';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
 
     procedure SetPointerFilter(var TrackingSpecification: Record "Tracking Specification")
@@ -2890,7 +2890,9 @@ codeunit 6500 "Item Tracking Management"
                 QtyToHandleOnSourceDocLine := ReservMgt.GetSourceRecordValue(ReservEntry, false, 0);
 
                 if QtyToHandleToNewRegister + QtyToHandleInItemTracking > QtyToHandleOnSourceDocLine then
-                    Error(CannotMatchItemTrackingErr);
+                    Error(CannotMatchItemTrackingErr,
+                        TempTrackingSpec."Source ID", TempTrackingSpec."Source Ref. No.",
+                        TempTrackingSpec."Item No.", TempTrackingSpec.Description);
 
                 TrackingSpec."Quantity (Base)" :=
                   TempTrackingSpec."Qty. to Handle (Base)" + Abs(ItemTrkgQtyPostedOnSource(TrackingSpec));

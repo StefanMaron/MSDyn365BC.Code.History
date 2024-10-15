@@ -34,6 +34,7 @@
         IsInitialized: Boolean;
         LineInFileTxt: Label '<ReportDataSet name="Test Report - Default=Word" id="134600">';
         FileNameIsBlankMsg: Label 'File name is blank.';
+        LayoutCodeShouldNotChangedErr: Label 'Layout code should not change.';
 
     local procedure Initialize()
     begin
@@ -1120,6 +1121,47 @@
         Assert.ExpectedMessage(Format(SalesHeader.RecordId()), LibraryVariableStorage.DequeueText); // message from MessageHandler
     end;
 
+    [Test]
+    [HandlerFunctions('CustomReportLayoutsHandlerCancel')]
+    [Scope('OnPrem')]
+    procedure VerifyCustomReportNotRevertsBackToRdlc()
+    var
+        ReportLayoutSelection: Record "Report Layout Selection";
+        CustomReportLayout: Record "Custom Report Layout";
+        ReportLayoutSelectionPage: TestPage "Report Layout Selection";
+        LayoutCode: Code[20];
+    begin
+        // [SCENARIO 466237] D365 BC - Custom report reverts back to RDLC when using Select Layout without making a choice (click Cancel).
+        Initialize();
+
+        // [GIVEN] Delete and create new Custom Report Layouts
+        CustomReportLayout.SetRange("Report ID", CheckStubReportID());
+        CustomReportLayout.DeleteAll();
+
+        if ReportLayoutSelection.Get(CheckStubReportID(), CompanyName) then
+            ReportLayoutSelection.Delete();
+
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(CheckStubReportID(), CustomReportLayout.Type::RDLC.AsInteger());
+        CustomReportLayout.Get(LayoutCode);
+
+        // [THEN] Create report layout selection with new custom layout 
+        ReportLayoutSelection.Init();
+        ReportLayoutSelection."Report ID" := CheckStubReportID();
+        ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Custom Layout";
+        ReportLayoutSelection."Custom Report Layout Code" := CustomReportLayout.Code;
+        ReportLayoutSelection.Insert(true);
+
+        // [WHEN] Invoke Select Layout from Report Layout Selection Page
+        ReportLayoutSelectionPage.OpenEdit;
+        ReportLayoutSelectionPage.Filter.SetFilter("Report ID", Format(CheckStubReportID()));
+        ReportLayoutSelectionPage.SelectLayout.Invoke();
+        ReportLayoutSelectionPage.Close();
+
+        // [VERIFY] Verify: Report Layout Selection should not change back to RDLC
+        ReportLayoutSelection.Get(CheckStubReportID(), CompanyName);
+        Assert.AreEqual(LayoutCode, ReportLayoutSelection."Custom Report Layout Code", LayoutCodeShouldNotChangedErr);
+    end;
+
     local procedure InitCustomReportLayout(var CustomReportLayout: Record "Custom Report Layout"; LayoutType: Enum "Custom Report Layout Type"; WithCompanyName: Boolean)
     var
         LayoutCode: Code[20];
@@ -1309,6 +1351,13 @@
         ScheduleaReport.Cancel.Invoke;
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomReportLayoutsHandlerCancel(var CustomReportLayouts: TestPage "Custom Report Layouts")
+    begin
+        CustomReportLayouts.Cancel().Invoke();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
@@ -1496,6 +1545,11 @@
     local procedure DetailTrialBalanceReportID(): Integer
     begin
         exit(REPORT::"Detail Trial Balance");
+    end;
+
+    local procedure CheckStubReportID(): Integer
+    begin
+        exit(Report::"Check (Stub/Check/Stub)");
     end;
 
     [RequestPageHandler]

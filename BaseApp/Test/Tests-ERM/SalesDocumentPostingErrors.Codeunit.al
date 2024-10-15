@@ -19,6 +19,9 @@ codeunit 132501 "Sales Document Posting Errors"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryPlanning: Codeunit "Library - Planning";
         IsInitialized: Boolean;
         DefaultDimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.';
         CheckSalesLineMsg: Label 'Check sales document line.';
@@ -713,6 +716,100 @@ codeunit 132501 "Sales Document Posting Errors"
         NoSeriesLine.Modify();
     end;
 
+    [Test]
+    [HandlerFunctions('ReservationPageHandler')]
+    procedure VerifyPostShipmentForSpecialOrdersWithReservationsAndOneNonInventoryItem()
+    var
+        NonInventoryItem, Item : Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReqWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 464478] Verify Post Shipment for Special Order with Reservation Entries and one Non Inventory Item
+        Initialize();
+
+        // [GIVEN] Crate two Items, which one is Non Inventory
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Sales Order with Purchasing Code and release document
+        CreateSalesOrderWithPurchasingCodeSpecialOrder(SalesHeader, NonInventoryItem."No.", Item."No.", 2);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Requisition Lines
+        FindSalesLine(SalesLine, SalesHeader);
+        GetSalesOrder(ReqWkshName, SalesLine);
+
+        // [GIVEN] Update Vendor on Requisition Lines
+        UpdateVendorOnRequisitionLine(RequisitionLine, ReqWkshName, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Order from Requisition Worksheet
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [GIVEN] Find Created Purchase Document
+        PurchaseHeader.SetRange("Buy-from Vendor No.", RequisitionLine."Vendor No.");
+        PurchaseHeader.FindFirst();
+
+        // [GIVEN] Reserve items on Purchase Order
+        ReservePurchaseLines(PurchaseHeader."No.");
+
+        // [WHEN] Release and Post Receive on Purchase Order
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Verify Post Shipment on Sales Order without errors
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationPageHandler')]
+    procedure VerifyPostShipmentForSpecialOrdersWithReservationsAndOneServiceItem()
+    var
+        ServiceItem, Item : Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReqWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 464478] Verify Post Shipment for Special Order with Reservation Entries and one Service Item
+        Initialize();
+
+        // [GIVEN] Crate two Items, which one is Service
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Sales Order with Purchasing Code and release document
+        CreateSalesOrderWithPurchasingCodeSpecialOrder(SalesHeader, ServiceItem."No.", Item."No.", 2);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Requisition Lines
+        FindSalesLine(SalesLine, SalesHeader);
+        GetSalesOrder(ReqWkshName, SalesLine);
+
+        // [GIVEN] Update Vendor on Requisition Lines
+        UpdateVendorOnRequisitionLine(RequisitionLine, ReqWkshName, LibraryPurchase.CreateVendorNo());
+
+        // [GIVEN] Create Purchase Order from Requisition Worksheet
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [GIVEN] Find Created Purchase Document
+        PurchaseHeader.SetRange("Buy-from Vendor No.", RequisitionLine."Vendor No.");
+        PurchaseHeader.FindFirst();
+
+        // [GIVEN] Reserve items on Purchase Order
+        ReservePurchaseLines(PurchaseHeader."No.");
+
+        // [WHEN] Release and Post Receive on Purchase Order
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] Verify Post Shipment on Sales Order without errors
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -768,11 +865,107 @@ codeunit 132501 "Sales Document Posting Errors"
         VATPostingSetup.ModifyAll(Blocked, false);
     end;
 
+    local procedure ReservePurchaseLines(No: Code[20])
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.Filter.SetFilter("No.", No);
+        PurchaseOrder.PurchLines.First();
+        PurchaseOrder.PurchLines.Reserve.Invoke;
+        PurchaseOrder.PurchLines.Next();
+        PurchaseOrder.PurchLines.Reserve.Invoke;
+    end;
+
+    local procedure UpdateVendorOnRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; VendorNo: Code[20])
+    begin
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.FindSet();
+        repeat
+            RequisitionLine.Validate("Vendor No.", VendorNo);
+            RequisitionLine.Modify(true);
+        until RequisitionLine.Next() = 0;
+    end;
+
+    local procedure GetSalesOrder(var RequisitionWkshName: Record "Requisition Wksh. Name"; SalesLine: Record "Sales Line")
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        ReqWkshTemplate.SetRange(Type, RequisitionWkshName."Template Type"::"Req.");
+        ReqWkshTemplate.FindFirst();
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+        Commit();
+        RequisitionLine.Init();
+        RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
+        RunGetSalesOrders(SalesLine, RequisitionLine);
+    end;
+
+    local procedure RunGetSalesOrders(SalesLine: Record "Sales Line"; RequisitionLine: Record "Requisition Line")
+    var
+        GetSalesOrders: Report "Get Sales Orders";
+        RetrieveDimensions: Option Item,"Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type");
+        SalesLine.SetRange("Document No.", SalesLine."Document No.");
+        Clear(GetSalesOrders);
+        GetSalesOrders.SetTableView(SalesLine);
+        GetSalesOrders.InitializeRequest(RetrieveDimensions::Item);
+        GetSalesOrders.SetReqWkshLine(RequisitionLine, 1);
+        GetSalesOrders.UseRequestPage(false);
+        GetSalesOrders.RunModal();
+    end;
+
+    local procedure CreateSalesOrderWithPurchasingCodeSpecialOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal)
+    var
+        Purchasing: Record Purchasing;
+    begin
+        CreatePurchasingCodeWithSpecialOrder(Purchasing);
+        CreateSalesOrderWithPurchasingCode(SalesHeader, ItemNo, ItemNo2, Quantity, Purchasing.Code);
+    end;
+
+    local procedure CreateSalesOrderWithPurchasingCode(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; PurchasingCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo2, Quantity);
+        FindSalesLine(SalesLine, SalesHeader);
+        repeat
+            SalesLine.Validate("Purchasing Code", PurchasingCode);
+            SalesLine.Modify(true);
+        until SalesLine.Next() = 0;
+    end;
+
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+    end;
+
+    local procedure CreatePurchasingCodeWithSpecialOrder(var Purchasing: Record Purchasing)
+    begin
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        Purchasing.Validate("Special Order", true);
+        Purchasing.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmYesHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    procedure ReservationPageHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK.Invoke;
     end;
 }
 

@@ -142,7 +142,7 @@ report 10476 "Elec. Sales Credit Memo MX"
                     column(CopyTxt; CopyTxt)
                     {
                     }
-                    column(BillToAddress_1_; BillToAddress[1])
+                    column(BillToAddress_1_; BillToAddressName)
                     {
                     }
                     column(BillToAddress_2_; BillToAddress[2])
@@ -582,6 +582,11 @@ report 10476 "Elec. Sales Credit Memo MX"
                 FormatAddress.SalesCrMemoBillTo(BillToAddress, "Sales Cr.Memo Header");
                 FormatAddress.SalesCrMemoShipTo(ShipToAddress, ShipToAddress, "Sales Cr.Memo Header");
 
+                if Customer."CFDI Customer Name" <> '' then 
+                    BillToAddressName := Customer."CFDI Customer Name"
+                else
+                    BillToAddressName := BillToAddress[1];
+
                 if LogInteraction then
                     if not CurrReport.Preview then
                         SegManagement.LogDocument(
@@ -713,6 +718,7 @@ report 10476 "Elec. Sales Credit Memo MX"
         CompanyAddress: array[8] of Text[100];
         BillToAddress: array[8] of Text[100];
         ShipToAddress: array[8] of Text[100];
+        BillToAddressName: Text[300];
         CopyTxt: Text[10];
         PrintCompany: Boolean;
         NoCopies: Integer;

@@ -260,7 +260,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                         IsHandled := false;
                         OnUpdateAndDeleteLinesOnBeforeSetUpNewLine(JobJnlBatch, JobJnlLine3, IsHandled);
                         if not IsHandled then
-                            if (JobJnlBatch."No. Series" = '') and not JobJnlLine3.FindLast() then begin
+                            if (JobJnlBatch."No. Series" = '') and not JobJnlLine3.FindLast() and (JobRegNo = 0) then begin
                                 JobJnlLine3.Init();
                                 JobJnlLine3."Journal Template Name" := "Journal Template Name";
                                 JobJnlLine3."Journal Batch Name" := "Journal Batch Name";

@@ -41,6 +41,11 @@ report 497 "Batch Post Purchase Invoices"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that the program will use as the document and/or posting date when you post if you place a check mark in one or both of the following boxes.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
                     }
                     field(VATDate; VATDateReq)
                     {
@@ -60,6 +65,10 @@ report 497 "Batch Post Purchase Invoices"
                         begin
                             if ReplacePostingDate then
                                 Message(Text003);
+                            
+                            if VATReportingDateMgt.IsVATDateUsageSetToPostingDate() then
+                                ReplaceVATDateReq := ReplacePostingDate;
+                            UpdateVATDate();
                         end;
                     }
                     field(ReplaceDocumentDate; ReplaceDocumentDate)
@@ -67,6 +76,13 @@ report 497 "Batch Post Purchase Invoices"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if the new document date will be applied.';
+
+                        trigger OnValidate()
+                        begin
+                            if VATReportingDateMgt.IsVATDateUsageSetToDocumentDate() then
+                                ReplaceVATDateReq := ReplaceDocumentDate;
+                            UpdateVATDate();
+                        end;
                     }
                     field(ReplaceVATDate; ReplaceVATDateReq)
                     {
@@ -120,7 +136,6 @@ report 497 "Batch Post Purchase Invoices"
         var
             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
-            VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         begin
             if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
                 exit;
@@ -137,6 +152,7 @@ report 497 "Batch Post Purchase Invoices"
     }
 
     var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
 
     protected var
@@ -148,5 +164,11 @@ report 497 "Batch Post Purchase Invoices"
         [InDataSet]
         PrintDocVisible: Boolean;
         VATDateEnabled: Boolean;
+
+    local procedure UpdateVATDate()
+    begin
+        if ReplaceVATDateReq then
+            VATDateReq := PostingDateReq;
+    end;
 }
 
