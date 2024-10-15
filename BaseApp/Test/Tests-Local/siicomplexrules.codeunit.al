@@ -19,6 +19,7 @@ codeunit 147559 "SII Complex Rules"
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
         XPathSalesBaseDetalleIVATok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseFactura/sii:Sujeta/sii:NoExenta/sii:DesgloseIVA/sii:DetalleIVA/', Locked = true;
+        XPathPurchBaseDetalleIVATok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:DesgloseFactura/sii:DesgloseIVA/sii:DetalleIVA/';
 
     [Test]
     [Scope('OnPrem')]
@@ -662,6 +663,72 @@ codeunit 147559 "SII Complex Rules"
         LibrarySII.ValidateElementByName(XMLDoc, 'sii:BaseImponibleACoste', SIIXMLCreator.FormatNumber(0));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchInvoiceWithSpecialSchemeCode02()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 355791] An xml file of purchase invoice with the special scheme code "02" contains nodes PorcentCompensacionREAGYP and ImporteCompensacionREAGYP
+
+        Initialize();
+
+        // [GIVEN] Purchase invoice with "Special Scheme Code" = "02", "VAT %" = 21 and total VAT amount = 210
+        PostPurchDocWithSpecialSchemeCode(
+          VendorLedgerEntry, PurchaseHeader."Document Type"::Invoice, 0,
+          PurchaseHeader."Special Scheme Code"::"02 Special System Activities");
+
+        // [WHEN] Create xml for Posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has node "PorcentCompensacionREAGYP" with value "21"
+        FindVATEntryFromVendLedgEntry(VATEntry, VendorLedgerEntry);
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchBaseDetalleIVATok, 'sii:PorcentCompensacionREAGYP', SIIXMLCreator.FormatNumber(VATEntry."VAT %"));
+
+        // [THEN] XML file has node "ImporteCompensacionREAGYP" with value "210"
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchBaseDetalleIVATok, 'sii:ImporteCompensacionREAGYP', SIIXMLCreator.FormatNumber(VATEntry.Amount));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchCrMemoWithSpecialSchemeCode02()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Credit Memo]
+        // [SCENARIO 355791] An xml file of purchase credit memo with the special scheme code "02" contains nodes PorcentCompensacionREAGYP and ImporteCompensacionREAGYP
+
+        Initialize();
+
+        // [GIVEN] Purchase credit memo with "Special Scheme Code" = "02", "VAT %" = 21 and total VAT amount = 210
+        PostPurchDocWithSpecialSchemeCode(
+          VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo", 0,
+          PurchaseHeader."Special Scheme Code"::"02 Special System Activities");
+
+        // [WHEN] Create xml for Posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has node "PorcentCompensacionREAGYP" with value "21"
+        FindVATEntryFromVendLedgEntry(VATEntry, VendorLedgerEntry);
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchBaseDetalleIVATok, 'sii:PorcentCompensacionREAGYP', SIIXMLCreator.FormatNumber(VATEntry."VAT %"));
+
+        // [THEN] XML file has node "ImporteCompensacionREAGYP" with value "210"
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchBaseDetalleIVATok, 'sii:ImporteCompensacionREAGYP', SIIXMLCreator.FormatNumber(VATEntry.Amount));
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then
@@ -787,6 +854,14 @@ codeunit 147559 "SII Complex Rules"
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.CalcSums(Base);
         exit(VATEntry.Base);
+    end;
+
+    local procedure FindVATEntryFromVendLedgEntry(var VATEntry: Record "VAT Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        VATEntry.SetRange("Document Type", VendorLedgerEntry."Document Type");
+        VATEntry.SetRange("Document No.", VendorLedgerEntry."Document No.");
+        VATEntry.SetRange("Posting Date", VendorLedgerEntry."Posting Date");
+        VATEntry.FindFirst();
     end;
 }
 

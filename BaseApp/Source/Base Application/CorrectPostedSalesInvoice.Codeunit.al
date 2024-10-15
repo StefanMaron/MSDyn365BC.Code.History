@@ -227,6 +227,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         CancellingOnly := Cancelling;
 
         SalesInvoiceHeader.CalcFields(Amount);
+        SalesInvoiceHeader.TestField(Amount);
         TestIfPostingIsAllowed(SalesInvoiceHeader);
         TestIfInvoiceIsCorrectedOnce(SalesInvoiceHeader);
         TestIfInvoiceIsNotCorrectiveDoc(SalesInvoiceHeader);

@@ -565,9 +565,9 @@ codeunit 10750 "SII XML Creator"
 
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DesgloseFactura', '', 'sii', SiiTxt, XMLNode);
 
-            AddPurchVATEntriesWithElement(XMLNode, TempVATEntryReverseChargeCalculated, 'InversionSujetoPasivo');
+            AddPurchVATEntriesWithElement(XMLNode, TempVATEntryReverseChargeCalculated, 'InversionSujetoPasivo', RegimeCode);
             FillNoTaxableVATEntriesPurch(TempVATEntryNormalCalculated, VendorLedgerEntry);
-            AddPurchVATEntriesWithElement(XMLNode, TempVATEntryNormalCalculated, 'DesgloseIVA');
+            AddPurchVATEntriesWithElement(XMLNode, TempVATEntryNormalCalculated, 'DesgloseIVA', RegimeCode);
             XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
 
             AddPurchTail(
@@ -606,12 +606,12 @@ codeunit 10750 "SII XML Creator"
         exit(true);
     end;
 
-    local procedure AddPurchVATEntriesWithElement(var XMLNode: DotNet XmlNode; var TempVATEntryCalculated: Record "VAT Entry" temporary; XMLNodeName: Text)
+    local procedure AddPurchVATEntriesWithElement(var XMLNode: DotNet XmlNode; var TempVATEntryCalculated: Record "VAT Entry" temporary; XMLNodeName: Text; RegimeCode: Code[2])
     begin
         if TempVATEntryCalculated.IsEmpty then
             exit;
         XMLDOMManagement.AddElementWithPrefix(XMLNode, XMLNodeName, '', 'sii', SiiTxt, XMLNode);
-        AddPurchVATEntries(XMLNode, TempVATEntryCalculated);
+        AddPurchVATEntries(XMLNode, TempVATEntryCalculated, RegimeCode);
     end;
 
     [Scope('OnPrem')]
@@ -721,13 +721,13 @@ codeunit 10750 "SII XML Creator"
           SIIManagement.VendorIsIntraCommunity(Vendor."No."), false, IDType);
     end;
 
-    local procedure AddPurchVATEntries(var XMLNode: DotNet XmlNode; var TempVATEntry: Record "VAT Entry" temporary)
+    local procedure AddPurchVATEntries(var XMLNode: DotNet XmlNode; var TempVATEntry: Record "VAT Entry" temporary; RegimeCode: Code[2])
     begin
         TempVATEntry.Reset;
         TempVATEntry.SetCurrentKey("VAT %", "EC %");
         if TempVATEntry.FindSet then
             repeat
-                FillDetalleIVANode(XMLNode, TempVATEntry, true, 1, true, 0, '', 'CuotaSoportada');
+                FillDetalleIVANode(XMLNode, TempVATEntry, true, 1, true, 0, RegimeCode, 'CuotaSoportada');
             until TempVATEntry.Next = 0;
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
@@ -1459,9 +1459,9 @@ codeunit 10750 "SII XML Creator"
                       VATEntry, VendNo, VendorLedgerEntry."Posting Date");
                 until VATEntry.Next = 0;
             AddPurchVATEntriesWithElement(
-              XMLNode, TempVATEntryReverseChargeCalculated, 'InversionSujetoPasivo');
+              XMLNode, TempVATEntryReverseChargeCalculated, 'InversionSujetoPasivo', RegimeCode);
             AddPurchVATEntriesWithElement(
-              XMLNode, TempVATEntryNormalCalculated, 'DesgloseIVA');
+              XMLNode, TempVATEntryNormalCalculated, 'DesgloseIVA', RegimeCode);
             XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
             AddPurchTail(
               XMLNode, VendorLedgerEntry."Posting Date", GetRequestDateOfSIIHistoryByVendLedgEntry(VendorLedgerEntry),
@@ -1851,6 +1851,11 @@ codeunit 10750 "SII XML Creator"
         exit(SIIVersion);
     end;
 
+    local procedure IsREAGYPSpecialSchemeCode(VATEntry: Record "VAT Entry"; RegimeCode: Code[2]): Boolean
+    begin
+        exit((VATEntry.Type = VATEntry.Type::Purchase) and (RegimeCode = '02'));
+    end;
+
     local procedure BuildVATEntrySource(var ExemptExists: Boolean; var ExemptionCausePresent: array[10] of Boolean; var ExemptionCode: Option; var ExemptionBaseAmounts: array[10] of Decimal; var VATEntryPerPercent: Record "VAT Entry"; var NonExemptTransactionType: Option S1,S2,S3,Initial; var VATEntry: Record "VAT Entry"; PostingDate: Date; SplitByEUService: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -2181,6 +2186,7 @@ codeunit 10750 "SII XML Creator"
         Amount: Decimal;
         ECPercent: Decimal;
         ECAmount: Decimal;
+        VATPctText: Text;
     begin
         TempVATEntry.SetRange("VAT %", TempVATEntry."VAT %");
         TempVATEntry.SetRange("EC %", TempVATEntry."EC %");
@@ -2202,13 +2208,18 @@ codeunit 10750 "SII XML Creator"
         TempVATEntry.SetRange("VAT %");
         TempVATEntry.SetRange("EC %");
 
+        VATPctText :=
+          FormatNumber(CalcTipoImpositivo(NonExemptTransactionType, RegimeCode, Base, TempVATEntry."VAT %"));
+
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DetalleIVA', '', 'sii', SiiTxt, XMLNode);
-        XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'TipoImpositivo',
-          FormatNumber(CalcTipoImpositivo(NonExemptTransactionType, RegimeCode, Base, TempVATEntry."VAT %")),
-          'sii', SiiTxt, TempXmlNode);
+        if not IsREAGYPSpecialSchemeCode(TempVATEntry, RegimeCode) then
+            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoImpositivo', VATPctText, 'sii', SiiTxt, TempXmlNode);
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'BaseImponible', FormatNumber(Base), 'sii', SiiTxt, TempXmlNode);
+        if IsREAGYPSpecialSchemeCode(TempVATEntry, RegimeCode) then begin
+            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'PorcentCompensacionREAGYP', VATPctText, 'sii', SiiTxt, TempXmlNode);
+            AmountNodeName := 'ImporteCompensacionREAGYP';
+        end;
         OnBeforeAddLineAmountElement(TempVATEntry, AmountNodeName, Amount);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, AmountNodeName, FormatNumber(Amount), 'sii', SiiTxt, TempXmlNode);
         if (ECPercent <> 0) and FillEUServiceNodes then

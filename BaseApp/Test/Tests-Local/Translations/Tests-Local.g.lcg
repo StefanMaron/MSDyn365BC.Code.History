@@ -3704,6 +3704,15 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit SII Complex Rules - NamedType XPathSalesBaseDetalleIVATok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 558707882 - NamedType 178126109" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:DesgloseFactura/sii:DesgloseIVA/sii:DetalleIVA/]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Complex Rules - NamedType XPathPurchBaseDetalleIVATok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3173997497 - NamedType 3521925554" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must not exist]]></Val>

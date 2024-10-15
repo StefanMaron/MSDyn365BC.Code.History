@@ -801,6 +801,9 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                 AddColumnValue(ColumnLayout, Amount);
                 Modify;
             end;
+            SetRange("Account Schedule Name");
+            SetRange("KPI Code");
+            SetRange("Dimension Set ID");
         end;
     end;
 

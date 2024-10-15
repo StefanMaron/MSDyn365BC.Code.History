@@ -28,6 +28,9 @@ report 4 "Detail Trial Balance"
             column(PageGroupNo; PageGroupNo)
             {
             }
+            column(PrintOnlyOnePerPage; PrintOnlyOnePerPage)
+            {
+            }
             column(PrintClosingEntries; PrintClosingEntries)
             {
             }
