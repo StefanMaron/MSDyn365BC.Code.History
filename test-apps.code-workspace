@@ -96,6 +96,9 @@
       "path": "./Email - Outlook REST API/Test"
     },
     {
+      "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
+    },
+    {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
     },
     {

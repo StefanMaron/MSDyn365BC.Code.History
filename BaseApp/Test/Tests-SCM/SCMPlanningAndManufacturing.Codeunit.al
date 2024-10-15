@@ -2319,6 +2319,33 @@ codeunit 137080 "SCM Planning And Manufacturing"
         VerifyBinCodeOnPlanningComponent(ComponentItems[3], Bins[4].Code);
     end;
 
+    [Test]
+    procedure VerifyStartingTimeInRoutingWithSendAheadQtyOnReleasedProductionOrder()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+    begin
+        // [SCENARIO 471307] Verify Starting Time in Routing with Send Ahead Qty. on Released Production Order
+        Initialize();
+
+        // [GIVEN] Create Work Center with Calendar
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create Routing with Send Ahead
+        CreateRoutingWithSendahead(RoutingHeader, WorkCenter."No.", 1, 1, 1, 1, 2);
+
+        // [GIVEN] Create Prod. Order Item with Routing No.
+        CreateLotProdMakeToOrderItemWithRoutingNo(Item, RoutingHeader."No.");
+
+        // [WHEN] Create and Release Production Order
+        CreateAndRefreshReleasedProductionOrderWithQty(ProductionOrder, Item."No.", 10);
+
+        // [THEN] Verify Results
+        VefiryTimeBetweenOperations(ProductionOrder."No.");
+    end;
+
     local procedure Initialize()
     var
         PlanningErrorLog: Record "Planning Error Log";
@@ -2657,6 +2684,31 @@ codeunit 137080 "SCM Planning And Manufacturing"
     begin
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, RoutingLine.Type::"Work Center", WorkCenterNo);
         RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Send-Ahead Quantity", SendaheadQuantity);
+        RoutingLine.Modify(true);
+    end;
+
+    local procedure CreateRoutingWithSendahead(var RoutingHeader: Record "Routing Header"; WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal; SendaheadQuantity: Decimal)
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLineWithSendahead(RoutingHeader, '10', WorkCenterNo, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQuantity);
+        CreateRoutingLineWithSendahead(RoutingHeader, '20', WorkCenterNo, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQuantity);
+        CreateRoutingLineWithSendahead(RoutingHeader, '30', WorkCenterNo, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQuantity);
+        CreateRoutingLineWithSendahead(RoutingHeader, '40', WorkCenterNo, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQuantity);
+        CreateRoutingLineWithSendahead(RoutingHeader, '50', WorkCenterNo, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQuantity);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateRoutingLineWithSendahead(var RoutingHeader: Record "Routing Header"; OperationNo: Code[10]; WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal; SendaheadQuantity: Decimal)
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, RoutingLine.Type::"Work Center", WorkCenterNo);
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Wait Time", WaitTime);
+        RoutingLine.Validate("Move Time", MoveTime);
         RoutingLine.Validate("Send-Ahead Quantity", SendaheadQuantity);
         RoutingLine.Modify(true);
     end;
@@ -3588,6 +3640,25 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ManufacturingSetup.Get();
         ManufacturingSetup."Components at Location" := LocationCode;
         ManufacturingSetup.Modify(true);
+    end;
+
+    local procedure VefiryTimeBetweenOperations(ProdOrderNo: Code[20])
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        StartingTime: Time;
+        Difference: Integer;
+    begin
+        Difference := 300000;
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderRoutingLine.FindSet();
+        repeat
+            if StartingTime = 0T then
+                StartingTime := ProdOrderRoutingLine."Starting Time"
+            else begin
+                Assert.AreEqual(Difference, ProdOrderRoutingLine."Starting Time" - StartingTime, '');
+                StartingTime := ProdOrderRoutingLine."Starting Time";
+            end;
+        until ProdOrderRoutingLine.Next() = 0;
     end;
 
     [ConfirmHandler]

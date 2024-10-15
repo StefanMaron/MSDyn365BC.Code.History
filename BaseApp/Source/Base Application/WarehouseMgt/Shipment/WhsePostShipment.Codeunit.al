@@ -380,6 +380,7 @@
                         OnInitSourceDocumentHeaderOnBeforeServiceHeaderUpdatePostingDate(ServiceHeader, WhseShptHeader, WhseShptLine, ValidatePostingDate, ModifyHeader, IsHandled);
                         if not IsHandled then
                             if (ServiceHeader."Posting Date" = 0D) or (ServiceHeader."Posting Date" <> WhseShptHeader."Posting Date") then begin
+                                ReleaseServiceDocument.SetSkipWhseRequestOperations(true);
                                 ReleaseServiceDocument.Reopen(ServiceHeader);
                                 ServiceHeader.SetHideValidationDialog(true);
                                 ServiceHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
@@ -1473,6 +1474,7 @@
                             ServLine.Validate("Qty. to Consume", 0);
                         end;
                     end;
+                    OnBeforeServiceLineModify(ServLine, WhseShptLine, ModifyLine, Invoice);
                     if ModifyLine then
                         ServLine.Modify();
                 until ServLine.Next() = 0;
@@ -2230,6 +2232,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentOnBeforePostPurchHeader(var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean; SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceLineModify(var ServiceLine: Record "Service Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyLine: Boolean; Invoice: Boolean)
     begin
     end;
 }

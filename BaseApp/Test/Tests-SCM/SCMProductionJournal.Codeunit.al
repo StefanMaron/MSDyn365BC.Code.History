@@ -755,6 +755,7 @@ codeunit 137034 "SCM Production Journal"
         RoutingHeader: Record "Routing Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        WorkCenter: Record "Work Center";
         ItemNo: Code[20];
         OperationNo: Code[10];
     begin
@@ -763,7 +764,10 @@ codeunit 137034 "SCM Production Journal"
         Initialize();
 
         CreateBinMandatoryProductionLocation(Location);
-        OperationNo := CreateRoutingSetup(RoutingHeader);
+        CreateWorkCenter(WorkCenter);
+        WorkCenter."Subcontractor No." := '';
+        WorkCenter.Modify();
+        OperationNo := CreateRoutingSetup(RoutingHeader, WorkCenter);
 
         // [GIVEN] Item "I" with specified routing "R" of 2 operations
         ItemNo := CreateItemWithRouting(RoutingHeader."No.");
@@ -996,6 +1000,7 @@ codeunit 137034 "SCM Production Journal"
         ProductionOrder: Record "Production Order";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         ItemJournalLine: Record "Item Journal Line";
+        WorkCenter: Record "Work Center";
         OperationNo: Code[10];
     begin
         // [FEATURE] [Routing] [Production Order]
@@ -1004,7 +1009,10 @@ codeunit 137034 "SCM Production Journal"
         Initialize();
 
         // [GIVEN] Released production order "P"
-        CreateAndRefreshReleasedProdOrderWithNewItemAndRouting(ProductionOrder, OperationNo);
+        CreateWorkCenter(WorkCenter);
+        WorkCenter."Subcontractor No." := '';
+        WorkCenter.Modify();
+        CreateAndRefreshReleasedProdOrderWithNewItemAndRouting(ProductionOrder, OperationNo, WorkCenter);
 
         // [GIVEN] The first routing operation "100" for the production order "P" is finished
         LibraryVariableStorage.Enqueue(true);
@@ -1580,6 +1588,16 @@ codeunit 137034 "SCM Production Journal"
         CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, ItemNo);
     end;
 
+    local procedure CreateAndRefreshReleasedProdOrderWithNewItemAndRouting(var ProductionOrder: Record "Production Order"; var OperationNo: Code[10]; WorkCenter: Record "Work Center")
+    var
+        RoutingHeader: Record "Routing Header";
+        ItemNo: Code[20];
+    begin
+        OperationNo := CreateRoutingSetup(RoutingHeader, WorkCenter);
+        ItemNo := CreateItemWithRouting(RoutingHeader."No.");
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, ItemNo);
+    end;
+
     local procedure CreateAndPostOutputJournal(ProductionOrderNo: Code[20]; OperationNo: Code[10]; ParentItemNo: Code[20]; LocationCode: Code[10]; FromProductionBinCode: Code[20])
     var
         ItemJournalTemplate: Record "Item Journal Template";
@@ -1642,6 +1660,20 @@ codeunit 137034 "SCM Production Journal"
         RoutingLine: Record "Routing Line";
     begin
         CreateWorkCenter(WorkCenter);
+        CreateMachineCenter(MachineCenter, WorkCenter."No.");
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");
+        OperationNo := RoutingLine."Operation No.";
+        RoutingLine.Type := RoutingLine.Type::"Machine Center";
+        CreateRoutingLine(RoutingLine, RoutingHeader, MachineCenter."No.");
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
+    local procedure CreateRoutingSetup(var RoutingHeader: Record "Routing Header"; WorkCenter: Record "Work Center") OperationNo: Code[10]
+    var
+        MachineCenter: Record "Machine Center";
+        RoutingLine: Record "Routing Line";
+    begin
         CreateMachineCenter(MachineCenter, WorkCenter."No.");
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.");

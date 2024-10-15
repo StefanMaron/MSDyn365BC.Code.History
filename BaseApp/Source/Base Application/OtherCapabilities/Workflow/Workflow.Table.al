@@ -653,8 +653,13 @@ table 1501 Workflow
     end;
 
     procedure CheckEditingIsAllowed()
+    var
+        WorkflowSetup: Codeunit "Workflow Setup";
+        AllowEditTemplate: Boolean;
     begin
-        if Template then
+        WorkflowSetup.OnAllowEditOfWorkflowTemplates(AllowEditTemplate);
+
+        if Template and (not AllowEditTemplate) then
             Error(CannotEditTemplateWorkflowErr);
         if Enabled then
             Error(CannotEditEnabledWorkflowErr);
@@ -727,6 +732,8 @@ table 1501 Workflow
     procedure CanDelete(ThrowErrors: Boolean): Boolean
     var
         WorkflowStepInstance: Record "Workflow Step Instance";
+        WorkflowSetup: Codeunit "Workflow Setup";
+        AllowDeleteTemplate: Boolean;
     begin
         if Enabled then
             exit(ThrowOrReturnFalse(ThrowErrors, CannotDeleteEnabledWorkflowErr));
@@ -736,7 +743,8 @@ table 1501 Workflow
         if not WorkflowStepInstance.IsEmpty() then
             exit(ThrowOrReturnFalse(ThrowErrors, CannotDeleteWorkflowWithActiveInstancesErr));
 
-        if Template then
+        WorkflowSetup.OnAllowEditOfWorkflowTemplates(AllowDeleteTemplate);
+        if Template and not (AllowDeleteTemplate) then
             exit(ThrowOrReturnFalse(ThrowErrors, CannotDeleteWorkflowTemplatesErr));
 
         exit(true);

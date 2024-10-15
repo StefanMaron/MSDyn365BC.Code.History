@@ -158,6 +158,7 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesHeader.Get(TargetRecordRef.RecordId());
         SalesHeader.CopySellToAddressToBillToAddress();
         SalesHeader.SetDefaultPaymentServices();
+        SetShortcutDimensions(SalesHeader, SalesOrderEntityBuffer, TempFieldBuffer);
         SalesHeader.Modify(true);
 
         SalesOrderEntityBuffer."No." := SalesHeader."No.";
@@ -611,6 +612,17 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
             exit(true);
 
         exit(false);
+    end;
+
+    local procedure SetShortcutDimensions(var SalesHeader: Record "Sales Header"; SalesOrderEntityBuffer: Record "Sales Order Entity Buffer"; var TempFieldBuffer: Record "Field Buffer" temporary)
+    begin
+        TempFieldBuffer.SetRange("Table ID", Database::"Sales Invoice Entity Aggregate");
+        TempFieldBuffer.SetRange("Field ID", SalesOrderEntityBuffer.FieldNo("Shortcut Dimension 1 Code"));
+        if not TempFieldBuffer.IsEmpty() then
+            SalesHeader.Validate("Shortcut Dimension 1 Code", SalesOrderEntityBuffer."Shortcut Dimension 1 Code");
+        TempFieldBuffer.SetRange("Field ID", SalesOrderEntityBuffer.FieldNo("Shortcut Dimension 2 Code"));
+        if not TempFieldBuffer.IsEmpty() then
+            SalesHeader.Validate("Shortcut Dimension 2 Code", SalesOrderEntityBuffer."Shortcut Dimension 2 Code");
     end;
 }
 

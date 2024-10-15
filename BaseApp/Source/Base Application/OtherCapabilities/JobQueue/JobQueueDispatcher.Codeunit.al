@@ -223,7 +223,7 @@ codeunit 448 "Job Queue Dispatcher"
             RunOnDate[5] := "Run on Fridays";
             RunOnDate[6] := "Run on Saturdays";
             RunOnDate[7] := "Run on Sundays";
-
+            OnCalcRunTimeForRecurringJobOnAfterInitDays(JobQueueEntry, StartingDateTime);
             NewRunDateTime := StartingDateTime;
             NoOfDays := 0;
             if ("Ending Time" <> 0T) and (NewRunDateTime > GetEndingDateTime(NewRunDateTime)) then begin
@@ -233,6 +233,7 @@ codeunit 448 "Job Queue Dispatcher"
 
             StartingWeekDay := Date2DWY(DT2Date(StartingDateTime), 1);
             Found := RunOnDate[(StartingWeekDay - 1 + NoOfDays) mod 7 + 1];
+            OnCalcRunTimeForRecurringJob(JobQueueEntry, RunOnDate, Found, StartingWeekDay, NoOfDays);
             NoOfExtraDays := 0;
             while not Found and (NoOfExtraDays < 7) do begin
                 NoOfExtraDays := NoOfExtraDays + 1;
@@ -369,6 +370,16 @@ codeunit 448 "Job Queue Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnRescheduleOnBeforeJobQueueEnqueue(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRunTimeForRecurringJobOnAfterInitDays(var JobQueueEntry: Record "Job Queue Entry"; var StartingDateTime: DateTime)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRunTimeForRecurringJob(var JobQueueEntry: Record "Job Queue Entry"; var RunOnDate: array[7] of Boolean; var Found: Boolean; var StartingWeekDay: Integer; var NoOfDays: Integer)
     begin
     end;
 }

@@ -206,8 +206,9 @@ table 14 Location
                         Error(Text008, FieldCaption("Require Pick"), true, WhseActivHeader.TableCaption());
                     "Use Cross-Docking" := false;
                     "Cross-Dock Bin Code" := '';
-                    "Pick According to FEFO" := false;
                 end;
+                if not Rec.PickAccordingToFEFO() then
+                    Rec."Pick According to FEFO" := false;
             end;
         }
         field(5728; "Cross-Dock Due Date Calc."; DateFormula)
@@ -340,6 +341,9 @@ table 14 Location
                     if WhseEntry."Qty. (Base)" <> 0 then
                         Error(Text002, FieldCaption("Bin Mandatory"));
                 end;
+
+                if not Rec.PickAccordingToFEFO() then
+                    Rec."Pick According to FEFO" := false;
 
                 if not "Bin Mandatory" then begin
                     "Open Shop Floor Bin Code" := '';
@@ -972,6 +976,11 @@ table 14 Location
         end;
 
         FindFirst();
+    end;
+
+    procedure PickAccordingToFEFO(): Boolean
+    begin
+        exit(Rec."Require Pick" and ((Rec."Require Shipment" and Rec."Bin Mandatory") or (not Rec."Require Shipment")));
     end;
 
     [IntegrationEvent(false, false)]

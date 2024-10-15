@@ -2057,7 +2057,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeLookupContactList(Rec, IsHandled);
+        OnBeforeLookupContactList(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -2601,16 +2601,18 @@
         Customer.SetFilter("Post Code", CustomerFilterContains);
         OnGetCustNoOpenCardOnAfterSetCustomerFilters(Customer, CustomerFilterContains);
 
-        if Customer.Count = 0 then
+        if Customer.Count() = 0 then
             MarkCustomersWithSimilarName(Customer, CustomerText);
 
-        if Customer.Count = 1 then begin
+        if Customer.Count() = 1 then begin
             Customer.FindFirst();
             exit(Customer."No.");
         end;
 
-        if not GuiAllowed then
+        if not GuiAllowed() then
             Error(SelectCustErr);
+
+        OnGetCustNoOpenCardOnAfterMarkCustomersWithSimilarName(Customer);
 
         if Customer.Count = 0 then begin
             if Customer.WritePermission then
@@ -2836,6 +2838,7 @@
           ("Country/Region Code" <> xRec."Country/Region Code") or
           ("Fax No." <> xRec."Fax No.") or
           ("Telex Answer Back" <> xRec."Telex Answer Back") or
+          ("Registration Number" <> xRec."Registration Number") or
           ("VAT Registration No." <> xRec."VAT Registration No.") or
           ("Post Code" <> xRec."Post Code") or
           (County <> xRec.County) or
@@ -3459,7 +3462,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupContactList(var Customer: Record Customer; var IsHandled: Boolean)
+    local procedure OnBeforeLookupContactList(var Customer: Record Customer; var IsHandled: Boolean; FieldNumber: Integer)
     begin
     end;
 
@@ -3595,6 +3598,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAllowMultiplePostingGroups(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustNoOpenCardOnAfterMarkCustomersWithSimilarName(var Customer: Record Customer)
     begin
     end;
 }

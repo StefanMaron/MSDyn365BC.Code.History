@@ -339,7 +339,14 @@ codeunit 1509 "Notification Entry Dispatcher"
         OverdueApprovalEntry: Record "Overdue Approval Entry";
         DataTypeManagement: Codeunit "Data Type Management";
         RecRef: RecordRef;
+        IsOutdated, IsHandled : Boolean;
     begin
+        IsOutdated := false;
+        IsHandled := false;
+        OnBeforeApprovalNotificationEntryIsOutdated(NotificationEntry, IsOutdated, IsHandled);
+        if IsHandled then
+            exit(IsOutdated);
+
         if not DataTypeManagement.GetRecordRef(NotificationEntry."Triggered By Record", RecRef) then
             exit(true); // if no approval entry in RecRef, mark entry as outdated
 
@@ -433,6 +440,11 @@ codeunit 1509 "Notification Entry Dispatcher"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetHTMLBodyTextOnAfterSetTempLayoutCode(var NotificationEntry: Record "Notification Entry"; var BodyTextOut: Text; var TempLayoutCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApprovalNotificationEntryIsOutdated(var NotificationEntry: Record "Notification Entry"; var IsOutdated: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -74,6 +74,7 @@ codeunit 1250 "Match General Journal Lines"
                 if Score > 5 then
                     TempBankStatementMatchingBuffer.AddMatchCandidate(GenJournalLine."Line No.", CustLedgerEntry."Entry No.", Score,
                       TempBankStatementMatchingBuffer."Account Type"::Customer, CustLedgerEntry."Customer No.");
+                OnFindMatchingCustEntryOnAfterMatch(TempBankStatementMatchingBuffer, CustLedgerEntry, GenJournalLine, Score);
             until GenJournalLine.Next() = 0;
     end;
 
@@ -107,6 +108,7 @@ codeunit 1250 "Match General Journal Lines"
                 if Score > 5 then
                     TempBankStatementMatchingBuffer.AddMatchCandidate(GenJournalLine."Line No.", VendorLedgerEntry."Entry No.", Score,
                       TempBankStatementMatchingBuffer."Account Type"::Vendor, VendorLedgerEntry."Vendor No.");
+                OnFindMatchingVendorEntryOnAfterMatch(TempBankStatementMatchingBuffer, VendorLedgerEntry, GenJournalLine, Score);
             until GenJournalLine.Next() = 0;
     end;
 
@@ -212,7 +214,7 @@ codeunit 1250 "Match General Journal Lines"
         TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetCurrentKey(Quality);
         TempBankStatementMatchingBuffer.Ascending(false);
-
+        OnSaveOneToOneMatchingOnBeforeTempBankStatementMatchingBufferFindSet(TempBankStatementMatchingBuffer);
         if TempBankStatementMatchingBuffer.FindSet() then
             repeat
                 GenJournalLine.Get(GenJournalBatch."Journal Template Name",
@@ -333,6 +335,7 @@ codeunit 1250 "Match General Journal Lines"
         AdditionalText: Text;
         TotalCount: Integer;
         MatchedCount: Integer;
+        IsHandled: Boolean;
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
@@ -346,7 +349,10 @@ codeunit 1250 "Match General Journal Lines"
         if MatchedCount < TotalCount then
             AdditionalText := StrSubstNo(MissingMatchMsg, Format(GetMatchLengthTreshold()));
         FinalText := StrSubstNo(MatchSummaryMsg, MatchedCount, TotalCount) + AdditionalText;
-        Message(FinalText);
+        IsHandled := false;
+        OnShowMatchSummaryOnAfterSetFinalText(GenJournalBatch, FinalText, IsHandled);
+        if not IsHandled then
+            Message(FinalText);
     end;
 
     local procedure GetMatchScore(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; CustVendorNo: Code[20]; ExternalDocNo: Code[35]; CustVendorName: Text[100]; RemainingAmountLCY: Decimal; PreferredSign: Integer; EntryPostingDate: Date): Integer
@@ -453,6 +459,26 @@ codeunit 1250 "Match General Journal Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetAccountMappingOnBeforeCalculateStringNearness(var TextToAccMapping: Record "Text-to-Account Mapping"; Description: Text; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowMatchSummaryOnAfterSetFinalText(var GenJournalBatch: Record "Gen. Journal Batch"; FinalText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindMatchingCustEntryOnAfterMatch(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; Score: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindMatchingVendorEntryOnAfterMatch(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; Score: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveOneToOneMatchingOnBeforeTempBankStatementMatchingBufferFindSet(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary);
     begin
     end;
 }

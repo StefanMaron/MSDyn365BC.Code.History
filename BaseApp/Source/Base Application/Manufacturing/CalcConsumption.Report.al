@@ -301,7 +301,7 @@ report 5405 "Calc. Consumption"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssignItemTracking(ProdOrderComponent: Record "Prod. Order Component"; ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeAssignItemTracking(var ProdOrderComponent: Record "Prod. Order Component"; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
