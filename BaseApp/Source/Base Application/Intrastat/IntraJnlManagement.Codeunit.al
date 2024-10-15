@@ -304,10 +304,7 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
-        CreateAdvancedChecklistFieldSetup(
-            ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), 'Type: Shipment, Counterparty: True');
-        CreateAdvancedChecklistFieldSetupFull(
-            ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), 'Type: Shipment, Counterparty: True', true);
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Item No."), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transport Method"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Net Weight"), '');
@@ -322,8 +319,7 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
-        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), 'Type: Shipment');
-        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), 'Type: Receipt');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Shipment');
     end;

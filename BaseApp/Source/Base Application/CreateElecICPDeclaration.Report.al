@@ -29,11 +29,11 @@ report 11404 "Create Elec. ICP Declaration"
                         CalcSums(Base);
 
                         if Abs(Base) >= 1 then begin
-                            "Elec. Tax Declaration Header".InsertLine(0, 1, CurrentType, '');
                             if CountryRegion.Get("Country/Region Code") then
                                 CountryRegionCode := CountryRegion."EU Country/Region Code";
 
                             if CountryRegionCode <> '' then begin
+                                "Elec. Tax Declaration Header".InsertLine(0, 1, CurrentType, '');
                                 InsertDataLine("Elec. Tax Declaration Header", 2, 'bd-i:CountryCodeISO-EC',
                                   CopyStr(CountryRegionCode, 1, 2), '', 'Msg', '');
 
@@ -245,7 +245,7 @@ report 11404 "Create Elec. ICP Declaration"
         Res := DelChr(AppVersion, '=', DelChr(AppVersion, '=', '0123456789'));
         exit(CopyStr(Res, 1, 2));
     end;
-    
+
     local procedure InsertDataLine(var ElecTaxDeclHeader: Record "Elec. Tax Declaration Header"; Indentation: Integer; elementName: Text[80]; value: Text[250]; decimalType: Text[20]; contextRef: Text[20]; unitRef: Text[20])
     begin
         ElecTaxDeclHeader.InsertLine(0, Indentation, elementName, value);

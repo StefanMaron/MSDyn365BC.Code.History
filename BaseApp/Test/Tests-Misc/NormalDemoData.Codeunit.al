@@ -282,7 +282,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
         ReportId: Integer;
     begin
-        Assert.RecordCount(AdvancedIntrastatChecklist, 34);
+        Assert.RecordCount(AdvancedIntrastatChecklist, 30);
 
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Checklist");
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Form");
@@ -299,10 +299,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
-        AdvancedIntrastatChecklistField(
-            ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), 'Type: Shipment, Counterparty: Yes');
-        AdvancedIntrastatChecklistFieldFull(
-            ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), 'Type: Shipment, Counterparty: Yes', true);
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), '');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Shipment');
     end;
@@ -314,8 +311,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), 'Type: Shipment');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), 'Type: Receipt');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), '');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Shipment');
     end;

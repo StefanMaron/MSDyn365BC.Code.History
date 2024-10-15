@@ -121,6 +121,12 @@ report 501 "Intrastat - Form"
                 column(NoOfRecordsCaption; NoOfRecordsCaptionLbl)
                 {
                 }
+                column(TransactionSpecificationCaption; FieldCaption("Transaction Specification"))
+                {
+                }
+                column(IntraJnlLine_TransactionSpecification; "Transaction Specification")
+                {
+                }
 
                 trigger OnAfterGetRecord()
                 begin

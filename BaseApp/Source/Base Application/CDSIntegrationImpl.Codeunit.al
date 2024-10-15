@@ -743,6 +743,10 @@ codeunit 7201 "CDS Integration Impl."
         TempConnectionName: Text;
         ChangedToNonInteractive: Boolean;
     begin
+        // User non-interactive mode is not supported on CRM OnPrem, therefore if authentication type is AD or IFD, do nothing
+        if CDSConnectionSetup."Authentication Type" in [CDSConnectionSetup."Authentication Type"::AD, CDSConnectionSetup."Authentication Type"::IFD] then
+            exit(false);
+
         Session.LogMessage('0000B2I', SetAccessModeToNonInteractiveTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
         GetTempAdminConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AdminUserName, AdminPassword, AccessToken);

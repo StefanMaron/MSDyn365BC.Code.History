@@ -310,6 +310,9 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         XMLParent: DotNet XmlNode;
         AddrLine: array[3] of Text[70];
         UnstructuredRemitInfo: Text[250];
+        StreetName: Text[70];
+        PostalCode: Text[16];
+        TownName: Text[35];
         Amount: Decimal;
         CurrencyCode: Code[10];
     begin
@@ -360,8 +363,22 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
             AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
             XMLNodeCurr := XMLNewChild;
 
+            if Worldpayment then begin
+                StreetName := CopyStr(PaymentHistoryLine."Account Holder Address", 1, MaxStrLen(StreetName));
+                PostalCode := CopyStr(PaymentHistoryLine."Account Holder Post Code", 1, MaxStrLen(PostalCode));
+                TownName := CopyStr(PaymentHistoryLine."Account Holder City", 1, MaxStrLen(TownName));
+
+                if StreetName <> '' then
+                    AddElement(XMLNodeCurr, 'StrtNm', StreetName, '', XMLNewChild);
+                if PostalCode <> '' then
+                    AddElement(XMLNodeCurr, 'PstCd', PostalCode, '', XMLNewChild);
+                if TownName <> '' then
+                    AddElement(XMLNodeCurr, 'TwnNm', TownName, '', XMLNewChild);
+            end;
+
             if AddrLine[1] <> '' then
                 AddElement(XMLNodeCurr, 'Ctry', AddrLine[1], '', XMLNewChild);
+
             if not Worldpayment then begin
                 if AddrLine[2] <> '' then
                     AddElement(XMLNodeCurr, 'AdrLine', AddrLine[2], '', XMLNewChild);
