@@ -3065,7 +3065,15 @@
         Validate("Job No.", '');
     end;
 
+#if not CLEAN22
+    [Obsolete('Renaming the global procedure to GetSkipTaxCalculation():Boolean', '22.0')]
     procedure CanCalculateTax(): Boolean
+    begin
+        exit(SkipTaxCalculation);
+    end;
+#endif
+
+    procedure GetSkipTaxCalculation(): Boolean
     begin
         exit(SkipTaxCalculation);
     end;
