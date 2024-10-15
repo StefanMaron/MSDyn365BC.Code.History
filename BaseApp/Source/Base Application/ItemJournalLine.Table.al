@@ -1113,7 +1113,8 @@
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
 
                 if "Variant Code" <> xRec."Variant Code" then begin
-                    "Bin Code" := '';
+                    if "Entry Type" <> "Entry Type"::Output then
+                        "Bin Code" := '';
                     if (CurrFieldNo <> 0) and Item.IsInventoriableType() then
                         WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Variant Code"));
                     if ("Location Code" <> '') and ("Item No." <> '') then begin
@@ -2308,7 +2309,7 @@
         FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
         SalesBlockedErr: Label 'You cannot sell this item because the Sales Blocked check box is selected on the item card.';
         PurchasingBlockedErr: Label 'You cannot purchase this item because the Purchasing Blocked check box is selected on the item card.';
-        BlockedErr: Label 'You cannot purchase this item because the Blocked check box is selected on the item card.';
+        BlockedErr: Label 'You cannot choose item number %1 because the Blocked check box is selected on its item card.', Comment = '%1 - Item No.';
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
 
@@ -3891,7 +3892,7 @@
             exit;
 
         if Item.Blocked then
-            Error(BlockedErr);
+            Error(BlockedErr, Item."No.");
 
         if "Item Charge No." <> '' then
             exit;

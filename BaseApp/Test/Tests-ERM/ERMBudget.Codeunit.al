@@ -2387,6 +2387,37 @@ codeunit 134922 "ERM Budget"
         BudgetNamesSales.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ImportItemBudgetfromExcelRequestPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ItemBudgetToExcelImportComplexItemFilter()
+    var
+        ItemBudgetName: Record "Item Budget Name";
+        FileName: Text;
+        ItemNo: array[3] of Code[20];
+        i: Integer;
+        ItemFilter: Text;
+    begin
+        // [FEATURE] [Item Budget]
+        // [SCENARIO 428920] Item budget imported without error if it contains complex item filter
+        Initialize();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
+        // [GIVEN] Items I1, I2, I3
+        for i := 1 to 3 do
+            ItemNo[i] := CreateShortNoItem(i);
+
+        // [GIVEN] Item budged "IB"
+        LibraryERM.CreateItemBudgetName(ItemBudgetName, "Analysis Area Type"::Sales);
+        // [GIVEN] Export item budget to excel with item filter "I1..I2|I3"
+        ItemFilter := StrSubstNo('%1..%2|%3', ItemNo[1], ItemNo[2], ItemNo[3]);
+        FileName := RunExportItemBudgetToExcel(ItemBudgetName, ItemFilter);
+
+        // [WHEN] Import created file
+        RunImportItemBudgetFromExcel(ItemBudgetName, FileName);
+        // [THEN] No "The filter expression applied..." error
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2565,6 +2596,50 @@ codeunit 134922 "ERM Budget"
         BusinessUnit.Init();
         BusinessUnit.Validate(Code, LibraryUtility.GenerateRandomCode20(BusinessUnit.FieldNo(Code), DATABASE::"Business Unit"));
         BusinessUnit.Insert(true);
+    end;
+
+    local procedure CreateShortNoItem(i: Integer): Code[20]
+    var
+        Item: Record Item;
+    begin
+        if not Item.Get(Format(i)) then begin
+            Item."No." := Format(i);
+            Item.Insert(true);
+        end;
+
+        exit(Item."No.");
+    end;
+
+    local procedure RunExportItemBudgetToExcel(ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text) FileName: Text
+    var
+        ExportItemBudgettoExcel: Report "Export Item Budget to Excel";
+    begin
+        LibraryReportValidation.SetFileName(ItemBudgetName.Name);
+        FileName := LibraryReportValidation.GetFileName();
+
+        ExportItemBudgetToExcel.SetParameters(
+            ItemBudgetName."Analysis Area",
+            ItemBudgetName.Name,
+            "Item Analysis Value Type"::"Sales Amount",
+            '', '',
+            '', '', '',
+            Format(WorkDate()),
+            "Analysis Source Type"::Item, '',
+            ItemFilter,
+            '', true, "Analysis Period Type"::Day,
+            "Item Budget Dimension Type"::Item, "Item Budget Dimension Type"::Period, '', '', "Analysis Rounding Factor"::None);
+        ExportItemBudgetToExcel.SetFileNameSilent(FileName);
+        ExportItemBudgetToExcel.Run();
+    end;
+
+    local procedure RunImportItemBudgetFromExcel(ItemBudgetName: Record "Item Budget Name"; FileName: Text)
+    var
+        ImportItemBudgetFromExcel: Report "Import Item Budget from Excel";
+    begin
+        Commit();
+        ImportItemBudgetFromExcel.SetParameters(ItemBudgetName.Name, ItemBudgetName."Analysis Area".AsInteger(), "Item Analysis Value Type"::"Sales Amount".AsInteger());
+        ImportItemBudgetFromExcel.SetFileNameSilent(FileName);
+        ImportItemBudgetFromExcel.RunModal();
     end;
 
     local procedure UpdateAnalysisView(var AnalysisView: Record "Analysis View"; FirstChangedGLBudgetEntryNo: Integer)
@@ -3582,6 +3657,13 @@ codeunit 134922 "ERM Budget"
         Budget.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
         Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
         Sleep(200);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ImportItemBudgetfromExcelRequestPageHandler(var ImportItemBudgetfromExcel: TestRequestPage "Import Item Budget from Excel")
+    begin
+        ImportItemBudgetfromExcel.OK().Invoke();
     end;
 
     [ModalPageHandler]

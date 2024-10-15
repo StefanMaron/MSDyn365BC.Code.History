@@ -3879,9 +3879,7 @@
             // we don't clean "Applies-to ID" field here as it is required later for post posting processing in COD 13 / WHT functionality.
             if not GLSetup."Enable WHT" then
                 OldVendLedgEntry."Applies-to ID" := '';
-            OldVendLedgEntry."EFT Register No." := 0;
             OldVendLedgEntry."EFT Amount Transferred" := 0;
-            OldVendLedgEntry."EFT Bank Account No." := '';
             OnApplyVendLedgEntryOnBeforeOldVendLedgEntryModify(GenJnlLine, OldVendLedgEntry, NewCVLedgEntryBuf);
             OldVendLedgEntry.Modify();
 
@@ -4152,9 +4150,7 @@
             OnVendPostApplyVendLedgEntryOnAfterApplyVendLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf);
             VendLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
             VendLedgEntry."Applies-to ID" := '';
-            VendLedgEntry."EFT Register No." := 0;
             VendLedgEntry."EFT Amount Transferred" := 0;
-            VendLedgEntry."EFT Bank Account No." := '';
             VendLedgEntry.Modify(true);
 
             SourceCodeSetup.Get();
@@ -6016,9 +6012,7 @@
             VendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
             VendLedgEntry."Pmt. Tolerance (LCY)" := 0;
         end;
-        VendLedgEntry."EFT Register No." := 0;
         VendLedgEntry."EFT Amount Transferred" := 0;
-        VendLedgEntry."EFT Bank Account No." := '';
 
         OnBeforeVendLedgEntryModify(VendLedgEntry, DtldVendLedgEntry);
         VendLedgEntry.Modify();

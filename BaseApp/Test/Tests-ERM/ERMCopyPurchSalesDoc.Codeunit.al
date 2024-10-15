@@ -3575,6 +3575,64 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Assert.IsFalse(PurchaseHeaderOrder.Find(), '');
     end;
 
+    [Test]
+    procedure CopyDropShipmentFromSalesQuote()
+    var
+        FromSalesHeader: Record "Sales Header";
+        FromSalesLine: Record "Sales Line";
+        ToSalesHeader: Record "Sales Header";
+        ToSalesLine: Record "Sales Line";
+        PurchasingCode: Code[10];
+    begin
+        // [FEATURE] [Sales] [Quote] [Drop Shipment]
+        // [SCENARIO 431594] Copy "Drop Shipment" flag to a new sales quote.
+        Initialize();
+
+        PurchasingCode := CreatePurchasingCode(true, false);
+        LibrarySales.CreateSalesHeader(FromSalesHeader, FromSalesHeader."Document Type"::Quote, '');
+        CreateSalesLineWithPurchasingCode(FromSalesLine, FromSalesHeader, PurchasingCode);
+
+        LibrarySales.CreateSalesHeader(
+          ToSalesHeader, ToSalesHeader."Document Type"::Quote, FromSalesHeader."Sell-to Customer No.");
+
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader,
+          MapperSalesHeaders(FromSalesHeader."Document Type"), true, false);
+
+        ToSalesLine.SetRange("No.", FromSalesLine."No.");
+        LibrarySales.FindFirstSalesLine(ToSalesLine, ToSalesHeader);
+        ToSalesLine.TestField("Drop Shipment");
+    end;
+
+    [Test]
+    procedure CopySpecialOrderFromSalesQuote()
+    var
+        FromSalesHeader: Record "Sales Header";
+        FromSalesLine: Record "Sales Line";
+        ToSalesHeader: Record "Sales Header";
+        ToSalesLine: Record "Sales Line";
+        PurchasingCode: Code[10];
+    begin
+        // [FEATURE] [Sales] [Quote] [Special Order]
+        // [SCENARIO 431594] Copy "Special Order" flag to a new sales quote.
+        Initialize();
+
+        PurchasingCode := CreatePurchasingCode(false, true);
+        LibrarySales.CreateSalesHeader(FromSalesHeader, FromSalesHeader."Document Type"::Quote, '');
+        CreateSalesLineWithPurchasingCode(FromSalesLine, FromSalesHeader, PurchasingCode);
+
+        LibrarySales.CreateSalesHeader(
+          ToSalesHeader, ToSalesHeader."Document Type"::Quote, FromSalesHeader."Sell-to Customer No.");
+
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader,
+          MapperSalesHeaders(FromSalesHeader."Document Type"), true, false);
+
+        ToSalesLine.SetRange("No.", FromSalesLine."No.");
+        LibrarySales.FindFirstSalesLine(ToSalesLine, ToSalesHeader);
+        ToSalesLine.TestField("Special Order");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
