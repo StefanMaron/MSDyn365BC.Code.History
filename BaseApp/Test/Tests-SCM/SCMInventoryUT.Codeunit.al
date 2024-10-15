@@ -18,7 +18,6 @@ codeunit 137821 "SCM - Inventory UT"
         AvailProblemOccursOnSNTrackingErr: Label 'No availability problem should occur if SN Specific Tracking = FALSE.';
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        MustHaveValueErr: Label '%1 must have a value in %2: Primary Key=. It cannot be zero or empty.', Comment = '%1 : field name, %2 : table name.';
 
     [Test]
     [Scope('OnPrem')]
@@ -111,24 +110,16 @@ codeunit 137821 "SCM - Inventory UT"
         // [FEATURE] [Customer]
         // [SCENARIO 381935]  If delete the content of "Customer Nos." field in the "Sales & Receivables Setup" table, it should not be possible to create a record "Customer" with an empty value of the prinary key "No.".
         Initialize();
-
-        with SalesReceivablesSetup do begin
-            // [GIVEN] "Sales & Receivables Setup" with a blank field "Customer Nos."
-            Get();
-            Validate("Customer Nos.", '');
-            Modify(true);
-        end;
-
-        with Customer do begin
-            // [WHEN] Insert "Customer" with blank "No."
-            Init();
-            Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::Customer));
-
-            // [THEN] Error occurs : "Customer Nos. must have a value in Sales & Receivables Setup: Primary Key=. It cannot be zero or empty."
-            asserterror Insert(true);
-        end;
-        with SalesReceivablesSetup do
-            Assert.ExpectedError(StrSubstNo(MustHaveValueErr, FieldName("Customer Nos."), TableCaption));
+        // [GIVEN] "Sales & Receivables Setup" with a blank field "Customer Nos."
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Customer Nos.", '');
+        SalesReceivablesSetup.Modify(true);
+        // [WHEN] Insert "Customer" with blank "No."
+        Customer.Init();
+        Customer.Validate(Name, LibraryUtility.GenerateRandomCode(Customer.FieldNo(Name), DATABASE::Customer));
+        // [THEN] Error occurs : "Customer Nos. must have a value in Sales & Receivables Setup: Primary Key=. It cannot be zero or empty."
+        asserterror Customer.Insert(true);
+        Assert.ExpectedTestFieldError(SalesReceivablesSetup.FieldName("Customer Nos."), '');
     end;
 
     [Test]
@@ -141,24 +132,16 @@ codeunit 137821 "SCM - Inventory UT"
         // [FEATURE] [Vendor]
         // [SCENARIO 381935]  If delete the content of "Vendor Nos." field in the "Purchases & Payables Setup" table, it should not be possible to create a record "Vendor" with an empty value of the prinary key "No.".
         Initialize();
-
-        with PurchasesPayablesSetup do begin
-            // [GIVEN] "Purchases & Payables Setup" with a blank field "Vendor Nos."
-            Get();
-            Validate("Vendor Nos.", '');
-            Modify(true);
-        end;
-
-        with Vendor do begin
-            // [WHEN] Insert "Vendor" with blank "No."
-            Init();
-            Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::Vendor));
-
-            // [THEN] Error occurs : "Vendor Nos. must have a value in Purchases & Payables Setup: Primary Key=. It cannot be zero or empty."
-            asserterror Insert(true);
-        end;
-        with PurchasesPayablesSetup do
-            Assert.ExpectedError(StrSubstNo(MustHaveValueErr, FieldName("Vendor Nos."), TableCaption));
+        // [GIVEN] "Purchases & Payables Setup" with a blank field "Vendor Nos."
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Vendor Nos.", '');
+        PurchasesPayablesSetup.Modify(true);
+        // [WHEN] Insert "Vendor" with blank "No."
+        Vendor.Init();
+        Vendor.Validate(Name, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Name), DATABASE::Vendor));
+        // [THEN] Error occurs : "Vendor Nos. must have a value in Purchases & Payables Setup: Primary Key=. It cannot be zero or empty."
+        asserterror Vendor.Insert(true);
+        Assert.ExpectedTestFieldError(PurchasesPayablesSetup.FieldName("Vendor Nos."), '');
     end;
 
     [Test]
@@ -171,25 +154,17 @@ codeunit 137821 "SCM - Inventory UT"
         // [FEATURE] [Item]
         // [SCENARIO 381935]  If delete the content of "Item Nos." field in the "Inventory Setup" table, it should not be possible to create a record "Item" with an empty value of the prinary key "No.".
         Initialize();
+        // [GIVEN] "Inventory Setup" with a blank field "Item Nos."
+        InventorySetup.Get();
+        InventorySetup.Validate("Item Nos.", '');
+        InventorySetup.Modify(true);
+        // [WHEN] Insert "Item" with blank "No."
+        Item.Init();
+        Item.Validate(Description, LibraryUtility.GenerateRandomCode(Item.FieldNo(Description), DATABASE::Item));
+        // [THEN] Error occurs : "Item Nos. must have a value in Inventory Setup: Primary Key=. It cannot be zero or empty."
+        asserterror Item.Insert(true);
 
-        with InventorySetup do begin
-            // [GIVEN] "Inventory Setup" with a blank field "Item Nos."
-            Get();
-            Validate("Item Nos.", '');
-            Modify(true);
-        end;
-
-        with Item do begin
-            // [WHEN] Insert "Item" with blank "No."
-            Init();
-            Validate(Description, LibraryUtility.GenerateRandomCode(FieldNo(Description), DATABASE::Item));
-
-            // [THEN] Error occurs : "Item Nos. must have a value in Inventory Setup: Primary Key=. It cannot be zero or empty."
-            asserterror Insert(true);
-        end;
-
-        with InventorySetup do
-            Assert.ExpectedError(StrSubstNo(MustHaveValueErr, FieldName("Item Nos."), TableCaption));
+        Assert.ExpectedTestFieldError(InventorySetup.FieldName("Item Nos."), '');
     end;
 
     local procedure Initialize()
@@ -211,61 +186,51 @@ codeunit 137821 "SCM - Inventory UT"
 
     local procedure MockItem(var Item: Record Item; No: Code[20]; ItemTrackingCode: Code[10])
     begin
-        with Item do begin
-            Init();
-            "No." := No;
-            "Item Tracking Code" := ItemTrackingCode;
-            "Costing Method" := "Costing Method"::FIFO;
-            Insert();
-        end;
+        Item.Init();
+        Item."No." := No;
+        Item."Item Tracking Code" := ItemTrackingCode;
+        Item."Costing Method" := Item."Costing Method"::FIFO;
+        Item.Insert();
     end;
 
     local procedure MockItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; IsSpecificTracking: Boolean)
     begin
-        with ItemTrackingCode do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            "Lot Specific Tracking" := IsSpecificTracking;
-            "SN Specific Tracking" := IsSpecificTracking;
-            Insert();
-        end;
+        ItemTrackingCode.Init();
+        ItemTrackingCode.Code := LibraryUtility.GenerateGUID();
+        ItemTrackingCode."Lot Specific Tracking" := IsSpecificTracking;
+        ItemTrackingCode."SN Specific Tracking" := IsSpecificTracking;
+        ItemTrackingCode.Insert();
     end;
 
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
     begin
-        with PurchaseLine do begin
-            "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID();
-            Type := Type::Item;
-            "No." := ItemNo;
-            Insert();
-        end;
+        PurchaseLine."Document Type" := PurchaseLine."Document Type"::Order;
+        PurchaseLine."Document No." := LibraryUtility.GenerateGUID();
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."No." := ItemNo;
+        PurchaseLine.Insert();
     end;
 
     local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20])
     begin
-        with ReservationEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, FieldNo("Entry No."));
-            Positive := false;
-            "Item No." := ItemNo;
-            Quantity := -LibraryRandom.RandInt(10);
-            "Quantity (Base)" := Quantity;
-            "Item Tracking" := "Item Tracking"::"Serial No.";
-            "Serial No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        ReservationEntry.Init();
+        ReservationEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
+        ReservationEntry.Positive := false;
+        ReservationEntry."Item No." := ItemNo;
+        ReservationEntry.Quantity := -LibraryRandom.RandInt(10);
+        ReservationEntry."Quantity (Base)" := ReservationEntry.Quantity;
+        ReservationEntry."Item Tracking" := ReservationEntry."Item Tracking"::"Serial No.";
+        ReservationEntry."Serial No." := LibraryUtility.GenerateGUID();
+        ReservationEntry.Insert();
     end;
 
     local procedure MockTrackingSpecification(var TrackingSpecification: Record "Tracking Specification"; ReservationEntry: Record "Reservation Entry")
     begin
-        with TrackingSpecification do begin
-            Init();
-            "Item No." := ReservationEntry."Item No.";
-            "Quantity (Base)" := ReservationEntry."Quantity (Base)";
-            "Serial No." := ReservationEntry."Serial No.";
-            Insert();
-        end;
+        TrackingSpecification.Init();
+        TrackingSpecification."Item No." := ReservationEntry."Item No.";
+        TrackingSpecification."Quantity (Base)" := ReservationEntry."Quantity (Base)";
+        TrackingSpecification."Serial No." := ReservationEntry."Serial No.";
+        TrackingSpecification.Insert();
     end;
 }
 

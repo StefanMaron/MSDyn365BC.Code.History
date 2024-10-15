@@ -8,8 +8,10 @@ using Microsoft.Finance.VAT.Reporting;
 using System.Azure.KeyVault;
 using System.Environment;
 using System.Security.Authentication;
-using System.Text;
 using System.Telemetry;
+#if not CLEAN25
+using System.Text;
+#endif
 
 codeunit 4700 "VAT Group Communication"
 {
@@ -37,7 +39,7 @@ codeunit 4700 "VAT Group Communication"
         // Telemetry
         VATGroupTok: Label 'VATGroupTelemetryCategoryTok', Locked = true;
         HttpSuccessMsg: Label 'The http request was successful and the resource was created', Locked = true;
-        BearerTokenSuccessMsg: Label 'The OAuth2 authentication was successfull, a token has been issued.', Locked = true;
+        BearerTokenSuccessMsg: Label 'The OAuth2 authentication was successful, a token has been issued.', Locked = true;
         HttpErrorMsg: Label 'Error Code: %1, Error Msg: %2', Locked = true;
         OAuthAuthorityUrlTxt: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
         OAuthAuthorityUrlPPETxt: Label 'https://login.windows-ppe.net/common/oauth2', Locked = true;
@@ -77,9 +79,12 @@ codeunit 4700 "VAT Group Communication"
         PrepareHeaders(HttpRequestMessage, IsBatch);
         PrepareContent(HttpRequestMessage, Content);
 
+#if not CLEAN25
+#pragma warning disable AL0432
         if VATReportSetup."VAT Group Authentication Type" = VATReportSetup."VAT Group Authentication Type"::WindowsAuthentication then
             HttpClient.UseDefaultNetworkWindowsAuthentication();
-
+#pragma warning restore
+#endif
         HttpClient.Send(HttpRequestMessage, HttpResponseMessage);
         HttpResponseMessage.Content().ReadAs(HttpResponseBodyText);
         HandleHttpResponse(HttpResponseMessage);
@@ -192,11 +197,11 @@ codeunit 4700 "VAT Group Communication"
             FirstPartyAppCertificate := GetFirstPartyAppCertificate();
             ResourceURL := GetResourceURL();
             if (FirstPartyAppId <> '') and (not FirstPartyAppCertificate.IsEmpty()) then begin
-                Session.LogMessage('0000MXS', AttemptingAuthCodeTokenFromCacheWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATGroupTok, 'AppId', FirstPartyAppId);
+                Session.LogMessage('0000MXS', AttemptingAuthCodeTokenFromCacheWithCertTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATGroupTok);
                 OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(FirstPartyAppId, FirstPartyAppCertificate, GetRedirectURL(), GetOAuthAuthorityURL(), ResourceURL, BearerToken)
             end else begin
                 CreateScopesFromResourceURL(BCResourceURLTxt, Scopes);
-                Session.LogMessage('0000MXT', AttemptingAuthCodeTokenFromCacheWithClientSecretTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATGroupTok, 'AppId', AKVClientId);
+                Session.LogMessage('0000MXT', AttemptingAuthCodeTokenFromCacheWithClientSecretTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATGroupTok);
                 OAuth2.AcquireAuthorizationCodeTokenFromCache(AKVClientId, AKVClientSecret, GetRedirectURL(), GetOAuthAuthorityURL(), Scopes, BearerToken);
             end
         end else begin
@@ -282,9 +287,13 @@ codeunit 4700 "VAT Group Communication"
     local procedure PrepareHeaders(HttpRequestMessage: HttpRequestMessage; IsBatch: Boolean)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
+#if not CLEAN25
         Base64Convert: Codeunit "Base64 Convert";
+#endif
         HttpRequestHeaders: HttpHeaders;
+#if not CLEAN25
         Base64AuthHeader: SecretText;
+#endif
     begin
         FeatureTelemetry.LogUptake('0000NG8', FeatureName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000NG9', FeatureName(), 'Submitting VAT return to group representative.');
@@ -292,11 +301,14 @@ codeunit 4700 "VAT Group Communication"
 
         HttpRequestHeaders.Add('Accept', 'application/json');
 
+#if not CLEAN25
+#pragma warning disable AL0432
         if VATReportSetup."VAT Group Authentication Type" = VATReportSetup."VAT Group Authentication Type"::WebServiceAccessKey then begin
             Base64AuthHeader := Base64Convert.ToBase64(VATReportSetup.GetSecretAsSecretText(VATReportSetup."User Name Key").Unwrap() + ':' + VATReportSetup.GetSecretAsSecretText(VATReportSetup."Web Service Access Key Key").Unwrap());
             HttpRequestHeaders.Add('Authorization', SecretStrSubstNo('Basic %1', GetBearerTokenFromCache()));
         end;
-
+#pragma warning restore
+#endif
         if VATReportSetup."VAT Group Authentication Type" = VATReportSetup."VAT Group Authentication Type"::OAuth2 then
             HttpRequestHeaders.Add('Authorization', SecretStrSubstNo('Bearer %1', GetBearerTokenFromCache()));
 
@@ -335,14 +347,14 @@ codeunit 4700 "VAT Group Communication"
     begin
         CheckLoadVATReportSetup();
         Result := VATReportSetup."Group Representative API URL";
-        CASE VATReportSetup."VAT Group BC Version" OF
+        case VATReportSetup."VAT Group BC Version" of
             VATReportSetup."VAT Group BC Version"::BC:
                 Result += StrSubstNo(URLAppendixCompanyLbl, VATReportSetup."Group Representative Company");
             VATReportSetup."VAT Group BC Version"::NAV2018:
                 Result += StrSubstNo(URLAppendixCompany2018Lbl, VATReportSetup."Group Representative Company");
             VATReportSetup."VAT Group BC Version"::NAV2017:
                 Result += StrSubstNo(URLAppendixCompany2017Lbl, VATReportSetup."Group Representative Company");
-        END;
+        end;
         Result += Endpoint;
     end;
 

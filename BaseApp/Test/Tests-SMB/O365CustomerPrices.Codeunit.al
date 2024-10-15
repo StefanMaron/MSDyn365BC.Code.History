@@ -9,18 +9,18 @@ codeunit 138020 "O365 Customer Prices"
     end;
 
     var
-#if not CLEAN23
+#if not CLEAN25
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
 #endif
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-#if not CLEAN23
+#if not CLEAN25
         LibraryUtility: Codeunit "Library - Utility";
 #endif
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-#if not CLEAN23
+#if not CLEAN25
         Assert: Codeunit Assert;
 #endif
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -65,7 +65,7 @@ codeunit 138020 "O365 Customer Prices"
         LibraryLowerPermissions.SetO365Full();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('ShowItemPage')]
     [Scope('OnPrem')]
@@ -134,24 +134,22 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         InitCustomerAndDiscAndPrices(Customer);
-        with TempSalesPriceAndLineDiscBuff do begin
-            LoadDataForCustomer(Customer);
-            SetRange("Sales Type", "Sales Type"::Customer);
-            FindFirst();
-            Rename(
-              "Line Type", Type, Code, "Sales Type", 'TEST',
-              "Starting Date", "Currency Code", "Variant Code",
-              "Unit of Measure Code", "Minimum Quantity", "Loaded Item No.",
-              "Loaded Disc. Group", "Loaded Customer No.", "Loaded Price Group");
+        TempSalesPriceAndLineDiscBuff.LoadDataForCustomer(Customer);
+        TempSalesPriceAndLineDiscBuff.SetRange("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::Customer);
+        TempSalesPriceAndLineDiscBuff.FindFirst();
+        TempSalesPriceAndLineDiscBuff.Rename(
+          TempSalesPriceAndLineDiscBuff."Line Type", TempSalesPriceAndLineDiscBuff.Type, TempSalesPriceAndLineDiscBuff.Code, TempSalesPriceAndLineDiscBuff."Sales Type", 'TEST',
+          TempSalesPriceAndLineDiscBuff."Starting Date", TempSalesPriceAndLineDiscBuff."Currency Code", TempSalesPriceAndLineDiscBuff."Variant Code",
+          TempSalesPriceAndLineDiscBuff."Unit of Measure Code", TempSalesPriceAndLineDiscBuff."Minimum Quantity", TempSalesPriceAndLineDiscBuff."Loaded Item No.",
+          TempSalesPriceAndLineDiscBuff."Loaded Disc. Group", TempSalesPriceAndLineDiscBuff."Loaded Customer No.", TempSalesPriceAndLineDiscBuff."Loaded Price Group");
 
-            SetRange("Sales Type", "Sales Type"::"All Customers");
-            FindFirst();
-            Rename(
-              "Line Type", Type, Code, "Sales Type", '',
-              "Starting Date", "Currency Code", "Variant Code",
-              "Unit of Measure Code", "Minimum Quantity", "Loaded Item No.",
-              "Loaded Disc. Group", "Loaded Customer No.", '2');
-        end;
+        TempSalesPriceAndLineDiscBuff.SetRange("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::"All Customers");
+        TempSalesPriceAndLineDiscBuff.FindFirst();
+        TempSalesPriceAndLineDiscBuff.Rename(
+          TempSalesPriceAndLineDiscBuff."Line Type", TempSalesPriceAndLineDiscBuff.Type, TempSalesPriceAndLineDiscBuff.Code, TempSalesPriceAndLineDiscBuff."Sales Type", '',
+          TempSalesPriceAndLineDiscBuff."Starting Date", TempSalesPriceAndLineDiscBuff."Currency Code", TempSalesPriceAndLineDiscBuff."Variant Code",
+          TempSalesPriceAndLineDiscBuff."Unit of Measure Code", TempSalesPriceAndLineDiscBuff."Minimum Quantity", TempSalesPriceAndLineDiscBuff."Loaded Item No.",
+          TempSalesPriceAndLineDiscBuff."Loaded Disc. Group", TempSalesPriceAndLineDiscBuff."Loaded Customer No.", '2');
     end;
 
     [Test]
@@ -164,19 +162,17 @@ codeunit 138020 "O365 Customer Prices"
         Initialize();
 
         InitCustomerAndDiscAndPrices(Customer);
-        with TempSalesPriceAndLineDiscBuff do begin
-            LoadDataForCustomer(Customer);
-            SetRange("Sales Type", "Sales Type"::Customer);
-            FindFirst();
-            asserterror
-              Rename(
-                "Line Type", Type, Code, "Sales Type", '',
-                "Starting Date", "Currency Code", "Variant Code",
-                "Unit of Measure Code", "Minimum Quantity", "Loaded Item No.",
-                "Loaded Disc. Group", "Loaded Customer No.", "Loaded Price Group");
+        TempSalesPriceAndLineDiscBuff.LoadDataForCustomer(Customer);
+        TempSalesPriceAndLineDiscBuff.SetRange("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::Customer);
+        TempSalesPriceAndLineDiscBuff.FindFirst();
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Rename(
+            TempSalesPriceAndLineDiscBuff."Line Type", TempSalesPriceAndLineDiscBuff.Type, TempSalesPriceAndLineDiscBuff.Code, TempSalesPriceAndLineDiscBuff."Sales Type", '',
+            TempSalesPriceAndLineDiscBuff."Starting Date", TempSalesPriceAndLineDiscBuff."Currency Code", TempSalesPriceAndLineDiscBuff."Variant Code",
+            TempSalesPriceAndLineDiscBuff."Unit of Measure Code", TempSalesPriceAndLineDiscBuff."Minimum Quantity", TempSalesPriceAndLineDiscBuff."Loaded Item No.",
+            TempSalesPriceAndLineDiscBuff."Loaded Disc. Group", TempSalesPriceAndLineDiscBuff."Loaded Customer No.", TempSalesPriceAndLineDiscBuff."Loaded Price Group");
 
-            Assert.ExpectedError('Sales Code must have a value in');
-        end;
+        Assert.ExpectedError('Sales Code must have a value in');
     end;
 
     [Test]
@@ -187,13 +183,11 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            Validate("Starting Date", Today);
-            Validate("Ending Date", Today);
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff.Validate("Starting Date", Today);
+        TempSalesPriceAndLineDiscBuff.Validate("Ending Date", Today);
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -204,15 +198,13 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            Validate("Starting Date", Today - 1);
-            asserterror
-              Validate("Ending Date", Today - 2);
-            Assert.ExpectedError('Starting Date cannot be after Ending Date.');
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff.Validate("Starting Date", Today - 1);
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate("Ending Date", Today - 2);
+        Assert.ExpectedError('Starting Date cannot be after Ending Date.');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -227,15 +219,13 @@ codeunit 138020 "O365 Customer Prices"
         Item.Init();
         Item.Insert(true);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Loaded Item No." := Item."No.";
-            Validate(Type, Type::Item);
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Loaded Item No." := Item."No.";
+        TempSalesPriceAndLineDiscBuff.Validate(Type, TempSalesPriceAndLineDiscBuff.Type::Item);
 
-            Assert.AreEqual(Item."No.", Code, 'Wrong Code.');
+        Assert.AreEqual(Item."No.", TempSalesPriceAndLineDiscBuff.Code, 'Wrong Code.');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -250,18 +240,16 @@ codeunit 138020 "O365 Customer Prices"
         Item.Init();
         Item.Insert(true);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Loaded Item No." := Item."No.";
-            "Loaded Disc. Group" := 'G' + Format(LibraryRandom.RandInt(1000));
-            "Line Type" := "Line Type"::"Sales Line Discount";
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Loaded Item No." := Item."No.";
+        TempSalesPriceAndLineDiscBuff."Loaded Disc. Group" := 'G' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount";
 
-            asserterror
-              Validate(Type, Type::"Item Disc. Group");
-            Assert.ExpectedError('that cannot be found in the related table');
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate(Type, TempSalesPriceAndLineDiscBuff.Type::"Item Disc. Group");
+        Assert.ExpectedError('that cannot be found in the related table');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -276,17 +264,15 @@ codeunit 138020 "O365 Customer Prices"
         Item.Init();
         Item.Insert(true);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Loaded Item No." := Item."No.";
-            "Loaded Disc. Group" := '';
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Loaded Item No." := Item."No.";
+        TempSalesPriceAndLineDiscBuff."Loaded Disc. Group" := '';
 
-            asserterror
-              Validate(Type, Type::"Item Disc. Group");
-            Assert.ExpectedError('This item is not assigned to any discount group, therefore a discount group could not be used');
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate(Type, TempSalesPriceAndLineDiscBuff.Type::"Item Disc. Group");
+        Assert.ExpectedError('This item is not assigned to any discount group, therefore a discount group could not be used');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -304,14 +290,12 @@ codeunit 138020 "O365 Customer Prices"
         Item."Sales Unit of Measure" := 'UM' + Format(LibraryRandom.RandInt(100));
         Item.Insert(true);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            LoadDataForCustomer(Customer);
-            SetRange(Type, Type::Item);
-            FindFirst();
-            Validate(Code, Item."No.");
+        TempSalesPriceAndLineDiscBuff.LoadDataForCustomer(Customer);
+        TempSalesPriceAndLineDiscBuff.SetRange(Type, TempSalesPriceAndLineDiscBuff.Type::Item);
+        TempSalesPriceAndLineDiscBuff.FindFirst();
+        TempSalesPriceAndLineDiscBuff.Validate(Code, Item."No.");
 
-            Assert.AreEqual(Item."Sales Unit of Measure", "Unit of Measure Code", 'Unit of Measure Code was not updated from Item');
-        end;
+        Assert.AreEqual(Item."Sales Unit of Measure", TempSalesPriceAndLineDiscBuff."Unit of Measure Code", 'Unit of Measure Code was not updated from Item');
     end;
 
     [Test]
@@ -329,23 +313,21 @@ codeunit 138020 "O365 Customer Prices"
         Item.Init();
         Item.Insert(true);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Line Type" := "Line Type"::"Sales Price";
-            "Sales Type" := "Sales Type"::"Customer Price/Disc. Group";
-            "Sales Code" := CustPriceGr.Code;
-            "Allow Invoice Disc." := CustPriceGr."Allow Invoice Disc.";
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price";
+        TempSalesPriceAndLineDiscBuff."Sales Type" := TempSalesPriceAndLineDiscBuff."Sales Type"::"Customer Price/Disc. Group";
+        TempSalesPriceAndLineDiscBuff."Sales Code" := CustPriceGr.Code;
+        TempSalesPriceAndLineDiscBuff."Allow Invoice Disc." := CustPriceGr."Allow Invoice Disc.";
 
-            "Unit of Measure Code" := 'UMC';
-            "Variant Code" := 'VC';
+        TempSalesPriceAndLineDiscBuff."Unit of Measure Code" := 'UMC';
+        TempSalesPriceAndLineDiscBuff."Variant Code" := 'VC';
 
-            Validate(Code, Item."No.");
+        TempSalesPriceAndLineDiscBuff.Validate(Code, Item."No.");
 
-            Assert.AreEqual('', "Unit of Measure Code", 'Unit of Measure Code should be removed.');
-            Assert.AreEqual('', "Variant Code", 'Variant Code should be removed.');
+        Assert.AreEqual('', TempSalesPriceAndLineDiscBuff."Unit of Measure Code", 'Unit of Measure Code should be removed.');
+        Assert.AreEqual('', TempSalesPriceAndLineDiscBuff."Variant Code", 'Variant Code should be removed.');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -363,21 +345,19 @@ codeunit 138020 "O365 Customer Prices"
         Item."VAT Bus. Posting Gr. (Price)" := 'VAT_G' + Format(LibraryRandom.RandInt(1000));
         Item.Insert(true);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Line Type" := "Line Type"::"Sales Price";
-            "Sales Type" := "Sales Type"::Customer;
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price";
+        TempSalesPriceAndLineDiscBuff."Sales Type" := TempSalesPriceAndLineDiscBuff."Sales Type"::Customer;
 
-            "Allow Invoice Disc." := false;
-            "Price Includes VAT" := false;
-            "VAT Bus. Posting Gr. (Price)" := 'V';
+        TempSalesPriceAndLineDiscBuff."Allow Invoice Disc." := false;
+        TempSalesPriceAndLineDiscBuff."Price Includes VAT" := false;
+        TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)" := 'V';
 
-            Validate(Code, Item."No.");
+        TempSalesPriceAndLineDiscBuff.Validate(Code, Item."No.");
 
-            Assert.AreEqual(Item."Allow Invoice Disc.", "Allow Invoice Disc.", 'Wrong Allow Invoice Disc.');
+        Assert.AreEqual(Item."Allow Invoice Disc.", TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.", 'Wrong Allow Invoice Disc.');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -395,28 +375,26 @@ codeunit 138020 "O365 Customer Prices"
         Item."VAT Bus. Posting Gr. (Price)" := 'VAT_G' + Format(LibraryRandom.RandInt(1000));
         Item.Insert(true);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Line Type" := "Line Type"::"Sales Price";
-            "Sales Type" := "Sales Type"::"All Customers";
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price";
+        TempSalesPriceAndLineDiscBuff."Sales Type" := TempSalesPriceAndLineDiscBuff."Sales Type"::"All Customers";
 
-            "Allow Invoice Disc." := false;
-            "Price Includes VAT" := false;
-            "VAT Bus. Posting Gr. (Price)" := 'V';
+        TempSalesPriceAndLineDiscBuff."Allow Invoice Disc." := false;
+        TempSalesPriceAndLineDiscBuff."Price Includes VAT" := false;
+        TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)" := 'V';
 
-            Validate(Code, Item."No.");
+        TempSalesPriceAndLineDiscBuff.Validate(Code, Item."No.");
 
-            Assert.AreEqual(Item."Allow Invoice Disc.", "Allow Invoice Disc.",
-              'Wrong "Allow Invoice Disc."');
-            Assert.AreEqual(Item."Price Includes VAT", "Price Includes VAT",
-              'Wrong "Price Includes VAT"');
-            Assert.AreEqual(
-              Item."VAT Bus. Posting Gr. (Price)",
-              "VAT Bus. Posting Gr. (Price)",
-              'Wrong "VAT Bus. Posting Gr. (Price)"');
+        Assert.AreEqual(Item."Allow Invoice Disc.", TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.",
+          'Wrong "Allow Invoice Disc."');
+        Assert.AreEqual(Item."Price Includes VAT", TempSalesPriceAndLineDiscBuff."Price Includes VAT",
+          'Wrong "Price Includes VAT"');
+        Assert.AreEqual(
+          Item."VAT Bus. Posting Gr. (Price)",
+          TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)",
+          'Wrong "VAT Bus. Posting Gr. (Price)"');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -427,17 +405,15 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Sales Type" := 10;
-            "Sales Code" := 'SC' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Sales Type" := 10;
+        TempSalesPriceAndLineDiscBuff."Sales Code" := 'SC' + Format(LibraryRandom.RandInt(1000));
 
-            Validate("Sales Type", "Sales Type"::Customer);
+        TempSalesPriceAndLineDiscBuff.Validate("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::Customer);
 
-            Assert.AreEqual('', "Sales Code", 'Wrong "Sales Code"');
+        Assert.AreEqual('', TempSalesPriceAndLineDiscBuff."Sales Code", 'Wrong "Sales Code"');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -448,17 +424,15 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Sales Type" := 10;
-            "Sales Code" := 'SC' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Sales Type" := 10;
+        TempSalesPriceAndLineDiscBuff."Sales Code" := 'SC' + Format(LibraryRandom.RandInt(1000));
 
-            Validate("Sales Type", "Sales Type"::"All Customers");
+        TempSalesPriceAndLineDiscBuff.Validate("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::"All Customers");
 
-            Assert.AreEqual('', "Sales Code", 'Wrong "Sales Code"');
+        Assert.AreEqual('', TempSalesPriceAndLineDiscBuff."Sales Code", 'Wrong "Sales Code"');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -469,18 +443,16 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Sales Type" := 10;
-            "Sales Code" := 'SC' + Format(LibraryRandom.RandInt(1000));
-            "Loaded Customer No." := '';
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Sales Type" := 10;
+        TempSalesPriceAndLineDiscBuff."Sales Code" := 'SC' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff."Loaded Customer No." := '';
 
-            Validate("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
+        TempSalesPriceAndLineDiscBuff.Validate("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::"Customer Price/Disc. Group");
 
-            Assert.AreEqual('', "Sales Code", 'Wrong "Sales Code"');
+        Assert.AreEqual('', TempSalesPriceAndLineDiscBuff."Sales Code", 'Wrong "Sales Code"');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -491,20 +463,18 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Sales Type" := 10;
-            "Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
-            "Line Type" := "Line Type"::"Sales Price";
-            "Loaded Price Group" := 'G' + Format(LibraryRandom.RandInt(1000));
-            "Loaded Disc. Group" := '';
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Sales Type" := 10;
+        TempSalesPriceAndLineDiscBuff."Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price";
+        TempSalesPriceAndLineDiscBuff."Loaded Price Group" := 'G' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff."Loaded Disc. Group" := '';
 
-            asserterror
-              Validate("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
-            Assert.ExpectedError('that cannot be found in the related table');
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::"Customer Price/Disc. Group");
+        Assert.ExpectedError('that cannot be found in the related table');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -515,20 +485,18 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Sales Type" := 10;
-            "Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
-            "Line Type" := "Line Type"::"Sales Price";
-            "Loaded Price Group" := '';
-            "Loaded Disc. Group" := '';
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Sales Type" := 10;
+        TempSalesPriceAndLineDiscBuff."Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price";
+        TempSalesPriceAndLineDiscBuff."Loaded Price Group" := '';
+        TempSalesPriceAndLineDiscBuff."Loaded Disc. Group" := '';
 
-            asserterror
-              Validate("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
-            Assert.ExpectedError('This customer is not assigned to any price group, therefore a price group could not be used');
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::"Customer Price/Disc. Group");
+        Assert.ExpectedError('This customer is not assigned to any price group, therefore a price group could not be used');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -539,20 +507,18 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Sales Type" := 10;
-            "Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
-            "Line Type" := "Line Type"::"Sales Line Discount";
-            "Loaded Price Group" := '';
-            "Loaded Disc. Group" := 'G' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Sales Type" := 10;
+        TempSalesPriceAndLineDiscBuff."Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount";
+        TempSalesPriceAndLineDiscBuff."Loaded Price Group" := '';
+        TempSalesPriceAndLineDiscBuff."Loaded Disc. Group" := 'G' + Format(LibraryRandom.RandInt(1000));
 
-            asserterror
-              Validate("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
-            Assert.ExpectedError('that cannot be found in the related table');
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::"Customer Price/Disc. Group");
+        Assert.ExpectedError('that cannot be found in the related table');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -563,20 +529,18 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Sales Type" := 10;
-            "Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
-            "Line Type" := "Line Type"::"Sales Line Discount";
-            "Loaded Price Group" := '';
-            "Loaded Disc. Group" := '';
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Sales Type" := 10;
+        TempSalesPriceAndLineDiscBuff."Loaded Customer No." := 'LCN' + Format(LibraryRandom.RandInt(1000));
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount";
+        TempSalesPriceAndLineDiscBuff."Loaded Price Group" := '';
+        TempSalesPriceAndLineDiscBuff."Loaded Disc. Group" := '';
 
-            asserterror
-              Validate("Sales Type", "Sales Type"::"Customer Price/Disc. Group");
-            Assert.ExpectedError('This customer is not assigned to any discount group, therefore a discount group could not be used');
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate("Sales Type", TempSalesPriceAndLineDiscBuff."Sales Type"::"Customer Price/Disc. Group");
+        Assert.ExpectedError('This customer is not assigned to any discount group, therefore a discount group could not be used');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -587,17 +551,15 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Sales Type" :=
-              "Sales Type"::"All Customers";
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Sales Type" :=
+          TempSalesPriceAndLineDiscBuff."Sales Type"::"All Customers";
 
-            asserterror
-              Validate("Sales Code", 'R');
-            Assert.ExpectedError('Sales Code must be blank.');
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate("Sales Code", 'R');
+        Assert.ExpectedError('Sales Code must be blank.');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -611,26 +573,24 @@ codeunit 138020 "O365 Customer Prices"
 
         CreateCustPriceGr(CustPriceGr);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            "Sales Type" :=
-              "Sales Type"::"Customer Price/Disc. Group";
-            "Line Type" := "Line Type"::"Sales Price";
+        TempSalesPriceAndLineDiscBuff."Sales Type" :=
+          TempSalesPriceAndLineDiscBuff."Sales Type"::"Customer Price/Disc. Group";
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price";
 
-            "Price Includes VAT" := false;
-            "VAT Bus. Posting Gr. (Price)" := '';
-            "Allow Line Disc." := false;
-            "Allow Invoice Disc." := false;
+        TempSalesPriceAndLineDiscBuff."Price Includes VAT" := false;
+        TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)" := '';
+        TempSalesPriceAndLineDiscBuff."Allow Line Disc." := false;
+        TempSalesPriceAndLineDiscBuff."Allow Invoice Disc." := false;
 
-            Validate("Sales Code", CustPriceGr.Code);
+        TempSalesPriceAndLineDiscBuff.Validate("Sales Code", CustPriceGr.Code);
 
-            Assert.AreEqual(CustPriceGr."Price Includes VAT", "Price Includes VAT", 'Wrong "Price Includes VAT"');
-            Assert.AreEqual(
-              CustPriceGr."VAT Bus. Posting Gr. (Price)", "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
-            Assert.AreEqual(CustPriceGr."Allow Line Disc.", "Allow Line Disc.", 'Wrong "Allow Line Disc."');
-            Assert.AreEqual(CustPriceGr."Allow Invoice Disc.", "Allow Invoice Disc.", 'Wrong "Allow Invoice Disc."');
+        Assert.AreEqual(CustPriceGr."Price Includes VAT", TempSalesPriceAndLineDiscBuff."Price Includes VAT", 'Wrong "Price Includes VAT"');
+        Assert.AreEqual(
+          CustPriceGr."VAT Bus. Posting Gr. (Price)", TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Gr. (Price)"');
+        Assert.AreEqual(CustPriceGr."Allow Line Disc.", TempSalesPriceAndLineDiscBuff."Allow Line Disc.", 'Wrong "Allow Line Disc."');
+        Assert.AreEqual(CustPriceGr."Allow Invoice Disc.", TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.", 'Wrong "Allow Invoice Disc."');
 
-            Insert();
-        end;
+        TempSalesPriceAndLineDiscBuff.Insert();
     end;
 
     [Test]
@@ -649,25 +609,23 @@ codeunit 138020 "O365 Customer Prices"
         Customer."Allow Line Disc." := true;
         Customer.Insert(true);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            "Sales Type" := "Sales Type"::Customer;
-            "Sales Code" := Customer."No.";
-            "Line Type" := "Line Type"::"Sales Price";
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff."Sales Type" := TempSalesPriceAndLineDiscBuff."Sales Type"::Customer;
+        TempSalesPriceAndLineDiscBuff."Sales Code" := Customer."No.";
+        TempSalesPriceAndLineDiscBuff."Line Type" := TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price";
 
-            Validate("Sales Code", Customer."No.");
+        TempSalesPriceAndLineDiscBuff.Validate("Sales Code", Customer."No.");
 
-            Assert.AreEqual(
-              Customer."Currency Code", "Currency Code", 'Wrong "Currency Code"');
-            Assert.AreEqual(
-              Customer."Prices Including VAT", "Price Includes VAT", 'Wrong "Prices Including VAT"');
-            Assert.AreEqual(
-              Customer."VAT Bus. Posting Group", "VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Group"');
-            Assert.AreEqual(
-              Customer."Allow Line Disc.", "Allow Line Disc.", 'Wrong "Allow Line Disc."');
+        Assert.AreEqual(
+          Customer."Currency Code", TempSalesPriceAndLineDiscBuff."Currency Code", 'Wrong "Currency Code"');
+        Assert.AreEqual(
+          Customer."Prices Including VAT", TempSalesPriceAndLineDiscBuff."Price Includes VAT", 'Wrong "Prices Including VAT"');
+        Assert.AreEqual(
+          Customer."VAT Bus. Posting Group", TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)", 'Wrong "VAT Bus. Posting Group"');
+        Assert.AreEqual(
+          Customer."Allow Line Disc.", TempSalesPriceAndLineDiscBuff."Allow Line Disc.", 'Wrong "Allow Line Disc."');
 
-            Insert();
-        end;
+        TempSalesPriceAndLineDiscBuff.Insert();
     end;
 
     [Test]
@@ -678,14 +636,13 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Type := Type::"Item Disc. Group";
-            asserterror
-              Validate("Unit of Measure Code", 'V');
-            Assert.ExpectedError('Type must be equal to');
+        TempSalesPriceAndLineDiscBuff.Type := TempSalesPriceAndLineDiscBuff.Type::"Item Disc. Group";
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate("Unit of Measure Code", 'V');
 
-            Insert();
-        end;
+        Assert.ExpectedTestFieldError(Format(TempSalesPriceAndLineDiscBuff.Type), '');
+
+        TempSalesPriceAndLineDiscBuff.Insert();
     end;
 
     [Test]
@@ -696,15 +653,13 @@ codeunit 138020 "O365 Customer Prices"
     begin
         Initialize();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            Init();
-            Type := Type::"Item Disc. Group";
-            asserterror
-              Validate("Variant Code", 'V');
-            Assert.ExpectedError('Type must be equal to');
+        TempSalesPriceAndLineDiscBuff.Init();
+        TempSalesPriceAndLineDiscBuff.Type := TempSalesPriceAndLineDiscBuff.Type::"Item Disc. Group";
+        asserterror
+          TempSalesPriceAndLineDiscBuff.Validate("Variant Code", 'V');
+        Assert.ExpectedTestFieldError(Format(TempSalesPriceAndLineDiscBuff.Type), '');
 
-            Insert();
-        end;
+        TempSalesPriceAndLineDiscBuff.Insert();
     end;
 
     [Test]
@@ -719,21 +674,19 @@ codeunit 138020 "O365 Customer Prices"
 
         InitCustomerAndDiscAndPrices(Customer);
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            LoadDataForCustomer(Customer);
-            FilterToActualRecords();
-            ExpectedCount := Count;
+        TempSalesPriceAndLineDiscBuff.LoadDataForCustomer(Customer);
+        TempSalesPriceAndLineDiscBuff.FilterToActualRecords();
+        ExpectedCount := TempSalesPriceAndLineDiscBuff.Count;
 
-            FindFirst();
-            "Ending Date" := Today - 1;
-            Modify(true);
+        TempSalesPriceAndLineDiscBuff.FindFirst();
+        TempSalesPriceAndLineDiscBuff."Ending Date" := Today - 1;
+        TempSalesPriceAndLineDiscBuff.Modify(true);
 
-            Reset();
-            FilterToActualRecords();
-            Assert.AreEqual(ExpectedCount - 1, Count, 'Wrong filter after run FilterToActualRecords');
+        TempSalesPriceAndLineDiscBuff.Reset();
+        TempSalesPriceAndLineDiscBuff.FilterToActualRecords();
+        Assert.AreEqual(ExpectedCount - 1, TempSalesPriceAndLineDiscBuff.Count, 'Wrong filter after run FilterToActualRecords');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -827,12 +780,10 @@ codeunit 138020 "O365 Customer Prices"
         SalesPrice.DeleteAll();
         SalesLineDiscount.DeleteAll();
 
-        with SalesPrice do begin
-            Init();
-            "Sales Type" := "Sales Type"::Customer;
-            "Sales Code" := Cust."No.";
-            Insert();
-        end;
+        SalesPrice.Init();
+        SalesPrice."Sales Type" := SalesPrice."Sales Type"::Customer;
+        SalesPrice."Sales Code" := Cust."No.";
+        SalesPrice.Insert();
 
         Assert.IsTrue(SalesPriceAndLineDiscBuff.CustHasLines(Cust), 'Customer should have lines in Prices and Disc');
     end;
@@ -852,12 +803,10 @@ codeunit 138020 "O365 Customer Prices"
         SalesPrice.DeleteAll();
         SalesLineDiscount.DeleteAll();
 
-        with SalesLineDiscount do begin
-            Init();
-            "Sales Type" := "Sales Type"::Customer;
-            "Sales Code" := Cust."No.";
-            Insert();
-        end;
+        SalesLineDiscount.Init();
+        SalesLineDiscount."Sales Type" := SalesLineDiscount."Sales Type"::Customer;
+        SalesLineDiscount."Sales Code" := Cust."No.";
+        SalesLineDiscount.Insert();
 
         Assert.IsTrue(SalesPriceAndLineDiscBuff.CustHasLines(Cust), 'Customer should have lines in Prices and Disc');
     end;
@@ -880,12 +829,10 @@ codeunit 138020 "O365 Customer Prices"
         SalesPrice.DeleteAll();
         SalesLineDiscount.DeleteAll();
 
-        with SalesPrice do begin
-            Init();
-            "Sales Type" := "Sales Type"::"Customer Price Group";
-            "Sales Code" := GetPriceGroupCode(Cust."No.");
-            Insert();
-        end;
+        SalesPrice.Init();
+        SalesPrice."Sales Type" := SalesPrice."Sales Type"::"Customer Price Group";
+        SalesPrice."Sales Code" := GetPriceGroupCode(Cust."No.");
+        SalesPrice.Insert();
 
         Assert.IsTrue(SalesPriceAndLineDiscBuff.CustHasLines(Cust), 'Customer should have lines in Prices and Disc');
     end;
@@ -908,12 +855,10 @@ codeunit 138020 "O365 Customer Prices"
         SalesPrice.DeleteAll();
         SalesLineDiscount.DeleteAll();
 
-        with SalesLineDiscount do begin
-            Init();
-            "Sales Type" := "Sales Type"::"Customer Disc. Group";
-            "Sales Code" := GetDiscGroupCode(Cust."No.");
-            Insert();
-        end;
+        SalesLineDiscount.Init();
+        SalesLineDiscount."Sales Type" := SalesLineDiscount."Sales Type"::"Customer Disc. Group";
+        SalesLineDiscount."Sales Code" := GetDiscGroupCode(Cust."No.");
+        SalesLineDiscount.Insert();
 
         Assert.IsTrue(SalesPriceAndLineDiscBuff.CustHasLines(Cust), 'Customer should have lines in Prices and Disc');
     end;
@@ -932,22 +877,20 @@ codeunit 138020 "O365 Customer Prices"
         Customer."Customer Disc. Group" := GetDiscGroupCode(Customer."No.");
         Customer.Modify();
 
-        with TempSalesPriceAndLineDiscBuff do begin
-            LoadDataForCustomer(Customer);
-            SetRange("Unit Price", LibraryRandom.RandDec(10, 2));
-            Reset();
+        TempSalesPriceAndLineDiscBuff.LoadDataForCustomer(Customer);
+        TempSalesPriceAndLineDiscBuff.SetRange("Unit Price", LibraryRandom.RandDec(10, 2));
+        TempSalesPriceAndLineDiscBuff.Reset();
 
-            Assert.AreEqual('', "Loaded Item No.", '<Item No.> incorrect');
-            Assert.AreEqual(Customer."No.", "Loaded Customer No.", '<Customer No.> was reseted');
-            Assert.AreEqual(
-              Customer."Customer Disc. Group", "Loaded Disc. Group", '<Disc. Group> was reseted');
-            Assert.AreEqual(
-              Customer."Customer Price Group", "Loaded Price Group", '<Price Group> was reseted');
+        Assert.AreEqual('', TempSalesPriceAndLineDiscBuff."Loaded Item No.", '<Item No.> incorrect');
+        Assert.AreEqual(Customer."No.", TempSalesPriceAndLineDiscBuff."Loaded Customer No.", '<Customer No.> was reseted');
+        Assert.AreEqual(
+          Customer."Customer Disc. Group", TempSalesPriceAndLineDiscBuff."Loaded Disc. Group", '<Disc. Group> was reseted');
+        Assert.AreEqual(
+          Customer."Customer Price Group", TempSalesPriceAndLineDiscBuff."Loaded Price Group", '<Price Group> was reseted');
 
-            Assert.AreEqual('', GetFilters, 'Filters was not removed');
+        Assert.AreEqual('', TempSalesPriceAndLineDiscBuff.GetFilters, 'Filters was not removed');
 
-            if Insert() then;
-        end;
+        if TempSalesPriceAndLineDiscBuff.Insert() then;
     end;
 
     [Test]
@@ -1674,65 +1617,61 @@ codeunit 138020 "O365 Customer Prices"
 
     local procedure CompareBuffAgainstDiscLines(var SalesLineDiscount: Record "Sales Line Discount"; var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
-        with SalesLineDiscount do begin
-            if FindFirst() then
-                repeat
-                    TempSalesPriceAndLineDiscBuff.Get(
-                      TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount",
-                      Type,
-                      Code,
-                      "Sales Type",
-                      "Sales Code",
-                      "Starting Date",
-                      "Currency Code",
-                      "Variant Code",
-                      "Unit of Measure Code",
-                      "Minimum Quantity",
-                      '',
-                      TempSalesPriceAndLineDiscBuff."Loaded Disc. Group",
-                      TempSalesPriceAndLineDiscBuff."Loaded Customer No.",
-                      TempSalesPriceAndLineDiscBuff."Loaded Price Group");
+        if SalesLineDiscount.FindFirst() then
+            repeat
+                TempSalesPriceAndLineDiscBuff.Get(
+                  TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount",
+                  SalesLineDiscount.Type,
+                  SalesLineDiscount.Code,
+                  SalesLineDiscount."Sales Type",
+                  SalesLineDiscount."Sales Code",
+                  SalesLineDiscount."Starting Date",
+                  SalesLineDiscount."Currency Code",
+                  SalesLineDiscount."Variant Code",
+                  SalesLineDiscount."Unit of Measure Code",
+                  SalesLineDiscount."Minimum Quantity",
+                  '',
+                  TempSalesPriceAndLineDiscBuff."Loaded Disc. Group",
+                  TempSalesPriceAndLineDiscBuff."Loaded Customer No.",
+                  TempSalesPriceAndLineDiscBuff."Loaded Price Group");
 
-                    Assert.AreEqual("Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value');
-                    Assert.AreEqual("Line Discount %", TempSalesPriceAndLineDiscBuff."Line Discount %", 'Wrong value');
-                until Next() = 0;
-        end;
+                Assert.AreEqual(SalesLineDiscount."Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value');
+                Assert.AreEqual(SalesLineDiscount."Line Discount %", TempSalesPriceAndLineDiscBuff."Line Discount %", 'Wrong value');
+            until SalesLineDiscount.Next() = 0;
     end;
 
     local procedure CompareBuffAgainstPrices(var SalesPrice: Record "Sales Price"; var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
-        with SalesPrice do begin
-            if FindFirst() then
-                repeat
-                    TempSalesPriceAndLineDiscBuff.Get(
-                      TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price",
-                      TempSalesPriceAndLineDiscBuff.Type::Item,
-                      "Item No.",
-                      "Sales Type",
-                      "Sales Code",
-                      "Starting Date",
-                      "Currency Code",
-                      "Variant Code",
-                      "Unit of Measure Code",
-                      "Minimum Quantity",
-                      '',
-                      TempSalesPriceAndLineDiscBuff."Loaded Disc. Group",
-                      TempSalesPriceAndLineDiscBuff."Loaded Customer No.",
-                      TempSalesPriceAndLineDiscBuff."Loaded Price Group");
+        if SalesPrice.FindFirst() then
+            repeat
+                TempSalesPriceAndLineDiscBuff.Get(
+                  TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Price",
+                  TempSalesPriceAndLineDiscBuff.Type::Item,
+                  SalesPrice."Item No.",
+                  SalesPrice."Sales Type",
+                  SalesPrice."Sales Code",
+                  SalesPrice."Starting Date",
+                  SalesPrice."Currency Code",
+                  SalesPrice."Variant Code",
+                  SalesPrice."Unit of Measure Code",
+                  SalesPrice."Minimum Quantity",
+                  '',
+                  TempSalesPriceAndLineDiscBuff."Loaded Disc. Group",
+                  TempSalesPriceAndLineDiscBuff."Loaded Customer No.",
+                  TempSalesPriceAndLineDiscBuff."Loaded Price Group");
 
-                    Assert.AreEqual(
-                      "Allow Invoice Disc.", TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.", 'Wrong value in Allow Invoice Disc.');
-                    Assert.AreEqual("Allow Line Disc.", TempSalesPriceAndLineDiscBuff."Allow Line Disc.", 'Wrong value in Allow Line Disc.');
-                    Assert.AreEqual("Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value in Ending Date');
-                    Assert.AreEqual(
-                      "Price Includes VAT", TempSalesPriceAndLineDiscBuff."Price Includes VAT", 'Wrong value in Price Includes VAT');
-                    Assert.AreEqual("Unit Price", TempSalesPriceAndLineDiscBuff."Unit Price", 'Wrong value in Unit Price');
-                    Assert.AreEqual(
-                      "VAT Bus. Posting Gr. (Price)", TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)",
-                      'Wrong value in VAT Bus. Posting Gr. (Price)');
+                Assert.AreEqual(
+                  SalesPrice."Allow Invoice Disc.", TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.", 'Wrong value in Allow Invoice Disc.');
+                Assert.AreEqual(SalesPrice."Allow Line Disc.", TempSalesPriceAndLineDiscBuff."Allow Line Disc.", 'Wrong value in Allow Line Disc.');
+                Assert.AreEqual(SalesPrice."Ending Date", TempSalesPriceAndLineDiscBuff."Ending Date", 'Wrong value in Ending Date');
+                Assert.AreEqual(
+                  SalesPrice."Price Includes VAT", TempSalesPriceAndLineDiscBuff."Price Includes VAT", 'Wrong value in Price Includes VAT');
+                Assert.AreEqual(SalesPrice."Unit Price", TempSalesPriceAndLineDiscBuff."Unit Price", 'Wrong value in Unit Price');
+                Assert.AreEqual(
+                  SalesPrice."VAT Bus. Posting Gr. (Price)", TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)",
+                  'Wrong value in VAT Bus. Posting Gr. (Price)');
 
-                until Next() = 0;
-        end;
+            until SalesPrice.Next() = 0;
     end;
 
     local procedure CompareBuffAgainstActualDiscounts(var ExpectedTempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; Customer: Record Customer)
@@ -1782,18 +1721,16 @@ codeunit 138020 "O365 Customer Prices"
     var
         CustPriceGrCode: Code[10];
     begin
-        with CustPriceGr do begin
-            Init();
-            CustPriceGrCode := 'PG' + Format(LibraryRandom.RandInt(100));
-            if Get(CustPriceGrCode) then
-                exit;
-            Code := CustPriceGrCode;
-            "Price Includes VAT" := true;
-            "VAT Bus. Posting Gr. (Price)" := 'VAT' + Format(LibraryRandom.RandInt(100));
-            "Allow Line Disc." := true;
-            "Allow Invoice Disc." := true;
-            Insert(true);
-        end;
+        CustPriceGr.Init();
+        CustPriceGrCode := 'PG' + Format(LibraryRandom.RandInt(100));
+        if CustPriceGr.Get(CustPriceGrCode) then
+            exit;
+        CustPriceGr.Code := CustPriceGrCode;
+        CustPriceGr."Price Includes VAT" := true;
+        CustPriceGr."VAT Bus. Posting Gr. (Price)" := 'VAT' + Format(LibraryRandom.RandInt(100));
+        CustPriceGr."Allow Line Disc." := true;
+        CustPriceGr."Allow Invoice Disc." := true;
+        CustPriceGr.Insert(true);
     end;
 
     local procedure CreateBlankCustomer(var Customer: Record Customer)
@@ -1802,7 +1739,7 @@ codeunit 138020 "O365 Customer Prices"
         Customer.Insert(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure InitCustomerAndDiscAndPrices(var Customer: Record Customer)
     begin
         CreateBlankCustomer(Customer);
@@ -1855,30 +1792,29 @@ codeunit 138020 "O365 Customer Prices"
         SalesLineDiscount: Record "Sales Line Discount";
         i: Integer;
     begin
-        for i := 0 to 3 do
-            with SalesLineDiscount do begin
-                Init();
-                "Sales Type" := i;
-                if "Sales Type" = "Sales Type"::"All Customers" then
-                    "Sales Code" := ''
-                else
-                    "Sales Code" := LineCode;
+        for i := 0 to 3 do begin
+            SalesLineDiscount.Init();
+            SalesLineDiscount."Sales Type" := i;
+            if SalesLineDiscount."Sales Type" = SalesLineDiscount."Sales Type"::"All Customers" then
+                SalesLineDiscount."Sales Code" := ''
+            else
+                SalesLineDiscount."Sales Code" := LineCode;
 
-                Type := LineType;
-                Code := LibraryUtility.GenerateGUID();
-                "Currency Code" := 'CC' + Format(LibraryRandom.RandInt(100));
-                "Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
-                "Line Discount %" := LibraryRandom.RandDec(10, 2);
-                "Minimum Quantity" := LibraryRandom.RandInt(100);
-                if InThePast then
-                    "Ending Date" := Today - 1
-                else
-                    "Ending Date" := Today + LibraryRandom.RandInt(100);
-                "Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
-                "Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
+            SalesLineDiscount.Type := LineType;
+            SalesLineDiscount.Code := LibraryUtility.GenerateGUID();
+            SalesLineDiscount."Currency Code" := 'CC' + Format(LibraryRandom.RandInt(100));
+            SalesLineDiscount."Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
+            SalesLineDiscount."Line Discount %" := LibraryRandom.RandDec(10, 2);
+            SalesLineDiscount."Minimum Quantity" := LibraryRandom.RandInt(100);
+            if InThePast then
+                SalesLineDiscount."Ending Date" := Today - 1
+            else
+                SalesLineDiscount."Ending Date" := Today + LibraryRandom.RandInt(100);
+            SalesLineDiscount."Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
+            SalesLineDiscount."Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
 
-                Insert();
-            end;
+            SalesLineDiscount.Insert();
+        end;
     end;
 
     local procedure CreateSalesPriceLine(CustomerNo: Code[20]; InThePast: Boolean)
@@ -1887,100 +1823,93 @@ codeunit 138020 "O365 Customer Prices"
         i: Integer;
     begin
         // what about the Price Groups?
-        for i := 0 to 3 do
-            with SalesPrice do begin
-                Init();
-                "Sales Type" := "Sales Price Type".FromInteger(i);
-                if i = "Sales Type"::"All Customers".AsInteger() then
-                    "Sales Code" := ''
-                else
-                    "Sales Code" := CustomerNo;
+        for i := 0 to 3 do begin
+            SalesPrice.Init();
+            SalesPrice."Sales Type" := "Sales Price Type".FromInteger(i);
+            if i = SalesPrice."Sales Type"::"All Customers".AsInteger() then
+                SalesPrice."Sales Code" := ''
+            else
+                SalesPrice."Sales Code" := CustomerNo;
 
-                "Item No." := 'C' + Format(LibraryRandom.RandInt(100));
-                "Currency Code" := 'CC' + Format(LibraryRandom.RandInt(100));
-                "Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
-                "Unit Price" := LibraryRandom.RandDec(100, 2);
-                "Price Includes VAT" := true;
-                "Allow Invoice Disc." := true;
-                "VAT Bus. Posting Gr. (Price)" := 'VAT BPG' + Format(LibraryRandom.RandInt(100));
+            SalesPrice."Item No." := 'C' + Format(LibraryRandom.RandInt(100));
+            SalesPrice."Currency Code" := 'CC' + Format(LibraryRandom.RandInt(100));
+            SalesPrice."Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
+            SalesPrice."Unit Price" := LibraryRandom.RandDec(100, 2);
+            SalesPrice."Price Includes VAT" := true;
+            SalesPrice."Allow Invoice Disc." := true;
+            SalesPrice."VAT Bus. Posting Gr. (Price)" := 'VAT BPG' + Format(LibraryRandom.RandInt(100));
 
-                "Minimum Quantity" := LibraryRandom.RandInt(100);
-                if InThePast then
-                    "Ending Date" := Today - 1
-                else
-                    "Ending Date" := Today + LibraryRandom.RandInt(100);
-                "Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
-                "Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
-                "Allow Line Disc." := true;
+            SalesPrice."Minimum Quantity" := LibraryRandom.RandInt(100);
+            if InThePast then
+                SalesPrice."Ending Date" := Today - 1
+            else
+                SalesPrice."Ending Date" := Today + LibraryRandom.RandInt(100);
+            SalesPrice."Unit of Measure Code" := 'UMC' + Format(LibraryRandom.RandInt(100));
+            SalesPrice."Variant Code" := 'VC' + Format(LibraryRandom.RandInt(100));
+            SalesPrice."Allow Line Disc." := true;
 
-                Insert();
-            end;
+            SalesPrice.Insert();
+        end;
     end;
 
     local procedure DuplicateLineInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Enum "Sales Line Discount Type")
     begin
-        with TempSalesPriceAndLineDiscBuff do begin
-            SetRange(Type, LineDiscType);
-            FindFirst();
+        TempSalesPriceAndLineDiscBuff.SetRange(Type, LineDiscType);
+        TempSalesPriceAndLineDiscBuff.FindFirst();
 
-            "Minimum Quantity" := LibraryRandom.RandInt(100);
-            "Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
-            "Ending Date" := Today + LibraryRandom.RandInt(100);
+        TempSalesPriceAndLineDiscBuff."Minimum Quantity" := LibraryRandom.RandInt(100);
+        TempSalesPriceAndLineDiscBuff."Starting Date" := Today - LibraryRandom.RandIntInRange(2, 100);
+        TempSalesPriceAndLineDiscBuff."Ending Date" := Today + LibraryRandom.RandInt(100);
 
-            if "Line Type" = "Line Type"::"Sales Line Discount" then
-                "Line Discount %" := LibraryRandom.RandDecInRange(10, 90, 2)
-            else begin
-                "Unit Price" := LibraryRandom.RandDecInRange(10, 100, 2);
-                "Price Includes VAT" := not "Price Includes VAT";
-                "Allow Invoice Disc." := not "Allow Invoice Disc.";
-                "VAT Bus. Posting Gr. (Price)" := 'VBP' + Format(LibraryRandom.RandDecInRange(10, 90, 2));
-                "Allow Line Disc." := not "Allow Line Disc.";
-            end;
-
-            Insert(true);
-
-            SetRange(Type);
+        if TempSalesPriceAndLineDiscBuff."Line Type" = TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount" then
+            TempSalesPriceAndLineDiscBuff."Line Discount %" := LibraryRandom.RandDecInRange(10, 90, 2)
+        else begin
+            TempSalesPriceAndLineDiscBuff."Unit Price" := LibraryRandom.RandDecInRange(10, 100, 2);
+            TempSalesPriceAndLineDiscBuff."Price Includes VAT" := not TempSalesPriceAndLineDiscBuff."Price Includes VAT";
+            TempSalesPriceAndLineDiscBuff."Allow Invoice Disc." := not TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.";
+            TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)" := 'VBP' + Format(LibraryRandom.RandDecInRange(10, 90, 2));
+            TempSalesPriceAndLineDiscBuff."Allow Line Disc." := not TempSalesPriceAndLineDiscBuff."Allow Line Disc.";
         end;
+
+        TempSalesPriceAndLineDiscBuff.Insert(true);
+
+        TempSalesPriceAndLineDiscBuff.SetRange(Type);
     end;
 
     local procedure UpdateLinesInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary; LineDiscType: Enum "Sales Line Discount Type")
     var
         i: Integer;
     begin
-        with TempSalesPriceAndLineDiscBuff do begin
-            SetRange(Type, LineDiscType);
-            FindFirst();
+        TempSalesPriceAndLineDiscBuff.SetRange(Type, LineDiscType);
+        TempSalesPriceAndLineDiscBuff.FindFirst();
 
-            for i := 0 to 1 do begin
-                "Ending Date" := "Ending Date" + LibraryRandom.RandIntInRange(1, 10);
-                if "Line Type" = "Line Type"::"Sales Line Discount" then
-                    "Line Discount %" := LibraryRandom.RandDecInRange(10, 90, 2)
-                else begin
-                    "Unit Price" := LibraryRandom.RandDecInRange(10, 100, 2);
-                    "Price Includes VAT" := not "Price Includes VAT";
-                    "Allow Invoice Disc." := not "Allow Invoice Disc.";
-                    "VAT Bus. Posting Gr. (Price)" := 'VBP' + Format(LibraryRandom.RandDecInRange(10, 90, 2));
-                    "Allow Line Disc." := not "Allow Line Disc.";
-                end;
-
-                Modify(true);
-                Next();
+        for i := 0 to 1 do begin
+            TempSalesPriceAndLineDiscBuff."Ending Date" := TempSalesPriceAndLineDiscBuff."Ending Date" + LibraryRandom.RandIntInRange(1, 10);
+            if TempSalesPriceAndLineDiscBuff."Line Type" = TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount" then
+                TempSalesPriceAndLineDiscBuff."Line Discount %" := LibraryRandom.RandDecInRange(10, 90, 2)
+            else begin
+                TempSalesPriceAndLineDiscBuff."Unit Price" := LibraryRandom.RandDecInRange(10, 100, 2);
+                TempSalesPriceAndLineDiscBuff."Price Includes VAT" := not TempSalesPriceAndLineDiscBuff."Price Includes VAT";
+                TempSalesPriceAndLineDiscBuff."Allow Invoice Disc." := not TempSalesPriceAndLineDiscBuff."Allow Invoice Disc.";
+                TempSalesPriceAndLineDiscBuff."VAT Bus. Posting Gr. (Price)" := 'VBP' + Format(LibraryRandom.RandDecInRange(10, 90, 2));
+                TempSalesPriceAndLineDiscBuff."Allow Line Disc." := not TempSalesPriceAndLineDiscBuff."Allow Line Disc.";
             end;
 
-            SetRange(Type);
+            TempSalesPriceAndLineDiscBuff.Modify(true);
+            TempSalesPriceAndLineDiscBuff.Next();
         end;
+
+        TempSalesPriceAndLineDiscBuff.SetRange(Type);
     end;
 
     local procedure DeleteLineInBuffer(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
-        with TempSalesPriceAndLineDiscBuff do begin
-            FindFirst();
+        TempSalesPriceAndLineDiscBuff.FindFirst();
 
-            Delete(true);
-            Next();
-            Delete(true);
-            Next();
-        end;
+        TempSalesPriceAndLineDiscBuff.Delete(true);
+        TempSalesPriceAndLineDiscBuff.Next();
+        TempSalesPriceAndLineDiscBuff.Delete(true);
+        TempSalesPriceAndLineDiscBuff.Next();
     end;
 
     local procedure FindSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerNo: Code[20])
@@ -2001,7 +1930,7 @@ codeunit 138020 "O365 Customer Prices"
         exit(CopyStr('P_GR_' + CustomerNo, 1, 10))
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SetBufferOnlyToSLDiscounts(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
         TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
@@ -2014,56 +1943,44 @@ codeunit 138020 "O365 Customer Prices"
 
     local procedure GetSLDiscountsForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Customer: Record Customer)
     begin
-        with SalesLineDiscount do begin
-            Reset();
-            SetRange("Sales Type", "Sales Type"::Customer);
-            SetRange("Sales Code", Customer."No.");
-        end;
+        SalesLineDiscount.Reset();
+        SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::Customer);
+        SalesLineDiscount.SetRange("Sales Code", Customer."No.");
     end;
 
     local procedure GetSLDiscountsForAllCustomers(var SalesLineDiscount: Record "Sales Line Discount")
     begin
-        with SalesLineDiscount do begin
-            Reset();
-            SetRange("Sales Type", "Sales Type"::"All Customers");
-            SetRange("Sales Code", '');
-        end;
+        SalesLineDiscount.Reset();
+        SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::"All Customers");
+        SalesLineDiscount.SetRange("Sales Code", '');
     end;
 
     local procedure GetSLDiscountsForCustDiscGr(var SalesLineDiscount: Record "Sales Line Discount"; Customer: Record Customer)
     begin
-        with SalesLineDiscount do begin
-            Reset();
-            SetRange("Sales Type", "Sales Type"::"Customer Disc. Group");
-            SetRange("Sales Code", Customer."Customer Disc. Group");
-        end;
+        SalesLineDiscount.Reset();
+        SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::"Customer Disc. Group");
+        SalesLineDiscount.SetRange("Sales Code", Customer."Customer Disc. Group");
     end;
 
     local procedure GetSPricesForCustomer(var SalesPrice: Record "Sales Price"; CustomerNo: Code[20])
     begin
-        with SalesPrice do begin
-            Reset();
-            SetRange("Sales Type", "Sales Type"::Customer);
-            SetRange("Sales Code", CustomerNo);
-        end;
+        SalesPrice.Reset();
+        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Customer);
+        SalesPrice.SetRange("Sales Code", CustomerNo);
     end;
 
     local procedure GetSPricesForAllCustomers(var SalesPrice: Record "Sales Price")
     begin
-        with SalesPrice do begin
-            Reset();
-            SetRange("Sales Type", "Sales Type"::"All Customers");
-            SetRange("Sales Code", '');
-        end;
+        SalesPrice.Reset();
+        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"All Customers");
+        SalesPrice.SetRange("Sales Code", '');
     end;
 
     local procedure GetSPricesForPrGroup(var SalesPrice: Record "Sales Price"; CustomerPriceGroup: Code[20])
     begin
-        with SalesPrice do begin
-            Reset();
-            SetRange("Sales Type", "Sales Type"::"Customer Price Group");
-            SetRange("Sales Code", CustomerPriceGroup);
-        end;
+        SalesPrice.Reset();
+        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
+        SalesPrice.SetRange("Sales Code", CustomerPriceGroup);
     end;
 #endif
 
@@ -2081,7 +1998,7 @@ codeunit 138020 "O365 Customer Prices"
         ItemDiscGroupsPage.OK().Invoke();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyFieldVisibilityOnSalesPriceAndLineDiscountsPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")

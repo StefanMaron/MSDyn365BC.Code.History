@@ -1254,21 +1254,16 @@ codeunit 139157 "Invoice Premapping Tests"
         SetupDataExchTable(DataExch);
         SetupValidNonItemIntermediateTable(DataExch, BuyFromVendor, PayToVendor, UnitOfMeasure, Qty, Description);
 
-        with TextToAccountMapping do begin
-            Init();
-            "Mapping Text" := LowerCase(BuyFromVendor.Name);
-            "Bal. Source Type" := "Bal. Source Type"::Vendor;
-            "Bal. Source No." := BuyFromVendor."No.";
-            "Debit Acc. No." := GLAccount."No.";
-            Insert();
-        end;
-
+        TextToAccountMapping.Init();
+        TextToAccountMapping."Mapping Text" := LowerCase(BuyFromVendor.Name);
+        TextToAccountMapping."Bal. Source Type" := TextToAccountMapping."Bal. Source Type"::Vendor;
+        TextToAccountMapping."Bal. Source No." := BuyFromVendor."No.";
+        TextToAccountMapping."Debit Acc. No." := GLAccount."No.";
+        TextToAccountMapping.Insert();
         // delete all invoice lines from intermediate table
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Parent Record No.", 1);
-            DeleteAll();
-        end;
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Parent Record No.", 1);
+        IntermediateDataImport.DeleteAll();
         // add total amount excl VAT to the header fields
         TotalAmountExclVAT := LibraryRandom.RandDecInRange(1, 100, 2);
         InsertIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo(Amount),
@@ -2432,23 +2427,21 @@ codeunit 139157 "Invoice Premapping Tests"
         GLAccount: Record "G/L Account";
         LastLineNo: Integer;
     begin
-        with TextToAccMapping do begin
-            if FindLast() then
-                LastLineNo := "Line No.";
+        if TextToAccMapping.FindLast() then
+            LastLineNo := TextToAccMapping."Line No.";
 
-            Init();
-            Validate("Line No.", LastLineNo + 1);
-            Validate("Mapping Text", Keyword);
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("Vendor No.", VendorNo);
-            Validate("Debit Acc. No.", GLAccount."No.");
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("Credit Acc. No.", GLAccount."No.");
-            Validate("Bal. Source Type", BalSourceType);
-            Validate("Bal. Source No.", BalSourceNo);
+        TextToAccMapping.Init();
+        TextToAccMapping.Validate("Line No.", LastLineNo + 1);
+        TextToAccMapping.Validate("Mapping Text", Keyword);
+        LibraryERM.CreateGLAccount(GLAccount);
+        TextToAccMapping.Validate("Vendor No.", VendorNo);
+        TextToAccMapping.Validate("Debit Acc. No.", GLAccount."No.");
+        LibraryERM.CreateGLAccount(GLAccount);
+        TextToAccMapping.Validate("Credit Acc. No.", GLAccount."No.");
+        TextToAccMapping.Validate("Bal. Source Type", BalSourceType);
+        TextToAccMapping.Validate("Bal. Source No.", BalSourceNo);
 
-            Insert(true);
-        end;
+        TextToAccMapping.Insert(true);
     end;
 }
 

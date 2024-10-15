@@ -1360,12 +1360,10 @@ codeunit 134710 "Manual Payment Registration"
 
         // [THEN] An error has been occurred: "The document with type Invoice and description Test Invoice must have the same currency code as the payment you are registering."
         Assert.ExpectedErrorCode('Dialog');
-        with TempPaymentRegistrationBuffer do
-            Assert.ExpectedError(StrSubstNo(ForeignCurrNotSuportedErr, "Document Type", Description));
+        Assert.ExpectedError(StrSubstNo(ForeignCurrNotSuportedErr, TempPaymentRegistrationBuffer."Document Type", TempPaymentRegistrationBuffer.Description));
 
         // [THEN] Payment registration line is not changed after the error
-        with TempPaymentRegistrationBuffer do
-            Assert.AreEqual(ExpectedAmount, "Amount Received", FieldCaption("Amount Received"));
+        Assert.AreEqual(ExpectedAmount, TempPaymentRegistrationBuffer."Amount Received", TempPaymentRegistrationBuffer.FieldCaption("Amount Received"));
     end;
 
     [Test]
@@ -1861,22 +1859,18 @@ codeunit 134710 "Manual Payment Registration"
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
-            Modify(true);
-            exit("No.");
-        end;
+        BankAccount.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
     end;
 
     local procedure CreateGenJournalBatchWithBankAccount(var GenJournalBatch: Record "Gen. Journal Batch"; BankAccountNo: Code[20])
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        with GenJournalBatch do begin
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", BankAccountNo);
-            Validate("No. Series", LibraryERM.CreateNoSeriesCode());
-            Modify(true);
-        end;
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccountNo);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
+        GenJournalBatch.Modify(true);
     end;
 
     local procedure DeleteCurrentUserSetup()
@@ -1976,13 +1970,11 @@ codeunit 134710 "Manual Payment Registration"
     var
         PaymentRegistrationSetupDummy: Record "Payment Registration Setup";
     begin
-        with PaymentRegistrationSetupDummy do begin
-            Get();
-            "User ID" := DummyUserNameTxt;
-            Insert();
-            Get();
-            Delete();
-        end;
+        PaymentRegistrationSetupDummy.Get();
+        PaymentRegistrationSetupDummy."User ID" := DummyUserNameTxt;
+        PaymentRegistrationSetupDummy.Insert();
+        PaymentRegistrationSetupDummy.Get();
+        PaymentRegistrationSetupDummy.Delete();
     end;
 
     local procedure PostPayments(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary)
@@ -2145,20 +2137,18 @@ codeunit 134710 "Manual Payment Registration"
     var
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
-        with PaymentRegistrationSetup do begin
-            SetRange("User ID", SetUserID);
-            DeleteAll();
-            SetRange("User ID");
+        PaymentRegistrationSetup.SetRange("User ID", SetUserID);
+        PaymentRegistrationSetup.DeleteAll();
+        PaymentRegistrationSetup.SetRange("User ID");
 
-            Get();
-            "User ID" := SetUserID;
-            Validate("Bal. Account Type", AccountType);
-            Validate("Bal. Account No.", AccountNo);
-            "Use this Account as Def." := true;
-            "Auto Fill Date Received" := true;
+        PaymentRegistrationSetup.Get();
+        PaymentRegistrationSetup."User ID" := SetUserID;
+        PaymentRegistrationSetup.Validate("Bal. Account Type", AccountType);
+        PaymentRegistrationSetup.Validate("Bal. Account No.", AccountNo);
+        PaymentRegistrationSetup."Use this Account as Def." := true;
+        PaymentRegistrationSetup."Auto Fill Date Received" := true;
 
-            Insert(true);
-        end
+        PaymentRegistrationSetup.Insert(true);
     end;
 
     local procedure PreparePmtRegSetupWithBankBalAccount()
@@ -2167,16 +2157,14 @@ codeunit 134710 "Manual Payment Registration"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
         CreateGenJournalBatchWithBankAccount(GenJournalBatch, CreateBankAccountWithCurrency());
-        with PaymentRegistrationSetup do begin
-            SetRange("User ID", UserId);
-            DeleteAll();
+        PaymentRegistrationSetup.SetRange("User ID", UserId);
+        PaymentRegistrationSetup.DeleteAll();
 
-            Init();
-            "User ID" := UserId;
-            Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
-            Validate("Journal Batch Name", GenJournalBatch.Name);
-            Insert(true);
-        end;
+        PaymentRegistrationSetup.Init();
+        PaymentRegistrationSetup."User ID" := UserId;
+        PaymentRegistrationSetup.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
+        PaymentRegistrationSetup.Validate("Journal Batch Name", GenJournalBatch.Name);
+        PaymentRegistrationSetup.Insert(true);
     end;
 
     local procedure UpdateAmountReceived(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary; CustomerNo: Code[20]; DocNo: Code[20]; AmountReceived: Decimal): Decimal

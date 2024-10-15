@@ -895,7 +895,7 @@ codeunit 139624 "E-Doc E2E Test"
         EDocument: Record "E-Document";
         EDocumentService: Record "E-Document Service";
         EDocumentServiceStatus: Record "E-Document Service Status";
-        //EDocumentLog: Record "E-Document Log";
+        EDocumentLog: Record "E-Document Log";
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // [FEATURE] [E-Document] [Processing] 
@@ -920,28 +920,29 @@ codeunit 139624 "E-Doc E2E Test"
         EDocImplState.SetOnGetResponseSuccess();
         JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"E-Document Get Response");
         LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+        UnbindSubscription(EDocImplState);
 
-        // TODO: Remove comments when 495159 is fixed
+        EDocumentServiceStatus.FindLast();
+        EDocumentService.FindLast();
+        EDocument.FindLast();
+
         // [THEN] Document status is error
-        // Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
-        // Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
-        // Assert.AreEqual(EDocumentServiceStatus.Status::"Sending Error", EDocumentServiceStatus.Status, IncorrectValueErr);
-        // Assert.AreEqual(EDocument.Status::Error, EDocument.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
+        Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocumentServiceStatus.Status::"Sending Error", EDocumentServiceStatus.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument.Status::Error, EDocument.Status, IncorrectValueErr);
 
-        // // [THEN] There are x logs
-        // EDocumentLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
-        // EDocumentLog.SetRange("Service Code", EDocumentService.Code);
-        // Assert.RecordCount(EDocumentLog, 4);
+        // [THEN] There are x logs
+        EDocumentLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
+        EDocumentLog.SetRange("Service Code", EDocumentService.Code);
 
-        // // Exported -> Sent -> Get Response -> Sending Error
-        // EDocumentLog.FindSet();
-        // Assert.AreEqual(Enum::"E-Document Service Status"::Exported, EDocumentLog.Status, IncorrectValueErr);
-        // EDocumentLog.Next();
-        // Assert.AreEqual(Enum::"E-Document Service Status"::Sent, EDocumentLog.Status, IncorrectValueErr);
-        // EDocumentLog.Next();
-        // Assert.AreEqual(Enum::"E-Document Service Status"::"Pending Response", EDocumentLog.Status, IncorrectValueErr);
-        // EDocumentLog.Next();
-        // Assert.AreEqual(Enum::"E-Document Service Status"::"Sending Error", EDocumentLog.Status, IncorrectValueErr);
+        // Exported -> Pending Response -> Get Response -> Sending Error
+        EDocumentLog.FindSet();
+        Assert.AreEqual(Enum::"E-Document Service Status"::Exported, EDocumentLog.Status, IncorrectValueErr);
+        EDocumentLog.Next();
+        Assert.AreEqual(Enum::"E-Document Service Status"::"Pending Response", EDocumentLog.Status, IncorrectValueErr);
+        EDocumentLog.Next();
+        Assert.AreEqual(Enum::"E-Document Service Status"::"Sending Error", EDocumentLog.Status, IncorrectValueErr);
 
         UnbindSubscription(EDocImplState);
     end;
@@ -952,7 +953,7 @@ codeunit 139624 "E-Doc E2E Test"
         EDocument: Record "E-Document";
         EDocumentService: Record "E-Document Service";
         EDocumentServiceStatus: Record "E-Document Service Status";
-        //EDocumentLog: Record "E-Document Log";
+        EDocumentLog: Record "E-Document Log";
         JobQueueEntry: Record "Job Queue Entry";
     begin
         // [FEATURE] [E-Document] [Processing] 
@@ -977,30 +978,29 @@ codeunit 139624 "E-Doc E2E Test"
         EDocImplState.SetOnGetResponseSuccess();
         JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"E-Document Get Response");
         LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
-
         UnbindSubscription(EDocImplState);
 
-        // TODO: Remove comments when 495159 is fixed
+        EDocumentServiceStatus.FindLast();
+        EDocumentService.FindLast();
+        EDocument.FindLast();
+
         // [THEN] Document status is error
-        // Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
-        // Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
-        // Assert.AreEqual(EDocumentServiceStatus.Status::"Sending Error", EDocumentServiceStatus.Status, IncorrectValueErr);
-        // Assert.AreEqual(EDocument.Status::Error, EDocument.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
+        Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocumentServiceStatus.Status::"Sending Error", EDocumentServiceStatus.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument.Status::Error, EDocument.Status, IncorrectValueErr);
 
-        // // [THEN] There are x logs
-        // EDocumentLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
-        // EDocumentLog.SetRange("Service Code", EDocumentService.Code);
-        // Assert.RecordCount(EDocumentLog, 4);
+        // [THEN] There are x logs
+        EDocumentLog.SetRange("E-Doc. Entry No", EDocument."Entry No");
+        EDocumentLog.SetRange("Service Code", EDocumentService.Code);
 
-        // // Exported -> Sent -> Get Response -> Sending Error
-        // EDocumentLog.FindSet();
-        // Assert.AreEqual(Enum::"E-Document Service Status"::Exported, EDocumentLog.Status, IncorrectValueErr);
-        // EDocumentLog.Next();
-        // Assert.AreEqual(Enum::"E-Document Service Status"::Sent, EDocumentLog.Status, IncorrectValueErr);
-        // EDocumentLog.Next();
-        // Assert.AreEqual(Enum::"E-Document Service Status"::"Pending Response", EDocumentLog.Status, IncorrectValueErr);
-        // EDocumentLog.Next();
-        // Assert.AreEqual(Enum::"E-Document Service Status"::"Sending Error", EDocumentLog.Status, IncorrectValueErr);
+        // Exported -> Pending Response -> Get Response -> Sending Error
+        EDocumentLog.FindSet();
+        Assert.AreEqual(Enum::"E-Document Service Status"::Exported, EDocumentLog.Status, IncorrectValueErr);
+        EDocumentLog.Next();
+        Assert.AreEqual(Enum::"E-Document Service Status"::"Pending Response", EDocumentLog.Status, IncorrectValueErr);
+        EDocumentLog.Next();
+        Assert.AreEqual(Enum::"E-Document Service Status"::"Sending Error", EDocumentLog.Status, IncorrectValueErr);
     end;
 
     [Test]

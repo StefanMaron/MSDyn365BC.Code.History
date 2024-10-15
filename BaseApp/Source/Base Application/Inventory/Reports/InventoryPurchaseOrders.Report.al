@@ -154,6 +154,8 @@ report 709 "Inventory Purchase Orders"
 
     requestpage
     {
+        AboutTitle = 'About Inventory Purchase Orders';
+        AboutText = 'Analyse your outstanding purchase orders to understand your expected purchase volume. Show all outstanding purchases and highlight overdue purchase lines for each item.';
 
         layout
         {

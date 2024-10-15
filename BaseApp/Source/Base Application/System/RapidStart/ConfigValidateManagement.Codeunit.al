@@ -16,10 +16,12 @@ codeunit 8617 "Config. Validate Management"
     var
         TypeHelper: Codeunit "Type Helper";
 
+#pragma warning disable AA0470
         Text001Msg: Label 'Field %2 in table %1 can only contain %3 characters (%4).';
         Text002Msg: Label '%1 is not a supported data type.';
         Text003Msg: Label '%1 is not a valid %2.';
         Text004Msg: Label '%1 is not a valid option.\Valid options are %2.';
+#pragma warning restore AA0470
         ExternalTablesAreNotAllowedErr: Label 'External tables cannot be added in Configuration Packages.';
 
     procedure ValidateFieldValue(var RecRef: RecordRef; var FieldRef: FieldRef; Value: Text; SkipValidation: Boolean; LanguageID: Integer)

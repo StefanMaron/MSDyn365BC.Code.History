@@ -97,9 +97,13 @@ table 7700 "Miniform Header"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Recursion is not allowed.';
+#pragma warning disable AA0470
         Text001: Label '%1 must not be %2.';
+#pragma warning restore AA0470
         Text002: Label 'There can only be one login form.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure SaveXMLin(DOMxmlin: DotNet XmlDocument)

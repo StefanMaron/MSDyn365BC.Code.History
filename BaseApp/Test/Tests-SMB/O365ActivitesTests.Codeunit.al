@@ -576,7 +576,7 @@ codeunit 139126 "O365 Activites Tests"
         CustLedgerEntry.SetRange("Payment Method Code", TestPaymentMethod.Code);
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetCurrentKey("Posting Date");
-        if CustLedgerEntry.FindSet() then begin
+        if CustLedgerEntry.FindSet() then
             repeat
                 // Make sure the payment is made a fixed days after the invoice posting date
                 PostingDate := CalcDate('<' + Format(ExpectedAvergeCollectionDays) + 'D>', CustLedgerEntry."Posting Date");
@@ -585,7 +585,6 @@ codeunit 139126 "O365 Activites Tests"
                 LibraryERM.PostGeneralJnlLine(GenJournalLine);
                 CountInvoices += 1;
             until (CustLedgerEntry.Next() = 0) or (CountInvoices = ExpectedCountClosedInvoices);
-        end;
         PaymentsCreated := true;
     end;
 

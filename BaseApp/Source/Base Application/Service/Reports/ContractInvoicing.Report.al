@@ -241,11 +241,13 @@ report 5984 "Contract Invoicing"
         DateSep: Text[10];
         InvoiceSum: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'You have not filled in the posting date.';
         Text001: Label 'The posting date is later than the work date.\\Confirm that this is the correct date.';
         Text002: Label 'The program has stopped the batch job at your request.';
         Text003: Label 'You must fill in the Invoice-to Date field.';
         Text004: Label 'The Invoice-to Date is later than the work date.\\Confirm that this is the correct date.';
+#pragma warning restore AA0074
         ContractInvoicingTestCaptionLbl: Label 'Contract Invoicing - Test';
         PageNoCaptionLbl: Label 'Page';
         InvoiceToDateCaptionLbl: Label 'Invoice to Date';

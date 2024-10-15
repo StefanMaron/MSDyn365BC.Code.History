@@ -48,17 +48,15 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         Customer: Record Customer;
     begin
         Init();
-        with Customer do begin
-            Init();
-            Validate("Payment Method Code", NonSepaTxt);
-            TestField("Payment Terms Code", '');
+        Customer.Init();
+        Customer.Validate("Payment Method Code", NonSepaTxt);
+        Customer.TestField("Payment Terms Code", '');
 
-            Validate("Payment Method Code", '');
-            TestField("Payment Terms Code", '');
+        Customer.Validate("Payment Method Code", '');
+        Customer.TestField("Payment Terms Code", '');
 
-            Validate("Payment Method Code", SepaDDTxt);
-            TestField("Payment Terms Code", DontPayTxt);
-        end;
+        Customer.Validate("Payment Method Code", SepaDDTxt);
+        Customer.TestField("Payment Terms Code", DontPayTxt);
     end;
 
     [Test]
@@ -68,17 +66,15 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SalesHeader: Record "Sales Header";
     begin
         Init();
-        with SalesHeader do begin
-            Init();
-            Validate("Payment Method Code", NonSepaTxt);
-            TestField("Payment Terms Code", '');
+        SalesHeader.Init();
+        SalesHeader.Validate("Payment Method Code", NonSepaTxt);
+        SalesHeader.TestField("Payment Terms Code", '');
 
-            Validate("Payment Method Code", '');
-            TestField("Payment Terms Code", '');
+        SalesHeader.Validate("Payment Method Code", '');
+        SalesHeader.TestField("Payment Terms Code", '');
 
-            Validate("Payment Method Code", SepaDDTxt);
-            TestField("Payment Terms Code", DontPayTxt);
-        end;
+        SalesHeader.Validate("Payment Method Code", SepaDDTxt);
+        SalesHeader.TestField("Payment Terms Code", DontPayTxt);
     end;
 
     [Test]
@@ -278,13 +274,11 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         BankAccount.IBAN := LibraryUtility.GenerateGUID();
         BankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
 
-        with PaymentExportData do begin
-            SetBankAsSenderBank(BankAccount);
+        PaymentExportData.SetBankAsSenderBank(BankAccount);
 
-            Assert.AreEqual(BankAccount."No.", "Sender Bank Account Code", FieldName("Sender Bank Account Code"));
-            Assert.AreEqual(BankAccount.IBAN, "Sender Bank Account No.", FieldName("Sender Bank Account No."));
-            Assert.AreEqual(BankAccount."SWIFT Code", "Sender Bank BIC", FieldName("Sender Bank BIC"));
-        end;
+        Assert.AreEqual(BankAccount."No.", PaymentExportData."Sender Bank Account Code", PaymentExportData.FieldName("Sender Bank Account Code"));
+        Assert.AreEqual(BankAccount.IBAN, PaymentExportData."Sender Bank Account No.", PaymentExportData.FieldName("Sender Bank Account No."));
+        Assert.AreEqual(BankAccount."SWIFT Code", PaymentExportData."Sender Bank BIC", PaymentExportData.FieldName("Sender Bank BIC"));
     end;
 
     [Test]
@@ -317,11 +311,9 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         BankAccount.Init();
         BankAccount."Creditor No." := LibraryUtility.GenerateGUID();
 
-        with PaymentExportData do begin
-            SetCreditorIdentifier(BankAccount);
+        PaymentExportData.SetCreditorIdentifier(BankAccount);
 
-            Assert.AreEqual(BankAccount."Creditor No.", "Creditor No.", FieldName("Creditor No."));
-        end;
+        Assert.AreEqual(BankAccount."Creditor No.", PaymentExportData."Creditor No.", PaymentExportData.FieldName("Creditor No."));
     end;
 
     [Test]
@@ -343,15 +335,13 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
     var
         PaymentExportData: Record "Payment Export Data";
     begin
-        with PaymentExportData do begin
-            Init();
-            Validate("SEPA Partner Type", "SEPA Partner Type"::" ");
-            Assert.AreEqual('', "SEPA Partner Type Text", 'Wrong translation of partner type.');
-            Validate("SEPA Partner Type", "SEPA Partner Type"::Company);
-            Assert.AreEqual('B2B', "SEPA Partner Type Text", 'Wrong translation of partner type.');
-            Validate("SEPA Partner Type", "SEPA Partner Type"::Person);
-            Assert.AreEqual('CORE', "SEPA Partner Type Text", 'Wrong translation of partner type.');
-        end;
+        PaymentExportData.Init();
+        PaymentExportData.Validate("SEPA Partner Type", PaymentExportData."SEPA Partner Type"::" ");
+        Assert.AreEqual('', PaymentExportData."SEPA Partner Type Text", 'Wrong translation of partner type.');
+        PaymentExportData.Validate("SEPA Partner Type", PaymentExportData."SEPA Partner Type"::Company);
+        Assert.AreEqual('B2B', PaymentExportData."SEPA Partner Type Text", 'Wrong translation of partner type.');
+        PaymentExportData.Validate("SEPA Partner Type", PaymentExportData."SEPA Partner Type"::Person);
+        Assert.AreEqual('CORE', PaymentExportData."SEPA Partner Type Text", 'Wrong translation of partner type.');
     end;
 
     [Test]
@@ -360,17 +350,15 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
     var
         PaymentExportData: Record "Payment Export Data";
     begin
-        with PaymentExportData do begin
-            Init();
-            Validate("SEPA Direct Debit Seq. Type", "SEPA Direct Debit Seq. Type"::"One Off");
-            Assert.AreEqual('OOFF', "SEPA Direct Debit Seq. Text", 'Wrong translation of sequence type.');
-            Validate("SEPA Direct Debit Seq. Type", "SEPA Direct Debit Seq. Type"::First);
-            Assert.AreEqual('FRST', "SEPA Direct Debit Seq. Text", 'Wrong translation of sequence type.');
-            Validate("SEPA Direct Debit Seq. Type", "SEPA Direct Debit Seq. Type"::Recurring);
-            Assert.AreEqual('RCUR', "SEPA Direct Debit Seq. Text", 'Wrong translation of sequence type.');
-            Validate("SEPA Direct Debit Seq. Type", "SEPA Direct Debit Seq. Type"::Last);
-            Assert.AreEqual('FNAL', "SEPA Direct Debit Seq. Text", 'Wrong translation of sequence type.');
-        end;
+        PaymentExportData.Init();
+        PaymentExportData.Validate("SEPA Direct Debit Seq. Type", PaymentExportData."SEPA Direct Debit Seq. Type"::"One Off");
+        Assert.AreEqual('OOFF', PaymentExportData."SEPA Direct Debit Seq. Text", 'Wrong translation of sequence type.');
+        PaymentExportData.Validate("SEPA Direct Debit Seq. Type", PaymentExportData."SEPA Direct Debit Seq. Type"::First);
+        Assert.AreEqual('FRST', PaymentExportData."SEPA Direct Debit Seq. Text", 'Wrong translation of sequence type.');
+        PaymentExportData.Validate("SEPA Direct Debit Seq. Type", PaymentExportData."SEPA Direct Debit Seq. Type"::Recurring);
+        Assert.AreEqual('RCUR', PaymentExportData."SEPA Direct Debit Seq. Text", 'Wrong translation of sequence type.');
+        PaymentExportData.Validate("SEPA Direct Debit Seq. Type", PaymentExportData."SEPA Direct Debit Seq. Type"::Last);
+        Assert.AreEqual('FNAL', PaymentExportData."SEPA Direct Debit Seq. Text", 'Wrong translation of sequence type.');
     end;
 
     [Test]
@@ -407,38 +395,33 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         LastNo: Integer;
     begin
         CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgEntry, SEPADirectDebitMandate);
-        with DirectDebitCollectionEntry do begin
-            TestField("Customer No.", CustLedgEntry."Customer No.");
-            TestField("Applies-to Entry No.", CustLedgEntry."Entry No.");
-            TestField("Mandate ID", SEPADirectDebitMandate.ID);
-            Assert.AreEqual(1, "Entry No.", 'Entry No. was not incremented correctly.');
-            TestField("Transfer Date", CustLedgEntry."Due Date");
-            TestField("Currency Code", CustLedgEntry."Currency Code");
-            TestField("Transfer Amount", CustLedgEntry."Remaining Amount");
-            TestField(Status, Status::New);
-            TestField("Sequence Type", "Sequence Type"::First);
+        DirectDebitCollectionEntry.TestField("Customer No.", CustLedgEntry."Customer No.");
+        DirectDebitCollectionEntry.TestField("Applies-to Entry No.", CustLedgEntry."Entry No.");
+        DirectDebitCollectionEntry.TestField("Mandate ID", SEPADirectDebitMandate.ID);
+        Assert.AreEqual(1, DirectDebitCollectionEntry."Entry No.", 'Entry No. was not incremented correctly.');
+        DirectDebitCollectionEntry.TestField("Transfer Date", CustLedgEntry."Due Date");
+        DirectDebitCollectionEntry.TestField("Currency Code", CustLedgEntry."Currency Code");
+        DirectDebitCollectionEntry.TestField("Transfer Amount", CustLedgEntry."Remaining Amount");
+        DirectDebitCollectionEntry.TestField(Status, DirectDebitCollectionEntry.Status::New);
+        DirectDebitCollectionEntry.TestField("Sequence Type", DirectDebitCollectionEntry."Sequence Type"::First);
+        // Test OnInsertTrigger
+        LastNo := DirectDebitCollectionEntry."Entry No.";
+        DirectDebitCollectionEntry."Entry No." := 0;
+        DirectDebitCollectionEntry.Insert(true);
+        Assert.AreEqual(LastNo + 1, DirectDebitCollectionEntry."Entry No.", 'Entry No. was not incremented correctly 2. time.');
+        // Test Status change
+        DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::"File Created";
+        DirectDebitCollectionEntry.Modify();
+        DirectDebitCollectionEntry.Reject();
+        DirectDebitCollectionEntry.TestField(Status, DirectDebitCollectionEntry.Status::Rejected);
+        DirectDebitCollectionEntry.Status := DirectDebitCollectionEntry.Status::"File Created";
+        DirectDebitCollectionEntry.Modify();
+        // Test validation of amount
+        asserterror DirectDebitCollectionEntry.Validate("Transfer Amount", 0);
+        asserterror DirectDebitCollectionEntry.Validate("Transfer Amount", -1);
+        asserterror DirectDebitCollectionEntry.Validate("Transfer Amount", 9999999999.0);
 
-            // Test OnInsertTrigger
-            LastNo := "Entry No.";
-            "Entry No." := 0;
-            Insert(true);
-            Assert.AreEqual(LastNo + 1, "Entry No.", 'Entry No. was not incremented correctly 2. time.');
-
-            // Test Status change
-            Status := Status::"File Created";
-            Modify();
-            Reject();
-            TestField(Status, Status::Rejected);
-            Status := Status::"File Created";
-            Modify();
-
-            // Test validation of amount
-            asserterror Validate("Transfer Amount", 0);
-            asserterror Validate("Transfer Amount", -1);
-            asserterror Validate("Transfer Amount", 9999999999.0);
-
-            asserterror Reject();
-        end;
+        asserterror DirectDebitCollectionEntry.Reject();
     end;
 
     [Test]
@@ -497,40 +480,38 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         CustomerBankAccount.FindFirst();
         CreateMandate('', SEPADirectDebitMandate);
 
-        with SEPADirectDebitMandate do begin
-            Validate("Customer No.", CustomerBankAccount."Customer No.");
-            Validate("Customer Bank Account Code", CustomerBankAccount.Code);
-            Modify();
-            TestField("Customer Bank Account Code");
-            Validate("Type of Payment", "Type of Payment"::OneOff);
-            TestField("Expected Number of Debits", 1);
-            Validate("Type of Payment", "Type of Payment"::Recurrent);
-            Validate("Expected Number of Debits", 4);
-            Modify();
-            Assert.AreEqual(1, GetSequenceType(), 'Expected First sequence.');
-            UpdateCounter();
-            TestField("Debit Counter", 1);
-            TestField(Closed, false);
-            Assert.AreEqual(2, GetSequenceType(), 'Expected recurring sequence - 1.');
-            UpdateCounter();
-            TestField("Debit Counter", 2);
-            TestField(Closed, false);
-            Assert.AreEqual(2, GetSequenceType(), 'Expected recurring sequence - 2.');
-            UpdateCounter();
-            TestField("Debit Counter", 3);
-            TestField(Closed, false);
-            Assert.AreEqual(3, GetSequenceType(), 'Expected Last sequence.');
-            UpdateCounter();
-            TestField("Debit Counter", 4);
-            TestField(Closed, true);
-            RollBackSequenceType();
-            RollBackSequenceType();
-            Assert.AreEqual(2, GetSequenceType(), 'Expected recurring sequence - 3.');
-            UpdateCounter();
-            TestField("Debit Counter", 3);
-            TestField(Closed, false);
-            asserterror Validate("Expected Number of Debits", 2);
-        end;
+        SEPADirectDebitMandate.Validate("Customer No.", CustomerBankAccount."Customer No.");
+        SEPADirectDebitMandate.Validate("Customer Bank Account Code", CustomerBankAccount.Code);
+        SEPADirectDebitMandate.Modify();
+        SEPADirectDebitMandate.TestField("Customer Bank Account Code");
+        SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::OneOff);
+        SEPADirectDebitMandate.TestField("Expected Number of Debits", 1);
+        SEPADirectDebitMandate.Validate("Type of Payment", SEPADirectDebitMandate."Type of Payment"::Recurrent);
+        SEPADirectDebitMandate.Validate("Expected Number of Debits", 4);
+        SEPADirectDebitMandate.Modify();
+        Assert.AreEqual(1, SEPADirectDebitMandate.GetSequenceType(), 'Expected First sequence.');
+        SEPADirectDebitMandate.UpdateCounter();
+        SEPADirectDebitMandate.TestField("Debit Counter", 1);
+        SEPADirectDebitMandate.TestField(Closed, false);
+        Assert.AreEqual(2, SEPADirectDebitMandate.GetSequenceType(), 'Expected recurring sequence - 1.');
+        SEPADirectDebitMandate.UpdateCounter();
+        SEPADirectDebitMandate.TestField("Debit Counter", 2);
+        SEPADirectDebitMandate.TestField(Closed, false);
+        Assert.AreEqual(2, SEPADirectDebitMandate.GetSequenceType(), 'Expected recurring sequence - 2.');
+        SEPADirectDebitMandate.UpdateCounter();
+        SEPADirectDebitMandate.TestField("Debit Counter", 3);
+        SEPADirectDebitMandate.TestField(Closed, false);
+        Assert.AreEqual(3, SEPADirectDebitMandate.GetSequenceType(), 'Expected Last sequence.');
+        SEPADirectDebitMandate.UpdateCounter();
+        SEPADirectDebitMandate.TestField("Debit Counter", 4);
+        SEPADirectDebitMandate.TestField(Closed, true);
+        SEPADirectDebitMandate.RollBackSequenceType();
+        SEPADirectDebitMandate.RollBackSequenceType();
+        Assert.AreEqual(2, SEPADirectDebitMandate.GetSequenceType(), 'Expected recurring sequence - 3.');
+        SEPADirectDebitMandate.UpdateCounter();
+        SEPADirectDebitMandate.TestField("Debit Counter", 3);
+        SEPADirectDebitMandate.TestField(Closed, false);
+        asserterror SEPADirectDebitMandate.Validate("Expected Number of Debits", 2);
     end;
 
     [Test]
@@ -580,22 +561,20 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         SEPADDFillExportBuffer.FillExportBuffer(DirectDebitCollectionEntry, TempPaymentExportData);
         Assert.AreEqual(2, TempPaymentExportData.Count, 'Unexpected number of payment lines.');
         TempPaymentExportData.FindLast();
-        with TempPaymentExportData do begin
-            TestField("Sender Bank Account Code", BankAccount."No.");
-            TestField("Sender Bank Account No.", DelChr(BankAccount.IBAN, '<>='));
-            TestField("Sender Bank BIC", BankAccount."SWIFT Code");
-            TestField("Recipient Name", Customer.Name);
-            TestField("Recipient Address", Customer.Address);
-            TestField("Recipient City", Customer.City);
-            TestField("Recipient Post Code", Customer."Post Code");
-            TestField("Recipient Country/Region Code", Customer."Country/Region Code");
-            TestField("Recipient Bank Acc. No.", DelChr(CustomerBankAccount.IBAN, '<>='));
-            TestField("Recipient Bank BIC", CustomerBankAccount."SWIFT Code");
-            TestField("Recipient Bank Name", CustomerBankAccount.Name);
-            TestField("Payment Information ID");
-            TestField("End-to-End ID");
-            TestField(Amount, DirectDebitCollectionEntry."Transfer Amount");
-        end;
+        TempPaymentExportData.TestField("Sender Bank Account Code", BankAccount."No.");
+        TempPaymentExportData.TestField("Sender Bank Account No.", DelChr(BankAccount.IBAN, '<>='));
+        TempPaymentExportData.TestField("Sender Bank BIC", BankAccount."SWIFT Code");
+        TempPaymentExportData.TestField("Recipient Name", Customer.Name);
+        TempPaymentExportData.TestField("Recipient Address", Customer.Address);
+        TempPaymentExportData.TestField("Recipient City", Customer.City);
+        TempPaymentExportData.TestField("Recipient Post Code", Customer."Post Code");
+        TempPaymentExportData.TestField("Recipient Country/Region Code", Customer."Country/Region Code");
+        TempPaymentExportData.TestField("Recipient Bank Acc. No.", DelChr(CustomerBankAccount.IBAN, '<>='));
+        TempPaymentExportData.TestField("Recipient Bank BIC", CustomerBankAccount."SWIFT Code");
+        TempPaymentExportData.TestField("Recipient Bank Name", CustomerBankAccount.Name);
+        TempPaymentExportData.TestField("Payment Information ID");
+        TempPaymentExportData.TestField("End-to-End ID");
+        TempPaymentExportData.TestField(Amount, DirectDebitCollectionEntry."Transfer Amount");
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
         DirectDebitCollectionEntry.SetFilter(Status, '<>%1', DirectDebitCollection.Status::New);
         Assert.IsTrue(DirectDebitCollectionEntry.IsEmpty, 'Status should be New after filling the buffer.');
@@ -1646,40 +1625,34 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         end;
         NoSeries.Next();
 
-        with BankExportImportSetup do begin
-            Code := 'SEPATEST';
-            if Find() then
-                Delete();
-            Init();
-            Direction := Direction::Export;
-            "Processing Codeunit ID" := CODEUNIT::"SEPA DD-Export File";
-            "Processing XMLport ID" := XMLPORT::"SEPA DD pain.008.001.02";
-            "Check Export Codeunit" := CODEUNIT::"SEPA DD-Check Line";
-            Insert();
-        end;
+        BankExportImportSetup.Code := 'SEPATEST';
+        if BankExportImportSetup.Find() then
+            BankExportImportSetup.Delete();
+        BankExportImportSetup.Init();
+        BankExportImportSetup.Direction := BankExportImportSetup.Direction::Export;
+        BankExportImportSetup."Processing Codeunit ID" := CODEUNIT::"SEPA DD-Export File";
+        BankExportImportSetup."Processing XMLport ID" := XMLPORT::"SEPA DD pain.008.001.02";
+        BankExportImportSetup."Check Export Codeunit" := CODEUNIT::"SEPA DD-Check Line";
+        BankExportImportSetup.Insert();
 
-        with BankAccount do begin
-            FindFirst();
-            "SEPA Direct Debit Exp. Format" := BankExportImportSetup.Code;
-            "Direct Debit Msg. Nos." := NoSeries.Code;
-            if IBAN = '' then
-                IBAN := 'MU17 BOMM 0101 1010 3030 0200 000M UR';
-            if "SWIFT Code" = '' then
-                "SWIFT Code" := 'MUDABAABC';
-            "Creditor No." := LibraryUtility.GenerateGUID();
-            Modify();
-        end;
+        BankAccount.FindFirst();
+        BankAccount."SEPA Direct Debit Exp. Format" := BankExportImportSetup.Code;
+        BankAccount."Direct Debit Msg. Nos." := NoSeries.Code;
+        if BankAccount.IBAN = '' then
+            BankAccount.IBAN := 'MU17 BOMM 0101 1010 3030 0200 000M UR';
+        if BankAccount."SWIFT Code" = '' then
+            BankAccount."SWIFT Code" := 'MUDABAABC';
+        BankAccount."Creditor No." := LibraryUtility.GenerateGUID();
+        BankAccount.Modify();
         Initialized := true;
     end;
 
     local procedure AdjustEntryForExportCheck(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; DaysOffset: Integer)
     begin
-        with DirectDebitCollectionEntry do begin
-            "Currency Code" := LibraryERM.GetCurrencyCode('EUR');
-            "Transfer Amount" := DefaultLineAmount;
-            "Transfer Date" := Today + DaysOffset;
-            Modify();
-        end;
+        DirectDebitCollectionEntry."Currency Code" := LibraryERM.GetCurrencyCode('EUR');
+        DirectDebitCollectionEntry."Transfer Amount" := DefaultLineAmount;
+        DirectDebitCollectionEntry."Transfer Date" := Today + DaysOffset;
+        DirectDebitCollectionEntry.Modify();
     end;
 
     local procedure CreateDirectDebitCollectionEntry(var DirectDebitCollection: Record "Direct Debit Collection"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
@@ -1788,44 +1761,38 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
     begin
-        with PaymentTerms do begin
-            Init();
-            Code := DontPayTxt;
-            if Find() then
-                Delete();
-            Description := 'Do not pay - we will debit your bank directly.';
-            Insert();
-        end;
+        PaymentTerms.Init();
+        PaymentTerms.Code := DontPayTxt;
+        if PaymentTerms.Find() then
+            PaymentTerms.Delete();
+        PaymentTerms.Description := 'Do not pay - we will debit your bank directly.';
+        PaymentTerms.Insert();
 
-        with PaymentMethod do begin
-            Init();
-            Code := SepaDDTxt;
-            if Find() then
-                Delete();
-            Description := 'SEPA Direct Debit';
-            "Direct Debit" := true;
-            "Direct Debit Pmt. Terms Code" := PaymentTerms.Code;
-            Insert();
+        PaymentMethod.Init();
+        PaymentMethod.Code := SepaDDTxt;
+        if PaymentMethod.Find() then
+            PaymentMethod.Delete();
+        PaymentMethod.Description := 'SEPA Direct Debit';
+        PaymentMethod."Direct Debit" := true;
+        PaymentMethod."Direct Debit Pmt. Terms Code" := PaymentTerms.Code;
+        PaymentMethod.Insert();
 
-            Init();
-            Code := NonSepaTxt;
-            if Find() then
-                Delete();
-            Description := 'Normal payment';
-            Insert();
-        end;
+        PaymentMethod.Init();
+        PaymentMethod.Code := NonSepaTxt;
+        if PaymentMethod.Find() then
+            PaymentMethod.Delete();
+        PaymentMethod.Description := 'Normal payment';
+        PaymentMethod.Insert();
     end;
 
     local procedure CreateMandate(CustNo: Code[20]; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
     begin
-        with SEPADirectDebitMandate do begin
-            ID := LibraryUtility.GenerateGUID();
-            "Customer No." := CustNo;
-            "Type of Payment" := "Type of Payment"::Recurrent;
-            "Expected Number of Debits" := 3;
-            "Date of Signature" := Today;
-            Insert(true);
-        end;
+        SEPADirectDebitMandate.ID := LibraryUtility.GenerateGUID();
+        SEPADirectDebitMandate."Customer No." := CustNo;
+        SEPADirectDebitMandate."Type of Payment" := SEPADirectDebitMandate."Type of Payment"::Recurrent;
+        SEPADirectDebitMandate."Expected Number of Debits" := 3;
+        SEPADirectDebitMandate."Date of Signature" := Today;
+        SEPADirectDebitMandate.Insert(true);
     end;
 
     local procedure CreateStdSalesLines()
@@ -1835,39 +1802,34 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         GLAccount: Record "G/L Account";
     begin
         GetGLAccount(GLAccount);
-        with StandardSalesCode do begin
-            Code := SalesCodeTxt;
-            if Find() then
-                Delete(true);
-            Description := 'test';
-            Insert();
-        end;
-        with StandardSalesLine do begin
-            Init();
-            "Standard Sales Code" := StandardSalesCode.Code;
-            "Line No." := 10000;
-            Validate(Type, Type::"G/L Account");
-            Validate("No.", GLAccount."No.");
-            Quantity := 1;
-            "Amount Excl. VAT" := 1;
-            Insert();
-        end;
+        StandardSalesCode.Code := SalesCodeTxt;
+        if StandardSalesCode.Find() then
+            StandardSalesCode.Delete(true);
+        StandardSalesCode.Description := 'test';
+        StandardSalesCode.Insert();
+
+        StandardSalesLine.Init();
+        StandardSalesLine."Standard Sales Code" := StandardSalesCode.Code;
+        StandardSalesLine."Line No." := 10000;
+        StandardSalesLine.Validate(Type, StandardSalesLine.Type::"G/L Account");
+        StandardSalesLine.Validate("No.", GLAccount."No.");
+        StandardSalesLine.Quantity := 1;
+        StandardSalesLine."Amount Excl. VAT" := 1;
+        StandardSalesLine.Insert();
     end;
 
     local procedure CreateStdCustSalesLine(CustNo: Code[20]; MandateID: Code[35]; var StandardCustomerSalesCode: Record "Standard Customer Sales Code")
     begin
         CreateStdSalesLines();
-        with StandardCustomerSalesCode do begin
-            Init();
-            "Customer No." := CustNo;
-            Code := SalesCodeTxt;
-            if Find() then
-                Delete();
-            "Payment Method Code" := SepaDDTxt;
-            "Payment Terms Code" := DontPayTxt;
-            "Direct Debit Mandate ID" := MandateID;
-            Insert();
-        end;
+        StandardCustomerSalesCode.Init();
+        StandardCustomerSalesCode."Customer No." := CustNo;
+        StandardCustomerSalesCode.Code := SalesCodeTxt;
+        if StandardCustomerSalesCode.Find() then
+            StandardCustomerSalesCode.Delete();
+        StandardCustomerSalesCode."Payment Method Code" := SepaDDTxt;
+        StandardCustomerSalesCode."Payment Terms Code" := DontPayTxt;
+        StandardCustomerSalesCode."Direct Debit Mandate ID" := MandateID;
+        StandardCustomerSalesCode.Insert();
     end;
 
     local procedure GetGLAccount(var GLAccount: Record "G/L Account")
@@ -1948,14 +1910,12 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
     var
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        with CustomerBankAccount do begin
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            IBAN := IBANCode;
-            "Bank Branch No." := CopyStr(BankBranchNo, 1, MaxStrLen("Bank Branch No."));
-            "Bank Account No." := CopyStr(BankAccountNo, 1, MaxStrLen("Bank Account No."));
-            Modify();
-        end;
+        CustomerBankAccount.SetRange("Customer No.", CustomerNo);
+        CustomerBankAccount.FindFirst();
+        CustomerBankAccount.IBAN := IBANCode;
+        CustomerBankAccount."Bank Branch No." := CopyStr(BankBranchNo, 1, MaxStrLen(CustomerBankAccount."Bank Branch No."));
+        CustomerBankAccount."Bank Account No." := CopyStr(BankAccountNo, 1, MaxStrLen(CustomerBankAccount."Bank Account No."));
+        CustomerBankAccount.Modify();
         exit(CustomerBankAccount.Code);
     end;
 

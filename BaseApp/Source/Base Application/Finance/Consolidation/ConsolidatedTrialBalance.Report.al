@@ -256,9 +256,13 @@ report 17 "Consolidated Trial Balance"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Enter the starting date for the consolidation period.';
         Text001: Label 'Enter the ending date for the consolidation period.';
+#pragma warning disable AA0470
         Text002: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InThousands: Boolean;
         ConsolidStartDate: Date;
         ConsolidEndDate: Date;

@@ -171,6 +171,8 @@ report 311 "Vendor - Top 10 List"
 
     requestpage
     {
+        AboutTitle = 'About Vendor - Top 10 List';
+        AboutText = 'Review a summary of vendors with the most transactions within a selected period to monitor supplier relationships, plan upcoming payments and identify potential cashflow issues.';
         SaveValues = true;
 
         layout

@@ -95,8 +95,12 @@ page 1006 "Job Task Dimensions Multiple"
         TempJobTaskDim3: Record "Job Task Dimension" temporary;
         TempJobTask: Record "Job Task" temporary;
         TotalRecNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
         Text001: Label '(Conflict)';
+#pragma warning restore AA0074
 
     local procedure SetCommonJobTaskDim()
     var

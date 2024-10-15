@@ -662,15 +662,13 @@ codeunit 137009 "SCM Availability by Event"
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        with ProdOrderComponent do begin
-            Init();
-            Status := Status::"Firm Planned";
-            "Item No." := ItemNo;
-            "Due Date" := WorkDate();
-            "Remaining Quantity" := Qty;
-            "Remaining Qty. (Base)" := Qty;
-            Insert();
-        end;
+        ProdOrderComponent.Init();
+        ProdOrderComponent.Status := ProdOrderComponent.Status::"Firm Planned";
+        ProdOrderComponent."Item No." := ItemNo;
+        ProdOrderComponent."Due Date" := WorkDate();
+        ProdOrderComponent."Remaining Quantity" := Qty;
+        ProdOrderComponent."Remaining Qty. (Base)" := Qty;
+        ProdOrderComponent.Insert();
     end;
 
     [ModalPageHandler]

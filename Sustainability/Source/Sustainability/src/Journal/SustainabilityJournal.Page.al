@@ -93,6 +93,13 @@ page 6219 "Sustainability Journal"
                 field("Document Type"; Rec."Document Type")
                 {
                     ToolTip = 'Specifies the type of the document.';
+                    ValuesAllowed = " ", Invoice, "Credit Memo";
+
+                    trigger OnValidate()
+                    begin
+                        if Rec."Document Type" = Rec."Document Type"::"GHG Credit" then
+                            Error(InvalidDocumentTypeErr, Rec."Document Type");
+                    end;
                 }
                 field("Document No."; Rec."Document No.")
                 {
@@ -473,7 +480,7 @@ page 6219 "Sustainability Journal"
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8 : Boolean;
         IsRecurringView: Boolean;
-
+        InvalidDocumentTypeErr: Label 'You cannot use Document type %1 on Sustainability Journal Line.', Comment = ' %1 = Document Type';
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin

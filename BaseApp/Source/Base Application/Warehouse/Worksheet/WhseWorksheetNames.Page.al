@@ -23,6 +23,7 @@ page 7344 "Whse. Worksheet Names"
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code of the warehouse the worksheet should be used for.';
+                    ShowMandatory = true;
                 }
                 field(Description; Rec.Description)
                 {

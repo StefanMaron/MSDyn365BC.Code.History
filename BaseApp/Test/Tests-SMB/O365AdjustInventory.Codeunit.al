@@ -709,19 +709,17 @@ codeunit 138028 "O365 Adjust Inventory"
     begin
         LibraryInventory.CreateItem(Item);
 
-        with ItemLedgerEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
-            "Item No." := Item."No.";
-            "Global Dimension 1 Code" :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Global Dimension 1 Code"), DATABASE::"Item Ledger Entry");
-            "Global Dimension 2 Code" :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Global Dimension 2 Code"), DATABASE::"Item Ledger Entry");
-            "Location Code" := LibraryUtility.GenerateRandomCode(FieldNo("Location Code"), DATABASE::"Item Ledger Entry");
-            "Variant Code" := LibraryUtility.GenerateRandomCode(FieldNo("Variant Code"), DATABASE::"Item Ledger Entry");
-            "Lot No." := LibraryUtility.GenerateRandomCode(FieldNo("Lot No."), DATABASE::"Item Ledger Entry");
-            "Serial No." := LibraryUtility.GenerateRandomCode(FieldNo("Serial No."), DATABASE::"Item Ledger Entry");
-            Insert();
-        end;
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Item No." := Item."No.";
+        ItemLedgerEntry."Global Dimension 1 Code" :=
+          LibraryUtility.GenerateRandomCode(ItemLedgerEntry.FieldNo("Global Dimension 1 Code"), DATABASE::"Item Ledger Entry");
+        ItemLedgerEntry."Global Dimension 2 Code" :=
+          LibraryUtility.GenerateRandomCode(ItemLedgerEntry.FieldNo("Global Dimension 2 Code"), DATABASE::"Item Ledger Entry");
+        ItemLedgerEntry."Location Code" := LibraryUtility.GenerateRandomCode(ItemLedgerEntry.FieldNo("Location Code"), DATABASE::"Item Ledger Entry");
+        ItemLedgerEntry."Variant Code" := LibraryUtility.GenerateRandomCode(ItemLedgerEntry.FieldNo("Variant Code"), DATABASE::"Item Ledger Entry");
+        ItemLedgerEntry."Lot No." := LibraryUtility.GenerateRandomCode(ItemLedgerEntry.FieldNo("Lot No."), DATABASE::"Item Ledger Entry");
+        ItemLedgerEntry."Serial No." := LibraryUtility.GenerateRandomCode(ItemLedgerEntry.FieldNo("Serial No."), DATABASE::"Item Ledger Entry");
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure OpenItemCardWithFilters(var ItemCard: TestPage "Item Card"; ItemLedgerEntry: Record "Item Ledger Entry")
@@ -743,15 +741,13 @@ codeunit 138028 "O365 Adjust Inventory"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
     begin
-        with LibraryInventory do begin
-            SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-            SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-            CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase,
-              Item."No.", Quantity);
-            ItemJournalLine.Validate("Location Code", LocationCode);
-            ItemJournalLine.Modify(true);
-            PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
-        end;
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase,
+          Item."No.", Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
     local procedure UpdateInventoryField(var AdjustInventory: TestPage "Adjust Inventory"; NewInventory: Decimal): Decimal

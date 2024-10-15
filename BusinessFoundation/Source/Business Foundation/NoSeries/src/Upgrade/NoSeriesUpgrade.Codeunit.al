@@ -16,7 +16,6 @@ codeunit 328 "No. Series Upgrade"
     var
         NoSeriesInstaller: Codeunit "No. Series Installer";
     begin
-        NoSeriesInstaller.TriggerMovedTableSchemaSanityCheck();
         NoSeriesInstaller.SetupNoSeriesImplementation();
     end;
 }

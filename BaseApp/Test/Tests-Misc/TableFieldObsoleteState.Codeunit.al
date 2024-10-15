@@ -20,9 +20,8 @@ codeunit 136620 "Table Field ObsoleteState"
         TypeHelper: Codeunit "Type Helper";
     begin
         // [SCENARIO] Pending field is shown as part of the key
-        with TableWithRemovedField do
-            Assert.AreEqual(
-              'Obsolete Field Pending,' + FieldCaption("Normal Field"),
+        Assert.AreEqual(
+              'Obsolete Field Pending,' + TableWithRemovedField.FieldCaption("Normal Field"),
               TypeHelper.GetKeyAsString(TableWithRemovedField, 3), 'key with Obsolete Pending field');
     end;
 
@@ -34,9 +33,8 @@ codeunit 136620 "Table Field ObsoleteState"
         TypeHelper: Codeunit "Type Helper";
     begin
         // [SCENARIO] Pending key is accesible
-        with TableWithRemovedField do
-            Assert.AreEqual(
-              'Obsolete Field Pending,' + FieldCaption(Key),
+        Assert.AreEqual(
+              'Obsolete Field Pending,' + TableWithRemovedField.FieldCaption(Key),
               TypeHelper.GetKeyAsString(TableWithRemovedField, 2), 'key with Obsolete = Pending');
     end;
 

@@ -140,10 +140,14 @@ report 191 "Create Finance Charge Memos"
         NewDateTime: DateTime;
         OldDateTime: DateTime;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be specified.';
+#pragma warning restore AA0470
         Text001: Label 'Making finance charge memos...';
         Text002: Label 'Making finance charge memos @1@@@@@@@@@@@@@';
         Text003: Label 'It was not possible to create finance charge memos for some of the selected customers.\Do you want to see these customers?';
+#pragma warning restore AA0074
 
     protected var
         FinChrgMemoHeaderReq: Record "Finance Charge Memo Header";

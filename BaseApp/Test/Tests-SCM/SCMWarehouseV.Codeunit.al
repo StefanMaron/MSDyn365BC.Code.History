@@ -150,16 +150,13 @@ codeunit 137056 "SCM Warehouse-V"
 
         // [WHEN] Calculate quantity to cross-dock "Qcd2" for Receipt "R3".
         CalculateCrossDockOpportunityForWhseReceipt(WhseCrossDockOpportunity, SecondWhseReceiptLineNo);
-
         // [THEN] "Qty. Needed" is equal to "Qs" - "Qr" - "Qcd" in Whse. Cross-Dock Opportunity for Receipt "R3".
         // [THEN] "Qty. to Cross-Dock" is equal to "Qty. Needed".
         // [THEN] "Pick Qty." and "Picked Qty." are equal to 0.
-        with WhseCrossDockOpportunity do begin
-            TestField("Qty. Needed", SalesQty - InventoryQty - CrossDockQty);
-            TestField("Qty. to Cross-Dock", "Qty. Needed");
-            TestField("Pick Qty.", 0);
-            TestField("Picked Qty.", 0);
-        end;
+        WhseCrossDockOpportunity.TestField("Qty. Needed", SalesQty - InventoryQty - CrossDockQty);
+        WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", WhseCrossDockOpportunity."Qty. Needed");
+        WhseCrossDockOpportunity.TestField("Pick Qty.", 0);
+        WhseCrossDockOpportunity.TestField("Picked Qty.", 0);
     end;
 
     [Test]
@@ -211,15 +208,12 @@ codeunit 137056 "SCM Warehouse-V"
 
         // [WHEN] Calculate quantity to cross-dock "Qcd2" for Receipt "R3".
         CalculateCrossDockOpportunityForWhseReceipt(WhseCrossDockOpportunity, SecondWhseReceiptLineNo);
-
         // [THEN] "To-Src. Unit of Measure Code" in Whse. Cross-Dock Opportunity for Receipt "R3" = "UOM2".
         // [THEN] "Qty. Needed" is equal to "Qs" - ("Qcd" converted to "UOM2") in Whse. Cross-Dock Opportunity for Receipt "R3".
-        with WhseCrossDockOpportunity do begin
-            TestField("To-Src. Unit of Measure Code", ItemUnitOfMeasure.Code);
-            Assert.AreNearlyEqual(
-              SalesQty - CrossDockQty / QtyPerUOM, "Qty. Needed", GLSetup."Unit-Amount Rounding Precision",
-              StrSubstNo(WrongNeededQtyErr, FieldCaption("Qty. Needed"), TableCaption));
-        end;
+        WhseCrossDockOpportunity.TestField("To-Src. Unit of Measure Code", ItemUnitOfMeasure.Code);
+        Assert.AreNearlyEqual(
+          SalesQty - CrossDockQty / QtyPerUOM, WhseCrossDockOpportunity."Qty. Needed", GLSetup."Unit-Amount Rounding Precision",
+          StrSubstNo(WrongNeededQtyErr, WhseCrossDockOpportunity.FieldCaption("Qty. Needed"), WhseCrossDockOpportunity.TableCaption));
     end;
 
     [Test]
@@ -3380,14 +3374,11 @@ codeunit 137056 "SCM Warehouse-V"
 
         // [WHEN] Post Inventory Put Away.
         PostInventoryPut(PurchaseHeader."No.");
-
         // [THEN] Warehouse Entry of Inventory Put-Away "Whse. Document Type" = " "
-        with WarehouseEntry do begin
-            SetRange("Item No.", Item."No.");
-            SetRange("Location Code", LocationSilver.Code);
-            FindFirst();
-            TestField("Whse. Document Type", "Whse. Document Type"::" ");
-        end;
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.SetRange("Location Code", LocationSilver.Code);
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Whse. Document Type", WarehouseEntry."Whse. Document Type"::" ");
     end;
 
     [Test]
@@ -3440,14 +3431,11 @@ codeunit 137056 "SCM Warehouse-V"
 
         // [WHEN] Post Inventory Pick
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
-
         // [THEN] Warehouse Entry of Inventory Pick "Whse. Document Type" = " "
-        with WarehouseEntry do begin
-            SetRange("Item No.", Item."No.");
-            SetRange("Location Code", LocationSilver.Code);
-            FindLast();
-            TestField("Whse. Document Type", "Whse. Document Type"::" ");
-        end;
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.SetRange("Location Code", LocationSilver.Code);
+        WarehouseEntry.FindLast();
+        WarehouseEntry.TestField("Whse. Document Type", WarehouseEntry."Whse. Document Type"::" ");
     end;
 
     [Test]
@@ -3488,23 +3476,18 @@ codeunit 137056 "SCM Warehouse-V"
         CreateInternalMovement(InternalMovementHeader, LocationSilver, Bin2, Item, Bin, Qty);
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
 
-        with WarehouseActivityHeader do begin
-            SetCurrentKey("Location Code");
-            SetRange("Location Code", LocationSilver.Code);
-            FindLast();
-        end;
+        WarehouseActivityHeader.SetCurrentKey("Location Code");
+        WarehouseActivityHeader.SetRange("Location Code", LocationSilver.Code);
+        WarehouseActivityHeader.FindLast();
         LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
 
         // [WHEN] Register The Movement created.
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-
         // [THEN] Warehouse Entry of Inventory Movement "Whse. Document Type" = " "
-        with WarehouseEntry do begin
-            SetRange("Item No.", Item."No.");
-            SetRange("Location Code", LocationSilver.Code);
-            FindFirst();
-            TestField("Whse. Document Type", "Whse. Document Type"::" ");
-        end;
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.SetRange("Location Code", LocationSilver.Code);
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Whse. Document Type", WarehouseEntry."Whse. Document Type"::" ");
     end;
 
     local procedure CreateLocationSetup()
@@ -3601,16 +3584,14 @@ codeunit 137056 "SCM Warehouse-V"
         Bin: Record Bin;
     begin
         LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', LibraryRandom.RandInt(3) + 3, false); // Regular Bins
-        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 1, true); // Cross-Dock Bin
-
-        with Location do begin
-            FindBinsForLocation(Bin, Code, false);
-            SetBinCode("Receipt Bin Code", Bin);
-            SetBinCode("Shipment Bin Code", Bin);
-            FindBinsForLocation(Bin, Code, true);
-            Validate("Cross-Dock Bin Code", Bin.Code);
-            Modify();
-        end;
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 1, true);
+        // Cross-Dock Bin
+        FindBinsForLocation(Bin, Location.Code, false);
+        SetBinCode(Location."Receipt Bin Code", Bin);
+        SetBinCode(Location."Shipment Bin Code", Bin);
+        FindBinsForLocation(Bin, Location.Code, true);
+        Location.Validate("Cross-Dock Bin Code", Bin.Code);
+        Location.Modify();
     end;
 
     local procedure SetBinCode(var BinCode: Code[20]; var Bin: Record Bin)
@@ -3621,11 +3602,9 @@ codeunit 137056 "SCM Warehouse-V"
 
     local procedure FindBinsForLocation(var Bin: Record Bin; LocationCode: Code[20]; CrossDock: Boolean)
     begin
-        with Bin do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Cross-Dock Bin", CrossDock);
-            FindSet();
-        end;
+        Bin.SetRange("Location Code", LocationCode);
+        Bin.SetRange("Cross-Dock Bin", CrossDock);
+        Bin.FindSet();
     end;
 
     local procedure AssignNoSeriesForItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; NoSeries: Code[20])
@@ -3718,12 +3697,10 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure CalculateCrossDockOpportunityForWhseReceipt(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; WhseReceiptLineNo: Code[20])
     begin
         CalculateCrossDockSimple(WhseReceiptLineNo);
-        with WhseCrossDockOpportunity do begin
-            SetRange("Source Name/No.", WhseReceiptLineNo);
-            FindFirst();
-            AutoFillQtyToCrossDock(WhseCrossDockOpportunity);
-            Find();
-        end;
+        WhseCrossDockOpportunity.SetRange("Source Name/No.", WhseReceiptLineNo);
+        WhseCrossDockOpportunity.FindFirst();
+        WhseCrossDockOpportunity.AutoFillQtyToCrossDock(WhseCrossDockOpportunity);
+        WhseCrossDockOpportunity.Find();
     end;
 
     local procedure ChangeExpirationDateOnActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
@@ -4154,11 +4131,9 @@ codeunit 137056 "SCM Warehouse-V"
         WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line";
     begin
         LibraryWarehouse.CreateWhseInternalPutawayHdr(WhseInternalPutAwayHeader, LocationCode);
-        with WhseInternalPutAwayHeader do begin
-            Validate("From Zone Code", FromZonecode);
-            Validate("From Bin Code", FromBinCode);
-            Modify(true);
-        end;
+        WhseInternalPutAwayHeader.Validate("From Zone Code", FromZonecode);
+        WhseInternalPutAwayHeader.Validate("From Bin Code", FromBinCode);
+        WhseInternalPutAwayHeader.Modify(true);
 
         LibraryWarehouse.CreateWhseInternalPutawayLine(
           WhseInternalPutAwayHeader, WhseInternalPutAwayLine, ItemNo, Qty);
@@ -4308,11 +4283,9 @@ codeunit 137056 "SCM Warehouse-V"
           WhseInternalPutAwayHeader, LocationCode, ZoneCode, BinCode, ItemNo, NewQuantity, LotNo, SerialNo);
         WhseIntPutAwayRelease.Release(WhseInternalPutAwayHeader);
 
-        with WhseInternalPutAwayLine do begin
-            SetRange("No.", WhseInternalPutAwayHeader."No.");
-            FindFirst();
-            CreatePutAwayDoc(WhseInternalPutAwayLine);
-        end;
+        WhseInternalPutAwayLine.SetRange("No.", WhseInternalPutAwayHeader."No.");
+        WhseInternalPutAwayLine.FindFirst();
+        WhseInternalPutAwayLine.CreatePutAwayDoc(WhseInternalPutAwayLine);
     end;
 
     local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; BinCode: Code[20])
@@ -4421,13 +4394,11 @@ codeunit 137056 "SCM Warehouse-V"
 
     local procedure FindWhseActivityLineByItem(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", ActivityType);
-            SetRange("Location Code", LocationCode);
-            SetRange("Item No.", ItemNo);
-            SetRange("Action Type", ActionType);
-            FindSet();
-        end;
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindWarehouseReceiptNo(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
@@ -4945,14 +4916,12 @@ codeunit 137056 "SCM Warehouse-V"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Get(LocationCode);
-            Validate("Directed Put-away and Pick", DirectedPutawayAndPick);
-            Validate("Use Cross-Docking", UseCrossDocking);
-            Validate("Cross-Dock Bin Code", CrossDockBinCode);
-            Validate("Adjustment Bin Code", AdjustmentBinCode);
-            Modify(true);
-        end;
+        Location.Get(LocationCode);
+        Location.Validate("Directed Put-away and Pick", DirectedPutawayAndPick);
+        Location.Validate("Use Cross-Docking", UseCrossDocking);
+        Location.Validate("Cross-Dock Bin Code", CrossDockBinCode);
+        Location.Validate("Adjustment Bin Code", AdjustmentBinCode);
+        Location.Modify(true);
     end;
 
     local procedure UpdateBinsOnLocation(var Location: Record Location; ReceiptBinCode: Code[20]; ShipmentBinCode: Code[20])
@@ -5001,12 +4970,10 @@ codeunit 137056 "SCM Warehouse-V"
     local procedure UpdatePlaceBinCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; SourceNo: Code[20])
     begin
         FindWhseMovementLine(WarehouseActivityLine, ItemNo, ActivityType, LocationCode, SourceNo);
-        with WarehouseActivityLine do begin
-            SetRange("Action Type", "Action Type"::Place);
-            FindFirst();
-            Validate("Bin Code", BinCode);
-            Modify(true);
-        end;
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Bin Code", BinCode);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure PrepareInvtPutAway(SourceDocument: Enum "Warehouse Activity Source Document"; DocumentNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20])
@@ -5060,33 +5027,29 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            FindWhseActivityLineByItem(WarehouseActivityLine, "Activity Type"::"Put-away", LocationCode, ItemNo, "Action Type"::Take);
-            Validate("Qty. to Handle", QtyToHandle);
-            Modify(true);
+        FindWhseActivityLineByItem(WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Put-away", LocationCode, ItemNo, WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+        WarehouseActivityLine.Modify(true);
 
-            SetRange("Action Type", "Action Type"::Place);
-            FindFirst();
-            Validate("Qty. to Handle", QtyToHandle);
-            Validate("Zone Code", ZoneCode);
-            Validate("Bin Code", BinCode);
-            Modify(true);
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+        WarehouseActivityLine.Validate("Zone Code", ZoneCode);
+        WarehouseActivityLine.Validate("Bin Code", BinCode);
+        WarehouseActivityLine.Modify(true);
 
-            WarehouseActivityHeader.Get("Activity Type"::"Put-away", "No.");
-            LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-        end;
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type"::"Put-away", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
     local procedure SetPreventNegInventory(PreventNegInventory: Boolean) PrevPreventNegInventory: Boolean
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        with InventorySetup do begin
-            Get();
-            PrevPreventNegInventory := "Prevent Negative Inventory";
-            "Prevent Negative Inventory" := PreventNegInventory;
-            Modify();
-        end;
+        InventorySetup.Get();
+        PrevPreventNegInventory := InventorySetup."Prevent Negative Inventory";
+        InventorySetup."Prevent Negative Inventory" := PreventNegInventory;
+        InventorySetup.Modify();
     end;
 
     local procedure WarehousePickChangeExpirationDateSetup(var Item: Record Item; var SalesHeader: Record "Sales Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
@@ -5116,12 +5079,10 @@ codeunit 137056 "SCM Warehouse-V"
     var
         BinContent: Record "Bin Content";
     begin
-        with BinContent do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            CalcFields("Quantity (Base)");
-            Assert.AreEqual(QuantityBase, "Quantity (Base)", StrSubstNo(QuantityBaseErr, QuantityBase, ItemNo, TableCaption));
-        end;
+        BinContent.SetRange("Item No.", ItemNo);
+        BinContent.FindFirst();
+        BinContent.CalcFields("Quantity (Base)");
+        Assert.AreEqual(QuantityBase, BinContent."Quantity (Base)", StrSubstNo(QuantityBaseErr, QuantityBase, ItemNo, BinContent.TableCaption));
     end;
 
     local procedure VerifyWhseReceiptLine(WarehouseReceiptLine: Record "Warehouse Receipt Line"; CrossDockZoneCode: Code[10]; CrossDockBinCode: Code[20]; VariantCode: Code[20])
@@ -5372,13 +5333,11 @@ codeunit 137056 "SCM Warehouse-V"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            SetRange(Quantity, Qty);
-            FindFirst();
-            TestField("Bin Code", BinCode);
-        end;
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Location Code", LocationCode);
+        WarehouseEntry.SetRange(Quantity, Qty);
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Bin Code", BinCode);
     end;
 
     local procedure VerifyCountOfWarehouseEntry(WhseDocumentNo: Code[20])
@@ -5660,12 +5619,10 @@ codeunit 137056 "SCM Warehouse-V"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Get(LocationCode);
-            PrevValue := "Adjustment Bin Code";
-            Validate("Adjustment Bin Code", NewValue);
-            Modify();
-        end;
+        Location.Get(LocationCode);
+        PrevValue := Location."Adjustment Bin Code";
+        Location.Validate("Adjustment Bin Code", NewValue);
+        Location.Modify();
     end;
 
     local procedure MockInventory(LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; UOMCode: Code[10]; QtyPerUOM: Decimal; QtyToSet: Decimal)
@@ -5673,33 +5630,29 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseEntry: Record "Warehouse Entry";
         EntryNo: Integer;
     begin
-        with WarehouseEntry do begin
-            FindLast();
-            EntryNo := "Entry No." + 1;
-            Init();
-            "Entry No." := EntryNo;
-            "Location Code" := LocationCode;
-            "Zone Code" := ZoneCode;
-            "Bin Code" := BinCode;
-            "Item No." := ItemNo;
-            "Unit of Measure Code" := UOMCode;
-            Quantity := QtyToSet;
-            "Qty. (Base)" := QtyToSet * QtyPerUOM;
-            Insert();
-        end;
+        WarehouseEntry.FindLast();
+        EntryNo := WarehouseEntry."Entry No." + 1;
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := EntryNo;
+        WarehouseEntry."Location Code" := LocationCode;
+        WarehouseEntry."Zone Code" := ZoneCode;
+        WarehouseEntry."Bin Code" := BinCode;
+        WarehouseEntry."Item No." := ItemNo;
+        WarehouseEntry."Unit of Measure Code" := UOMCode;
+        WarehouseEntry.Quantity := QtyToSet;
+        WarehouseEntry."Qty. (Base)" := QtyToSet * QtyPerUOM;
+        WarehouseEntry.Insert();
     end;
 
     local procedure SetupWhseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; ItemNo: Code[20])
     begin
-        with WarehouseJournalLine do begin
-            Init();
-            "Journal Template Name" := WarehouseJournalTemplate.Name;
-            "Journal Batch Name" := WarehouseJournalBatch.Name;
-            "Location Code" := LocationCode;
-            Commit();
-            SetUpNewLine(WarehouseJournalLine);
-            Validate("Item No.", ItemNo);
-        end;
+        WarehouseJournalLine.Init();
+        WarehouseJournalLine."Journal Template Name" := WarehouseJournalTemplate.Name;
+        WarehouseJournalLine."Journal Batch Name" := WarehouseJournalBatch.Name;
+        WarehouseJournalLine."Location Code" := LocationCode;
+        Commit();
+        WarehouseJournalLine.SetUpNewLine(WarehouseJournalLine);
+        WarehouseJournalLine.Validate("Item No.", ItemNo);
     end;
 
     local procedure CreateWhseItemJournalLine(WhseJournalTemplateName: Code[10]; WhseJournalBatchName: Code[10]; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; ItemQty: Decimal; AdjBinToRestore: Code[20])
@@ -5707,28 +5660,24 @@ codeunit 137056 "SCM Warehouse-V"
         WarehouseJournalLine: Record "Warehouse Journal Line";
         WhseItemJournal: TestPage "Whse. Item Journal";
     begin
-        with WarehouseJournalLine do begin
-            "Location Code" := LocationCode;
-            "Journal Batch Name" := WhseJournalBatchName;
-            SetRange("Journal Template Name", WhseJournalTemplateName);
-        end;
+        WarehouseJournalLine."Location Code" := LocationCode;
+        WarehouseJournalLine."Journal Batch Name" := WhseJournalBatchName;
+        WarehouseJournalLine.SetRange("Journal Template Name", WhseJournalTemplateName);
 
         Commit();
         WhseItemJournal.Trap();
         PAGE.Run(PAGE::"Whse. Item Journal", WarehouseJournalLine);
 
-        with WhseItemJournal do begin
-            asserterror "Item No.".SetValue(ItemNo);
+        asserterror WhseItemJournal."Item No.".SetValue(ItemNo);
 
-            SetupAdjustmentBin(LocationCode, AdjBinToRestore);
-            Commit();
+        SetupAdjustmentBin(LocationCode, AdjBinToRestore);
+        Commit();
 
-            "Item No.".SetValue(ItemNo);
-            Quantity.SetValue(ItemQty);
-            "Zone Code".SetValue(ZoneCode);
-            "Bin Code".SetValue(BinCode);
-            OK().Invoke();
-        end;
+        WhseItemJournal."Item No.".SetValue(ItemNo);
+        WhseItemJournal.Quantity.SetValue(ItemQty);
+        WhseItemJournal."Zone Code".SetValue(ZoneCode);
+        WhseItemJournal."Bin Code".SetValue(BinCode);
+        WhseItemJournal.OK().Invoke();
     end;
 
     local procedure CreateWhseItemJournalLineWithWrongAdjBin(WhseJournalTemplateName: Code[10]; WhseJournalBatchName: Code[10]; LocationCode: Code[10]; ZoneCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; ItemQty: Decimal; var AdjustmentBinCode: Code[20])
@@ -5743,25 +5692,21 @@ codeunit 137056 "SCM Warehouse-V"
           LibraryWarehouse.SelectBinType(false, false, false, false), '', '', 0, false);
         LibraryWarehouse.CreateBin(
           NewAdjustmentBin, LocationWhite.Code, LibraryUtility.GenerateGUID(), Zone.Code, Zone."Bin Type Code");
-        with WarehouseJournalLine do begin
-            "Location Code" := LocationCode;
-            "Journal Batch Name" := WhseJournalBatchName;
-            SetRange("Journal Template Name", WhseJournalTemplateName);
-        end;
+        WarehouseJournalLine."Location Code" := LocationCode;
+        WarehouseJournalLine."Journal Batch Name" := WhseJournalBatchName;
+        WarehouseJournalLine.SetRange("Journal Template Name", WhseJournalTemplateName);
 
         Commit();
         WhseItemJournal.Trap();
         PAGE.Run(PAGE::"Whse. Item Journal", WarehouseJournalLine);
 
-        with WhseItemJournal do begin
-            "Item No.".SetValue(ItemNo);
-            Quantity.SetValue(ItemQty);
-            "Zone Code".SetValue(ZoneCode);
-            "Bin Code".SetValue(BinCode);
+        WhseItemJournal."Item No.".SetValue(ItemNo);
+        WhseItemJournal.Quantity.SetValue(ItemQty);
+        WhseItemJournal."Zone Code".SetValue(ZoneCode);
+        WhseItemJournal."Bin Code".SetValue(BinCode);
 
-            AdjustmentBinCode := SetupAdjustmentBin(LocationWhite.Code, NewAdjustmentBin.Code);
-            OK().Invoke();
-        end;
+        AdjustmentBinCode := SetupAdjustmentBin(LocationWhite.Code, NewAdjustmentBin.Code);
+        WhseItemJournal.OK().Invoke();
     end;
 
     local procedure SetupWhseItemJnlLineWrongBinCode(var Zone: Record Zone; var Bin: Record Bin)
@@ -5797,11 +5742,9 @@ codeunit 137056 "SCM Warehouse-V"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Bin Code", BinCode);
-            Assert.IsFalse(IsEmpty, StrSubstNo(BinCodeNotFoundErr, BinCode));
-        end;
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Bin Code", BinCode);
+        Assert.IsFalse(WarehouseEntry.IsEmpty, StrSubstNo(BinCodeNotFoundErr, BinCode));
     end;
 
     local procedure CreateInternalMovement(var InternalMovementHeader: Record "Internal Movement Header"; Location: Record Location; ToBin: Record Bin; Item: Record Item; FromBin: Record Bin; Quantity: Decimal)

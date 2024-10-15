@@ -230,6 +230,8 @@ report 113 "Customer/Item Sales"
 
     requestpage
     {
+        AboutTitle = 'About Customer/Item Sales';
+        AboutText = 'Analyse your item sales per customer to understand sales trends, optimise inventory management and improve marketing efforts. Assess the relationship between discounts, sales amount and volume of sales for each customer/item combination in the given period.';
         SaveValues = true;
 
         layout

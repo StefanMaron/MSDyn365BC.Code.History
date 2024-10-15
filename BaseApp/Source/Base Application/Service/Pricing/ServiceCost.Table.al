@@ -93,11 +93,11 @@ table 5905 "Service Cost"
 
     trigger OnDelete()
     begin
-        MoveEntries.MoveServiceCostLedgerEntries(Rec);
+        ServMoveEntries.MoveServiceCostLedgerEntries(Rec);
     end;
 
     var
-        MoveEntries: Codeunit MoveEntries;
+        ServMoveEntries: Codeunit "Serv. Move Entries";
 
     local procedure AsPriceAsset(var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type")
     begin

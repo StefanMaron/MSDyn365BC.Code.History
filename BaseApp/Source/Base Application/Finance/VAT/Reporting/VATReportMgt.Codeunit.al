@@ -15,12 +15,16 @@ codeunit 737 "VAT Report Mgt."
     end;
 
     var
+#pragma warning disable AA0470
         CreateVATReturnQst: Label 'VAT Return %1 has been created. Do you want to open the VAT return card?', Comment = '1 - VAT Return No.';
         AlreadyExistVATReturnQst: Label 'VAT Return %1 associated with this VAT return period already exists. Do you want to open the VAT return card?', Comment = '1 - VAT Return No.';
+#pragma warning restore AA0470
         NoVATReturnQst: Label 'There is no VAT return for this period. Do you want to create a new one?';
         JobTraceCategoryTxt: Label 'Auto update of VAT return period job.', Locked = true;
         JobTraceStartTxt: Label 'A job for an automatic update of the VAT return period has started with frequency %1.', Locked = true;
+#pragma warning disable AA0470
         FailedJobNotificationMsg: Label 'Auto receive job has failed (executed on %1).', Comment = '1 - datetime';
+#pragma warning restore AA0470
         OpenJobCardMsg: Label 'Open the job card';
         ManualInsertNotificationMsg: Label 'Insert is only allowed with the Get VAT Return Periods action.';
         ManualInsertNotificationNameTxt: Label 'VAT return period manual insert notification.';

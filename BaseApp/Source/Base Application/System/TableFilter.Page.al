@@ -78,7 +78,9 @@ page 9805 "Table Filter"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'The filters are too large to be copied to the type "TableFilter".';
+#pragma warning restore AA0074
 
     protected var
         SourceTableNumber: Integer;

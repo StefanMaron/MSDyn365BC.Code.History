@@ -48,6 +48,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
             trigger OnValidate()
             var
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                CurrExchRateUpdateConsentProvidedLbl: Label 'Curr. Exch. Rate Update Setup - consent provided by UserSecurityId %1.', Locked = true;
             begin
                 if not xRec."Enabled" and Rec."Enabled" then
                     Rec."Enabled" := CustomerConsentMgt.ConfirmUserConsent();
@@ -57,6 +58,7 @@ table 1650 "Curr. Exch. Rate Update Setup"
                     VerifyDataExchangeLineDefinition();
                     AutoUpdateExchangeRates();
                     LogTelemetryWhenServiceEnabled();
+                    Session.LogAuditMessage(StrSubstNo(CurrExchRateUpdateConsentProvidedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
                 end else
                     LogTelemetryWhenServiceDisabled();
             end;

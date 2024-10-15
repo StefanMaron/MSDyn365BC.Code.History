@@ -225,7 +225,7 @@ codeunit 134767 "Test OData Wizard US"
 
         ServiceName := 'Page22';
         NewName := 'Page22Copy';
-        NavFilterText := 'SORTING(No.) where(No.=FILTER(<>01121212),Name=FILTER(>A),Credit Limit (LCY)=FILTER(>100),Blocked=FILTER(Ship|Invoice),Combine Shipments=FILTER(Yes))';
+        NavFilterText := 'SORTING(No.) WHERE(No.=FILTER(<>01121212),Name=FILTER(>A),Credit Limit (LCY)=FILTER(>100),Blocked=FILTER(Ship|Invoice),Combine Shipments=FILTER(Yes))';
 
         CreateCustomerListEndpoint(ServiceName, NavFilterText, true, TenantWebService);
 
@@ -549,7 +549,7 @@ codeunit 134767 "Test OData Wizard US"
         TenantWebService.DeleteAll();
 
         ServiceName := 'C';
-        NavFilterText := 'SORTING(No.) where(No.=FILTER(01121212|01454545),Name=FILTER(@*e?*),Credit Limit (LCY)=FILTER(<=1,234,567.89),Blocked=FILTER(Ship|Invoice),Last Date Modified=FILTER(<>05/30/00),Combine Shipments=FILTER(Yes))';
+        NavFilterText := 'SORTING(No.) WHERE(No.=FILTER(01121212|01454545),Name=FILTER(@*e?*),Credit Limit (LCY)=FILTER(<=1,234,567.89),Blocked=FILTER(Ship|Invoice),Last Date Modified=FILTER(<>05/30/00),Combine Shipments=FILTER(Yes))';
 
         ExpectedODataSelectText := '$select=No,Name,Credit_Limit_LCY,Blocked,Combine_Shipments,Last_Date_Modified';
         ExpectedODataV3FilterText :=
@@ -802,7 +802,7 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual(ODataExpectedName, ODataActualName, 'Object name conversion did not match the expected value.');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('SalesPriceFilterPageHandler')]
     [Scope('OnPrem')]
@@ -873,12 +873,12 @@ codeunit 134767 "Test OData Wizard US"
         AddTenantWebServiceRecord(ServiceNameParam, TenantWebService."Object Type"::Query, 101, TenantWebService);
         CreateSalesDashboardTenantWebServiceColumns(TenantWebService);
 
-        ItemLedgerFilterText := 'SORTING(Entry No.) where(Entry No.=FILTER(100..300),Posting Date=FILTER(>=05/30/00),Entry Type=FILTER(Purchase|Sale),';
+        ItemLedgerFilterText := 'SORTING(Entry No.) WHERE(Entry No.=FILTER(100..300),Posting Date=FILTER(>=05/30/00),Entry Type=FILTER(Purchase|Sale),';
         ItemLedgerFilterText := ItemLedgerFilterText + 'Quantity=FILTER(>-10&<12,345.67),Sales Amount (Expected)=FILTER(300..),Sales Amount (Actual)=FILTER(..300))';
         AddTenantWebServiceFilterRecord(TenantWebService.RecordId, DATABASE::"Item Ledger Entry", ItemLedgerFilterText);
-        AddTenantWebServiceFilterRecord(TenantWebService.RecordId, DATABASE::"Country/Region", 'SORTING(Code) where(Name=FILTER(*e*))');
+        AddTenantWebServiceFilterRecord(TenantWebService.RecordId, DATABASE::"Country/Region", 'SORTING(Code) WHERE(Name=FILTER(*e*))');
         AddTenantWebServiceFilterRecord(
-          TenantWebService.RecordId, DATABASE::Customer, 'SORTING(No.) where(Customer Posting Group=FILTER(DOMESTIC))');
+          TenantWebService.RecordId, DATABASE::Customer, 'SORTING(No.) WHERE(Customer Posting Group=FILTER(DOMESTIC))');
         AddTenantWebServiceODataRecord(TenantWebService.RecordId, ServiceNameParam, TenantWebService."Object Type"::Query);
     end;
 
@@ -1088,7 +1088,7 @@ codeunit 134767 "Test OData Wizard US"
         VerifyNavContact(NavContact, ExchangeContact);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [FilterPageHandler]
     [Scope('OnPrem')]
     procedure SalesPriceFilterPageHandler(var SalesLineRecordRef: RecordRef): Boolean

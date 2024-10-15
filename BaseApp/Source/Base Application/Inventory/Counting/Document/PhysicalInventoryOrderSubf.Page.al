@@ -129,7 +129,7 @@ page 5877 "Physical Inventory Order Subf."
                 field("Qty. Exp. Tracking (Base)"; Rec."Qty. Exp. Tracking (Base)")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the item''s expected inventory of serial and lot numbers in the base unit of measure.';
+                    ToolTip = 'Specifies the item''s expected inventory of serial, lot and package numbers in the base unit of measure.';
 #if not CLEAN24
                     Visible = PackageTrackingEnabled;
 #endif
@@ -137,7 +137,7 @@ page 5877 "Physical Inventory Order Subf."
                 field("Use Item Tracking"; Rec."Use Item Tracking")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies that the counting of the item is done by counting its serial and lot numbers.';
+                    ToolTip = 'Specifies that the counting of the item is done by counting its serial, lot and package numbers.';
                 }
                 field("Qty. Recorded (Base)"; Rec."Qty. Recorded (Base)")
                 {
@@ -337,7 +337,7 @@ page 5877 "Physical Inventory Order Subf."
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'E&xpected Tracking Lines';
-                        ToolTip = 'View the serial or lot numbers that are currently recorded (expected) for the item on the line.';
+                        ToolTip = 'View the serial, lot or package numbers that are currently recorded (expected) for the item on the line.';
 
                         trigger OnAction()
                         begin
@@ -348,7 +348,7 @@ page 5877 "Physical Inventory Order Subf."
                     {
                         ApplicationArea = Warehouse;
                         Caption = '&All Diff. Tracking Lines';
-                        ToolTip = 'View the serial or lot numbers that are different on the related recording than currently recorded (expected) for the item on the line.';
+                        ToolTip = 'View the serial, lot or package numbers that are different on the related recording than currently recorded (expected) for the item on the line.';
 
                         trigger OnAction()
                         begin
@@ -359,7 +359,7 @@ page 5877 "Physical Inventory Order Subf."
                     {
                         ApplicationArea = Warehouse;
                         Caption = '&Pos. Diff. Tracking Lines';
-                        ToolTip = 'View the serial or lot numbers that are counted as more on the related recording than currently recorded (expected) for the item on the line.';
+                        ToolTip = 'View the serial, lot or package numbers that are counted as more on the related recording than currently recorded (expected) for the item on the line.';
 
                         trigger OnAction()
                         begin
@@ -370,7 +370,7 @@ page 5877 "Physical Inventory Order Subf."
                     {
                         ApplicationArea = Warehouse;
                         Caption = '&Neg. Diff. Tracking Lines';
-                        ToolTip = 'View the serial or lot numbers that are counted as less on the related recording than currently recorded (expected) for the item on the line.';
+                        ToolTip = 'View the serial, lot or package numbers that are counted as less on the related recording than currently recorded (expected) for the item on the line.';
 
                         trigger OnAction()
                         begin

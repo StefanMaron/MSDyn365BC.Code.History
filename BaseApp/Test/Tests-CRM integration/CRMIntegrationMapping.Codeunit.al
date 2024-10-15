@@ -20,9 +20,7 @@ codeunit 139183 "CRM Integration Mapping"
         ExpectedRecordNotFoundErr: Label 'Expected record not found.';
         UnexpectedRecordFoundErr: Label 'Unexpected record found.';
         NoFieldMappingRowsErr: Label 'There are no field mapping rows for the Integration Table Mapping Name';
-        CurrencyDoesNotExistErr: Label 'The Dataverse Transactioncurrency does not exist.';
         InsertIsNotAllowedErr: Label 'New method failed because Insert is not allowed.';
-        FieldValueMustBeNoErr: Label '%1 must be equal to ''No''', Comment = '%1 - a field name';
         NotNullIsApplicableForGUIDErr: Label 'The Not Null value is applicable for GUID fields only.';
         FieldRelationShipErr: Label 'The field %1 must not have a relationship with another table.', Comment = '%1 - a field name';
         FieldClassNormalErr: Label 'The field %1 must have the field class set to "Normal"', comment = '%1 = field name';
@@ -67,20 +65,16 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [UT]
         // [SCENARIO] GetTempDescription returns a sting of format "TableName<->IntegrationTableName"
         // [GIVEN] Mapping for Item - CRM Product
-        with IntegrationTableMapping do begin
-            "Table ID" := DATABASE::Item;
-            "Integration Table ID" := DATABASE::"CRM Product";
-            // [THEN] GetTempDescription() returns 'Item<->CRM Product' for "Bidirectional" sync
-            Assert.AreEqual('Item <-> CRM Product', GetTempDescription(), Format(Direction));
-
-            // [THEN] GetTempDescription() returns 'Item->CRM Product' for "ToIntegrationTable" sync
-            Direction := Direction::ToIntegrationTable;
-            Assert.AreEqual('Item -> CRM Product', GetTempDescription(), Format(Direction));
-
-            // [THEN] GetTempDescription() returns 'Item<-CRM Product' for "FromIntegrationTable" sync
-            Direction := Direction::FromIntegrationTable;
-            Assert.AreEqual('Item <- CRM Product', GetTempDescription(), Format(Direction));
-        end;
+        IntegrationTableMapping."Table ID" := DATABASE::Item;
+        IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Product";
+        // [THEN] GetTempDescription() returns 'Item<->CRM Product' for "Bidirectional" sync
+        Assert.AreEqual('Item <-> CRM Product', IntegrationTableMapping.GetTempDescription(), Format(IntegrationTableMapping.Direction));
+        // [THEN] GetTempDescription() returns 'Item->CRM Product' for "ToIntegrationTable" sync
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
+        Assert.AreEqual('Item -> CRM Product', IntegrationTableMapping.GetTempDescription(), Format(IntegrationTableMapping.Direction));
+        // [THEN] GetTempDescription() returns 'Item<-CRM Product' for "FromIntegrationTable" sync
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
+        Assert.AreEqual('Item <- CRM Product', IntegrationTableMapping.GetTempDescription(), Format(IntegrationTableMapping.Direction));
     end;
 
     [Test]
@@ -189,7 +183,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Clear Value on Failed Sync] [Not Null] [UT]
         IntegrationFieldMapping."Not Null" := true;
         asserterror IntegrationFieldMapping.Validate("Clear Value on Failed Sync", true);
-        Assert.ExpectedError(StrSubstNo(FieldValueMustBeNoErr, IntegrationFieldMapping.FieldCaption("Not Null")));
+        Assert.ExpectedTestFieldError(IntegrationFieldMapping.FieldCaption("Not Null"), Format(false));
     end;
 
     [Test]
@@ -201,7 +195,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [FEATURE] [Clear Value on Failed Sync] [Not Null] [UT]
         IntegrationFieldMapping."Clear Value on Failed Sync" := true;
         asserterror IntegrationFieldMapping.Validate("Not Null", true);
-        Assert.ExpectedError(StrSubstNo(FieldValueMustBeNoErr, IntegrationFieldMapping.FieldCaption("Clear Value on Failed Sync")));
+        Assert.ExpectedTestFieldError(IntegrationFieldMapping.FieldCaption("Clear Value on Failed Sync"), Format(false));
     end;
 
     [Test]
@@ -594,7 +588,7 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -676,7 +670,7 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -912,7 +906,7 @@ codeunit 139183 "CRM Integration Mapping"
         Assert.ExpectedError(NoFieldMappingRowsErr);
         // [THEN] new Transactioncurrency in not created
         asserterror VerifyTransactionCurrency(Currency, '', '', '');
-        Assert.ExpectedError(CurrencyDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"CRM Transactioncurrency");
     end;
 
     [Test]
@@ -1755,7 +1749,7 @@ codeunit 139183 "CRM Integration Mapping"
         CRMInvoice: Record "CRM Invoice";
         CRMInvoiceDetail: Record "CRM Invoicedetail";
         CRMUomschedule: Record "CRM Uomschedule";
-#if not CLEAN23
+#if not CLEAN25
         CRMPricelevel: Record "CRM Pricelevel";
         CRMProductPricelevel: Record "CRM Productpricelevel";
 #endif
@@ -1788,7 +1782,7 @@ codeunit 139183 "CRM Integration Mapping"
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice");
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Line", DATABASE::"CRM Invoicedetail");
         ModifyIntegrationTableMappingDirection(DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule");
-#if not CLEAN23
+#if not CLEAN25
         ModifyIntegrationTableMappingDirection(DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel");
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel");
 #endif
@@ -1849,7 +1843,7 @@ codeunit 139183 "CRM Integration Mapping"
           IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
-#if not CLEAN23
+#if not CLEAN25
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 1, 1, false);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
@@ -2162,6 +2156,141 @@ codeunit 139183 "CRM Integration Mapping"
         Assert.ExpectedError(StrSubstNo(FieldClassNormalErr, Field.FieldName));
     end;
 
+    [Test]
+    procedure IntegrationTableMappingTestIsEnabledForBidirectionalTableAndField()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+    begin
+        // [FEATURE] [Integration Table - Is Enabled]
+        // [SCENARIO] IsMappingEnabled and IsFieldMappingEnabled return correct values for different combinations of requested direction and table/field direction
+        Initialize();
+
+        // [GIVEN] Integration table bidirectional mapping 
+        CreateIntegrationTableMappingWithFieldMapping(IntegrationTableMapping, IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::Bidirectional);
+
+        // [WHEN] The IsMappingEnabled is called 
+        // [THEN] The mapping should be enabled
+        Assert.IsTrue(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::Bidirectional), 'The mapping should be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should be enabled');
+
+        // [WHEN] The IsFieldMappingEnabled is called 
+        // [THEN] The mapping should be enabled
+        Assert.IsTrue(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::Bidirectional), 'The mapping should be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should be enabled');
+    end;
+
+    [Test]
+    procedure IntegrationTableMappingTestIsEnabledForFromIntegrationTableAndField()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+    begin
+        // [FEATURE] [Integration Table - Is Enabled]
+        // [SCENARIO] IsMappingEnabled and IsFieldMappingEnabled return correct values for different combinations of requested direction and table/field direction
+        Initialize();
+
+        // [GIVEN] Integration table bidirectional mapping 
+        CreateIntegrationTableMappingWithFieldMapping(IntegrationTableMapping, IntegrationTableMapping.Direction::FromIntegrationTable, IntegrationTableMapping.Direction::FromIntegrationTable);
+
+        // [WHEN] The IsMappingEnabled is called 
+        // [THEN] The mapping should be enabled for FromIntegrationTable only
+        Assert.IsFalse(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::Bidirectional), 'The mapping should not be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should not be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should be enabled');
+
+        // [WHEN] The IsFieldMappingEnabled is called 
+        // [THEN] The mapping should be enabled for FromIntegrationTable only
+        Assert.IsFalse(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::Bidirectional), 'The mapping should not be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should not be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should be enabled');
+    end;
+
+    [Test]
+    procedure IntegrationTableMappingTestIsEnabledForToIntegrationTableAndField()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+    begin
+        // [FEATURE] [Integration Table - Is Enabled]
+        // [SCENARIO] IsMappingEnabled and IsFieldMappingEnabled return correct values for different combinations of requested direction and table/field direction
+        Initialize();
+
+        // [GIVEN] Integration table bidirectional mapping 
+        CreateIntegrationTableMappingWithFieldMapping(IntegrationTableMapping, IntegrationTableMapping.Direction::ToIntegrationTable, IntegrationTableMapping.Direction::ToIntegrationTable);
+
+        // [WHEN] The IsMappingEnabled is called 
+        // [THEN] The mapping should be enabled for ToIntegrationTable only
+        Assert.IsFalse(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::Bidirectional), 'The mapping should not be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should not be enabled');
+
+        // [WHEN] The IsFieldMappingEnabled is called 
+        // [THEN] The mapping should be enabled for ToIntegrationTable only
+        Assert.IsFalse(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::Bidirectional), 'The mapping should not be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should not be enabled');
+    end;
+
+    [Test]
+    procedure IntegrationTableMappingTestIsEnabledForToIntegrationTableAndBidirectionalField()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+    begin
+        // [FEATURE] [Integration Table - Is Enabled]
+        // [SCENARIO] IsMappingEnabled and IsFieldMappingEnabled return correct values for different combinations of requested direction and table/field direction
+        Initialize();
+
+        // [GIVEN] Integration table bidirectional mapping 
+        CreateIntegrationTableMappingWithFieldMapping(IntegrationTableMapping, IntegrationTableMapping.Direction::ToIntegrationTable, IntegrationTableMapping.Direction::Bidirectional);
+
+        // [WHEN] The IsMappingEnabled is called 
+        // [THEN] The mapping should be enabled for ToIntegrationTable only
+        Assert.IsFalse(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::Bidirectional), 'The mapping should not be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should not be enabled');
+
+        // [WHEN] The IsFieldMappingEnabled is called 
+        // [THEN] The mapping should be enabled for ToIntegrationTable only
+        Assert.IsFalse(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::Bidirectional), 'The mapping should not be enabled');
+        Assert.IsTrue(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should not be enabled');
+    end;
+
+    [Test]
+    procedure IntegrationTableMappingTestIsEnabledForToIntegrationTableAndFromField()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+    begin
+        // [FEATURE] [Integration Table - Is Enabled]
+        // [SCENARIO] IsMappingEnabled and IsFieldMappingEnabled return correct values for different combinations of requested direction and table/field direction
+        Initialize();
+
+        // [GIVEN] Integration table bidirectional mapping 
+        CreateIntegrationTableMappingWithFieldMapping(IntegrationTableMapping, IntegrationTableMapping.Direction::ToIntegrationTable, IntegrationTableMapping.Direction::FromIntegrationTable);
+
+        // [WHEN] The IsMappingEnabled is called 
+        // [THEN] The mapping should not be enabled for any combination
+        Assert.IsFalse(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::Bidirectional), 'The mapping should not be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should not be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsMappingEnabled(IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should not be enabled');
+
+        // [WHEN] The IsFieldMappingEnabled is called 
+        // [THEN] The mapping should not be enabled for any combination
+        Assert.IsFalse(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::Bidirectional), 'The mapping should not be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::ToIntegrationTable), 'The mapping should not be enabled');
+        Assert.IsFalse(IntegrationTableMapping.IsFieldMappingEnabled(Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationTableMapping.Direction::FromIntegrationTable), 'The mapping should not be enabled');
+    end;
+
     local procedure InsertIntegrationTableMapping(TableId: Integer; IntegrationTableId: Integer)
     var
         ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
@@ -2348,19 +2477,17 @@ codeunit 139183 "CRM Integration Mapping"
     var
         "Field": Record "Field";
     begin
-        with IntegrationTableMapping do begin
-            SetRange("Table ID", TableID);
-            SetRange("Integration Table ID", CRMTableId);
-            SetRange("Delete After Synchronization", false);
-            SetRange("Int. Table UID Field Type", Field.Type::GUID);
-            if not FindFirst() then begin
-                Name := LibraryUtility.GenerateGUID();
-                "Table ID" := TableID;
-                "Integration Table ID" := CRMTableId;
-                "Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
-                "Int. Table UID Field Type" := Field.Type::GUID;
-                Insert(true);
-            end;
+        IntegrationTableMapping.SetRange("Table ID", TableID);
+        IntegrationTableMapping.SetRange("Integration Table ID", CRMTableId);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
+        if not IntegrationTableMapping.FindFirst() then begin
+            IntegrationTableMapping.Name := LibraryUtility.GenerateGUID();
+            IntegrationTableMapping."Table ID" := TableID;
+            IntegrationTableMapping."Integration Table ID" := CRMTableId;
+            IntegrationTableMapping."Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
+            IntegrationTableMapping."Int. Table UID Field Type" := Field.Type::GUID;
+            IntegrationTableMapping.Insert(true);
         end;
     end;
 
@@ -2514,12 +2641,14 @@ codeunit 139183 "CRM Integration Mapping"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         LibraryCRMIntegration.CreateCRMOrganization();
@@ -2554,6 +2683,33 @@ codeunit 139183 "CRM Integration Mapping"
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
         JobQueueEntry.FindFirst();
         Codeunit.Run(Codeunit::"Integration Synch. Job Runner", JobQueueEntry);
+    end;
+
+    procedure CreateIntegrationTableMappingWithFieldMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableDirection: Option Bidirectional,ToIntegrationTable,FromIntegrationTable; FieldDirection: Option Bidirectional,ToIntegrationTable,FromIntegrationTable)
+    var
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+    begin
+        IntegrationTableMapping.DeleteAll();
+        IntegrationTableMapping.Init();
+        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID();
+        IntegrationTableMapping."Table ID" := Database::Customer;
+        IntegrationTableMapping."Integration Table ID" := Database::"CRM Account";
+        IntegrationTableMapping."Integration Table UID Fld. No." := CRMAccount.FieldNo(AccountId);
+        IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := CRMAccount.FieldNo(ModifiedOn);
+        IntegrationTableMapping."Synch. Codeunit ID" := Codeunit::"CRM Integration Table Synch.";
+        IntegrationTableMapping.Direction := TableDirection;
+        IntegrationTableMapping.Insert();
+
+        IntegrationFieldMapping.DeleteAll();
+        IntegrationFieldMapping.Init();
+        IntegrationFieldMapping."No." := 0;
+        IntegrationFieldMapping."Integration Table Mapping Name" := IntegrationTableMapping.Name;
+        IntegrationFieldMapping."Field No." := Customer.FieldNo("No.");
+        IntegrationFieldMapping."Integration Table Field No." := CRMAccount.FieldNo(AccountNumber);
+        IntegrationFieldMapping.Direction := FieldDirection;
+        IntegrationFieldMapping.Insert(true);
     end;
 
     [SendNotificationHandler]

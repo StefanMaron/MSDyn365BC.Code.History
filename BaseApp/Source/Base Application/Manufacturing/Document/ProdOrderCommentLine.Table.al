@@ -65,7 +65,11 @@ table 5414 "Prod. Order Comment Line"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'A %1 %2 cannot be inserted, modified, or deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetupNewLine()
     var

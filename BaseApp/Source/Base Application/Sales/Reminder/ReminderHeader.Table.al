@@ -985,8 +985,8 @@ table 295 "Reminder Header"
 
     procedure InsertTextLines(var LocalReminderHeader: Record "Reminder Header"; var ReminderAttachmentText: Record "Reminder Attachment Text"; LineType: Enum "Reminder Line Type"; var NextLineNumber: Integer; LineSpace: Integer)
     var
+        ReminderAttachmentTextLine: Record "Reminder Attachment Text Line";
         ReminderCommunication: Codeunit "Reminder Communication";
-        SourceDescriptionText: Text[100];
     begin
         if not ReminderAttachmentText.IsEmpty() then begin
             NextLineNo := NextLineNumber;
@@ -1009,27 +1009,35 @@ table 295 "Reminder Header"
                             + LocalReminderHeader."VAT Amount"
                             + LocalReminderHeader."Add. Fee per Line";
 
-            NextLineNo := NextLineNo + LineSpacing;
-            ReminderLine.Init();
-            ReminderLine."Reminder No." := LocalReminderHeader."No.";
-            ReminderLine."Line No." := NextLineNo;
-            ReminderLine.Type := ReminderLine.Type::" ";
+            ReminderAttachmentTextLine.SetRange(Id, ReminderAttachmentText."Id");
+            ReminderAttachmentTextLine.SetRange("Language Code", ReminderAttachmentText."Language Code");
             case LineType of
                 Enum::"Reminder Line Type"::"Beginning Text":
-                    begin
-                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Beginning Text";
-                        SourceDescriptionText := ReminderAttachmentText."Beginning Line";
-                    end;
+                    ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Beginning Line");
                 Enum::"Reminder Line Type"::"Ending Text":
-                    begin
-                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Ending Text";
-                        SourceDescriptionText := ReminderAttachmentText."Ending Line";
-                    end;
+                    ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Ending Line");
                 else
                     Error(UnexpectedLineTypeErr, LineType, LocalReminderHeader."No.");
             end;
-            ReminderLine.Description := ReminderCommunication.SubstituteBeginningOrEndingDescription(SourceDescriptionText, ReminderTotal, MaxStrLen(ReminderLine.Description), LocalReminderHeader, FinChrgTerms);
-            ReminderLine.Insert();
+            if ReminderAttachmentTextLine.IsEmpty() then
+                exit;
+
+            ReminderAttachmentTextLine.FindSet();
+            repeat
+                NextLineNo := NextLineNo + LineSpacing;
+                ReminderLine.Init();
+                ReminderLine.Type := ReminderLine.Type::" ";
+                case LineType of
+                    Enum::"Reminder Line Type"::"Beginning Text":
+                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Beginning Text";
+                    Enum::"Reminder Line Type"::"Ending Text":
+                        ReminderLine."Line Type" := ReminderLine."Line Type"::"Ending Text";
+                end;
+                ReminderLine."Reminder No." := LocalReminderHeader."No.";
+                ReminderLine."Line No." := NextLineNo;
+                ReminderLine.Description := ReminderCommunication.SubstituteBeginningOrEndingDescription(ReminderAttachmentTextLine.Text, ReminderTotal, MaxStrLen(ReminderLine.Description), LocalReminderHeader, FinChrgTerms);
+                ReminderLine.Insert();
+            until ReminderAttachmentTextLine.Next() = 0;
 
             if LineType = Enum::"Reminder Line Type"::"Beginning Text" then
                 InsertBlankLine(ReminderLine."Line Type"::"Beginning Text");

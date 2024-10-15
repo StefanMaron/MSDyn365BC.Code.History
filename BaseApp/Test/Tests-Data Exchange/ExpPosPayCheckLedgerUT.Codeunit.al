@@ -543,13 +543,11 @@ codeunit 134801 "Exp. Pos. Pay Check Ledger UT"
         // Setup: Create and Post General Journal line with bank Payment Type Manual Check.
         Initialize();
         LibraryERM.CreateBankAccount(BankAccount);
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::" ", AccountType, AccountNo,
-              "Bank Payment Type"::"Manual Check", '', BankAccount."No.", LibraryRandom.RandDec(100, 2), '');
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", AccountType, AccountNo,
+          GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccount."No.", LibraryRandom.RandDec(100, 2), '');
 
-            DocumentNo := "Document No.";
-        end;
+        DocumentNo := GenJournalLine."Document No.";
     end;
 
     local procedure IsCheckLedgerExported(DocumentNo: Code[20]): Boolean

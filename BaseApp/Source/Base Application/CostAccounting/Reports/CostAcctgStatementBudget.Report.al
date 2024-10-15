@@ -151,10 +151,12 @@ report 1133 "Cost Acctg. Statement/Budget"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Date Filter: ';
         Text001: Label 'Budget Name: ';
         Text002: Label 'Cost Center Filter: ';
         Text003: Label 'Cost Object Filter: ';
+#pragma warning restore AA0074
         SuppressZeroLines: Boolean;
         BudFilterTxt: Text;
         DateFilterTxt: Text;

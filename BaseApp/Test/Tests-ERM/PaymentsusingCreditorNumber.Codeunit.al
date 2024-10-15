@@ -688,14 +688,12 @@ codeunit 134160 "Payments using Creditor Number"
         GenJnlLine.Validate("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.Validate("Journal Batch Name", GenJnlBatch.Name);
 
-        with SuggestVendorPayments do begin
-            SetGenJnlLine(GenJnlLine);
-            SetTableView(Vendor);
-            InitializeRequest(
-                WorkDate(), false, 0, false, WorkDate(), LibraryUtility.GenerateGUID(), false, "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");
-            UseRequestPage(false);
-            RunModal();
-        end;
+        SuggestVendorPayments.SetGenJnlLine(GenJnlLine);
+        SuggestVendorPayments.SetTableView(Vendor);
+        SuggestVendorPayments.InitializeRequest(
+            WorkDate(), false, 0, false, WorkDate(), LibraryUtility.GenerateGUID(), false, "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");
+        SuggestVendorPayments.UseRequestPage(false);
+        SuggestVendorPayments.RunModal();
     end;
 
     local procedure VerifyCreditorInfoOnPurchInvoice(VendorNo: Code[20]; CreditorNo: Code[8]; PaymentReference: Code[16])

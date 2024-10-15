@@ -20,11 +20,15 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
         ExpCostDisableTxt: Label 'If you disable the %1, the program must update table %2.', Comment = '%1 - Expected Cost Posting to G/L; %2 - Post Value Entry to G/L';
         TakeHoursTxt: Label 'This can take several hours.\';
         ConfirmChangeTxt: Label 'Do you really want to change the %1?', Comment = '%1 - Expected Cost Posting to G/L';
+#pragma warning disable AA0074
         Text003: Label 'The change has been cancelled.';
         Text004: Label 'Processing entries...\\';
+#pragma warning disable AA0470
         Text005: Label 'Item No. #1########## @2@@@@@@@@@@@@@';
         Text007: Label '%1 has been changed to %2. You should now run %3.';
         Text008: Label 'Deleting %1 entries...';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DisableWarningTxt: Label 'This will not change amounts on the interim accounts and the eventual clean-up in the G/L must be done manually.\';
         Window: Dialog;
         EntriesModified: Boolean;

@@ -98,7 +98,7 @@ codeunit 136603 "ERM RS Package Operations"
         asserterror ConfigPackageField.Validate(AutoIncrement, true);
 
         // [THEN] Error: 'Primary Key must be No'
-        Assert.ExpectedError('Primary Key must be equal to ''No''');
+        Assert.ExpectedTestFieldError(ConfigPackageField.FieldCaption("Primary Key"), Format(false));
     end;
 
     [Test]
@@ -3251,10 +3251,8 @@ codeunit 136603 "ERM RS Package Operations"
 
     local procedure GetNoOfAvailableFields(var ConfigPackageTable: Record "Config. Package Table"): Integer
     begin
-        with ConfigPackageTable do begin
-            CalcFields("No. of Fields Available");
-            exit("No. of Fields Available");
-        end;
+        ConfigPackageTable.CalcFields("No. of Fields Available");
+        exit(ConfigPackageTable."No. of Fields Available");
     end;
 
     local procedure EvaluateValue(TableNo: Integer; FieldNo: Integer; Value: Text[250]) ErrorText: Text
@@ -3409,9 +3407,8 @@ codeunit 136603 "ERM RS Package Operations"
         ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
         D: Option;
     begin
-        with ShopCalendarWorkingDays do
-            for D := Day::Monday to Day::Friday do
-                LibraryManufacturing.CreateShopCalendarWorkingDays(ShopCalendarWorkingDays, ShopCalendarCode, D, WorkShiftCode, FromTime, ToTime);
+        for D := ShopCalendarWorkingDays.Day::Monday to ShopCalendarWorkingDays.Day::Friday do
+            LibraryManufacturing.CreateShopCalendarWorkingDays(ShopCalendarWorkingDays, ShopCalendarCode, D, WorkShiftCode, FromTime, ToTime);
     end;
 
     local procedure SetShopCalendarWorkingDaysFieldProcessingOrder(ConfigPackageCode: Code[20]; FieldId: Integer; ProcessingOrder: Integer)
@@ -3450,22 +3447,20 @@ codeunit 136603 "ERM RS Package Operations"
         if ShopCalendarWorkingDays.FindFirst() then
             repeat
                 RecordsCount += 1;
-                with ShopCalendarWorkingDays do begin
-                    LibraryRapidStart.CreatePackageData(
-                      ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount,
-                      FieldNo("Shop Calendar Code"), Format("Shop Calendar Code"));
-                    LibraryRapidStart.CreatePackageData(
-                      ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount,
-                      FieldNo("Work Shift Code"), Format("Work Shift Code"));
-                    LibraryRapidStart.CreatePackageData(
-                      ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount, FieldNo(Day), Format(Day));
-                    T := "Starting Time" + TimeShift;
-                    LibraryRapidStart.CreatePackageData(
-                      ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount, FieldNo("Starting Time"), Format(T));
-                    T := "Ending Time" + TimeShift;
-                    LibraryRapidStart.CreatePackageData(
-                      ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount, FieldNo("Ending Time"), Format(T));
-                end;
+                LibraryRapidStart.CreatePackageData(
+                  ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount,
+                  ShopCalendarWorkingDays.FieldNo("Shop Calendar Code"), Format(ShopCalendarWorkingDays."Shop Calendar Code"));
+                LibraryRapidStart.CreatePackageData(
+                  ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount,
+                  ShopCalendarWorkingDays.FieldNo("Work Shift Code"), Format(ShopCalendarWorkingDays."Work Shift Code"));
+                LibraryRapidStart.CreatePackageData(
+                  ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount, ShopCalendarWorkingDays.FieldNo(Day), Format(ShopCalendarWorkingDays.Day));
+                T := ShopCalendarWorkingDays."Starting Time" + TimeShift;
+                LibraryRapidStart.CreatePackageData(
+                  ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount, ShopCalendarWorkingDays.FieldNo("Starting Time"), Format(T));
+                T := ShopCalendarWorkingDays."Ending Time" + TimeShift;
+                LibraryRapidStart.CreatePackageData(
+                  ConfigPackageCode, DATABASE::"Shop Calendar Working Days", RecordsCount, ShopCalendarWorkingDays.FieldNo("Ending Time"), Format(T));
             until ShopCalendarWorkingDays.Next() = 0;
     end;
 
@@ -3553,32 +3548,28 @@ codeunit 136603 "ERM RS Package Operations"
         Item: Record Item;
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
-        with ConfigTemplateHeader do begin
-            LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
-            Validate("Table ID", DATABASE::Item);
-            Modify(true);
+        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
+        ConfigTemplateHeader.Validate("Table ID", DATABASE::Item);
+        ConfigTemplateHeader.Modify(true);
 
-            CreateConfigTemplateLine(
-              Code, Item.FieldNo("Inventory Posting Group"), CopyStr(Item.FieldName("Inventory Posting Group"), 1, 30));
-            CreateConfigTemplateLine(
-              Code, Item.FieldNo("Gen. Prod. Posting Group"), CopyStr(Item.FieldName("Gen. Prod. Posting Group"), 1, 30));
-            CreateConfigTemplateLine(
-              Code, Item.FieldNo("Allow Invoice Disc."), CopyStr(Item.FieldName("Allow Invoice Disc."), 1, 30));
-            exit(Code);
-        end;
+        CreateConfigTemplateLine(
+          ConfigTemplateHeader.Code, Item.FieldNo("Inventory Posting Group"), CopyStr(Item.FieldName("Inventory Posting Group"), 1, 30));
+        CreateConfigTemplateLine(
+          ConfigTemplateHeader.Code, Item.FieldNo("Gen. Prod. Posting Group"), CopyStr(Item.FieldName("Gen. Prod. Posting Group"), 1, 30));
+        CreateConfigTemplateLine(
+          ConfigTemplateHeader.Code, Item.FieldNo("Allow Invoice Disc."), CopyStr(Item.FieldName("Allow Invoice Disc."), 1, 30));
+        exit(ConfigTemplateHeader.Code);
     end;
 
     local procedure CreateConfigTemplateLine(ConfigTemplateHeaderCode: Code[10]; FieldID: Integer; FieldNameValue: Text[30])
     var
         ConfigTemplateLine: Record "Config. Template Line";
     begin
-        with ConfigTemplateLine do begin
-            LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeaderCode);
-            Validate(Type, Type::Field);
-            Validate("Field ID", FieldID);
-            Validate("Field Name", FieldNameValue);
-            Modify(true);
-        end;
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeaderCode);
+        ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::Field);
+        ConfigTemplateLine.Validate("Field ID", FieldID);
+        ConfigTemplateLine.Validate("Field Name", FieldNameValue);
+        ConfigTemplateLine.Modify(true);
     end;
 
     local procedure CleanupGenJnlSetupData(var PaymentMethod: Record "Payment Method"; var GenBusinessPostingGroup: Record "Gen. Business Posting Group"; var GenProductPostingGroup: Record "Gen. Product Posting Group"; var GeneralPostingSetup: Record "General Posting Setup"; var VATBusinessPostingGroup: Record "VAT Business Posting Group"; var VATProductPostingGroup: Record "VAT Product Posting Group"; var VendorPostingGroup: Record "Vendor Posting Group"; var PaymentTerms: Record "Payment Terms")
@@ -4109,14 +4100,12 @@ codeunit 136603 "ERM RS Package Operations"
         ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
         D: Option;
     begin
-        with ShopCalendarWorkingDays do begin
-            CopyFilters(ShopCalendarWorkingDaysFilters);
-            SetRange("Starting Time", FromTime);
-            SetRange("Ending Time", ToTime);
-            for D := Day::Monday to Day::Friday do begin
-                SetRange(Day, D);
-                FindFirst();
-            end;
+        ShopCalendarWorkingDays.CopyFilters(ShopCalendarWorkingDaysFilters);
+        ShopCalendarWorkingDays.SetRange("Starting Time", FromTime);
+        ShopCalendarWorkingDays.SetRange("Ending Time", ToTime);
+        for D := ShopCalendarWorkingDays.Day::Monday to ShopCalendarWorkingDays.Day::Friday do begin
+            ShopCalendarWorkingDays.SetRange(Day, D);
+            ShopCalendarWorkingDays.FindFirst();
         end;
     end;
 
@@ -4297,6 +4286,7 @@ codeunit 136603 "ERM RS Package Operations"
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
@@ -4308,7 +4298,8 @@ codeunit 136603 "ERM RS Package Operations"
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Team;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);

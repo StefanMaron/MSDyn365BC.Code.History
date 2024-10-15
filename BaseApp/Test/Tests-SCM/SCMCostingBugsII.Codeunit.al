@@ -745,20 +745,17 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // [WHEN] Adjust Cost - Item Entries
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-
         // [THEN] Average cost amount on WORKDATE is equal to average cost amount on WorkDate() + 2 days
-        with ItemLedgEntry do begin
-            SetRange("Item No.", Item."No.");
-            SetRange("Entry Type", "Entry Type"::"Negative Adjmt.");
-            FindFirst();
-            CalcFields("Cost Amount (Actual)");
-            ExpectedCost := "Cost Amount (Actual)";
+        ItemLedgEntry.SetRange("Item No.", Item."No.");
+        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Negative Adjmt.");
+        ItemLedgEntry.FindFirst();
+        ItemLedgEntry.CalcFields("Cost Amount (Actual)");
+        ExpectedCost := ItemLedgEntry."Cost Amount (Actual)";
 
-            SetRange("Entry Type", "Entry Type"::Purchase);
-            FindFirst();
-            CalcFields("Cost Amount (Actual)");
-            TestField("Cost Amount (Actual)", ExpectedCost);
-        end;
+        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Purchase);
+        ItemLedgEntry.FindFirst();
+        ItemLedgEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgEntry.TestField("Cost Amount (Actual)", ExpectedCost);
     end;
 
     [Test]
@@ -983,14 +980,11 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // [WHEN] Post Negative Output applied to previous Output
         PostNegativeOutput(ItemJournalBatch, ProdOrderLine, Qty, TempItemLedgerEntry."Entry No.");
-
         // [THEN] Consumtion is not posted for Component Item
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", CompItem."No.");
-            SetRange(Positive, true);
-            SetRange("Entry Type", "Entry Type"::Consumption);
-            Assert.RecordIsEmpty(ItemLedgerEntry);
-        end;
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.SetRange(Positive, true);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        Assert.RecordIsEmpty(ItemLedgerEntry);
     end;
 
     [Test]
@@ -1101,17 +1095,12 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // [WHEN] Open Application Worksheet.
         ApplicationWorksheet.OpenView();
-
         // [THEN] Item Ledger Entries are not applied.
-        with PositiveItemLedgerEntry do begin
-            Find();
-            TestField("Remaining Quantity", Quantity);
-        end;
+        PositiveItemLedgerEntry.Find();
+        PositiveItemLedgerEntry.TestField("Remaining Quantity", PositiveItemLedgerEntry.Quantity);
 
-        with NegativeItemLedgerEntry do begin
-            Find();
-            TestField("Remaining Quantity", Quantity);
-        end;
+        NegativeItemLedgerEntry.Find();
+        NegativeItemLedgerEntry.TestField("Remaining Quantity", NegativeItemLedgerEntry.Quantity);
 
         // [THEN] Item is not blocked by Application Worksheet.
         Item.Find();
@@ -2524,6 +2513,47 @@ codeunit 137621 "SCM Costing Bugs II"
             until TempItemLedgerEntry.Next() = 0;
     end;
 
+    [Test]
+    procedure CostOfNegativeTransferEntryAppliedToThreePositiveEntries()
+    var
+        Item: Record Item;
+        FromLocation, ToLocation, InTransitLocation : Record Location;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TransferHeader: Record "Transfer Header";
+    begin
+        // [FEATURE] [Costing] [Cost Adjustment]
+        // [SCENARIO 548066] Verify correct cost of negative transfer entry applied to three positive entries.
+        Initialize();
+
+        // [GIVEN] Locations "From", "To", "In Transit".
+        // [GIVEN] Item with FIFO costing method.
+        CreateLocationsChain(FromLocation, ToLocation, InTransitLocation);
+        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 8.0);
+
+        // [GIVEN] Post 5 pcs of the item to location "From". Unit cost = 8.
+        PostPositiveAdjustment(Item, FromLocation.Code, 5, 40.0, 0);
+
+        // [GIVEN] Post -1 pcs of the item from location "From". Unit cost = 9.
+        // [GIVEN] Post 1 pcs of the item to location "From". Unit cost = 9. Apply to the negative entry.
+        LibraryPatterns.POSTNegativeAdjustment(Item, FromLocation.Code, '', '', 1, WorkDate(), 9.0);
+        FindLastItemLedgerEntry(ItemLedgerEntry, Item."No.", FromLocation.Code, false);
+        PostPositiveAdjustment(Item, FromLocation.Code, 1, 9.0, ItemLedgerEntry."Entry No.");
+
+        // [GIVEN] Post -1 pcs of the item from location "From". Unit cost = 9.
+        // [GIVEN] Post 1 pcs of the item to location "From". Unit cost = 9. Apply to the negative entry.
+        LibraryPatterns.POSTNegativeAdjustment(Item, FromLocation.Code, '', '', 1, WorkDate(), 9.0);
+        FindLastItemLedgerEntry(ItemLedgerEntry, Item."No.", FromLocation.Code, false);
+        PostPositiveAdjustment(Item, FromLocation.Code, 1, 9.0, ItemLedgerEntry."Entry No.");
+
+        // [GIVEN] Transfer 5 pcs of the item from location "From" to location "To".
+        LibraryPatterns.POSTTransferOrder(
+          TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', 5, WorkDate(), WorkDate(), true, true);
+
+        // [WHEN] Run the cost adjustment.
+        // [THEN] Unit cost of the item is equal to 8, because the source of cost for all further entries is the positive entry with unit cost = 8.
+        AdjustCostAndVerify(Item."No.", 8.0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2552,11 +2582,9 @@ codeunit 137621 "SCM Costing Bugs II"
 
     local procedure BlockItemWithApplWorksheet(var Item: Record Item)
     begin
-        with Item do begin
-            Find();
-            Validate("Application Wksh. User ID", UserId);
-            Modify(true);
-        end;
+        Item.Find();
+        Item.Validate("Application Wksh. User ID", UserId);
+        Item.Modify(true);
     end;
 
     local procedure CreateAndPostConsumptionJournalLine(ItemNo: Code[20]; ProdOrderNo: Code[20]; Quantity: Decimal)
@@ -2717,11 +2745,9 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         LibraryPatterns.MAKEItemSimple(Item, CostingMethod, UnitCost);
 
-        with Item do begin
-            Validate("Replenishment System", ReplenishmentSystem);
-            Validate("Rounding Precision", RoundingPrecision);
-            Modify(true);
-        end;
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Rounding Precision", RoundingPrecision);
+        Item.Modify(true);
     end;
 
     local procedure CreateItemAndUpdateInventory(var Item: Record Item)
@@ -2923,13 +2949,11 @@ codeunit 137621 "SCM Costing Bugs II"
         LibrarySales.ReopenSalesDocument(SalesHeader);
         SalesHeader.Find();
 
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", OrderNo);
-            FindFirst();
-            Validate(Quantity, NewQuantity);
-            Modify(true);
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", OrderNo);
+        SalesLine.FindFirst();
+        SalesLine.Validate(Quantity, NewQuantity);
+        SalesLine.Modify(true);
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -2943,13 +2967,11 @@ codeunit 137621 "SCM Costing Bugs II"
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; LocationCode: Code[10]; IsPositive: Boolean)
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            SetRange("Location Code", LocationCode);
-            SetRange(Positive, IsPositive);
-            FindFirst();
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        ItemLedgerEntry.SetRange(Positive, IsPositive);
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindLastItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; IsPositive: Boolean)
@@ -3132,13 +3154,11 @@ codeunit 137621 "SCM Costing Bugs II"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            CalcFields("Cost Amount (Expected)");
-            Assert.AreEqual(
-              ExpectedCostAmount, "Cost Amount (Expected)", StrSubstNo(WrongCostAmountErr, FieldCaption("Cost Amount (Expected)")));
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Cost Amount (Expected)");
+        Assert.AreEqual(
+          ExpectedCostAmount, ItemLedgerEntry."Cost Amount (Expected)", StrSubstNo(WrongCostAmountErr, ItemLedgerEntry.FieldCaption("Cost Amount (Expected)")));
     end;
 
     local procedure VerifyItemLedgerEntriesCostEquality(var PosItemLedgerEntry: Record "Item Ledger Entry"; var NegItemLedgerEntry: Record "Item Ledger Entry")
@@ -3196,16 +3216,14 @@ codeunit 137621 "SCM Costing Bugs II"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            SetRange("Entry Type", "Entry Type"::Transfer);
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            SetRange(Positive, true);
-            FindFirst();
-            CalcFields("Cost Amount (Actual)");
-            Assert.AreEqual(
-              CostAmount, "Cost Amount (Actual)", StrSubstNo(WrongCostAmountErr, FieldCaption("Cost Amount (Actual)")));
-        end;
+        ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Transfer);
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.SetRange("Location Code", LocationCode);
+        ItemLedgEntry.SetRange(Positive, true);
+        ItemLedgEntry.FindFirst();
+        ItemLedgEntry.CalcFields("Cost Amount (Actual)");
+        Assert.AreEqual(
+          CostAmount, ItemLedgEntry."Cost Amount (Actual)", StrSubstNo(WrongCostAmountErr, ItemLedgEntry.FieldCaption("Cost Amount (Actual)")));
     end;
 
     local procedure VeriryItemApplicationEntryHistory(var ItemLedgerEntry: Record "Item Ledger Entry")
@@ -3426,12 +3444,10 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         ItemJnlPostLine.SetCalledFromApplicationWorksheet(AreUnappliedWithApplWorksheet);
 
-        with ItemApplicationEntry do begin
-            SetRange("Inbound Item Entry No.", PosItemLedgEntryNo);
-            SetRange("Outbound Item Entry No.", NegItemLedgEntryNo);
-            FindFirst();
-            ItemJnlPostLine.UnApply(ItemApplicationEntry);
-        end;
+        ItemApplicationEntry.SetRange("Inbound Item Entry No.", PosItemLedgEntryNo);
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", NegItemLedgEntryNo);
+        ItemApplicationEntry.FindFirst();
+        ItemJnlPostLine.UnApply(ItemApplicationEntry);
     end;
 
     [PageHandler]

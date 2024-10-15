@@ -6,7 +6,7 @@ interface "Power BI Service Provider"
 {
     Access = Internal;
 
-    procedure Initialize(AzureAccessToken: Text; PowerBIUrl: Text);
+    procedure Initialize(AzureAccessToken: SecretText; PowerBIUrl: Text);
 
     procedure StartImport(BlobStream: Instream; ReportName: Text; Overwrite: Boolean; var ImportId: Guid; var OperationResult: DotNet OperationResult);
 
@@ -18,7 +18,7 @@ interface "Power BI Service Provider"
 
     procedure GetDatasource(DatasetId: Text; var DataSourceId: Guid; var GatewayId: Guid; var OperationResult: DotNet OperationResult);
 
-    procedure UpdateDatasourceCredentials(DataSourceId: Guid; GatewayId: Guid; BusinessCentralAccessToken: Text; var OperationResult: DotNet OperationResult);
+    procedure UpdateDatasourceCredentials(DataSourceId: Guid; GatewayId: Guid; BusinessCentralAccessToken: SecretText; var OperationResult: DotNet OperationResult);
 
     procedure RefreshDataset(DatasetId: Text; var OperationResult: DotNet OperationResult);
 

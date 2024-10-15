@@ -1375,9 +1375,9 @@ codeunit 137912 "SCM Assembly Availability II"
            ((Step = 10) and (SubStep in [3, 4, 5, 6])) or
            ((Step = 11) and (SubStep in [5, 6])) or
            ((Step = 12) and (SubStep in [5, 6]))
-        then begin
-            MockAsmOrder(AsmHeader, ParentItem, AsmQty, AsmDueDate, ''); //no more errors related to availability
-        end else begin
+        then
+            MockAsmOrder(AsmHeader, ParentItem, AsmQty, AsmDueDate, '') //no more errors related to availability
+        else begin
             asserterror
             begin
                 MockAsmOrder(AsmHeader, ParentItem, AsmQty, AsmDueDate, ''); // verification that avail warning does not appear.
@@ -1597,12 +1597,11 @@ codeunit 137912 "SCM Assembly Availability II"
         if NewOffset <> ZeroDF then
             if OffsetText = '' then
                 OffsetText := Format(NewOffset)
-            else begin
+            else
                 if Replace then
                     OffsetText := Format(NewOffset)
                 else
                     OffsetText += '+' + Format(NewOffset);
-            end;
     end;
 
     local procedure MockItem(var Item: Record Item)

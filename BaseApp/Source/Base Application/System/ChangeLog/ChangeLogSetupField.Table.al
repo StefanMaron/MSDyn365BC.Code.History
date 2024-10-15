@@ -42,6 +42,21 @@ table 404 "Change Log Setup (Field)"
         field(7; "Monitor Sensitive Field"; Boolean)
         {
             DataClassification = SystemMetadata;
+
+            trigger OnValidate()
+            var
+                EnabledLbl: Label 'Enabled', Locked = true;
+                DisabledLbl: Label 'Disabled', Locked = true;
+                AuditMessageLbl: Label 'The Field Monitoring has been %1 for the field %2 in the table %3 by UserSecurityId %4.', Locked = true;
+                AuditMessageTxt: Text;
+            begin
+                if "Monitor Sensitive Field" then
+                    AuditMessageTxt := StrSubstNo(AuditMessageLbl, EnabledLbl, "Field Caption", "Table Caption", UserSecurityId())
+                else
+                    AuditMessageTxt := StrSubstNo(AuditMessageLbl, DisabledLbl, "Field Caption", "Table Caption", UserSecurityId());
+
+                Session.LogAuditMessage(AuditMessageTxt, SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+            end;
         }
         field(8; Notify; Boolean)
         {

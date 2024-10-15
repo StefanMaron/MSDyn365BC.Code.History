@@ -556,14 +556,12 @@ codeunit 139016 "File Mgt. Tests"
     begin
         FileName := FileMgt.ServerTempFileName('txt');
 
-        with InputFile do begin
-            WriteMode := true;
-            TextMode := true;
-            Create(FileName);
-            CreateOutStream(OutStream);
-            OutStream.WriteText(Content);
-            Close();
-        end;
+        InputFile.WriteMode := true;
+        InputFile.TextMode := true;
+        InputFile.Create(FileName);
+        InputFile.CreateOutStream(OutStream);
+        OutStream.WriteText(Content);
+        InputFile.Close();
     end;
 
     local procedure VerifyUploadedFile(FileName: Text; Content: Text[1024])
@@ -571,15 +569,13 @@ codeunit 139016 "File Mgt. Tests"
         UploadedFile: File;
         ActualContent: Text[1024];
     begin
-        with UploadedFile do begin
-            WriteMode := false;
-            TextMode := true;
-            Open(FileName);
-            Assert.AreNotEqual(0, Len, 'Uploaded file is empty.');
-            Read(ActualContent);
-            Assert.AreEqual(Content, ActualContent, 'Uploaded file''s content is different.');
-            Close();
-        end;
+        UploadedFile.WriteMode := false;
+        UploadedFile.TextMode := true;
+        UploadedFile.Open(FileName);
+        Assert.AreNotEqual(0, UploadedFile.Len, 'Uploaded file is empty.');
+        UploadedFile.Read(ActualContent);
+        Assert.AreEqual(Content, ActualContent, 'Uploaded file''s content is different.');
+        UploadedFile.Close();
     end;
 
 }

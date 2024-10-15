@@ -26,8 +26,6 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         AmountErrorMessageMsg: Label '%1 must be %2 in Gen. Journal Line Template Name=''''%3'''',Journal Batch Name=''''%4'''',Line No.=''''%5''''.';
         SumErrorMessageMsg: Label 'Suggested amount is incorrect.';
         RecordExistsMessageMsg: Label 'Report shouldn''t suggest any payments.';
-        ExpectedErrorErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.';
-        VerifyMessageMsg: Label 'The Expected and Actual amount must be equal.';
         ValidateErrorErr: Label '%1 must be %2 in %3 %4 = %5.';
         SuggestVendorAmountErr: Label 'The available amount of suggest vendor payment is always greater then gen. journal line amount.';
         NoOfPaymentErr: Label 'No of payment is incorrect.';
@@ -327,11 +325,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify error on General Journal posting.
-        Assert.AreEqual(
-          StrSubstNo(ExpectedErrorErr, GenJournalLine.FieldCaption("External Document No."), GenJournalLine.TableCaption(),
-            GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
-            GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
-            GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."), GetLastErrorText, VerifyMessageMsg);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("External Document No."), '');
     end;
 
     [Test]
@@ -795,6 +789,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     var
         GenJournalLine: Record "Gen. Journal Line";
         Customer: Record Customer;
+        CustLedgEntry: Record "Cust. Ledger Entry";
         CrMemoNo: Code[20];
         CrMemoAmount: Decimal;
     begin
@@ -815,7 +810,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Error 'Positive must be equal to ''Yes''  in Cust. Ledger Entry' thrown
-        Assert.ExpectedError('Positive must be equal to ''Yes''  in Cust. Ledger Entry');
+        Assert.ExpectedTestFieldError(CustLedgEntry.FieldCaption(Positive), Format(true));
     end;
 
     [Test]
@@ -3019,11 +3014,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate(Priority, 1);
-            Modify();
-            exit("No.");
-        end;
+        Vendor.Validate(Priority, 1);
+        Vendor.Modify();
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendor(CurrencyCode: Code[10]; ApplicationMethod: Enum "Application Method"): Code[20]
@@ -3432,15 +3425,13 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DefaultDimension: Record "Default Dimension";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            LibraryDimension.CreateDefaultDimension(
-              DefaultDimension, DATABASE::Vendor, VendorNo, "Shortcut Dimension 1 Code",
-              LibraryDimension.FindDifferentDimensionValue("Shortcut Dimension 1 Code", GlobalDimValueCode1));
-            LibraryDimension.CreateDefaultDimension(
-              DefaultDimension, DATABASE::Vendor, VendorNo, "Shortcut Dimension 2 Code",
-              LibraryDimension.FindDifferentDimensionValue("Shortcut Dimension 2 Code", GlobalDimValueCode2));
-        end;
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::Vendor, VendorNo, GeneralLedgerSetup."Shortcut Dimension 1 Code",
+          LibraryDimension.FindDifferentDimensionValue(GeneralLedgerSetup."Shortcut Dimension 1 Code", GlobalDimValueCode1));
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::Vendor, VendorNo, GeneralLedgerSetup."Shortcut Dimension 2 Code",
+          LibraryDimension.FindDifferentDimensionValue(GeneralLedgerSetup."Shortcut Dimension 2 Code", GlobalDimValueCode2));
     end;
 
     local procedure ClearSelectedDim()
@@ -3655,18 +3646,16 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            CalcFields(Amount, "Remaining Amount");
-            Assert.AreNearlyEqual(Amount2, Amount, LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(ValidateErrorErr, FieldCaption(Amount), Amount2, TableCaption(), FieldCaption("Entry No."), "Entry No."));
-            TestField("Remaining Amount", RemainingAmount);
-            TestField(Open, Open2);
-            TestField("On Hold", OnHold);
-        end;
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        Assert.AreNearlyEqual(Amount2, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(ValidateErrorErr, VendorLedgerEntry.FieldCaption(Amount), Amount2, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+        VendorLedgerEntry.TestField("Remaining Amount", RemainingAmount);
+        VendorLedgerEntry.TestField(Open, Open2);
+        VendorLedgerEntry.TestField("On Hold", OnHold);
     end;
 
     local procedure VerifyValuesOnGLEntry(GenJournalLine: Record "Gen. Journal Line"; ShortcutDimension1Code: Code[20]; ShortcutDimension2Code: Code[20])

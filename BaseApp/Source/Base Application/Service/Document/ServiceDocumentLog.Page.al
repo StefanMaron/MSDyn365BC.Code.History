@@ -214,7 +214,11 @@ page 5920 "Service Document Log"
     var
         ServOrderHeaderRec: Record "Service Header";
         ServLogMgt: Codeunit ServLogManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Service %1 %2 does not exist.', Comment = 'Service Order 2001 does not exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DocumentTypeVisible: Boolean;
         DocumentNoVisible: Boolean;
 

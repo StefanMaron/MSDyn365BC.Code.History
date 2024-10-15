@@ -9,6 +9,8 @@ page 5663 "Depreciation Table List"
     PageType = List;
     SourceTable = "Depreciation Table Header";
     UsageCategory = Administration;
+    AboutTitle = 'About Depreciation Table List';
+    AboutText = 'Here you overview all registered depreciation tables that you use in the Fixed Asset card to calculate the depreciation.';
 
     layout
     {

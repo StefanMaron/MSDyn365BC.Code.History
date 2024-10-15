@@ -23,7 +23,7 @@ table 136603 "Table With Removed Field"
             TableRelation = "Cust. Ledger Entry";
             ObsoleteState = Pending;
             ObsoleteReason = 'Test field.';
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '25.0';
         }
         field(4; "Normal Field"; Integer)
         {
@@ -42,7 +42,7 @@ table 136603 "Table With Removed Field"
         {
             ObsoleteReason = 'Test key.';
             ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '25.0';
         }
         key(Key3; "Normal Field")
         {

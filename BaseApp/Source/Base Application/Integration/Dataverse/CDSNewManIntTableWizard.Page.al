@@ -9,14 +9,18 @@ namespace Microsoft.Integration.SyncEngine;
 using System.Reflection;
 using System.Utilities;
 using System.Environment;
+#if not CLEAN25
 using System.IO;
+#endif
 using Microsoft.Integration.Dataverse;
+
 page 5384 "CDS New Man. Int. Table Wizard"
 {
     ApplicationArea = All;
-    Caption = 'Create new integration mappings';
+    Caption = 'Create New Integration Mappings';
     PageType = NavigatePage;
     SourceTable = "Man. Integration Table Mapping";
+
     layout
     {
         area(content)
@@ -64,10 +68,12 @@ page 5384 "CDS New Man. Int. Table Wizard"
                         trigger OnValidate()
                         var
                             IntegrationTableMapping: Record "Integration Table Mapping";
+#pragma warning disable AA0470
                             IntegrationMappingNameExistErr: Label 'Integration table name %1 already exists. Please specify a different name';
+#pragma warning restore AA0470
                         begin
                             IntegrationTableMapping.SetRange(Name, IntegrationMappingName);
-                            If not IntegrationTableMapping.IsEmpty then
+                            if not IntegrationTableMapping.IsEmpty then
                                 Error(IntegrationMappingNameExistErr, IntegrationMappingName);
                         end;
                     }
@@ -81,7 +87,7 @@ page 5384 "CDS New Man. Int. Table Wizard"
 
             group(Step2)
             {
-                Caption = 'Choose the table and integation table for the mapping.';
+                Caption = 'Choose the table and integration table for the mapping.';
                 Visible = Step2Visible;
 
                 field(TableId; IntegrationMappingTableIdValue)
@@ -110,7 +116,7 @@ page 5384 "CDS New Man. Int. Table Wizard"
                         TableMetadata.SetRange(TableType, TableMetadata.TableType::Normal);
                         TableMetadata.SetRange(ObsoleteState, TableMetadata.ObsoleteState::No);
                         TableMetadata.SetFilter(TableMetadata.ID, TableFilterTxt);
-                        if PAGE.RunModal(PAGE::"Available Table Selection List", TableMetadata) = ACTION::LookupOK then begin
+                        if Page.RunModal(Page::"Available Table Selection List", TableMetadata) = Action::LookupOK then begin
                             IntegrationMappingTableId := TableMetadata.ID;
                             IntegrationMappingTableIdValue := TableMetadata.Caption;
                         end;
@@ -143,7 +149,7 @@ page 5384 "CDS New Man. Int. Table Wizard"
                         TableMetadata.SetRange(TableType, TableMetadata.TableType::CRM);
                         TableMetadata.SetRange(ObsoleteState, TableMetadata.ObsoleteState::No);
                         TableMetadata.SetFilter(TableMetadata.ID, TableFilterTxt);
-                        if PAGE.RunModal(PAGE::"Available Table Selection List", TableMetadata) = ACTION::LookupOK then begin
+                        if Page.RunModal(Page::"Available Table Selection List", TableMetadata) = Action::LookupOK then begin
                             IntegrationMappingIntTableId := TableMetadata.ID;
                             IntegrationMappingIntTableIdValue := TableMetadata.Caption;
                         end;
@@ -220,9 +226,8 @@ page 5384 "CDS New Man. Int. Table Wizard"
                             FilterPageBuilder.AddTable(IntegrationMappingTableIdValue, IntegrationMappingTableId);
                             if TableFilter <> '' then
                                 FilterPageBuilder.SetView(IntegrationMappingTableIdValue, TableFilter);
-                            if FilterPageBuilder.RunModal() then begin
+                            if FilterPageBuilder.RunModal() then
                                 TableFilter := FilterPageBuilder.GetView(IntegrationMappingTableIdValue, false);
-                            end;
                         end;
                     }
                     field(IntegrationTableFilterValue; IntegrationTableFilter)
@@ -233,8 +238,8 @@ page 5384 "CDS New Man. Int. Table Wizard"
 
                         trigger OnAssistEdit()
                         var
-                            FilterPageBuilder: FilterPageBuilder;
                             IntegrationTableMapping: Record "Integration Table Mapping";
+                            FilterPageBuilder: FilterPageBuilder;
                         begin
                             Codeunit.Run(Codeunit::"CRM Integration Management");
                             FilterPageBuilder.AddTable(IntegrationMappingIntTableIdValue, IntegrationMappingIntTableId);
@@ -247,20 +252,24 @@ page 5384 "CDS New Man. Int. Table Wizard"
                             end;
                         end;
                     }
+#if not CLEAN25
                     field(TableConfigTemplateCode; TableConfigTemplateCode)
                     {
                         Caption = 'Table Config. Template Code';
                         ToolTip = 'Specifies a configuration template to use when creating new records in the Business Central table (specified by the Table ID field) during synchronization.';
                         Lookup = true;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with Table Config Templates field';
+                        ObsoleteTag = '25.0';
 
                         trigger OnLookup(var Text: Text): Boolean
                         var
                             ConfigTemplateHeader: Record "Config. Template Header";
                         begin
                             ConfigTemplateHeader.SetRange("Table ID", IntegrationMappingTableId);
-                            if PAGE.RunModal(PAGE::"Config. Template List", ConfigTemplateHeader) = ACTION::LookupOK then begin
+                            if Page.RunModal(Page::"Config. Template List", ConfigTemplateHeader) = Action::LookupOK then
                                 TableConfigTemplateCode := ConfigTemplateHeader.Code;
-                            end;
                         end;
                     }
                     field(IntTableConfigTemplateCode; IntTableConfigTemplateCode)
@@ -268,14 +277,53 @@ page 5384 "CDS New Man. Int. Table Wizard"
                         Caption = 'Int. Tbl. Config Template Code';
                         ToolTip = 'Specifies a configuration template to use for creating new records in the integration table.';
                         Lookup = true;
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with Table Config Templates field';
+                        ObsoleteTag = '25.0';
+
                         trigger OnLookup(var Text: Text): Boolean
                         var
                             ConfigTemplateHeader: Record "Config. Template Header";
                         begin
                             ConfigTemplateHeader.SetRange("Table ID", IntegrationMappingIntTableId);
-                            if PAGE.RunModal(PAGE::"Config. Template List", ConfigTemplateHeader) = ACTION::LookupOK then begin
+                            if Page.RunModal(Page::"Config. Template List", ConfigTemplateHeader) = Action::LookupOK then
                                 TableConfigTemplateCode := ConfigTemplateHeader.Code;
-                            end;
+                        end;
+                    }
+#endif
+                    field("Table Config Templates"; TableConfigTemplates)
+                    {
+                        Caption = 'Table Config Templates';
+                        ToolTip = 'Specifies configuration templates to use when creating new records in the Business Central table (specified by the Table ID field) during synchronization.';
+                        Editable = false;
+
+                        trigger OnAssistEdit()
+                        var
+                            TableConfigTemplate: Record "Table Config Template";
+                            TableConfigTemplates: Page "Table Config Templates";
+                        begin
+                            TableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationMappingName);
+                            TableConfigTemplates.SetTableView(TableConfigTemplate);
+                            TableConfigTemplates.RunModal();
+                            SetConfigTemplateValues();
+                        end;
+                    }
+                    field("Int. Table Config Templates"; IntTableConfigTemplates)
+                    {
+                        Caption = 'Integration Table Config Templates';
+                        ToolTip = 'Specifies configuration templates to use for creating new records in the integration table.';
+                        Editable = false;
+
+                        trigger OnAssistEdit()
+                        var
+                            IntTableConfigTemplate: Record "Int. Table Config Template";
+                            IntTableConfigTemplates: Page "Int. Table Config Templates";
+                        begin
+                            IntTableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationMappingName);
+                            IntTableConfigTemplates.SetTableView(IntTableConfigTemplate);
+                            IntTableConfigTemplates.RunModal();
+                            SetConfigTemplateValues();
                         end;
                     }
                 }
@@ -310,24 +358,24 @@ page 5384 "CDS New Man. Int. Table Wizard"
                 group(Group25)
                 {
                     ShowCaption = false;
-                    InstructionalText = '- Create new integration table and field mappings.';
+                    InstructionalText = 'Create new integration table and field mappings.';
                 }
                 group(Group26)
                 {
                     ShowCaption = false;
-                    InstructionalText = '- Insert new integration fields mappings with the status Disabled.';
+                    InstructionalText = 'Insert new integration fields mappings with the status Disabled.';
                 }
                 group(Group27)
                 {
                     ShowCaption = false;
                     Visible = not SetupExistingIntegrationMapping;
-                    InstructionalText = '- Create a Synchronization Job Queue Entry with the status On hold.';
+                    InstructionalText = 'Create a Synchronization Job Queue Entry with the status On hold.';
                 }
                 group(Group28)
                 {
                     ShowCaption = false;
                     Visible = SetupExistingIntegrationMapping;
-                    InstructionalText = 'NOTE: To update existing data, choose Run Unconditional Full Synchronization on the Integration Table Mappings page. The action will synchronize data from the new field mappings you just added.';
+                    InstructionalText = 'To update existing data, choose Run Unconditional Full Synchronization on the Integration Table Mappings page. This action will synchronize data from the new field mappings you just added.';
                 }
             }
         }
@@ -410,7 +458,9 @@ page 5384 "CDS New Man. Int. Table Wizard"
     begin
         if Step <> Step::Closed then
             if not Confirm(CloseWizardLbl, false) then
-                exit(false);
+                exit(false)
+            else
+                DeleteConfigTemplates();
     end;
 
     var
@@ -431,8 +481,12 @@ page 5384 "CDS New Man. Int. Table Wizard"
         SetupExistingIntegrationMapping: Boolean;
         AdvancedVisible: Boolean;
         IntegrationMappingName: Code[20];
+#if not CLEAN25
         TableConfigTemplateCode: Code[20];
         IntTableConfigTemplateCode: Code[20];
+#endif
+        TableConfigTemplates: Text;
+        IntTableConfigTemplates: Text;
         IntegrationMappingTableId: Integer;
         IntegrationMappingIntTableId: Integer;
         IntegrationTableUID: Integer;
@@ -445,7 +499,7 @@ page 5384 "CDS New Man. Int. Table Wizard"
         IntegrationTableFilter: Text;
         Direction: Option;
         FillinMandatoryFieldsLbl: Label 'Please fill in all the mandatory fields.';
-        CloseWizardLbl: Label 'Do you really want to close? Data is not saved.';
+        CloseWizardLbl: Label 'Data is not saved.\\Are you sure that you want to exit?';
 
     local procedure EnableControls()
     begin
@@ -468,52 +522,50 @@ page 5384 "CDS New Man. Int. Table Wizard"
         IntegrationTableMapping: Record "Integration Table Mapping";
         ManIntegrationTableMapping: Record "Man. Integration Table Mapping";
         ManIntFieldMapping: Record "Man. Int. Field Mapping";
-        ManIntFieldMappingTemp: Record "Man. Int. Field Mapping" temporary;
+        TempManIntFieldMapping: Record "Man. Int. Field Mapping" temporary;
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
         if not SetupExistingIntegrationMapping then
             Rec.InsertIntegrationTableMapping(
                     IntegrationTableMapping, IntegrationMappingName,
                     IntegrationMappingTableId, IntegrationMappingIntTableId,
-                    IntegrationTableUID, IntTblModifiedOnId,
-                    TableConfigTemplateCode, IntTableConfigTemplateCode, SyncOnlyCoupledRecords,
+                    IntegrationTableUID, IntTblModifiedOnId, SyncOnlyCoupledRecords,
                     Direction);
 
         if not ManIntegrationTableMapping.Get(IntegrationMappingName) then
             Rec.CreateRecord(IntegrationMappingName,
                     IntegrationMappingTableId, IntegrationMappingIntTableId,
                     IntegrationTableUID, IntTblModifiedOnId,
-                    SyncOnlyCoupledRecords, Direction, TableFilter, IntegrationTableFilter,
-                    TableConfigTemplateCode, IntTableConfigTemplateCode);
+                    SyncOnlyCoupledRecords, Direction, TableFilter, IntegrationTableFilter);
 
         //fields
-        CurrPage.ManIntFieldMappingList.Page.GetValues(ManIntFieldMappingTemp);
-        ManIntFieldMappingTemp.Reset();
-        ManIntFieldMappingTemp.SetRange(Name, '');
-        if ManIntFieldMappingTemp.FindSet() then
+        CurrPage.ManIntFieldMappingList.Page.GetValues(TempManIntFieldMapping);
+        TempManIntFieldMapping.Reset();
+        TempManIntFieldMapping.SetRange(Name, '');
+        if TempManIntFieldMapping.FindSet() then
             repeat
                 Rec.InsertIntegrationFieldMapping(
                     IntegrationMappingName,
-                    ManIntFieldMappingTemp."Table Field No.",
-                    ManIntFieldMappingTemp."Integration Table Field No.",
-                    ManIntFieldMappingTemp.Direction,
-                    ManIntFieldMappingTemp."Const Value",
-                    ManIntFieldMappingTemp."Validate Field",
-                    ManIntFieldMappingTemp."Validate Integr. Table Field",
+                    TempManIntFieldMapping."Table Field No.",
+                    TempManIntFieldMapping."Integration Table Field No.",
+                    TempManIntFieldMapping.Direction,
+                    TempManIntFieldMapping."Const Value",
+                    TempManIntFieldMapping."Validate Field",
+                    TempManIntFieldMapping."Validate Integr. Table Field",
                     not SetupExistingIntegrationMapping,
-                    ManIntFieldMappingTemp."Transformation Rule");
+                    TempManIntFieldMapping."Transformation Rule");
 
                 ManIntFieldMapping.CreateRecord(
                     IntegrationMappingName,
-                    ManIntFieldMappingTemp."Table Field No.",
-                    ManIntFieldMappingTemp."Integration Table Field No.",
-                    ManIntFieldMappingTemp.Direction,
-                    ManIntFieldMappingTemp."Const Value",
-                    ManIntFieldMappingTemp."Validate Field",
-                    ManIntFieldMappingTemp."Validate Integr. Table Field",
-                    ManIntFieldMappingTemp."Transformation Rule");
+                    TempManIntFieldMapping."Table Field No.",
+                    TempManIntFieldMapping."Integration Table Field No.",
+                    TempManIntFieldMapping.Direction,
+                    TempManIntFieldMapping."Const Value",
+                    TempManIntFieldMapping."Validate Field",
+                    TempManIntFieldMapping."Validate Integr. Table Field",
+                    TempManIntFieldMapping."Transformation Rule");
 
-            until ManIntFieldMappingTemp.Next() = 0;
+            until TempManIntFieldMapping.Next() = 0;
 
         if not SetupExistingIntegrationMapping then begin
             IntegrationTableMapping.SetTableFilter(TableFilter);
@@ -538,19 +590,17 @@ page 5384 "CDS New Man. Int. Table Wizard"
     local procedure NextStep(Backwards: Boolean)
     begin
         if not (SetupExistingIntegrationMapping) and (not Backwards) then begin
-            if Step = Step::Start then begin
+            if Step = Step::Start then
                 if IntegrationMappingName = '' then
                     Error(FillinMandatoryFieldsLbl);
-            end;
 
-            if Step = Step::Step2 then begin
-                if (IntegrationMappingTableId = 0) OR
-                    (IntegrationMappingIntTableId = 0) OR
-                    (IntegrationTableUID = 0) OR
+            if Step = Step::Step2 then
+                if (IntegrationMappingTableId = 0) or
+                    (IntegrationMappingIntTableId = 0) or
+                    (IntegrationTableUID = 0) or
                     (IntTblModifiedOnId = 0)
                 then
                     Error(FillinMandatoryFieldsLbl);
-            end;
         end;
 
         if Backwards then
@@ -571,6 +621,8 @@ page 5384 "CDS New Man. Int. Table Wizard"
 
     local procedure ShowStep2()
     begin
+        SetConfigTemplateValues();
+
         Step2Visible := true;
     end;
 
@@ -622,4 +674,25 @@ page 5384 "CDS New Man. Int. Table Wizard"
         IntegrationMappingIntTableId := lIntegrationMappingIntTableId;
         SetupExistingIntegrationMapping := true;
     end;
+
+    local procedure SetConfigTemplateValues()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        TableConfigTemplates := IntegrationTableMapping.GetTableConfigTemplates(IntegrationMappingName);
+        IntTableConfigTemplates := IntegrationTableMapping.GetIntTableConfigTemplates(IntegrationMappingName);
+    end;
+
+    local procedure DeleteConfigTemplates()
+    var
+        TableConfigTemplate: Record "Table Config Template";
+        IntTableConfigTemplate: Record "Int. Table Config Template";
+    begin
+        TableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationMappingName);
+        TableConfigTemplate.DeleteAll();
+
+        IntTableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationMappingName);
+        IntTableConfigTemplate.DeleteAll();
+    end;
+
 }

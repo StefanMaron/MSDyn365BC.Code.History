@@ -183,7 +183,6 @@ page 1872 "Item Availability Check"
         AvailabilityCheckNotification.SetData(Name, Value);
     end;
 
-    [Scope('OnPrem')]
     procedure InitializeFromNotification(AvailabilityCheckNotification: Notification)
     var
         GrossReq: Decimal;

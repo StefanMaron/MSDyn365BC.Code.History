@@ -6,7 +6,6 @@ namespace Microsoft.EServices.EDocument;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Purchases.Document;
-using Microsoft.Service.Document;
 using Microsoft.Sales.Document;
 using System.IO;
 using System.Reflection;
@@ -35,21 +34,74 @@ codeunit 134 "Import Attachment - Inc. Doc."
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
         IsTestMode: Boolean;
 
+    procedure ImportMultiple(var IncDocAttachment: Record "Incoming Document Attachment"; RethrowError: Boolean; files: List of [FileUpload]): Boolean
+    begin
+        // Default to MS-DOS encoding to keep consistent with the previous behavior
+        exit(ImportMultiple(IncDocAttachment, RethrowError, files, TextEncoding::MSDos));
+    end;
+
+    procedure ImportMultiple(var IncDocAttachment: Record "Incoming Document Attachment"; RethrowError: Boolean; files: List of [FileUpload]; Encoding: TextEncoding): Boolean
+    var
+        CurrentFile: FileUpload;
+        AllFileUploadedSuccessFlag: Boolean;
+    begin
+        AllFileUploadedSuccessFlag := true;
+        foreach CurrentFile in files do begin
+            IncDocAttachment.Init();
+            IncDocAttachment."Incoming Document Entry No." := 0;
+            IncDocAttachment."Line No." := 0;
+            AllFileUploadedSuccessFlag := AllFileUploadedSuccessFlag and ImportAttachment(IncDocAttachment, CurrentFile, Encoding);
+        end;
+
+        if AllFileUploadedSuccessFlag then
+            exit(true);
+
+        if not RethrowError then
+            exit(false);
+
+        Error(GetLastErrorText());
+    end;
+
+    internal procedure ImportAttachment(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; SingleFile: FileUpload): Boolean
+    begin
+        // Default to MS-DOS encoding to keep consistent with the previous behavior
+        exit(ImportAttachment(IncomingDocumentAttachment, SingleFile, TextEncoding::MSDos));
+    end;
+
+    internal procedure ImportAttachment(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; SingleFile: FileUpload; Encoding: TextEncoding): Boolean
+    var
+        TempBlob: Codeunit "Temp Blob";
+        TempInStream: InStream;
+        TempOutStream: OutStream;
+    begin
+        SingleFile.CreateInStream(TempInStream, Encoding);
+        TempBlob.CreateOutStream(TempOutStream, Encoding);
+        CopyStream(TempOutStream, TempInStream);
+
+        CheckFileContentBeforeUploadFile(IncomingDocumentAttachment);
+        IncomingDocumentAttachment.SetContentFromBlob(TempBlob);
+        exit(ImportAttachment(IncomingDocumentAttachment, SingleFile.FileName, TempBlob));
+    end;
+
     [Scope('OnPrem')]
     procedure UploadFile(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var FileName: Text)
     var
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
     begin
+        CheckFileContentBeforeUploadFile(IncomingDocumentAttachment);
+
+        FileName := FileManagement.BLOBImportWithFilter(TempBlob, ImportTxt, FileName, StrSubstNo(FileDialogTxt, FilterTxt), FilterTxt);
+        IncomingDocumentAttachment.SetContentFromBlob(TempBlob);
+    end;
+
+    local procedure CheckFileContentBeforeUploadFile(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
+    begin
         OnBeforeUploadFile(IncomingDocumentAttachment);
         IncomingDocumentAttachment.CalcFields(Content);
         if IncomingDocumentAttachment.Content.HasValue() then
             if not Confirm(ReplaceContentQst, false) then
                 Error('');
-
-        FileName := FileManagement.BLOBImportWithFilter(
-            TempBlob, ImportTxt, FileName, StrSubstNo(FileDialogTxt, FilterTxt), FilterTxt);
-        IncomingDocumentAttachment.SetContentFromBlob(TempBlob);
     end;
 
     [Scope('OnPrem')]
@@ -248,7 +300,6 @@ codeunit 134 "Import Attachment - Inc. Doc."
     var
         IncomingDocument: Record "Incoming Document";
         SalesHeader: Record "Sales Header";
-        ServiceHeader: Record "Service Header";
         PurchaseHeader: Record "Purchase Header";
         DocTableNo: Integer;
         DocType: Enum "Incoming Document Type";
@@ -274,13 +325,6 @@ codeunit 134 "Import Attachment - Inc. Doc."
                     CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', SalesHeader.RecordId);
                     SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
                     SalesHeader.Modify();
-                end;
-            DATABASE::"Service Header":
-                begin
-                    ServiceHeader.Get(DocType, DocNo);
-                    CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', ServiceHeader.RecordId);
-                    ServiceHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-                    ServiceHeader.Modify();
                 end;
             DATABASE::"Purchase Header":
                 begin
@@ -326,7 +370,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, PostingDate, DocNo, DummyRecordID);
     end;
 
-    local procedure CreateIncomingDocumentExtended(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; PostingDate: Date; DocNo: Code[20]; RelatedRecordID: RecordID)
+    procedure CreateIncomingDocumentExtended(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; PostingDate: Date; DocNo: Code[20]; RelatedRecordID: RecordID)
     var
         DataTypeManagement: Codeunit "Data Type Management";
         RelatedRecordRef: RecordRef;
@@ -373,24 +417,21 @@ codeunit 134 "Import Attachment - Inc. Doc."
         exit(IncomingDocument."Document Type"::" ");
     end;
 
-    local procedure GetUnpostedSalesPurchaseDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"): Enum "Incoming Related Document Type"
+    local procedure GetUnpostedSalesPurchaseDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document") RelatedDocumentType: Enum "Incoming Related Document Type"
     var
         SalesHeader: Record "Sales Header";
-        ServiceHeader: Record "Service Header";
         PurchaseHeader: Record "Purchase Header";
     begin
+        OnBeforeGetUnpostedSalesPurchaseDocType(IncomingDocumentAttachment, IncomingDocument, RelatedDocumentType);
+        if RelatedDocumentType <> RelatedDocumentType::" " then
+            exit;
+
         case IncomingDocumentAttachment.GetRangeMin("Document Table No. Filter") of
             DATABASE::"Sales Header":
                 begin
                     if IncomingDocumentAttachment.GetRangeMin("Document Type Filter") = SalesHeader."Document Type"::"Credit Memo" then
                         exit(IncomingDocument."Document Type"::"Sales Credit Memo");
                     exit(IncomingDocument."Document Type"::"Sales Invoice");
-                end;
-            DATABASE::"Service Header":
-                begin
-                    if IncomingDocumentAttachment.GetRangeMin("Document Type Filter") = ServiceHeader."Document Type"::"Credit Memo" then
-                        exit(IncomingDocument."Document Type"::"Service Credit Memo");
-                    exit(IncomingDocument."Document Type"::"Service Invoice");
                 end;
             DATABASE::"Purchase Header":
                 begin
@@ -479,6 +520,11 @@ codeunit 134 "Import Attachment - Inc. Doc."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindUsingDocNoFilterOnBeforeFind(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; PostingDate: Date; DocNo: Code[20]; var IsFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUnpostedSalesPurchaseDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; var RelatedDocumentType: Enum "Incoming Related Document Type");
     begin
     end;
 }

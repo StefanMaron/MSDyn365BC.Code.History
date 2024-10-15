@@ -1482,7 +1482,7 @@ codeunit 137414 "SCM Item Categories"
 
         ItemCategory.Init();
         asserterror ItemCategory.Insert(true);
-        Assert.ExpectedError('Code must have a value in Item Category: Code=. It cannot be zero or empty.');
+        Assert.ExpectedTestFieldError(ItemCategory.FieldCaption(Code), '');
     end;
 
     [Test]

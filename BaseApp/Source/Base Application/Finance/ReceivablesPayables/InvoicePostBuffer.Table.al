@@ -27,8 +27,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.Setup;
 #endif
 
 table 49 "Invoice Post. Buffer"
@@ -590,7 +588,7 @@ table 49 "Invoice Post. Buffer"
     end;
 
     [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
-    procedure PrepareService(var ServiceLine: Record "Service Line")
+    procedure PrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
         Clear(Rec);
         case ServiceLine.Type of
@@ -743,10 +741,10 @@ table 49 "Invoice Post. Buffer"
             SalesHeader."Posting Description");
     end;
 
-    local procedure UpdateEntryDescriptionFromServiceLine(ServiceLine: Record "Service Line")
+    local procedure UpdateEntryDescriptionFromServiceLine(ServiceLine: Record Microsoft.Service.Document."Service Line")
     var
-        ServiceHeader: Record "Service Header";
-        ServiceSetup: record "Service Mgt. Setup";
+        ServiceHeader: Record Microsoft.Service.Document."Service Header";
+        ServiceSetup: record Microsoft.Service.Setup."Service Mgt. Setup";
     begin
         ServiceSetup.Get();
         ServiceHeader.get(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -871,7 +869,7 @@ table 49 "Invoice Post. Buffer"
 
     [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record "Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 

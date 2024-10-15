@@ -2687,11 +2687,10 @@ codeunit 134301 "Workflow Notification Test"
     local procedure CreatePurchaseApprovalEntry(var ApprovalEntry: Record "Approval Entry"; PurchaseHeader: Record "Purchase Header"; ApprovalStatus: Enum "Approval Status")
     begin
         PurchaseHeader.CalcFields(Amount);
-        with ApprovalEntry do
-            LibraryDocumentApprovals.CreateApprovalEntryBasic(
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
               ApprovalEntry, DATABASE::"Purchase Header", PurchaseHeader."Document Type", PurchaseHeader."No.",
-              ApprovalStatus, "Limit Type"::"Approval Limits", PurchaseHeader.RecordId,
-              "Approval Type"::Approver, 0D, PurchaseHeader.Amount);
+              ApprovalStatus, ApprovalEntry."Limit Type"::"Approval Limits", PurchaseHeader.RecordId,
+              ApprovalEntry."Approval Type"::Approver, 0D, PurchaseHeader.Amount);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
@@ -2701,10 +2700,9 @@ codeunit 134301 "Workflow Notification Test"
     begin
         RecRef.Open(TableID);
         RecRef.FindFirst();
-        with ApprovalEntry do
-            LibraryDocumentApprovals.CreateApprovalEntryBasic(
-              ApprovalEntry, TableID, "Document Type"::Invoice, LibraryUtility.GenerateGUID(),
-              Status::Open, "Limit Type"::"Approval Limits", RecRef.RecordId, "Approval Type"::Approver, DueDate, 0);
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
+              ApprovalEntry, TableID, ApprovalEntry."Document Type"::Invoice, LibraryUtility.GenerateGUID(),
+              ApprovalEntry.Status::Open, ApprovalEntry."Limit Type"::"Approval Limits", RecRef.RecordId, ApprovalEntry."Approval Type"::Approver, DueDate, 0);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
@@ -2712,65 +2710,58 @@ codeunit 134301 "Workflow Notification Test"
     var
         DummyRecId: RecordID;
     begin
-        with ApprovalEntry do begin
-            LibraryDocumentApprovals.CreateApprovalEntryBasic(
-              ApprovalEntry, TableID, "Document Type"::Invoice, LibraryUtility.GenerateGUID(),
-              Status::Open, "Limit Type"::"Approval Limits", DummyRecId,
-              "Approval Type"::Approver, 0D, 0);
-            Evaluate("Delegation Date Formula", DelegateFormula);
-            Modify(true);
-        end;
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
+  ApprovalEntry, TableID, ApprovalEntry."Document Type"::Invoice, LibraryUtility.GenerateGUID(),
+  ApprovalEntry.Status::Open, ApprovalEntry."Limit Type"::"Approval Limits", DummyRecId,
+  ApprovalEntry."Approval Type"::Approver, 0D, 0);
+        Evaluate(ApprovalEntry."Delegation Date Formula", DelegateFormula);
+        ApprovalEntry.Modify(true);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
     local procedure CreateSalesApprovalEntry(var ApprovalEntry: Record "Approval Entry"; SalesHeader: Record "Sales Header"; ApprovalStatus: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     begin
         SalesHeader.CalcFields(Amount);
-        with ApprovalEntry do
-            LibraryDocumentApprovals.CreateApprovalEntryBasic(
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
               ApprovalEntry, DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
               ApprovalStatus, LimitType, SalesHeader.RecordId,
-              "Approval Type"::Approver, WorkDate(), SalesHeader.Amount);
+              ApprovalEntry."Approval Type"::Approver, WorkDate(), SalesHeader.Amount);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
     local procedure CreateItemApprovalEntry(var ApprovalEntry: Record "Approval Entry"; Item: Record Item; StatusOption: Enum "Approval Status")
     begin
-        with ApprovalEntry do
-            LibraryDocumentApprovals.CreateApprovalEntryBasic(
-              ApprovalEntry, DATABASE::Item, "Document Type"::" ", "Document No.",
-              StatusOption, "Limit Type"::"No Limits", Item.RecordId,
-              "Approval Type"::Approver, WorkDate(), 0);
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
+              ApprovalEntry, DATABASE::Item, ApprovalEntry."Document Type"::" ", ApprovalEntry."Document No.",
+              StatusOption, ApprovalEntry."Limit Type"::"No Limits", Item.RecordId,
+              ApprovalEntry."Approval Type"::Approver, WorkDate(), 0);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
     local procedure CreateCustomerApprovalEntry(var ApprovalEntry: Record "Approval Entry"; Customer: Record Customer; StatusOption: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     begin
-        with ApprovalEntry do
-            LibraryDocumentApprovals.CreateApprovalEntryBasic(
-              ApprovalEntry, DATABASE::Customer, "Document Type"::" ", "Document No.",
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
+              ApprovalEntry, DATABASE::Customer, ApprovalEntry."Document Type"::" ", ApprovalEntry."Document No.",
               StatusOption, LimitType, Customer.RecordId,
-              "Approval Type"::Approver, WorkDate(), 0);
+              ApprovalEntry."Approval Type"::Approver, WorkDate(), 0);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
     local procedure CreateGenJournalLineApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalLine: Record "Gen. Journal Line"; StatusOption: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     begin
-        with ApprovalEntry do
-            LibraryDocumentApprovals.CreateApprovalEntryBasic(
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
               ApprovalEntry, DATABASE::"Gen. Journal Line", GenJournalLine."Document Type", GenJournalLine."Document No.",
               StatusOption, LimitType, GenJournalLine.RecordId,
-              "Approval Type"::Approver, WorkDate(), GenJournalLine.Amount);
+              ApprovalEntry."Approval Type"::Approver, WorkDate(), GenJournalLine.Amount);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
     local procedure CreateGenJournalBatchApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalBatch: Record "Gen. Journal Batch"; StatusOption: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type")
     begin
-        with ApprovalEntry do
-            LibraryDocumentApprovals.CreateApprovalEntryBasic(
-              ApprovalEntry, DATABASE::"Gen. Journal Batch", "Document Type", "Document No.",
+        LibraryDocumentApprovals.CreateApprovalEntryBasic(
+              ApprovalEntry, DATABASE::"Gen. Journal Batch", ApprovalEntry."Document Type", ApprovalEntry."Document No.",
               StatusOption, LimitType, GenJournalBatch.RecordId,
-              "Approval Type"::Approver, WorkDate(), 0);
+              ApprovalEntry."Approval Type"::Approver, WorkDate(), 0);
         SetApprovalEntryData(ApprovalEntry);
     end;
 
@@ -2779,11 +2770,9 @@ codeunit 134301 "Workflow Notification Test"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate(Name, LibraryUtility.GenerateGUID());
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate(Name, LibraryUtility.GenerateGUID());
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateVendorNo(): Code[20]
@@ -2791,11 +2780,9 @@ codeunit 134301 "Workflow Notification Test"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate(Name, LibraryUtility.GenerateGUID());
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate(Name, LibraryUtility.GenerateGUID());
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10])

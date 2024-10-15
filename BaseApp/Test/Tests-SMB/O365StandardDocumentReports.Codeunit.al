@@ -297,20 +297,18 @@ codeunit 138043 "O365 Standard Document Reports"
 
         LibraryERMCountryData.CreateVATData();
 
-        with CompanyInformation do begin
-            Get();
-            if "Giro No." = '' then
-                "Giro No." := '1234567';
-            if IBAN = '' then
-                IBAN := 'GB213 2342 34';
-            if "Bank Name" = '' then
-                "Bank Name" := 'My Bank';
-            if "Bank Account No." = '' then
-                "Bank Account No." := '12431243';
-            if "SWIFT Code" = '' then
-                "SWIFT Code" := 'GBBAKKXX';
-            Modify();
-        end;
+        CompanyInformation.Get();
+        if CompanyInformation."Giro No." = '' then
+            CompanyInformation."Giro No." := '1234567';
+        if CompanyInformation.IBAN = '' then
+            CompanyInformation.IBAN := 'GB213 2342 34';
+        if CompanyInformation."Bank Name" = '' then
+            CompanyInformation."Bank Name" := 'My Bank';
+        if CompanyInformation."Bank Account No." = '' then
+            CompanyInformation."Bank Account No." := '12431243';
+        if CompanyInformation."SWIFT Code" = '' then
+            CompanyInformation."SWIFT Code" := 'GBBAKKXX';
+        CompanyInformation.Modify();
 
         IsInitialized := true;
         Commit();
@@ -441,9 +439,6 @@ codeunit 138043 "O365 Standard Document Reports"
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceDraftReqHandler(var StandardSalesDraftInvoice: TestRequestPage "Standard Sales - Draft Invoice")
     begin
-#if not CLEAN22        
-        StandardSalesDraftInvoice.ArchiveDocument.SetValue(true);
-#endif        
         StandardSalesDraftInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 

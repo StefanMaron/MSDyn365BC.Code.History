@@ -764,11 +764,9 @@ codeunit 136204 "Marketing Quotations Contacts"
     var
         Opportunity: Record Opportunity;
     begin
-        with Opportunity do begin
-            Get(OpportunityNo);
-            Validate(Status, Status::Won);
-            Modify(true);
-        end;
+        Opportunity.Get(OpportunityNo);
+        Opportunity.Validate(Status, Opportunity.Status::Won);
+        Opportunity.Modify(true);
     end;
 
     local procedure VerifyCustomerCreatedFromQuote(CustomerNo: Code[20]; CustomerTemplate: Record "Customer Templ.")
@@ -799,24 +797,20 @@ codeunit 136204 "Marketing Quotations Contacts"
     var
         Opportunity: Record Opportunity;
     begin
-        with Opportunity do begin
-            SetRange("Contact No.", ContactNo);
-            FindFirst();
-            TestField("Sales Document Type", SalesDocumentType);
-            TestField("Sales Document No.", SalesDocumentNo);
-        end;
+        Opportunity.SetRange("Contact No.", ContactNo);
+        Opportunity.FindFirst();
+        Opportunity.TestField("Sales Document Type", SalesDocumentType);
+        Opportunity.TestField("Sales Document No.", SalesDocumentNo);
     end;
 
     local procedure VerifyOpportunityLinkingOnSalesQuotes(FirstSalesQuoteNo: Code[20]; SecondSalesQuoteNo: Code[20]; OpportunityNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesHeader do begin
-            Get("Document Type"::Quote, FirstSalesQuoteNo);
-            TestField("Opportunity No.", OpportunityNo);
-            Get("Document Type"::Quote, SecondSalesQuoteNo);
-            TestField("Opportunity No.", '');
-        end;
+        SalesHeader.Get(SalesHeader."Document Type"::Quote, FirstSalesQuoteNo);
+        SalesHeader.TestField("Opportunity No.", OpportunityNo);
+        SalesHeader.Get(SalesHeader."Document Type"::Quote, SecondSalesQuoteNo);
+        SalesHeader.TestField("Opportunity No.", '');
     end;
 
     [ModalPageHandler]

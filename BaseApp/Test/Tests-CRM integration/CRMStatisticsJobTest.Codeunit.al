@@ -609,13 +609,11 @@ codeunit 139179 "CRM Statistics Job Test"
         RecRef: RecordRef;
         RecID: RecordID;
     begin
-        with CRMIntegrationRecord do begin
-            FindRecordIDFromID("CRM ID", DATABASE::Customer, RecID);
-            RecRef.Get(RecID);
-            RecRef.SetTable(Customer);
-            RecRef.Close();
-            CRMAccount.Get("CRM ID");
-        end;
+        CRMIntegrationRecord.FindRecordIDFromID(CRMIntegrationRecord."CRM ID", DATABASE::Customer, RecID);
+        RecRef.Get(RecID);
+        RecRef.SetTable(Customer);
+        RecRef.Close();
+        CRMAccount.Get(CRMIntegrationRecord."CRM ID");
     end;
 
     local procedure ResetDefaultCRMSetupConfiguration()
@@ -624,12 +622,14 @@ codeunit 139179 "CRM Statistics Job Test"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);

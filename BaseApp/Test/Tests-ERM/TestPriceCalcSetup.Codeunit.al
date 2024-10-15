@@ -114,7 +114,7 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceCalculationMgt.Run();
 
         PriceCalculationSetup.SetRange(Method, PriceCalculationSetup.Method::"Lowest Price");
-#if not CLEAN23
+#if not CLEAN25
         Assert.RecordCount(PriceCalculationSetup, 6);
 #else
         Assert.RecordCount(PriceCalculationSetup, 4);
@@ -215,8 +215,8 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T010_OneSourceOneAssetSkipDisabledDtldSetup()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
@@ -228,21 +228,16 @@ codeunit 134158 "Test Price Calc. Setup"
         // [GIVEN] Document Line, where Customer 'Y' sells Item 'X'
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         Assert.IsTrue(LineWithPrice.SetAssetSourceForSetup(TempDtldPriceCalculationSetup), 'SetAssetSource');
-
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'D' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'Customer' 'Y' sells Items
-        With DtldPriceCalculationSetup[1] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[1]."Source Group"::Customer, CustomerNo);
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'Customer' 'Y' sells Item 'X', "Enabled" is 'No'
-        With DtldPriceCalculationSetup[2] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[2]."Source Group"::Customer, CustomerNo);
         LibraryPriceCalculation.DisableDtldSetup(DtldPriceCalculationSetup[2]);
 
         // [WHEN] FindSetup() for the Document Line
@@ -256,8 +251,8 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T011_OneSourceOneAsset()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
@@ -271,37 +266,27 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         Assert.IsTrue(LineWithPrice.SetAssetSourceForSetup(TempDtldPriceCalculationSetup), 'SetAssetSource');
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
-        With DtldPriceCalculationSetup[1] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[1]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'All' sources sell Item 'X'
-        With DtldPriceCalculationSetup[2] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[2]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'B', where 'Customer' sources sell all assets
-        With DtldPriceCalculationSetup[3] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', DtldPriceCalculationSetup[3]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'Customer' sources sell all Items
-        With DtldPriceCalculationSetup[4] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[4]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'Customer' sources sell Item 'X'
-        With DtldPriceCalculationSetup[5] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[5], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[5], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[5]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'B', where Customer 'Y' sells all assets
-        With DtldPriceCalculationSetup[6] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[6], PriceCalculationSetup[2].Code, '', "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[6], PriceCalculationSetup[2].Code, '', DtldPriceCalculationSetup[6]."Source Group"::Customer, CustomerNo);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'Customer' 'Y' sells Items
-        With DtldPriceCalculationSetup[7] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[7], PriceCalculationSetup[3].Code, '', "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[7], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[7]."Source Group"::Customer, CustomerNo);
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'Customer' 'Y' sells Item 'x'
-        With DtldPriceCalculationSetup[8] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[8], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[8], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[8]."Source Group"::Customer, CustomerNo);
 
         // [WHEN] FindSetup() for the Document Line
         Assert.IsTrue(PriceCalculationDtldSetup.FindSetup(TempDtldPriceCalculationSetup), 'Setup is not found');
@@ -314,8 +299,8 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T012_OneSourceAssetType()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
@@ -328,34 +313,25 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         Assert.IsTrue(LineWithPrice.SetAssetSourceForSetup(TempDtldPriceCalculationSetup), 'SetAssetSource');
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'D' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
-        With DtldPriceCalculationSetup[1] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[1]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'All' sources sell Item 'X'
-        With DtldPriceCalculationSetup[2] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[2]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'B', where 'Customer' sources sell all assets
-        With DtldPriceCalculationSetup[3] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', DtldPriceCalculationSetup[3]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'Customer' sources sell all Items
-        With DtldPriceCalculationSetup[4] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[4]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'Customer' sources sell Item 'X'
-        With DtldPriceCalculationSetup[5] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[5], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[5], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[5]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'B', where Customer 'Y' sells all assets
-        With DtldPriceCalculationSetup[6] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[6], PriceCalculationSetup[2].Code, '', "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[6], PriceCalculationSetup[2].Code, '', DtldPriceCalculationSetup[6]."Source Group"::Customer, CustomerNo);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'Customer' 'Y' sells Items
-        With DtldPriceCalculationSetup[7] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[7], PriceCalculationSetup[3].Code, '', "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[7], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[7]."Source Group"::Customer, CustomerNo);
 
         // [WHEN] FindSetup() for the Document Line
         Assert.IsTrue(PriceCalculationDtldSetup.FindSetup(TempDtldPriceCalculationSetup), 'Setup is not found');
@@ -368,8 +344,8 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T013_OneSourceAllAssets()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
@@ -383,31 +359,23 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         Assert.IsTrue(LineWithPrice.SetAssetSourceForSetup(TempDtldPriceCalculationSetup), 'SetAssetSource');
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
-        With DtldPriceCalculationSetup[1] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[1]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'All' sources sell Item 'X'
-        With DtldPriceCalculationSetup[2] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[2]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'B', where 'Customer' sources sell all assets
-        With DtldPriceCalculationSetup[3] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', DtldPriceCalculationSetup[3]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'Customer' sources sell all Items
-        With DtldPriceCalculationSetup[4] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[4]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'Customer' sources sell Item 'X'
-        With DtldPriceCalculationSetup[5] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[5], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[5], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[5]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'B', where Customer 'Y' sells all assets
-        With DtldPriceCalculationSetup[6] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[6], PriceCalculationSetup[2].Code, '', "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[6], PriceCalculationSetup[2].Code, '', DtldPriceCalculationSetup[6]."Source Group"::Customer, CustomerNo);
 
         // [WHEN] FindSetup() for the Document Line
         Assert.IsTrue(PriceCalculationDtldSetup.FindSetup(TempDtldPriceCalculationSetup), 'Setup is not found');
@@ -420,8 +388,8 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T014_SourceGroupOneAsset()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
@@ -434,28 +402,21 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         Assert.IsTrue(LineWithPrice.SetAssetSourceForSetup(TempDtldPriceCalculationSetup), 'SetAssetSource');
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
-        With DtldPriceCalculationSetup[1] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[1]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'All' sources sell Item 'X'
-        With DtldPriceCalculationSetup[2] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[2]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'B', where 'Customer' sources sell all assets
-        With DtldPriceCalculationSetup[3] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', DtldPriceCalculationSetup[3]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'Customer' sources sell all Items
-        With DtldPriceCalculationSetup[4] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[4]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'Customer' sources sell Item 'X'
-        With DtldPriceCalculationSetup[5] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[5], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[5], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[5]."Source Group"::Customer, '');
 
         // [WHEN] FindSetup() for the Document Line
         Assert.IsTrue(PriceCalculationDtldSetup.FindSetup(TempDtldPriceCalculationSetup), 'Setup is not found');
@@ -468,8 +429,8 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T015_SourceGroupAssetType()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
@@ -482,25 +443,19 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         Assert.IsTrue(LineWithPrice.SetAssetSourceForSetup(TempDtldPriceCalculationSetup), 'SetAssetSource');
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'D' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
-        With DtldPriceCalculationSetup[1] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[1]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'All' sources sell Item 'X'
-        With DtldPriceCalculationSetup[2] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[2]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'B', where 'Customer' sources sell all assets
-        With DtldPriceCalculationSetup[3] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', DtldPriceCalculationSetup[3]."Source Group"::Customer, '');
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'Customer' sources sell all Items
-        With DtldPriceCalculationSetup[4] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[4], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[4]."Source Group"::Customer, '');
 
         // [WHEN] FindSetup() for the Document Line
         Assert.IsTrue(PriceCalculationDtldSetup.FindSetup(TempDtldPriceCalculationSetup), 'Setup is not found');
@@ -513,8 +468,8 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T016_SourceGroupAllAssets()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
@@ -527,22 +482,17 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         Assert.IsTrue(LineWithPrice.SetAssetSourceForSetup(TempDtldPriceCalculationSetup), 'SetAssetSource');
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
-        With DtldPriceCalculationSetup[1] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[1]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'All' sources sell Item 'X'
-        With DtldPriceCalculationSetup[2] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[2]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'B', where 'Customer' sources sell all assets
-        With DtldPriceCalculationSetup[3] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[3], PriceCalculationSetup[2].Code, '', DtldPriceCalculationSetup[3]."Source Group"::Customer, '');
 
         // [WHEN] FindSetup() for the Document Line
         Assert.IsTrue(PriceCalculationDtldSetup.FindSetup(TempDtldPriceCalculationSetup), 'Setup is not found');
@@ -555,8 +505,8 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T017_AllSourcesOneAsset()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
@@ -569,19 +519,15 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         Assert.IsTrue(LineWithPrice.SetAssetSourceForSetup(TempDtldPriceCalculationSetup), 'SetAssetSource');
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' sources sell all Items
-        With DtldPriceCalculationSetup[1] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[3].Code, '', DtldPriceCalculationSetup[1]."Source Group"::All, '');
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'All' sources sell Item 'X'
-        With DtldPriceCalculationSetup[2] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[2], PriceCalculationSetup[4].Code, ItemNo, DtldPriceCalculationSetup[2]."Source Group"::All, '');
 
         // [WHEN] FindSetup() for the Document Line
         Assert.IsTrue(PriceCalculationDtldSetup.FindSetup(TempDtldPriceCalculationSetup), 'Setup is not found');
@@ -594,8 +540,8 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T018_AllSourcesAssetTypeDefault()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
-        DtldPriceCalculationSetup: Array[10] of Record "Dtld. Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
+        DtldPriceCalculationSetup: array[10] of Record "Dtld. Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
         LineWithPrice: Interface "Line With Price";
@@ -608,16 +554,13 @@ codeunit 134158 "Test Price Calc. Setup"
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         Assert.IsTrue(LineWithPrice.SetAssetSourceForSetup(TempDtldPriceCalculationSetup), 'SetAssetSource');
         // [GIVEN] 4 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default; 'C','D' for 'Sale' for 'Item', 'C' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Detailed Setup linked to Setup 'D', where 'All' sources sell all Items
-        With DtldPriceCalculationSetup[1] do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[4].Code, '', "Source Group"::All, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup[1], PriceCalculationSetup[4].Code, '', DtldPriceCalculationSetup[1]."Source Group"::All, '');
 
         // [WHEN] FindSetup() for the Document Line
         Assert.IsTrue(PriceCalculationDtldSetup.FindSetup(TempDtldPriceCalculationSetup), 'Setup is not found');
@@ -630,7 +573,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T019_AllSourcesAllAssetsDefault()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         TempDtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup" temporary;
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         PriceCalculationDtldSetup: Codeunit "Price Calculation Dtld. Setup";
@@ -641,11 +584,9 @@ codeunit 134158 "Test Price Calc. Setup"
         // [FEATURE] [Detailed Setup] [UT]
         Initialize();
         // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'A' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Document Line, where Customer 'Y' sells Item 'X' 
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
 
@@ -664,7 +605,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T020_FindSetupForSalesDocDefaultMethod()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -691,7 +632,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T021_FindSetupForServiceDocDefaultMethod()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -718,7 +659,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T022_FindSetupForPurchDocDefaultMethod()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -745,7 +686,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T023_FindSetupForRequisitionLineDefaultMethod()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -772,7 +713,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T024_FindSetupForItemJnlLineDefaultMethod()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         Method: Enum "Price Calculation Method";
@@ -796,7 +737,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T025_FindSetupForJobJnlLineDefaultMethod()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
@@ -824,7 +765,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T026_FindSetupForRequisitionLineDefaultMethodBlankVendor()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
@@ -1101,18 +1042,14 @@ codeunit 134158 "Test Price Calc. Setup"
     begin
         // [FEATURE] [Detailed Setup] [UT] [Sales Line]
         SalesHeader."Bill-to Customer No." := LibrarySales.CreateCustomerNo();
-        with SalesLine do begin
-            Type := Type::Item;
-            "No." := LibraryInventory.CreateItemNo();
-        end;
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := LibraryInventory.CreateItemNo();
         SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
         Assert.IsTrue(SalesLinePrice.CopyToBuffer(PriceCalculationBufferMgt), 'CopyToBuffer');
         PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
-        with PriceCalculationBuffer do begin
-            Testfield("Price Type", PriceType::Sale);
-            Testfield("Asset Type", "Asset Type"::Item);
-            Testfield("Asset No.", SalesLine."No.");
-        end;
+        PriceCalculationBuffer.Testfield("Price Type", PriceType::Sale);
+        PriceCalculationBuffer.Testfield("Asset Type", PriceCalculationBuffer."Asset Type"::Item);
+        PriceCalculationBuffer.Testfield("Asset No.", SalesLine."No.");
         Assert.AreEqual(PriceCalculationBufferMgt.GetSource(Enum::"Price Source Type"::Customer), SalesHeader."Bill-to Customer No.", 'Wrong Source Customer');
         Assert.IsTrue(PriceCalculationBufferMgt.GetSources(TempPriceSource), 'GetSources has failed');
         Assert.RecordCount(TempPriceSource, 2);
@@ -1133,18 +1070,14 @@ codeunit 134158 "Test Price Calc. Setup"
     begin
         // [FEATURE] [Detailed Setup] [UT] [Purchase Line]
         PurchaseHeader."Buy-from Vendor No." := LibraryPurchase.CreateVendorNo();
-        with PurchaseLine do begin
-            Type := Type::"G/L Account";
-            "No." := LibraryERM.CreateGLAccountNo();
-        end;
+        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
+        PurchaseLine."No." := LibraryERM.CreateGLAccountNo();
         PurchaseLinePrice.Setline(PriceType::Purchase, PurchaseHeader, PurchaseLine);
         Assert.IsTrue(PurchaseLinePrice.CopyToBuffer(PriceCalculationBufferMgt), 'CopyToBuffer');
         PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
-        with PriceCalculationBuffer do begin
-            Testfield("Price Type", PriceType::Purchase);
-            Testfield("Asset Type", "Asset Type"::"G/L Account");
-            Testfield("Asset No.", PurchaseLine."No.");
-        end;
+        PriceCalculationBuffer.Testfield("Price Type", PriceType::Purchase);
+        PriceCalculationBuffer.Testfield("Asset Type", PriceCalculationBuffer."Asset Type"::"G/L Account");
+        PriceCalculationBuffer.Testfield("Asset No.", PurchaseLine."No.");
         Assert.AreEqual(PriceCalculationBufferMgt.GetSource(Enum::"Price Source Type"::Vendor), PurchaseHeader."Buy-from Vendor No.", 'Wrong Source Vendor');
         Assert.IsTrue(PriceCalculationBufferMgt.GetSources(TempPriceSource), 'GetSources has failed');
         Assert.RecordCount(TempPriceSource, 2);
@@ -1165,12 +1098,10 @@ codeunit 134158 "Test Price Calc. Setup"
         PriceType: Enum "Price Type";
     begin
         // [FEATURE] [Detailed Setup] [UT] [Job Journal]
-        with JobJournalLine do begin
-            "Entry Type" := "Entry Type"::Usage;
-            Type := Type::Resource;
-            "No." := 'R';
-            "Job No." := 'J';
-        end;
+        JobJournalLine."Entry Type" := JobJournalLine."Entry Type"::Usage;
+        JobJournalLine.Type := JobJournalLine.Type::Resource;
+        JobJournalLine."No." := 'R';
+        JobJournalLine."Job No." := 'J';
         Resource."No." := JobJournalLine."No.";
         if Resource.Insert() then;
         Job."No." := JobJournalLine."Job No.";
@@ -1179,11 +1110,9 @@ codeunit 134158 "Test Price Calc. Setup"
         JobJournalLinePrice.SetLine(PriceType::Purchase, JobJournalLine);
         Assert.IsTrue(JobJournalLinePrice.CopyToBuffer(PriceCalculationBufferMgt), 'CopyToBuffer');
         PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
-        with PriceCalculationBuffer do begin
-            Testfield("Price Type", PriceType::Purchase);
-            Testfield("Asset Type", "Asset Type"::Resource);
-            Testfield("Asset No.", Resource."No.");
-        end;
+        PriceCalculationBuffer.Testfield("Price Type", PriceType::Purchase);
+        PriceCalculationBuffer.Testfield("Asset Type", PriceCalculationBuffer."Asset Type"::Resource);
+        PriceCalculationBuffer.Testfield("Asset No.", Resource."No.");
         Assert.IsTrue(PriceCalculationBufferMgt.GetSources(TempPriceSource), 'GetSources has failed');
         Assert.RecordCount(TempPriceSource, 3);
         TempPriceSource.FindSet();
@@ -1202,7 +1131,7 @@ codeunit 134158 "Test Price Calc. Setup"
     procedure T070_DefaultMethodItemJnlLineOnEntryType()
     var
         ItemJournalLine: Record "Item Journal Line";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Item Journal Line] [UT]
         Initialize();
@@ -1260,7 +1189,7 @@ codeunit 134158 "Test Price Calc. Setup"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         LastItemJournalLine: Record "Item Journal Line";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Item Journal Line] [UT]
         Initialize();
@@ -1288,7 +1217,7 @@ codeunit 134158 "Test Price Calc. Setup"
     procedure T072_DefaultMethodStandardItemJnlLineOnEntryType()
     var
         StandardItemJournalLine: Record "Standard Item Journal Line";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Standard Item Journal Line] [UT]
         Initialize();
@@ -1344,7 +1273,7 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         RequisitionLine: Record "Requisition Line";
         Vendor: Record Vendor;
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Requisition Line] [UT]
         Initialize();
@@ -1369,7 +1298,7 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         RequisitionLine: Record "Requisition Line";
         Vendor: Record Vendor;
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Requisition Line] [UT]
         Initialize();
@@ -1394,7 +1323,7 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         RequisitionLine: Record "Requisition Line";
         VendorNo: Code[20];
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Requisition Line] [UT]
         Initialize();
@@ -1418,7 +1347,7 @@ codeunit 134158 "Test Price Calc. Setup"
         RequisitionLine: Record "Requisition Line";
         LastRequisitionLine: Record "Requisition Line";
         RequisitionWkshName: Record "Requisition Wksh. Name";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Requisition Line] [UT]
         Initialize();
@@ -1443,7 +1372,7 @@ codeunit 134158 "Test Price Calc. Setup"
         LastJobJournalLine: Record "Job Journal Line";
         JobJnlTemplate: Record "Job Journal Template";
         JobJnlBatch: Record "Job Journal Batch";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Journal Line] [UT]
         Initialize();
@@ -1470,7 +1399,7 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         Job: Record Job;
         JobJournalLine: Record "Job Journal Line";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Journal Line] [UT]
         Initialize();
@@ -1499,7 +1428,7 @@ codeunit 134158 "Test Price Calc. Setup"
         CustomerPriceGroup: Record "Customer Price Group";
         Job: Record Job;
         JobJournalLine: Record "Job Journal Line";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Journal Line] [UT]
         Initialize();
@@ -1532,7 +1461,7 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         JobPlanningLine: Record "Job Planning Line";
         LastJobPlanningLine: Record "Job Planning Line";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Planning Line] [UT]
         Initialize();
@@ -1555,7 +1484,7 @@ codeunit 134158 "Test Price Calc. Setup"
     var
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Planning Line] [UT]
         Initialize();
@@ -1587,7 +1516,7 @@ codeunit 134158 "Test Price Calc. Setup"
         CustomerPriceGroup: Record "Customer Price Group";
         Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
-        ExpectedMethod: Array[3] of Enum "Price Calculation Method";
+        ExpectedMethod: array[3] of Enum "Price Calculation Method";
     begin
         // [FEATURE] [Job Planning Line] [UT]
         Initialize();
@@ -1783,7 +1712,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T100_FindSetupOfTwo()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         ExpectedCode: Code[100];
@@ -1792,13 +1721,11 @@ codeunit 134158 "Test Price Calc. Setup"
     begin
         Initialize();
         // [GIVEN] 4 setup lines: 'A','B', where 'A' and 'B' are 'Sale' for 'All', 'A' - default; 'C' and 'D' are 'Purchase' for 'All', 'C' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Purchase, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Purchase, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Sales Line, where Item 'X' and Customer 'Y'
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
 
@@ -1812,7 +1739,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T101_FindSetupOfTwoDefaultIsDisabled()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         ExpectedCode: Code[100];
@@ -1821,14 +1748,12 @@ codeunit 134158 "Test Price Calc. Setup"
     begin
         Initialize();
         // [GIVEN] 4 setup lines: 'A','B', where 'A' and 'B' are 'Sale' for 'All', 'A' - default, but disabled; 'C' and 'D' are 'Purchase' for 'All', 'C' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.DisableSetup(PriceCalculationSetup[1]);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Purchase, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.DisableSetup(PriceCalculationSetup[1]);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Purchase, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Purchase, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Sales Line, where Item 'X' and Customer 'Y'
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
 
@@ -1841,7 +1766,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T110_FindSetupAssetTypeItemSet()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         FoundPriceCalculationSetup: Record "Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
@@ -1851,13 +1776,11 @@ codeunit 134158 "Test Price Calc. Setup"
     begin
         Initialize();
         // [GIVEN] 4 setup lines: 'A','B','C','D', where 'A' and 'B' are for 'All', 'A' - default; 'C' and 'D' are for 'Item', 'C' - default.
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", false);
         // [GIVEN] Sales Line, where Item 'X' and Customer 'Y'
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
 
@@ -1872,7 +1795,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T111_FindSetupDtldSetupForCustomerAndItem()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         FoundPriceCalculationSetup: Record "Price Calculation Setup";
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -1883,19 +1806,16 @@ codeunit 134158 "Test Price Calc. Setup"
     begin
         Initialize();
         // [GIVEN] 4 setup lines: 'A','B','C','D', where 'A' and 'B' are for 'All', 'A' - default; 'C' and 'D' are for 'Item', 'D' - default.
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         // [GIVEN] Sales Line, where Item 'X' and Customer 'Y'
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
 
         // [GIVEN] Detailed Setup linked to Setup 'C', where Item 'X' and 'Customer' 'Y'
-        With DtldPriceCalculationSetup do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup, ExpectedCode, ItemNo, "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup, ExpectedCode, ItemNo, DtldPriceCalculationSetup."Source Group"::Customer, CustomerNo);
 
         // [WHEN] FindSetup()
         Assert.IsTrue(PriceCalculationMgt.FindSetup(LineWithPrice, FoundPriceCalculationSetup), 'not found setup');
@@ -1907,7 +1827,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T112_FindSetupDtldSetupForCustomerAndAllItems()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         FoundPriceCalculationSetup: Record "Price Calculation Setup";
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -1918,18 +1838,15 @@ codeunit 134158 "Test Price Calc. Setup"
     begin
         Initialize();
         // [GIVEN] 4 setup lines: 'A','B','C','D', where 'A' and 'B' are for 'All', 'A' - default; 'C' and 'D' are for 'Item', 'D' - default.
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         // [GIVEN] Sales Line, where Item 'X' and Customer 'Y'
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
         // [GIVEN] Detailed Setup linked to Setup 'C', where Customer 'Y' sells 'All' items
-        With DtldPriceCalculationSetup do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup, ExpectedCode, '', "Source Group"::Customer, CustomerNo);
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup, ExpectedCode, '', DtldPriceCalculationSetup."Source Group"::Customer, CustomerNo);
 
         // [WHEN] FindSetup()
         Assert.IsTrue(PriceCalculationMgt.FindSetup(LineWithPrice, FoundPriceCalculationSetup), 'not found setup');
@@ -1942,7 +1859,7 @@ codeunit 134158 "Test Price Calc. Setup"
     [Test]
     procedure T113_FindSetupDtldSetupForAllCustomersAndAllItems()
     var
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         FoundPriceCalculationSetup: Record "Price Calculation Setup";
         DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -1953,16 +1870,13 @@ codeunit 134158 "Test Price Calc. Setup"
     begin
         Initialize();
         // [GIVEN] 4 setup lines: 'A','B','C','D', where 'A' and 'B' are for 'All', 'A' - default; 'C' and 'D' are for 'Item', 'D' - default.
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::Test, false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Lowest Price", Type::Sale, "Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        ExpectedCode := LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::Test, false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::Item, "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         // [GIVEN] Detailed Setup linked to Setup 'C', where 'All' Customers sell 'All' items
-        With DtldPriceCalculationSetup do
-            LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup, ExpectedCode, '', "Source Group"::Customer, '');
+        LibraryPriceCalculation.AddDtldSetup(DtldPriceCalculationSetup, ExpectedCode, '', DtldPriceCalculationSetup."Source Group"::Customer, '');
 
         // [GIVEN] Sales Line, where Item 'X' and Customer 'Y'
         SalesLineAsLineWithPrice(ItemNo, CustomerNo, LineWithPrice);
@@ -2329,18 +2243,16 @@ codeunit 134158 "Test Price Calc. Setup"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Price Calc. Setup");
     end;
 
-    local procedure AddFourSetupLines(PriceType: Enum "Price Type"; var PriceCalculationSetup: Array[5] of Record "Price Calculation Setup")
+    local procedure AddFourSetupLines(PriceType: Enum "Price Type"; var PriceCalculationSetup: array[5] of Record "Price Calculation Setup")
     begin
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], Method::"Test Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::Test, true);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], Method::"Test Price", PriceType, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceType, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceType, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[3], PriceCalculationSetup[5].Method::"Test Price", PriceType, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, true);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[4], PriceCalculationSetup[5].Method::"Test Price", PriceType, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", false);
     end;
 
-    local procedure SetupSalesPurchaseMethods(var ExpectedMethod: Array[3] of Enum "Price Calculation Method")
+    local procedure SetupSalesPurchaseMethods(var ExpectedMethod: array[3] of Enum "Price Calculation Method")
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";

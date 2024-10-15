@@ -1,4 +1,4 @@
-codeunit 132900 UserRoleTest
+﻿codeunit 132900 UserRoleTest
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -665,12 +665,11 @@ codeunit 132900 UserRoleTest
                 end;
             Stages::Validate:
                 begin
-                    for i := 1 to NoOfFilters do begin
+                    for i := 1 to NoOfFilters do
                         if not TableFilterPage.FindFirstField(TableFilterPage."Field Number", Filters[i] [1]) or
                            (TableFilterPage."Field Filter".Value <> Format(Filters[i] [2]))
                         then
                             Error(FailedPermissionFilterErr, Format(Filters[i] [1]));
-                    end;
                     TableFilterPage.OK().Invoke();
                 end;
             Stages::SetInvalidFieldNo:

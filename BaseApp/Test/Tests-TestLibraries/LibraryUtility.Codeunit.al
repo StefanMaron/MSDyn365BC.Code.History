@@ -14,50 +14,31 @@ codeunit 131000 "Library - Utility"
         FieldNotFoundError: Label 'Field %1 does not exist in Table %2.';
         PropertyValueUndefinedError: Label 'Property value is not defined.';
         ERR_NotCompatible: Label 'The two records are not compatible to compare. Field number %1 has a type mismatch. Type %2 cannot be compared with type %3.';
-        PrimaryKeyNotCodeFieldErr: Label 'The primary key must be a sinlge field of type Code to use this function.';
+        PrimaryKeyNotCodeFieldErr: Label 'The primary key must be a single field of type Code to use this function.';
         LibraryRandom: Codeunit "Library - Random";
+        LibraryNoSeries: Codeunit "Library - No. Series";
         FieldOptionTypeErr: Label 'Field %1 in Table %2 must be option type.', Comment = '%1 - Field Name, %2 - Table Name';
+        GlobalNoSeriesCodeTok: Label 'GLOBAL', Locked = true;
+        GUIDTok: Label 'GUID', Locked = true;
 
     procedure CreateNoSeries(var NoSeries: Record "No. Series"; Default: Boolean; Manual: Boolean; DateOrder: Boolean)
+    var
+        NoSeriesCode: Code[20];
     begin
-        NoSeries.Init();
-        NoSeries.Validate(Code, NoSeries.Code + GenerateRandomCode(NoSeries.FieldNo(Code), DATABASE::"No. Series"));
-        NoSeries.Validate("Default Nos.", Default);
-        NoSeries.Validate("Manual Nos.", Manual);
-        NoSeries.Validate("Date Order", DateOrder);
-        NoSeries.Insert(true);
+        NoSeriesCode := NoSeries.Code + GenerateRandomCode(NoSeries.FieldNo(Code), DATABASE::"No. Series");
+        LibraryNoSeries.CreateNoSeries(NoSeriesCode, Default, Manual, DateOrder);
+        NoSeries.Get(NoSeriesCode);
     end;
 
     procedure CreateNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; SeriesCode: Code[20]; StartingNo: Code[20]; EndingNo: Code[20])
-    var
-        RecRef: RecordRef;
     begin
-        NoSeriesLine.Init();
-        NoSeriesLine.Validate("Series Code", SeriesCode);
-        RecRef.GetTable(NoSeriesLine);
-        NoSeriesLine.Validate("Line No.", GetNewLineNo(RecRef, NoSeriesLine.FieldNo("Line No.")));
-
         if StartingNo = '' then
-            NoSeriesLine.Validate("Starting No.", PadStr(InsStr(SeriesCode, '00000000', 3), 10))
-        else
-            NoSeriesLine.Validate("Starting No.", StartingNo);
-
+            StartingNo := PadStr(InsStr(SeriesCode, '00000000', 3), 10);
         if EndingNo = '' then
-            NoSeriesLine.Validate("Ending No.", PadStr(InsStr(SeriesCode, '99999999', 3), 10))
-        else
-            NoSeriesLine.Validate("Ending No.", EndingNo);
-
-        NoSeriesLine.Insert(true)
-    end;
-
-    procedure CreateNoSeriesRelationship("Code": Code[20]; SeriesCode: Code[20])
-    var
-        NoSeriesRelationship: Record "No. Series Relationship";
-    begin
-        NoSeriesRelationship.Init();
-        NoSeriesRelationship.Validate(Code, Code);
-        NoSeriesRelationship.Validate("Series Code", SeriesCode);
-        NoSeriesRelationship.Insert(true);
+            EndingNo := PadStr(InsStr(SeriesCode, '99999999', 3), 10);
+        LibraryNoSeries.CreateNoSeriesLine(SeriesCode, 1, StartingNo, EndingNo);
+        NoSeriesLine.SetRange("Series Code", SeriesCode);
+        if NoSeriesLine.FindLast() then;
     end;
 
     procedure CreateRecordLink(RecVar: Variant): Integer
@@ -324,19 +305,16 @@ codeunit 131000 "Library - Utility"
     procedure GetGlobalNoSeriesCode(): Code[20]
     var
         NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
     begin
         // Init, get the global no series
-        if not NoSeries.Get('GLOBAL') then begin
-            NoSeries.Init();
-            NoSeries.Validate(Code, 'GLOBAL');
-            NoSeries.Validate("Default Nos.", true);
-            NoSeries.Validate("Manual Nos.", true);
-            NoSeries.Insert(true);
-            CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+        if not NoSeries.Get(GlobalNoSeriesCodeTok) then begin
+            LibraryNoSeries.CreateNoSeries(GlobalNoSeriesCodeTok, true, true, false);
+            LibraryNoSeries.CreateNoSeriesLine(GlobalNoSeriesCodeTok, 1,
+                PadStr(InsStr(GlobalNoSeriesCodeTok, '00000000', 3), 10),
+                PadStr(InsStr(GlobalNoSeriesCodeTok, '99999999', 3), 10));
         end;
 
-        exit(NoSeries.Code)
+        exit(GlobalNoSeriesCodeTok)
     end;
 
     procedure GetNextNoSeriesSalesDate(NoSeriesCode: Code[20]): Date
@@ -599,20 +577,16 @@ codeunit 131000 "Library - Utility"
     procedure GenerateGUID(): Code[10]
     var
         NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
         NoSeriesCodeunit: Codeunit "No. Series";
     begin
-        if not NoSeries.Get('GUID') then begin
-            NoSeries.Init();
-            NoSeries.Validate(Code, 'GUID');
-            NoSeries.Validate("Default Nos.", true);
-            NoSeries.Validate("Manual Nos.", true);
-            NoSeries.Insert(true);
-
-            CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+        if not NoSeries.Get(GUIDTok) then begin
+            LibraryNoSeries.CreateNoSeries(GUIDTok, true, true, false);
+            LibraryNoSeries.CreateNoSeriesLine(GUIDTok, 1,
+                PadStr(InsStr(GUIDTok, '00000000', 3), 10),
+                PadStr(InsStr(GUIDTok, '99999999', 3), 10));
         end;
 
-        exit(NoSeriesCodeunit.GetNextNo(NoSeries.Code));
+        exit(NoSeriesCodeunit.GetNextNo(GUIDTok));
     end;
 
     procedure GetEmptyGuid(): Guid
@@ -800,30 +774,27 @@ codeunit 131000 "Library - Utility"
         ZeroPadding: Text;
         NewStr: Text;
     begin
-
         StartIndex := 1;
+        EndIndex := 0;
 
         // Find integer suffix.
-        for Index := StrLen(str) downto 1 do begin
+        for Index := StrLen(str) downto 1 do
             if Evaluate(Number, str.Substring(Index, 1)) then begin
                 Digits := str.Substring(Index, 1) + Digits;
                 if EndIndex = 0 then
                     EndIndex := Index;
-            end else begin
+            end else
                 if StrLen(Digits) > 0 then begin
                     StartIndex := Index + 1;
                     break;
                 end;
-            end;
-        end;
 
         // Get zero padding in the digits.
-        for Index := 1 to StrLen(Digits) do begin
+        for Index := 1 to StrLen(Digits) do
             if Digits.Substring(Index, 1) = '0' then
                 ZeroPadding := ZeroPadding + '0'
             else
                 break;
-        end;
 
         Evaluate(Number, Digits);
         Number := Number - 1;

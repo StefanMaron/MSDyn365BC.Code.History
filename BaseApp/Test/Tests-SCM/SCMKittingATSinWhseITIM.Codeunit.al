@@ -28,7 +28,6 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         MSG_MVMT_CREATED: Label 'Number of Invt. Movement activities';
         MSG_NOT_ON_INVT: Label 'Item ';
         MSG_NOTHING_TO_CREATE: Label 'There is nothing to create';
-        MSG_STATUS_MUST_BE_RELEASED: Label 'Status must be equal to ''Released''';
         MSG_NOT_ON_INVT1: Label 'Item %1';
         MSG_QTY_OUTST: Label 'You cannot handle more than the outstanding';
         MSG_SER_NO_MUST: Label 'Serial No. must have a value';
@@ -323,10 +322,9 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         TempAssemblyLine.FindSet();
 
         repeat
-            if TempAssemblyLine."No." = NotEnoughItemNo then begin
-                VerifyRegInvtMvmtLine(RegdInvtMovementHdr, TempAssemblyLine, ActionType, BinCode,
-                  NotEnoughQty);
-            end else
+            if TempAssemblyLine."No." = NotEnoughItemNo then
+                VerifyRegInvtMvmtLine(RegdInvtMovementHdr, TempAssemblyLine, ActionType, BinCode, NotEnoughQty)
+            else
                 VerifyRegInvtMvmtLine(RegdInvtMovementHdr, TempAssemblyLine, ActionType, BinCode,
                   TempAssemblyLine."Quantity to Consume");
 
@@ -786,12 +784,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         PrepareOrderPosting(AssemblyHeader, 100);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, true, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, true, false, '-');
-        end;
 
         asserterror CreateAndRegisterWhseActivity(AssemblyHeader."No.", WhseActivity, AssignITOnWhseAct, true, '-', '');
         Assert.IsTrue(StrPos(GetLastErrorText, ExpectedErrorMessage) > 0,
@@ -840,12 +837,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AssemblyHeader);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, false, true, '+')
             else
                 AssignITToAssemblyLines(AssemblyHeader, false, false, '+');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeaderNo, WhseActivity, AssignITOnWhseAct, false, '+', '');
 
@@ -870,12 +866,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, false, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, false, false, '-');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeader."No.", WhseActivity, AssignITOnWhseAct, false, '-', '');
 
@@ -1215,12 +1210,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, false, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, false, false, '-');
-        end;
 
         // Create Whse Activity
         case WhseActivity of
@@ -1293,12 +1287,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, false, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, false, false, '-');
-        end;
 
         case WhseActivity of
             WhseActivityType::WhsePick:
@@ -1349,12 +1342,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, false, '-');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeader."No.", WhseActivity, AssignITOnWhseAct, ITPartial, '-', '');
 
@@ -1422,13 +1414,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
     begin
         case GLB_ITPageHandler of
             GLB_ITPageHandler::AssignITSpec, GLB_ITPageHandler::AssignITSpecPartial:
-                begin
-                    if PAR_ITPage_AssignSerial then
-                        HNDL_ITPage_AssignSerial(ItemTrackingLinesPage)
-                    else
-                        if PAR_ITPage_AssignLot then
-                            HNDL_ITPage_AssignLot(ItemTrackingLinesPage);
-                end;
+                if PAR_ITPage_AssignSerial then
+                    HNDL_ITPage_AssignSerial(ItemTrackingLinesPage)
+                else
+                    if PAR_ITPage_AssignLot then
+                        HNDL_ITPage_AssignLot(ItemTrackingLinesPage);
             GLB_ITPageHandler::SelectITSpec:
                 HNDL_ITPage_SelectEntries(ItemTrackingLinesPage);
             GLB_ITPageHandler::PutManuallyITSpec:
@@ -1710,12 +1700,11 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, false, '-');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeader."No.", WhseActivity, AssignITOnWhseAct, ITPartial, '-', ExpectedErrorMessageReg);
 
@@ -1860,8 +1849,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         LibraryAssembly.PrepareOrderPosting(AssemblyHeader, TempAssemblyLine, HeaderQtyFactor, PartialPostFactor, true, WorkDate2);
 
         asserterror AssemblyHeader.CreateInvtMovement(false, false, true, ATOMovementsCreated, TotalATOMovementsToBeCreated);
-        Assert.IsTrue(StrPos(GetLastErrorText, MSG_STATUS_MUST_BE_RELEASED) > 0,
-          'Actual:' + GetLastErrorText + ',Expected:' + MSG_STATUS_MUST_BE_RELEASED);
+        Assert.ExpectedTestFieldError(AssemblyHeader.FieldCaption(Status), Format(AssemblyHeader.Status::Released));
         ClearLastError();
 
         LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);

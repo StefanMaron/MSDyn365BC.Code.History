@@ -98,9 +98,15 @@ table 5996 "Standard Service Code"
     var
         StdServItemGroup: Record "Standard Service Item Gr. Code";
         StdServiceLine: Record "Standard Service Line";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'If you change the %1, the %2 will be rounded according to the new %3.';
+#pragma warning restore AA0470
         Text002: Label 'The update has been interrupted to respect the warning.';
+#pragma warning disable AA0470
         Text003: Label '%1 of the standard service code must be equal to %2 on the %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure InsertServiceLines(ServiceHeader: Record "Service Header")
     var
@@ -189,10 +195,10 @@ table 5996 "Standard Service Code"
 
     procedure InsertExtendedText(ServLine: Record "Service Line")
     var
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
     begin
-        if TransferExtendedText.ServCheckIfAnyExtText(ServLine, false) then
-            TransferExtendedText.InsertServExtText(ServLine);
+        if ServiceTransferExtText.ServCheckIfAnyExtText(ServLine, false) then
+            ServiceTransferExtText.InsertServExtText(ServLine);
     end;
 
     [IntegrationEvent(false, false)]

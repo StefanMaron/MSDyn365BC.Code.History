@@ -759,12 +759,18 @@ table 7311 "Warehouse Journal Line"
         UOMMgt: Codeunit "Unit of Measure Management";
         ItemTrackingType: Enum "Item Tracking Type";
         OldItemNo: Code[20];
+#pragma warning disable AA0074
         Text000: Label 'must not be negative';
+#pragma warning disable AA0470
         Text001: Label '%1 Journal';
+#pragma warning restore AA0470
         Text002: Label 'DEFAULT';
         Text003: Label 'Default Journal';
+#pragma warning disable AA0470
         Text005: Label 'The location %1 of warehouse journal batch %2 is not enabled for user %3.';
         Text006: Label '%1 must be 0 or 1 for an Item tracked by Serial Number.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ItemTrackedItemErr: Label '%1 must not change for tracked item.', Comment = '%1 = Field Caption';
         OpenFromBatch: Boolean;
         StockProposal: Boolean;

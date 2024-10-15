@@ -1,4 +1,4 @@
-codeunit 134994 "ERM Account Schedule II"
+﻿codeunit 134994 "ERM Account Schedule II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -23,6 +23,8 @@ codeunit 134994 "ERM Account Schedule II"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryCostAccounting: Codeunit "Library - Cost Accounting";
+        LibraryCashFlow: Codeunit "Library - Cash Flow";
         DimFilterErr: Label 'Wrong Dimension filter.';
         DimFilterStrTok: Label '%1 FILTER';
         DimFilterStringTok: Label 'Dimension 1 Filter: %1, Dimension 2 Filter: %2, Dimension 3 Filter: %3, Dimension 4 Filter: %4';
@@ -31,8 +33,6 @@ codeunit 134994 "ERM Account Schedule II"
         SystemGeneratedAccSchedQst: Label 'This account schedule may be automatically updated by the system, so any changes you make may be lost. Do you want to make a copy?';
         TargetExistsErr: Label 'The new rows definition already exists.';
         TargetNameMissingErr: Label 'You must specify a name for the new rows definition.';
-        LibraryCostAccounting: Codeunit "Library - Cost Accounting";
-        LibraryCashFlow: Codeunit "Library - Cash Flow";
         IsInitialized: Boolean;
 
     [Test]
@@ -252,9 +252,8 @@ codeunit 134994 "ERM Account Schedule II"
         if FinancialReport.FindSet() then
             repeat
                 AccScheduleName.Get(FinancialReport."Financial Report Row Group");
-                if AccScheduleName."Analysis View Name" <> '' then begin
+                if AccScheduleName."Analysis View Name" <> '' then
                     WithAnalysisViewFound := true;
-                end;
             until (FinancialReport.Next() = 0) or WithAnalysisViewFound;
         if WithAnalysisViewFound then begin
             LibraryReportValidation.SetFileName(AccScheduleName.Name);
@@ -1611,8 +1610,8 @@ codeunit 134994 "ERM Account Schedule II"
     [Scope('OnPrem')]
     procedure AccountScheduleResetColumnLayoutOnAccountScheduleChange()
     var
-        AccScheduleName: Array[2] of Record "Acc. Schedule Name";
-        FinancialReport: Array[2] of Record "Financial Report";
+        AccScheduleName: array[2] of Record "Acc. Schedule Name";
+        FinancialReport: array[2] of Record "Financial Report";
         ColumnLayoutName: Record "Column Layout Name";
         ColumnHeader: Text[30];
         FinancialReports: Testpage "Financial Reports";
@@ -1727,7 +1726,7 @@ codeunit 134994 "ERM Account Schedule II"
     procedure AccountScheduleResetColumnLayoutOnAccountScheduleChangeAccScheduleOverviewPage()
     var
         AccScheduleName: array[2] of Record "Acc. Schedule Name";
-        FinancialReport: Array[2] of Record "Financial Report";
+        FinancialReport: array[2] of Record "Financial Report";
         ColumnLayoutName: Record "Column Layout Name";
         AccScheduleOverview: TestPage "Acc. Schedule Overview";
         FinancialReports: TestPage "Financial Reports";
@@ -1878,7 +1877,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName.SetRecFilter();
         LibraryVariableStorage.Enqueue(AccScheduleName.Name);
         LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
-        LibraryVariableStorage.Enqueue(false); // Use additionan currency amounts
+        LibraryVariableStorage.Enqueue(false); // Use additional currency amounts
         RunAccountScheduleReportAndLoad(AccScheduleName);
 
         // [THEN] The report prints "18" without currency symbol
@@ -1975,10 +1974,8 @@ codeunit 134994 "ERM Account Schedule II"
     local procedure CreateAccScheduleLineWithGLAcc(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; GLAccountNo: Code[20]; ShowValue: Enum "Acc. Schedule Line Show")
     begin
         CreateAccScheduleLine(AccScheduleLine, AccScheduleName, AccScheduleLine."Totaling Type"::"Posting Accounts", GLAccountNo);
-        with AccScheduleLine do begin
-            Validate(Show, ShowValue);
-            Modify(true);
-        end;
+        AccScheduleLine.Validate(Show, ShowValue);
+        AccScheduleLine.Modify(true);
     end;
 
     local procedure CreateAccScheduleNameWithViewAndDimensions(var AccScheduleName: Record "Acc. Schedule Name"; DimensionValue: array[4] of Record "Dimension Value")
@@ -1999,13 +1996,11 @@ codeunit 134994 "ERM Account Schedule II"
     local procedure CreateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; AccScheduleName: Code[10]; NewTotalingTypeValue: Enum "Acc. Schedule Line Totaling Type"; NewTotalingValue: Text[250])
     begin
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName);
-        with AccScheduleLine do begin
-            Validate("Row No.", LibraryUtility.GenerateGUID());
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Validate("Totaling Type", NewTotalingTypeValue);
-            Validate(Totaling, NewTotalingValue);
-            Modify(true);
-        end;
+        AccScheduleLine.Validate("Row No.", LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate(Description, LibraryUtility.GenerateGUID());
+        AccScheduleLine.Validate("Totaling Type", NewTotalingTypeValue);
+        AccScheduleLine.Validate(Totaling, NewTotalingValue);
+        AccScheduleLine.Modify(true);
     end;
 
     local procedure CreateColumnLayout(var ColumnLayout: Record "Column Layout")
@@ -2019,13 +2014,11 @@ codeunit 134994 "ERM Account Schedule II"
     local procedure CreateColumnLayoutLine(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Code[10]; NewColumnTypeValue: Enum "Column Layout Type"; NewFormulaValue: Code[80])
     begin
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName);
-        with ColumnLayout do begin
-            Validate("Column No.", LibraryUtility.GenerateGUID());
-            Validate("Column Header", LibraryUtility.GenerateGUID());
-            Validate("Column Type", NewColumnTypeValue);
-            Validate(Formula, NewFormulaValue);
-            Modify(true);
-        end;
+        ColumnLayout.Validate("Column No.", LibraryUtility.GenerateGUID());
+        ColumnLayout.Validate("Column Header", LibraryUtility.GenerateGUID());
+        ColumnLayout.Validate("Column Type", NewColumnTypeValue);
+        ColumnLayout.Validate(Formula, NewFormulaValue);
+        ColumnLayout.Modify(true);
     end;
 
     local procedure CreateColumns(ColumnLayoutName: Record "Column Layout Name"; Formula: Code[80]; NumberOfColumns: Integer)
@@ -2040,12 +2033,10 @@ codeunit 134994 "ERM Account Schedule II"
     local procedure CreateSimpleColumnLayout(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Code[10])
     begin
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName);
-        with ColumnLayout do begin
-            Validate("Column No.", LibraryUtility.GenerateGUID());
-            Validate("Column Header", LibraryUtility.GenerateGUID());
-            Validate("Column Type", "Column Layout Type"::"Net Change");
-            Modify(true);
-        end;
+        ColumnLayout.Validate("Column No.", LibraryUtility.GenerateGUID());
+        ColumnLayout.Validate("Column Header", LibraryUtility.GenerateGUID());
+        ColumnLayout.Validate("Column Type", "Column Layout Type"::"Net Change");
+        ColumnLayout.Modify(true);
     end;
 
     local procedure CreateLines(AccScheduleName: Record "Acc. Schedule Name"; Totaling: Text[250]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; NumberOfRows: Integer)
@@ -2062,9 +2053,8 @@ codeunit 134994 "ERM Account Schedule II"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GLAccountNo := LibraryERM.CreateGLAccountNo();
-        with GenJournalLine do
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, "Document Type"::" ", "Account Type"::"G/L Account", GLAccountNo, NetChange);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+              GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccountNo, NetChange);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 

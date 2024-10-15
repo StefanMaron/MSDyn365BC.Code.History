@@ -72,13 +72,12 @@ codeunit 139310 "Exchange Setup Tests"
         // [WHEN] The user runs the Outlook Individual Deployment Page.
         OutlookIndividualDeployment.Trap();
         Page.Run(Page::"Outlook Individual Deployment");
-        with OutlookIndividualDeployment do begin
-            ActionNext.Invoke(); // Intro step to sample email message step
-            Assert.IsFalse(ActionNext.Visible(), 'Next should not be visible at the end of the wizard');
-            // [THEN] Setup Emails is displayed
-            if ExchangeAddinSetup.SampleEmailsAvailable() then
-                Assert.IsTrue(SetupSampleEmails.Visible(), 'Setup emails is not visible');
-        end;
+        OutlookIndividualDeployment.ActionNext.Invoke();
+        // Intro step to sample email message step
+        Assert.IsFalse(OutlookIndividualDeployment.ActionNext.Visible(), 'Next should not be visible at the end of the wizard');
+        // [THEN] Setup Emails is displayed
+        if ExchangeAddinSetup.SampleEmailsAvailable() then
+            Assert.IsTrue(OutlookIndividualDeployment.SetupSampleEmails.Visible(), 'Setup emails is not visible');
     end;
 
     [Test]
@@ -97,13 +96,11 @@ codeunit 139310 "Exchange Setup Tests"
         // [WHEN] The user runs the Outlook Individual Deployment Page.
         OutlookIndividualDeployment.Trap();
         Page.Run(Page::"Outlook Individual Deployment");
-        with OutlookIndividualDeployment do begin
-            ActionNext.Invoke(); // Intro step to sample email message step
-            Assert.IsFalse(ActionNext.Visible(), 'Next should not be visible at the end of the wizard');
-            // [THEN] Setup Emails is displayed
-            if ExchangeAddinSetup.SampleEmailsAvailable() then
-                Assert.IsTrue(SetupSampleEmails.Visible(), 'Setup emails is not visible');
-        end;
+        OutlookIndividualDeployment.ActionNext.Invoke(); // Intro step to sample email message step
+        Assert.IsFalse(OutlookIndividualDeployment.ActionNext.Visible(), 'Next should not be visible at the end of the wizard');
+        // [THEN] Setup Emails is displayed
+        if ExchangeAddinSetup.SampleEmailsAvailable() then
+            Assert.IsTrue(OutlookIndividualDeployment.SetupSampleEmails.Visible(), 'Setup emails is not visible');
     end;
 
     local procedure RunWizardToCompletion(var OutlookIndividualDeployment: TestPage "Outlook Individual Deployment")
@@ -114,12 +111,10 @@ codeunit 139310 "Exchange Setup Tests"
         OutlookIndividualDeploymentPage.SkipDeploymentStage(true);
         OutlookIndividualDeploymentPage.Run();
 
-        with OutlookIndividualDeployment do begin
-            ActionNext.Invoke(); // Privacy Notice step to intro step
-            ActionNext.Invoke(); // Intro step to manual instructions step
-            Assert.IsFalse(ActionNext.Visible(), 'Next should not be visible at the end of the wizard');
-            Assert.IsTrue(ActionDone.Visible(), 'Done should be visible at the end of the wizard');
-        end;
+        OutlookIndividualDeployment.ActionNext.Invoke(); // Privacy Notice step to intro step
+        OutlookIndividualDeployment.ActionNext.Invoke(); // Intro step to manual instructions step
+        Assert.IsFalse(OutlookIndividualDeployment.ActionNext.Visible(), 'Next should not be visible at the end of the wizard');
+        Assert.IsTrue(OutlookIndividualDeployment.ActionDone.Visible(), 'Done should be visible at the end of the wizard');
     end;
 
     local procedure Initialize()
@@ -159,19 +154,20 @@ codeunit 139310 "Exchange Setup Tests"
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
         AzureADAppSetup: Record "Azure AD App Setup";
+        DummySecretGuid: Text;
     begin
         AzureADMgtSetup.Get();
         AzureADMgtSetup."Auth Flow Codeunit ID" := ProviderCodeunit;
         AzureADMgtSetup.Modify();
 
-        with AzureADAppSetup do
-            if not Get() then begin
-                Init();
-                "Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
-                "App ID" := CreateGuid();
-                SetSecretKeyToIsolatedStorage(CreateGuid());
-                Insert();
-            end;
+        if not AzureADAppSetup.Get() then begin
+            AzureADAppSetup.Init();
+            AzureADAppSetup."Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
+            AzureADAppSetup."App ID" := CreateGuid();
+            DummySecretGuid := CreateGuid();
+            AzureADAppSetup.SetSecretKeyToIsolatedStorage(DummySecretGuid);
+            AzureADAppSetup.Insert();
+        end;
     end;
 }
 

@@ -20,6 +20,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryNoSeries: Codeunit "Library - No. Series";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -32,7 +33,6 @@ codeunit 137280 "SCM Inventory Basic"
         isInitialized: Boolean;
         ItemCreatedMsg: Label 'Item %1 is created.';
         ItemChargeErr: Label 'You can not invoice item charge %1 because there is no item ledger entry to assign it to.';
-        ItemTrackingCodeErr: Label 'Item Tracking Code must have a value in Item: No.=%1. It cannot be zero or empty.';
         GlobalSerialNo: Code[50];
         GlobalDocumentNo: Code[20];
         GlobalItemNo: Code[20];
@@ -52,7 +52,7 @@ codeunit 137280 "SCM Inventory Basic"
         VatProdPostingGrMostNotMatchErr: Label '%1 must not be that same as in the %2';
         ItemUOMErr: Label 'The field %1';
         UOMErr: Label '%1 should be taken from appropriate table';
-#if not CLEAN23
+#if not CLEAN25
         ControlVisibilityErr: Label 'Control visibility should be %1';
 #endif
         UnspecifiedLocationTxt: Label 'UNSPECIFIED';
@@ -66,6 +66,7 @@ codeunit 137280 "SCM Inventory Basic"
     var
         NonstockItem: Record "Nonstock Item";
         PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
     begin
         // Verify creation and receiving of NonStock Item.
 
@@ -81,7 +82,7 @@ codeunit 137280 "SCM Inventory Basic"
         asserterror PostPurchaseOrder(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", false);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(ItemTrackingCodeErr, NonstockItem."Vendor Item No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Item Tracking Code"), '');
     end;
 
     [Test]
@@ -1840,7 +1841,7 @@ codeunit 137280 "SCM Inventory Basic"
             ItemSubstitution."Substitute Type"::Item, Item."No."), 'Item Substitution not found.');
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceWorksheetControlNotVisibleOnPhone()
@@ -2482,7 +2483,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] No. Series "X" with "Default Nos" = Yes and related No. series "Y". Next "No." in no. series is "X1"
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
-        LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
+        LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
 
         // [GIVEN] Set default No. Series for Item on Inventory Setup
         InventorySetup.Get();
@@ -3240,14 +3241,12 @@ codeunit 137280 "SCM Inventory Basic"
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
-        with InventoryPostingSetup do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Invt. Posting Group Code", InvPostingGroupCode);
-            if not FindFirst() then
-                exit(false);
+        InventoryPostingSetup.SetRange("Location Code", LocationCode);
+        InventoryPostingSetup.SetRange("Invt. Posting Group Code", InvPostingGroupCode);
+        if not InventoryPostingSetup.FindFirst() then
+            exit(false);
 
-            exit("Inventory Account" <> '');
-        end;
+        exit(InventoryPostingSetup."Inventory Account" <> '');
     end;
 
     [PageHandler]

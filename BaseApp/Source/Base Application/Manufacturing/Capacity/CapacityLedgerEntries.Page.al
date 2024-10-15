@@ -381,7 +381,9 @@ page 5832 "Capacity Ledger Entries"
     var
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
 
+#pragma warning disable AA0074
         Text000: Label 'Machine Center';
+#pragma warning restore AA0074
 
     protected var
         Dim1Visible: Boolean;

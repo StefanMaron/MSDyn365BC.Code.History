@@ -130,7 +130,9 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         EOFBankAccLedgEntries: Boolean;
         ExcludeReversedEntries: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the Ending Date.';
+#pragma warning restore AA0074
 
     procedure SetStmt(var BankAccRecon2: Record "Bank Acc. Reconciliation")
     begin
@@ -191,13 +193,5 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
     begin
         // ExcludeReversedEntries = FALSE by default
     end;
-
-#if not CLEAN22
-    [Obsolete('Use OnBeforeInsertBankAccReconLine instead.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnInsertCheckLineOnBeforeBankAccReconLineInsert(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; CheckLedgEntry: Record "Check Ledger Entry")
-    begin
-    end;
-#endif
 }
 

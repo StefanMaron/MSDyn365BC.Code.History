@@ -30,9 +30,6 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Reports;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Item;
 using Microsoft.Utilities;
 using System.Automation;
 using System.Email;
@@ -179,12 +176,6 @@ page 21 "Customer Card"
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the responsibility center that will administer this customer by default.';
-                }
-                field("Service Zone Code"; Rec."Service Zone Code")
-                {
-                    ApplicationArea = Service;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the code for the service zone that is assigned to the customer.';
                 }
                 field("Document Sending Profile"; Rec."Document Sending Profile")
                 {
@@ -883,10 +874,23 @@ page 21 "Customer Card"
                 SubPageLink = "No." = field("No.");
                 Visible = not IsOfficeAddin;
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Customer),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Customer),
                               "No." = field("No.");
             }
@@ -942,26 +946,6 @@ page 21 "Customer Card"
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "Table ID" = const(18),
                               "No." = field("No.");
-            }
-            part(Control1907829707; "Service Hist. Sell-to FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = field("No."),
-                              "Currency Filter" = field("Currency Filter"),
-                              "Date Filter" = field("Date Filter"),
-                              "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
-                              "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
-                Visible = false;
-            }
-            part(Control1902613707; "Service Hist. Bill-to FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = field("No."),
-                              "Currency Filter" = field("Currency Filter"),
-                              "Date Filter" = field("Date Filter"),
-                              "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
-                              "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
-                Visible = false;
             }
             part(WorkflowStatus; "Workflow Status FactBox")
             {
@@ -1027,6 +1011,15 @@ page 21 "Customer Card"
                     RunObject = Page "Ship-to Address List";
                     RunPageLink = "Customer No." = field("No.");
                     ToolTip = 'View or edit alternate shipping addresses where the customer wants items delivered if different from the regular address.';
+                }
+                action(AlternativeVATRegistration)
+                {
+                    ApplicationArea = VAT;
+                    Caption = 'Alternative VAT Registration';
+                    Image = VATPostingSetup;
+                    RunObject = Page "Alt. Cust. VAT Reg.";
+                    RunPageLink = "Customer No." = field("No.");
+                    ToolTip = 'View or set up an alternative VAT registration number for the customer.';
                 }
                 action(Contact)
                 {
@@ -1286,7 +1279,7 @@ page 21 "Customer Card"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
-                    ToolTip = 'View serial or lot numbers that are assigned to items.';
+                    ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                     trigger OnAction()
                     var
@@ -1380,7 +1373,7 @@ page 21 "Customer Card"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1401,7 +1394,7 @@ page 21 "Customer Card"
                     end;
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1586,41 +1579,6 @@ page 21 "Customer Card"
                     ToolTip = 'Open the list of ongoing projects.';
                 }
             }
-            group(Service)
-            {
-                Caption = 'Service';
-                Image = ServiceItem;
-                action("Service Orders")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service Orders';
-                    Image = Document;
-                    RunObject = Page "Service Orders";
-                    RunPageLink = "Customer No." = field("No.");
-                    RunPageView = sorting("Document Type", "Customer No.");
-                    ToolTip = 'Open the list of ongoing service orders.';
-                }
-                action("Ser&vice Contracts")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Ser&vice Contracts';
-                    Image = ServiceAgreement;
-                    RunObject = Page "Customer Service Contracts";
-                    RunPageLink = "Customer No." = field("No.");
-                    RunPageView = sorting("Customer No.", "Ship-to Code");
-                    ToolTip = 'Open the list of ongoing service contracts.';
-                }
-                action("Service &Items")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service &Items';
-                    Image = ServiceItem;
-                    RunObject = Page "Service Items";
-                    RunPageLink = "Customer No." = field("No.");
-                    RunPageView = sorting("Customer No.", "Ship-to Code", "Item No.", "Serial No.");
-                    ToolTip = 'View or edit the service items that are registered for the customer.';
-                }
-            }
         }
         area(creation)
         {
@@ -1753,58 +1711,6 @@ page 21 "Customer Card"
                 RunPageLink = "Sell-to Customer No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new sales return order for items or services.';
-            }
-            action(NewServiceQuote)
-            {
-                AccessByPermission = TableData "Service Header" = RIM;
-                ApplicationArea = Service;
-                Caption = 'Service Quote';
-                Image = Quote;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = Category4;
-                RunObject = Page "Service Quote";
-                RunPageLink = "Customer No." = field("No.");
-                RunPageMode = Create;
-                ToolTip = 'Create a new service quote for the customer.';
-            }
-            action(NewServiceInvoice)
-            {
-                AccessByPermission = TableData "Service Header" = RIM;
-                ApplicationArea = Service;
-                Caption = 'Service Invoice';
-                Image = Invoice;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = Category4;
-                RunObject = Page "Service Invoice";
-                RunPageLink = "Customer No." = field("No.");
-                RunPageMode = Create;
-                ToolTip = 'Create a new service invoice for the customer.';
-            }
-            action(NewServiceOrder)
-            {
-                AccessByPermission = TableData "Service Header" = RIM;
-                ApplicationArea = Service;
-                Caption = 'Service Order';
-                Image = Document;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = Category4;
-                RunObject = Page "Service Order";
-                RunPageLink = "Customer No." = field("No.");
-                RunPageMode = Create;
-                ToolTip = 'Create a new service order for the customer.';
-            }
-            action(NewServiceCreditMemo)
-            {
-                AccessByPermission = TableData "Service Header" = RIM;
-                ApplicationArea = Service;
-                Caption = 'Service Credit Memo';
-                Image = CreditMemo;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = Category4;
-                RunObject = Page "Service Credit Memo";
-                RunPageLink = "Customer No." = field("No.");
-                RunPageMode = Create;
-                ToolTip = 'Create a new service credit memo for the customer.';
             }
             action(NewReminder)
             {
@@ -1945,37 +1851,10 @@ page 21 "Customer Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create approval flow';
                         ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-#if not CLEAN22
-                        Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-#else
                         Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
-#endif
                         CustomActionType = FlowTemplateGallery;
                         FlowTemplateCategoryName = 'd365bc_approval_customer';
                     }
-#if not CLEAN22
-                    action(CreateFlow)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Power Automate approval flow';
-                        Image = Flow;
-                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-                        Visible = IsSaaS and not PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-                        ObsoleteReason = 'This action will be handled by platform as part of the CreateFlowFromTemplate customaction';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-
-                        trigger OnAction()
-                        var
-                            FlowServiceManagement: Codeunit "Flow Service Management";
-                            FlowTemplateSelector: Page "Flow Template Selector";
-                        begin
-                            // Opens page 6400 where the user can use filtered templates to create new flows.
-                            FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetCustomerTemplateFilter());
-                            FlowTemplateSelector.Run();
-                        end;
-                    }
-#endif
                 }
             }
             group(Workflow)
@@ -2319,7 +2198,7 @@ page 21 "Customer Card"
             group(Category_Category7)
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 6.';
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -2327,7 +2206,7 @@ page 21 "Customer Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Line Discounts_Promoted"; "Line Discounts")
                 {
                     ObsoleteState = Pending;
@@ -2338,7 +2217,7 @@ page 21 "Customer Card"
                 actionref(PriceLists_Promoted; PriceLists)
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Prices and Discounts Overview_Promoted"; "Prices and Discounts Overview")
                 {
                     ObsoleteState = Pending;
@@ -2387,6 +2266,9 @@ page 21 "Customer Card"
                 {
                 }
                 actionref(ShipToAddresses_Promoted; ShipToAddresses)
+                {
+                }
+                actionref(AlternativeVATRegistration_Promoted; AlternativeVATRegistration)
                 {
                 }
                 actionref("Direct Debit Mandates_Promoted"; "Direct Debit Mandates")
@@ -2516,10 +2398,6 @@ page 21 "Customer Card"
         CurrPage.Caption(CaptionTxt);
 
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
-
-#if not CLEAN22
-        InitPowerAutomateTemplateVisibility();
-#endif
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -2752,10 +2630,12 @@ page 21 "Customer Card"
         CustSalesLCY: Decimal;
         OverdueBalance: Decimal;
         OverduePaymentsMsg: Label 'Overdue Payments';
+#pragma warning disable AA0470
         PostedInvoicesMsg: Label 'Posted Invoices (%1)', Comment = 'Invoices (5)';
         CreditMemosMsg: Label 'Posted Credit Memos (%1)', Comment = 'Credit Memos (3)';
         OutstandingInvoicesMsg: Label 'Ongoing Invoices (%1)', Comment = 'Ongoing Invoices (4)';
         OutstandingCrMemosMsg: Label 'Ongoing Credit Memos (%1)', Comment = 'Ongoing Credit Memos (4)';
+#pragma warning restore AA0470
         ShowMapLbl: Label 'Show on Map';
         CustomerCardServiceCategoryTxt: Label 'Customer Card', Locked = true;
         PageBckGrndTaskStartedTxt: Label 'Page Background Task to calculate customer statistics for customer %1 started.', Locked = true, Comment = '%1 = Customer No.';
@@ -2891,22 +2771,6 @@ page 21 "Customer Card"
                 CustomerRecRef.SetTable(Customer);
             end;
     end;
-
-#if not CLEAN22
-    var
-        PowerAutomateTemplatesEnabled: Boolean;
-        PowerAutomateTemplatesFeatureLbl: Label 'PowerAutomateTemplates', Locked = true;
-
-    local procedure InitPowerAutomateTemplateVisibility()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        PowerAutomateTemplatesEnabled := true;
-        if FeatureKey.Get(PowerAutomateTemplatesFeatureLbl) then
-            if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then
-                PowerAutomateTemplatesEnabled := false;
-    end;
-#endif
 
     local procedure OpenCurrFiscalYearCustLedgerEntries()
     var

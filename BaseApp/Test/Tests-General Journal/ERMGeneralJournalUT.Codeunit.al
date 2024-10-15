@@ -27,7 +27,6 @@ codeunit 134920 "ERM General Journal UT"
         LibraryVariableStorageCounter: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         DocNoFilterErr: Label 'The document numbers cannot be renumbered while there is an active filter on the Document No. field.';
-        CheckPrintedIsTrueErr: Label 'Check Printed must be equal to ''No''';
         WrongJobQueueStatus: Label 'Journal line cannot be modified because it has been scheduled for posting.';
         WrongFieldVisibilityErr: Label 'Wrong field visiblity';
         CannotBeSpecifiedForRecurrJnlErr: Label 'cannot be specified when using recurring journals';
@@ -1390,7 +1389,7 @@ codeunit 134920 "ERM General Journal UT"
 
         asserterror GenJournalLine.RenumberDocumentNo();
 
-        Assert.ExpectedError(CheckPrintedIsTrueErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Check Printed"), Format(false));
         GenJournalLine.TestField("Document No.", DocNo);
     end;
 
@@ -1793,15 +1792,12 @@ codeunit 134920 "ERM General Journal UT"
         VerifyGenJournalLineSalesPurchLCY_VendorInvoice(GenJournalLine."Recurring Method"::"F  Fixed", '', 1, 1);
         VerifyGenJournalLineSalesPurchLCY_CustomerCrMemo(GenJournalLine."Recurring Method"::"F  Fixed", '', 1, 1);
         VerifyGenJournalLineSalesPurchLCY_VendorCrMemo(GenJournalLine."Recurring Method"::"F  Fixed", '', 1, 1);
-
         // validate recurring method after Amount validation
-        with GenJournalLine do begin
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, "Recurring Method"::" ", false,
-              "Document Type"::Invoice, "Account Type"::Customer, LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", '', 1, 0);
-            Validate("Recurring Method", "Recurring Method"::"F  Fixed");
-            TestField("Sales/Purch. (LCY)", 1);
-        end;
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+            GenJournalLine, GenJournalLine."Recurring Method"::" ", false,
+            GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), GenJournalLine."Bal. Account Type"::"G/L Account", '', 1, 0);
+        GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"F  Fixed");
+        GenJournalLine.TestField("Sales/Purch. (LCY)", 1);
     end;
 
     [Test]
@@ -4362,10 +4358,9 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo());
         GLAccountNo := LibraryERM.CreateGLAccountNo();
-        with GenJnlLine do
-            CreateGenJournalLine(
-              GenJnlLine, "Document Type"::" ", "Account Type"::"G/L Account", GLAccountNo,
-              "Bal. Account Type"::Vendor, VendorBankAccount."Vendor No.", '');
+        CreateGenJournalLine(
+              GenJnlLine, GenJnlLine."Document Type"::" ", GenJnlLine."Account Type"::"G/L Account", GLAccountNo,
+              GenJnlLine."Bal. Account Type"::Vendor, VendorBankAccount."Vendor No.", '');
 
         GenJnlLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
 
@@ -4385,10 +4380,9 @@ codeunit 134920 "ERM General Journal UT"
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, LibraryPurchase.CreateVendorNo());
         GLAccountNo := LibraryERM.CreateGLAccountNo();
-        with GenJnlLine do
-            CreateGenJournalLine(
-              GenJnlLine, "Document Type"::"Credit Memo", "Account Type"::"G/L Account",
-              GLAccountNo, "Bal. Account Type"::Vendor, VendorBankAccount."Vendor No.", '');
+        CreateGenJournalLine(
+              GenJnlLine, GenJnlLine."Document Type"::"Credit Memo", GenJnlLine."Account Type"::"G/L Account",
+              GLAccountNo, GenJnlLine."Bal. Account Type"::Vendor, VendorBankAccount."Vendor No.", '');
 
         GenJnlLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
 
@@ -4408,10 +4402,9 @@ codeunit 134920 "ERM General Journal UT"
 
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo());
         GLAccountNo := LibraryERM.CreateGLAccountNo();
-        with GenJnlLine do
-            CreateGenJournalLine(
-              GenJnlLine, "Document Type"::" ", "Account Type"::"G/L Account", GLAccountNo,
-              "Bal. Account Type"::Customer, CustomerBankAccount."Customer No.", '');
+        CreateGenJournalLine(
+              GenJnlLine, GenJnlLine."Document Type"::" ", GenJnlLine."Account Type"::"G/L Account", GLAccountNo,
+              GenJnlLine."Bal. Account Type"::Customer, CustomerBankAccount."Customer No.", '');
 
         GenJnlLine.Validate("Recipient Bank Account", CustomerBankAccount.Code);
 
@@ -4431,10 +4424,9 @@ codeunit 134920 "ERM General Journal UT"
 
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, LibrarySales.CreateCustomerNo());
         GLAccountNo := LibraryERM.CreateGLAccountNo();
-        with GenJnlLine do
-            CreateGenJournalLine(
-              GenJnlLine, "Document Type"::"Credit Memo", "Account Type"::"G/L Account",
-              GLAccountNo, "Bal. Account Type"::Customer, CustomerBankAccount."Customer No.", '');
+        CreateGenJournalLine(
+              GenJnlLine, GenJnlLine."Document Type"::"Credit Memo", GenJnlLine."Account Type"::"G/L Account",
+              GLAccountNo, GenJnlLine."Bal. Account Type"::Customer, CustomerBankAccount."Customer No.", '');
 
         GenJnlLine.Validate("Recipient Bank Account", CustomerBankAccount.Code);
 
@@ -5536,6 +5528,72 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournalBatches.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DebitCreditAmountGLEntriesPreviewFieldVisibility()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLEntriesPreviewPage: TestPage "G/L Entries Preview";
+    begin
+        // [FEATURE] [Show Amounts]
+        // [SCENARIO 542680] Debit Amount and Credit Amount fields are visible and Amount field is not on the G/L Entries Preview page when "Show Amount is" set to "Debit/Credit Only"
+
+        Initialize();
+
+        // [GIVEN] General Ledger Setup with Show Amount = "Debit/Credit Only"
+        SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Debit/Credit Only");
+
+        // [WHEN] General Journal Preview page opened
+        RunGeneralJournalPreviewPage(GLEntriesPreviewPage);
+
+        // [THEN] "Debit Amount", "Credit Amount" columns are visible, "Amount" column - not visible
+        VerifyGenJnlLinePageDebitCreditAmtFieldsVisibility(GLEntriesPreviewPage, true, true, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllAmountsGLEntriesPreviewFieldVisibility()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLEntriesPreviewPage: TestPage "G/L Entries Preview";
+    begin
+        // [FEATURE] [Show Amounts]
+        // [SCENARIO 542680] Amount, Debit Amount and Credit Amount fields are visible on the G/L Entries Preview page when "Show Amount is" set to "All Amounts"
+
+        Initialize();
+
+        // [GIVEN] General Ledger Setup with Show Amount = "All Amounts"
+        SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"All Amounts");
+
+        // [WHEN] General Journal Preview page opened
+        RunGeneralJournalPreviewPage(GLEntriesPreviewPage);
+
+        // [THEN] "Debit Amount", "Credit Amount" and "Amount" columns are visible
+        VerifyGenJnlLinePageDebitCreditAmtFieldsVisibility(GLEntriesPreviewPage, true, true, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AmountGLEntriesPreviewFieldVisibility()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLEntriesPreviewPage: TestPage "G/L Entries Preview";
+    begin
+        // [FEATURE] [Show Amounts]
+        // [SCENARIO 542680] Amount field is visible and Debit/Credit Amount fields are not on the G/L Entries Preview page when "Show Amount is" set to "Amount"
+
+        Initialize();
+
+        // [GIVEN] General Ledger Setup with Show Amount = "Amount Only"
+        SetShowAmounts(GeneralLedgerSetup."Show Amounts"::"Amount Only");
+
+        // [WHEN] General Journal Preview page opened
+        RunGeneralJournalPreviewPage(GLEntriesPreviewPage);
+
+        // [THEN] "Debit Amount", "Credit Amount" columns are not visible, "Amount" column - visible
+        VerifyGenJnlLinePageDebitCreditAmtFieldsVisibility(GLEntriesPreviewPage, false, false, true);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -5878,13 +5936,12 @@ codeunit 134920 "ERM General Journal UT"
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         CustomerNo := LibrarySales.CreateCustomerNo();
-        for Index := 1 to ArrayLen(GenJournalBatch) do
-            with GenJournalLine[Index] do begin
-                LibraryERM.CreateGenJournalBatch(GenJournalBatch[Index], GenJournalTemplate.Name);
-                LibraryERM.CreateGeneralJnlLine(
-                  GenJournalLine[Index], GenJournalTemplate.Name, GenJournalBatch[Index].Name,
-                  "Document Type"::Invoice, "Account Type"::Customer, CustomerNo, LibraryRandom.RandDec(1000, 2));
-            end;
+        for Index := 1 to ArrayLen(GenJournalBatch) do begin
+            LibraryERM.CreateGenJournalBatch(GenJournalBatch[Index], GenJournalTemplate.Name);
+            LibraryERM.CreateGeneralJnlLine(
+              GenJournalLine[Index], GenJournalTemplate.Name, GenJournalBatch[Index].Name,
+              GenJournalLine[Index]."Document Type"::Invoice, GenJournalLine[Index]."Account Type"::Customer, CustomerNo, LibraryRandom.RandDec(1000, 2));
+        end;
     end;
 
     local procedure UpdateDescriptionAdHoc(var GenJournalLine: Record "Gen. Journal Line"; var AdHocDescription: Code[50])
@@ -5954,6 +6011,11 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournalBatches.EditJournal.Invoke();
     end;
 
+    local procedure RunGeneralJournalPreviewPage(var GLEntriesPreview: TestPage "G/L Entries Preview")
+    begin
+        GLEntriesPreview.OpenEdit();
+    end;
+
     local procedure RunEditJournalActionOnJobGLJournalPage(var JobGLJournal: TestPage "Job G/L Journal"; GeneralJournalBatches: TestPage "General Journal Batches")
     begin
         JobGLJournal.Trap();
@@ -6003,18 +6065,16 @@ codeunit 134920 "ERM General Journal UT"
 
     local procedure ValidateAmountAndVerifySalesPurchLCYGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; RecurringMethod: Enum "Gen. Journal Recurring Method"; SystemCreatedEntry: Boolean; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     begin
-        with GenJournalLine do begin
-            Init();
-            "Recurring Method" := RecurringMethod;
-            "System-Created Entry" := SystemCreatedEntry;
-            "Document Type" := DocumentType;
-            "Account Type" := AccountType;
-            "Account No." := AccountNo;
-            "Bal. Account Type" := BalAccountType;
-            "Bal. Account No." := BalAccountNo;
-            Validate(Amount, ValidateAmount);
-            TestField("Sales/Purch. (LCY)", ExpectedValue);
-        end;
+        GenJournalLine.Init();
+        GenJournalLine."Recurring Method" := RecurringMethod;
+        GenJournalLine."System-Created Entry" := SystemCreatedEntry;
+        GenJournalLine."Document Type" := DocumentType;
+        GenJournalLine."Account Type" := AccountType;
+        GenJournalLine."Account No." := AccountNo;
+        GenJournalLine."Bal. Account Type" := BalAccountType;
+        GenJournalLine."Bal. Account No." := BalAccountNo;
+        GenJournalLine.Validate(Amount, ValidateAmount);
+        GenJournalLine.TestField("Sales/Purch. (LCY)", ExpectedValue);
     end;
 
     local procedure VerifyAmountDebitAndCreditValues(GenJournalLine: Record "Gen. Journal Line"; ExpectedAmount: Decimal; ExpectedDebitAmount: Decimal; ExpectedCreditAmount: Decimal)
@@ -6107,6 +6167,14 @@ codeunit 134920 "ERM General Journal UT"
         Assert.AreEqual(CreditAmountVisilble, GeneralJournal."Credit Amount".Visible(), WrongFieldVisibilityErr);
         Assert.AreEqual(AmountVisilble, GeneralJournal.Amount.Visible(), WrongFieldVisibilityErr);
         GeneralJournal.Close();
+    end;
+
+    local procedure VerifyGenJnlLinePageDebitCreditAmtFieldsVisibility(GLEntriesPreview: TestPage "G/L Entries Preview"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
+    begin
+        Assert.AreEqual(DebitAmountVisilble, GLEntriesPreview."Debit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(CreditAmountVisilble, GLEntriesPreview."Credit Amount".Visible(), WrongFieldVisibilityErr);
+        Assert.AreEqual(AmountVisilble, GLEntriesPreview.Amount.Visible(), WrongFieldVisibilityErr);
+        GLEntriesPreview.Close();
     end;
 
     local procedure VerifyPaymentJnlLinePageDebitCreditAmtFieldsVisibility(PaymentJournal: TestPage "Payment Journal"; DebitAmountVisilble: Boolean; CreditAmountVisilble: Boolean; AmountVisilble: Boolean)
@@ -6273,125 +6341,109 @@ codeunit 134920 "ERM General Journal UT"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            // negative: system-created entry
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, true, "Document Type"::Invoice, "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
-
-            // negative: document type = payment
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::Payment, "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
-
-            // negative: document type = refund
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::Refund, "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
-
-            // negative: account type = g/l account
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::"G/L Account",
-              LibraryERM.CreateGLAccountNo(), "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
-
-            // positive: customer\vendor invoice\credit memo
-            VerifyGenJournalLineSalesPurchLCY_CustomerInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
-            VerifyGenJournalLineSalesPurchLCY_VendorInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
-            VerifyGenJournalLineSalesPurchLCY_CustomerCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
-            VerifyGenJournalLineSalesPurchLCY_VendorCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
-
-            // positive: balance customer\vendor invoice\creit memo
-            VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
-            VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
-            VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
-            VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
-
-            // negative: blanked account no. for balance customer\vendor invoice\credit memo
-            VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod, '', 1, 0);
-            VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod, '', 1, 0);
-            VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod, '', 1, 0);
-            VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod, '', 1, 0);
-        end;
+        // negative: system-created entry
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+          GenJournalLine, RecurringMethod, true, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
+          LibrarySales.CreateCustomerNo(), GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
+        // negative: document type = payment
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+          GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
+          LibrarySales.CreateCustomerNo(), GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
+        // negative: document type = refund
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+          GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::Refund, GenJournalLine."Account Type"::Customer,
+          LibrarySales.CreateCustomerNo(), GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
+        // negative: account type = g/l account
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+          GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"G/L Account",
+          LibraryERM.CreateGLAccountNo(), GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 1, 0);
+        // positive: customer\vendor invoice\credit memo
+        VerifyGenJournalLineSalesPurchLCY_CustomerInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
+        VerifyGenJournalLineSalesPurchLCY_VendorInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
+        VerifyGenJournalLineSalesPurchLCY_CustomerCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
+        VerifyGenJournalLineSalesPurchLCY_VendorCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, 1);
+        // positive: balance customer\vendor invoice\creit memo
+        VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
+        VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
+        VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
+        VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod, LibraryERM.CreateGLAccountNo(), 1, -1);
+        // negative: blanked account no. for balance customer\vendor invoice\credit memo
+        VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod, '', 1, 0);
+        VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod, '', 1, 0);
+        VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod, '', 1, 0);
+        VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod, '', 1, 0);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_CustomerInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+              GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
+              LibrarySales.CreateCustomerNo(), GenJournalLine."Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_CustomerCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::"Credit Memo", "Account Type"::Customer,
-              LibrarySales.CreateCustomerNo(), "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+              GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer,
+              LibrarySales.CreateCustomerNo(), GenJournalLine."Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_VendorInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::Vendor,
-              LibraryPurchase.CreateVendorNo(), "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+              GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
+              LibraryPurchase.CreateVendorNo(), GenJournalLine."Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_VendorCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::"Credit Memo", "Account Type"::Vendor,
-              LibraryPurchase.CreateVendorNo(), "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+              GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor,
+              LibraryPurchase.CreateVendorNo(), GenJournalLine."Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::"G/L Account", AccountNo,
-              "Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo(), ValidateAmount, ExpectedValue);
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+              GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"G/L Account", AccountNo,
+              GenJournalLine."Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo(), ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::"Credit Memo", "Account Type"::"G/L Account", AccountNo,
-              "Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo(), ValidateAmount, ExpectedValue);
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+              GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account", AccountNo,
+              GenJournalLine."Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo(), ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::Invoice, "Account Type"::"G/L Account", AccountNo,
-              "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), ValidateAmount, ExpectedValue);
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+              GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"G/L Account", AccountNo,
+              GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), ValidateAmount, ExpectedValue);
     end;
 
     local procedure VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do
-            ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
-              GenJournalLine, RecurringMethod, false, "Document Type"::"Credit Memo", "Account Type"::"G/L Account", AccountNo,
-              "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), ValidateAmount, ExpectedValue);
+        ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
+              GenJournalLine, RecurringMethod, false, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account", AccountNo,
+              GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), ValidateAmount, ExpectedValue);
     end;
 
     local procedure CreateGenJournalLineWithoutDocNo(

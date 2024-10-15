@@ -1126,19 +1126,17 @@ codeunit 134250 "Match General Jnl Lines UT"
     var
         LastLineNo: Integer;
     begin
-        with TextToAccMapping do begin
-            if FindLast() then
-                LastLineNo := "Line No.";
+        if TextToAccMapping.FindLast() then
+            LastLineNo := TextToAccMapping."Line No.";
 
-            Init();
-            "Line No." := LastLineNo + 1;
-            "Mapping Text" := CopyStr(CreateGuid(), 1, 50);
-            "Debit Acc. No." := DebitAccNo;
-            "Credit Acc. No." := CreditAccNo;
-            "Bal. Source Type" := SourceType;
-            "Bal. Source No." := SourceNo;
-            Insert();
-        end;
+        TextToAccMapping.Init();
+        TextToAccMapping."Line No." := LastLineNo + 1;
+        TextToAccMapping."Mapping Text" := CopyStr(CreateGuid(), 1, 50);
+        TextToAccMapping."Debit Acc. No." := DebitAccNo;
+        TextToAccMapping."Credit Acc. No." := CreditAccNo;
+        TextToAccMapping."Bal. Source Type" := SourceType;
+        TextToAccMapping."Bal. Source No." := SourceNo;
+        TextToAccMapping.Insert();
     end;
 
     local procedure InsertGLAccount(var GLAccount: Record "G/L Account")

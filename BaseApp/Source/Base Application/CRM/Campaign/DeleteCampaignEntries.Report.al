@@ -46,7 +46,11 @@ report 5189 "Delete Campaign Entries"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 has been deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NoOfToDos: Integer;
 }
 

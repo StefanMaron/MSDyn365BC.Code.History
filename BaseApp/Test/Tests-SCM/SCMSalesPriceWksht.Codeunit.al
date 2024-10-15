@@ -14,24 +14,24 @@ codeunit 137201 "SCM Sales Price Wksht"
         GeneralLedgerSetup: Record "General Ledger Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
         LibraryInventory: Codeunit "Library - Inventory";
-#if not CLEAN23
+#if not CLEAN25
         LibraryERM: Codeunit "Library - ERM";
 #endif
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Assert: Codeunit Assert;
 #endif
         isInitialized: Boolean;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountWithSalesPrice()
@@ -272,7 +272,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         PurchaseLine.TestField("Expected Receipt Date", ExpectedReceiptDate);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CheckSalesPricePageforCustomerPriceGroup()
@@ -389,7 +389,7 @@ codeunit 137201 "SCM Sales Price Wksht"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Sales Price Wksht");
 
-#if not CLEAN23
+#if not CLEAN25
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 #else
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
@@ -430,7 +430,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibrarySales.CreateCustomer(Customer);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
     var
         SalesPrice: Record "Sales Price";
@@ -511,7 +511,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, MinimumQty);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure ImplementNewSalesPrice() NewUnitPrice: Decimal
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -583,7 +583,7 @@ codeunit 137201 "SCM Sales Price Wksht"
         SalesLine.TestField("Line Amount", ExpectedLineAmount);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifySalesPriceLineOnPage(CustomerPriceGroup: Record "Customer Price Group")
     var
         CustomerPriceGroups: TestPage "Customer Price Groups";
@@ -600,11 +600,9 @@ codeunit 137201 "SCM Sales Price Wksht"
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
     begin
-        with SalesPriceWorksheet do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            TestField("Current Unit Price", CurrentUnitPrice);
-        end;
+        SalesPriceWorksheet.SetRange("Item No.", ItemNo);
+        SalesPriceWorksheet.FindFirst();
+        SalesPriceWorksheet.TestField("Current Unit Price", CurrentUnitPrice);
     end;
 #endif
 }

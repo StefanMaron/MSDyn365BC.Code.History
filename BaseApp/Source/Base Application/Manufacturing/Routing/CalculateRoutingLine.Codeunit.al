@@ -61,7 +61,10 @@ codeunit 99000774 "Calculate Routing Line"
         CurrentTimeFactor: Decimal;
         CurrentRounding: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Error when calculating %1. Calendar is not available %2 %3 for %4 %5.';
+#pragma warning restore AA0470
         Text001: Label 'backward';
         Text002: Label 'before';
         Text003: Label 'forward';
@@ -69,6 +72,7 @@ codeunit 99000774 "Calculate Routing Line"
         Text005: Label 'The sum of setup, move and wait time exceeds the available time in the period.';
         Text006: Label 'fixed schedule';
         Text007: Label 'Starting time must be before ending time.';
+#pragma warning restore AA0074
 
     local procedure TestForError(DirectionTxt: Text[30]; BefAfterTxt: Text[30]; Date: Date)
     begin
@@ -649,7 +653,7 @@ codeunit 99000774 "Calculate Routing Line"
         exit(false);
     end;
 
-    local procedure CalcRoutingLineBack(CalculateEndDate: Boolean)
+    procedure CalcRoutingLineBack(CalculateEndDate: Boolean)
     var
         ProdOrderRoutingLine2: Record "Prod. Order Routing Line";
         ProdOrderRoutingLine3: Record "Prod. Order Routing Line";
@@ -1009,7 +1013,7 @@ codeunit 99000774 "Calculate Routing Line"
         exit(false);
     end;
 
-    local procedure CalcRoutingLineForward(CalculateStartDate: Boolean)
+    procedure CalcRoutingLineForward(CalculateStartDate: Boolean)
     var
         ProdOrderRoutingLine2: Record "Prod. Order Routing Line";
         ProdOrderRoutingLine3: Record "Prod. Order Routing Line";

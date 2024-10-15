@@ -21,8 +21,6 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.Document;
@@ -43,6 +41,8 @@ codeunit 5817 "Undo Posting Management"
 
     var
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot undo line %1 because there is not sufficient content in the receiving bins.';
         Text002: Label 'You cannot undo line %1 because warehouse put-away lines have already been created.';
         Text003: Label 'You cannot undo line %1 because warehouse activity lines have already been created.';
@@ -58,6 +58,8 @@ codeunit 5817 "Undo Posting Management"
         Text013: Label 'Item ledger entries are missing for line %1.';
         Text014: Label 'You cannot undo line %1, because a revaluation has already been posted.';
         Text015: Label 'You cannot undo posting of item %1 with variant ''%2'' and unit of measure %3 because it is not available at location %4, bin code %5. The required quantity is %6. The available quantity is %7.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NonSurplusResEntriesErr: Label 'You cannot undo transfer shipment line %1 because this line is Reserved. Reservation Entry No. %2', Comment = '%1 = Line No., %2 = Entry No.';
 
     procedure TestTransferShptLine(TransferShptLine: Record "Transfer Shipment Line")
@@ -83,14 +85,15 @@ codeunit 5817 "Undo Posting Management"
             DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), SalesShptLine."Order No.", SalesShptLine."Order Line No.");
     end;
 
-    procedure TestServShptLine(ServShptLine: Record "Service Shipment Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Undo Posting Mgt.', '25.0')]
+    procedure TestServShptLine(ServShptLine: Record Microsoft.Service.History."Service Shipment Line")
     var
-        ServLine: Record "Service Line";
+        ServUndoPostingMgt: Codeunit "Serv. Undo Posting Mgt.";
     begin
-        TestAllTransactions(
-            DATABASE::"Service Shipment Line", ServShptLine."Document No.", ServShptLine."Line No.",
-            DATABASE::"Service Line", ServLine."Document Type"::Order.AsInteger(), ServShptLine."Order No.", ServShptLine."Order Line No.");
+        ServUndoPostingMgt.TestServShptLine(ServShptLine);
     end;
+#endif
 
     procedure TestPurchRcptLine(PurchRcptLine: Record "Purch. Rcpt. Line")
     var
@@ -142,7 +145,7 @@ codeunit 5817 "Undo Posting Management"
         TestAllTransactions(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
     end;
 
-    local procedure TestAllTransactions(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
+    procedure TestAllTransactions(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
     var
         IsHandled: Boolean;
     begin
@@ -160,8 +163,9 @@ codeunit 5817 "Undo Posting Management"
 
         if not (UndoType in [DATABASE::"Purch. Rcpt. Line", DATABASE::"Return Receipt Line"]) then
             TestWarehouseReceiptLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
-        if not (UndoType in [DATABASE::"Sales Shipment Line", DATABASE::"Return Shipment Line", DATABASE::"Service Shipment Line"]) then
+        if not SkipTestWarehouseShipmentLine(UndoType) then
             TestWarehouseShipmentLine(UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
+
         TestPostedWhseShipmentLine(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
         TestPostedInvtPutAwayLine(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
         TestPostedInvtPickLine(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
@@ -170,6 +174,13 @@ codeunit 5817 "Undo Posting Management"
         TestItemChargeAssignmentSales(UndoType, UndoLineNo, SourceID, SourceRefNo);
 
         OnAfterTestAllTransactions(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
+    end;
+
+    local procedure SkipTestWarehouseShipmentLine(UndoType: Integer) SkipTest: Boolean
+    begin
+        SkipTest := UndoType in [DATABASE::"Sales Shipment Line", DATABASE::"Return Shipment Line"];
+
+        OnSkipTestWarehouseShipmentLine(UndoType, SkipTest);
     end;
 
     local procedure TestPostedWhseReceiptLine(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer): Boolean
@@ -708,15 +719,21 @@ codeunit 5817 "Undo Posting Management"
             TempItemLedgEntry := ItemLedgEntry;
             TempItemLedgEntry.Insert();
         end else begin
-            if SourceType in [DATABASE::"Sales Shipment Line",
-                              DATABASE::"Return Shipment Line",
-                              DATABASE::"Service Shipment Line",
-                              DATABASE::"Posted Assembly Line",
-                              DATABASE::"Transfer Shipment Line"]
-            then
+            if ShouldRevertBaseQtySign(SourceType) then
                 BaseQty := BaseQty * -1;
             CheckMissingItemLedgers(TempItemLedgEntry, SourceType, DocumentNo, LineNo, BaseQty);
         end;
+    end;
+
+    local procedure ShouldRevertBaseQtySign(SourceType: Integer) RevertSign: Boolean
+    begin
+        RevertSign :=
+            SourceType in [DATABASE::"Sales Shipment Line",
+                            DATABASE::"Return Shipment Line",
+                            DATABASE::"Posted Assembly Line",
+                            DATABASE::"Transfer Shipment Line"];
+
+        OnShouldRevertBaseQtySign(SourceType, RevertSign);
     end;
 
     local procedure CheckMissingItemLedgers(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal)
@@ -1031,116 +1048,25 @@ codeunit 5817 "Undo Posting Management"
         SalesLineReserve.VerifyQuantity(SalesLine, xSalesLine);
     end;
 
-    procedure UpdateServLine(ServLine: Record "Service Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Undo Posting Mgt.', '25.0')]
+    procedure UpdateServLine(ServLine: Record Microsoft.Service.Document."Service Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
     var
-        xServLine: Record "Service Line";
-        IsHandled: Boolean;
+        ServUndoPostingMgt: Codeunit "Serv. Undo Posting Mgt.";
     begin
-        IsHandled := false;
-        OnBeforeUpdateServLine(ServLine, UndoQty, UndoQtyBase, TempUndoneItemLedgEntry, IsHandled);
-        if IsHandled then
-            exit;
-
-        xServLine := ServLine;
-        case ServLine."Document Type" of
-            ServLine."Document Type"::Order:
-                begin
-                    ServLine."Quantity Shipped" := ServLine."Quantity Shipped" - UndoQty;
-                    ServLine."Qty. Shipped (Base)" := ServLine."Qty. Shipped (Base)" - UndoQtyBase;
-                    ServLine."Qty. to Consume" := 0;
-                    ServLine."Qty. to Consume (Base)" := 0;
-                    ServLine.InitOutstanding();
-                    ServLine.InitQtyToShip();
-                end;
-            else
-                ServLine.FieldError("Document Type");
-        end;
-        ServLine.Modify();
-        RevertPostedItemTrackingFromServiceLine(ServLine, TempUndoneItemLedgEntry);
-        xServLine."Quantity (Base)" := 0;
-        ServiceLineReserveVerifyQuantity(ServLine, xServLine);
-
-        UpdateWarehouseRequest(
-            DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Location Code");
-
-        OnAfterUpdateServLine(ServLine);
+        ServUndoPostingMgt.UpdateServLine(ServLine, UndoQty, UndoQtyBase, TempUndoneItemLedgEntry);
     end;
+#endif
 
-    local procedure RevertPostedItemTrackingFromServiceLine(ServiceLine: Record "Service Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Undo Posting Mgt.', '25.0')]
+    procedure UpdateServLineCnsm(var ServLine: Record Microsoft.Service.Document."Service Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
     var
-        IsHandled: Boolean;
+        ServUndoPostingMgt: Codeunit "Serv. Undo Posting Mgt.";
     begin
-        IsHandled := false;
-        OnBeforeRevertPostedItemTrackingFromServiceLine(ServiceLine, TempUndoneItemLedgEntry, IsHandled);
-        if IsHandled then
-            exit;
-
-        RevertPostedItemTracking(TempUndoneItemLedgEntry, ServiceLine."Posting Date", false);
+        ServUndoPostingMgt.UpdateServLineCnsm(ServLine, UndoQty, UndoQtyBase, TempUndoneItemLedgEntry);
     end;
-
-    local procedure ServiceLineReserveVerifyQuantity(ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line")
-    var
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeServiceLineReserveVerifyQuantity(ServiceLine, xServiceLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        ServiceLineReserve.VerifyQuantity(ServiceLine, xServiceLine);
-    end;
-
-    procedure UpdateServLineCnsm(var ServLine: Record "Service Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
-    var
-        ServHeader: Record "Service Header";
-        xServLine: Record "Service Line";
-        SalesSetup: Record "Sales & Receivables Setup";
-        ServCalcDiscount: Codeunit "Service-Calc. Discount";
-    begin
-        xServLine := ServLine;
-        case ServLine."Document Type" of
-            ServLine."Document Type"::Order:
-                begin
-                    ServLine."Quantity Consumed" := ServLine."Quantity Consumed" - UndoQty;
-                    ServLine."Qty. Consumed (Base)" := ServLine."Qty. Consumed (Base)" - UndoQtyBase;
-                    ServLine."Quantity Shipped" := ServLine."Quantity Shipped" - UndoQty;
-                    ServLine."Qty. Shipped (Base)" := ServLine."Qty. Shipped (Base)" - UndoQtyBase;
-                    ServLine."Qty. to Invoice" := 0;
-                    ServLine."Qty. to Invoice (Base)" := 0;
-                    ServLine.InitOutstanding();
-                    ServLine.InitQtyToShip();
-                    ServLine.Validate(ServLine."Line Discount %");
-                    ServLine.ConfirmAdjPriceLineChange();
-                    ServLine.Modify();
-
-                    SalesSetup.Get();
-                    if SalesSetup."Calc. Inv. Discount" then begin
-                        ServHeader.Get(ServLine."Document Type", ServLine."Document No.");
-                        ServCalcDiscount.CalculateWithServHeader(ServHeader, ServLine, ServLine);
-                    end;
-                end;
-            else
-                ServLine.FieldError(ServLine."Document Type");
-        end;
-        ServLine.Modify();
-        RevertPostedItemTracking(TempUndoneItemLedgEntry, ServLine."Posting Date", false);
-        xServLine."Quantity (Base)" := 0;
-        ServiceLineCnsmReserveVerifyQuantity(ServLine, xServLine);
-    end;
-
-    local procedure ServiceLineCnsmReserveVerifyQuantity(ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line")
-    var
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeServiceLineCnsmReserveVerifyQuantity(ServiceLine, xServiceLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        ServiceLineReserve.VerifyQuantity(ServiceLine, xServiceLine);
-    end;
+#endif
 
     procedure RevertPostedItemTracking(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; AvailabilityDate: Date; RevertInvoiced: Boolean)
     var
@@ -1338,7 +1264,7 @@ codeunit 5817 "Undo Posting Management"
     begin
     end;
 
-    local procedure UpdateWarehouseRequest(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; LocationCode: Code[10])
+    procedure UpdateWarehouseRequest(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; LocationCode: Code[10])
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
@@ -1371,10 +1297,18 @@ codeunit 5817 "Undo Posting Management"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnAfterUpdateServLine(var ServLine: Record Microsoft.Service.Document."Service Line")
+    begin
+        OnAfterUpdateServLine(ServLine);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Undo Posting Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateServLine(var ServLine: Record "Service Line")
+    local procedure OnAfterUpdateServLine(var ServLine: Record Microsoft.Service.Document."Service Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAdjustQuantityRounding(var ItemJnlLine: Record "Item Journal Line"; var NonDistrQuantity: Decimal; NonDistrQuantityBase: Decimal; var IsHandled: Boolean)
@@ -1441,20 +1375,44 @@ codeunit 5817 "Undo Posting Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeRevertPostedItemTrackingFromServiceLine(ServiceLine: Record "Service Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+#if not CLEAN25
+    internal procedure RunOnBeforeRevertPostedItemTrackingFromServiceLine(ServiceLine: Record Microsoft.Service.Document."Service Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
+        OnBeforeRevertPostedItemTrackingFromServiceLine(ServiceLine, TempUndoneItemLedgEntry, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit Serv. Undo Posting Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceLineReserveVerifyQuantity(ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnBeforeRevertPostedItemTrackingFromServiceLine(ServiceLine: Record Microsoft.Service.Document."Service Line"; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceLineReserveVerifyQuantity(ServiceLine: Record Microsoft.Service.Document."Service Line"; xServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceLineReserveVerifyQuantity(ServiceLine, xServiceLine, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit Serv. Undo Posting Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceLineCnsmReserveVerifyQuantity(ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnBeforeServiceLineReserveVerifyQuantity(ServiceLine: Record Microsoft.Service.Document."Service Line"; xServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeServiceLineCnsmReserveVerifyQuantity(ServiceLine: Record Microsoft.Service.Document."Service Line"; xServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeServiceLineCnsmReserveVerifyQuantity(ServiceLine, xServiceLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Undo Posting Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceLineCnsmReserveVerifyQuantity(ServiceLine: Record Microsoft.Service.Document."Service Line"; xServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestAllTransactions(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
@@ -1581,10 +1539,18 @@ codeunit 5817 "Undo Posting Management"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeUpdateServLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateServLine(ServiceLine, UndoQty, UndoQtyBase, TempUndoneItemLedgEntry, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Undo Posting Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateServLine(var ServiceLine: Record "Service Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateServLine(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePurchLine(PurchaseLine: Record "Purchase Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
@@ -1623,6 +1589,16 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestRgstrdWhseActivityLine2(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShouldRevertBaseQtySign(SourceType: Integer; var RevertSign: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSkipTestWarehouseShipmentLine(UndoType: Integer; var SkipTest: Boolean)
     begin
     end;
 }

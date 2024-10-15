@@ -490,7 +490,7 @@ table 302 "Finance Charge Memo Header"
 
     trigger OnInsert()
     var
-#if not CLEAN24
+#if not CLEAN24    
         NoSeriesMgt: Codeunit NoSeriesManagement;
 #endif
         IsHandled: Boolean;
@@ -570,13 +570,19 @@ table 302 "Finance Charge Memo Header"
         OK: Boolean;
         SelectNoSeriesAllowed: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Finance Charge Memo %1';
         Text001: Label 'Do you want to print finance charge memo %1?';
+#pragma warning restore AA0470
         Text002: Label 'This change will cause the existing lines to be deleted for this finance charge memo.\\';
         Text003: Label 'Do you want to continue?';
         Text004: Label 'There is not enough space to insert the text.';
         Text005: Label 'Deleting this document will cause a gap in the number series for finance charge memos.';
+#pragma warning disable AA0470
         Text006: Label 'An empty finance charge memo %1 will be created to fill this gap in the number series.\\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEdit(OldFinChrgMemoHeader: Record "Finance Charge Memo Header"): Boolean
     begin

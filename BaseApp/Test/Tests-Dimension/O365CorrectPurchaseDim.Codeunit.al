@@ -431,13 +431,11 @@ codeunit 138035 "O365 Correct Purchase Dim."
     var
         DimCombination: Record "Dimension Combination";
     begin
-        with DimCombination do begin
-            Init();
-            Validate("Dimension 1 Code", DimCode1);
-            Validate("Dimension 2 Code", DimCode2);
-            Validate("Combination Restriction", "Combination Restriction"::Blocked);
-            Insert();
-        end;
+        DimCombination.Init();
+        DimCombination.Validate("Dimension 1 Code", DimCode1);
+        DimCombination.Validate("Dimension 2 Code", DimCode2);
+        DimCombination.Validate("Combination Restriction", DimCombination."Combination Restriction"::Blocked);
+        DimCombination.Insert();
         Commit();
     end;
 

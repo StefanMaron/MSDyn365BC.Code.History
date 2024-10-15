@@ -23,7 +23,6 @@ codeunit 137112 "SCM Certificate Of Supply"
         DateCannotBeEmptyErr: Label 'The Receipt Date cannot be empty when Status is Received.';
         NoCannotBeEmptyErr: Label 'The No. field cannot be empty when the status of the Certificate of Supply is set to Required, Received, or Not Received.';
         CertRecDateBeforeShipPostDateMsg: Label 'The Receipt Date of the certificate cannot be earlier than the Shipment/Posting Date.';
-        CertificateDoesNotExistErr: Label 'The Certificate of Supply does not exist.';
         VehicleRegNoCannotBeChangedErr: Label 'The %1 field cannot be changed when the status of the Certificate of Supply is set to %2.';
 
     [Test]
@@ -44,7 +43,7 @@ codeunit 137112 "SCM Certificate Of Supply"
 
         // verify
         asserterror CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentHeader."No.");
-        Assert.ExpectedError(CertificateDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Certificate of Supply");
     end;
 
     [Test]
@@ -140,7 +139,7 @@ codeunit 137112 "SCM Certificate Of Supply"
 
         // verify
         asserterror CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Service Shipment", ServiceShipmentHeader."No.");
-        Assert.ExpectedError(CertificateDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Certificate of Supply");
     end;
 
     [Test]
@@ -235,7 +234,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         PostPurchaseDoc(ReturnShipmentHeader, PurchaseHeader."Document Type"::"Return Order", false);
 
         asserterror CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Return Shipment", ReturnShipmentHeader."No.");
-        Assert.ExpectedError(CertificateDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Certificate of Supply");
     end;
 
     [Test]
@@ -998,7 +997,7 @@ codeunit 137112 "SCM Certificate Of Supply"
     end;
 
     [Test]
-    [HandlerFunctions('CertofSupplyRequestPageHandler')]
+    [HandlerFunctions('ServCertofSupplyRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CertofSupplyReportValidationService()
     var
@@ -1026,7 +1025,7 @@ codeunit 137112 "SCM Certificate Of Supply"
     end;
 
     [Test]
-    [HandlerFunctions('CertofSupplyRequestPageHandler')]
+    [HandlerFunctions('ServCertofSupplyRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CertofSupplyReportValidationServiceMultiline()
     var
@@ -1133,7 +1132,7 @@ codeunit 137112 "SCM Certificate Of Supply"
 
         // verify
         asserterror CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Sales Shipment", SalesShipmentNo);
-        Assert.ExpectedError(CertificateDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Certificate of Supply");
     end;
 
     [Test]
@@ -1161,7 +1160,7 @@ codeunit 137112 "SCM Certificate Of Supply"
 
         // verify
         asserterror CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Service Shipment", ServiceShipmentNo);
-        Assert.ExpectedError(CertificateDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Certificate of Supply");
     end;
 
     [Test]
@@ -1192,7 +1191,7 @@ codeunit 137112 "SCM Certificate Of Supply"
 
         // verify
         asserterror CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Return Shipment", ReturnShipmentNo);
-        Assert.ExpectedError(CertificateDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Certificate of Supply");
     end;
 
     [Test]
@@ -1569,13 +1568,11 @@ codeunit 137112 "SCM Certificate Of Supply"
     begin
         VerifyReportCommon(CertificateOfSupply);
         LibraryReportDataset.AssertElementWithValueExists('PrintLineDetails', true);
-        with SalesShipmentLine do begin
-            SetFilter("Document No.", SalesShipmentHeader."No.");
-            FindSet();
-            repeat
-                VerifyReportLine("No.", Description, Quantity, "Unit of Measure Code");
-            until Next() = 0;
-        end
+        SalesShipmentLine.SetFilter("Document No.", SalesShipmentHeader."No.");
+        SalesShipmentLine.FindSet();
+        repeat
+            VerifyReportLine(SalesShipmentLine."No.", SalesShipmentLine.Description, SalesShipmentLine.Quantity, SalesShipmentLine."Unit of Measure Code");
+        until SalesShipmentLine.Next() = 0;
     end;
 
     local procedure VerifyMultilineReportServiceDoc(CertificateOfSupply: Record "Certificate of Supply"; ServiceShipmentHeader: Record "Service Shipment Header")
@@ -1584,13 +1581,11 @@ codeunit 137112 "SCM Certificate Of Supply"
     begin
         VerifyReportCommon(CertificateOfSupply);
         LibraryReportDataset.AssertElementWithValueExists('PrintLineDetails', true);
-        with ServiceShipmentLine do begin
-            SetFilter("Document No.", ServiceShipmentHeader."No.");
-            FindSet();
-            repeat
-                VerifyReportLine("No.", Description, Quantity, "Unit of Measure Code");
-            until Next() = 0;
-        end
+        ServiceShipmentLine.SetFilter("Document No.", ServiceShipmentHeader."No.");
+        ServiceShipmentLine.FindSet();
+        repeat
+            VerifyReportLine(ServiceShipmentLine."No.", ServiceShipmentLine.Description, ServiceShipmentLine.Quantity, ServiceShipmentLine."Unit of Measure Code");
+        until ServiceShipmentLine.Next() = 0;
     end;
 
     local procedure VerifyMultilineReportReturnShipmentDoc(CertificateOfSupply: Record "Certificate of Supply"; ReturnShipmentHeader: Record "Return Shipment Header")
@@ -1599,13 +1594,11 @@ codeunit 137112 "SCM Certificate Of Supply"
     begin
         VerifyReportCommon(CertificateOfSupply);
         LibraryReportDataset.AssertElementWithValueExists('PrintLineDetails', true);
-        with ReturnShipmentLine do begin
-            SetFilter("Document No.", ReturnShipmentHeader."No.");
-            FindSet();
-            repeat
-                VerifyReportLine("No.", Description, Quantity, "Unit of Measure Code");
-            until Next() = 0;
-        end
+        ReturnShipmentLine.SetFilter("Document No.", ReturnShipmentHeader."No.");
+        ReturnShipmentLine.FindSet();
+        repeat
+            VerifyReportLine(ReturnShipmentLine."No.", ReturnShipmentLine.Description, ReturnShipmentLine.Quantity, ReturnShipmentLine."Unit of Measure Code");
+        until ReturnShipmentLine.Next() = 0;
     end;
 
     local procedure VerifyReportCommon(CertificateOfSupply: Record "Certificate of Supply")
@@ -1715,6 +1708,23 @@ codeunit 137112 "SCM Certificate Of Supply"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CertofSupplyRequestPageHandler(var CertOfSupply: TestRequestPage "Certificate of Supply")
+    var
+        DocumentType: Variant;
+        DocumentNo: Variant;
+        PrintLineDetails: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DocumentType);
+        LibraryVariableStorage.Dequeue(DocumentNo);
+        LibraryVariableStorage.Dequeue(PrintLineDetails);
+        CertOfSupply.CertificateOfSupply.SetFilter("Document Type", Format(DocumentType));
+        CertOfSupply.CertificateOfSupply.SetFilter("Document No.", DocumentNo);
+        CertOfSupply.PrintLineDetails.SetValue(PrintLineDetails);
+        CertOfSupply.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ServCertofSupplyRequestPageHandler(var CertOfSupply: TestRequestPage "Service Certificate of Supply")
     var
         DocumentType: Variant;
         DocumentNo: Variant;

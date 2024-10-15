@@ -19,17 +19,15 @@ codeunit 138011 "O365 Demo Templates Test"
         ConfigTemplateLine: Record "Config. Template Line";
         FieldRef: FieldRef;
     begin
-        with ConfigTemplateLine do begin
-            SetRange("Data Template Code", TemplateCode);
-            if FindSet() then
-                repeat
-                    FieldRef := RecRef.Field("Field ID");
-                    Assert.AreEqual(
-                      Format(FieldRef.Value),
-                      "Default Value",
-                      StrSubstNo('<%1> field', FieldRef.Caption));
-                until Next() = 0;
-        end;
+        ConfigTemplateLine.SetRange("Data Template Code", TemplateCode);
+        if ConfigTemplateLine.FindSet() then
+            repeat
+                FieldRef := RecRef.Field(ConfigTemplateLine."Field ID");
+                Assert.AreEqual(
+                  Format(FieldRef.Value),
+                  ConfigTemplateLine."Default Value",
+                  StrSubstNo('<%1> field', FieldRef.Caption));
+            until ConfigTemplateLine.Next() = 0;
     end;
 
     local procedure Initialize()

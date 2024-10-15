@@ -12,6 +12,8 @@ codeunit 137410 "Extended Text Documents"
     var
         LibraryPatterns: Codeunit "Library - Patterns";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryJob: Codeunit "Library - Job";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryService: Codeunit "Library - Service";
         LibraryERM: Codeunit "Library - ERM";
@@ -133,13 +135,10 @@ codeunit 137410 "Extended Text Documents"
 
         // [WHEN] Make a Sales Order from the Blanket Order.
         CODEUNIT.Run(CODEUNIT::"Blnkt Sales Ord. to Ord. (Y/N)", SalesHeader);
-
         // [THEN] Extended Text "ET1" is not present in the Sales Order.
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange(Description, ExtText);
-            Assert.RecordIsEmpty(SalesLine);
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange(Description, ExtText);
+        Assert.RecordIsEmpty(SalesLine);
     end;
 
     [Test]
@@ -222,13 +221,10 @@ codeunit 137410 "Extended Text Documents"
 
         // [WHEN] Make a Purchase Order from the Blanket Order.
         CODEUNIT.Run(CODEUNIT::"Blnkt Purch Ord. to Ord. (Y/N)", PurchHeader);
-
         // [THEN] Extended Text "ET1" is not present in the Purchase Order.
-        with PurchLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange(Description, ExtText);
-            Assert.RecordIsEmpty(PurchLine);
-        end;
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange(Description, ExtText);
+        Assert.RecordIsEmpty(PurchLine);
     end;
 
     [Test]
@@ -382,7 +378,7 @@ codeunit 137410 "Extended Text Documents"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         ExtendedTextHeader: Record "Extended Text Header";
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
         InsertedCode: Code[10];
     begin
         // [FEATURE] [Service]
@@ -401,10 +397,10 @@ codeunit 137410 "Extended Text Documents"
         // [GIVEN] Table "Area" is updated - a record "R" is inserted
         InsertedCode := CommitAndStartNewTransaction();
 
-        TransferExtendedText.ServCheckIfAnyExtText(ServiceLine, true);
+        ServiceTransferExtText.ServCheckIfAnyExtText(ServiceLine, true);
 
         // [WHEN] Insert extended text in "S" through codeunit "Transfer Extended Text" and  rollback transaction with ERROR function
-        TransferExtendedText.InsertServExtText(ServiceLine);
+        ServiceTransferExtText.InsertServExtText(ServiceLine);
 
         // [THEN] Table "Area" does not contain "R"
         RollbackTransactionThroughErrorAndVerify(InsertedCode);
@@ -448,6 +444,79 @@ codeunit 137410 "Extended Text Documents"
         Assert.RecordCount(ExtTextPurchaseLine, 2);
         ExtTextPurchaseLine.SetRange(Description, ExtendedTextLine.Text);
         Assert.RecordIsNotEmpty(ExtTextPurchaseLine);
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobCheckIfAnyExtTextForItemTest()
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+        ExtendedTextLine: Record "Extended Text Line";
+        Item: Record Item;
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        JobCheckIfAnyExtTextResult: Boolean;
+    begin
+        // [GIVEN] Item with Extended Text Line
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Automatic Ext. Texts", true);
+        Item.Modify(true);
+        LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
+        LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
+
+
+        // [GIVEN] Job Planning Line
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.ItemType(), Item."No.", JobTask, JobPlanningLine);
+
+        // [WHEN] JobCheckIfAnyExtText
+        JobCheckIfAnyExtTextResult := TransferExtendedText.JobCheckIfAnyExtText(JobPlanningLine, true, Job);
+
+        // [THEN] Verify Result
+        Assert.IsTrue(JobCheckIfAnyExtTextResult, 'Ext. Texts expected');
+
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobCheckIfAnyExtTextForStandardTextTest()
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+    begin
+        // [GIVEN] Standard Text with Extended Text Line
+        CreateExtendedText(ExtendedTextHeader);
+
+        // [GIVEN] Job Planning Line
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), LibraryJob.TextType(), ExtendedTextHeader."No.", JobTask, JobPlanningLine);
+
+        // [WHEN] Extended Text is inserted
+        TransferExtendedText.JobCheckIfAnyExtText(JobPlanningLine, true, Job);
+        TransferExtendedText.InsertJobExtText(JobPlanningLine);
+
+        // [THEN] Verify Result
+        VerifyInsertedJobPlanningLines(ExtendedTextHeader, JobPlanningLine);
+    end;
+
+    local procedure CreateJobPlanningLine(LineType: Enum "Job Planning Line Line Type"; Type: Enum "Job Planning Line Type"; No: Code[20]; JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line")
+    begin
+        JobPlanningLine.Init();
+        JobPlanningLine.Validate("Job No.", JobTask."Job No.");
+        JobPlanningLine.Validate("Job Task No.", JobTask."Job Task No.");
+        JobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
+        JobPlanningLine.Insert(true);
+        JobPlanningLine.Validate("Planning Date", WorkDate());
+        JobPlanningLine.Validate("Line Type", LineType);
+        JobPlanningLine.Validate(Type, Type);
+        JobPlanningLine.Validate("No.", No);
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure CreateExtendedText(var ExtendedTextHeader: Record "Extended Text Header")
@@ -554,6 +623,22 @@ codeunit 137410 "Extended Text Documents"
         PurchLine.SetRange("Document No.", ItemPurchLine."Document No.");
         PurchLine.SetRange(Description, ExtText);
         Assert.IsFalse(PurchLine.IsEmpty, NotFoundErr);
+    end;
+
+    local procedure VerifyInsertedJobPlanningLines(var ExtendedTextHeader: Record "Extended Text Header"; var JobPlanningLine: Record "Job Planning Line")
+    var
+        ExtendedTextLine: Record "Extended Text Line";
+        ExtTextJobPlanningLine: Record "Job Planning Line";
+    begin
+        ExtendedTextLine.SetRange("Table Name", ExtendedTextHeader."Table Name");
+        ExtendedTextLine.SetRange("No.", ExtendedTextHeader."No.");
+        ExtendedTextLine.SetRange("Language Code", ExtendedTextHeader."Language Code");
+        ExtendedTextLine.SetRange("Text No.", ExtendedTextHeader."Text No.");
+
+        ExtTextJobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        ExtTextJobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        ExtTextJobPlanningLine.SetRange("Attached to Line No.", JobPlanningLine."Line No.");
+        Assert.RecordCount(ExtTextJobPlanningLine, ExtendedTextLine.Count());
     end;
 }
 

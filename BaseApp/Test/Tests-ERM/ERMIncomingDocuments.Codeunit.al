@@ -37,27 +37,25 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDoc: Record "Incoming Document";
         LocalURL: Text;
     begin
-        with IncomingDoc do begin
-            Init();
-            Assert.AreEqual('', GetURL(), 'Expected empty url.');
-            LocalURL := 'abcdefghijklmnopqrstuvxyz1234.txt';
-            SetURL(LocalURL);
-            Assert.AreEqual(LocalURL, GetURL(), 'Wrong URL');
-            // verify that it works for strings > 250
-            while StrLen(LocalURL) <= 250 do
-                LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
-            SetURL(LocalURL);
-            Assert.AreEqual(LocalURL, GetURL(), 'Wrong URL');
-            // verify that it works for strings > 750
-            while StrLen(LocalURL) <= 750 do
-                LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
-            SetURL(LocalURL);
-            Assert.AreEqual(LocalURL, GetURL(), 'Wrong URL');
-            // verify that it fails for strings > length of URL field
-            while StrLen(LocalURL) <= MaxStrLen(URL) do
-                LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
-            asserterror SetURL(LocalURL);
-        end;
+        IncomingDoc.Init();
+        Assert.AreEqual('', IncomingDoc.GetURL(), 'Expected empty url.');
+        LocalURL := 'abcdefghijklmnopqrstuvxyz1234.txt';
+        IncomingDoc.SetURL(LocalURL);
+        Assert.AreEqual(LocalURL, IncomingDoc.GetURL(), 'Wrong URL');
+        // verify that it works for strings > 250
+        while StrLen(LocalURL) <= 250 do
+            LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
+        IncomingDoc.SetURL(LocalURL);
+        Assert.AreEqual(LocalURL, IncomingDoc.GetURL(), 'Wrong URL');
+        // verify that it works for strings > 750
+        while StrLen(LocalURL) <= 750 do
+            LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
+        IncomingDoc.SetURL(LocalURL);
+        Assert.AreEqual(LocalURL, IncomingDoc.GetURL(), 'Wrong URL');
+        // verify that it fails for strings > length of URL field
+        while StrLen(LocalURL) <= MaxStrLen(IncomingDoc.URL) do
+            LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
+        asserterror IncomingDoc.SetURL(LocalURL);
     end;
 
     [Test]
@@ -810,20 +808,16 @@ codeunit 134400 "ERM Incoming Documents"
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
-        with IncomingDocumentAttachment do begin
-            // Init();
-            if Get(0, 0) then
-                Delete();
-            Init();
-
-            // Execute
-            "Incoming Document Entry No." := 1;
-            Insert(true);
-
-            // Verify
-            Assert.AreNotEqual(Format(0DT), Format("Created Date-Time"), '');
-            Assert.AreNotEqual('', "Created By User Name", '');
-        end;
+        // Init();
+        if IncomingDocumentAttachment.Get(0, 0) then
+            IncomingDocumentAttachment.Delete();
+        IncomingDocumentAttachment.Init();
+        // Execute
+        IncomingDocumentAttachment."Incoming Document Entry No." := 1;
+        IncomingDocumentAttachment.Insert(true);
+        // Verify
+        Assert.AreNotEqual(Format(0DT), Format(IncomingDocumentAttachment."Created Date-Time"), '');
+        Assert.AreNotEqual('', IncomingDocumentAttachment."Created By User Name", '');
     end;
 
     [Test]
@@ -2271,16 +2265,14 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
     begin
         CreateNewIncomingDocument(IncomingDocument);
-        with SalesHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Invoice;
-            Insert(true);
-            "Posting Date" := WorkDate();
-            "Document Date" := DocDate;
-            "Due Date" := DueDate;
-            "Incoming Document Entry No." := IncomingDocument."Entry No.";
-            Modify();
-        end;
+        SalesHeader.Init();
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        SalesHeader.Insert(true);
+        SalesHeader."Posting Date" := WorkDate();
+        SalesHeader."Document Date" := DocDate;
+        SalesHeader."Due Date" := DueDate;
+        SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        SalesHeader.Modify();
     end;
 
     local procedure MockPurchHeaderWithDateAndIncomingDocEntryNo(var PurchHeader: Record "Purchase Header"; DocDate: Date; DueDate: Date)
@@ -2288,16 +2280,14 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
     begin
         CreateNewIncomingDocument(IncomingDocument);
-        with PurchHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Invoice;
-            Insert(true);
-            "Posting Date" := WorkDate();
-            "Document Date" := DocDate;
-            "Due Date" := DueDate;
-            "Incoming Document Entry No." := IncomingDocument."Entry No.";
-            Modify();
-        end;
+        PurchHeader.Init();
+        PurchHeader."Document Type" := PurchHeader."Document Type"::Invoice;
+        PurchHeader.Insert(true);
+        PurchHeader."Posting Date" := WorkDate();
+        PurchHeader."Document Date" := DocDate;
+        PurchHeader."Due Date" := DueDate;
+        PurchHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        PurchHeader.Modify();
     end;
 
     local procedure ValidatePostedIncomingDocument(var IncomingDocument: Record "Incoming Document")

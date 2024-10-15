@@ -345,9 +345,19 @@ page 8614 "Config. Package Card"
 
     var
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Validate package %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         ApplyDataConfirmMsg: Label 'Apply data from package %1?';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Export package %1 with %2 tables?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         IsErrorTabVisible: Boolean;
 
     local procedure ProcessPackageTablesWithDefaultProcessingReport()

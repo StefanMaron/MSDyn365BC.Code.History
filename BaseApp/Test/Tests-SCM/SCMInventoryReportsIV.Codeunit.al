@@ -29,7 +29,6 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ErrorTypeRef: Option "None","Division by Zero","Period Error","Invalid Formula","Cyclic Formula",All;
         isInitialized: Boolean;
         Amount: Label 'Amount';
-        AnalysisTemplateError: Label 'The %1 does not exist.';
         AnalysisLineDateFilterError: Label 'Specify a filter for the Date Filter field in the Analysis Line table.';
         AnalysisViewCodeError: Label 'Enter an analysis view code.';
         ColumnTemplateError: Label 'Enter a column template.';
@@ -820,14 +819,12 @@ codeunit 137351 "SCM Inventory Reports - IV"
     [HandlerFunctions('AnalysisRequestPageHandler')]
     [Scope('OnPrem')]
     procedure AnalysisReportAnalysisLineTemplateError()
-    var
-        AnalysisLineTemplate: Record "Analysis Line Template";
     begin
         // Verify Analysis report for blank Analysis Line Template.
 
         // Setup.
         Initialize();
-        AnalysisReportError('', '', StrSubstNo(AnalysisTemplateError, AnalysisLineTemplate.TableCaption()));
+        AnalysisReportErrorLine('', '');
     end;
 
     [Test]
@@ -836,7 +833,6 @@ codeunit 137351 "SCM Inventory Reports - IV"
     procedure AnalysisReportAnalysisColumnTemplateError()
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
-        AnalysisColumnTemplate: Record "Analysis Column Template";
         ItemAnalysisView: Record "Item Analysis View";
     begin
         // Verify Analysis report for blank Analysis Column Template.
@@ -844,7 +840,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         // Setup: Create Analysis Line Template.
         Initialize();
         LibraryInventory.CreateAnalysisLineTemplate(AnalysisLineTemplate, ItemAnalysisView."Analysis Area"::Inventory);
-        AnalysisReportError(AnalysisLineTemplate.Name, '', StrSubstNo(AnalysisTemplateError, AnalysisColumnTemplate.TableCaption()));
+        AnalysisReportErrorColumn(AnalysisLineTemplate.Name, '');
     end;
 
     [Test]
@@ -883,6 +879,46 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
         // Verify.
         Assert.ExpectedError(Error);
+    end;
+
+    local procedure AnalysisReportErrorColumn(AnalysisLineTemplateName: Code[10]; AnalysisColumnTemplateName: Code[10])
+    var
+        AnalysisReportName: Record "Analysis Report Name";
+        ItemAnalysisView: Record "Item Analysis View";
+        ShowError: Option "None","Division by Zero","Period Error",Both;
+    begin
+        // Create Analysis report name and enqueue values for 'AnalysisRequestPageHandler'.
+        CreateAnalysisReportName(AnalysisReportName, ItemAnalysisView."Analysis Area"::Inventory);
+        EnqueueValuesForAnalysisReport(
+          ItemAnalysisView."Analysis Area"::Inventory, AnalysisReportName.Name, AnalysisLineTemplateName, AnalysisColumnTemplateName, 0D,
+          ShowError::None);  // Take 0D for blank Date Filter.
+
+        // Exercise.
+        Commit();
+        asserterror REPORT.Run(REPORT::"Analysis Report", true, false);
+
+        // Verify.
+        Assert.ExpectedErrorCannotFind(Database::"Analysis Column Template");
+    end;
+
+    local procedure AnalysisReportErrorLine(AnalysisLineTemplateName: Code[10]; AnalysisColumnTemplateName: Code[10])
+    var
+        AnalysisReportName: Record "Analysis Report Name";
+        ItemAnalysisView: Record "Item Analysis View";
+        ShowError: Option "None","Division by Zero","Period Error",Both;
+    begin
+        // Create Analysis report name and enqueue values for 'AnalysisRequestPageHandler'.
+        CreateAnalysisReportName(AnalysisReportName, ItemAnalysisView."Analysis Area"::Inventory);
+        EnqueueValuesForAnalysisReport(
+          ItemAnalysisView."Analysis Area"::Inventory, AnalysisReportName.Name, AnalysisLineTemplateName, AnalysisColumnTemplateName, 0D,
+          ShowError::None);  // Take 0D for blank Date Filter.
+
+        // Exercise.
+        Commit();
+        asserterror REPORT.Run(REPORT::"Analysis Report", true, false);
+
+        // Verify.
+        Assert.ExpectedErrorCannotFind(Database::"Analysis Line Template");
     end;
 
     [Test]
@@ -2766,38 +2802,34 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
     local procedure MockItemAnalysisViewBudgEntry(var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry"; ItemAnalysisView: Record "Item Analysis View"; ItemNo: Code[20]; DimensionValueCode: Code[20])
     begin
-        with ItemAnalysisViewBudgEntry do begin
-            "Analysis Area" := ItemAnalysisView."Analysis Area";
-            "Analysis View Code" := ItemAnalysisView.Code;
-            "Item No." := ItemNo;
-            "Entry No." := LibraryUtility.GetNewRecNo(ItemAnalysisViewBudgEntry, FieldNo("Entry No."));
-            "Dimension 1 Value Code" := DimensionValueCode;
-            "Posting Date" := WorkDate();
-            "Cost Amount" := LibraryRandom.RandDec(100, 2);
-            "Sales Amount" := LibraryRandom.RandDec(100, 2);
-            Quantity := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        ItemAnalysisViewBudgEntry."Analysis Area" := ItemAnalysisView."Analysis Area";
+        ItemAnalysisViewBudgEntry."Analysis View Code" := ItemAnalysisView.Code;
+        ItemAnalysisViewBudgEntry."Item No." := ItemNo;
+        ItemAnalysisViewBudgEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemAnalysisViewBudgEntry, ItemAnalysisViewBudgEntry.FieldNo("Entry No."));
+        ItemAnalysisViewBudgEntry."Dimension 1 Value Code" := DimensionValueCode;
+        ItemAnalysisViewBudgEntry."Posting Date" := WorkDate();
+        ItemAnalysisViewBudgEntry."Cost Amount" := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewBudgEntry."Sales Amount" := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewBudgEntry.Quantity := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewBudgEntry.Insert();
     end;
 
     local procedure MockItemAnalysisViewEntry(var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; ItemAnalysisView: Record "Item Analysis View"; ItemNo: Code[20]; DimensionValueCode: Code[20])
     begin
-        with ItemAnalysisViewEntry do begin
-            "Analysis Area" := ItemAnalysisView."Analysis Area";
-            "Analysis View Code" := ItemAnalysisView.Code;
-            "Item No." := ItemNo;
-            "Entry No." := LibraryUtility.GetNewRecNo(ItemAnalysisViewEntry, FieldNo("Entry No."));
-            "Dimension 1 Value Code" := DimensionValueCode;
-            "Posting Date" := WorkDate();
-            "Cost Amount (Actual)" := LibraryRandom.RandDec(100, 2);
-            "Cost Amount (Expected)" := LibraryRandom.RandDec(100, 2);
-            "Cost Amount (Non-Invtbl.)" := LibraryRandom.RandDec(100, 2);
-            "Sales Amount (Actual)" := LibraryRandom.RandDec(100, 2);
-            "Sales Amount (Expected)" := LibraryRandom.RandDec(100, 2);
-            "Invoiced Quantity" := LibraryRandom.RandDec(100, 2);
-            Quantity := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        ItemAnalysisViewEntry."Analysis Area" := ItemAnalysisView."Analysis Area";
+        ItemAnalysisViewEntry."Analysis View Code" := ItemAnalysisView.Code;
+        ItemAnalysisViewEntry."Item No." := ItemNo;
+        ItemAnalysisViewEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemAnalysisViewEntry, ItemAnalysisViewEntry.FieldNo("Entry No."));
+        ItemAnalysisViewEntry."Dimension 1 Value Code" := DimensionValueCode;
+        ItemAnalysisViewEntry."Posting Date" := WorkDate();
+        ItemAnalysisViewEntry."Cost Amount (Actual)" := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewEntry."Cost Amount (Expected)" := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewEntry."Cost Amount (Non-Invtbl.)" := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewEntry."Sales Amount (Actual)" := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewEntry."Sales Amount (Expected)" := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewEntry."Invoiced Quantity" := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewEntry.Quantity := LibraryRandom.RandDec(100, 2);
+        ItemAnalysisViewEntry.Insert();
     end;
 
     local procedure OpenAnalysisReportInventory(AnalysisReportName: Code[10]; AnalysisLineTemplateName: Code[10]; AnalysisColumnTemplateName: Code[10])
@@ -3032,14 +3064,15 @@ codeunit 137351 "SCM Inventory Reports - IV"
         PostPurchaseOrder(PurchaseLine, true, true);
         CreateAndPostTransferOrder(TransferHeader, Bin."Location Code", Item."No.", PurchaseLine.Quantity / 2); // Transfered Partial Quantity to another location
 
-        CreateRevaluationJournal(ItemJournalLine, ItemJournalBatch, Item."No."); // Do Revaluation for remaining quantity in inventory
-        with ItemJournalLine do begin
-            SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", ItemJournalBatch.Name);
-            FindLast(); // Find the Revaluation journal line for the transfered Quantity
-            Validate("Unit Cost (Revalued)", "Unit Cost (Calculated)" + LibraryRandom.RandDec(10, 2)); // Use Random value for Unit Cost Revalued.
-            Modify(true);
-        end;
+        CreateRevaluationJournal(ItemJournalLine, ItemJournalBatch, Item."No.");
+        // Do Revaluation for remaining quantity in inventory
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.FindLast();
+        // Find the Revaluation journal line for the transfered Quantity
+        ItemJournalLine.Validate("Unit Cost (Revalued)", ItemJournalLine."Unit Cost (Calculated)" + LibraryRandom.RandDec(10, 2));
+        // Use Random value for Unit Cost Revalued.
+        ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name); // Do Revaluation for Transfered Quantity
     end;
 
@@ -3302,12 +3335,10 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryReportDataset.SetRange('InventoryCostPostedtoGLCaption', InventoryCostPostedToGLCap);
         if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundErr, 'InventoryCostPostedtoGLCaption', InventoryCostPostedToGLCap);
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            LibraryReportDataset.AssertCurrentRowValueEquals('InvtAmt', "Cost Posted to G/L");
-            LibraryReportDataset.AssertCurrentRowValueEquals('DirCostAmt', -"Cost Posted to G/L");
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.FindFirst();
+        LibraryReportDataset.AssertCurrentRowValueEquals('InvtAmt', ValueEntry."Cost Posted to G/L");
+        LibraryReportDataset.AssertCurrentRowValueEquals('DirCostAmt', -ValueEntry."Cost Posted to G/L");
     end;
 
     local procedure VerifyFieldsOnCostSharesBreakdownReport(DocumentNo: Code[20]; Quantity: Decimal; MaterialDirectCost: Decimal; Revaluation: Decimal)

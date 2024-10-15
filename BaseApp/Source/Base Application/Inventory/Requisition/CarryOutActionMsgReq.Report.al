@@ -69,9 +69,13 @@ report 493 "Carry Out Action Msg. - Req."
         ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order";
         TempJnlBatchName: Code[10];
 
+#pragma warning disable AA0074
         Text000: Label 'cannot be filtered when you create orders';
         Text001: Label 'There is nothing to create.';
+#pragma warning disable AA0470
         Text003: Label 'You are now in worksheet %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         ReqWkshTmpl: Record "Req. Wksh. Template";

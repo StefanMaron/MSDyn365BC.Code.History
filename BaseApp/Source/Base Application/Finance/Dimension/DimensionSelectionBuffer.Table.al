@@ -114,8 +114,12 @@ table 368 "Dimension Selection Buffer"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Another user has modified the selected dimensions for the %1 field after you retrieved it from the database.\';
         Text002: Label 'Enter your changes again in the Dimension Selection window by clicking the AssistButton on the %1 field. ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetDimSelectionMultiple(ObjectType: Integer; ObjectID: Integer; var SelectedDimText: Text[250])
     var

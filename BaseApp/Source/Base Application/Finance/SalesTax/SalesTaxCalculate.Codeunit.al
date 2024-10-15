@@ -24,10 +24,16 @@ codeunit 398 "Sales Tax Calculate"
         TaxOnTaxCalculated: Boolean;
         CalculationOrderViolation: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 in %2 %3 must be filled in with unique values when %4 is %5.';
         Text001: Label 'The sales tax amount for the %1 %2 and the %3 %4 is incorrect. ';
+#pragma warning restore AA0470
         Text003: Label 'Lines is not initialized';
+#pragma warning disable AA0470
         Text004: Label 'The calculated sales tax amount is %5, but was supposed to be %6.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CalculateTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal) TaxAmount: Decimal
     var

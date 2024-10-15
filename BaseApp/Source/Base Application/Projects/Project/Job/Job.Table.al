@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Projects.Project.Job;
+namespace Microsoft.Projects.Project.Job;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
@@ -487,6 +487,11 @@ table 167 Job
         {
             Caption = 'Image';
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(1000; "WIP Method"; Code[20])
         {
             Caption = 'WIP Method';
@@ -549,6 +554,7 @@ table 167 Job
         {
             AccessByPermission = TableData Contact = R;
             Caption = 'Bill-to Contact No.';
+            TableRelation = Contact."No.";
 
             trigger OnLookup()
             begin
@@ -761,6 +767,7 @@ table 167 Job
                     JobLedgerEntry.SetCurrentKey("Job No.");
                     JobLedgerEntry.SetRange("Job No.", "No.");
                     JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+                    JobLedgerEntry.SetLoadFields("Job No.", "Entry No.");
                     if JobLedgerEntry.FindFirst() then begin
                         JobUsageLink.SetRange("Entry No.", JobLedgerEntry."Entry No.");
                         if JobUsageLink.IsEmpty() then
@@ -1286,7 +1293,7 @@ table 167 Job
         CommentLine.SetRange("No.", "No.");
         CommentLine.DeleteAll();
 
-        DimMgt.DeleteDefaultDim(DATABASE::Job, "No.");
+        DimMgt.DeleteDefaultDim(Database::Job, "No.");
 
         if "Project Manager" <> '' then
             RemoveFromMyJobs();
@@ -1339,7 +1346,7 @@ table 167 Job
     trigger OnRename()
     begin
         UpdateJobNoInReservationEntries();
-        DimMgt.RenameDefaultDim(DATABASE::Job, xRec."No.", "No.");
+        DimMgt.RenameDefaultDim(Database::Job, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Job, xRec."No.", "No.");
         "Last Date Modified" := Today;
     end;
@@ -1551,7 +1558,7 @@ table 167 Job
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
-            DimMgt.SaveDefaultDim(DATABASE::Job, "No.", FieldNumber, ShortcutDimCode);
+            DimMgt.SaveDefaultDim(Database::Job, "No.", FieldNumber, ShortcutDimCode);
             UpdateJobTaskDimension(FieldNumber, ShortcutDimCode);
             Modify();
         end;
@@ -1573,19 +1580,19 @@ table 167 Job
 
     local procedure GetCustomerContact(CustomerNo: Code[20]; var ContactNo: Code[20]; var Contact: Text[100])
     var
-        ContBusRel: Record "Contact Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
         Cust: Record Customer;
     begin
         if Cust.Get(CustomerNo) then begin
             if Cust."Primary Contact No." <> '' then
                 ContactNo := Cust."Primary Contact No."
             else begin
-                ContBusRel.Reset();
-                ContBusRel.SetCurrentKey("Link to Table", "No.");
-                ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                ContBusRel.SetRange("No.", CustomerNo);
-                if ContBusRel.FindFirst() then
-                    ContactNo := ContBusRel."Contact No.";
+                ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
+                ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+                ContactBusinessRelation.SetRange("No.", CustomerNo);
+                ContactBusinessRelation.SetLoadFields("Contact No.");
+                if ContactBusinessRelation.FindFirst() then
+                    ContactNo := ContactBusinessRelation."Contact No.";
             end;
             Contact := Cust.Contact;
         end;
@@ -1593,23 +1600,21 @@ table 167 Job
 
     procedure JobLedgEntryExist() Result: Boolean
     var
-        JobLedgEntry: Record "Job Ledger Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        Clear(JobLedgEntry);
-        JobLedgEntry.SetCurrentKey("Job No.");
-        JobLedgEntry.SetRange("Job No.", "No.");
-        Result := not JobLedgEntry.IsEmpty();
-        OnAfterJobLedgEntryExist(JobLedgEntry, Result);
+        JobLedgerEntry.SetCurrentKey("Job No.");
+        JobLedgerEntry.SetRange("Job No.", "No.");
+        Result := not JobLedgerEntry.IsEmpty();
+        OnAfterJobLedgEntryExist(JobLedgerEntry, Result);
     end;
 
     procedure SalesJobLedgEntryExist() Result: Boolean
     var
-        JobLedgEntry: Record "Job Ledger Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        JobLedgEntry.SetCurrentKey("Job No.");
-        JobLedgEntry.SetRange("Job No.", "No.");
-        JobLedgEntry.SetRange("Entry Type", JobLedgEntry."Entry Type"::Sale);
-        Result := not JobLedgEntry.IsEmpty();
+        JobLedgerEntry.SetRange("Job No.", "No.");
+        JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Sale);
+        Result := not JobLedgerEntry.IsEmpty();
     end;
 
     procedure SalesLineExist() Result: Boolean
@@ -1619,7 +1624,6 @@ table 167 Job
         if "No." = '' then
             exit(false);
 
-        SalesLine.SetCurrentKey("Job No.");
         SalesLine.SetRange("Job No.", "No.");
         Result := not SalesLine.IsEmpty();
     end;
@@ -1736,7 +1740,7 @@ table 167 Job
             exit;
 
         DimMgt.UpdateDefaultDim(
-            DATABASE::Job, "No.",
+            Database::Job, "No.",
             "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
 
@@ -1808,7 +1812,7 @@ table 167 Job
 
     local procedure ChangeJobCompletionStatus()
     var
-        WhseRequest: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
         JobCalcWIP: Codeunit "Job Calculate WIP";
         IsHandled: Boolean;
     begin
@@ -1821,12 +1825,12 @@ table 167 Job
             Validate("Ending Date", CalcEndingDate());
             Message(EndingDateChangedMsg, FieldCaption("Ending Date"), "Ending Date");
 
-            WhseRequest.DeleteRequest(Database::Job, 0, "No.");
+            WarehouseRequest.DeleteRequest(Database::Job, 0, "No.");
             DeleteWhsePickRelation();
         end else begin
             JobCalcWIP.ReOpenJob("No.");
             "WIP Posting Date" := 0D;
-            Message(ReverseCompletionEntriesMsg, GetReportCaption(REPORT::"Job Post WIP to G/L"));
+            Message(ReverseCompletionEntriesMsg, GetReportCaption(Report::"Job Post WIP to G/L"));
         end;
 
         OnAfterChangeJobCompletionStatus(Rec, xRec);
@@ -1834,16 +1838,15 @@ table 167 Job
 
     procedure CreateInvtPutAwayPick()
     var
-        WhseRequest: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
         TestField(Status, Status::Open);
 
-        WhseRequest.Reset();
-        WhseRequest.SetCurrentKey("Source Document", "Source No.");
-        WhseRequest.SetRange("Source Document", WhseRequest."Source Document"::"Job Usage");
-        WhseRequest.SetRange("Source Type", Database::Job);
-        WhseRequest.SetRange("Source No.", "No.");
-        REPORT.RunModal(REPORT::"Create Invt Put-away/Pick/Mvmt", true, false, WhseRequest);
+        WarehouseRequest.SetCurrentKey("Source Document", "Source No.");
+        WarehouseRequest.SetRange("Source Document", WarehouseRequest."Source Document"::"Job Usage");
+        WarehouseRequest.SetRange("Source Type", Database::Job);
+        WarehouseRequest.SetRange("Source No.", "No.");
+        Report.RunModal(Report::"Create Invt Put-away/Pick/Mvmt", true, false, WarehouseRequest);
     end;
 
     procedure DisplayMap()
@@ -1855,29 +1858,28 @@ table 167 Job
 
     procedure GetQuantityAvailable(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; InEntryType: Option Usage,Sale,Both; Direction: Option Positive,Negative,Both): Decimal
     var
-        JobLedgEntry: Record "Job Ledger Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        Clear(JobLedgEntry);
-        JobLedgEntry.SetCurrentKey("Job No.", "Entry Type", Type, "No.");
-        JobLedgEntry.SetRange("Job No.", "No.");
+        JobLedgerEntry.SetCurrentKey("Job No.", "Entry Type", Type, "No.");
+        JobLedgerEntry.SetRange("Job No.", "No.");
         if not (InEntryType = InEntryType::Both) then
-            JobLedgEntry.SetRange("Entry Type", InEntryType);
-        JobLedgEntry.SetRange(Type, JobLedgEntry.Type::Item);
-        JobLedgEntry.SetRange("No.", ItemNo);
+            JobLedgerEntry.SetRange("Entry Type", InEntryType);
+        JobLedgerEntry.SetRange(Type, JobLedgerEntry.Type::Item);
+        JobLedgerEntry.SetRange("No.", ItemNo);
         case Direction of
             Direction::Both:
                 begin
-                    JobLedgEntry.SetRange("Location Code", LocationCode);
-                    JobLedgEntry.SetRange("Variant Code", VariantCode);
+                    JobLedgerEntry.SetRange("Location Code", LocationCode);
+                    JobLedgerEntry.SetRange("Variant Code", VariantCode);
                 end;
             Direction::Positive:
-                JobLedgEntry.SetFilter("Quantity (Base)", '>0');
+                JobLedgerEntry.SetFilter("Quantity (Base)", '>0');
             Direction::Negative:
-                JobLedgEntry.SetFilter("Quantity (Base)", '<0');
+                JobLedgerEntry.SetFilter("Quantity (Base)", '<0');
         end;
-        OnGetQuantityAvailableOnAfterSetFiltersOnJobLedgerEntry(ItemNo, LocationCode, VariantCode, InEntryType, Direction, JobLedgEntry);
-        JobLedgEntry.CalcSums("Quantity (Base)");
-        exit(JobLedgEntry."Quantity (Base)");
+        OnGetQuantityAvailableOnAfterSetFiltersOnJobLedgerEntry(ItemNo, LocationCode, VariantCode, InEntryType, Direction, JobLedgerEntry);
+        JobLedgerEntry.CalcSums("Quantity (Base)");
+        exit(JobLedgerEntry."Quantity (Base)");
     end;
 
     local procedure CheckDate()
@@ -1943,7 +1945,7 @@ table 167 Job
 
         DimMgt.SetSkipUpdateDimensions(Rec."Task Billing Method" = Rec."Task Billing Method"::"Multiple customers");
 
-        JobDefaultDimension.SetRange("Table ID", DATABASE::Job);
+        JobDefaultDimension.SetRange("Table ID", Database::Job);
         JobDefaultDimension.SetRange("No.", "No.");
         if JobDefaultDimension.FindSet() then
             repeat
@@ -1954,20 +1956,20 @@ table 167 Job
         if JobExistsInDB then
             Rec.Get(Rec."No.");
 
-        CustDefaultDimension.SetRange("Table ID", DATABASE::Customer);
+        CustDefaultDimension.SetRange("Table ID", Database::Customer);
         CustDefaultDimension.SetRange("No.", "Bill-to Customer No.");
         if CustDefaultDimension.FindSet() then
             repeat
                 JobDefaultDimension.Init();
                 JobDefaultDimension.TransferFields(CustDefaultDimension);
-                JobDefaultDimension."Table ID" := DATABASE::Job;
+                JobDefaultDimension."Table ID" := Database::Job;
                 JobDefaultDimension."No." := "No.";
                 JobDefaultDimension.Insert();
                 DimMgt.DefaultDimOnInsert(JobDefaultDimension);
             until CustDefaultDimension.Next() = 0;
 
         OnCopyDefaultDimensionsFromCustomerOnBeforeUpdateDefaultDim(Rec, CurrFieldNo);
-        DimMgt.UpdateDefaultDim(DATABASE::Job, "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
+        DimMgt.UpdateDefaultDim(Database::Job, "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
 
     procedure PercentCompleted() Result: Decimal
@@ -2034,7 +2036,7 @@ table 167 Job
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        ReservEntry.SetFilter("Source Type", '%1|%2', DATABASE::"Job Planning Line", DATABASE::"Job Journal Line");
+        ReservEntry.SetFilter("Source Type", '%1|%2', Database::"Job Planning Line", Database::"Job Journal Line");
         ReservEntry.SetRange("Source ID", xRec."No.");
         ReservEntry.ModifyAll("Source ID", "No.", true);
     end;
@@ -2048,7 +2050,7 @@ table 167 Job
         ReservationToDeleteExists := false;
 
         if Status <> Status::Open then begin
-            ReservationEntry.SetRange("Source Type", DATABASE::"Job Planning Line");
+            ReservationEntry.SetRange("Source Type", Database::"Job Planning Line");
             ReservationEntry.SetRange("Source ID", "No.");
             ReservationToDeleteExists := not ReservationEntry.IsEmpty();
             if ReservationToDeleteExists then
@@ -2207,7 +2209,7 @@ table 167 Job
         WhsePickRequest.SetRange("Document No.", Rec."No.");
         WhsePickRequest.DeleteAll(true);
 
-        ItemTrackingMgt.DeleteWhseItemTrkgLines(DATABASE::Job, 0, Rec."No.", '', 0, 0, '', false);
+        ItemTrackingMgt.DeleteWhseItemTrkgLines(Database::Job, 0, Rec."No.", '', 0, 0, '', false);
     end;
 
     local procedure DeleteRelatedJobTasks()
@@ -2294,8 +2296,8 @@ table 167 Job
     procedure RecalculateJobWIP()
     var
         Job: Record Job;
-        ConfirmManagement: Codeunit "Confirm Management";
         JobCalculateWIP: Report "Job Calculate WIP";
+        ConfirmManagement: Codeunit "Confirm Management";
         Confirmed: Boolean;
         IsHandled: Boolean;
     begin
@@ -2334,6 +2336,7 @@ table 167 Job
 
         JobLedgerEntry.SetRange("Job No.", "No.");
         JobLedgerEntry.SetCurrentKey("Job No.", "Posting Date");
+        JobLedgerEntry.SetLoadFields("Job No.", "Posting Date");
         if JobLedgerEntry.FindLast() then
             if JobLedgerEntry."Posting Date" > EndingDate then
                 EndingDate := JobLedgerEntry."Posting Date";
@@ -2421,7 +2424,8 @@ table 167 Job
           ("Sell-to County" = "Ship-to County") and
           ("Sell-to Post Code" = "Ship-to Post Code") and
           ("Sell-to Country/Region Code" = "Ship-to Country/Region Code") and
-          ("Sell-to Contact" = "Ship-to Contact");
+          ("Sell-to Contact" = "Ship-to Contact") and
+          ("Sell-to Phone No." = "Ship-to Phone No.");
 
         OnAfterShipToAddressEqualsSellToAddress(Rec, Result);
     end;
@@ -2451,6 +2455,7 @@ table 167 Job
         Rec."Ship-to County" := Rec."Sell-to County";
         Rec."Ship-to Post Code" := Rec."Sell-to Post Code";
         Rec."Ship-to Country/Region Code" := Rec."Sell-to Country/Region Code";
+        Rec."Ship-to Phone No." := Rec."Sell-to Phone No.";
         Rec."Ship-to Contact" := Rec."Sell-to Contact";
         Rec."Ship-to Code" := '';
 
@@ -2494,7 +2499,7 @@ table 167 Job
 
         CheckSellToCustomerAssosEntriesExist(Job, xJob);
 
-        if (xJob."Sell-to Customer No." <> '') and (not GetHideValidationDialog()) and GuiAllowed() then
+        if (xJob."Sell-to Customer No." <> '') and (xJob."Sell-to Customer No." <> Job."Sell-to Customer No.") and (not GetHideValidationDialog()) and GuiAllowed() then
             if not Confirm(ConfirmChangeQst, false, SellToCustomerTxt) then begin
                 Job."Sell-to Customer No." := xJob."Sell-to Customer No.";
                 Job."Sell-to Customer Name" := xJob."Sell-to Customer Name";
@@ -2571,7 +2576,7 @@ table 167 Job
 
         CheckBillToCustomerAssosEntriesExist(Job, xJob);
 
-        if (xJob."Bill-to Customer No." <> '') and (not GetHideValidationDialog()) and GuiAllowed() then
+        if (xJob."Bill-to Customer No." <> '') and (xJob."Bill-to Customer No." <> Job."Bill-to Customer No.") and (not GetHideValidationDialog()) and GuiAllowed() then
             if not Confirm(ConfirmChangeQst, false, BillToCustomerTxt) then begin
                 Job."Bill-to Customer No." := xJob."Bill-to Customer No.";
                 Job."Bill-to Name" := xJob."Bill-to Name";
@@ -2656,7 +2661,7 @@ table 167 Job
         IsHandled := false;
         OnUpdateCostPricesOnRelatedJobPlanningLinesOnBeforeConfirmUpdate(Job, ConfirmResult, IsHandled);
         if not IsHandled then begin
-        if not Job.GetHideValidationDialog() then
+            ConfirmResult := Job.GetHideValidationDialog();
             if not ConfirmResult then
                 ConfirmResult := ConfirmManagement.GetResponseOrDefault(UpdateCostPricesOnRelatedLinesQst, true);
         end;
@@ -2666,6 +2671,8 @@ table 167 Job
         JobPlanningLine.FindSet(true);
         repeat
             JobPlanningLine."Line Amount" := 0;
+            JobPlanningLine.SetJob(Job);
+            JobPlanningLine.CopyFieldsFromJob();
             JobPlanningLine.UpdateAllAmounts();
             JobPlanningLine.Modify(true);
         until JobPlanningLine.Next() = 0;
@@ -2719,6 +2726,7 @@ table 167 Job
                 Rec."Ship-to County" := ShipToAddress.County;
                 Rec."Ship-to Post Code" := ShipToAddress."Post Code";
                 Rec."Ship-to Country/Region Code" := ShipToAddress."Country/Region Code";
+                Rec."Ship-to Phone No." := ShipToAddress."Phone No.";
                 Rec."Ship-to Contact" := ShipToAddress.Contact;
             end;
 
@@ -2756,7 +2764,7 @@ table 167 Job
 
         if JobPlanningLine.FindSet() then begin
             repeat
-                ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(Enum::"Warehouse Worksheet Document Type"::Job, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", DATABASE::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.");
+                ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(Enum::"Warehouse Worksheet Document Type"::Job, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", Database::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.");
             until JobPlanningLine.Next() = 0;
             Commit();
             RunCreatePickFromWhseSource()
@@ -2916,7 +2924,7 @@ table 167 Job
             exit;
 
         GetLocation("Location Code");
-        if not Location."Bin Mandatory" or Location."Directed Put-away and Pick" then
+        if not Location."Bin Mandatory" then
             exit;
 
         if Location."To-Job Bin Code" <> '' then
@@ -2929,7 +2937,7 @@ table 167 Job
             Location.Get(LocationCode);
     end;
 
-    local procedure MessageIfJobTaskExist(ChangedFieldName: Text[100])
+    local procedure MessageIfJobTaskExist(ChangedFieldName: Text)
     var
         MessageText: Text;
     begin
@@ -2988,6 +2996,7 @@ table 167 Job
         Confirmed: Boolean;
     begin
         JobPlanningLine.SetRange("Job No.", "No.");
+        JobPlanningLine.SetLoadFields("Qty. Posted", "Qty. Picked");
         if JobPlanningLine.FindSet() then
             repeat
                 if JobPlanningLine."Qty. Posted" < JobPlanningLine."Qty. Picked" then begin
@@ -2996,6 +3005,13 @@ table 167 Job
                     Confirmed := true;
                 end;
             until (JobPlanningLine.Next() = 0) or Confirmed;
+    end;
+
+    procedure SetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
+    begin
+        PurchaseLine.SetCurrentKey("Document Type", "Job No.");
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Job No.", "No.");
     end;
 
     local procedure CheckIfTimeSheetLineLinkExist()

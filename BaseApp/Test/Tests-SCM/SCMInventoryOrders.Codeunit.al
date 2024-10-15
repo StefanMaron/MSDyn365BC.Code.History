@@ -24,7 +24,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         Assert: Codeunit Assert;
@@ -46,7 +46,6 @@ codeunit 137400 "SCM Inventory - Orders"
         PostingDateError: Label 'Enter the posting date.';
         DocumentDateError: Label 'Enter the document date.';
         SalesReturnOrderMustBeDeletedError: Label 'Sales %1 must be deleted for %2 : %3', Comment = '%1 = Document Type Value, %2 = Document No. Field, %3 = Document No. Value';
-        CalculateInvoiceDiscountError: Label 'Validation error for Field: CalcInvDisc,  Message = ''%1 must be equal to ''%2''  in %3: Primary Key=. Current value is ''%4''.''', Comment = '%1 = Calc. Inv. Discount Field, %2 = False used as No, %3 = Sales & Receivables Setup Page, %4 = True used as Yes';
         RequestedDeliveryDate: Date;
         UnavailableQuantity: Decimal;
         Quantity2: Decimal;
@@ -768,19 +767,15 @@ codeunit 137400 "SCM Inventory - Orders"
         CreatePurchaseOrder(PurchaseHeader, SalesHeader."Sell-to Customer No.");
         LibraryPurchase.GetDropShipment(PurchaseHeader);
         // [GIVEN] "Qty. to Ship" is equal Quantity from Sales Line.
-        with SalesLine do begin
-            Find();
-            Validate("Qty. to Ship", Quantity);
-            Modify(true);
-        end;
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity);
+        SalesLine.Modify(true);
         // [GIVEN] "Qty. to Receive" is equal Quantity from Sales Line.
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst();
-            Validate("Qty. to Receive", SalesLine.Quantity);
-            Modify(true);
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Qty. to Receive", SalesLine.Quantity);
+        PurchaseLine.Modify(true);
 
         // [WHEN] Post Sales Order as Receive.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1093,10 +1088,7 @@ codeunit 137400 "SCM Inventory - Orders"
         asserterror RunBatchPostSalesReturnOrders(SalesLine."Document No.");
 
         // Verify: Validate error message.
-        Assert.AreEqual(
-          StrSubstNo(
-            CalculateInvoiceDiscountError, SalesReceivablesSetup.FieldCaption("Calc. Inv. Discount"), false,
-            SalesReceivablesSetup.TableCaption(), true), GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(SalesReceivablesSetup.FieldCaption("Calc. Inv. Discount"), Format(false));
     end;
 
     [Test]
@@ -1127,7 +1119,7 @@ codeunit 137400 "SCM Inventory - Orders"
         VerifyPostedReturnReceipt(SalesLine);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SalesUnitPriceFromItemUnitPrice()
@@ -1662,14 +1654,11 @@ codeunit 137400 "SCM Inventory - Orders"
 
         // [GIVEN] Set "Qty. Assigned" = "Qty. to Assign" in Item Charge Assignment (mock Item Charge posting).
         SetItemChargeQtyFullyAssigned(SalesLine);
-
         // [GIVEN] Quantity in Item Charge line is increased by "dQ".
-        with SalesLine do begin
-            ItemChargeQtyDelta := LibraryRandom.RandInt(10);
-            Validate(Quantity, Quantity + ItemChargeQtyDelta);
-            Modify(true);
-            ShowItemChargeAssgnt();
-        end;
+        ItemChargeQtyDelta := LibraryRandom.RandInt(10);
+        SalesLine.Validate(Quantity, SalesLine.Quantity + ItemChargeQtyDelta);
+        SalesLine.Modify(true);
+        SalesLine.ShowItemChargeAssgnt();
 
         // [WHEN] Post Sales Order.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1692,17 +1681,13 @@ codeunit 137400 "SCM Inventory - Orders"
         // [GIVEN] Blanket Sales Order Line "BSO" with Variant Code "V" and Unit Price "UP".
         // [GIVEN] Sales Order with same Customer and Item as in "BSO".
         CreateSalesBlanketOrderAndSalesOrderWithVariant(BlanketSalesLine, SalesLine);
-
-        with SalesLine do begin
-            // [WHEN] Select "Blanket Order Line No." = "BSO" on Sales Order Line.
-            Validate("Blanket Order No.", BlanketSalesLine."Document No.");
-            Validate("Blanket Order Line No.", BlanketSalesLine."Line No.");
-
-            // [THEN] Variant Code on Sales Order Line = "V".
-            // [THEN] Unit Price on Sales Order Line = "UP".
-            TestField("Variant Code", BlanketSalesLine."Variant Code");
-            TestField("Unit Price", BlanketSalesLine."Unit Price");
-        end;
+        // [WHEN] Select "Blanket Order Line No." = "BSO" on Sales Order Line.
+        SalesLine.Validate("Blanket Order No.", BlanketSalesLine."Document No.");
+        SalesLine.Validate("Blanket Order Line No.", BlanketSalesLine."Line No.");
+        // [THEN] Variant Code on Sales Order Line = "V".
+        // [THEN] Unit Price on Sales Order Line = "UP".
+        SalesLine.TestField("Variant Code", BlanketSalesLine."Variant Code");
+        SalesLine.TestField("Unit Price", BlanketSalesLine."Unit Price");
     end;
 
     [Test]
@@ -1719,17 +1704,13 @@ codeunit 137400 "SCM Inventory - Orders"
         // [GIVEN] Blanket Purchase Order Line "BPO" with Variant Code "V" and Unit Cost "UC".
         // [GIVEN] Purchase Order Line with same Vendor and Item as in "BPO".
         CreatePurchBlanketOrderAndPurchOrderWithVariant(BlanketPurchaseLine, PurchaseLine);
-
-        with PurchaseLine do begin
-            // [WHEN] Select "Blanket Order Line No." = "BPO" on Purchase Order Line.
-            Validate("Blanket Order No.", BlanketPurchaseLine."Document No.");
-            Validate("Blanket Order Line No.", BlanketPurchaseLine."Line No.");
-
-            // [THEN] Variant Code on Purchase Order Line = "V".
-            // [THEN] Unit Cost on Purchase Order Line = "UC".
-            TestField("Variant Code", BlanketPurchaseLine."Variant Code");
-            TestField("Unit Cost", BlanketPurchaseLine."Unit Cost");
-        end;
+        // [WHEN] Select "Blanket Order Line No." = "BPO" on Purchase Order Line.
+        PurchaseLine.Validate("Blanket Order No.", BlanketPurchaseLine."Document No.");
+        PurchaseLine.Validate("Blanket Order Line No.", BlanketPurchaseLine."Line No.");
+        // [THEN] Variant Code on Purchase Order Line = "V".
+        // [THEN] Unit Cost on Purchase Order Line = "UC".
+        PurchaseLine.TestField("Variant Code", BlanketPurchaseLine."Variant Code");
+        PurchaseLine.TestField("Unit Cost", BlanketPurchaseLine."Unit Cost");
     end;
 
     [Test]
@@ -2506,7 +2487,7 @@ codeunit 137400 "SCM Inventory - Orders"
         Assert.ExpectedError(QtyToInvoiceMustHaveValueErr);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('GetLastUnitPriceHandler')]
     [Scope('OnPrem')]
@@ -3170,15 +3151,13 @@ codeunit 137400 "SCM Inventory - Orders"
 
     local procedure CreateItemTranslation(var ItemTranslation: Record "Item Translation"; ItemNo: Code[20]; LanguageCode: Code[10]; VariantCode: Code[10])
     begin
-        with ItemTranslation do begin
-            Init();
-            Validate("Item No.", ItemNo);
-            Validate("Language Code", LanguageCode);
-            Validate("Variant Code", VariantCode);
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Validate("Description 2", LibraryUtility.GenerateGUID());
-            Insert(true);
-        end;
+        ItemTranslation.Init();
+        ItemTranslation.Validate("Item No.", ItemNo);
+        ItemTranslation.Validate("Language Code", LanguageCode);
+        ItemTranslation.Validate("Variant Code", VariantCode);
+        ItemTranslation.Validate(Description, LibraryUtility.GenerateGUID());
+        ItemTranslation.Validate("Description 2", LibraryUtility.GenerateGUID());
+        ItemTranslation.Insert(true);
     end;
 
     local procedure CreateItemVariant(var ItemVariant: Record "Item Variant"; ItemNo: Code[20])
@@ -3337,17 +3316,15 @@ codeunit 137400 "SCM Inventory - Orders"
     begin
         CreateCustomer(Customer, true, '');
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        with SalesLine do begin
-            CreateSalesLine(SalesLine, SalesHeader, Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
-            Validate("Variant Code", ItemVariantCode);
-            Validate("Purchasing Code", FindPurchasingCode());
-            Validate(Description, CopyStr(Desc, 1, MaxStrLen(Description)));
-            Validate("Description 2", CopyStr(Desc2, 1, MaxStrLen("Description 2")));
-            Modify(true);
-        end;
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Variant Code", ItemVariantCode);
+        SalesLine.Validate("Purchasing Code", FindPurchasingCode());
+        SalesLine.Validate(Description, CopyStr(Desc, 1, MaxStrLen(SalesLine.Description)));
+        SalesLine.Validate("Description 2", CopyStr(Desc2, 1, MaxStrLen(SalesLine."Description 2")));
+        SalesLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal; StartingDate: Date)
     begin
         // Create Sales Price with random Unit Price.
@@ -3569,7 +3546,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySales.GetShipmentLines(SalesLine);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure GetSalesPrice(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -3742,37 +3719,31 @@ codeunit 137400 "SCM Inventory - Orders"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Default Quantity to Ship", "Default Quantity to Ship"::Blank);
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Default Quantity to Ship", SalesReceivablesSetup."Default Quantity to Ship"::Blank);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure SetDefaultQtyToReceiveToBlank()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Default Qty. to Receive", "Default Qty. to Receive"::Blank);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default Qty. to Receive", PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure SetItemChargeQtyFullyAssigned(SalesLine: Record "Sales Line")
     var
         ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
     begin
-        with ItemChargeAssignmentSales do begin
-            SetRange("Document Type", SalesLine."Document Type");
-            SetRange("Document No.", SalesLine."Document No.");
-            FindFirst();
-            "Qty. Assigned" := "Qty. to Assign";
-            "Qty. to Assign" := 0;
-            "Amount to Assign" := 0;
-            Modify();
-        end;
+        ItemChargeAssignmentSales.SetRange("Document Type", SalesLine."Document Type");
+        ItemChargeAssignmentSales.SetRange("Document No.", SalesLine."Document No.");
+        ItemChargeAssignmentSales.FindFirst();
+        ItemChargeAssignmentSales."Qty. Assigned" := ItemChargeAssignmentSales."Qty. to Assign";
+        ItemChargeAssignmentSales."Qty. to Assign" := 0;
+        ItemChargeAssignmentSales."Amount to Assign" := 0;
+        ItemChargeAssignmentSales.Modify();
     end;
 
     local procedure UpdateDefaultDimension(var DefaultDimension: Record "Default Dimension")
@@ -4114,25 +4085,21 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.FindFirst();
 
-        with ValueEntry do begin
-            SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-            SetRange("Item Charge No.", ItemChargeNo);
-            FindFirst();
-            TestField("Sales Amount (Actual)", Qty * UnitPrice);
-        end;
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+        ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
+        ValueEntry.FindFirst();
+        ValueEntry.TestField("Sales Amount (Actual)", Qty * UnitPrice);
     end;
 
     local procedure VerifyDropShipment(var PurchaseLine: Record "Purchase Line")
     begin
-        with PurchaseLine do begin
-            Find();
-            TestField("Qty. to Receive", 0);
-            TestField("Quantity Received", Quantity);
-            TestField("Qty. to Invoice", "Quantity Received");
-        end;
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Qty. to Receive", 0);
+        PurchaseLine.TestField("Quantity Received", PurchaseLine.Quantity);
+        PurchaseLine.TestField("Qty. to Invoice", PurchaseLine."Quantity Received");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SortUnitPriceInSalesOrderLineAndGetUpdatedUnitPrice(SalesHeader: Record "Sales Header"): Decimal
     var
         SalesOrder: TestPage "Sales Order";
@@ -4285,7 +4252,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesList.OK().Invoke();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15
@@ -4381,7 +4348,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SelectItemTemplList.OK().Invoke();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetLastUnitPriceHandler(var GetSalesPrice: TestPage "Get Sales Price")

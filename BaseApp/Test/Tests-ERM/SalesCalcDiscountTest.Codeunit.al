@@ -463,24 +463,21 @@ codeunit 132522 "Sales-Calc. Discount Test"
         SalesHeader: Record "Sales Header";
     begin
         // PATTERN: Test-Utility Function
-        with SalesLine do begin
-            SalesHeader.Get("Document Type", "Document No.");
-            exit('SALES LINE: Item No.=' + "No." +
-              ', Unit Price=' + Format("Unit Price") +
-              ', Quantity=' + Format(Quantity) +
-              ', Line Amount=' + Format("Line Amount") +
-              ', Inv. Discount Amount=' + Format("Inv. Discount Amount") +
-              ', Bill-to Custumer No.=' + SalesHeader."Bill-to Customer No.")
-        end
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        exit('SALES LINE: Item No.=' + SalesLine."No." +
+          ', Unit Price=' + Format(SalesLine."Unit Price") +
+          ', Quantity=' + Format(SalesLine.Quantity) +
+          ', Line Amount=' + Format(SalesLine."Line Amount") +
+          ', Inv. Discount Amount=' + Format(SalesLine."Inv. Discount Amount") +
+          ', Bill-to Custumer No.=' + SalesHeader."Bill-to Customer No.")
     end;
 
     local procedure CustInvoiceDiscToText(CustInvoiceDisc: Record "Cust. Invoice Disc."): Text[1024]
     begin
         // PATTERN: Test-Utility Function
-        with CustInvoiceDisc do
-            exit('CUST. INVOICE DISC.: Currency=' + "Currency Code" +
-              ', Minimum Amount=' + Format("Minimum Amount") +
-              ', Discount=' + Format("Discount %"))
+        exit('CUST. INVOICE DISC.: Currency=' + CustInvoiceDisc."Currency Code" +
+              ', Minimum Amount=' + Format(CustInvoiceDisc."Minimum Amount") +
+              ', Discount=' + Format(CustInvoiceDisc."Discount %"))
     end;
 }
 

@@ -585,12 +585,10 @@ codeunit 139312 "Excel Data Migration Test"
     var
         Attachment: Record Attachment;
     begin
-        with Attachment do begin
-            Init();
-            "No." := LibraryUtility.GetNewRecNo(Attachment, FieldNo("No."));
-            "Storage Pointer" := CopyStr(FileName, 1, MaxStrLen("Storage Pointer"));
-            Insert();
-        end;
+        Attachment.Init();
+        Attachment."No." := LibraryUtility.GetNewRecNo(Attachment, Attachment.FieldNo("No."));
+        Attachment."Storage Pointer" := CopyStr(FileName, 1, MaxStrLen(Attachment."Storage Pointer"));
+        Attachment.Insert();
     end;
 
     local procedure GetExcelFileName(): Text[80]
@@ -721,16 +719,19 @@ codeunit 139312 "Excel Data Migration Test"
         DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
 
-        with DataMigrationWizard do begin
-            ActionNext.Invoke(); // Choose Data Source page
-            Description.Lookup();
-            ActionDownloadTemplate.Invoke(); // Download the Excel template silently
-            ActionNext.Invoke(); // Upload Data File page
-            ActionNext.Invoke(); // Apply Imported Data page
-            ActionShowErrors.Invoke();
-            ActionApply.Invoke(); // That's it page
-            ActionFinish.Invoke();
-        end;
+        DataMigrationWizard.ActionNext.Invoke();
+        // Choose Data Source page
+        DataMigrationWizard.Description.Lookup();
+        DataMigrationWizard.ActionDownloadTemplate.Invoke();
+        // Download the Excel template silently
+        DataMigrationWizard.ActionNext.Invoke();
+        // Upload Data File page
+        DataMigrationWizard.ActionNext.Invoke();
+        // Apply Imported Data page
+        DataMigrationWizard.ActionShowErrors.Invoke();
+        DataMigrationWizard.ActionApply.Invoke();
+        // That's it page
+        DataMigrationWizard.ActionFinish.Invoke();
     end;
 
     local procedure RunWizardToApply(var DataMigrationWizard: TestPage "Data Migration Wizard"; CustomerSelected: Boolean; VendorSelected: Boolean)
@@ -739,13 +740,11 @@ codeunit 139312 "Excel Data Migration Test"
         DataMigrationWizard.Trap();
         PAGE.Run(PAGE::"Data Migration Wizard");
 
-        with DataMigrationWizard do begin
-            ActionNext.Invoke();
-            Description.Lookup();
-            ActionDownloadTemplate.Invoke(); // Download the Excel template silently
-            ActionNext.Invoke();
-            ActionNext.Invoke(); // Import
-        end;
+        DataMigrationWizard.ActionNext.Invoke();
+        DataMigrationWizard.Description.Lookup();
+        DataMigrationWizard.ActionDownloadTemplate.Invoke(); // Download the Excel template silently
+        DataMigrationWizard.ActionNext.Invoke();
+        DataMigrationWizard.ActionNext.Invoke(); // Import
 
         ContinueWizardToApply(DataMigrationWizard, CustomerSelected, VendorSelected);
     end;
@@ -758,15 +757,13 @@ codeunit 139312 "Excel Data Migration Test"
 
     local procedure ContinueWizardToApply(var DataMigrationWizard: TestPage "Data Migration Wizard"; CustomerSelected: Boolean; VendorSelected: Boolean)
     begin
-        with DataMigrationWizard do begin
-            // Select tables to Apply
-            DataMigrationEntities.FILTER.SetFilter("Table Name", 'Customer');
-            DataMigrationEntities.Selected.SetValue(CustomerSelected);
-            DataMigrationEntities.FILTER.SetFilter("Table Name", 'Vendor');
-            DataMigrationEntities.Selected.SetValue(VendorSelected);
-            DataMigrationEntities.FILTER.SetFilter("Table Name", '');
-            ActionApply.Invoke(); // Apply
-        end;
+        // Select tables to Apply
+        DataMigrationWizard.DataMigrationEntities.FILTER.SetFilter("Table Name", 'Customer');
+        DataMigrationWizard.DataMigrationEntities.Selected.SetValue(CustomerSelected);
+        DataMigrationWizard.DataMigrationEntities.FILTER.SetFilter("Table Name", 'Vendor');
+        DataMigrationWizard.DataMigrationEntities.Selected.SetValue(VendorSelected);
+        DataMigrationWizard.DataMigrationEntities.FILTER.SetFilter("Table Name", '');
+        DataMigrationWizard.ActionApply.Invoke(); // Apply
     end;
 
     local procedure RunWizardToApplyContinueApplyAgainAndFinish(var DataMigrationWizard: TestPage "Data Migration Wizard"; CustomerSelected: Boolean; VendorSelected: Boolean; CustomerSelectedAgain: Boolean; VendorSelectedAgain: Boolean)

@@ -75,10 +75,14 @@ table 5814 "Inventory Period"
     var
         InvtPeriodEntry: Record "Inventory Period Entry";
 
+#pragma warning disable AA0074
         Text000: Label '<Month Text> <Year4>', Locked = true;
+#pragma warning disable AA0470
         Text001: Label 'You cannot rename the %1 because there is at least one %2 in this period.';
         Text002: Label 'You are not allowed to insert an %1 that ends before %2.';
         Text003: Label 'You cannot post before %1 because the %2 is already closed. You must re-open the period first.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure InvtPeriodEntryExists(EndingDate: Date): Boolean
     var

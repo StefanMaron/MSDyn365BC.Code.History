@@ -68,7 +68,7 @@ page 6500 "Item Tracking Summary"
                     ApplicationArea = ItemTracking;
                     DrillDown = true;
                     Editable = false;
-                    ToolTip = 'Specifies the total quantity of the lot or serial number that is requested in all documents.';
+                    ToolTip = 'Specifies the total quantity of the serial, lot or package number that is requested in all documents.';
 
                     trigger OnDrillDown()
                     begin
@@ -119,7 +119,7 @@ page 6500 "Item Tracking Summary"
                     Editable = SelectedQuantityEditable;
                     Style = Strong;
                     StyleExpr = true;
-                    ToolTip = 'Specifies the quantity of each lot or serial number that you want to use to fulfill the demand for the transaction.';
+                    ToolTip = 'Specifies the quantity of each serial, lot or package number that you want to use to fulfill the demand for the transaction.';
                     Visible = SelectedQuantityVisible;
 
                     trigger OnValidate()

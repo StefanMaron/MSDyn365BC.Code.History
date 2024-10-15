@@ -140,7 +140,11 @@ table 5615 "FA Allocation"
         GLAcc: Record "G/L Account";
         DimMgt: Codeunit DimensionManagement;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin

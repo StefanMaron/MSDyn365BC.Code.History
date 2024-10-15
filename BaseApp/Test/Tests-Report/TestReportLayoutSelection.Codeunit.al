@@ -145,6 +145,7 @@ codeunit 134605 "Test Report Layout Selection"
     end;
 
     [Test]
+    [HandlerFunctions('ReportayoutsHandlerModal')]
     [Scope('OnPrem')]
     procedure TestReportLayoutPageSelectLayout()
     var
@@ -219,6 +220,7 @@ codeunit 134605 "Test Report Layout Selection"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ReportayoutsHandlerModal')]
     procedure TestReportLayoutRestoreDefaultLayout()
     var
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -459,13 +461,11 @@ codeunit 134605 "Test Report Layout Selection"
 
     local procedure CreateDefaultDocumentSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     begin
-        with DocumentSendingProfile do begin
-            Validate(Code, LibraryUtility.GenerateGUID());
-            Validate(Printer, Printer::No);
-            Validate("E-Mail", "E-Mail"::"Yes (Use Default Settings)");
-            Validate("E-Mail Attachment", "E-Mail Attachment"::PDF);
-            Insert(true);
-        end;
+        DocumentSendingProfile.Validate(Code, LibraryUtility.GenerateGUID());
+        DocumentSendingProfile.Validate(Printer, DocumentSendingProfile.Printer::No);
+        DocumentSendingProfile.Validate("E-Mail", DocumentSendingProfile."E-Mail"::"Yes (Use Default Settings)");
+        DocumentSendingProfile.Validate("E-Mail Attachment", DocumentSendingProfile."E-Mail Attachment"::PDF);
+        DocumentSendingProfile.Insert(true);
     end;
 
     local procedure FilterJobQueueEntryDocumentMailing(var JobQueueEntry: Record "Job Queue Entry")
@@ -498,12 +498,10 @@ codeunit 134605 "Test Report Layout Selection"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
-            SetRange("Object ID to Run", CODEUNIT::"Document-Mailing");
-            FindFirst();
-            TestField("Record ID to Process", ExpectedRecID);
-        end;
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Document-Mailing");
+        JobQueueEntry.FindFirst();
+        JobQueueEntry.TestField("Record ID to Process", ExpectedRecID);
     end;
 
     [PageHandler]
@@ -581,6 +579,14 @@ codeunit 134605 "Test Report Layout Selection"
     begin
         SelectSendingOptions.OK().Invoke();
     end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReportayoutsHandlerModal(var ReportLayouts: TestPage "Report Layouts")
+    begin
+        ReportLayouts.Cancel().Invoke();
+    end;
+
 
     [EventSubscriber(ObjectType::Page, Page::"Report Layout Selection", 'OnSelectReportLayout', '', false, false)]
     local procedure SelectReportLayout(var ReportLayoutList: Record "Report Layout List"; var Handled: Boolean)

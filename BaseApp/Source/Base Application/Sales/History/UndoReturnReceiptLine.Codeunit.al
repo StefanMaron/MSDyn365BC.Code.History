@@ -53,11 +53,13 @@ codeunit 5816 "Undo Return Receipt Line"
         HideDialog: Boolean;
         NextLineNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you really want to undo the selected Return Receipt lines?';
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
         Text003: Label 'Checking lines...';
         Text004: Label 'This receipt has already been invoiced. Undo Return Receipt can be applied only to posted, but not invoiced receipts.';
+#pragma warning restore AA0074
         AlreadyReversedErr: Label 'This return receipt has already been reversed.';
 
     procedure SetHideDialog(NewHideDialog: Boolean)

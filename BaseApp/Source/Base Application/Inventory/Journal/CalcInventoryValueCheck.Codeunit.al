@@ -25,6 +25,8 @@ codeunit 5899 "Calc. Inventory Value-Check"
         TestMode: Boolean;
         ErrorCounter: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Checking items #1##########';
         Text007: Label 'You have to run the Adjust Cost - Item Entries batch job, before you can revalue item %1.';
         Text009: Label 'You must not revalue items with Costing Method %1, if Calculate Per is Item Ledger Entry.';
@@ -34,6 +36,8 @@ codeunit 5899 "Calc. Inventory Value-Check"
         Text015: Label 'You must fill in a Location filter and a Variant filter or select the By Location field and the By Variant field, if you revalue items with Costing Method %1, and if Average Cost Calc. Type is %2 in Inventory Setup.';
         Text018: Label 'The Item %1 cannot be revalued because there is at least one open outbound item ledger entry.';
         Text020: Label 'Open Outbound Entry %1 found.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
 #if not CLEAN24
     [Obsolete('Reolaced by procedure SetParameters()', '24.0')]
