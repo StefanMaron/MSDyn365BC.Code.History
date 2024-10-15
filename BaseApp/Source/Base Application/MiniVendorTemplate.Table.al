@@ -1,15 +1,10 @@
 table 1303 "Mini Vendor Template"
 {
     Caption = 'Mini Vendor Template';
-    ReplicateData = true;
+    ReplicateData = false;
     ObsoleteReason = 'Deprecate mini templates. Use table "Vendor Templ." instead and for extensions.';
-#if not CLEAN18
-    ObsoleteState = Pending;
-    ObsoleteTag = '16.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '21.0';
-#endif
 
     fields
     {
@@ -37,34 +32,6 @@ table 1303 "Mini Vendor Template"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if not CLEAN18
-            trigger OnLookup()
-            begin
-                PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
-            end;
-
-            trigger OnValidate()
-            var
-                PostCodeRec: Record "Post Code";
-            begin
-                if City <> '' then begin
-                    PostCodeRec.SetFilter("Search City", City);
-
-                    case PostCodeRec.Count of
-                        0:
-                            exit;
-                        1:
-                            PostCodeRec.FindFirst();
-                        else
-                            if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
-                                exit;
-                    end;
-
-                    "Post Code" := PostCodeRec.Code;
-                    "Country/Region Code" := PostCodeRec."Country/Region Code";
-                end;
-            end;
-#endif
         }
         field(21; "Vendor Posting Group"; Code[20])
         {
@@ -100,12 +67,6 @@ table 1303 "Mini Vendor Template"
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
-#if not CLEAN18
-            trigger OnValidate()
-            begin
-                PostCode.CheckClearPostCodeCityCounty(City, "Post Code", County, "Country/Region Code", xRec."Country/Region Code");
-            end;
-#endif
         }
         field(47; "Payment Method Code"; Code[10])
         {
@@ -136,34 +97,6 @@ table 1303 "Mini Vendor Template"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if not CLEAN18
-            trigger OnLookup()
-            begin
-                PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
-            end;
-
-            trigger OnValidate()
-            var
-                PostCodeRec: Record "Post Code";
-            begin
-                if "Post Code" <> '' then begin
-                    PostCodeRec.SetFilter(Code, "Post Code");
-
-                    case PostCodeRec.Count of
-                        0:
-                            exit;
-                        1:
-                            PostCodeRec.FindFirst();
-                        else
-                            if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
-                                exit;
-                    end;
-
-                    City := PostCodeRec.City;
-                    "Country/Region Code" := PostCodeRec."Country/Region Code";
-                end;
-            end;
-#endif
         }
         field(92; County; Text[30])
         {
@@ -196,265 +129,5 @@ table 1303 "Mini Vendor Template"
     fieldgroups
     {
     }
-
-#if not CLEAN18
-    trigger OnDelete()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        if ConfigTemplateHeader.Get(Code) then begin
-            ConfigTemplateManagement.DeleteRelatedTemplates(Code, DATABASE::"Default Dimension");
-            ConfigTemplateHeader.Delete(true);
-        end;
-    end;
-
-    trigger OnInsert()
-    var
-        FieldRefArray: array[17] of FieldRef;
-        RecRef: RecordRef;
-    begin
-        TestField("Template Name");
-        RecRef.GetTable(Rec);
-        CreateFieldRefArray(FieldRefArray, RecRef);
-
-        InsertConfigurationTemplateHeaderAndLines;
-    end;
-
-    trigger OnModify()
-    var
-        FieldRefArray: array[17] of FieldRef;
-        RecRef: RecordRef;
-    begin
-        TestField(Code);
-        TestField("Template Name");
-        RecRef.GetTable(Rec);
-        CreateFieldRefArray(FieldRefArray, RecRef);
-        ConfigTemplateManagement.UpdateConfigTemplateAndLines(Code, "Template Name", DATABASE::Vendor, FieldRefArray);
-    end;
-
-    var
-        PostCode: Record "Post Code";
-        ConfigTemplateManagement: Codeunit "Config. Template Management";
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure CreateFieldRefArray(var FieldRefArray: array[17] of FieldRef; RecRef: RecordRef)
-    var
-        I: Integer;
-    begin
-        I := 1;
-
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo(City)));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Vendor Posting Group")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Currency Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Language Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Payment Terms Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Fin. Charge Terms Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Invoice Disc. Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Country/Region Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Payment Method Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Application Method")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Prices Including VAT")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Gen. Bus. Posting Group")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Post Code")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo(County)));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("VAT Bus. Posting Group")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Block Payment Tolerance")));
-        AddToArray(FieldRefArray, I, RecRef.Field(FieldNo("Validate EU Vat Reg. No.")));
-        OnAfterCreateFieldRefArray(FieldRefArray, RecRef);
-    end;
-
-    local procedure AddToArray(var FieldRefArray: array[18] of FieldRef; var I: Integer; CurrFieldRef: FieldRef)
-    begin
-        FieldRefArray[I] := CurrFieldRef;
-        I += 1;
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure InitializeTempRecordFromConfigTemplate(var TempMiniVendorTemplate: Record "Mini Vendor Template" temporary; ConfigTemplateHeader: Record "Config. Template Header")
-    var
-        RecRef: RecordRef;
-    begin
-        TempMiniVendorTemplate.Init();
-        TempMiniVendorTemplate.Code := ConfigTemplateHeader.Code;
-        TempMiniVendorTemplate."Template Name" := ConfigTemplateHeader.Description;
-        TempMiniVendorTemplate.Insert();
-
-        RecRef.GetTable(TempMiniVendorTemplate);
-
-        ConfigTemplateManagement.ApplyTemplateLinesWithoutValidation(ConfigTemplateHeader, RecRef);
-
-        RecRef.SetTable(TempMiniVendorTemplate);
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure CreateConfigTemplateFromExistingVendor(Vendor: Record Vendor; var TempMiniVendorTemplate: Record "Mini Vendor Template" temporary)
-    var
-        DimensionsTemplate: Record "Dimensions Template";
-        ConfigTemplateHeader: Record "Config. Template Header";
-        RecRef: RecordRef;
-        FieldRefArray: array[17] of FieldRef;
-        NewTemplateCode: Code[10];
-    begin
-        RecRef.GetTable(Vendor);
-        CreateFieldRefArray(FieldRefArray, RecRef);
-
-        ConfigTemplateManagement.CreateConfigTemplateAndLines(NewTemplateCode, '', DATABASE::Vendor, FieldRefArray);
-        ConfigTemplateHeader.Get(NewTemplateCode);
-        DimensionsTemplate.CreateTemplatesFromExistingMasterRecord(Vendor."No.", NewTemplateCode, DATABASE::Vendor);
-        OnCreateConfigTemplateFromExistingVendorOnBeforeInitTempRec(Vendor, TempMiniVendorTemplate, ConfigTemplateHeader);
-        InitializeTempRecordFromConfigTemplate(TempMiniVendorTemplate, ConfigTemplateHeader);
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure SaveAsTemplate(Vendor: Record Vendor)
-    var
-        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
-        VendorTemplateCard: Page "Vendor Template Card";
-    begin
-        VendorTemplateCard.CreateFromVend(Vendor);
-        VendorTemplateCard.SetRecord(TempMiniVendorTemplate);
-        VendorTemplateCard.LookupMode := true;
-        if VendorTemplateCard.RunModal = ACTION::LookupOK then;
-    end;
-
-    local procedure InsertConfigurationTemplateHeaderAndLines()
-    var
-        FieldRefArray: array[17] of FieldRef;
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(Rec);
-        CreateFieldRefArray(FieldRefArray, RecRef);
-        ConfigTemplateManagement.CreateConfigTemplateAndLines(Code, "Template Name", DATABASE::Vendor, FieldRefArray);
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure NewVendorFromTemplate(var Vendor: Record Vendor): Boolean
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplates: Page "Config Templates";
-    begin
-        OnBeforeNewVendorFromTemplate(ConfigTemplateHeader, Vendor);
-
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
-        ConfigTemplateHeader.SetRange(Enabled, true);
-
-        if ConfigTemplateHeader.Count = 1 then begin
-            ConfigTemplateHeader.FindFirst();
-            InsertVendorFromTemplate(ConfigTemplateHeader, Vendor);
-            exit(true);
-        end;
-
-        if (ConfigTemplateHeader.Count > 1) and GuiAllowed then begin
-            ConfigTemplates.SetTableView(ConfigTemplateHeader);
-            ConfigTemplates.LookupMode(true);
-            ConfigTemplates.SetNewMode;
-            if ConfigTemplates.RunModal = ACTION::LookupOK then begin
-                ConfigTemplates.GetRecord(ConfigTemplateHeader);
-                InsertVendorFromTemplate(ConfigTemplateHeader, Vendor);
-                exit(true);
-            end;
-        end;
-
-        exit(false);
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure UpdateVendorFromTemplate(var Vendor: Record Vendor)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        DimensionsTemplate: Record "Dimensions Template";
-        ConfigTemplates: Page "Config Templates";
-        VendorRecRef: RecordRef;
-    begin
-        if GuiAllowed then begin
-            ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
-            ConfigTemplateHeader.SetRange(Enabled, true);
-            ConfigTemplates.SetTableView(ConfigTemplateHeader);
-            ConfigTemplates.LookupMode(true);
-            if ConfigTemplates.RunModal = ACTION::LookupOK then begin
-                ConfigTemplates.GetRecord(ConfigTemplateHeader);
-                VendorRecRef.GetTable(Vendor);
-                ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, VendorRecRef);
-                DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Vendor."No.", DATABASE::Vendor);
-                VendorRecRef.SetTable(Vendor);
-                Vendor.Find;
-            end;
-        end;
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure InsertVendorFromTemplate(ConfigTemplateHeader: Record "Config. Template Header"; var Vendor: Record Vendor)
-    var
-        DimensionsTemplate: Record "Dimensions Template";
-        ConfigTemplateMgt: Codeunit "Config. Template Management";
-        RecRef: RecordRef;
-    begin
-        Vendor.SetInsertFromTemplate(true);
-        InitVendorNo(Vendor, ConfigTemplateHeader);
-        Vendor.Insert(true);
-        RecRef.GetTable(Vendor);
-        ConfigTemplateMgt.UpdateRecord(ConfigTemplateHeader, RecRef);
-        RecRef.SetTable(Vendor);
-
-        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Vendor."No.", DATABASE::Vendor);
-        Vendor.Find;
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    procedure UpdateVendorsFromTemplate(var Vendor: Record Vendor)
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        DimensionsTemplate: Record "Dimensions Template";
-        ConfigTemplates: Page "Config Templates";
-        FldRef: FieldRef;
-        VendorRecRef: RecordRef;
-    begin
-        if GuiAllowed then begin
-            ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
-            ConfigTemplateHeader.SetRange(Enabled, true);
-            ConfigTemplates.SetTableView(ConfigTemplateHeader);
-            ConfigTemplates.LookupMode(true);
-            if ConfigTemplates.RunModal = ACTION::LookupOK then begin
-                ConfigTemplates.GetRecord(ConfigTemplateHeader);
-                VendorRecRef.GetTable(Vendor);
-                if VendorRecRef.FindSet() then
-                    repeat
-                        ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, VendorRecRef);
-                        FldRef := VendorRecRef.Field(1);
-                        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Format(FldRef.Value), DATABASE::Vendor);
-                    until VendorRecRef.Next() = 0;
-                VendorRecRef.SetTable(Vendor);
-            end;
-        end;
-    end;
-
-    local procedure InitVendorNo(var Vendor: Record Vendor; ConfigTemplateHeader: Record "Config. Template Header")
-    var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-    begin
-        if ConfigTemplateHeader."Instance No. Series" = '' then
-            exit;
-        NoSeriesMgt.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewVendorFromTemplate(var ConfigTemplateHeader: Record "Config. Template Header"; Vendor: Record Vendor)
-    begin
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCreateFieldRefArray(var FieldRefArray: array[23] of FieldRef; RecRef: RecordRef)
-    begin
-    end;
-
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateConfigTemplateFromExistingVendorOnBeforeInitTempRec(Vendor: Record Vendor; var TempMiniVendorTemplate: Record "Mini Vendor Template" temporary; var ConfigTemplateHeader: Record "Config. Template Header")
-    begin
-    end;
-#endif
 }
 

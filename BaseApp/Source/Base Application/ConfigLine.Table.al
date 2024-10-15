@@ -60,7 +60,7 @@ table 8622 "Config. Line"
                     Validate(Name, RecRef.Caption);
                     "Page ID" := ConfigMgt.FindPage("Table ID");
                     "Copying Available" := ConfigMgt.TransferContents("Table ID", '', false);
-                    GetRelatedTables;
+                    GetRelatedTables();
                 end else
                     if xRec."Table ID" > 0 then
                         Error(Text001);
@@ -351,8 +351,8 @@ table 8622 "Config. Line"
         Total: Integer;
         TotalStatusWeight: Decimal;
     begin
-        Total := GetNoTables;
-        TotalStatusWeight := GetTotalStatusWeight;
+        Total := GetNoTables();
+        TotalStatusWeight := GetTotalStatusWeight();
 
         if Total = 0 then
             exit(0);
@@ -365,7 +365,7 @@ table 8622 "Config. Line"
         ConfigLine: Record "Config. Line";
     begin
         with ConfigLine do begin
-            Reset;
+            Reset();
             SetCurrentKey("Line Type");
             SetRange("Line Type", "Line Type"::Table);
             SetRange("Parent Line No.", Rec."Line No.");
@@ -378,13 +378,13 @@ table 8622 "Config. Line"
         ConfigLine: Record "Config. Line";
     begin
         with ConfigLine do begin
-            Reset;
+            Reset();
             SetCurrentKey("Line Type");
             SetRange("Line Type", "Line Type"::Table);
             SetRange("Parent Line No.", Rec."Line No.");
             if FindSet() then
                 repeat
-                    StatusWeight += GetLineStatusWeight;
+                    StatusWeight += GetLineStatusWeight();
                 until Next() = 0;
         end;
     end;
@@ -397,16 +397,16 @@ table 8622 "Config. Line"
             "Line Type"::Table:
                 Total := 0;
             "Line Type"::Group:
-                Total := GetNoOfDirectChildrenTables;
+                Total := GetNoOfDirectChildrenTables();
             "Line Type"::Area:
                 begin
-                    Total := GetNoOfDirectChildrenTables;
+                    Total := GetNoOfDirectChildrenTables();
 
                     ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Group);
                     ConfigLine.SetRange("Parent Line No.", "Line No.");
                     if ConfigLine.FindSet() then
                         repeat
-                            Total += ConfigLine.GetNoOfDirectChildrenTables;
+                            Total += ConfigLine.GetNoOfDirectChildrenTables();
                         until ConfigLine.Next() = 0;
                 end;
         end;
@@ -420,16 +420,16 @@ table 8622 "Config. Line"
             "Line Type"::Table:
                 Total := 0;
             "Line Type"::Group:
-                Total := GetDirectChildrenTablesStatusWeight;
+                Total := GetDirectChildrenTablesStatusWeight();
             "Line Type"::Area:
                 begin
-                    Total := GetDirectChildrenTablesStatusWeight;
+                    Total := GetDirectChildrenTablesStatusWeight();
 
                     ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Group);
                     ConfigLine.SetRange("Parent Line No.", "Line No.");
                     if ConfigLine.FindSet() then
                         repeat
-                            Total += ConfigLine.GetDirectChildrenTablesStatusWeight;
+                            Total += ConfigLine.GetDirectChildrenTablesStatusWeight();
                         until ConfigLine.Next() = 0;
                 end;
         end;

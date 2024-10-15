@@ -1,7 +1,6 @@
 codeunit 109 "Lookup State Manager"
 {
     SingleInstance = true;
-    Access = Internal;
 
     trigger OnRun()
     begin

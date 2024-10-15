@@ -810,7 +810,7 @@ codeunit 134475 "ERM Dimension Sales"
         // The reply is inside the handler ConfirmHandlerForSalesHeaderDimUpdate
 
         // [THEN] Sales Line dimension set contains "NewDimValue"
-        SalesLine.Find;
+        SalesLine.Find();
         VerifyDimensionOnDimSet(SalesLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -842,7 +842,7 @@ codeunit 134475 "ERM Dimension Sales"
         // The reply is inside the handler ConfirmHandlerForSalesHeaderDimUpdate
 
         // [THEN] Sales Line dimension set left "InitialDimSetID"
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
@@ -877,7 +877,7 @@ codeunit 134475 "ERM Dimension Sales"
         // The reply is inside the handler ConfirmHandlerForSalesHeaderDimUpdate
 
         // [THEN] Sales Line dimension set contains "NewDimValue"
-        SalesLine.Find;
+        SalesLine.Find();
         VerifyDimensionOnDimSet(SalesLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -914,7 +914,7 @@ codeunit 134475 "ERM Dimension Sales"
         // The reply is inside the handler ConfirmHandlerForSalesHeaderDimUpdate
 
         // [THEN] Sales Line dimension set left "InitialDimSetID"
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
@@ -937,7 +937,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Sales Line Shortcut Dimension 1 Code is being changed to "NewDimValue"
         LibraryVariableStorage.Enqueue(true); // to reply Yes on second confirmation
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
 
         // [WHEN] Answer Yes on shipped line update confirmation
@@ -967,7 +967,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Sales Line Shortcut Dimension 1 Code is being changed to "NewDimValue"
         LibraryVariableStorage.Enqueue(false); // to reply No on second confirmation
-        SalesLine.Find;
+        SalesLine.Find();
         asserterror SalesLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
 
         // [WHEN] Answer No on shipped line update confirmation
@@ -1005,7 +1005,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [WHEN] Answer Yes on shipped line update confirmation
 
         // [THEN] Sales Line dimension set contains "NewDimValue"
-        SalesLine.Find;
+        SalesLine.Find();
         VerifyDimensionOnDimSet(SalesLine."Dimension Set ID", DimensionValue);
     end;
 
@@ -1040,7 +1040,7 @@ codeunit 134475 "ERM Dimension Sales"
         // [WHEN] Answer No on shipped line update confirmation
 
         // [THEN] Sales Line dimension set left "InitialDimSetID"
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Dimension Set ID", SavedDimSetID);
     end;
 
@@ -1243,7 +1243,7 @@ codeunit 134475 "ERM Dimension Sales"
             CustLedgerEntry2.CalcFields("Remaining Amount");
             CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
             CustLedgerEntry2.Modify(true);
-        until CustLedgerEntry2.Next = 0;
+        until CustLedgerEntry2.Next() = 0;
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
@@ -1315,7 +1315,7 @@ codeunit 134475 "ERM Dimension Sales"
         repeat
             TempDimensionSetEntry := DimensionSetEntry;
             TempDimensionSetEntry.Insert();
-        until DimensionSetEntry.Next = 0;
+        until DimensionSetEntry.Next() = 0;
     end;
 
     local procedure CreateItemJournalAndCalculateInventory(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; DefaultDimension: Record "Default Dimension")
@@ -1328,7 +1328,7 @@ codeunit 134475 "ERM Dimension Sales"
         ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, true, false);
+        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate(), true, false);
 
         // Find created Item Journal Line.
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
@@ -1687,7 +1687,7 @@ codeunit 134475 "ERM Dimension Sales"
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
         Clear(CombineShipments);
         CombineShipments.SetTableView(SalesHeader);
-        CombineShipments.InitializeRequest(WorkDate, WorkDate, false, false, false, false);
+        CombineShipments.InitializeRequest(WorkDate(), WorkDate(), false, false, false, false);
         CombineShipments.UseRequestPage(false);
         CombineShipments.Run();
     end;
@@ -1896,7 +1896,7 @@ codeunit 134475 "ERM Dimension Sales"
             DimensionSetEntry.SetRange("Dimension Code", TempDimensionSetEntry."Dimension Code");
             DimensionSetEntry.FindFirst();
             DimensionSetEntry.TestField("Dimension Value Code", TempDimensionSetEntry."Dimension Value Code");
-        until TempDimensionSetEntry.Next = 0;
+        until TempDimensionSetEntry.Next() = 0;
     end;
 
     local procedure VerifyGLEntryDimension(SalesLine: Record "Sales Line"; DocumentNo: Code[20])
@@ -1959,7 +1959,7 @@ codeunit 134475 "ERM Dimension Sales"
         GLEntry.FindSet();
         repeat
             Assert.IsTrue(DimensionSetEntry.Get(GLEntry."Dimension Set ID", DimensionCode), 'Dimension Set Entry must found');
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyDimensionOnDimSet(DimSetID: Integer; DimensionValue: Record "Dimension Value")

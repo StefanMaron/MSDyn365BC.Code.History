@@ -12,12 +12,12 @@ page 557 "Analysis View Filter"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Dimension Code"; "Dimension Code")
+                field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension that the analysis view is based on.';
                 }
-                field("Dimension Value Filter"; "Dimension Value Filter")
+                field("Dimension Value Filter"; Rec."Dimension Value Filter")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value that the analysis view is based on.';

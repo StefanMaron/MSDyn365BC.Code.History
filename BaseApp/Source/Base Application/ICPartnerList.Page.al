@@ -25,42 +25,42 @@ page 608 "IC Partner List"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the name of the intercompany partner.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the currency that is used on the entry.';
                 }
-                field("Inbox Type"; "Inbox Type")
+                field("Inbox Type"; Rec."Inbox Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies what type of inbox the intercompany partner has. File Location. You send the partner a file containing intercompany transactions. Database: The partner is set up as another company in the same database. Email: You send the partner transactions by email.';
                 }
-                field("Inbox Details"; "Inbox Details")
+                field("Inbox Details"; Rec."Inbox Details")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the details of the intercompany partner''s inbox.';
                 }
-                field("Auto. Accept Transactions"; "Auto. Accept Transactions")
+                field("Auto. Accept Transactions"; Rec."Auto. Accept Transactions")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies if transactions from this partner will be accepted automatically.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the customer number that this intercompany partner is linked to.';
                 }
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the vendor number that this intercompany partner is linked to.';
                 }
-                field("Receivables Account"; "Receivables Account")
+                field("Receivables Account"; Rec."Receivables Account")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the general ledger account to use when you post receivables from customers in this posting group.';
                 }
-                field("Payables Account"; "Payables Account")
+                field("Payables Account"; Rec."Payables Account")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the general ledger account to use when you post payables due to vendors in this posting group.';
@@ -100,9 +100,6 @@ page 608 "IC Partner List"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions-Single';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(413),
                                   "No." = FIELD(Code);
@@ -118,15 +115,26 @@ page 608 "IC Partner List"
                 ApplicationArea = Intercompany;
                 Caption = 'Intercompany Setup';
                 Image = Intercompany;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
 #if not CLEAN20
                 RunObject = Page "IC Setup";
 #else
                 RunObject = Page "Intercompany Setup";
 #endif
                 ToolTip = 'View or edit the intercompany setup for the current company.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Intercompany Setup_Promoted"; "Intercompany Setup")
+                {
+                }
+                actionref("Dimensions-Single_Promoted"; "Dimensions-Single")
+                {
+                }
             }
         }
     }
@@ -145,7 +153,7 @@ page 608 "IC Partner List"
                 Page.RunModal(Page::"Intercompany Setup");
 #endif
 
-        ICSetup.Find;
+        ICSetup.Find();
         if ICSetup."IC Partner Code" = '' then
             Error('');
     end;

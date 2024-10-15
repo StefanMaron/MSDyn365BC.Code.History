@@ -31,7 +31,7 @@ page 9993 "Code Coverage AL Object"
                     Caption = 'Name';
                     ToolTip = 'Specifies the name of the object associated with the code coverage.';
                 }
-                field("App Package ID"; "App Package ID")
+                field("App Package ID"; Rec."App Package ID")
                 {
                     ApplicationArea = All;
                     Caption = 'App Package ID';
@@ -50,9 +50,6 @@ page 9993 "Code Coverage AL Object"
                 ApplicationArea = All;
                 Caption = 'Load';
                 Image = AddContacts;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Force the code coverage recorder to include the filtered objects.';
 
                 trigger OnAction()
@@ -63,6 +60,17 @@ page 9993 "Code Coverage AL Object"
                     AllObj.CopyFilters(Rec);
                     CodeCoverageMgt.Include(AllObj);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Load_Promoted; Load)
+                {
+                }
             }
         }
     }

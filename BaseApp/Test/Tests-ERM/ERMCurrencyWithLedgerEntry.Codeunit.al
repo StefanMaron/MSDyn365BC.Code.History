@@ -173,7 +173,7 @@ codeunit 134078 "ERM Currency With Ledger Entry"
             PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
             PurchaseLine.Modify(true);
         end;
-        exit(NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false));
     end;
 
     [Normal]
@@ -238,10 +238,10 @@ codeunit 134078 "ERM Currency With Ledger Entry"
 
         VendorLedgerEntry.CalcFields("Amount (LCY)");
         Currency.Get(CurrencyCode);
-        Currency.InitRoundingPrecision;
-        Assert.AreNearlyEqual(LibraryERM.ConvertCurrency(LineAmount, Currency.Code, '', WorkDate), VendorLedgerEntry."Amount (LCY)",
+        Currency.InitRoundingPrecision();
+        Assert.AreNearlyEqual(LibraryERM.ConvertCurrency(LineAmount, Currency.Code, '', WorkDate()), VendorLedgerEntry."Amount (LCY)",
           Currency."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, VendorLedgerEntry.FieldCaption("Amount (LCY)"),
-            VendorLedgerEntry."Amount (LCY)", VendorLedgerEntry.TableCaption));
+            VendorLedgerEntry."Amount (LCY)", VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; CurrencyCode: Code[10]; LineAmount: Decimal)
@@ -255,10 +255,10 @@ codeunit 134078 "ERM Currency With Ledger Entry"
 
         CustLedgerEntry.CalcFields("Amount (LCY)");
         Currency.Get(CurrencyCode);
-        Currency.InitRoundingPrecision;
-        Assert.AreNearlyEqual(LibraryERM.ConvertCurrency(LineAmount, Currency.Code, '', WorkDate), CustLedgerEntry."Amount (LCY)",
+        Currency.InitRoundingPrecision();
+        Assert.AreNearlyEqual(LibraryERM.ConvertCurrency(LineAmount, Currency.Code, '', WorkDate()), CustLedgerEntry."Amount (LCY)",
           Currency."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, CustLedgerEntry.FieldCaption("Amount (LCY)"),
-            CustLedgerEntry."Amount (LCY)", CustLedgerEntry.TableCaption));
+            CustLedgerEntry."Amount (LCY)", CustLedgerEntry.TableCaption()));
     end;
 
     local procedure ExecuteUIHandler()

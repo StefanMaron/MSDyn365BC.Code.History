@@ -30,7 +30,7 @@ page 5845 "Inventory - G/L Reconciliation"
                     begin
                         InvtReportHeader.SetFilter("Posting Date Filter", DateFilter);
                         DateFilter := InvtReportHeader.GetFilter("Posting Date Filter");
-                        DateFilterOnAfterValidate;
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field(ItemFilter; ItemFilter)
@@ -47,7 +47,7 @@ page 5845 "Inventory - G/L Reconciliation"
                         Item.SetRange(Type, Item.Type::Inventory);
                         ItemList.SetTableView(Item);
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
                             ItemList.GetRecord(Item);
                             Text := Item."No.";
                             exit(true);
@@ -57,8 +57,8 @@ page 5845 "Inventory - G/L Reconciliation"
 
                     trigger OnValidate()
                     begin
-                        TestWarning;
-                        ItemFilterOnAfterValidate;
+                        TestWarning();
+                        ItemFilterOnAfterValidate();
                     end;
                 }
                 field(LocationFilter; LocationFilter)
@@ -74,7 +74,7 @@ page 5845 "Inventory - G/L Reconciliation"
                     begin
                         Locations.SetTableView(Location);
                         Locations.LookupMode := true;
-                        if Locations.RunModal = ACTION::LookupOK then begin
+                        if Locations.RunModal() = ACTION::LookupOK then begin
                             Locations.GetRecord(Location);
                             Text := Location.Code;
                             exit(true);
@@ -84,8 +84,8 @@ page 5845 "Inventory - G/L Reconciliation"
 
                     trigger OnValidate()
                     begin
-                        TestWarning;
-                        LocationFilterOnAfterValidate;
+                        TestWarning();
+                        LocationFilterOnAfterValidate();
                     end;
                 }
                 field(Show; ShowWarning)
@@ -97,7 +97,7 @@ page 5845 "Inventory - G/L Reconciliation"
 
                     trigger OnValidate()
                     begin
-                        ShowWarningOnAfterValidate;
+                        ShowWarningOnAfterValidate();
                     end;
                 }
             }
@@ -113,9 +113,6 @@ page 5845 "Inventory - G/L Reconciliation"
                 ApplicationArea = Basic, Suite;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'View the data overview according to the selected filters and options.';
 
                 trigger OnAction()
@@ -167,6 +164,17 @@ page 5845 "Inventory - G/L Reconciliation"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Show Matrix_Promoted"; "&Show Matrix")
+                {
+                }
+            }
+        }
     }
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -206,7 +214,7 @@ page 5845 "Inventory - G/L Reconciliation"
     trigger OnOpenPage()
     begin
         GLSetup.Get();
-        TestWarning;
+        TestWarning();
         InvtReportHeader.SetFilter("Item Filter", ItemFilter);
         InvtReportHeader.SetFilter("Location Filter", LocationFilter);
         InvtReportHeader.SetFilter("Posting Date Filter", DateFilter);
@@ -224,7 +232,7 @@ page 5845 "Inventory - G/L Reconciliation"
         MatrixRecords: array[32] of Record "Dimension Code Buffer";
         GLSetup: Record "General Ledger Setup";
         InvtReportHeader: Record "Inventory Report Header";
-        InvtReportEntry: Record "Inventory Report Entry" temporary;
+        TempInventoryReportEntry: Record "Inventory Report Entry" temporary;
         RowIntegerLine: Record "Integer";
         ColIntegerLine: Record "Integer";
         MATRIX_CaptionSet: array[32] of Text[100];
@@ -300,7 +308,7 @@ page 5845 "Inventory - G/L Reconciliation"
 
     local procedure CopyDimValueToBuf(var TheDimValue: Record "Integer"; var TheDimCodeBuf: Record "Dimension Code Buffer"; IsRow: Boolean)
     begin
-        with InvtReportEntry do
+        with TempInventoryReportEntry do
             case true of
                 ((InvtReportHeader."Line Option" = InvtReportHeader."Line Option"::"Balance Sheet") and IsRow) or
               ((InvtReportHeader."Column Option" = InvtReportHeader."Column Option"::"Balance Sheet") and not IsRow):
@@ -366,7 +374,7 @@ page 5845 "Inventory - G/L Reconciliation"
     local procedure InsertRow(Code1: Code[10]; Name1: Text[80]; Indentation1: Integer; Bold1: Boolean; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
         with TheDimCodeBuf do begin
-            Init;
+            Init();
             Code := Code1;
             Name := CopyStr(Name1, 1, MaxStrLen(Name));
             Indentation := Indentation1;

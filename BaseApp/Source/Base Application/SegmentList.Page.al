@@ -16,7 +16,7 @@ page 5093 "Segment List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -26,12 +26,12 @@ page 5093 "Segment List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the segment.';
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign for which the segment has been created.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the salesperson responsible for this segment and/or interaction.';

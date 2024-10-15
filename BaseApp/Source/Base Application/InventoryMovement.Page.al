@@ -2,7 +2,6 @@ page 7382 "Inventory Movement"
 {
     Caption = 'Inventory Movement';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Movement';
     RefreshOnActivate = true;
     SaveValues = true;
     SourceTable = "Warehouse Activity Header";
@@ -15,7 +14,7 @@ page 7382 "Inventory Movement"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -26,7 +25,7 @@ page 7382 "Inventory Movement"
                             CurrPage.Update();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location where the warehouse activity takes place.';
@@ -38,7 +37,7 @@ page 7382 "Inventory Movement"
                     Lookup = false;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
@@ -47,13 +46,13 @@ page 7382 "Inventory Movement"
                     var
                         CreateInvtPickMovement: Codeunit "Create Inventory Pick/Movement";
                     begin
-                        if LineExist then
+                        if LineExist() then
                             Error(Text001);
 
                         CreateInvtPickMovement.SetInvtMovement(true);
                         CreateInvtPickMovement.Run(Rec);
                         CurrPage.Update();
-                        CurrPage.WhseActivityLines.PAGE.UpdateForm;
+                        CurrPage.WhseActivityLines.PAGE.UpdateForm();
                     end;
 
                     trigger OnValidate()
@@ -61,7 +60,7 @@ page 7382 "Inventory Movement"
                         SourceNoOnAfterValidate();
                     end;
                 }
-                field("Destination No."; "Destination No.")
+                field("Destination No."; Rec."Destination No.")
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 0));
@@ -76,31 +75,31 @@ page 7382 "Inventory Movement"
                     Editable = false;
                     ToolTip = 'Specifies the name of the destination for the inventory movement.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the warehouse activity should be recorded as being posted.';
                 }
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 2));
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("External Document No.2"; "External Document No.2")
+                field("External Document No.2"; Rec."External Document No.2")
                 {
                     ApplicationArea = Warehouse;
                     CaptionClass = Format(WMSMgt.GetCaptionClass("Destination Type", "Source Document", 3));
                     ToolTip = 'Specifies an additional part of the document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the lines are sorted on the warehouse header, such as Item or Document.';
 
                     trigger OnValidate()
                     begin
-                        SortingMethodOnAfterValidate;
+                        SortingMethodOnAfterValidate();
                     end;
                 }
             }
@@ -168,8 +167,6 @@ page 7382 "Inventory Movement"
                     ApplicationArea = Warehouse;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Warehouse Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Whse. Activity Header"),
                                   Type = FIELD(Type),
@@ -214,8 +211,6 @@ page 7382 "Inventory Movement"
                     Caption = '&Get Source Document';
                     Ellipsis = true;
                     Image = GetSourceDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'Select the source document that you want to move items for.';
 
@@ -223,7 +218,7 @@ page 7382 "Inventory Movement"
                     var
                         CreateInvtPickMovement: Codeunit "Create Inventory Pick/Movement";
                     begin
-                        if LineExist then
+                        if LineExist() then
                             Error(Text001);
                         CreateInvtPickMovement.SetInvtMovement(true);
                         CreateInvtPickMovement.Run(Rec);
@@ -234,14 +229,11 @@ page 7382 "Inventory Movement"
                     ApplicationArea = Warehouse;
                     Caption = 'Autofill Qty. to Handle';
                     Image = AutofillQtyToHandle;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Have the system enter the outstanding quantity in the Qty. to Handle field.';
 
                     trigger OnAction()
                     begin
-                        AutofillQtyToHandle;
+                        AutofillQtyToHandle();
                     end;
                 }
                 action("Delete Qty. to Handle")
@@ -253,7 +245,7 @@ page 7382 "Inventory Movement"
 
                     trigger OnAction()
                     begin
-                        DeleteQtyToHandle;
+                        DeleteQtyToHandle();
                     end;
                 }
             }
@@ -266,15 +258,12 @@ page 7382 "Inventory Movement"
                     ApplicationArea = Warehouse;
                     Caption = '&Register Invt. Movement';
                     Image = RegisterPutAway;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Register the movement of items between bins in a basic warehouse configuration.';
 
                     trigger OnAction()
                     begin
-                        RegisterActivityYesNo;
+                        RegisterActivityYesNo();
                     end;
                 }
             }
@@ -284,8 +273,6 @@ page 7382 "Inventory Movement"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -301,11 +288,56 @@ page 7382 "Inventory Movement"
                 ApplicationArea = Warehouse;
                 Caption = 'Movement List';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Movement List";
                 ToolTip = 'View the list of ongoing movements between bins according to a basic warehouse configuration.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Register Invt. Movement_Promoted"; "&Register Invt. Movement")
+                {
+                }
+                group("Category_Qty. to Handle")
+                {
+                    Caption = 'Qty. to Handle';
+                    ShowAs = SplitButton;
+
+                    actionref("Autofill Qty. to Handle_Promoted"; "Autofill Qty. to Handle")
+                    {
+                    }
+                    actionref("Delete Qty. to Handle_Promoted"; "Delete Qty. to Handle")
+                    {
+                    }
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref(GetSourceDocument_Promoted; GetSourceDocument)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Movement', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -324,7 +356,7 @@ page 7382 "Inventory Movement"
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee;
+        ErrorIfUserIsNotWhseEmployee();
         FilterGroup(2); // set group of filters user cannot change
         SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
         FilterGroup(0); // set filter group back to standard
@@ -337,23 +369,23 @@ page 7382 "Inventory Movement"
 
     local procedure AutofillQtyToHandle()
     begin
-        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.AutofillQtyToHandle();
     end;
 
     local procedure DeleteQtyToHandle()
     begin
-        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle;
+        CurrPage.WhseActivityLines.PAGE.DeleteQtyToHandle();
     end;
 
     local procedure RegisterActivityYesNo()
     begin
-        CurrPage.WhseActivityLines.PAGE.RegisterActivityYesNo;
+        CurrPage.WhseActivityLines.PAGE.RegisterActivityYesNo();
     end;
 
     local procedure SourceNoOnAfterValidate()
     begin
         CurrPage.Update();
-        CurrPage.WhseActivityLines.PAGE.UpdateForm;
+        CurrPage.WhseActivityLines.PAGE.UpdateForm();
     end;
 
     local procedure SortingMethodOnAfterValidate()

@@ -1118,6 +1118,29 @@ codeunit 18001 "GST Base Validation"
             until DetailedGSTLedgerEntry.Next() = 0;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Tax Base Subscribers", 'OnBeforeSkipCallingTaxEngineForPurchLine', '', false, false)]
+    local procedure OnBeforeSkipCallingTaxEngineForPurchLine(var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+        CheckGSTVendorType(PurchLine, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Tax Base Subscribers", 'OnBeforeEnableCallingTaxEngineForPurchLine', '', false, false)]
+    local procedure OnBeforeEnableCallingTaxEngineForPurchLine(var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+        CheckGSTVendorType(PurchLine, IsHandled);
+    end;
+
+    local procedure CheckGSTVendorType(PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        if not PurchaseHeader.Get(PurchLine."Document Type", PurchLine."Document No.") then
+            exit;
+
+        if PurchaseHeader."GST Vendor Type" = PurchaseHeader."GST Vendor Type"::" " then
+            IsHandled := true;
+    end;
+
     local procedure UpdteGSTLedgerEntryAmount(var GSTLedgerEntry: Record "GST Ledger Entry"; var DetailedGSTLedgerEntryInfo: Record "Detailed GST Ledger Entry Info")
     begin
         GSTLedgerEntry."GST Base Amount" := Abs(ConvertGSTAmountToLCY(

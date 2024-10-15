@@ -10,7 +10,7 @@ codeunit 845 "Cash Flow Wksh.- Check Line"
         CFAccount: Record "Cash Flow Account";
     begin
         with CFWkshLine do begin
-            if EmptyLine then
+            if EmptyLine() then
                 exit;
 
             TestField("Cash Flow Forecast No.");

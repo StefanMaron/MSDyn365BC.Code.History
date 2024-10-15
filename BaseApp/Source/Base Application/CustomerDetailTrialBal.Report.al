@@ -19,7 +19,7 @@ report 104 "Customer - Detail Trial Bal."
             column(PeriodCustDatetFilter; StrSubstNo(Text000, CustDateFilter))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAmountsInLCY; PrintAmountsInLCY)
@@ -320,13 +320,11 @@ report 104 "Customer - Detail Trial Bal."
     end;
 
     var
-        Text000: Label 'Period: %1';
         GeneralLedgerSetup: Record "General Ledger Setup";
         PrintDebitCredit: Boolean;
         PrintAmountsInLCY: Boolean;
         PrintOnlyOnePerPage: Boolean;
         ExcludeBalanceOnly: Boolean;
-        CustFilter: Text;
         CustDateFilter: Text;
         AmountCaption: Text[80];
         RemainingAmtCaption: Text[30];
@@ -342,6 +340,8 @@ report 104 "Customer - Detail Trial Bal."
         StartBalanceLCY: Decimal;
         CustLedgEntryExists: Boolean;
         PageGroupNo: Integer;
+
+        Text000: Label 'Period: %1';
         CustDetailTrialBalCaptionLbl: Label 'Customer - Detail Trial Bal.';
         PageNoCaptionLbl: Label 'Page';
         AllAmtsLCYCaptionLbl: Label 'All amounts are in LCY';
@@ -356,6 +356,9 @@ report 104 "Customer - Detail Trial Bal."
         DebitLbl: Label 'Debit Amount';
         CreditLbl: Label 'Credit Amount';
         ExternalDocNoCaptionLbl: Label 'External Doc. No.';
+
+    protected var
+        CustFilter: Text;
 
     procedure InitializeRequest(ShowAmountInLCY: Boolean; SetPrintOnlyOnePerPage: Boolean; SetExcludeBalanceOnly: Boolean)
     begin

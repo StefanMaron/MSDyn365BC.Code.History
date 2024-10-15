@@ -4,7 +4,6 @@ page 99000867 "Finished Production Order"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Order';
     RefreshOnActivate = true;
     SourceTable = "Production Order";
     SourceTableView = WHERE(Status = CONST(Finished));
@@ -16,7 +15,7 @@ page 99000867 "Finished Production Order"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
@@ -31,32 +30,32 @@ page 99000867 "Finished Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies the description of the production order.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies an additional part of the production order description.';
                 }
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the source type of the production order.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the item number or number of the source document that the entry originates from.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the variant code for production order item.';
                     Visible = false;
                 }
-                field("Search Description"; "Search Description")
+                field("Search Description"; Rec."Search Description")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
@@ -69,13 +68,13 @@ page 99000867 "Finished Production Order"
                     Importance = Promoted;
                     ToolTip = 'Specifies how many units of the item or the family to produce (production quantity).';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the due date of the production order.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
@@ -141,14 +140,14 @@ page 99000867 "Finished Production Order"
                     ObsoleteTag = '17.0';
                 }
 #endif
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting date and starting time of the production order.';
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
@@ -159,38 +158,38 @@ page 99000867 "Finished Production Order"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Inventory Posting Group"; "Inventory Posting Group")
+                field("Inventory Posting Group"; Rec."Inventory Posting Group")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies links between business transactions made for the item and an inventory account in the general ledger, to group amounts for that item type.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Manufacturing;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
@@ -278,8 +277,6 @@ page 99000867 "Finished Production Order"
                     ApplicationArea = Manufacturing;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Prod. Order Comment Sheet";
                     RunPageLink = Status = FIELD(Status),
                                   "Prod. Order No." = FIELD("No.");
@@ -291,15 +288,12 @@ page 99000867 "Finished Production Order"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
+                        ShowDocDim();
                     end;
                 }
                 action(Statistics)
@@ -307,9 +301,6 @@ page 99000867 "Finished Production Order"
                     ApplicationArea = Manufacturing;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Production Order Statistics";
                     RunPageLink = Status = FIELD(Status),
                                   "No." = FIELD("No."),
@@ -340,6 +331,27 @@ page 99000867 "Finished Production Order"
                                   "Source No." = FIELD("No.");
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
                     ToolTip = 'View the list of inventory movements that have been made for the order.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Order', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
                 }
             }
         }

@@ -118,9 +118,9 @@ table 403 "Change Log Setup (Table)"
                 end;
                 with ChangeLogSetupField do
                     if "Log Insertion" or "Log Modification" or "Log Deletion" then
-                        Modify
+                        Modify()
                     else
-                        Delete;
+                        Delete();
             until ChangeLogSetupField.Next() = 0;
     end;
 }

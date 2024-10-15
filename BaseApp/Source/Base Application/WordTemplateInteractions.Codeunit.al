@@ -39,6 +39,7 @@ codeunit 5069 "Word Template Interactions"
         TempDeliverySorterWord.Find('-');
 
         FirstRecord := true;
+        LastAttachmentNo := 0;
         repeat
             LineCount := LineCount + 1;
             Window.Update(2, Round(LineCount / NoOfRecords * 10000, 1));
@@ -170,7 +171,7 @@ codeunit 5069 "Word Template Interactions"
 
             Window.Update(6, MergingTxt);
             Attachment.CalcFields("Merge Source");
-            if Attachment."Merge Source".HasValue then
+            if Attachment."Merge Source".HasValue() then
                 repeat
                     InteractLogEntry.Get(TempDeliverySorter."No.");
 
@@ -343,7 +344,7 @@ codeunit 5069 "Word Template Interactions"
             Error(AttachmentFileErr);
 
         Attachment.CalcFields("Merge Source");
-        if Attachment."Merge Source".HasValue then begin
+        if Attachment."Merge Source".HasValue() then begin
             MergeSourceText := GetMergeSourceText(Attachment, SegLine."Line No.", 0);
             DataSource := GetDataSource(MergeSourceText);
         end else

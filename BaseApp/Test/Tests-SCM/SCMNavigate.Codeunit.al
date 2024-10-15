@@ -57,7 +57,7 @@ codeunit 137078 "SCM Navigate"
 
         // Verify: Navigate Page from Posted Sales Shipment.
         VerifyNavigatePage(
-          Navigate, SalesShipmentHeader."No.", SalesShipmentHeader."Posting Date", PostedSalesShipmentDocumentTypeTxt, Customer.TableCaption,
+          Navigate, SalesShipmentHeader."No.", SalesShipmentHeader."Posting Date", PostedSalesShipmentDocumentTypeTxt, Customer.TableCaption(),
           SalesShipmentHeader."Sell-to Customer No.", 3);  // No. of Line value required on Navigate Page.
     end;
 
@@ -82,7 +82,7 @@ codeunit 137078 "SCM Navigate"
 
         // Verify: Navigate Page from Posted Sales Invoice.
         VerifyNavigatePage(
-          Navigate, SalesInvoiceHeader."No.", SalesInvoiceHeader."Posting Date", PostedSalesInvoiceDocumentTypeTxt, Customer.TableCaption,
+          Navigate, SalesInvoiceHeader."No.", SalesInvoiceHeader."Posting Date", PostedSalesInvoiceDocumentTypeTxt, Customer.TableCaption(),
           SalesInvoiceHeader."Sell-to Customer No.", 6);  // No. of Line value required on Navigate Page.
     end;
 
@@ -108,7 +108,7 @@ codeunit 137078 "SCM Navigate"
 
         // Verify: Navigate Page from Posted Return Receipt.
         VerifyNavigatePage(
-          Navigate, ReturnReceiptHeader."No.", ReturnReceiptHeader."Posting Date", PostedReturnReceiptDocumentTypeTxt, Customer.TableCaption,
+          Navigate, ReturnReceiptHeader."No.", ReturnReceiptHeader."Posting Date", PostedReturnReceiptDocumentTypeTxt, Customer.TableCaption(),
           ReturnReceiptHeader."Sell-to Customer No.", 3);  // No. of Line value required on Navigate Page.
     end;
 
@@ -133,7 +133,7 @@ codeunit 137078 "SCM Navigate"
 
         // Verify: Navigate Page from Posted Sales Credit Memo.
         VerifyNavigatePage(
-          Navigate, SalesCrMemoHeader."No.", SalesCrMemoHeader."Posting Date", PostedSalesCreditMemoDocumentTypeTxt, Customer.TableCaption,
+          Navigate, SalesCrMemoHeader."No.", SalesCrMemoHeader."Posting Date", PostedSalesCreditMemoDocumentTypeTxt, Customer.TableCaption(),
           SalesCrMemoHeader."Sell-to Customer No.", 6);  // No. of Line value required on Navigate Page.
     end;
 
@@ -159,7 +159,7 @@ codeunit 137078 "SCM Navigate"
 
         // Verify: Navigate Page from Posted Purchase Receipt.
         VerifyNavigatePage(
-          Navigate, PurchRcptHeader."No.", PurchRcptHeader."Posting Date", PostedPurchaseReceiptDocumentTypeTxt, Vendor.TableCaption,
+          Navigate, PurchRcptHeader."No.", PurchRcptHeader."Posting Date", PostedPurchaseReceiptDocumentTypeTxt, Vendor.TableCaption(),
           PurchRcptHeader."Buy-from Vendor No.", 3);  // No. of Line value required on Navigate Page.
     end;
 
@@ -184,7 +184,7 @@ codeunit 137078 "SCM Navigate"
 
         // Verify: Navigate Page from Posted Purchase Invoice.
         VerifyNavigatePage(
-          Navigate, PurchInvHeader."No.", PurchInvHeader."Posting Date", PostedPurchaseInvoiceDocumentTypeTxt, Vendor.TableCaption,
+          Navigate, PurchInvHeader."No.", PurchInvHeader."Posting Date", PostedPurchaseInvoiceDocumentTypeTxt, Vendor.TableCaption(),
           PurchInvHeader."Buy-from Vendor No.", 6);  // No. of Line value required on Navigate Page.
     end;
 
@@ -211,7 +211,7 @@ codeunit 137078 "SCM Navigate"
         // Verify: Navigate Page from Posted Return Shipment.
         VerifyNavigatePage(
           Navigate, ReturnShipmentHeader."No.", ReturnShipmentHeader."Posting Date", PostedReturnShipmentDocumentTypeTxt,
-          Vendor.TableCaption, ReturnShipmentHeader."Buy-from Vendor No.", 3);  // No. of Line value required on Navigate Page.
+          Vendor.TableCaption(), ReturnShipmentHeader."Buy-from Vendor No.", 3);  // No. of Line value required on Navigate Page.
     end;
 
     [Test]
@@ -235,7 +235,7 @@ codeunit 137078 "SCM Navigate"
 
         // Verify: Navigate Page from Posted Purchase Credit Memo.
         VerifyNavigatePage(
-          Navigate, PurchCrMemoHdr."No.", PurchCrMemoHdr."Posting Date", PostedPurchaseCreditMemoDocumentTypeTxt, Vendor.TableCaption,
+          Navigate, PurchCrMemoHdr."No.", PurchCrMemoHdr."Posting Date", PostedPurchaseCreditMemoDocumentTypeTxt, Vendor.TableCaption(),
           PurchCrMemoHdr."Buy-from Vendor No.", 6);  // No. of Line value required on Navigate Page.
     end;
 
@@ -268,7 +268,7 @@ codeunit 137078 "SCM Navigate"
         // Verify: Navigate Page from Posted Service Shipment.
         VerifyNavigatePage(
           Navigate, ServiceShipmentHeader."No.", ServiceShipmentHeader."Posting Date", PostedServiceShipmentDocumentTypeTxt,
-          Customer.TableCaption, ServiceShipmentHeader."Customer No.", 4);  // No. of Line value required on Navigate Page.
+          Customer.TableCaption(), ServiceShipmentHeader."Customer No.", 4);  // No. of Line value required on Navigate Page.
 
         // Tear Down.
         UpdateSalesAndReceivablesSetup(OldCreditWarnings);
@@ -303,7 +303,7 @@ codeunit 137078 "SCM Navigate"
         // Verify: Navigate Page from Posted Service Invoice.
         VerifyNavigatePage(
           Navigate, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Posting Date", PostedServiceInvoiceDocumentTypeTxt,
-          Customer.TableCaption, ServiceInvoiceHeader."Customer No.", 7);  // Using 7 as No. of Line on Navigate Page.
+          Customer.TableCaption(), ServiceInvoiceHeader."Customer No.", 7);  // Using 7 as No. of Line on Navigate Page.
 
         // Tear Down.
         UpdateSalesAndReceivablesSetup(OldCreditWarnings);
@@ -335,7 +335,7 @@ codeunit 137078 "SCM Navigate"
         // Verify:  Navigate Page from  Posted Service Credit Memo.
         VerifyNavigatePage(
           Navigate, ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Posting Date", PostedServiceCreditMemoDocumentTypeTxt,
-          Customer.TableCaption, ServiceCrMemoHeader."Customer No.", 8);  // Using 8 as No. of Line on Navigate Page.
+          Customer.TableCaption(), ServiceCrMemoHeader."Customer No.", 8);  // Using 8 as No. of Line on Navigate Page.
     end;
 
     [Test]
@@ -734,7 +734,7 @@ codeunit 137078 "SCM Navigate"
         Navigate.First;
         repeat
             ActualLineCount += 1;
-        until not Navigate.Next;
+        until not Navigate.Next();
         Assert.AreEqual(ExpectedNoOfLines, ActualLineCount, NoOfLinesErr);
     end;
 }

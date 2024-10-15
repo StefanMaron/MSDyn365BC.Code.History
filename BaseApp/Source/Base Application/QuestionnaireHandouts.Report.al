@@ -12,7 +12,7 @@ report 5066 "Questionnaire - Handouts"
         {
             DataItemTableView = SORTING(Code);
             RequestFilterFields = "Code", "Contact Type", "Business Relation Code";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -123,7 +123,7 @@ report 5066 "Questionnaire - Handouts"
 
     trigger OnPreReport()
     begin
-        QuestionnaireFilter := "Profile Questionnaire Header".GetFilters;
+        QuestionnaireFilter := "Profile Questionnaire Header".GetFilters();
     end;
 
     var

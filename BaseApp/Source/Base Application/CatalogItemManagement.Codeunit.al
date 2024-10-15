@@ -6,14 +6,6 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     var
-        Text000: Label 'Item %1 already exists.';
-        Text001: Label 'Item %1 is created.';
-        Text002: Label 'You cannot enter a catalog item on %1.', Comment = '%1=Sales Line document type';
-        Text003: Label 'Creating item card for catalog item\';
-        Text004: Label 'Manufacturer Code    #1####\';
-        Text005: Label 'Vendor               #2##################\';
-        Text006: Label 'Vendor Item          #3##################\';
-        Text007: Label 'Item No.             #4##################';
         NewItem: Record Item;
         ItemLedgEntry: Record "Item Ledger Entry";
         NonStock: Record "Nonstock Item";
@@ -25,6 +17,15 @@ codeunit 5703 "Catalog Item Management"
         ProdBOMLine: Record "Production BOM Line";
         ProdBOMHeader: Record "Production BOM Header";
         ProgWindow: Dialog;
+
+        Text000: Label 'Item %1 already exists.';
+        Text001: Label 'Item %1 is created.';
+        Text002: Label 'You cannot enter a catalog item on %1.', Comment = '%1=Sales Line document type';
+        Text003: Label 'Creating item card for catalog item\';
+        Text004: Label 'Manufacturer Code    #1####\';
+        Text005: Label 'Vendor               #2##################\';
+        Text006: Label 'Vendor Item          #3##################\';
+        Text007: Label 'Item No.             #4##################';
 
     procedure NonstockAutoItem(NonStock2: Record "Nonstock Item")
     var
@@ -367,7 +368,7 @@ codeunit 5703 "Catalog Item Management"
         LicensePermission.SetRange("Object Type", LicensePermission."Object Type"::TableData);
         LicensePermission.SetRange("Object Number", TableID);
         LicensePermission.SetFilter("Insert Permission", '<>%1', LicensePermission."Insert Permission"::" ");
-        exit(LicensePermission.FindFirst);
+        exit(LicensePermission.FindFirst());
     end;
 
     local procedure DelNonStockItem(var Item: Record Item)
@@ -589,7 +590,7 @@ codeunit 5703 "Catalog Item Management"
         end;
     end;
 
-    local procedure CheckItemTemplateCode(NonstockItem: Record "Nonstock Item")
+    procedure CheckItemTemplateCode(NonstockItem: Record "Nonstock Item")
     var
         IsHandled: Boolean;
     begin
@@ -670,14 +671,6 @@ codeunit 5703 "Catalog Item Management"
     procedure OnBeforeCheckItemAlreadyExists(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Event will be removed with other functionality related to "old" templates. Replaced by OnAfterInitItemFromTemplate()', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateNewItem(var Item: Record Item; ItemTemplate: Record "Item Template"; NonstockItem: Record "Nonstock Item")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDelNonStockItem(var Item: Record Item; var IsHandled: Boolean)

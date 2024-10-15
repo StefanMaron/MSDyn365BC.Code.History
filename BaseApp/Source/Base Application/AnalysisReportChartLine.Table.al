@@ -88,7 +88,7 @@ table 771 "Analysis Report Chart Line"
                 BusinessChartBuffer: Record "Business Chart Buffer";
                 ActualNumMeasures: Integer;
             begin
-                if ("Chart Type" <> "Chart Type"::" ") and IsMeasure then begin
+                if ("Chart Type" <> "Chart Type"::" ") and IsMeasure() then begin
                     AnalysisReportChartSetup.Get("User ID", "Analysis Area", Name);
                     AnalysisReportChartSetup.SetLinkToMeasureLines(AnalysisReportChartLine);
                     AnalysisReportChartLine.SetFilter("Chart Type", '<>%1', AnalysisReportChartLine."Chart Type"::" ");
@@ -100,8 +100,8 @@ table 771 "Analysis Report Chart Line"
                             then
                                 ActualNumMeasures += 1;
                         until AnalysisReportChartLine.Next() = 0;
-                    if ActualNumMeasures >= BusinessChartBuffer.GetMaxNumberOfMeasures then
-                        BusinessChartBuffer.RaiseErrorMaxNumberOfMeasuresExceeded;
+                    if ActualNumMeasures >= BusinessChartBuffer.GetMaxNumberOfMeasures() then
+                        BusinessChartBuffer.RaiseErrorMaxNumberOfMeasuresExceeded();
                 end;
             end;
         }

@@ -49,7 +49,6 @@ codeunit 137072 "SCM Production Orders II"
         StartingDateMessage: Label 'Starting Date must be less or equal.';
         EndingDateMessage: Label 'Ending Date must be greater or equal.';
         TrackingMessage: Label 'The change will not affect existing entries';
-        NewWorksheetMessage: Label 'You are now in worksheet';
         RequisitionLineMustNotExist: Label 'Requisition Line must not exist for Item %1.';
         ItemFilter: Label '%1|%2';
         DeleteItemTrackingQst: Label 'has item reservation. Do you want to delete it anyway?';
@@ -180,7 +179,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // Verify: Verify that Production Order Status is successfully changed to Finished. Verify the Item Ledger Entry for Output and Tracking.
-        VerifyProductionOrder(ProductionOrder, ProductionOrder.Status::Finished, ProductionOrder.Quantity, WorkDate);
+        VerifyProductionOrder(ProductionOrder, ProductionOrder.Status::Finished, ProductionOrder.Quantity, WorkDate());
         VerifyItemLedgerEntry(ItemJournalLine."Entry Type"::Output, Item2."No.", Quantity, true);
     end;
 
@@ -644,7 +643,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // Verify: Verify the Status successfully changed to Finished.
-        VerifyProductionOrder(ProductionOrder, ProductionOrder.Status::Finished, ProductionOrder.Quantity, WorkDate);
+        VerifyProductionOrder(ProductionOrder, ProductionOrder.Status::Finished, ProductionOrder.Quantity, WorkDate());
         ProductionOrder.TestField("Location Code", LocationRed.Code);
     end;
 
@@ -939,7 +938,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandDec(100, 2));
 
         // Calculate Regenerative Plan on WORKDATE.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Exercise: Accept and Carry Out Action Message.
         AcceptAndCarryOutActionMessage(Item."No.");
@@ -969,7 +968,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandDec(100, 2));
 
         // Calculate Regenerative Plan on WORKDATE.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Exercise: Accept and Carry Out Action Message.
         AcceptAndCarryOutActionMessage(Item."No.");
@@ -1089,7 +1088,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", Quantity);
 
         // Exercise: Calculate Regenerative Plan on WORKDATE.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         FindRequisitionLine(RequisitionLine, Item."No.");
         if UpdateRequisitionLine then begin
             // Update Quantity On Requisition Line and refresh the Planning Line.
@@ -1121,7 +1120,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", Quantity);
 
         // Calculate Regenerative Plan on WORKDATE.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Exercise: Accept and Carry Out Action Message.
         AcceptAndCarryOutActionMessage(Item."No.");
@@ -1149,7 +1148,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateAndReleaseSalesOrder(SalesHeader, Item."No.", Quantity);
 
         // Exercise: Calculate Regenerative Plan on WORKDATE.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // Verify: Verify Reservation Entry for the Item after Calculate Plan.
         VerifyReservationEntry(Item."No.", Quantity, ReservationEntry."Reservation Status"::Tracking, false, true);  // Positive Reservation Entry TRUE.
@@ -1416,7 +1415,6 @@ codeunit 137072 "SCM Production Orders II"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseLineAfterCalcPlanReqWkshWithLocationAndSKUMaximumQuantityItem()
     begin
@@ -1826,7 +1824,7 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderLine.TestField("Planning Level Code", 1);
 
         // [THEN] Planning Level Code of component "J2" is equal to 1.
-        ProdOrderComponent.Find;
+        ProdOrderComponent.Find();
         ProdOrderComponent.TestField("Planning Level Code", 1);
 
         // [THEN] No additional production order is created for "J2".
@@ -1939,7 +1937,7 @@ codeunit 137072 "SCM Production Orders II"
         CalculateStandardCost.CalcItem(ParentItem."No.", false);
 
         // [THEN] "PI"."Standard Cost" = (1 + 5 / 100) * (1 + 10 / 100) + 20 / 50 = 1.555
-        ParentItem.Find;
+        ParentItem.Find();
         AssertNearlyEqual(
           (1 + ParentItemScrapPercent / 100) * (1 + ProductionBOMScrapPercent / 100) + FixedScrapQuantity / LotSize,
           ParentItem."Standard Cost", StrSubstNo(IncorrectValueErr, ParentItem.TableName, ParentItem.FieldName("Standard Cost")));
@@ -2033,7 +2031,7 @@ codeunit 137072 "SCM Production Orders II"
         LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
-        RequisitionLine.Validate("Starting Date", WorkDate);
+        RequisitionLine.Validate("Starting Date", WorkDate());
         RequisitionLine.Validate("No.", ParentItem."No.");
         RequisitionLine.Validate(Quantity, Qty);
         RequisitionLine.Modify(true);
@@ -2101,7 +2099,7 @@ codeunit 137072 "SCM Production Orders II"
         CalculateStandardCost.CalcItem(ProdItem."No.", false);
 
         // [THEN] Standard cost is (20 + 7) * 3 * 4 * 10 / 20 = 162
-        ProdItem.Find;
+        ProdItem.Find();
         AssertNearlyEqual(
           (LotSize + FixedScrapQty) * QtyPerUoM * QtyPerBOMLine * ChildItem."Unit Cost" / LotSize,
           ProdItem."Standard Cost",
@@ -2135,7 +2133,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [WHEN] Calculate regenerative plan in planning worksheet for items "I2" and "I3".
         Item.SetFilter("No.", '%1|%2', ItemNo[2], ItemNo[3]);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] Bin Code on the requisition line for parent item "I3" is equal to "B3".
         FindRequisitionLine(RequisitionLine, ItemNo[3]);
@@ -2175,7 +2173,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [GIVEN] Regenerative plan in planning worksheet is calculated for items "I2" and "I3".
         Item.SetFilter("No.", '%1|%2', ItemNo[2], ItemNo[3]);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [WHEN] Carry out action message - create a production order.
         AcceptActionMessage(RequisitionLine, ItemNo[2]);
@@ -2238,7 +2236,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [GIVEN] Calculate Regenerative Plan for the Parent item and its components (Child and Grandchild items).
         Item.SetFilter("No.", '%1|%2|%3', ItemNo[1], ItemNo[2], ItemNo[3]);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [GIVEN] Accept and Carry Out Action Message. 'Firm Planned Prod. Order' is created as a result.
         AcceptAndCarryOutActionMessage(ItemNo[3]);
@@ -2306,7 +2304,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [WHEN] Change "O" Status from Released to Finished
         LibraryVariableStorage.Enqueue(ConfirmStatusFinishTxt);
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), false);
 
         // [THEN] Production Order with Status = Finished and "No." = "O"."No." exists
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
@@ -2378,7 +2376,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [GIVEN] Change "O" Status from Released to Finished
         LibraryVariableStorage.Enqueue(ConfirmStatusFinishTxt);
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate(), false);
 
         // [WHEN] Adjust cost item entries
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', Item[1]."No.", Item[2]."No."), '');
@@ -2711,7 +2709,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // [THEN] No "Date conflict during reservation..." error message is thrown.
         // [THEN] "Shipment Date" on reservation entries between output of semi-production item and its consumption are moved 10 days forward.
-        ProdOrderLine.Find;
+        ProdOrderLine.Find();
         ReservationEntry.SetSourceFilter(
           DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", 0, false);
         ReservationEntry.SetSourceFilter('', ProdOrderLine."Line No.");
@@ -2763,7 +2761,7 @@ codeunit 137072 "SCM Production Orders II"
         // [GIVEN] Released Transfer Order from RED to BLUE with 100 PCS of Item X and Shipment Date = 21/1/2020
         CreateTransferOrderWithQtyAndShipmentDate(
           TransferHeader, TransferLine, FromLocation.Code, ToLocation.Code, InTransitLocation.Code, ChildItem."No.",
-          ProductionOrder.Quantity, CalcDate('<-1W>', WorkDate));
+          ProductionOrder.Quantity, CalcDate('<-1W>', WorkDate()));
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
 
         // [WHEN] Auto-reserve Inbound Transfer for the Prod. Order Component (done in ReservationHandler and AllLevelsStrMenuHandler)
@@ -2774,8 +2772,8 @@ codeunit 137072 "SCM Production Orders II"
         Assert.RecordCount(ReservationEntry, 2);
         ReservationEntry.FindSet();
         repeat
-            ReservationEntry.TestField("Shipment Date", CalcDate('<-1D>', WorkDate))
-        until ReservationEntry.Next = 0;
+            ReservationEntry.TestField("Shipment Date", CalcDate('<-1D>', WorkDate()))
+        until ReservationEntry.Next() = 0;
     end;
 
     [Test]
@@ -4273,7 +4271,7 @@ codeunit 137072 "SCM Production Orders II"
         SelectItemJournalLine(ItemJournalLine, RevaluationItemJournalTemplate.Name, RevaluationItemJournalBatch.Name);
         Item.SetRange("No.", Item."No.");
         LibraryCosting.CalculateInventoryValue(
-          ItemJournalLine, Item, WorkDate, ItemJournalLine."Journal Batch Name" + Format(ItemJournalLine."Line No."),
+          ItemJournalLine, Item, WorkDate(), ItemJournalLine."Journal Batch Name" + Format(ItemJournalLine."Line No."),
           CalculatePer::"Item Ledger Entry", false, false, false, CalcBase::" ", false);
     end;
 
@@ -4343,7 +4341,7 @@ codeunit 137072 "SCM Production Orders II"
         FindProductionOrderComponent(ProdOrderComponent, ProductionOrderNo);
         repeat
             TotalRemainingQuantity += ProdOrderComponent."Remaining Quantity";
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure CreateProdBOMSetupMultipleComponents(var Item: Record Item; var Item2: Record Item; var Item3: Record Item)
@@ -4380,7 +4378,7 @@ codeunit 137072 "SCM Production Orders II"
 
         // Calculate Regenerative Plan on WORKDATE. Accept and Carry Out Action Message.
         Item.Get(ItemNo);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         AcceptAndCarryOutActionMessage(ItemNo);
     end;
 
@@ -4451,8 +4449,7 @@ codeunit 137072 "SCM Production Orders II"
         RequisitionLine: Record "Requisition Line";
     begin
         AcceptActionMessage(RequisitionLine, ItemNo);
-        LibraryVariableStorage.Enqueue(NewWorksheetMessage);  // Required inside MessageHandler.
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure CalculatePlanForRequisitionWorksheet(var Item: Record Item)
@@ -4461,7 +4458,7 @@ codeunit 137072 "SCM Production Orders II"
     begin
         CreateRequisitionWorksheetName(RequisitionWkshName, RequisitionWkshName."Template Type"::"Req.");
         LibraryPlanning.CalculatePlanForReqWksh(
-          Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate, WorkDate);
+          Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate(), WorkDate());
     end;
 
     local procedure CreateManufacturingItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReplenishmentSystem: Enum "Replenishment System")
@@ -4830,8 +4827,8 @@ codeunit 137072 "SCM Production Orders II"
             WarehouseActivityLine.Validate(Quantity, Quantity);
             WarehouseActivityLine.Validate("Lot No.", ItemLedgerEntry."Lot No.");
             WarehouseActivityLine.Modify(true);
-            ItemLedgerEntry.Next;
-        until WarehouseActivityLine.Next = 0;
+            ItemLedgerEntry.Next();
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateLocationSetup(var Location: Record Location; NewAlwaysCreatePickLine: Boolean) AlwaysCreatePickLine: Boolean
@@ -4934,7 +4931,7 @@ codeunit 137072 "SCM Production Orders II"
     var
         Vendor: Record Vendor;
     begin
-        Item.Find;  // Used to avoid the Transaction error.
+        Item.Find();  // Used to avoid the Transaction error.
         LibraryPurchase.CreateVendor(Vendor);
         Item.Validate("Vendor No.", Vendor."No.");
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
@@ -5039,7 +5036,7 @@ codeunit 137072 "SCM Production Orders II"
             ItemLedgerEntry.TestField(Quantity, Quantity);
             if Tracking then
                 ItemLedgerEntry.TestField("Lot No.");
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyProductionOrder(ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; Quantity: Decimal; DueDate: Date)
@@ -5068,7 +5065,7 @@ codeunit 137072 "SCM Production Orders II"
         repeat
             WarehouseActivityLine.TestField("Item No.", ItemNo);
             WarehouseActivityLine.TestField(Quantity, Quantity);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyPostedInventoryPickLine(SourceNo: Code[20]; ItemNo: Code[20]; BinCode: Code[20]; Quantity: Decimal; LocationCode: Code[10])
@@ -5142,7 +5139,7 @@ codeunit 137072 "SCM Production Orders II"
         repeat
             ProdOrderCapacityNeed.TestField("Routing No.", ProductionOrder."Routing No.");
             ProdOrderCapacityNeed.TestField("Work Center No.", ProdOrderRoutingLine."Work Center No.");
-        until ProdOrderCapacityNeed.Next = 0;
+        until ProdOrderCapacityNeed.Next() = 0;
     end;
 
     local procedure VerifyOutputOnCapLedgerEntries(ProdOrderNo: Code[20]; OperationNo: Code[10]; ExpectedOutputQty: Decimal)
@@ -5185,7 +5182,7 @@ codeunit 137072 "SCM Production Orders II"
             ReservationEntry.TestField("Reservation Status", ReservationStatus);
             if Tracking then
                 ReservationEntry.TestField("Lot No.");
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     local procedure VerifyLocationAndQuantityOnPurchaseLine(No: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -5308,8 +5305,8 @@ codeunit 137072 "SCM Production Orders II"
         LibraryVariableStorage.Dequeue(ItemNo2);
         CalculatePlanPlanWksh.Item.SetFilter("No.", StrSubstNo(ItemFilter, ItemNo, ItemNo2));
         CalculatePlanPlanWksh.MRP.SetValue(true);  // Use MRP True.
-        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate);
-        CalculatePlanPlanWksh.EndingDate.SetValue(WorkDate);
+        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
+        CalculatePlanPlanWksh.EndingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.OK.Invoke;
     end;
 

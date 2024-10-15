@@ -8,7 +8,7 @@ codeunit 5065 "Email Logging Context Adapter"
         EmailLoggingDispatcher: Codeunit "Email Logging Dispatcher";
     begin
         if not EmailLoggingDispatcher.Run(Rec) then
-            Error(Text001, EmailLoggingDispatcher.GetErrorContext, GetLastErrorText);
+            Error(Text001, EmailLoggingDispatcher.GetErrorContext(), GetLastErrorText);
     end;
 
     var

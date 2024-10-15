@@ -12,7 +12,7 @@ page 1873 "Item Availability Check Det."
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;

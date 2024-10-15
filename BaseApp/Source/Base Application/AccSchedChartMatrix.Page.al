@@ -172,9 +172,6 @@ page 764 "Acc. Sched. Chart Matrix"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select All';
                 Image = AllLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Select all lines.';
 
                 trigger OnAction()
@@ -192,9 +189,6 @@ page 764 "Acc. Sched. Chart Matrix"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Deselect All';
                 Image = CancelAllLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Unselect all lines.';
 
                 trigger OnAction()
@@ -208,6 +202,20 @@ page 764 "Acc. Sched. Chart Matrix"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
+                actionref(ShowNone_Promoted; ShowNone)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -217,13 +225,13 @@ page 764 "Acc. Sched. Chart Matrix"
         if AccSchedLine.Get("Account Schedule Name", "Account Schedule Line No.") then begin
             AccSchedLineRowNo := AccSchedLine."Row No.";
             AccSchedLineDescription := AccSchedLine.Description;
-            GetChartTypes;
+            GetChartTypes();
         end;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(FindSet);
+        exit(FindSet());
     end;
 
     var
@@ -237,7 +245,7 @@ page 764 "Acc. Sched. Chart Matrix"
 
     procedure SetFilters(AccountSchedulesChartSetup: Record "Account Schedules Chart Setup")
     begin
-        Reset;
+        Reset();
 
         AccountSchedulesChartSetup.SetLinkToLines(Rec);
         case AccountSchedulesChartSetup."Base X-Axis on" of
@@ -283,21 +291,19 @@ page 764 "Acc. Sched. Chart Matrix"
         AccountSchedulesChartSetup.Get("User ID", Name);
         case AccountSchedulesChartSetup."Base X-Axis on" of
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
-                for i := 1 to MaxColumns do begin
+                for i := 1 to MaxColumns do
                     if AccSchedChartSetupLine.Get("User ID", Name, "Account Schedule Line No.", ColumnLineNos[i]) then
                         ChartType[i] := AccSchedChartSetupLine."Chart Type".AsInteger();
-                end;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
                 begin
                     AccSchedChartSetupLine.Get("User ID", Name, "Account Schedule Line No.", 0);
                     if AccSchedChartSetupLine."Chart Type" <> AccSchedChartSetupLine."Chart Type"::" " then
-                        for i := 1 to MaxColumns do begin
+                        for i := 1 to MaxColumns do
                             if AccSchedChartSetupLine2.Get("User ID", Name, 0, ColumnLineNos[i]) then
                                 ChartType[i] := AccSchedChartSetupLine2."Chart Type".AsInteger()
-                        end
-                    else
-                        for i := 1 to MaxColumns do
-                            ChartType[i] := AccSchedChartSetupLine2."Chart Type"::" ".AsInteger();
+                            else
+                                for i := 1 to MaxColumns do
+                                    ChartType[i] := AccSchedChartSetupLine2."Chart Type"::" ".AsInteger();
                 end;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
                 begin
@@ -333,7 +339,7 @@ page 764 "Acc. Sched. Chart Matrix"
                 AccSchedChartSetupLine.Get("User ID", Name, "Account Schedule Line No.", 0);
         end;
         AccSchedChartSetupLine.Validate("Chart Type", ChartType[ColumnNo]);
-        AccSchedChartSetupLine.Modify;
+        AccSchedChartSetupLine.Modify();
         CurrPage.Update();
     end;
 }

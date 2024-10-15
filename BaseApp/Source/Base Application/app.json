@@ -3,7 +3,7 @@
     "name":  "Base Application",
     "publisher":  "Microsoft",
     "description":  "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://docs.microsoft.com/en-us/dynamics365/business-central/across-business-functionality",
-    "version":  "20.5.45456.45889",
+    "version":  "21.0.46256.46853",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -14,7 +14,7 @@
                              "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "20.5.0.0"
+                             "version":  "21.0.0.0"
                          }
                      ],
     "internalsVisibleTo":  [
@@ -64,6 +64,11 @@
                                    "publisher":  "Microsoft"
                                },
                                {
+                                   "id":  "9bf23d52-8194-4857-8896-5e48b24493f6",
+                                   "name":  "Tests-Job",
+                                   "publisher":  "Microsoft"
+                               },
+                               {
                                    "id":  "155bc500-e420-4113-803e-7aa8e8eea112",
                                    "name":  "Tests-CRM integration",
                                    "publisher":  "Microsoft"
@@ -89,7 +94,7 @@
                                    "publisher":  "Microsoft"
                                }
                            ],
-    "platform":  "20.0.0.0",
+    "platform":  "21.0.0.0",
     "target":  "OnPrem",
     "resourceExposurePolicy":  {
                                    "allowDebugging":  true,

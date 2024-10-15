@@ -114,7 +114,7 @@ page 1120 "Cost Type Balance/Budget"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the name of the cost type.';
                 }
-                field("Net Change"; "Net Change")
+                field("Net Change"; Rec."Net Change")
                 {
                     ApplicationArea = CostAccounting;
                     BlankZero = true;
@@ -122,7 +122,7 @@ page 1120 "Cost Type Balance/Budget"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = CostAccounting;
                     BlankNumbers = BlankNegAndZero;
@@ -131,7 +131,7 @@ page 1120 "Cost Type Balance/Budget"
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = CostAccounting;
                     BlankNumbers = BlankNegAndZero;
@@ -140,7 +140,7 @@ page 1120 "Cost Type Balance/Budget"
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("Budget Amount"; "Budget Amount")
+                field("Budget Amount"; Rec."Budget Amount")
                 {
                     ApplicationArea = CostAccounting;
                     BlankZero = true;
@@ -150,7 +150,7 @@ page 1120 "Cost Type Balance/Budget"
 
                     trigger OnValidate()
                     begin
-                        CalcFormFields;
+                        CalcFormFields();
                     end;
                 }
                 field(BudgetPct; BudgetPct)
@@ -206,7 +206,6 @@ page 1120 "Cost Type Balance/Budget"
                     ApplicationArea = CostAccounting;
                     Caption = 'Cost E&ntries';
                     Image = CostEntries;
-                    Promoted = false;
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = Process;
                     RunObject = Page "Cost Entries";
@@ -225,8 +224,6 @@ page 1120 "Cost Type Balance/Budget"
                 ApplicationArea = CostAccounting;
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -239,8 +236,6 @@ page 1120 "Cost Type Balance/Budget"
                 ApplicationArea = CostAccounting;
                 Caption = 'Next Period';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
 
                 trigger OnAction()
@@ -263,12 +258,26 @@ page 1120 "Cost Type Balance/Budget"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PreviousPeriod_Promoted; PreviousPeriod)
+                {
+                }
+                actionref(NextPeriod_Promoted; NextPeriod)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        CalcFormFields;
+        CalcFormFields();
         NameIndent := Indentation;
         Emphasize := Type <> Type::"Cost Type";
     end;

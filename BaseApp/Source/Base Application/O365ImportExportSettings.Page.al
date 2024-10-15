@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2134 "O365 Import Export Settings"
 {
     Caption = 'Export and Synchronization';
@@ -9,6 +10,9 @@ page 2134 "O365 Import Export Settings"
     RefreshOnActivate = true;
     SourceTable = "O365 Settings Menu";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,11 +23,11 @@ page 2134 "O365 Import Export Settings"
                 ShowCaption = false;
                 field(Title; Title)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the import export setting.';
                 }
             }
@@ -36,7 +40,7 @@ page 2134 "O365 Import Export Settings"
         {
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -45,7 +49,7 @@ page 2134 "O365 Import Export Settings"
 
                 trigger OnAction()
                 begin
-                    OpenPage;
+                    OpenPage();
                 end;
             }
         }
@@ -53,7 +57,7 @@ page 2134 "O365 Import Export Settings"
 
     trigger OnOpenPage()
     begin
-        InsertMenuItems;
+        InsertMenuItems();
     end;
 
     var
@@ -73,7 +77,7 @@ page 2134 "O365 Import Export Settings"
         InsertPageMenuItem(PAGE::"O365 Export Invoices", ExportTitleLbl, ExportDescriptionLbl);
         OnInsertMenuItems(Rec);
 
-        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone then begin
+        if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone then begin
             InsertPageWithParameterMenuItem(
               PAGE::"O365 Import from Excel Wizard",
               DummyCustomer.TableName,
@@ -92,4 +96,4 @@ page 2134 "O365 Import Export Settings"
     begin
     end;
 }
-
+#endif

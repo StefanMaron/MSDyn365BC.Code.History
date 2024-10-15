@@ -1,11 +1,15 @@
+#if not CLEAN21
 codeunit 2162 "O365 Sales Invoice Events"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
     Permissions = TableData "Calendar Event" = rimd;
     TableNo = "Calendar Event";
 
     trigger OnRun()
     begin
-        if not IsInvoicing then begin
+        if not IsInvoicing() then begin
             Result := NotInvoicingErr;
             State := State::Failed;
             exit;
@@ -38,26 +42,26 @@ codeunit 2162 "O365 Sales Invoice Events"
             O365SalesEvent.Type::"Invoice Sent":
                 begin
                     O365SalesWebService.SendInvoiceCreatedEvent(O365SalesEvent."Document No.");
-                    O365SalesWebService.SendKPI;
+                    O365SalesWebService.SendKPI();
                 end;
             O365SalesEvent.Type::"Invoice Email Failed":
                 O365SalesWebService.SendInvoiceEmailFailedEvent(O365SalesEvent."Document No.");
             O365SalesEvent.Type::"Invoice Paid":
                 begin
                     O365SalesWebService.SendInvoicePaidEvent(O365SalesEvent."Document No.");
-                    O365SalesWebService.SendKPI;
+                    O365SalesWebService.SendKPI();
                 end;
             O365SalesEvent.Type::"Draft Reminder":
-                O365SalesWebService.SendInvoiceDraftEvent;
+                O365SalesWebService.SendInvoiceDraftEvent();
             O365SalesEvent.Type::"Invoice Overdue":
                 begin
                     O365SalesWebService.SendInvoiceOverdueEvent(O365SalesEvent."Document No.");
-                    O365SalesWebService.SendKPI;
+                    O365SalesWebService.SendKPI();
                 end;
             O365SalesEvent.Type::"Invoicing Inactivity":
-                O365SalesWebService.SendInvoiceInactivityEvent;
+                O365SalesWebService.SendInvoiceInactivityEvent();
             O365SalesEvent.Type::"KPI Update":
-                O365SalesWebService.SendKPI;
+                O365SalesWebService.SendKPI();
             else
                 Error(UnsupportedTypeErr);
         end;
@@ -73,7 +77,7 @@ codeunit 2162 "O365 Sales Invoice Events"
         NewDate: Date;
         EventNo: Integer;
     begin
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         NewDate := CalcDate(StrSubstNo('<%1D>', O365C2GraphEventSettings."Inv. Draft Duration (Day)"), Today);
@@ -112,7 +116,7 @@ codeunit 2162 "O365 Sales Invoice Events"
         NewDate: Date;
         EventNo: Integer;
     begin
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         NewDate := CalcDate(StrSubstNo('<%1D>', O365C2GraphEventSettings."Inv. Inactivity Duration (Day)"), Today);
@@ -232,7 +236,7 @@ codeunit 2162 "O365 Sales Invoice Events"
         if not (O365SalesEvent.ReadPermission and O365SalesEvent.WritePermission) then
             exit(false);
 
-        if not O365SalesInitialSetup.Get then
+        if not O365SalesInitialSetup.Get() then
             exit(false);
 
         exit(O365SalesInitialSetup."Is initialized");
@@ -241,11 +245,11 @@ codeunit 2162 "O365 Sales Invoice Events"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
     local procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
     begin
-        if not IsInvoicing then
+        if not IsInvoicing() then
             exit;
 
         if not IsInvoice(SalesHeader) then begin
-            CreateKpiEvent;
+            CreateKpiEvent();
             exit;
         end;
 
@@ -255,8 +259,8 @@ codeunit 2162 "O365 Sales Invoice Events"
         // Queue/update Events
         CreateSendEvent(SalesInvHdrNo);
         CreateOverdueEvent(SalesInvHdrNo, SalesHeader."Due Date");
-        UpdateDraftEvent;
-        UpdateInactivityEvent;
+        UpdateDraftEvent();
+        UpdateInactivityEvent();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Detailed Cust. Ledg. Entry", 'OnAfterInsertEvent', '', false, false)]
@@ -275,7 +279,7 @@ codeunit 2162 "O365 Sales Invoice Events"
         if Rec."Document Type" <> Rec."Document Type"::Payment then
             exit;
 
-        if not IsInvoicing then
+        if not IsInvoicing() then
             exit;
 
         SalesInvoiceHeader.SetAutoCalcFields(Cancelled, Closed, Corrective, "Remaining Amount");
@@ -288,7 +292,7 @@ codeunit 2162 "O365 Sales Invoice Events"
 
         // Verify paid
         if SalesInvoiceHeader."Remaining Amount" > 0 then begin
-            CreateKpiEvent;
+            CreateKpiEvent();
             exit;
         end;
 
@@ -331,11 +335,11 @@ codeunit 2162 "O365 Sales Invoice Events"
         if not IsInvoice(Rec) then
             exit;
 
-        if not IsInvoicing then
+        if not IsInvoicing() then
             exit;
 
-        UpdateDraftEvent;
-        UpdateInactivityEvent;
+        UpdateDraftEvent();
+        UpdateInactivityEvent();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
@@ -344,10 +348,10 @@ codeunit 2162 "O365 Sales Invoice Events"
         if not IsInvoice(Rec) then
             exit;
 
-        if not IsInvoicing then
+        if not IsInvoicing() then
             exit;
 
-        UpdateDraftEvent;
+        UpdateDraftEvent();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"O365 Document Sent History", 'OnBeforeModifyEvent', '', false, false)]
@@ -374,7 +378,7 @@ codeunit 2162 "O365 Sales Invoice Events"
         if O365DocumentSentHistory.IsTemporary then
             exit;
 
-        if not IsInvoicing then
+        if not IsInvoicing() then
             exit;
 
         // If the record existed and had already failed, then don't spam events
@@ -421,4 +425,5 @@ codeunit 2162 "O365 Sales Invoice Events"
     begin
     end;
 }
+#endif
 

@@ -8,7 +8,7 @@ page 1611 "Office Customer Details"
     {
         area(content)
         {
-            field("Balance (LCY)"; "Balance (LCY)")
+            field("Balance (LCY)"; Rec."Balance (LCY)")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the payment amount that the customer owes for completed sales. This value is also known as the customer''s balance.';
@@ -26,13 +26,13 @@ page 1611 "Office Customer Details"
                 StyleExpr = PastDue > 0;
                 ToolTip = 'Specifies the amount of the customer''s balance that is overdue for payment.';
             }
-            field("LTD Sales"; GetTotalSales)
+            field("LTD Sales"; GetTotalSales())
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'LTD Sales';
                 ToolTip = 'Specifies the total life-to-date sales for the customer.';
             }
-            field("YTD Sales"; GetYTDSales)
+            field("YTD Sales"; GetYTDSales())
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'YTD Sales';
@@ -48,7 +48,7 @@ page 1611 "Office Customer Details"
 
     trigger OnAfterGetRecord()
     begin
-        PastDue := CalcOverdueBalance;
+        PastDue := CalcOverdueBalance();
     end;
 
     var

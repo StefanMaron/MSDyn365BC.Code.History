@@ -59,7 +59,7 @@ codeunit 137019 "SCM Correct Invoice"
         CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeaderCorrection);
 
         // VERIFY: The correction must use Exact Cost reversing
-        LastItemLedgEntry.Find;
+        LastItemLedgEntry.Find();
         Assert.AreEqual(
           0, LastItemLedgEntry."Shipped Qty. Not Returned",
           'The quantity on the shipment item ledger should appear as returned');
@@ -139,7 +139,7 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryCosting.AdjustCostItemEntries('', '');
 
         InvtPeriod.Init();
-        InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
+        InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate());
         InvtPeriod.Closed := true;
         InvtPeriod.Insert();
         Commit();
@@ -620,7 +620,7 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryUtility.CreateNoSeries(RelatedNoSeries, true, false, false);
         LibraryUtility.CreateNoSeriesLine(RelatedNoSeriesLine, RelatedNoSeries.Code, '', '');
         LibraryVariableStorage.Enqueue(RelatedNoSeries.Code);
-        ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(RelatedNoSeries.Code, WorkDate);
+        ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(RelatedNoSeries.Code, WorkDate());
 
         // [GIVEN] No. Series "X" with "Default Nos" = No and related No. series "Y". Next "No." in no. series is "X1"
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
@@ -629,7 +629,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [GIVEN] "Credit Memo Nos." in Sales Setup is "X"
         SetCreditMemoNosInSalesSetup(NoSeries.Code);
 
-        // [WHEN] Create Corrective Credit Memo for Sales Invoice "A" and specify "No. Series" = "Y" from "No. Series List" page
+        // [WHEN] Create Corrective Credit Memo for Sales Invoice "A" and specify "No. Series" = "Y" from "No. Series" page
         // No. Series selection handles by NoSeriesListModalPageHandler
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvHeader, SalesHeader);
 
@@ -659,7 +659,7 @@ codeunit 137019 "SCM Correct Invoice"
 
         // [GIVEN] Next no. in no. series "Credit Memo Nos." of Sales Setup is "X1"
         SalesReceivablesSetup.Get();
-        ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(SalesReceivablesSetup."Credit Memo Nos.", WorkDate);
+        ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(SalesReceivablesSetup."Credit Memo Nos.", WorkDate());
 
         // [WHEN] Create Corrective Credit Memo for Sales Invoice "A"
         CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvHeader, SalesHeader);
@@ -725,7 +725,7 @@ codeunit 137019 "SCM Correct Invoice"
         // [GIVEN] "Credit Memo Nos." in Sales Setup is "X"
         SetCreditMemoNosInSalesSetup(NoSeries.Code);
 
-        // [WHEN] Create Corrective Credit Memo for Sales Invoice "A" and do not specify any no. series from "No. Series List" page
+        // [WHEN] Create Corrective Credit Memo for Sales Invoice "A" and do not specify any no. series from "No. Series" page
         // No. Series selection cancellation handles by NoSeriesListSelectNothingModalPageHandler
         asserterror CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvHeader, SalesHeader);
 
@@ -1161,7 +1161,7 @@ codeunit 137019 "SCM Correct Invoice"
         InvNo: Code[20];
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             Validate("Document Type", "Document Type"::"Credit Memo");
             Insert(true);
         end;
@@ -1255,7 +1255,7 @@ codeunit 137019 "SCM Correct Invoice"
         repeat
             TotalQty += ValueEntry."Item Ledger Entry Quantity";
             TotalCost += ValueEntry."Cost Amount (Actual)";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
         Assert.AreEqual(0, TotalQty, '');
         Assert.AreEqual(0, TotalCost, '');
 
@@ -1269,7 +1269,7 @@ codeunit 137019 "SCM Correct Invoice"
         repeat
             TotalDebit += GLEntry."Credit Amount";
             TotalCredit += GLEntry."Debit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         Assert.AreEqual(TotalDebit, TotalCredit, '');
     end;
@@ -1278,7 +1278,7 @@ codeunit 137019 "SCM Correct Invoice"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Assert.IsTrue(LastGLEntry.Next = 0, 'No new G/L entries are created');
+        Assert.IsTrue(LastGLEntry.Next() = 0, 'No new G/L entries are created');
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("Bill-to Customer No.", Cust."No.");
         Assert.IsTrue(SalesHeader.IsEmpty, 'The Credit Memo should not have been created');
@@ -1312,7 +1312,7 @@ codeunit 137019 "SCM Correct Invoice"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series List")
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
         NoSeriesList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         NoSeriesList.OK.Invoke;

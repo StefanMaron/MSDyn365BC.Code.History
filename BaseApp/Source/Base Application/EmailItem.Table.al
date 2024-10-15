@@ -225,7 +225,9 @@ table 9500 "Email Item"
     }
 
     var
+#if not CLEAN21
         O365EmailSetup: Record "O365 Email Setup";
+#endif
         Attachments: Codeunit "Temp Blob List";
         AttachmentNames: List of [Text];
         SourceTables: List of [Integer];
@@ -412,12 +414,14 @@ table 9500 "Email Item"
         MailManagement.CheckValidEmailAddresses(EmailAddresses);
     end;
 
+#if not CLEAN21
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure AddCcBcc()
     begin
         "Send CC" := O365EmailSetup.GetCCAddressesFromO365EmailSetup();
         "Send BCC" := O365EmailSetup.GetBCCAddressesFromO365EmailSetup();
     end;
-
+#endif
     procedure SendAsHTML(SendAsHTML: Boolean)
     begin
         Rec."Send As HTML" := SendAsHTML;

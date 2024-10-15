@@ -73,7 +73,7 @@ table 5480 "Tax Group Buffer"
         if not IsTemporary then
             Error(RecordMustBeTemporaryErr);
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             if InsertRec then begin
                 VATProductPostingGroup.TransferFields(Rec, true);
                 VATProductPostingGroup.Insert(true)
@@ -112,7 +112,7 @@ table 5480 "Tax Group Buffer"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         TaxGroup: Record "Tax Group";
     begin
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             VATProductPostingGroup.Get(Code);
             VATProductPostingGroup.Delete(true);
         end else begin
@@ -128,12 +128,12 @@ table 5480 "Tax Group Buffer"
         if not IsTemporary then
             Error(RecordMustBeTemporaryErr);
 
-        if GeneralLedgerSetup.UseVat then
-            LoadFromVATProductPostingGroup
+        if GeneralLedgerSetup.UseVat() then
+            LoadFromVATProductPostingGroup()
         else
-            LoadFromTaxGroup;
+            LoadFromTaxGroup();
 
-        exit(FindFirst);
+        exit(FindFirst());
     end;
 
     local procedure LoadFromTaxGroup()
@@ -145,7 +145,7 @@ table 5480 "Tax Group Buffer"
 
         repeat
             UpdateFromTaxGroup(TaxGroup);
-            Insert;
+            Insert();
         until TaxGroup.Next() = 0;
     end;
 
@@ -158,7 +158,7 @@ table 5480 "Tax Group Buffer"
 
         repeat
             UpdateFromVATProductPostingGroup(VATProductPostingGroup);
-            Insert;
+            Insert();
         until VATProductPostingGroup.Next() = 0;
     end;
 
@@ -174,7 +174,7 @@ table 5480 "Tax Group Buffer"
         if IsNullGuid(TaxGroupID) then
             exit;
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             if VATProductPostingGroup.GetBySystemId(TaxGroupID) then
                 VATProductPostingGroupCode := VATProductPostingGroup.Code;
 

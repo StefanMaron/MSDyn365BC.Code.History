@@ -12,7 +12,7 @@ report 709 "Inventory Purchase Orders"
         {
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Search Description", "Assembly BOM", "Inventory Posting Group", "Statistics Group", "Bin Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaptItemFilter; TableCaption + ': ' + ItemFilter)
@@ -130,9 +130,9 @@ report 709 "Inventory Purchase Orders"
                         "Outstanding Amount" :=
                           Round(
                             CurrExchRate.ExchangeAmtFCYToLCY(
-                              WorkDate, PurchHeader."Currency Code",
+                              WorkDate(), PurchHeader."Currency Code",
                               "Outstanding Amount", PurchHeader."Currency Factor"));
-                    if "Expected Receipt Date" < WorkDate then
+                    if "Expected Receipt Date" < WorkDate() then
                         BackOrderQty := "Outstanding Quantity"
                     else
                         BackOrderQty := 0;
@@ -164,18 +164,19 @@ report 709 "Inventory Purchase Orders"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
-        PurchLineFilter := "Purchase Line".GetFilters;
+        ItemFilter := Item.GetFilters();
+        PurchLineFilter := "Purchase Line".GetFilters();
     end;
 
     var
-        Text000: Label 'Purchase Order Line: %1';
         CurrExchRate: Record "Currency Exchange Rate";
         PurchHeader: Record "Purchase Header";
         ItemFilter: Text;
         PurchLineFilter: Text;
         BackOrderQty: Decimal;
         ItemDescription: Text[100];
+
+        Text000: Label 'Purchase Order Line: %1';
         InventoryPurchaseOrdersCaptionLbl: Label 'Inventory Purchase Orders';
         CurrReportPageNoCaptionLbl: Label 'Page';
         PurchHeaderPaytoNameCaptionLbl: Label 'Vendor';

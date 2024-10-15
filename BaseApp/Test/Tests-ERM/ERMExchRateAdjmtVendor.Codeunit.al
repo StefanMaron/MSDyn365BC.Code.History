@@ -20,7 +20,6 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateWithHigherValue()
     var
@@ -33,7 +32,6 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateWithLowerValue()
     var
@@ -68,7 +66,6 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceGainsLosses()
     var
@@ -108,7 +105,6 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceLossesGains()
     var
@@ -148,7 +144,6 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceGainsToHigherLosses()
     var
@@ -206,7 +201,6 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceLossesToHigherGains()
     var
@@ -276,7 +270,7 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         isInitialized := true;
         Commit();
@@ -409,13 +403,6 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
         exit(
           AmountLCY -
           Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount");
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure StatisticsMessageHandler(Message: Text[1024])
-    begin
-        Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 }
 

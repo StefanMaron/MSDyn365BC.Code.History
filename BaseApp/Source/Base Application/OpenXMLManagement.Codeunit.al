@@ -25,11 +25,11 @@ codeunit 6223 "OpenXML Management"
     begin
         WorkSheetCommentsPart := WorksheetWriter.Worksheet.WorksheetPart.WorksheetCommentsPart;
         if IsNull(WorkSheetCommentsPart) then
-            WorkSheetCommentsPart := WorksheetWriter.CreateWorksheetCommentsPart;
+            WorkSheetCommentsPart := WorksheetWriter.CreateWorksheetCommentsPart();
 
         AddVmlDrawingPart(WorksheetWriter, VmlDrawingPart);
 
-        WorkSheetCommentsPart.Comments := Comments.Comments;
+        WorkSheetCommentsPart.Comments := Comments.Comments();
 
         AddWorkSheetAuthor(WorkSheetCommentsPart.Comments, UserId);
 
@@ -44,14 +44,14 @@ codeunit 6223 "OpenXML Management"
         LastChild: DotNet OpenXmlElement;
         VmlPartId: Text;
     begin
-        VmlDrawingPart := WorksheetWriter.CreateVmlDrawingPart;
+        VmlDrawingPart := WorksheetWriter.CreateVmlDrawingPart();
         VmlPartId := WorksheetWriter.Worksheet.WorksheetPart.GetIdOfPart(VmlDrawingPart);
-        LegacyDrawing := LegacyDrawing.LegacyDrawing;
+        LegacyDrawing := LegacyDrawing.LegacyDrawing();
         LegacyDrawing.Id := StringValue.FromString(VmlPartId);
         LocalWorksheet := WorksheetWriter.Worksheet.WorksheetPart.Worksheet;
-        LastChild := LocalWorksheet.LastChild;
-        if LastChild.GetType.Equals(LegacyDrawing.GetType) then
-            LastChild.Remove;
+        LastChild := LocalWorksheet.LastChild();
+        if LastChild.GetType().Equals(LegacyDrawing.GetType()) then
+            LastChild.Remove();
 
         WrkShtHelper.AppendElementToOpenXmlElement(WorksheetWriter.Worksheet.WorksheetPart.Worksheet, LegacyDrawing);
     end;
@@ -90,18 +90,18 @@ codeunit 6223 "OpenXML Management"
     begin
         StringValue := StringValue.StringValue(CellReference);
         SingleXMLCell.CellReference := StringValue;
-        UInt32Value := UInt32Value.UInt32Value;
+        UInt32Value := UInt32Value.UInt32Value();
         UInt32Value.Value := ConnectionId;
         SingleXMLCell.ConnectionId := UInt32Value;
 
-        XMLCellProperties := XMLCellProperties.XmlCellProperties;
+        XMLCellProperties := XMLCellProperties.XmlCellProperties();
         WrkShtHelper.AppendElementToOpenXmlElement(SingleXMLCell, XMLCellProperties);
         UInt32Value.Value := 1;
         XMLCellProperties.Id := UInt32Value;
         StringValue := StringValue.StringValue(Format(SingleXMLCell.Id));
         XMLCellProperties.UniqueName := StringValue;
 
-        XMLProperties := XMLProperties.XmlProperties;
+        XMLProperties := XMLProperties.XmlProperties();
         WrkShtHelper.AppendElementToOpenXmlElement(XMLCellProperties, XMLProperties);
         UInt32Value.Value := Mapid;
         XMLProperties.MapId := UInt32Value;
@@ -129,7 +129,7 @@ codeunit 6223 "OpenXML Management"
         TableColumns := WorksheetWriter.CreateTableColumns(ColumnCount);
         Table.TableColumns(TableColumns);
 
-        TableDefinitionPart := WorksheetWriter.CreateTableDefinitionPart;
+        TableDefinitionPart := WorksheetWriter.CreateTableDefinitionPart();
         TableDefinitionPart.Table := Table;
 
         TableParts := WorksheetWriter.CreateTableParts(1);
@@ -144,9 +144,9 @@ codeunit 6223 "OpenXML Management"
         Author: DotNet Author;
         Authors: DotNet Authors;
     begin
-        Authors := Authors.Authors;
+        Authors := Authors.Authors();
         WrkShtHelper.AppendElementToOpenXmlElement(Comments, Authors);
-        Author := Author.Author;
+        Author := Author.Author();
         Author.Text := AuthorText;
         WrkShtHelper.AppendElementToOpenXmlElement(Authors, Author);
     end;
@@ -157,7 +157,7 @@ codeunit 6223 "OpenXML Management"
         AutoFilter: DotNet AutoFilter;
         StringValue: DotNet StringValue;
     begin
-        AutoFilter := AutoFilter.AutoFilter;
+        AutoFilter := AutoFilter.AutoFilter();
         AutoFilter.Reference := StringValue.StringValue(Table.Reference.Value);
         WrkShtHelper.AppendElementToOpenXmlElement(Table, AutoFilter);
     end;
@@ -169,7 +169,7 @@ codeunit 6223 "OpenXML Management"
         StringValue: DotNet StringValue;
         TableStyleInfo: DotNet TableStyleInfo;
     begin
-        TableStyleInfo := TableStyleInfo.TableStyleInfo;
+        TableStyleInfo := TableStyleInfo.TableStyleInfo();
         TableStyleInfo.Name := StringValue.StringValue('TableStyleMedium2');
         TableStyleInfo.ShowFirstColumn := BooleanValue.BooleanValue(false);
         TableStyleInfo.ShowLastColumn := BooleanValue.BooleanValue(false);
@@ -216,19 +216,19 @@ codeunit 6223 "OpenXML Management"
         WebQueryProperties: DotNet WebQueryProperties;
         ByteValue: DotNet ByteValue;
     begin
-        ConnectionsPart := WrkbkWriter.AddConnectionsPart;
-        Connections := Connections.Connections;
+        ConnectionsPart := WrkbkWriter.AddConnectionsPart();
+        Connections := Connections.Connections();
         Connection := WrkbkWriter.CreateConnection(1);
-        UInt32Value := UInt32Value.UInt32Value;
+        UInt32Value := UInt32Value.UInt32Value();
         Connection.Name := StringValue.StringValue(FileMgt.GetFileName(SetupDataFileName));
         UInt32Value.Value := 4;
         Connection.Type := UInt32Value;
         BooleanTrueValue := BooleanTrueValue.BooleanValue(true);
         Connection.Background := BooleanTrueValue;
-        ByteValue := ByteValue.ByteValue;
+        ByteValue := ByteValue.ByteValue();
         ByteValue.Value := 0;
         Connection.RefreshedVersion := ByteValue;
-        WebQueryProperties := WebQueryProperties.WebQueryProperties;
+        WebQueryProperties := WebQueryProperties.WebQueryProperties();
         WebQueryProperties.XmlSource := BooleanTrueValue;
         WebQueryProperties.SourceData := BooleanTrueValue;
         WebQueryProperties.Url := StringValue.StringValue(SetupDataFileName);
@@ -246,8 +246,8 @@ codeunit 6223 "OpenXML Management"
         UInt32Value: DotNet UInt32Value;
         StringValue: DotNet StringValue;
     begin
-        Tablestyles := Tablestyles.TableStyles;
-        UInt32Value := UInt32Value.UInt32Value;
+        Tablestyles := Tablestyles.TableStyles();
+        UInt32Value := UInt32Value.UInt32Value();
         UInt32Value.Value := 0;
         Tablestyles.Count := UInt32Value;
         Tablestyles.DefaultTableStyle := StringValue.StringValue('TableStyleMedium2');
@@ -260,8 +260,8 @@ codeunit 6223 "OpenXML Management"
     [Scope('OnPrem')]
     procedure CloseBook(var WrkBkWriter: DotNet WorkbookWriter)
     begin
-        WrkBkWriter.Workbook.Save;
-        WrkBkWriter.Close;
+        WrkBkWriter.Workbook.Save();
+        WrkBkWriter.Close();
         Clear(WrkBkWriter);
     end;
 
@@ -328,7 +328,7 @@ codeunit 6223 "OpenXML Management"
         FileMgt.IsAllowedPath(XMLSchemaDataFile, false);
         XMLWriter := XMLWriter.Create(XMLSchemaDataFile);
         WorkBookPart.CustomXmlMappingsPart.MapInfo.FirstChild.FirstChild.WriteTo(XMLWriter);
-        XMLWriter.Close;
+        XMLWriter.Close();
     end;
 
     [Scope('OnPrem')]
@@ -339,8 +339,8 @@ codeunit 6223 "OpenXML Management"
         Enumerator: DotNet IEnumerator;
     begin
         Enumerable := WrkShtReader.Worksheet.WorksheetPart.TableDefinitionParts;
-        Enumerator := Enumerable.GetEnumerator;
-        Enumerator.MoveNext;
+        Enumerator := Enumerable.GetEnumerator();
+        Enumerator.MoveNext();
         TableDefinitionPart := Enumerator.Current;
         if IsNull(TableDefinitionPart) then
             exit(false);
@@ -383,19 +383,19 @@ codeunit 6223 "OpenXML Management"
         StreamText: Text;
     begin
         StreamReader := StreamReader.StreamReader(SchemaFileName);
-        StreamReader.ReadLine;
-        StreamText := StreamReader.ReadToEnd;
-        StreamReader.Close;
+        StreamReader.ReadLine();
+        StreamText := StreamReader.ReadToEnd();
+        StreamReader.Close();
         OpenXmlUnknownElement := OpenXmlUnknownElement.CreateOpenXmlUnknownElement(StreamText);
 
         Schema := WrkbkWriter.CreateSchemaFromOpenXmlUnknown(OpenXmlUnknownElement);
         Schema.Id := StringValue.StringValue('Schema1');
 
-        MapInfo := MapInfo.MapInfo;
+        MapInfo := MapInfo.MapInfo();
         MapInfo.SelectionNamespaces := StringValue.StringValue('');
         WrkShtHelper.AppendElementToOpenXmlElement(MapInfo, Schema);
-        Map := Map.Map;
-        UInt32Value := UInt32Value.UInt32Value;
+        Map := Map.Map();
+        UInt32Value := UInt32Value.UInt32Value();
         UInt32Value.Value := MapId;
         Map.ID := UInt32Value;
         Map.Name := StringValue.StringValue(RootElementName + '_Map');
@@ -407,7 +407,7 @@ codeunit 6223 "OpenXML Management"
         Map.PreserveAutoFilterState := BooleanValue.BooleanValue(true);
         Map.PreserveFormat := BooleanValue.BooleanValue(true);
 
-        DataBinding := DataBinding.DataBinding;
+        DataBinding := DataBinding.DataBinding();
         DataBinding.FileBinding := BooleanValue.BooleanValue(true);
         DataBinding.ConnectionId := Map.ID;
         UInt32Value.Value := 1;
@@ -415,7 +415,7 @@ codeunit 6223 "OpenXML Management"
         WrkShtHelper.AppendElementToOpenXmlElement(MapInfo, Map);
         WrkShtHelper.AppendElementToOpenXmlElement(Map, DataBinding);
 
-        CustomXMLMappingsPart := WrkbkWriter.AddCustomXmlMappingsPart;
+        CustomXMLMappingsPart := WrkbkWriter.AddCustomXmlMappingsPart();
         CustomXMLMappingsPart.MapInfo := MapInfo;
     end;
 
@@ -432,7 +432,7 @@ codeunit 6223 "OpenXML Management"
         Table.Reference := StringValue.StringValue(Reference);
         Table.TotalsRowShown := BooleanValue.BooleanValue(false);
 
-        UInt32Value := UInt32Value.UInt32Value;
+        UInt32Value := UInt32Value.UInt32Value();
         UInt32Value.Value := ConnectionId;
         Table.ConnectionId := UInt32Value;
     end;
@@ -486,7 +486,7 @@ codeunit 6223 "OpenXML Management"
         Comments := CommentsPart.Comments;
 
         if IsNull(Comments) then begin
-            Comments := Comments.Comments;
+            Comments := Comments.Comments();
             CommentsPart.Comments := Comments;
         end;
 
@@ -495,27 +495,27 @@ codeunit 6223 "OpenXML Management"
         if IsNull(CommentList) then
             CommentList := WrkShtWriter.CreateCommentList(Comments);
 
-        Comment := Comment.Comment;
+        Comment := Comment.Comment();
         Comment.AuthorId := UInt32Value.FromUInt32(0);
         Comment.Reference := StringValue.StringValue(CellReference);
 
-        CommentText := CommentText.CommentText;
+        CommentText := CommentText.CommentText();
 
         Run := Run.Run();
 
-        RunProperties := RunProperties.RunProperties;
-        Bold := Bold.Bold;
+        RunProperties := RunProperties.RunProperties();
+        Bold := Bold.Bold();
 
-        FontSize := FontSize.FontSize;
+        FontSize := FontSize.FontSize();
         FontSize.Val := DoubleValue.FromDouble(9);
 
-        Color := Color.Color;
+        Color := Color.Color();
         Color.Indexed := UInt32Value.FromUInt32(81);
 
-        RunFont := RunFont.RunFont;
+        RunFont := RunFont.RunFont();
         RunFont.Val := StringValue.FromString('Tahoma');
 
-        RunPropCharSet := RunPropCharSet.RunPropertyCharSet;
+        RunPropCharSet := RunPropCharSet.RunPropertyCharSet();
         RunPropCharSet.Val := Int32Value.FromInt32(1);
 
         WrkShtHelper.AppendElementToOpenXmlElement(RunProperties, Bold);
@@ -535,8 +535,8 @@ codeunit 6223 "OpenXML Management"
 
         WrkShtWriter.AppendComment(CommentList, Comment);
 
-        CommentsPart.Comments.Save;
-        WrkShtWriter.Worksheet.Save;
+        CommentsPart.Comments.Save();
+        WrkShtWriter.Worksheet.Save();
     end;
 
     [Scope('OnPrem')]
@@ -590,7 +590,7 @@ codeunit 6223 "OpenXML Management"
         Guid: Guid;
         Anchor: Text;
     begin
-        Guid := CreateGuid;
+        Guid := CreateGuid();
 
         Anchor := CreateCommentVmlAnchor(ColId, RowId);
 

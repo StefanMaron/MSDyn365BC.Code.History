@@ -38,7 +38,7 @@ codeunit 5474 "Graph Mgt - Sales Header"
     local procedure HandleApiSetup()
     begin
         UpdateIntegrationRecords(false);
-        UpdateIds;
+        UpdateIds();
     end;
 
     local procedure CheckSupportedTable(var RecRef: RecordRef): Boolean

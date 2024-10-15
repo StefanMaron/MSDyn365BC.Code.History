@@ -63,7 +63,7 @@ codeunit 136356 "UT T Job WIP Entry"
         // [WHEN] Calculate Job WIP
         if UserGroup.FindFirst() then
             if UserGroup.Code <> D365UserGroupCodeTxt then begin
-                JobCalculateWIP.JobCalcWIP(Job, WorkDate, LibraryUtility.GenerateGUID());
+                JobCalculateWIP.JobCalcWIP(Job, WorkDate(), LibraryUtility.GenerateGUID());
                 // [THEN] Job WIP Entry is created with negative amount = "X"
                 VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Costs", ExpectedCostAmount);
                 VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Sales", ExpectedSalesAmount);
@@ -92,7 +92,7 @@ codeunit 136356 "UT T Job WIP Entry"
         CreateJobLedgerEntries(Job, ExpectedCostAmount, ExpectedSalesAmount, JobTask);
         // [WHEN] Calculate Job WIP
         LibraryVariableStorage.Enqueue(true);
-        JobCalculateWIP.JobCalcWIP(Job, WorkDate, LibraryUtility.GenerateGUID());
+        JobCalculateWIP.JobCalcWIP(Job, WorkDate(), LibraryUtility.GenerateGUID());
         // [THEN] Job WIP Entry is created with negative amount = "X"
         if UserGroup.FindFirst() then
             if UserGroup.Code <> D365UserGroupCodeTxt then begin
@@ -166,7 +166,7 @@ codeunit 136356 "UT T Job WIP Entry"
         JobCard.OpenEdit;
         JobCard.GotoRecord(Job);
         JobCard.Status.SetValue(JobStatus);
-        JobCard.Close;
+        JobCard.Close();
         Job.Get(Job."No.");
 
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -180,15 +180,15 @@ codeunit 136356 "UT T Job WIP Entry"
     begin
         with JobLedgerEntry do begin
             RecRef.GetTable(JobLedgerEntry);
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Job No." := JobTask."Job No.";
             "Job Task No." := JobTask."Job Task No.";
             "Entry Type" := EntryType;
             "Line Amount (LCY)" := -LibraryRandom.RandDec(100, 2);
             "Total Cost (LCY)" := "Line Amount (LCY)";
-            Insert;
+            Insert();
             exit("Total Cost (LCY)");
         end;
     end;

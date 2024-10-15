@@ -93,17 +93,17 @@ codeunit 139014 "Outlook Synch Tests"
         Initialize();
 
         inputValue := GetXmlString;
-        errorLogXMLWriter := errorLogXMLWriter.XmlTextWriter;
-        errorLogXMLWriter.WriteStartDocument;
+        errorLogXMLWriter := errorLogXMLWriter.XmlTextWriter();
+        errorLogXMLWriter.WriteStartDocument();
         errorLogXMLWriter.WriteStartElement('SynchronizationMessage');
 
         dateTimeValue := OsynchOutlookMgt.ProcessOutlookChanges('TEST963', inputValue, errorLogXMLWriter, true);
 
         if not IsNull(errorLogXMLWriter) then begin
-            errorLogXMLWriter.WriteEndElement;
-            errorLogXMLWriter.WriteEndDocument;
+            errorLogXMLWriter.WriteEndElement();
+            errorLogXMLWriter.WriteEndDocument();
 
-            errorLogMessage := errorLogXMLWriter.ToString;
+            errorLogMessage := errorLogXMLWriter.ToString();
             Clear(errorLogXMLWriter);
         end;
 
@@ -130,17 +130,17 @@ codeunit 139014 "Outlook Synch Tests"
         end;
 
         inputValue := GetXmlString;
-        errorLogXMLWriter := errorLogXMLWriter.XmlTextWriter;
-        errorLogXMLWriter.WriteStartDocument;
+        errorLogXMLWriter := errorLogXMLWriter.XmlTextWriter();
+        errorLogXMLWriter.WriteStartDocument();
         errorLogXMLWriter.WriteStartElement('SynchronizationMessage');
 
         dateTimeValue := OsynchOutlookMgt.ProcessOutlookChanges('TEST963', inputValue, errorLogXMLWriter, true);
 
         if not IsNull(errorLogXMLWriter) then begin
-            errorLogXMLWriter.WriteEndElement;
-            errorLogXMLWriter.WriteEndDocument;
+            errorLogXMLWriter.WriteEndElement();
+            errorLogXMLWriter.WriteEndDocument();
 
-            errorLogMessage := errorLogXMLWriter.ToString;
+            errorLogMessage := errorLogXMLWriter.ToString();
             Clear(errorLogXMLWriter);
         end;
 

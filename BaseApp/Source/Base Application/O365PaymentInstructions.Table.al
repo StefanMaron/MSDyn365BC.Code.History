@@ -2,6 +2,14 @@ table 2155 "O365 Payment Instructions"
 {
     Caption = 'O365 Payment Instructions';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -26,7 +34,7 @@ table 2155 "O365 Payment Instructions"
         field(8; Default; Boolean)
         {
             Caption = 'Default';
-
+#if not CLEAN21
             trigger OnValidate()
             var
                 O365PaymentInstructions: Record "O365 Payment Instructions";
@@ -36,6 +44,7 @@ table 2155 "O365 Payment Instructions"
                     O365PaymentInstructions.ModifyAll(Default, false, false);
                 end;
             end;
+#endif            
         }
     }
 
@@ -50,7 +59,7 @@ table 2155 "O365 Payment Instructions"
     fieldgroups
     {
     }
-
+#if not CLEAN21
     trigger OnDelete()
     var
         DocumentDescription: Text;
@@ -58,15 +67,15 @@ table 2155 "O365 Payment Instructions"
         if Default then
             Error(CannotDeleteDefaultErr);
 
-        DocumentDescription := FindDraftsUsingInstructions;
+        DocumentDescription := FindDraftsUsingInstructions();
         if DocumentDescription <> '' then
-            Error(PaymentIsUsedErr, FindDraftsUsingInstructions);
+            Error(PaymentIsUsedErr, FindDraftsUsingInstructions());
 
         if GuiAllowed then
             if not Confirm(DoYouWantToDeleteQst) then
                 Error('');
 
-        DeleteTranslationsForRecord;
+        DeleteTranslationsForRecord();
     end;
 
     var
@@ -76,18 +85,20 @@ table 2155 "O365 Payment Instructions"
         Language: Codeunit Language;
         DoYouWantToDeleteQst: Label 'Are you sure you want to delete the payment instructions?';
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetPaymentInstructions(): Text
     var
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
         CalcFields("Payment Instructions Blob");
-        if not "Payment Instructions Blob".HasValue then
+        if not "Payment Instructions Blob".HasValue() then
             exit("Payment Instructions");
         "Payment Instructions Blob".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetPaymentInstructions(NewInstructions: Text)
     var
         OutStream: OutStream;
@@ -100,21 +111,20 @@ table 2155 "O365 Payment Instructions"
             exit;
         "Payment Instructions Blob".CreateOutStream(OutStream, TEXTENCODING::Windows);
         OutStream.WriteText(NewInstructions);
-        Modify;
+        Modify();
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure FindDraftsUsingInstructions() DocumentDescription: Text
     var
         SalesHeader: Record "Sales Header";
     begin
         DocumentDescription := '';
-#if not CLEAN18
-        SalesHeader.SetRange("Payment Instructions Id", Id);
-#endif
         if SalesHeader.FindFirst() then
-            DocumentDescription := StrSubstNo(DocumentDescriptionTxt, SalesHeader.GetDocTypeTxt, SalesHeader."No.");
+            DocumentDescription := StrSubstNo(DocumentDescriptionTxt, SalesHeader.GetDocTypeTxt(), SalesHeader."No.");
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetNameInCurrentLanguage(): Text[20]
     var
         O365PaymentInstrTransl: Record "O365 Payment Instr. Transl.";
@@ -128,6 +138,7 @@ table 2155 "O365 Payment Instructions"
         exit(O365PaymentInstrTransl."Transl. Name");
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetPaymentInstructionsInCurrentLanguage(): Text
     var
         O365PaymentInstrTransl: Record "O365 Payment Instr. Transl.";
@@ -136,11 +147,12 @@ table 2155 "O365 Payment Instructions"
         LanguageCode := Language.GetLanguageCode(GlobalLanguage);
 
         if not O365PaymentInstrTransl.Get(Id, LanguageCode) then
-            exit(GetPaymentInstructions);
+            exit(GetPaymentInstructions());
 
-        exit(O365PaymentInstrTransl.GetTransPaymentInstructions);
+        exit(O365PaymentInstrTransl.GetTransPaymentInstructions());
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure DeleteTranslationsForRecord()
     var
         O365PaymentInstrTransl: Record "O365 Payment Instr. Transl.";
@@ -148,5 +160,5 @@ table 2155 "O365 Payment Instructions"
         O365PaymentInstrTransl.SetRange(Id, Id);
         O365PaymentInstrTransl.DeleteAll(true);
     end;
+#endif
 }
-

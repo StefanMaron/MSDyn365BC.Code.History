@@ -16,7 +16,7 @@ report 106 "Customer Detailed Aging"
             column(STRSUBSTNO_Text000_FORMAT_EndDate_; StrSubstNo(Text000Lbl, Format(EndDate)))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Customer_TABLECAPTION_CustFilter; Customer.TableCaption + ': ' + CustFilter)
@@ -156,7 +156,7 @@ report 106 "Customer Detailed Aging"
                         if Number = 1 then
                             OK := TempCurrencyTotalBuffer.Find('-')
                         else
-                            OK := TempCurrencyTotalBuffer.Next <> 0;
+                            OK := TempCurrencyTotalBuffer.Next() <> 0;
                         if not OK then
                             CurrReport.Break();
                         TempCurrencyTotalBuffer2.UpdateTotal(
@@ -182,8 +182,8 @@ report 106 "Customer Detailed Aging"
                     if OnlyOpen then
                         NumCustLedgEntriesperCust.SetFilter(OpenValue, 'TRUE');
 
-                    if NumCustLedgEntriesperCust.Open then
-                        while NumCustLedgEntriesperCust.Read do
+                    if NumCustLedgEntriesperCust.Open() then
+                        while NumCustLedgEntriesperCust.Read() do
                             if not CustomersWithLedgerEntriesList.Contains(NumCustLedgEntriesperCust.Customer_No) then
                                 CustomersWithLedgerEntriesList.Add(NumCustLedgEntriesperCust.Customer_No);
                 end;
@@ -212,7 +212,7 @@ report 106 "Customer Detailed Aging"
                     if Number = 1 then
                         OK := TempCurrencyTotalBuffer2.Find('-')
                     else
-                        OK := TempCurrencyTotalBuffer2.Next <> 0;
+                        OK := TempCurrencyTotalBuffer2.Next() <> 0;
                     if not OK then
                         CurrReport.Break();
                 end;
@@ -259,7 +259,7 @@ report 106 "Customer Detailed Aging"
         trigger OnOpenPage()
         begin
             if EndDate = 0D then
-                EndDate := WorkDate;
+                EndDate := WorkDate();
         end;
     }
 
@@ -276,24 +276,27 @@ report 106 "Customer Detailed Aging"
     end;
 
     var
-        Text000Lbl: Label 'As of %1', Comment = '%1 is the as of date';
         TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
         TempCurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
         NumCustLedgEntriesperCust: Query "Num CustLedgEntries per Cust";
         CustomersWithLedgerEntriesList: List of [Code[20]];
-        EndDate: Date;
         CustFilter: Text;
         OverDueMonths: Integer;
         OK: Boolean;
         Counter: Integer;
         Counter1: Integer;
-        OnlyOpen: Boolean;
+
+        Text000Lbl: Label 'As of %1', Comment = '%1 is the as of date';
         Customer_Detailed_AgingCaptionLbl: Label 'Customer Detailed Aging';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Cust_Ledger_Entry_Posting_Date_CaptionLbl: Label 'Posting Date';
         Cust_Ledger_Entry_Due_Date_CaptionLbl: Label 'Due Date';
         OverDueMonthsCaptionLbl: Label 'Months Due';
         TotalCaptionLbl: Label 'Total';
+
+    protected var
+        EndDate: Date;
+        OnlyOpen: Boolean;
 
     procedure InitializeRequest(SetEndDate: Date; SetOnlyOpen: Boolean)
     begin

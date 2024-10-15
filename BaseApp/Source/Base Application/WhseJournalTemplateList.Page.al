@@ -23,40 +23,40 @@ page 7322 "Whse. Journal Template List"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the warehouse journal template.';
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                     Visible = false;
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                     Visible = false;
                 }
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Warehouse;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Test Report ID"; "Test Report ID")
+                field("Test Report ID"; Rec."Test Report ID")
                 {
                     ApplicationArea = Warehouse;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the test report that is printed when you click Registering, Test Report.';
                     Visible = false;
                 }
-                field("Registering Report ID"; "Registering Report ID")
+                field("Registering Report ID"; Rec."Registering Report ID")
                 {
                     ApplicationArea = Warehouse;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the registering report that is printed when you click Registering, Register and Print.';
                     Visible = false;
                 }
-                field("Force Registering Report"; "Force Registering Report")
+                field("Force Registering Report"; Rec."Force Registering Report")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that a registering report is printed automatically when you register entries from the journal.';

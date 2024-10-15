@@ -140,7 +140,7 @@ page 504 "Available - Item Ledg. Entries"
                         NewQtyReserved2: Decimal;
                     begin
                         ReservEntry.LockTable();
-                        UpdateReservMgt;
+                        UpdateReservMgt();
                         Rec.GetReservationQty(QtyReserved, QtyToReserve);
                         ReservMgt.CalculateRemainingQty(NewQtyReserved2, NewQtyReserved);
                         if MaxQtyDefined and (Abs(MaxQtyToReserve) < Abs(NewQtyReserved)) then
@@ -178,7 +178,7 @@ page 504 "Available - Item Ledg. Entries"
                         Rec.GetReservationQty(QtyReserved, QtyToReserve);
 
                         ReservEntry2.Copy(ReservEntry);
-                        if ReservMgt.IsPositive then
+                        if ReservMgt.IsPositive() then
                             Rec.SetReservationFilters(ReservEntry2)
                         else
                             Error(CanCancelInventoryReservationOnlyErr);
@@ -338,9 +338,9 @@ page 504 "Available - Item Ledg. Entries"
         Rec.SetRange("Location Code", ReservEntry."Location Code");
         Rec.SetRange("Drop Shipment", false);
         Rec.SetRange(Open, true);
-        if ReservEntry.FieldFilterNeeded(FieldFilter, ReservMgt.IsPositive, ItemTrackingType::"Lot No.") then
+        if ReservEntry.FieldFilterNeeded(FieldFilter, ReservMgt.IsPositive(), ItemTrackingType::"Lot No.") then
             Rec.SetFilter("Lot No.", FieldFilter);
-        if ReservEntry.FieldFilterNeeded(FieldFilter, ReservMgt.IsPositive, ItemTrackingType::"Serial No.") then
+        if ReservEntry.FieldFilterNeeded(FieldFilter, ReservMgt.IsPositive(), ItemTrackingType::"Serial No.") then
             Rec.SetFilter("Serial No.", FieldFilter);
         if ReservMgt.IsPositive() then begin
             Rec.SetRange(Positive, true);

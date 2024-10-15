@@ -54,9 +54,9 @@ table 299 "Reminder Comment Line"
     begin
         ReminderCommentLine.SetRange(Type, Type);
         ReminderCommentLine.SetRange("No.", "No.");
-        ReminderCommentLine.SetRange(Date, WorkDate);
+        ReminderCommentLine.SetRange(Date, WorkDate());
         if not ReminderCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
 
         OnAfterSetUpNewLine(Rec, ReminderCommentLine);
     end;

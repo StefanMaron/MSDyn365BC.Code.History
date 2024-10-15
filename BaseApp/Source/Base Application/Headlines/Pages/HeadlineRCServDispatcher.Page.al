@@ -49,10 +49,10 @@ page 1448 "Headline RC Serv. Dispatcher"
     end;
 
     var
+        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
         [InDataSet]
         DefaultFieldsVisible: Boolean;
         [InDataSet]
         UserGreetingVisible: Boolean;
-        RCHeadlinesPageCommon: Codeunit "RC Headlines Page Common";
 }
 

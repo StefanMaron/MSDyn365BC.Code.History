@@ -19,17 +19,17 @@ report 99001047 "Recalculate Calendar"
                 if (CalendarEntry2.Date <> 0D) and
                    (CalendarEntry2.Date <> Date)
                 then
-                    HandleAbsence;
+                    HandleAbsence();
                 CalendarEntry2 := "Calendar Entry";
                 Validate("No.");
                 Validate("Ending Time");
-                Modify;
+                Modify();
             end;
 
             trigger OnPostDataItem()
             begin
-                HandleAbsence;
-                Window.Close;
+                HandleAbsence();
+                Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -72,7 +72,7 @@ report 99001047 "Recalculate Calendar"
         CalAbsentEntry.SetRange("No.", CalendarEntry2."No.");
         CalAbsentEntry.SetRange(Date, CalendarEntry2.Date);
         CalAbsentEntry.SetRange(Updated, false);
-        while CalAbsentEntry.FindFirst do
+        while CalAbsentEntry.FindFirst() do
             CalAbsenceMgt.UpdateAbsence(CalAbsentEntry);
     end;
 }

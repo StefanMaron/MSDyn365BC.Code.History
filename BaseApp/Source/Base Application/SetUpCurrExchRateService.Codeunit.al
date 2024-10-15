@@ -15,7 +15,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
             exit;
         GLSetup.Get();
         if GLSetup."LCY Code" = 'EUR' then
-            SetupECBDataExchange(CurrExchRateUpdateSetup, GetECB_URI);
+            SetupECBDataExchange(CurrExchRateUpdateSetup, GetECB_URI());
         Commit();
     end;
 
@@ -44,7 +44,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
             CurrExchRateUpdateSetup.SetWebServiceURL(PathToECBService);
 
         if DataExchLineDef."Data Exch. Def Code" = '' then begin
-            CreateExchLineDef(DataExchLineDef, CurrExchRateUpdateSetup."Data Exch. Def Code", GetECBRepeaterPath);
+            CreateExchLineDef(DataExchLineDef, CurrExchRateUpdateSetup."Data Exch. Def Code", GetECBRepeaterPath());
             SuggestColDefinitionXML.GenerateDataExchColDef(PathToECBService, DataExchLineDef);
 
             MapECBDataExch(DataExchLineDef);
@@ -90,9 +90,9 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
             SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
             if NewDefaultValue <> '' then begin
                 if FindLast() then begin
-                    Init;
+                    Init();
                     "Column No." += 10000;
-                    Insert;
+                    Insert();
                 end
             end else begin
                 SetRange(Name, FromColumnName);
@@ -104,7 +104,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         end;
 
         with DataExchFieldMapping do begin
-            Init;
+            Init();
             Validate("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
             Validate("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
             Validate("Table ID", DataExchMapping."Table ID");
@@ -121,20 +121,20 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
     var
         DataExchMapping: Record "Data Exch. Mapping";
     begin
-        DataExchMapping.Get(DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, GetMappingTable);
+        DataExchMapping.Get(DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, GetMappingTable());
 
         CreateExchMappingLine(
-          DataExchMapping, GetECBCurrencyCodeXMLElement, GetCurrencyCodeFieldNo,
+          DataExchMapping, GetECBCurrencyCodeXMLElement(), GetCurrencyCodeFieldNo(),
           DummyDataExchColumnDef."Data Type"::Text, 1, '', '', '');
         CreateExchMappingLine(
-          DataExchMapping, GetECBStartingDateXMLElement, GetStartingDateFieldNo,
+          DataExchMapping, GetECBStartingDateXMLElement(), GetStartingDateFieldNo(),
           DummyDataExchColumnDef."Data Type"::Date, 1, '', '', '');
 
         CreateExchMappingLine(
-          DataExchMapping, GetECBExchRateXMLElement, GetExchRateAmtFieldNo,
+          DataExchMapping, GetECBExchRateXMLElement(), GetExchRateAmtFieldNo(),
           DummyDataExchColumnDef."Data Type"::Decimal, 1, '', '', '');
         CreateExchMappingLine(
-          DataExchMapping, '', GetRelationalExchRateFieldNo,
+          DataExchMapping, '', GetRelationalExchRateFieldNo(),
           DummyDataExchColumnDef."Data Type"::Decimal, 1, '', '', '1');
     end;
 

@@ -9,10 +9,6 @@ codeunit 99000889 AvailabilityManagement
     end;
 
     var
-        Text000: Label 'Sales Order';
-        Text002: Label 'Service Order';
-        Text003: Label 'Job Order';
-        Text001: Label 'The Check-Avail. Period Calc. field cannot be empty in the Company Information card.';
         CompanyInfo: Record "Company Information";
         InvtSetup: Record "Inventory Setup";
         Item: Record Item;
@@ -26,6 +22,11 @@ codeunit 99000889 AvailabilityManagement
         UOMMgt: Codeunit "Unit of Measure Management";
         CaptionText: Text;
         HasGotCompanyInfo: Boolean;
+
+        Text000: Label 'Sales Order';
+        Text002: Label 'Service Order';
+        Text003: Label 'Job Order';
+        Text001: Label 'The Check-Avail. Period Calc. field cannot be empty in the Company Information card.';
 
     procedure GetCaption(): Text
     begin
@@ -42,7 +43,7 @@ codeunit 99000889 AvailabilityManagement
         SalesLine.SetFilter("Outstanding Quantity", '>0');
         if SalesLine.FindSet() then
             repeat
-                if SalesLine.IsInventoriableItem then begin
+                if SalesLine.IsInventoriableItem() then begin
                     OrderPromisingLine.Init();
                     OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo() + 10000;
                     OrderPromisingLine.TransferFromSalesLine(SalesLine);
@@ -79,7 +80,7 @@ codeunit 99000889 AvailabilityManagement
         JobPlanningLine.SetFilter("Remaining Qty.", '>0');
         if JobPlanningLine.Find('-') then
             repeat
-                if JobPlanningLineIsInventoryItem then begin
+                if JobPlanningLineIsInventoryItem() then begin
                     OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo() + 10000;
                     OrderPromisingLine.TransferFromJobPlanningLine(JobPlanningLine);
                     JobPlanningLine.CalcFields("Reserved Qty. (Base)");
@@ -89,6 +90,8 @@ codeunit 99000889 AvailabilityManagement
     end;
 
     local procedure InsertPromisingLine(var OrderPromisingLine: Record "Order Promising Line"; UnavailableQty: Decimal)
+    var
+        LineItem: Record Item;
     begin
         with OrderPromisingLine do begin
             "Unavailable Quantity (Base)" := UnavailableQty;
@@ -101,6 +104,10 @@ codeunit 99000889 AvailabilityManagement
                     Error(Text001);
                 if InvtSetup."Location Mandatory" then
                     TestField("Location Code");
+                LineItem.SetLoadFields("Variant Mandatory if Exists");
+                if LineItem.Get(OrderPromisingLine."Item No.") then
+                    if LineItem.IsVariantMandatory() then
+                        TestField("Variant Code");
                 if "Unavailable Quantity (Base)" < 0 then
                     "Unavailable Quantity (Base)" := 0;
                 if "Unavailable Quantity (Base)" > "Required Quantity (Base)" then
@@ -110,9 +117,9 @@ codeunit 99000889 AvailabilityManagement
             if "Qty. per Unit of Measure" = 0 then
                 "Qty. per Unit of Measure" := 1;
             "Unavailable Quantity" :=
-              Round("Unavailable Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+              Round("Unavailable Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             "Required Quantity" :=
-              Round("Required Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+              Round("Required Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             OnBeforeOrderPromisingLineInsert(OrderPromisingLine);
             Insert();
         end;
@@ -135,7 +142,7 @@ codeunit 99000889 AvailabilityManagement
         if OrderPromisingLine."Original Shipment Date" <> 0D then
             AvailabilityDate := OrderPromisingLine."Original Shipment Date"
         else
-            AvailabilityDate := WorkDate;
+            AvailabilityDate := WorkDate();
 
         OrderPromisingLine."Unavailability Date" :=
           AvailToPromise.GetPeriodEndingDate(
@@ -150,9 +157,9 @@ codeunit 99000889 AvailabilityManagement
 
     procedure CalcCapableToPromise(var OrderPromisingLine: Record "Order Promising Line"; var OrderPromisingID: Code[20])
     var
-        SalesLine: Record "Sales Line";
-        ServLine: Record "Service Line";
-        JobPlanningLine: Record "Job Planning Line";
+        SalesLine2: Record "Sales Line";
+        ServLine2: Record "Service Line";
+        JobPlanningLine2: Record "Job Planning Line";
         CapableToPromise: Codeunit "Capable to Promise";
         QtyReservedTotal: Decimal;
         OldCTPQty: Decimal;
@@ -168,12 +175,12 @@ codeunit 99000889 AvailabilityManagement
                             begin
                                 Clear("Earliest Shipment Date");
                                 Clear("Planned Delivery Date");
-                                SalesLine.Get("Source Subtype", "Source ID", "Source Line No.");
-                                SalesLine.CalcFields("Reserved Quantity");
-                                QtyReservedTotal := SalesLine."Reserved Quantity";
-                                CapableToPromise.RemoveReqLines(SalesLine."Document No.", SalesLine."Line No.", 0, false);
-                                SalesLine.CalcFields("Reserved Quantity");
-                                OldCTPQty := QtyReservedTotal - SalesLine."Reserved Quantity";
+                                SalesLine2.Get("Source Subtype", "Source ID", "Source Line No.");
+                                SalesLine2.CalcFields("Reserved Quantity");
+                                QtyReservedTotal := SalesLine2."Reserved Quantity";
+                                CapableToPromise.RemoveReqLines(SalesLine2."Document No.", SalesLine2."Line No.", 0, false);
+                                SalesLine2.CalcFields("Reserved Quantity");
+                                OldCTPQty := QtyReservedTotal - SalesLine2."Reserved Quantity";
                                 FeasibleDate :=
                                   CapableToPromise.CalcCapableToPromiseDate(
                                     "Item No.", "Variant Code", "Location Code",
@@ -191,12 +198,12 @@ codeunit 99000889 AvailabilityManagement
                             begin
                                 Clear("Earliest Shipment Date");
                                 Clear("Planned Delivery Date");
-                                ServLine.Get("Source Subtype", "Source ID", "Source Line No.");
-                                ServLine.CalcFields("Reserved Quantity");
-                                QtyReservedTotal := ServLine."Reserved Quantity";
-                                CapableToPromise.RemoveReqLines(ServLine."Document No.", ServLine."Line No.", 0, false);
-                                ServLine.CalcFields("Reserved Quantity");
-                                OldCTPQty := QtyReservedTotal - ServLine."Reserved Quantity";
+                                ServLine2.Get("Source Subtype", "Source ID", "Source Line No.");
+                                ServLine2.CalcFields("Reserved Quantity");
+                                QtyReservedTotal := ServLine2."Reserved Quantity";
+                                CapableToPromise.RemoveReqLines(ServLine2."Document No.", ServLine2."Line No.", 0, false);
+                                ServLine2.CalcFields("Reserved Quantity");
+                                OldCTPQty := QtyReservedTotal - ServLine2."Reserved Quantity";
                                 FeasibleDate :=
                                   CapableToPromise.CalcCapableToPromiseDate(
                                     "Item No.", "Variant Code", "Location Code",
@@ -214,15 +221,15 @@ codeunit 99000889 AvailabilityManagement
                             begin
                                 Clear("Earliest Shipment Date");
                                 Clear("Planned Delivery Date");
-                                JobPlanningLine.Reset();
-                                JobPlanningLine.SetRange(Status, "Source Subtype");
-                                JobPlanningLine.SetRange("Job No.", "Source ID");
-                                JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
-                                JobPlanningLine.CalcFields("Reserved Quantity");
-                                QtyReservedTotal := JobPlanningLine."Reserved Quantity";
-                                CapableToPromise.RemoveReqLines(JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", 0, false);
-                                JobPlanningLine.CalcFields("Reserved Quantity");
-                                OldCTPQty := QtyReservedTotal - JobPlanningLine."Reserved Quantity";
+                                JobPlanningLine2.Reset();
+                                JobPlanningLine2.SetRange(Status, "Source Subtype");
+                                JobPlanningLine2.SetRange("Job No.", "Source ID");
+                                JobPlanningLine2.SetRange("Job Contract Entry No.", "Source Line No.");
+                                JobPlanningLine2.CalcFields("Reserved Quantity");
+                                QtyReservedTotal := JobPlanningLine2."Reserved Quantity";
+                                CapableToPromise.RemoveReqLines(JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", 0, false);
+                                JobPlanningLine2.CalcFields("Reserved Quantity");
+                                OldCTPQty := QtyReservedTotal - JobPlanningLine2."Reserved Quantity";
                                 FeasibleDate :=
                                   CapableToPromise.CalcCapableToPromiseDate(
                                     "Item No.", "Variant Code", "Location Code",
@@ -282,7 +289,7 @@ codeunit 99000889 AvailabilityManagement
                         if "Requested Shipment Date" <> 0D then
                             NeededDate := "Requested Shipment Date"
                         else
-                            NeededDate := WorkDate;
+                            NeededDate := WorkDate();
                         AvailToPromise.SetOriginalShipmentDate(OrderPromisingLine);
 
                         FeasibleDateFound := false;
@@ -328,25 +335,25 @@ codeunit 99000889 AvailabilityManagement
 
     local procedure GetRequestedDeliveryDateFromOrderPromisingLineSource(OrderPromisingLine: Record "Order Promising Line"): Date
     var
-        SalesLine: Record "Sales Line";
-        ServiceLine: Record "Service Line";
-        JobPlanningLine: Record "Job Planning Line";
+        SalesLine2: Record "Sales Line";
+        ServiceLine2: Record "Service Line";
+        JobPlanningLine2: Record "Job Planning Line";
     begin
         with OrderPromisingLine do
             case "Source Type" of
                 "Source Type"::Sales:
-                    if SalesLine.Get("Source Subtype", "Source ID", "Source Line No.") then
-                        exit(SalesLine."Requested Delivery Date");
+                    if SalesLine2.Get("Source Subtype", "Source ID", "Source Line No.") then
+                        exit(SalesLine2."Requested Delivery Date");
                 "Source Type"::"Service Order":
-                    if ServiceLine.Get("Source Subtype", "Source ID", "Source Line No.") then
-                        exit(ServiceLine."Requested Delivery Date");
+                    if ServiceLine2.Get("Source Subtype", "Source ID", "Source Line No.") then
+                        exit(ServiceLine2."Requested Delivery Date");
                 "Source Type"::Job:
                     begin
-                        JobPlanningLine.SetRange(Status, "Source Subtype");
-                        JobPlanningLine.SetRange("Job No.", "Source ID");
-                        JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
-                        if JobPlanningLine.FindFirst() then
-                            exit(JobPlanningLine."Requested Delivery Date");
+                        JobPlanningLine2.SetRange(Status, "Source Subtype");
+                        JobPlanningLine2.SetRange("Job No.", "Source ID");
+                        JobPlanningLine2.SetRange("Job Contract Entry No.", "Source Line No.");
+                        if JobPlanningLine2.FindFirst() then
+                            exit(JobPlanningLine2."Requested Delivery Date");
                     end;
             end;
         exit(0D);
@@ -443,7 +450,7 @@ codeunit 99000889 AvailabilityManagement
     begin
         if HasGotCompanyInfo then
             exit;
-        HasGotCompanyInfo := CompanyInfo.Get and InvtSetup.Get();
+        HasGotCompanyInfo := CompanyInfo.Get() and InvtSetup.Get();
     end;
 
     local procedure CreateReservations(var OrderPromisingLine: Record "Order Promising Line")

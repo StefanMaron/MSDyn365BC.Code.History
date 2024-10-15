@@ -3,7 +3,6 @@ page 7335 "Warehouse Shipment"
     Caption = 'Warehouse Shipment';
     PageType = Document;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Release,Posting,Shipment,Navigate';
     RefreshOnActivate = true;
     SourceTable = "Warehouse Shipment Header";
 
@@ -14,7 +13,7 @@ page 7335 "Warehouse Shipment"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
@@ -26,29 +25,29 @@ page 7335 "Warehouse Shipment"
                             CurrPage.Update();
                     end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location from which the items are being shipped.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         LookupLocation(Rec);
                         CurrPage.Update(true);
                     end;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the zone on this shipment header.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                 }
-                field("Document Status"; "Document Status")
+                field("Document Status"; Rec."Document Status")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
@@ -59,73 +58,75 @@ page 7335 "Warehouse Shipment"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the status of the shipment and is filled in by the program.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a posting date. If you enter a date, the posting date of the source documents is updated during posting.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
                 }
-                field("Assignment Time"; "Assignment Time")
+                field("Assignment Time"; Rec."Assignment Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the time when the user was assigned the activity.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the shipments are sorted.';
 
                     trigger OnValidate()
                     begin
-                        SortingMethodOnAfterValidate;
+                        SortingMethodOnAfterValidate();
                     end;
                 }
             }
             part(WhseShptLines; "Whse. Shipment Subform")
             {
                 ApplicationArea = Warehouse;
+                Editable = IsShipmentLinesEditable;
+                Enabled = IsShipmentLinesEditable;
                 SubPageLink = "No." = FIELD("No.");
                 SubPageView = SORTING("No.", "Sorting Sequence No.");
             }
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies the shipment date of the warehouse shipment. If you enter a date, the source document will be updated during posting. If this field is blank, the original shipment date of the source document is used.';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
@@ -185,8 +186,6 @@ page 7335 "Warehouse Shipment"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Warehouse Comment Sheet";
                     RunPageLink = "Table Name" = CONST("Whse. Shipment"),
                                   Type = CONST(" "),
@@ -198,8 +197,6 @@ page 7335 "Warehouse Shipment"
                     ApplicationArea = Warehouse;
                     Caption = 'Pick Lines';
                     Image = PickLines;
-                    Promoted = true;
-                    PromotedCategory = Category8;
                     RunObject = Page "Warehouse Activity Lines";
                     RunPageLink = "Whse. Document Type" = CONST(Shipment),
                                   "Whse. Document No." = FIELD("No.");
@@ -242,8 +239,6 @@ page 7335 "Warehouse Shipment"
                     Caption = 'Use Filters to Get Src. Docs.';
                     Ellipsis = true;
                     Image = UseFilters;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'retrieve the released source document lines that define which items to receive or ship.';
 
                     trigger OnAction()
@@ -261,8 +256,6 @@ page 7335 "Warehouse Shipment"
                     Caption = 'Get Source Documents';
                     Ellipsis = true;
                     Image = GetSourceDoc;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Open the list of released source documents, such as sales orders, to select the document to ship items for. ';
 
@@ -282,10 +275,6 @@ page 7335 "Warehouse Shipment"
                     ApplicationArea = Warehouse;
                     Caption = 'Re&lease';
                     Image = ReleaseDoc;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
@@ -303,9 +292,6 @@ page 7335 "Warehouse Shipment"
                     ApplicationArea = Warehouse;
                     Caption = 'Re&open';
                     Image = ReOpen;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedOnly = true;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
                     trigger OnAction()
@@ -323,14 +309,11 @@ page 7335 "Warehouse Shipment"
                     ApplicationArea = Warehouse;
                     Caption = 'Autofill Qty. to Ship';
                     Image = AutofillQtyToHandle;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Have the system enter the outstanding quantity in the Qty. to Ship field.';
 
                     trigger OnAction()
                     begin
-                        AutofillQtyToHandle;
+                        AutofillQtyToHandle();
                     end;
                 }
                 action("Delete Qty. to Ship")
@@ -342,7 +325,7 @@ page 7335 "Warehouse Shipment"
 
                     trigger OnAction()
                     begin
-                        DeleteQtyToHandle;
+                        DeleteQtyToHandle();
                     end;
                 }
                 separator(Action51)
@@ -354,14 +337,12 @@ page 7335 "Warehouse Shipment"
                     Caption = 'Create Pick';
                     Ellipsis = true;
                     Image = CreateInventoryPickup;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create a warehouse pick for the items to be shipped.';
 
                     trigger OnAction()
                     begin
                         CurrPage.Update(true);
-                        CurrPage.WhseShptLines.PAGE.PickCreate;
+                        CurrPage.WhseShptLines.PAGE.PickCreate();
                     end;
                 }
             }
@@ -375,15 +356,12 @@ page 7335 "Warehouse Shipment"
                     Caption = 'P&ost Shipment';
                     Ellipsis = true;
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Post the items as shipped. Related pick documents are registered automatically.';
 
                     trigger OnAction()
                     begin
-                        PostShipmentYesNo;
+                        PostShipmentYesNo();
                     end;
                 }
                 action("Post and &Print")
@@ -392,15 +370,12 @@ page 7335 "Warehouse Shipment"
                     Caption = 'Post and &Print';
                     Ellipsis = true;
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
                     begin
-                        PostShipmentPrintYesNo;
+                        PostShipmentPrintYesNo();
                     end;
                 }
             }
@@ -410,8 +385,6 @@ page 7335 "Warehouse Shipment"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -420,39 +393,144 @@ page 7335 "Warehouse Shipment"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Create Pick_Promoted"; "Create Pick")
+                {
+                }
+                group(Category_Category6)
+                {
+                    Caption = 'Posting', Comment = 'Generated from the PromotedActionCategories property index 5.';
+                    ShowAs = SplitButton;
+
+                    actionref("P&ost Shipment_Promoted"; "P&ost Shipment")
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                group(Category_Category5)
+                {
+                    Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 4.';
+                    ShowAs = SplitButton;
+
+                    actionref("Re&lease_Promoted"; "Re&lease")
+                    {
+                    }
+                    actionref("Re&open_Promoted"; "Re&open")
+                    {
+                    }
+                }
+                group("Category_Qty. to Ship")
+                {
+                    Caption = 'Qty. to Ship';
+                    ShowAs = SplitButton;
+
+                    actionref("Autofill Qty. to Ship_Promoted"; "Autofill Qty. to Ship")
+                    {
+                    }
+                    actionref("Delete Qty. to Ship_Promoted"; "Delete Qty. to Ship")
+                    {
+                    }
+                }
+            }
+            group(Category_Prepare)
+            {
+                Caption = 'Prepare';
+
+                actionref("Get Source Documents_Promoted"; "Get Source Documents")
+                {
+                }
+                actionref("Use Filters to Get Src. Docs._Promoted"; "Use Filters to Get Src. Docs.")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Shipment', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+
+                separator(Navigate_Separator)
+                {
+                }
+
+                actionref("Posted &Whse. Shipments_Promoted"; "Posted &Whse. Shipments")
+                {
+                }
+                actionref("Pick Lines_Promoted"; "Pick Lines")
+                {
+                }
+                actionref("Registered P&ick Lines_Promoted"; "Registered P&ick Lines")
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 7.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+        }
     }
 
     trigger OnOpenPage()
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee;
-        FilterGroup(2); // set group of filters user cannot change
-        SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
-        FilterGroup(0); // set filter group back to standard
+        Rec.ErrorIfUserIsNotWhseEmployee();
+        Rec.FilterGroup(2); // set group of filters user cannot change
+        Rec.SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
+        Rec.FilterGroup(0); // set filter group back to standard
+
+        ActivateControls();
     end;
 
     var
         WhseDocPrint: Codeunit "Warehouse Document-Print";
+        [InDataSet]
+        IsShipmentLinesEditable: Boolean;
+
+    local procedure ActivateControls()
+    begin
+        IsShipmentLinesEditable := Rec.ShipmentLinesEditable();
+    end;
 
     local procedure AutofillQtyToHandle()
     begin
-        CurrPage.WhseShptLines.PAGE.AutofillQtyToHandle;
+        CurrPage.WhseShptLines.PAGE.AutofillQtyToHandle();
     end;
 
     local procedure DeleteQtyToHandle()
     begin
-        CurrPage.WhseShptLines.PAGE.DeleteQtyToHandle;
+        CurrPage.WhseShptLines.PAGE.DeleteQtyToHandle();
     end;
 
     local procedure PostShipmentYesNo()
     begin
-        CurrPage.WhseShptLines.PAGE.PostShipmentYesNo;
+        CurrPage.WhseShptLines.PAGE.PostShipmentYesNo();
     end;
 
     local procedure PostShipmentPrintYesNo()
     begin
-        CurrPage.WhseShptLines.PAGE.PostShipmentPrintYesNo;
+        CurrPage.WhseShptLines.PAGE.PostShipmentPrintYesNo();
     end;
 
     local procedure SortingMethodOnAfterValidate()

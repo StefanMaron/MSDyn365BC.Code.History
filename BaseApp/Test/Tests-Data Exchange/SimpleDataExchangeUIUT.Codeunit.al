@@ -578,7 +578,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
             Assert.AreEqual(TempDataExchFieldMappingBuf.Source, '', 'Wrong value for Source Field');
             Assert.AreEqual(TempDataExchFieldMappingBuf.Caption, TempSuggestedField."Field Caption", 'Wrong value for Caption Field');
             Assert.AreEqual(TempDataExchFieldMappingBuf.Depth, Depth, 'Wrong value for Depth Field');
-        until TempSuggestedField.Next = 0;
+        until TempSuggestedField.Next() = 0;
     end;
 
     local procedure VerifyMappedFields(var TempDataExchFieldMappingBuf: Record "Data Exch. Field Mapping Buf." temporary; DataExchMapping: Record "Data Exch. Mapping")
@@ -618,8 +618,8 @@ codeunit 134280 "Simple Data Exchange UI UT"
                 TempDataExchFieldMappingBuf."Column No."), 'Data Exch Column Def should have been created');
             Assert.AreEqual(TempDataExchFieldMappingBuf."Default Value", '', 'Wrong value for Default Value Field');
             Assert.AreEqual(TempDataExchFieldMappingBuf.Source, DataExchColumnDef.Path, 'Wrong value for Source Field');
-            Assert.AreEqual(TempDataExchFieldMappingBuf.Caption, DataExchFieldMapping.GetFieldCaption, 'Wrong value for Caption Field');
-        until DataExchFieldMapping.Next = 0;
+            Assert.AreEqual(TempDataExchFieldMappingBuf.Caption, DataExchFieldMapping.GetFieldCaption(), 'Wrong value for Caption Field');
+        until DataExchFieldMapping.Next() = 0;
     end;
 }
 

@@ -8,14 +8,14 @@ codeunit 5918 "ServOrder-Check Response Time"
         ServMgtSetup.TestField("First Warning Within (Hours)");
         RepairStatus.SetRange(Initial, true);
         if not RepairStatus.FindFirst() then
-            Error(Text005, RepairStatus.TableCaption, RepairStatus.FieldCaption(Initial));
+            Error(Text005, RepairStatus.TableCaption(), RepairStatus.FieldCaption(Initial));
         Clear(ServItemLine);
         Clear(ServHeader);
         ServHeader.SetCurrentKey(Status, "Response Date", "Response Time", Priority);
         ServHeader.SetRange(Status, ServHeader.Status::Pending);
         if ServHeader.FindSet() then
             repeat
-                CheckDate1 := WorkDate;
+                CheckDate1 := WorkDate();
                 CheckTime1 := Time;
                 CalculateCheckDate(CheckDate1, CheckTime1, ServMgtSetup."First Warning Within (Hours)");
                 ServItemLine.SetCurrentKey("Document Type", "Document No.", "Response Date");
@@ -56,8 +56,6 @@ codeunit 5918 "ServOrder-Check Response Time"
     end;
 
     var
-        Text000: Label '%1. Warning Message for Service Order %2';
-        Text001: Label 'Check the response time for service order %1';
         ServHeader: Record "Service Header";
         ServItemLine: Record "Service Item Line";
         ServMgtSetup: Record "Service Mgt. Setup";
@@ -71,6 +69,9 @@ codeunit 5918 "ServOrder-Check Response Time"
         CheckTime1: Time;
         CheckTime2: Time;
         CheckTime3: Time;
+
+        Text000: Label '%1. Warning Message for Service Order %2';
+        Text001: Label 'Check the response time for service order %1';
         Text004: Label 'Email address is missing.';
         Text005: Label '%1 with the field %2 selected cannot be found.';
         ServHrNotSetupErr: Label '%1 is not setup. Please set it up before running this scenario.', Comment = '%1 = page name';
@@ -81,7 +82,7 @@ codeunit 5918 "ServOrder-Check Response Time"
             exit(0);
 
         if ServMgtSetup."Third Warning Within (Hours)" <> 0 then begin
-            CheckDate3 := WorkDate;
+            CheckDate3 := WorkDate();
             CheckTime3 := Time;
             CalculateCheckDate(CheckDate3, CheckTime3, ServMgtSetup."Third Warning Within (Hours)");
             if ResponseDate < CheckDate3 then
@@ -92,7 +93,7 @@ codeunit 5918 "ServOrder-Check Response Time"
         end;
 
         if ServMgtSetup."Second Warning Within (Hours)" <> 0 then begin
-            CheckDate2 := WorkDate;
+            CheckDate2 := WorkDate();
             CheckTime2 := Time;
             CalculateCheckDate(CheckDate2, CheckTime2, ServMgtSetup."Second Warning Within (Hours)");
             if ResponseDate < CheckDate2 then
@@ -131,7 +132,7 @@ codeunit 5918 "ServOrder-Check Response Time"
         ServEmailQueue."Document No." := ServHeader."No.";
         ServEmailQueue.Status := ServEmailQueue.Status::" ";
         ServEmailQueue.Insert(true);
-        ServEmailQueue.ScheduleInJobQueue;
+        ServEmailQueue.ScheduleInJobQueue();
     end;
 
     local procedure CalculateCheckDate(var CheckDate: Date; var CheckTime: Time; HoursAhead: Decimal)

@@ -29,7 +29,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     begin
         Clear(Name);
         Clear(Address);
-        if Index >= JSONManagement.GetCollectionCount then
+        if Index >= JSONManagement.GetCollectionCount() then
             exit;
 
         JSONManagement.GetJObjectFromCollectionByIndex(JObject, Index);
@@ -44,7 +44,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         if Address = '' then
             exit;
 
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         JSONManagement.AddJPropertyToJObject(JObject, 'Name', Name);
         JSONManagement.AddJPropertyToJObject(JObject, 'Address', Address);
         JSONManagement.AddJObjectToCollection(JObject);
@@ -55,7 +55,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         JObject: DotNet JObject;
     begin
         JSONManagement.InitializeCollection(EmailAddressesString);
-        if Index > JSONManagement.GetCollectionCount then // cannot add where index would leave empty slots.
+        if Index > JSONManagement.GetCollectionCount() then // cannot add where index would leave empty slots.
             exit(EmailAddressesString);
 
         if JSONManagement.GetJObjectFromCollectionByIndex(JObject, Index) then begin
@@ -64,14 +64,14 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         end else
             AddEmailAddress('', Address);
 
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure GetWebsiteByIndex(Index: Integer; var Type: Option; var Address: Text; var DisplayName: Text; var Name: Text)
     var
         JObject: DotNet JObject;
     begin
-        if Index >= JSONManagement.GetCollectionCount then
+        if Index >= JSONManagement.GetCollectionCount() then
             exit;
 
         JSONManagement.GetJObjectFromCollectionByIndex(JObject, Index);
@@ -99,7 +99,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     begin
         if Address = '' then
             exit;
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         WebsiteType := Type;
         JSONManagement.AddJPropertyToJObject(JObject, 'Type', Format(WebsiteType, 0, 0));
         JSONManagement.AddJPropertyToJObject(JObject, 'Address', Address);
@@ -116,7 +116,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         if not JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'Type', Format(WebsiteType, 0, 0)) then begin
             if Address = '' then
                 exit;
-            JObject := JObject.JObject;
+            JObject := JObject.JObject();
             JSONManagement.AddJObjectToCollection(JObject);
         end else
             JObject.Remove('Type');
@@ -127,7 +127,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JObject: DotNet JObject;
     begin
-        if Index >= JSONManagement.GetCollectionCount then
+        if Index >= JSONManagement.GetCollectionCount() then
             exit;
 
         JSONManagement.GetJObjectFromCollectionByIndex(JObject, Index);
@@ -141,7 +141,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         if ImAddress = '' then
             exit;
 
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         JSONManagement.AddJValueToJObject(JObject, ImAddress);
         JSONManagement.AddJObjectToCollection(JObject);
     end;
@@ -150,7 +150,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JObject: DotNet JObject;
     begin
-        if Index >= JSONManagement.GetCollectionCount then
+        if Index >= JSONManagement.GetCollectionCount() then
             exit;
 
         JSONManagement.GetJObjectFromCollectionByIndex(JObject, Index);
@@ -177,7 +177,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         if Number = '' then
             exit;
 
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         JSONManagement.AddJPropertyToJObject(JObject, 'Type', Format(PhoneType, 0, 0));
         JSONManagement.AddJPropertyToJObject(JObject, 'Number', Number);
         JSONManagement.AddJObjectToCollection(JObject);
@@ -187,7 +187,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JObject: DotNet JObject;
     begin
-        if Index >= JSONManagement.GetCollectionCount then
+        if Index >= JSONManagement.GetCollectionCount() then
             exit;
 
         JSONManagement.GetJObjectFromCollectionByIndex(JObject, Index);
@@ -225,7 +225,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JObject: DotNet JObject;
     begin
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         AddressType := Type;
         JSONManagement.AddJPropertyToJObject(JObject, 'Type', Format(AddressType, 0, 0));
         JSONManagement.AddJPropertyToJObject(JObject, 'PostOfficeBox', PostOfficeBox);
@@ -241,7 +241,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JObject: DotNet JObject;
     begin
-        if Index >= JSONManagement.GetCollectionCount then
+        if Index >= JSONManagement.GetCollectionCount() then
             exit;
 
         JSONManagement.GetJObjectFromCollectionByIndex(JObject, Index);
@@ -255,7 +255,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         if Child = '' then
             exit;
 
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         JSONManagement.AddJValueToJObject(JObject, Child);
         JSONManagement.AddJObjectToCollection(JObject);
     end;
@@ -292,16 +292,16 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     begin
         JSONManagement.GetJSONObject(JsonObject);
 
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         JSONManagement.AddJPropertyToJObject(JObject, 'DateTime', CompletedDateTime);
         JSONManagement.AddJPropertyToJObject(JObject, 'TimeZone', CompletedTimeZone);
         JSONManagement.AddJObjectToJObject(JsonObject, 'CompletedDateTime', JObject);
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(JObject, 'DateTime', DueDateTime);
         JSONManagement.AddJPropertyToJObject(JObject, 'TimeZone', DueTimeZone);
         JSONManagement.AddJObjectToJObject(JsonObject, 'DueDateTime', JObject);
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         JSONManagement.AddJPropertyToJObject(JObject, 'DateTime', StartDateTime);
         JSONManagement.AddJPropertyToJObject(JObject, 'TimeZone', StartTimeZone);
         JSONManagement.AddJObjectToJObject(JsonObject, 'StartDateTime', JObject);
@@ -313,7 +313,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JObject: DotNet JObject;
     begin
-        if Index >= JSONManagement.GetCollectionCount then
+        if Index >= JSONManagement.GetCollectionCount() then
             exit;
 
         JSONManagement.GetJObjectFromCollectionByIndex(JObject, Index);
@@ -324,7 +324,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JObject: DotNet JObject;
     begin
-        JObject := JObject.JObject;
+        JObject := JObject.JObject();
         JSONManagement.AddJValueToJObject(JObject, Category);
         JSONManagement.AddJObjectToCollection(JObject);
     end;
@@ -389,12 +389,12 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         AddressType := Type;
         if (Address = '') and (Address2 = '') and (City = '') and (County = '') and (PostCode = '') then begin
             if JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'Type', Format(AddressType, 0, 0)) then
-                JObject.Remove;
+                JObject.Remove();
             exit;
         end;
 
         if not JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'Type', Format(AddressType, 0, 0)) then begin
-            JObject := JObject.JObject;
+            JObject := JObject.JObject();
             JSONManagement.AddJPropertyToJObject(JObject, 'Type', Format(AddressType, 0, 0));
             JSONManagement.AddJObjectToCollection(JObject);
             JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'Type', Format(AddressType, 0, 0));
@@ -410,21 +410,21 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     begin
         JSONManagement.InitializeCollection(PostalAddressesString);
         UpdatePostalAddress(AddressType::Home, Address, Address2, City, County, CountryRegionCode, PostCode);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateBusinessAddress(PostalAddressesString: Text; Address: Text[100]; Address2: Text[50]; City: Text[30]; County: Text[30]; CountryRegionCode: Code[10]; PostCode: Code[20]): Text
     begin
         JSONManagement.InitializeCollection(PostalAddressesString);
         UpdatePostalAddress(AddressType::Business, Address, Address2, City, County, CountryRegionCode, PostCode);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateOtherAddress(PostalAddressesString: Text; Address: Text[100]; Address2: Text[50]; City: Text[30]; County: Text[30]; CountryRegionCode: Code[10]; PostCode: Code[20]): Text
     begin
         JSONManagement.InitializeCollection(PostalAddressesString);
         UpdatePostalAddress(AddressType::Other, Address, Address2, City, County, CountryRegionCode, PostCode);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure GetHomeAddress(PostalAddressesString: Text; var Address: Text[100]; var Address2: Text[50]; var City: Text[30]; var County: Text[30]; var CountryRegionCode: Code[10]; var PostCode: Code[20])
@@ -461,7 +461,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         if not JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'Type', Format(PhoneType, 0, 0)) then begin
             if Number = '' then
                 exit;
-            JObject := JObject.JObject;
+            JObject := JObject.JObject();
             JSONManagement.AddJPropertyToJObject(JObject, 'Type', Format(PhoneType, 0, 0));
             JSONManagement.AddJObjectToCollection(JObject);
             JSONManagement.GetJObjectFromCollectionByPropertyValue(JObject, 'Type', Format(PhoneType, 0, 0))
@@ -473,70 +473,70 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::Home, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateBusinessPhone(PhonesString: Text; Number: Text): Text
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::Business, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateMobilePhone(PhonesString: Text; Number: Text): Text
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::Mobile, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateOtherPhone(PhonesString: Text; Number: Text): Text
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::Other, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateAssistantPhone(PhonesString: Text; Number: Text): Text
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::Assistant, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateHomeFaxPhone(PhonesString: Text; Number: Text): Text
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::HomeFax, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateBusinessFaxPhone(PhonesString: Text; Number: Text): Text
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::BusinessFax, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateOtherFaxPhone(PhonesString: Text; Number: Text): Text
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::OtherFax, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdatePagerPhone(PhonesString: Text; Number: Text): Text
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::Pager, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateRadioPhone(PhonesString: Text; Number: Text): Text
     begin
         JSONManagement.InitializeCollection(PhonesString);
         UpdatePhone(PhoneType::Radio, Number);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure GetHomePhone(PhonesString: Text; var Number: Text)
@@ -629,14 +629,14 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     begin
         JSONManagement.InitializeCollection(WebsitesString);
         UpdateWebsite(WebsiteType::Work, Address);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure UpdateHomeWebsite(WebsitesString: Text; Address: Text[80]): Text
     begin
         JSONManagement.InitializeCollection(WebsitesString);
         UpdateWebsite(WebsiteType::Home, Address);
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure HasBusinessType(BusinessTypeString: Text): Boolean
@@ -680,12 +680,12 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         BusinessType := Type;
         JSONManagement.AddJPropertyToJObject(JsonObject, 'PropertyId', BusinessTypePropertyIdTxt);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Value', Format(BusinessType, 0, 0));
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     local procedure HasExtendedProperty(ExtendedPropertyString: Text; ExpectedPropertyId: Text): Boolean
@@ -746,13 +746,13 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'PropertyId', IsCustomerPropertyIdTxt);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Value', Format(IsCustomer, 0, 2));
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure HasIsVendor(IsVendorString: Text): Boolean
@@ -786,13 +786,13 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'PropertyId', IsVendorPropertyIdTxt);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Value', Format(IsVendor, 0, 2));
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure HasIsBank(IsBankString: Text): Boolean
@@ -826,13 +826,13 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'PropertyId', IsBankPropertyIdTxt);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Value', Format(IsBank, 0, 2));
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure GetIsNavCreated(IsNavCreatedString: Text) IsNavCreated: Boolean
@@ -855,13 +855,13 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'PropertyId', IsNavCreatedPropertyIdTxt);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Value', Format(IsNavCreated, 0, 2));
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure GetNavIntegrationId(NavIntegrationIdString: Text) NavIntegrationId: Guid
@@ -882,12 +882,12 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'PropertyId', NavIntegrationIdTxt);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Value', IntegrationId);
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure HasIsContact(IsContactString: Text): Boolean
@@ -922,13 +922,13 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     var
         JsonObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
 
         JSONManagement.AddJPropertyToJObject(JsonObject, 'PropertyId', IsContactPropertyIdTxt);
         JSONManagement.AddJPropertyToJObject(JsonObject, 'Value', Format(IsContact, 0, 2));
 
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     procedure HasIsLead(IsLeadString: Text): Boolean
@@ -993,7 +993,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
     begin
         if Address2 = '' then
             exit(Address);
-        exit(Address + TypeHelper.CRLFSeparator + Address2);
+        exit(Address + TypeHelper.CRLFSeparator() + Address2);
     end;
 
     procedure SplitStreet(Street: Text; var Address: Text[100]; var Address2: Text[50])
@@ -1001,7 +1001,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         TypeHelper: Codeunit "Type Helper";
         NewLinePos: Integer;
     begin
-        NewLinePos := StrPos(Street, TypeHelper.CRLFSeparator);
+        NewLinePos := StrPos(Street, TypeHelper.CRLFSeparator());
         if NewLinePos = 0 then begin
             Address := CopyStr(Street, 1, MaxStrLen(Address));
             exit;
@@ -1063,7 +1063,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         if RlshpMgtCommentLine.FindSet() then
             repeat
                 if (CommentString <> '') or (RlshpMgtCommentLine.Comment = '') then
-                    CommentString += TypeHelper.CRLFSeparator;
+                    CommentString += TypeHelper.CRLFSeparator();
                 CommentString += RlshpMgtCommentLine.Comment;
             until RlshpMgtCommentLine.Next() = 0;
         exit(CommentString);
@@ -1090,7 +1090,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         TypeHelper: Codeunit "Type Helper";
         CrLfPos: Integer;
     begin
-        CrLfPos := StrPos(RemainingPersonalNotes, TypeHelper.CRLFSeparator);
+        CrLfPos := StrPos(RemainingPersonalNotes, TypeHelper.CRLFSeparator());
 
         if (CrLfPos <> 0) and (CrLfPos <= MaxStrLen(RlshpMgtCommentLine.Comment) + 1) then begin
             RlshpMgtCommentLine.Comment := CopyStr(RemainingPersonalNotes, 1, CrLfPos - 1);
@@ -1122,19 +1122,19 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         JSONManagement2: Codeunit "JSON Management";
         EmptyJsonObjectString: Text;
     begin
-        JSONManagement2.InitializeEmptyObject;
-        EmptyJsonObjectString := JSONManagement2.WriteObjectToString;
+        JSONManagement2.InitializeEmptyObject();
+        EmptyJsonObjectString := JSONManagement2.WriteObjectToString();
         exit((JSONString = '') or (JSONString = EmptyJsonObjectString));
     end;
 
     procedure WriteCollectionToString(): Text
     begin
-        exit(JSONManagement.WriteCollectionToString);
+        exit(JSONManagement.WriteCollectionToString());
     end;
 
     procedure WriteObjectToString(): Text
     begin
-        exit(JSONManagement.WriteObjectToString);
+        exit(JSONManagement.WriteObjectToString());
     end;
 }
 

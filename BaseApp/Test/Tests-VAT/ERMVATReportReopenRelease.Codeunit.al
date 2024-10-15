@@ -68,7 +68,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
         VATReportSetup.Modify();
 
         asserterror VATReportReleaseReopen.Reopen(VATReportHdr);
-        Assert.ExpectedError(StrSubstNo(MissingSetupError, VATReportSetup.TableCaption));
+        Assert.ExpectedError(StrSubstNo(MissingSetupError, VATReportSetup.TableCaption()));
 
         TearDown;
     end;
@@ -100,7 +100,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
     begin
         CreateVATReportHeaderAndLines(VATReportHdr);
         asserterror VATReportReleaseReopen.Submit(VATReportHdr);
-        Assert.ExpectedError(StrSubstNo(SubmitError2, VATReportHdr.TableCaption));
+        Assert.ExpectedError(StrSubstNo(SubmitError2, VATReportHdr.TableCaption()));
 
         TearDown;
     end;
@@ -116,13 +116,13 @@ codeunit 134058 "ERM VAT Report Reopen Release"
 
         for i := 1 to ArrayLen(VATReportHeader) do
             with VATReportHeader[i] do begin
-                Init;
+                Init();
                 "VAT Report Config. Code" := "VAT Report Config. Code"::"EC Sales List";
                 "VAT Report Type" := "VAT Report Type"::Corrective;
                 "No." := LibraryUtility.GenerateGUID();
-                "Start Date" := WorkDate;
-                "End Date" := WorkDate;
-                Insert;
+                "Start Date" := WorkDate();
+                "End Date" := WorkDate();
+                Insert();
             end;
 
         VATReportHeader[2].Validate("Original Report No.", VATReportHeader[1]."No.");

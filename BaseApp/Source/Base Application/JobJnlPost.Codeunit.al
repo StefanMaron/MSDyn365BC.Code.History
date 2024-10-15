@@ -5,22 +5,23 @@ codeunit 1021 "Job Jnl.-Post"
     trigger OnRun()
     begin
         JobJnlLine.Copy(Rec);
-        Code;
+        Code();
         Copy(JobJnlLine);
     end;
 
     var
-        Text000: Label 'cannot be filtered when posting recurring journals.';
-        Text001: Label 'Do you want to post the journal lines?';
-        Text002: Label 'There is nothing to post.';
-        Text003: Label 'The journal lines were successfully posted.';
-        Text004: Label 'The journal lines were successfully posted. ';
-        Text005: Label 'You are now in the %1 journal.';
         JobJnlTemplate: Record "Job Journal Template";
         JobJnlLine: Record "Job Journal Line";
+        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         TempJnlBatchName: Code[10];
         HideDialog: Boolean;
         SuppressCommit: Boolean;
+
+        Text000: Label 'cannot be filtered when posting recurring journals.';
+        Text001: Label 'Do you want to post the journal lines?';
+        Text003: Label 'The journal lines were successfully posted.';
+        Text004: Label 'The journal lines were successfully posted. ';
+        Text005: Label 'You are now in the %1 journal.';
 
     local procedure "Code"()
     var
@@ -53,7 +54,7 @@ codeunit 1021 "Job Jnl.-Post"
 
             if not HideDialog then
                 if "Line No." = 0 then
-                    Message(Text002)
+                    Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
                 else
                     if TempJnlBatchName = "Journal Batch Name" then
                         Message(Text003)
@@ -64,7 +65,7 @@ codeunit 1021 "Job Jnl.-Post"
                           "Journal Batch Name");
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset;
+                Reset();
                 FilterGroup(2);
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");

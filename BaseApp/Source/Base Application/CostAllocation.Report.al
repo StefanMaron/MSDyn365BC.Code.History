@@ -36,7 +36,7 @@ report 1131 "Cost Allocation"
             begin
                 if AllocSourceErrorFound or AllocTargetErrorFound then begin
                     ShowAllocations(not AllocSourceErrorFound);
-                    CurrReport.Quit;
+                    CurrReport.Quit();
                 end;
             end;
 
@@ -153,12 +153,11 @@ report 1131 "Cost Allocation"
                             end;
                     end;
 
-                    if StrLen(AllocTargetText) < MaxStrLen(TempCostJnlLine.Description) then begin
+                    if StrLen(AllocTargetText) < MaxStrLen(TempCostJnlLine.Description) then
                         if "Target Cost Center" <> '' then
                             AllocTargetText := AllocTargetText + "Target Cost Center" + ', '
                         else
                             AllocTargetText := AllocTargetText + "Target Cost Object" + ', ';
-                    end;
 
                     AllocTotalAmount := AllocTotalAmount + AllocAmount;
 
@@ -204,7 +203,7 @@ report 1131 "Cost Allocation"
             begin
                 if (LastLevel <> 0) and (Level > LastLevel) then begin
                     if EntriesPerLevel > 0 then
-                        PostCostJournalLines;
+                        PostCostJournalLines();
                     LastCostJourLineNo := 0;
                     EntriesPerLevel := 0;
                 end;
@@ -222,9 +221,9 @@ report 1131 "Cost Allocation"
                     Error(Text006);
 
                 if EntriesPerLevel > 0 then
-                    PostCostJournalLines;
+                    PostCostJournalLines();
 
-                Window.Close;
+                Window.Close();
                 if CurrReport.UseRequestPage then
                     Message(Text007, TotalEntries);
             end;
@@ -341,7 +340,7 @@ report 1131 "Cost Allocation"
 
     trigger OnInitReport()
     begin
-        InitializeRequest(1, 99, WorkDate, '', '');
+        InitializeRequest(1, 99, WorkDate(), '', '');
     end;
 
     var
@@ -454,7 +453,7 @@ report 1131 "Cost Allocation"
             "Allocation ID" := AllocID;
             "Source Code" := SourceCodeSetup."Cost Allocation";
             "Budget Name" := CostBudgetName.Name;
-            Insert;
+            Insert();
 
             if Amount > 0 then
                 TotalDebit := TotalDebit + Amount
@@ -489,7 +488,7 @@ report 1131 "Cost Allocation"
             until TempCostJnlLine.Next() = 0;
             TempCostJnlLine.DeleteAll();
         end;
-        Window2.Close;
+        Window2.Close();
     end;
 
     procedure InitializeRequest(NewFromLevel: Integer; NewToLevel: Integer; NewAllocDate: Date; NewAllocVariant: Code[10]; NewCostBudgetName: Code[10])

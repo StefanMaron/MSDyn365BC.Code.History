@@ -2262,7 +2262,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
             repeat
                 if CustomerTemplField.Get(Database::"Customer Templ.", CustomerCardPageControlField.FieldNo) then begin
                     CustomerTemplCardPageControlField.SetRange(FieldNo, CustomerCardPageControlField.FieldNo);
-                    if CustomerTemplCardPageControlField.IsEmpty then
+                    if CustomerTemplCardPageControlField.IsEmpty() then
                         Error('%1 should exist on the customer template card.', CustomerCardPageControlField.ControlName);
                 end;
             until CustomerCardPageControlField.Next() = 0;
@@ -2284,7 +2284,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
             repeat
                 if VendorTemplField.Get(Database::"Vendor Templ.", VendorCardPageControlField.FieldNo) then begin
                     VendorTemplCardPageControlField.SetRange(FieldNo, VendorCardPageControlField.FieldNo);
-                    if VendorTemplCardPageControlField.IsEmpty then
+                    if VendorTemplCardPageControlField.IsEmpty() then
                         Error('%1 should exist on the Vendor template card.', VendorCardPageControlField.ControlName);
                 end;
             until VendorCardPageControlField.Next() = 0;
@@ -2311,7 +2311,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
             repeat
                 if ItemTemplField.Get(Database::"Item Templ.", ItemCardPageControlField.FieldNo) and not (FieldExclusionList.Contains(ItemCardPageControlField.FieldNo)) then begin
                     ItemTemplCardPageControlField.SetRange(FieldNo, ItemCardPageControlField.FieldNo);
-                    if ItemTemplCardPageControlField.IsEmpty then
+                    if ItemTemplCardPageControlField.IsEmpty() then
                         Error('%1 should exist on the Item template card.', ItemCardPageControlField.ControlName);
                 end;
             until ItemCardPageControlField.Next() = 0;

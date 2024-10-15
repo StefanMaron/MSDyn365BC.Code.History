@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 page 493 "Resource Price Changes"
 {
     ApplicationArea = Jobs;
@@ -27,22 +27,22 @@ page 493 "Resource Price Changes"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the resource code for which the alternate unit price is valid.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the currency code that the alternate unit price is in.';
                 }
-                field("Current Unit Price"; "Current Unit Price")
+                field("Current Unit Price"; Rec."Current Unit Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the alternate unit price of the resource.';
                 }
-                field("New Unit Price"; "New Unit Price")
+                field("New Unit Price"; Rec."New Unit Price")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the new unit price that is valid for the selected combination of resource type, resource code, job number, or work type.';

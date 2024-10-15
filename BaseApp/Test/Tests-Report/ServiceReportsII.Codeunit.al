@@ -87,8 +87,8 @@ codeunit 136905 "Service Reports - II"
         Commit();
 
         // 2. Exercise: Run Create Contract Invoices Report.
-        CurrentWorkDate := WorkDate;
-        WorkDate := CalcDate(ServiceContractHeader."Service Period", WorkDate);
+        CurrentWorkDate := WorkDate();
+        WorkDate := CalcDate(ServiceContractHeader."Service Period", WorkDate());
         RunCreateContractInvoices(ServiceContractHeader);
 
         // 3. Verify: Verify Entry with Customer No..
@@ -676,11 +676,11 @@ codeunit 136905 "Service Reports - II"
 
         // [GIVEN] Shipped Service Order.
         // [WHEN] "Navigate" invoked.
-        DocumentNo := NavigateForServiceShipment(WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        DocumentNo := NavigateForServiceShipment(WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
 
         // [THEN] Number of warranty ledger entries are correct.
         WarrantyLedgerEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(WarrantyLedgerEntry.TableCaption, WarrantyLedgerEntry.Count);
+        VerifyDocumentEntriesReport(WarrantyLedgerEntry.TableCaption(), WarrantyLedgerEntry.Count);
     end;
 
     local procedure NavigateForServiceShipment(WarrantyStartingDate: Date; WarrantyEndingDate: Date): Code[20]
@@ -1120,7 +1120,7 @@ codeunit 136905 "Service Reports - II"
     begin
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
-        ServiceContractHeader.Validate("Starting Date", WorkDate);
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
         ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
         ServiceContractHeader.Modify(true);
     end;
@@ -1145,7 +1145,7 @@ codeunit 136905 "Service Reports - II"
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         CreateContractInvoices.SetTableView(ServiceContractHeader);
-        CreateContractInvoices.SetOptions(WorkDate, WorkDate, CreateInvoices::"Print Only");
+        CreateContractInvoices.SetOptions(WorkDate(), WorkDate(), CreateInvoices::"Print Only");
         CreateContractInvoices.UseRequestPage(false);
         CreateContractInvoices.Run();
     end;
@@ -1162,11 +1162,11 @@ codeunit 136905 "Service Reports - II"
         ServiceContractHeader.SetRange("Customer No.", CustomerNo);
         ServiceMgtSetup.Get();
         InvoiceNo :=
-          NoSeriesManagement.GetNextNo(ServiceMgtSetup."Contract Invoice Nos.", WorkDate, false);
+          NoSeriesManagement.GetNextNo(ServiceMgtSetup."Contract Invoice Nos.", WorkDate(), false);
 
         Clear(CreateContractInvoices);
         CreateContractInvoices.SetTableView(ServiceContractHeader);
-        CreateContractInvoices.SetOptions(WorkDate, CalcDate('<-CM+1M>', WorkDate), CreateInvoices::"Create Invoices");
+        CreateContractInvoices.SetOptions(WorkDate(), CalcDate('<-CM+1M>', WorkDate()), CreateInvoices::"Create Invoices");
         CreateContractInvoices.UseRequestPage(false);
         CreateContractInvoices.Run();
     end;
@@ -1309,7 +1309,7 @@ codeunit 136905 "Service Reports - II"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(ItemLedgerEntry.TableCaption, ItemLedgerEntry.Count);
+        VerifyDocumentEntriesReport(ItemLedgerEntry.TableCaption(), ItemLedgerEntry.Count);
     end;
 
     local procedure VerifyLedgerEntries(DocumentNo: Code[20]; CustomerNo: Code[20]; Amount: Decimal; AmountCaption: Text[1024])
@@ -1322,19 +1322,19 @@ codeunit 136905 "Service Reports - II"
         VerifyServiceLedgerAndValueEntry(DocumentNo);
 
         GLEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(GLEntry.TableCaption, GLEntry.Count);
+        VerifyDocumentEntriesReport(GLEntry.TableCaption(), GLEntry.Count);
 
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(CustLedgerEntry.TableCaption, CustLedgerEntry.Count);
+        VerifyDocumentEntriesReport(CustLedgerEntry.TableCaption(), CustLedgerEntry.Count);
         LibraryReportDataset.SetRange(CustNoCaption, CustomerNo);
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals(AmountCaption, Amount);
 
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.Count);
+        VerifyDocumentEntriesReport(DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.Count);
 
         VATEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(VATEntry.TableCaption, VATEntry.Count);
+        VerifyDocumentEntriesReport(VATEntry.TableCaption(), VATEntry.Count);
     end;
 
     local procedure SwapMonthAndDay(DateString: Text) SwappedDateString: Text
@@ -1357,10 +1357,10 @@ codeunit 136905 "Service Reports - II"
         ValueEntry: Record "Value Entry";
     begin
         ServiceLedgerEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(ServiceLedgerEntry.TableCaption, ServiceLedgerEntry.Count);
+        VerifyDocumentEntriesReport(ServiceLedgerEntry.TableCaption(), ServiceLedgerEntry.Count);
 
         ValueEntry.SetRange("Document No.", DocumentNo);
-        VerifyDocumentEntriesReport(ValueEntry.TableCaption, ValueEntry.Count);
+        VerifyDocumentEntriesReport(ValueEntry.TableCaption(), ValueEntry.Count);
     end;
 
     local procedure VerifyServiceCreditMemoReport(ServiceCrMemoNo: Code[20])
@@ -1559,7 +1559,7 @@ codeunit 136905 "Service Reports - II"
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', -ServiceLedgerEntry.Quantity);
             LibraryReportDataset.AssertCurrentRowValueEquals('CostAmount', -ServiceLedgerEntry."Cost Amount");
-        until ServiceLedgerEntry.Next = 0;
+        until ServiceLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyServiceInvoiceLinesDescription(ServiceContractHeader: array[2] of Record "Service Contract Header"; InvoiceNo: Code[20])

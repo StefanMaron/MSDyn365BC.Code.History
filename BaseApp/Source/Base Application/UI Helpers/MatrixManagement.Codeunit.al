@@ -6,12 +6,13 @@ codeunit 9200 "Matrix Management"
     end;
 
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLSetupRead: Boolean;
+
         Text001: Label 'The previous column set could not be found.';
         Text002: Label 'The period could not be found.';
         Text003: Label 'There are no Calendar entries within the filter.';
         RoundingFormatTxt: Label '<Precision,%1><Standard Format,0>', Locked = true;
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GLSetupRead: Boolean;
 
     procedure SetPeriodColumnSet(DateFilter: Text; PeriodType: Enum "Analysis Period Type"; Direction: Option Backward,Forward; var FirstColumn: Date; var LastColumn: Date; NoOfColumns: Integer)
     var
@@ -23,7 +24,7 @@ codeunit 9200 "Matrix Management"
     begin
         Period.SetRange("Period Type", PeriodType);
         if DateFilter = '' then begin
-            Period."Period Start" := WorkDate;
+            Period."Period Start" := WorkDate();
             if PeriodPageMgt.FindDate('<=', Period, PeriodType) then
                 Steps := 1;
             PeriodPageMgt.NextDate(Steps, Period, PeriodType);
@@ -43,7 +44,7 @@ codeunit 9200 "Matrix Management"
         if Direction = Direction::Forward then begin
             Period.SetFilter("Period Start", DateFilter);
             if Period.Get(PeriodType, LastColumn) then
-                Period.Next;
+                Period.Next();
             TmpFirstColumn := Period."Period Start";
             Period.Next(NoOfColumns - 1);
             TmpLastColumn := Period."Period Start";
@@ -82,7 +83,7 @@ codeunit 9200 "Matrix Management"
         case "Matrix Page Step Type".FromInteger(SetWanted) of
             "Matrix Page Step Type"::Initial:
                 if DimVal.Find('-') then begin
-                    RecordPosition := DimVal.GetPosition;
+                    RecordPosition := DimVal.GetPosition();
                     FirstColumn := DimVal.Code;
                     TmpSteps := DimVal.Next(NoOfColumns - 1);
                     LastColumn := DimVal.Code;
@@ -100,7 +101,7 @@ codeunit 9200 "Matrix Management"
                     DimVal.SetPosition(RecordPosition);
                     DimVal.Find('=');
                     if DimVal.Next(NoOfColumns) <> 0 then begin
-                        RecordPosition := DimVal.GetPosition;
+                        RecordPosition := DimVal.GetPosition();
                         TmpFirstColumn := DimVal.Code;
                         TmpSteps := DimVal.Next(NoOfColumns - 1);
                         TmpLastColumn := DimVal.Code;
@@ -119,7 +120,7 @@ codeunit 9200 "Matrix Management"
                     if DimVal.Next(-1) <> 0 then begin
                         TmpLastColumn := DimVal.Code;
                         TmpSteps := DimVal.Next(-NoOfColumns + 1);
-                        RecordPosition := DimVal.GetPosition;
+                        RecordPosition := DimVal.GetPosition();
                         TmpFirstColumn := DimVal.Code;
                         if TmpLastColumn <> FirstColumn then begin
                             FirstColumn := TmpFirstColumn;
@@ -133,8 +134,8 @@ codeunit 9200 "Matrix Management"
                 if RecordPosition <> '' then begin
                     DimVal.SetPosition(RecordPosition);
                     DimVal.Find('=');
-                    if DimVal.Next <> 0 then begin
-                        RecordPosition := DimVal.GetPosition;
+                    if DimVal.Next() <> 0 then begin
+                        RecordPosition := DimVal.GetPosition();
                         TmpFirstColumn := DimVal.Code;
                         TmpSteps := DimVal.Next(NoOfColumns - 1);
                         TmpLastColumn := DimVal.Code;
@@ -151,7 +152,7 @@ codeunit 9200 "Matrix Management"
                     DimVal.SetPosition(RecordPosition);
                     DimVal.Find('=');
                     if DimVal.Next(-1) <> 0 then begin
-                        RecordPosition := DimVal.GetPosition;
+                        RecordPosition := DimVal.GetPosition();
                         TmpFirstColumn := DimVal.Code;
                         TmpSteps := DimVal.Next(NoOfColumns - 1);
                         TmpLastColumn := DimVal.Code;
@@ -266,7 +267,7 @@ codeunit 9200 "Matrix Management"
                 end;
         end;
 
-        RecordPosition := RecRef.GetPosition;
+        RecordPosition := RecRef.GetPosition();
 
         repeat
             CurrSetLength := CurrSetLength + 1;
@@ -275,7 +276,7 @@ codeunit 9200 "Matrix Management"
                 CaptionSet[CurrSetLength] := CopyStr(Caption, 1, MaxCaptionLength)
             else
                 CaptionSet[CurrSetLength] := CopyStr(Caption, 1, MaxCaptionLength - 3) + '...';
-        until (CurrSetLength = MaximumSetLength) or (RecRef.Next <> 1);
+        until (CurrSetLength = MaximumSetLength) or (RecRef.Next() <> 1);
 
         if CurrSetLength = 1 then
             CaptionRange := CaptionSet[1]
@@ -312,9 +313,9 @@ codeunit 9200 "Matrix Management"
         case "Matrix Page Step Type".FromInteger(SetWanted) of
             "Matrix Page Step Type"::Initial:
                 begin
-                    if (PeriodType = PeriodType::"Accounting Period") or (DateFilter <> '') then begin
-                        FindDate('-', Calendar, PeriodType, true);
-                    end else
+                    if (PeriodType = PeriodType::"Accounting Period") or (DateFilter <> '') then
+                        FindDate('-', Calendar, PeriodType, true)
+                    else
                         Calendar."Period Start" := 0D;
                     FindDate('=><', Calendar, PeriodType, true);
                 end;
@@ -359,7 +360,7 @@ codeunit 9200 "Matrix Management"
                 end;
         end;
 
-        RecordPosition := Calendar.GetPosition;
+        RecordPosition := Calendar.GetPosition();
 
         repeat
             GeneratePeriodAndCaption(CaptionSet, PeriodRecords, CurrSetLength, Calendar, UseNameForCaption, PeriodType);

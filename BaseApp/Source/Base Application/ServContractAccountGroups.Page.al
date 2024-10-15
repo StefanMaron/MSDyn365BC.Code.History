@@ -23,12 +23,12 @@ page 6070 "Serv. Contract Account Groups"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service contract account group.';
                 }
-                field("Non-Prepaid Contract Acc."; "Non-Prepaid Contract Acc.")
+                field("Non-Prepaid Contract Acc."; Rec."Non-Prepaid Contract Acc.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the general ledger account number for the non-prepaid account.';
                 }
-                field("Prepaid Contract Acc."; "Prepaid Contract Acc.")
+                field("Prepaid Contract Acc."; Rec."Prepaid Contract Acc.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the general ledger account number for the prepaid account.';

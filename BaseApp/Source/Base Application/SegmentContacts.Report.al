@@ -13,7 +13,7 @@ report 5063 "Segment - Contacts"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(SegmentHeaderCaption; TableCaption + ': ' + SegmentFilter)
@@ -138,8 +138,8 @@ report 5063 "Segment - Contacts"
 
     trigger OnPreReport()
     begin
-        ContFilter := Contact.GetFilters;
-        SegmentFilter := "Segment Header".GetFilters;
+        ContFilter := Contact.GetFilters();
+        SegmentFilter := "Segment Header".GetFilters();
 
         Counter := 0;
         GroupNo := 1;

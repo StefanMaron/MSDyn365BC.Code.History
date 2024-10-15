@@ -36,7 +36,7 @@ report 1130 "Delete Cost Entries"
                 CostEntry: Record "Cost Entry";
             begin
                 DeleteAll();
-                Reset;
+                Reset();
                 SetRange(Source, Source::Allocation);
                 if FindLast() then begin
                     CostEntry.Get("To Cost Entry No.");
@@ -120,16 +120,17 @@ report 1130 "Delete Cost Entries"
     end;
 
     var
+        CostRegister2: Record "Cost Register";
+        CostRegister3: Record "Cost Register";
+        CostAccSetup: Record "Cost Accounting Setup";
+        Window: Dialog;
+
         Text000: Label 'From Register No. must not be higher than To Register No..';
         Text001: Label 'All corresponding cost entries and register entries will be deleted. Do you want to delete cost register %1 to %2?';
         Text004: Label 'Are you sure?';
         Text005: Label 'Delete cost register\';
         Text006: Label 'Register  no.      #1######';
         Text007: Label 'Register %1 can no longer be deleted because it is marked as closed.';
-        CostRegister2: Record "Cost Register";
-        CostRegister3: Record "Cost Register";
-        CostAccSetup: Record "Cost Accounting Setup";
-        Window: Dialog;
         CostRegisterHasBeenModifiedErr: Label 'Another user has modified the cost register. The To Register No. field must be equal to %1.\Run the Delete Cost Entries batch job again.';
 
     procedure InitializeRequest(NewFromRegisterNo: Integer; NewToRegisterNo: Integer)

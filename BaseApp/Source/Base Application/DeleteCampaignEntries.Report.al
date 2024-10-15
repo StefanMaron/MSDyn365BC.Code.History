@@ -40,7 +40,7 @@ report 5189 "Delete Campaign Entries"
 
     trigger OnPostReport()
     begin
-        Message(Text000, NoOfToDos, "Campaign Entry".TableCaption);
+        Message(Text000, NoOfToDos, "Campaign Entry".TableCaption());
     end;
 
     var

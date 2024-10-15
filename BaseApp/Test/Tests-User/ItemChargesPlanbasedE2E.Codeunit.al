@@ -696,7 +696,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         repeat
             Assert.IsTrue(Evaluate(LineAmount, DetailedVendorLedgEntries.Amount.Value), 'Evaluate Failed On Amount');
             TotalAmount += LineAmount;
-        until not DetailedVendorLedgEntries.Next;
+        until not DetailedVendorLedgEntries.Next();
 
         Assert.AreEqual(0, TotalAmount, 'The Ledger Entries Total Amount Should Always Be 0');
     end;
@@ -716,7 +716,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         repeat
             Assert.IsTrue(Evaluate(LineAmount, DetailedCustLedgEntries.Amount.Value), 'Evaluate Failed On Amount');
             TotalAmount += LineAmount;
-        until not DetailedCustLedgEntries.Next;
+        until not DetailedCustLedgEntries.Next();
 
         Assert.AreEqual(0, TotalAmount, 'The Ledger Entries Total Amount Should Always Be 0');
     end;
@@ -734,7 +734,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     procedure PostedPurchaseInvoicePageHandler(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice")
     begin
         LibraryVariableStorage.Enqueue(PostedPurchaseInvoice."No.".Value);
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [PageHandler]
@@ -742,7 +742,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     procedure PostedPurchaseCreditMemoHandler(var PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo")
     begin
         LibraryVariableStorage.Enqueue(PostedPurchaseCreditMemo."No.".Value);
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
     end;
 
     [ModalPageHandler]
@@ -758,7 +758,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     procedure PostedSalesInvoicePageHandler(var PostedSalesInvoice: TestPage "Posted Sales Invoice")
     begin
         LibraryVariableStorage.Enqueue(PostedSalesInvoice."No.".Value);
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [PageHandler]
@@ -766,7 +766,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     procedure PostedSalesCreditMemoHandler(var PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo")
     begin
         LibraryVariableStorage.Enqueue(PostedSalesCreditMemo."No.".Value);
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     local procedure CreateItemFromVendor(var VendorNo: Code[20]) ItemNo: Code[20]

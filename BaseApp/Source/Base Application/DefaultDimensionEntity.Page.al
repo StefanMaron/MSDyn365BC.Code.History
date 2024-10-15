@@ -62,7 +62,7 @@ page 5509 "Default Dimension Entity"
         FilterView: Text;
     begin
         if not ParentIdSpecifiedInGetRequest then begin
-            FilterView := GetView;
+            FilterView := GetView();
             ParentIdFilter := GetFilter(ParentId);
             if ParentIdFilter = '' then
                 Error(MissingParentIdErr);
@@ -78,7 +78,7 @@ page 5509 "Default Dimension Entity"
         ParentIdFilter: Text;
     begin
         if IsNullGuid(ParentId) then begin
-            FilterView := GetView;
+            FilterView := GetView();
             ParentIdFilter := GetFilter(ParentId);
             Validate(ParentId, TypeHelper.GetGuidAsString(ParentIdFilter));
             SetView(FilterView);

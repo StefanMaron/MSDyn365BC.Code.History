@@ -5,7 +5,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
 
     trigger OnRun()
     begin
-        InitSetupData;
+        InitSetupData();
     end;
 
     var
@@ -43,7 +43,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
                         exit;
 
         AccSchedKPIWebSrvSetup.LockTable();
-        if not AccSchedKPIWebSrvSetup.Get then begin
+        if not AccSchedKPIWebSrvSetup.Get() then begin
             AccSchedKPIWebSrvSetup.Init();
             AccSchedKPIWebSrvSetup.Insert();
         end;
@@ -60,7 +60,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
 
         Window.Open(UpdatingMsg);
         if not GuiAllowed then
-            WorkDate := LogInManagement.GetDefaultWorkDate;
+            WorkDate := LogInManagement.GetDefaultWorkDate();
 
         AccSchedKPIBuffer.DeleteAll();
 
@@ -101,7 +101,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
 
         AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
         NoOfLines *= NoOfActiveAccSchedLines;
-        LastClosedDate := AccSchedKPIWebSrvSetup.GetLastClosedAccDate;
+        LastClosedDate := AccSchedKPIWebSrvSetup.GetLastClosedAccDate();
 
         for i := 0 to NoOfLines - 1 do begin
             if i mod 10 = 0 then
@@ -114,20 +114,20 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := GLEntry.GetLastEntryNo();
         AccSchedKPIWebSrvSetup.Modify();
         Commit();
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure InsertTempColumn(ColumnType: Enum "Column Layout Type"; EntryType: Enum "Column Layout Entry Type"; LastYear: Boolean)
     begin
         with TempColumnLayout do begin
             if FindLast() then;
-            Init;
+            Init();
             "Line No." += 10000;
             "Column Type" := ColumnType;
             "Ledger Entry Type" := EntryType;
             if LastYear then
                 Evaluate("Comparison Date Formula", '<-1Y>');
-            Insert;
+            Insert();
         end;
     end;
 
@@ -192,7 +192,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         with AccSchedKPIWebSrvSetup do
             if (("Forecasted Values Start" = "Forecasted Values Start"::"After Latest Closed Period") and
                 not (Date <= LastClosedDate)) or
-               (("Forecasted Values Start" = "Forecasted Values Start"::"After Current Date") and (Date > WorkDate))
+               (("Forecasted Values Start" = "Forecasted Values Start"::"After Current Date") and (Date > WorkDate()))
             then begin
                 AccSchedKPIBuffer."Net Change Forecast" := AccSchedKPIBuffer."Net Change Budget"; // Net Change Budget
                 AccSchedKPIBuffer."Balance at Date Forecast" := AccSchedKPIBuffer."Balance at Date Budget"; // Balance at Date Budget

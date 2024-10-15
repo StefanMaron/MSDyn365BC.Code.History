@@ -33,7 +33,7 @@ codeunit 399 "Copy Tax Setup From Company"
         if CopyTable[4] then
             CopyTaxDetail(SourceCompany);
 
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure CopyTaxJurisdiction(SourceCompany: Record Company)

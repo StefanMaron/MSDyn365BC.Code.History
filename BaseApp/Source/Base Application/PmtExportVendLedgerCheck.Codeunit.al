@@ -30,7 +30,7 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
 
         if not VendLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr,
-              VendLedgEntry2.FieldCaption("Document Type"), VendLedgEntry2.TableCaption, VendLedgEntry2."Document Type"::Payment);
+              VendLedgEntry2.FieldCaption("Document Type"), VendLedgEntry2.TableCaption(), VendLedgEntry2."Document Type"::Payment);
     end;
 
     local procedure CheckPaymentMethod(var VendLedgEntry: Record "Vendor Ledger Entry")
@@ -83,7 +83,7 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
 
         if not VendLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr, VendLedgEntry2.FieldCaption("Bal. Account Type"),
-              VendLedgEntry2.TableCaption, VendLedgEntry2."Bal. Account Type"::"Bank Account");
+              VendLedgEntry2.TableCaption(), VendLedgEntry2."Bal. Account Type"::"Bank Account");
     end;
 
     local procedure CheckBalAccountNo(var VendLedgEntry: Record "Vendor Ledger Entry")
@@ -96,7 +96,7 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
 
         if not VendLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr, VendLedgEntry2.FieldCaption("Bal. Account No."),
-              VendLedgEntry2.TableCaption, VendLedgEntry."Bal. Account No.");
+              VendLedgEntry2.TableCaption(), VendLedgEntry."Bal. Account No.");
     end;
 
     local procedure CheckBankAccount(var VendLedgEntry: Record "Vendor Ledger Entry")

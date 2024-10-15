@@ -19,13 +19,13 @@ page 865 "Report Selection - Cash Flow"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -42,7 +42,7 @@ page 865 "Report Selection - Cash Flow"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        NewRecord();
     end;
 }
 

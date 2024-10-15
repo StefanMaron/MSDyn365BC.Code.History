@@ -13,59 +13,59 @@ page 7154 "Item Analy. View Budg. Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Budget Name"; "Budget Name")
+                field("Budget Name"; Rec."Budget Name")
                 {
                     ApplicationArea = ItemBudget;
                     ToolTip = 'Specifies the name of the budget that the analysis view budget entries are linked to.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location to which the analysis view budget entry was posted.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item that the analysis view budget entry is linked to.';
                 }
-                field("Dimension 1 Value Code"; "Dimension 1 Value Code")
+                field("Dimension 1 Value Code"; Rec."Dimension 1 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value you selected for the analysis view dimension that you defined as Dimension 1 on the analysis view card.';
                 }
-                field("Dimension 2 Value Code"; "Dimension 2 Value Code")
+                field("Dimension 2 Value Code"; Rec."Dimension 2 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which dimension value you have selected for the analysis view dimension that you defined as Dimension 2 on the analysis view card.';
                 }
-                field("Dimension 3 Value Code"; "Dimension 3 Value Code")
+                field("Dimension 3 Value Code"; Rec."Dimension 3 Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies which dimension value you have selected for the analysis view dimension that you defined as Dimension 1 on the analysis view card.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date on which the item budget entries in an analysis view budget entry were posted.';
                 }
-                field("Sales Amount"; "Sales Amount")
+                field("Sales Amount"; Rec."Sales Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item budget entry sales amount included in an analysis view budget entry.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item budget entry cost amount included in an analysis view budget entry.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -75,7 +75,7 @@ page 7154 "Item Analy. View Budg. Entries"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDown;
+                        DrillDown();
                     end;
                 }
             }

@@ -43,7 +43,7 @@ codeunit 6310 "PBI Top Opportunities Calc."
             Value := TempOpportunity."Estimated Value (LCY)";
             "Measure Name" := TempOpportunity.Description;
             "Measure No." := TempOpportunity."No.";
-            Insert;
+            Insert();
         end;
     end;
 }

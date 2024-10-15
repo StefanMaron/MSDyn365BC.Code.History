@@ -6,7 +6,6 @@ codeunit 5639 "FA Get Journal"
     end;
 
     var
-        Text000: Label 'You cannot duplicate using the current journal. Check the table %1.';
         DeprBook: Record "Depreciation Book";
         FAJnlSetup: Record "FA Journal Setup";
         FAJnlTemplate: Record "FA Journal Template";
@@ -17,6 +16,8 @@ codeunit 5639 "FA Get Journal"
         InsuranceJnlBatch: Record "Insurance Journal Batch";
         TemplateName2: Code[10];
         BatchName2: Code[10];
+
+        Text000: Label 'You cannot duplicate using the current journal. Check the table %1.';
 
     procedure JnlName(DeprBookCode: Code[10]; BudgetAsset: Boolean; FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; var TemplateName: Code[10]; var BatchName: Code[10])
     var
@@ -48,7 +49,7 @@ codeunit 5639 "FA Get Journal"
            (BatchName = BatchName2) and
            (TemplateName = TemplateName2)
         then
-            Error(Text000, FAJnlSetup.TableCaption);
+            Error(Text000, FAJnlSetup.TableCaption());
     end;
 
     procedure InsuranceJnlName(DeprBookCode: Code[10]; var TemplateName: Code[10]; var BatchName: Code[10])
@@ -67,39 +68,39 @@ codeunit 5639 "FA Get Journal"
     procedure SetGenJnlRange(var GenJnlLine: Record "Gen. Journal Line"; TemplateName: Code[10]; BatchName: Code[10])
     begin
         with GenJnlLine do begin
-            Reset;
+            Reset();
             "Journal Template Name" := TemplateName;
             "Journal Batch Name" := BatchName;
             SetRange("Journal Template Name", TemplateName);
             SetRange("Journal Batch Name", BatchName);
             if Find('+') then;
-            Init;
+            Init();
         end;
     end;
 
     procedure SetFAJnlRange(var FAJnlLine: Record "FA Journal Line"; TemplateName: Code[10]; BatchName: Code[10])
     begin
         with FAJnlLine do begin
-            Reset;
+            Reset();
             "Journal Template Name" := TemplateName;
             "Journal Batch Name" := BatchName;
             SetRange("Journal Template Name", TemplateName);
             SetRange("Journal Batch Name", BatchName);
             if Find('+') then;
-            Init;
+            Init();
         end;
     end;
 
     procedure SetInsuranceJnlRange(var InsuranceJnlLine: Record "Insurance Journal Line"; TemplateName: Code[10]; BatchName: Code[10])
     begin
         with InsuranceJnlLine do begin
-            Reset;
+            Reset();
             "Journal Template Name" := TemplateName;
             "Journal Batch Name" := BatchName;
             SetRange("Journal Template Name", TemplateName);
             SetRange("Journal Batch Name", BatchName);
             if Find('+') then;
-            Init;
+            Init();
         end;
     end;
 

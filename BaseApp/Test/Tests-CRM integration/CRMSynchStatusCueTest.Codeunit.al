@@ -85,7 +85,7 @@ codeunit 139170 "CRM Synch. Status Cue Test"
     begin
         JobQueueEntry.DeleteAll();
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
         JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(Today, 0T);
         JobQueueEntry."Last Ready State" := CreateDateTime(Today, 0T);
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;

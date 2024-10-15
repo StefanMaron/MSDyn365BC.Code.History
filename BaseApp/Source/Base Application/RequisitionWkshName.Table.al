@@ -70,12 +70,12 @@ table 245 "Requisition Wksh. Name"
     begin
         ReqLine.SetRange("Worksheet Template Name", xRec."Worksheet Template Name");
         ReqLine.SetRange("Journal Batch Name", xRec.Name);
-        while ReqLine.FindFirst do
+        while ReqLine.FindFirst() do
             ReqLine.Rename("Worksheet Template Name", Name, ReqLine."Line No.");
 
         PlanningErrorLog.SetRange("Worksheet Template Name", xRec."Worksheet Template Name");
         PlanningErrorLog.SetRange("Journal Batch Name", xRec.Name);
-        while PlanningErrorLog.FindFirst do
+        while PlanningErrorLog.FindFirst() do
             PlanningErrorLog.Rename("Worksheet Template Name", Name, PlanningErrorLog."Entry No.");
     end;
 

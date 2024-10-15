@@ -50,8 +50,8 @@ codeunit 6303 "Azure AD Auth Flow"
     [NonDebuggable]
     procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceName: Text) AccessToken: Text
     begin
-        CheckProvider;
-        if CanHandle then
+        CheckProvider();
+        if CanHandle() then
             AccessToken := AuthFlow.ALAcquireTokenByAuthorizationCode(AuthorizationCode, ResourceName)
         else
             OnAcquireTokenByAuthorizationCode(AuthorizationCode, ResourceName, AccessToken);
@@ -61,8 +61,8 @@ codeunit 6303 "Azure AD Auth Flow"
     [NonDebuggable]
     procedure AcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode: Text; ClientID: Text; ApplicationKey: Text; ResourceName: Text) AccessToken: Text
     begin
-        CheckProvider;
-        if CanHandle then
+        CheckProvider();
+        if CanHandle() then
             AccessToken := AuthFlow.ALAcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode, ClientID, ApplicationKey, ResourceName)
         else
             OnAcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode, ClientID, ApplicationKey, ResourceName, AccessToken);
@@ -72,8 +72,8 @@ codeunit 6303 "Azure AD Auth Flow"
     [NonDebuggable]
     procedure AcquireTokenFromCache(ResourceName: Text) AccessToken: Text
     begin
-        CheckProvider;
-        if CanHandle then
+        CheckProvider();
+        if CanHandle() then
             AccessToken := AuthFlow.ALAcquireTokenFromCache(ResourceName)
         else
             OnAcquireTokenFromCache(ResourceName, AccessToken);
@@ -83,8 +83,8 @@ codeunit 6303 "Azure AD Auth Flow"
     [Scope('OnPrem')]
     procedure AcquireTokenFromCacheState(ResourceName: Text; AadUserId: Text; TokenCacheState: Text; var NewTokenCacheState: Text) AccessToken: Text
     begin
-        CheckProvider;
-        if CanHandle then
+        CheckProvider();
+        if CanHandle() then
             AccessToken := AuthFlow.ALAcquireTokenFromTokenCacheState(ResourceName, AadUserId, TokenCacheState, NewTokenCacheState)
         else
             OnAcquireTokenFromCacheState(ResourceName, AadUserId, TokenCacheState, NewTokenCacheState, AccessToken);
@@ -94,8 +94,8 @@ codeunit 6303 "Azure AD Auth Flow"
     [NonDebuggable]
     procedure AcquireGuestToken(ResourceName: Text; GuestTenantId: Text) AccessToken: Text
     begin
-        CheckProvider;
-        if CanHandle then
+        CheckProvider();
+        if CanHandle() then
             AccessToken := AuthFlow.ALAcquireGuestToken(ResourceName, GuestTenantId)
         else
             OnAcquireGuestToken(ResourceName, GuestTenantId, AccessToken);
@@ -105,8 +105,8 @@ codeunit 6303 "Azure AD Auth Flow"
     [NonDebuggable]
     procedure AcquireOnBehalfOfToken(ResourceName: Text) AccessToken: Text
     begin
-        CheckProvider;
-        if CanHandle then
+        CheckProvider();
+        if CanHandle() then
             AccessToken := AuthFlow.ALAcquireOnBehalfOfToken(ResourceName)
         else
             OnAcquireAcquireOnBehalfOfToken(ResourceName, AccessToken);
@@ -116,8 +116,8 @@ codeunit 6303 "Azure AD Auth Flow"
     [Scope('OnPrem')]
     procedure AcquireOnBehalfOfTokenAndTokenCacheState(ResourceName: Text; var TokenCacheState: Text) AccessToken: Text
     begin
-        CheckProvider;
-        if CanHandle then
+        CheckProvider();
+        if CanHandle() then
             AccessToken := AuthFlow.ALAcquireOnBehalfOfToken(ResourceName, TokenCacheState)
         else
             OnAcquireOnBehalfOfTokenAndTokenCacheState(ResourceName, AccessToken, TokenCacheState);
@@ -127,8 +127,8 @@ codeunit 6303 "Azure AD Auth Flow"
     [NonDebuggable]
     procedure AcquireTokenFromCacheWithCredentials(ClientID: Text; AppKey: Text; ResourceName: Text) AccessToken: Text
     begin
-        CheckProvider;
-        if CanHandle then
+        CheckProvider();
+        if CanHandle() then
             AccessToken := AuthFlow.ALAcquireTokenFromCacheWithCredentials(ClientID, AppKey, ResourceName)
         else
             OnAcquireTokenFromCacheWithCredentials(ClientID, AppKey, ResourceName, AccessToken);
@@ -137,16 +137,16 @@ codeunit 6303 "Azure AD Auth Flow"
     [Scope('OnPrem')]
     procedure AcquireApplicationToken(ClientID: Text; ClientSecret: Text; Authority: Text; ResourceUri: Text) AccessToken: Text
     begin
-        CheckProvider;
+        CheckProvider();
         AccessToken := AuthFlow.ALAcquireApplicationToken(ClientID, ClientSecret, Authority, ResourceUri);
     end;
 
     [Scope('OnPrem')]
     procedure GetSaasClientId() ClientID: Text
     begin
-        CheckProvider;
-        if CanHandle then
-            ClientID := AuthFlow.ALGetSaasClientId
+        CheckProvider();
+        if CanHandle() then
+            ClientID := AuthFlow.ALGetSaasClientId()
         else
             OnGetSaasClientId(ClientID);
     end;
@@ -154,9 +154,9 @@ codeunit 6303 "Azure AD Auth Flow"
     [Scope('OnPrem')]
     procedure GetInitialTenantDomainName() InitialTenantDomainName: Text
     begin
-        CheckProvider;
-        if CanHandle then
-            InitialTenantDomainName := AuthFlow.ALGetInitialDomainNameFromAad;
+        CheckProvider();
+        if CanHandle() then
+            InitialTenantDomainName := AuthFlow.ALGetInitialDomainNameFromAad();
     end;
 
     [Scope('OnPrem')]
@@ -165,7 +165,7 @@ codeunit 6303 "Azure AD Auth Flow"
     var
         ServiceFactory: DotNet ServiceWrapperFactory;
     begin
-        if CanHandle then
+        if CanHandle() then
             Service := ServiceFactory.CreateServiceWrapperWithToken(Token)
         else
             OnCreateExchangeServiceWrapperWithToken(Token, Service);
@@ -183,7 +183,7 @@ codeunit 6303 "Azure AD Auth Flow"
     var
         Initialized: Boolean;
     begin
-        if CanHandle then
+        if CanHandle() then
             Initialized := not IsNull(AuthFlow)
         else
             OnCheckProvider(Initialized);

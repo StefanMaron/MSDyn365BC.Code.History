@@ -8,7 +8,7 @@ page 9081 "Sales Hist. Bill-to FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Customer No.';
@@ -16,77 +16,77 @@ page 9081 "Sales Hist. Bill-to FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             group(Control2)
             {
                 ShowCaption = false;
                 Visible = false;
-                field("Bill-To No. of Quotes"; "Bill-To No. of Quotes")
+                field("Bill-To No. of Quotes"; Rec."Bill-To No. of Quotes")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Quotes';
                     DrillDownPageID = "Sales Quotes";
                     ToolTip = 'Specifies how many quotes have been registered for the customer when the customer acts as the bill-to customer.';
                 }
-                field("Bill-To No. of Blanket Orders"; "Bill-To No. of Blanket Orders")
+                field("Bill-To No. of Blanket Orders"; Rec."Bill-To No. of Blanket Orders")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Blanket Orders';
                     DrillDownPageID = "Blanket Sales Orders";
                     ToolTip = 'Specifies how many blanket orders have been registered for the customer when the customer acts as the bill-to customer.';
                 }
-                field("Bill-To No. of Orders"; "Bill-To No. of Orders")
+                field("Bill-To No. of Orders"; Rec."Bill-To No. of Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Orders';
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies how many sales orders have been registered for the customer when the customer acts as the bill-to customer.';
                 }
-                field("Bill-To No. of Invoices"; "Bill-To No. of Invoices")
+                field("Bill-To No. of Invoices"; Rec."Bill-To No. of Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Invoices';
                     DrillDownPageID = "Sales Invoice List";
                     ToolTip = 'Specifies how many invoices have been registered for the customer when the customer acts as the bill-to customer.';
                 }
-                field("Bill-To No. of Return Orders"; "Bill-To No. of Return Orders")
+                field("Bill-To No. of Return Orders"; Rec."Bill-To No. of Return Orders")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Return Orders';
                     DrillDownPageID = "Sales Return Order List";
                     ToolTip = 'Specifies how many return orders have been registered for the customer when the customer acts as the bill-to customer.';
                 }
-                field("Bill-To No. of Credit Memos"; "Bill-To No. of Credit Memos")
+                field("Bill-To No. of Credit Memos"; Rec."Bill-To No. of Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Credit Memos';
                     DrillDownPageID = "Sales Credit Memos";
                     ToolTip = 'Specifies how many credit memos have been registered for the customer when the customer acts as the bill-to customer.';
                 }
-                field("Bill-To No. of Pstd. Shipments"; "Bill-To No. of Pstd. Shipments")
+                field("Bill-To No. of Pstd. Shipments"; Rec."Bill-To No. of Pstd. Shipments")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pstd. Shipments';
                     DrillDownPageID = "Posted Sales Shipments";
                     ToolTip = 'Specifies how many posted shipments have been registered for the customer when the customer acts as the bill-to customer.';
                 }
-                field("Bill-To No. of Pstd. Invoices"; "Bill-To No. of Pstd. Invoices")
+                field("Bill-To No. of Pstd. Invoices"; Rec."Bill-To No. of Pstd. Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pstd. Invoices';
                     DrillDownPageID = "Posted Sales Invoices";
                     ToolTip = 'Specifies how many posted invoices have been registered for the customer when the customer acts as the bill-to customer.';
                 }
-                field("Bill-To No. of Pstd. Return R."; "Bill-To No. of Pstd. Return R.")
+                field("Bill-To No. of Pstd. Return R."; Rec."Bill-To No. of Pstd. Return R.")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Pstd. Return Receipts';
                     DrillDownPageID = "Posted Return Receipts";
                     ToolTip = 'Specifies how many posted return receipts have been registered for the customer when the customer acts as the bill-to customer.';
                 }
-                field("Bill-To No. of Pstd. Cr. Memos"; "Bill-To No. of Pstd. Cr. Memos")
+                field("Bill-To No. of Pstd. Cr. Memos"; Rec."Bill-To No. of Pstd. Cr. Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pstd. Credit Memos';

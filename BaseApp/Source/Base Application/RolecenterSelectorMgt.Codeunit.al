@@ -51,7 +51,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
         Tooltip: Text;
         Caption: Text;
     begin
-        JSONManagement.InitializeEmptyCollection;
+        JSONManagement.InitializeEmptyCollection();
         JSONManagement.GetJsonArray(FeatureBucketsJArray);
 
         AllObj.Get(AllObj."Object Type"::Page, RolecenterId);
@@ -63,19 +63,19 @@ codeunit 1485 "Rolecenter Selector Mgt."
         ReturnedXMLNodeList := ReturnXmlDocument.GetElementsByTagName(ActionContainerXmlElementLbl);
 
         if not GetActivityButtonsActionContainerXmlNode(ActivityButtonsXmlNode, ReturnedXMLNodeList) then
-            exit(FeatureBucketsJArray.ToString);
+            exit(FeatureBucketsJArray.ToString());
 
         foreach BucketXmlNode in ActivityButtonsXmlNode.ChildNodes do begin
-            JSONManagement.InitializeEmptyObject;
+            JSONManagement.InitializeEmptyObject();
             JSONManagement.GetJSONObject(FeatureBucketJObject);
             GetLanguageSpecificCaptionAndTooltip(BucketXmlNode, Caption, Tooltip);
             JSONManagement.AddJPropertyToJObject(FeatureBucketJObject, JsonNameElementLbl, Caption);
             JSONManagement.AddJPropertyToJObject(FeatureBucketJObject, JsonTooltipLbl, Tooltip);
 
-            FeatureJArray := FeatureJArray.JArray;
+            FeatureJArray := FeatureJArray.JArray();
             foreach FeatureXmlNode in BucketXmlNode.ChildNodes do
                 if IsNodePromoted(FeatureXmlNode) then begin
-                    FeatureJObject := FeatureJObject.JObject;
+                    FeatureJObject := FeatureJObject.JObject();
                     GetLanguageSpecificCaptionAndTooltip(FeatureXmlNode, Caption, Tooltip);
                     JSONManagement.AddJPropertyToJObject(FeatureJObject, JsonNameElementLbl, Caption);
                     JSONManagement.AddJPropertyToJObject(FeatureJObject, JsonTooltipLbl, Tooltip);
@@ -88,7 +88,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
             end;
         end;
 
-        exit(FeatureBucketsJArray.ToString);
+        exit(FeatureBucketsJArray.ToString());
     end;
 
     procedure BuildJsonFromPageActionTable(RolecenterId: Integer): Text
@@ -102,14 +102,14 @@ codeunit 1485 "Rolecenter Selector Mgt."
         FeatureJArray: DotNet JArray;
         FeatureJObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyCollection;
+        JSONManagement.InitializeEmptyCollection();
         JSONManagement.GetJsonArray(FeatureBucketsJArray);
 
         PageAction.SetRange("Page ID", RolecenterId);
         PageAction.SetRange("Action Type", PageAction."Action Type"::ActionContainer);
         PageAction.SetRange("Action Subtype", PageAction."Action Subtype"::ActivityButtons);
         if not PageAction.FindFirst() then
-            exit(FeatureBucketsJArray.ToString);
+            exit(FeatureBucketsJArray.ToString());
 
         BucketPageAction.SetRange("Page ID", RolecenterId);
         BucketPageAction.SetRange("Parent Action ID", PageAction."Action ID");
@@ -117,13 +117,13 @@ codeunit 1485 "Rolecenter Selector Mgt."
         BucketPageAction.SetRange(Indentation, 1);
         if BucketPageAction.FindSet() then
             repeat
-                JSONManagement.InitializeEmptyObject;
+                JSONManagement.InitializeEmptyObject();
                 JSONManagement.GetJSONObject(FeatureBucketJObject);
                 JSONManagement.AddJPropertyToJObject(FeatureBucketJObject, JsonNameElementLbl, BucketPageAction.Caption);
                 JSONManagement.AddJPropertyToJObject(FeatureBucketJObject, JsonTooltipLbl,
                   BucketPageAction.ToolTip1 + BucketPageAction.ToolTip2 + BucketPageAction.ToolTip3 + BucketPageAction.ToolTip4);
 
-                FeatureJArray := FeatureJArray.JArray;
+                FeatureJArray := FeatureJArray.JArray();
                 FeaturePageAction.SetRange("Page ID", RolecenterId);
                 FeaturePageAction.SetRange("Parent Action ID", BucketPageAction."Action ID");
                 FeaturePageAction.SetRange("Action Type", FeaturePageAction."Action Type"::Action);
@@ -132,7 +132,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
 
                 if FeaturePageAction.FindSet() then
                     repeat
-                        FeatureJObject := FeatureJObject.JObject;
+                        FeatureJObject := FeatureJObject.JObject();
                         JSONManagement.AddJPropertyToJObject(FeatureJObject, JsonNameElementLbl, FeaturePageAction.Caption);
                         JSONManagement.AddJPropertyToJObject(FeatureJObject, JsonTooltipLbl,
                           FeaturePageAction.ToolTip1 + FeaturePageAction.ToolTip2 + FeaturePageAction.ToolTip3 + FeaturePageAction.ToolTip4);
@@ -145,7 +145,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
                 end;
             until BucketPageAction.Next() = 0;
 
-        exit(FeatureBucketsJArray.ToString);
+        exit(FeatureBucketsJArray.ToString());
     end;
 
     procedure BuildPageDataJsonForRolecenterSelector(): Text
@@ -156,20 +156,20 @@ codeunit 1485 "Rolecenter Selector Mgt."
         ProfileJArray: DotNet JArray;
         ProfileJObject: DotNet JObject;
     begin
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(PageDataJObject);
         JSONManagement.AddJPropertyToJObject(PageDataJObject, JsonHeaderLbl, DropdownLbl);
         JSONManagement.AddJPropertyToJObject(PageDataJObject, JsonDefaultActionLbl, ActionCaptionTxt);
         JSONManagement.AddJPropertyToJObject(PageDataJObject, JsonDisclaimerTextLbl, DisclaimerTxt);
         JSONManagement.AddJPropertyToJObject(PageDataJObject, JsonActionDescriptionLbl, ActionDescriptionTxt);
 
-        JSONManagement.InitializeEmptyCollection;
+        JSONManagement.InitializeEmptyCollection();
         JSONManagement.GetJsonArray(ProfileJArray);
 
         AllProfile.SetRange(Enabled, true);
         if AllProfile.FindSet() then
             repeat
-                JSONManagement.InitializeEmptyObject;
+                JSONManagement.InitializeEmptyObject();
                 JSONManagement.GetJSONObject(ProfileJObject);
                 JSONManagement.AddJPropertyToJObject(ProfileJObject, JsonProfileNameLbl, Format(AllProfile.RecordId));
                 JSONManagement.AddJPropertyToJObject(ProfileJObject, JsonProfileDescriptionLbl, AllProfile.Description);
@@ -179,7 +179,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
 
         JSONManagement.AddJArrayToJObject(PageDataJObject, JsonDropdownContentLbl, ProfileJArray);
 
-        exit(PageDataJObject.ToString);
+        exit(PageDataJObject.ToString());
     end;
 
     [Scope('OnPrem')]
@@ -238,7 +238,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
         if LanguageCode = '' then
             LanguageCode := DefaultLangaugeCodeTxt;
 
-        Dictionary := Dictionary.Dictionary;
+        Dictionary := Dictionary.Dictionary();
         RegExMatchs := RegEx.Matches(InputMLText, StrSubstNo(LanguageCodeRegExPatternTxt));
 
         foreach RegExMatch in RegExMatchs do begin
@@ -268,12 +268,12 @@ codeunit 1485 "Rolecenter Selector Mgt."
     var
         UserPreference: Record "User Preference";
     begin
-        if not UserPreference.Get(UserName, GetUserPreferenceCode) then
+        if not UserPreference.Get(UserName, GetUserPreferenceCode()) then
             exit(false);
 
         UserPreference.CalcFields("User Selection");
 
-        if not Evaluate(RoleCenterSelectorIsEnabled, UserPreference.GetUserSelectionAsText) then
+        if not Evaluate(RoleCenterSelectorIsEnabled, UserPreference.GetUserSelectionAsText()) then
             exit(false);
     end;
 
@@ -281,7 +281,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
     var
         UserPreference: Record "User Preference";
     begin
-        if UserPreference.Get(UserName, GetUserPreferenceCode) then begin
+        if UserPreference.Get(UserName, GetUserPreferenceCode()) then begin
             UserPreference.SetUserSelection(State);
             UserPreference.Modify();
             exit;
@@ -289,7 +289,7 @@ codeunit 1485 "Rolecenter Selector Mgt."
 
         UserPreference.Init();
         UserPreference."User ID" := UserName;
-        UserPreference."Instruction Code" := GetUserPreferenceCode;
+        UserPreference."Instruction Code" := GetUserPreferenceCode();
         UserPreference.SetUserSelection(State);
         UserPreference.Insert();
     end;

@@ -86,7 +86,7 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "Requisition Line" = Rim,
                   tabledata "Reservation Entry" = Rimd,
                   tabledata Resource = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
 #endif
@@ -102,11 +102,11 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "Sales Invoice Line" = R,
                   tabledata "Sales Line" = RIMD,
                   tabledata "Sales Line Archive" = RIMD,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Line Discount" = R,
 #endif
                   tabledata "Sales Planning Line" = Rimd,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Price" = R,
 #endif
                   tabledata "Sales Price Access" = R,

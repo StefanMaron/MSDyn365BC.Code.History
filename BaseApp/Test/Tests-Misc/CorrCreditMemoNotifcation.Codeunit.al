@@ -52,7 +52,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [THEN] Notification is recalled
         Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoice page is still open
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
         // [THEN] Invoice's "Remaining Amount" is 200
         Assert.AreEqual(ExpectedRemAmount, GetSalesInvoiceRemainingAmount(SalesInvoiceHeader), 'Remaining Amount is changed');
 
@@ -92,11 +92,11 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [THEN] Credit memo page is open, where "Applies-to Doc. No." is '101033', the first line contains 'Invoice 101033'
         SalesCreditMemo."Applies-to Doc. No.".AssertEquals(SalesInvoiceHeader."No.");
         Assert.ExpectedMessage(SalesInvoiceHeader."No.", SalesCreditMemo.SalesLines.Description.Value);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
         // [THEN] Notification is recalled
         Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoice page is open
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
 
         LibraryVariableStorage.AssertEmpty;
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -173,13 +173,13 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [THEN] Credit memo page is open, where "Applies-to Doc. No." is <blank>, the first line contains 'Invoice 101033'
         SalesCreditMemo."Applies-to Doc. No.".AssertEquals('');
         Assert.ExpectedMessage(SalesInvoiceHeader."No.", SalesCreditMemo.SalesLines.Description.Value);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
         // [THEN] Invoice's "Remaining Amount" is 0
         Assert.AreEqual(0, GetSalesInvoiceRemainingAmount(SalesInvoiceHeader), 'Remaining Amount is changed');
         // [THEN] Notification is recalled
         Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoices list page is open
-        PostedSalesInvoices.Close;
+        PostedSalesInvoices.Close();
 
         LibraryVariableStorage.AssertEmpty;
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -217,7 +217,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [THEN] Notification is recalled
         Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoice page is still open
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
         // [THEN] Invoice's "Remaining Amount" is 200
         Assert.AreEqual(ExpectedRemAmount, GetPurchInvoiceRemainingAmount(PurchInvHeader), 'Remaining Amount is changed');
 
@@ -257,11 +257,11 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [THEN] Credit memo page is open, where "Applies-to Doc. No." is '101033', the first line contains 'Invoice 101033'
         PurchaseCreditMemo."Applies-to Doc. No.".AssertEquals(PurchInvHeader."No.");
         Assert.ExpectedMessage(PurchInvHeader."No.", PurchaseCreditMemo.PurchLines.Description.Value);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
         // [THEN] Notification is recalled
         Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoice page is open
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
 
         LibraryVariableStorage.AssertEmpty;
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -338,13 +338,13 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [THEN] Credit memo page is open, where "Applies-to Doc. No." is <blank>, the first line contains 'Invoice 101033'
         PurchaseCreditMemo."Applies-to Doc. No.".AssertEquals('');
         Assert.ExpectedMessage(PurchInvHeader."No.", PurchaseCreditMemo.PurchLines.Description.Value);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
         // [THEN] Invoice's "Remaining Amount" is 0
         Assert.AreEqual(0, GetPurchInvoiceRemainingAmount(PurchInvHeader), 'Remaining Amount is changed');
         // [THEN] Notification is recalled
         Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoices list page is open
-        PostedPurchaseInvoices.Close;
+        PostedPurchaseInvoices.Close();
 
         LibraryVariableStorage.AssertEmpty;
         NotificationLifecycleMgt.RecallAllNotifications();

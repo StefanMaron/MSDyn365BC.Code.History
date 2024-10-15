@@ -40,7 +40,7 @@ page 6013 "Resource Capacity Settings"
                     trigger OnValidate()
                     begin
                         if WorkTemplateRec.Get(WorkTemplateCode) then;
-                        SumWeekTotal;
+                        SumWeekTotal();
                     end;
                 }
                 field("WorkTemplateRec.Monday"; WorkTemplateRec.Monday)
@@ -53,7 +53,7 @@ page 6013 "Resource Capacity Settings"
 
                     trigger OnValidate()
                     begin
-                        SumWeekTotal;
+                        SumWeekTotal();
                     end;
                 }
                 field("WorkTemplateRec.Tuesday"; WorkTemplateRec.Tuesday)
@@ -66,7 +66,7 @@ page 6013 "Resource Capacity Settings"
 
                     trigger OnValidate()
                     begin
-                        SumWeekTotal;
+                        SumWeekTotal();
                     end;
                 }
                 field("WorkTemplateRec.Wednesday"; WorkTemplateRec.Wednesday)
@@ -79,7 +79,7 @@ page 6013 "Resource Capacity Settings"
 
                     trigger OnValidate()
                     begin
-                        SumWeekTotal;
+                        SumWeekTotal();
                     end;
                 }
                 field("WorkTemplateRec.Thursday"; WorkTemplateRec.Thursday)
@@ -92,7 +92,7 @@ page 6013 "Resource Capacity Settings"
 
                     trigger OnValidate()
                     begin
-                        SumWeekTotal;
+                        SumWeekTotal();
                     end;
                 }
                 field("WorkTemplateRec.Friday"; WorkTemplateRec.Friday)
@@ -105,7 +105,7 @@ page 6013 "Resource Capacity Settings"
 
                     trigger OnValidate()
                     begin
-                        SumWeekTotal;
+                        SumWeekTotal();
                     end;
                 }
                 field("WorkTemplateRec.Saturday"; WorkTemplateRec.Saturday)
@@ -118,7 +118,7 @@ page 6013 "Resource Capacity Settings"
 
                     trigger OnValidate()
                     begin
-                        SumWeekTotal;
+                        SumWeekTotal();
                     end;
                 }
                 field("WorkTemplateRec.Sunday"; WorkTemplateRec.Sunday)
@@ -131,7 +131,7 @@ page 6013 "Resource Capacity Settings"
 
                     trigger OnValidate()
                     begin
-                        SumWeekTotal;
+                        SumWeekTotal();
                     end;
                 }
                 field(WeekTotal; WeekTotal)
@@ -168,8 +168,6 @@ page 6013 "Resource Capacity Settings"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Update &Capacity';
                 Image = Approve;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Update the capacity based on the changes you have made in the window.';
 
                 trigger OnAction()
@@ -183,10 +181,10 @@ page 6013 "Resource Capacity Settings"
                     if EndDate = 0D then
                         Error(Text003);
 
-                    if not Confirm(Text004, false, TableCaption, "No.") then
+                    if not Confirm(Text004, false, TableCaption(), "No.") then
                         exit;
 
-                    if CompanyInformation.Get then begin
+                    if CompanyInformation.Get() then begin
                         CompanyInformation.TestField("Base Calendar Code");
                         CalendarMgmt.SetSource(CompanyInformation, CustomizedCalendarChange);
                     end;
@@ -206,13 +204,13 @@ page 6013 "Resource Capacity Settings"
                         if Holiday then
                             NewCapacity := TempCapacity
                         else
-                            NewCapacity := TempCapacity - SelectCapacity;
+                            NewCapacity := TempCapacity - SelectCapacity();
 
                         if NewCapacity <> 0 then begin
                             ResCapacityEntry2.Reset();
                             if ResCapacityEntry2.FindLast() then;
                             LastEntry := ResCapacityEntry2."Entry No." + 1;
-                            ResCapacityEntry2.Reset();
+                            ResCapacityEntry2.Init();
                             ResCapacityEntry2."Entry No." := LastEntry;
                             ResCapacityEntry2.Capacity := -NewCapacity;
                             ResCapacityEntry2."Resource No." := "No.";
@@ -231,8 +229,19 @@ page 6013 "Resource Capacity Settings"
                             Message(Text007, ChangedDays)
                         else
                             Message(Text008);
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(UpdateCapacity_Promoted; UpdateCapacity)
+                {
+                }
             }
         }
     }
@@ -241,7 +250,7 @@ page 6013 "Resource Capacity Settings"
     begin
         if not WorkTemplateRec.Get(WorkTemplateCode) and ("No." <> xRec."No.") then
             Clear(WorkTemplateRec);
-        SumWeekTotal;
+        SumWeekTotal();
     end;
 
     trigger OnOpenPage()
@@ -252,13 +261,6 @@ page 6013 "Resource Capacity Settings"
     end;
 
     var
-        Text000: Label 'The starting date is later than the ending date.';
-        Text002: Label 'You must fill in the Starting Date field.';
-        Text003: Label 'You must fill in the Ending Date field.';
-        Text004: Label 'Do you want to change the capacity for %1 %2?', Comment = 'Do you want to change the capacity for NO No.?';
-        Text006: Label 'The capacity for %1 days was changed successfully.';
-        Text007: Label 'The capacity for %1 day was changed successfully.';
-        Text008: Label 'The capacity change was unsuccessful.';
         WorkTemplateRec: Record "Work-Hour Template";
         ResCapacityEntry: Record "Res. Capacity Entry";
         CompanyInformation: Record "Company Information";
@@ -273,6 +275,14 @@ page 6013 "Resource Capacity Settings"
         ChangedDays: Integer;
         LastEntry: Decimal;
         Holiday: Boolean;
+
+        Text000: Label 'The starting date is later than the ending date.';
+        Text002: Label 'You must fill in the Starting Date field.';
+        Text003: Label 'You must fill in the Ending Date field.';
+        Text004: Label 'Do you want to change the capacity for %1 %2?', Comment = 'Do you want to change the capacity for NO No.?';
+        Text006: Label 'The capacity for %1 days was changed successfully.';
+        Text007: Label 'The capacity for %1 day was changed successfully.';
+        Text008: Label 'The capacity change was unsuccessful.';
 
     local procedure SelectCapacity() Hours: Decimal
     begin

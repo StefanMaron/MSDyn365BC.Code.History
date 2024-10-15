@@ -90,7 +90,7 @@ page 363 "Electronic Document Format"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the electronic document format is used for sales invoices or sales credit memos.';
                 }
-                field("Codeunit ID"; "Codeunit ID")
+                field("Codeunit ID"; Rec."Codeunit ID")
                 {
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
@@ -101,12 +101,12 @@ page 363 "Electronic Document Format"
                             Error(InvalidCodeunitIDErr);
                     end;
                 }
-                field("Codeunit Caption"; "Codeunit Caption")
+                field("Codeunit Caption"; Rec."Codeunit Caption")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the codeunit.';
                 }
-                field("Delivery Codeunit ID"; "Delivery Codeunit ID")
+                field("Delivery Codeunit ID"; Rec."Delivery Codeunit ID")
                 {
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
@@ -117,7 +117,7 @@ page 363 "Electronic Document Format"
                             Error(InvalidCodeunitIDErr);
                     end;
                 }
-                field("Delivery Codeunit Caption"; "Delivery Codeunit Caption")
+                field("Delivery Codeunit Caption"; Rec."Delivery Codeunit Caption")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the delivery codeunit.';
@@ -133,7 +133,7 @@ page 363 "Electronic Document Format"
     trigger OnOpenPage()
     begin
         ElectronicDocumentFormat.Init();
-        ElectronicDocumentFormat.OnDiscoverElectronicFormat;
+        ElectronicDocumentFormat.OnDiscoverElectronicFormat();
     end;
 
     var

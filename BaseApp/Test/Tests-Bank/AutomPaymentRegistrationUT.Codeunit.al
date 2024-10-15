@@ -166,6 +166,8 @@ codeunit 134712 "Autom. Payment Registration.UT"
     end;
 
     local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Autom. Payment Registration.UT");
         LibraryVariableStorage.Clear();
@@ -174,7 +176,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
         if IsInitialized then
             exit;
 
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         IsInitialized := true;
         Commit;

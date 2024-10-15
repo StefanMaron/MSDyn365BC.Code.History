@@ -34,9 +34,9 @@ codeunit 139313 "Test Sana Interface calls"
         SalesHeader.Init();
         I := 0;
         // Verify
-        SalesPriceCalcMgt.FindSalesPrice(TempSalesPrice, Code20, Code20, Code10, Code20, Code20, Code10, Code10, Code10, WorkDate, Bool);
+        SalesPriceCalcMgt.FindSalesPrice(TempSalesPrice, Code20, Code20, Code10, Code20, Code20, Code10, Code10, Code10, WorkDate(), Bool);
         SalesPriceCalcMgt.FindSalesLineDisc(
-          SalesLineDiscount, Code20, Code20, Code20, Code20, Code20, Code20, Code10, Code10, Code10, WorkDate, Bool);
+          SalesLineDiscount, Code20, Code20, Code20, Code20, Code20, Code20, Code10, Code10, Code10, WorkDate(), Bool);
         SalesPriceCalcMgt.FindSalesLinePrice(SalesHeader, SalesLine, I);
         SalesPriceCalcMgt.FindSalesLineLineDisc(SalesHeader, SalesLine);
     end;
@@ -114,7 +114,7 @@ codeunit 139313 "Test Sana Interface calls"
         // Verify
         SalesLineReserve.ReservQuantity(SalesLine, Dec, Dec);
         ReservationManagement.SetReservSource(SalesLine);
-        ReservationManagement.AutoReserve(Bool, Text50, WorkDate, Dec, Dec);
+        ReservationManagement.AutoReserve(Bool, Text50, WorkDate(), Dec, Dec);
     end;
 
     [Test]
@@ -160,9 +160,9 @@ codeunit 139313 "Test Sana Interface calls"
     begin
         // Verify
         Initialize();
-        Text := CustomerList.GetSelectionFilter;
-        Text := ItemList.GetSelectionFilter;
-        Text := CustomerPriceGroups.GetSelectionFilter;
+        Text := CustomerList.GetSelectionFilter();
+        Text := ItemList.GetSelectionFilter();
+        Text := CustomerPriceGroups.GetSelectionFilter();
         if Text = '' then;
     end;
 
@@ -198,8 +198,8 @@ codeunit 139313 "Test Sana Interface calls"
         Initialize();
         code10 := CopyStr(Format(LibraryUtility.GenerateRandomText(10)), 1, MaxStrLen(code10));
         // Verify
-        asserterror Dec := CurrencyExchangeRate.ExchangeRate(WorkDate, code10);
-        asserterror Dec := CurrencyExchangeRate.ExchangeAmtLCYToFCY(WorkDate, code10, Dec, Dec);
+        asserterror Dec := CurrencyExchangeRate.ExchangeRate(WorkDate(), code10);
+        asserterror Dec := CurrencyExchangeRate.ExchangeAmtLCYToFCY(WorkDate(), code10, Dec, Dec);
     end;
 
     [Test]
@@ -248,7 +248,7 @@ codeunit 139313 "Test Sana Interface calls"
         Initialize();
 
         // Verify
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
     end;
 
     local procedure Initialize()

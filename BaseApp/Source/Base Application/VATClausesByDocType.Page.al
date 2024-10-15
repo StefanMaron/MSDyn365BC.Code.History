@@ -11,7 +11,7 @@ page 734 "VAT Clauses by Doc. Type"
         {
             repeater(Control2)
             {
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type, which is used to provide a VAT description associated with a sales line on a sales invoice, credit memo, or other sales document.';
@@ -21,7 +21,7 @@ page 734 "VAT Clauses by Doc. Type"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the translation of the VAT clause description. The translated version of the description is displayed as the VAT clause, based on the Language Code setting on the customer card.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the translation of the additional VAT clause description.';
@@ -49,12 +49,21 @@ page 734 "VAT Clauses by Doc. Type"
                 ApplicationArea = Basic, Suite;
                 Caption = 'T&ranslation';
                 Image = Translation;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "VAT Clause by Doc. Type Trans.";
                 RunPageLink = "VAT Clause Code" = FIELD("VAT Clause Code"),
                               "Document Type" = FIELD("Document Type");
                 ToolTip = 'View or edit translations for each VAT clause description in different languages.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("T&ranslation_Promoted"; "T&ranslation")
+                {
+                }
             }
         }
     }

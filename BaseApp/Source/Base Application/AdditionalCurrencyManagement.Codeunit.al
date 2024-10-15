@@ -32,7 +32,7 @@ codeunit 5837 "Additional-Currency Management"
     var
         CurrExchRate: Record "Currency Exchange Rate";
     begin
-        if not InitCodeunit then
+        if not InitCodeunit() then
             exit;
         exit(
           RoundACYAmt(
@@ -46,7 +46,7 @@ codeunit 5837 "Additional-Currency Management"
     var
         RndgPrec: Decimal;
     begin
-        if not InitCodeunit then
+        if not InitCodeunit() then
             exit;
         if IsUnitAmount then
             RndgPrec := Currency."Unit-Amount Rounding Precision"

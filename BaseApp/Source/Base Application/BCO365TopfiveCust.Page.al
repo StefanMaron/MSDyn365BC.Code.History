@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2301 "BC O365 Top five Cust"
 {
     Caption = 'Top five customers';
@@ -9,6 +10,9 @@ page 2301 "BC O365 Top five Cust"
     RefreshOnActivate = true;
     SourceTable = "Business Chart Buffer";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,7 +20,7 @@ page 2301 "BC O365 Top five Cust"
         {
             usercontrol(Chart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
 
                 trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
                 begin
@@ -30,12 +34,12 @@ page 2301 "BC O365 Top five Cust"
 
                 trigger AddInReady()
                 begin
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
 
                 trigger Refresh()
                 begin
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
             }
         }
@@ -51,7 +55,7 @@ page 2301 "BC O365 Top five Cust"
     local procedure InitializeSelectedChart()
     begin
         TopFiveCustomersChartMgt.UpdateChart(Rec);
-        UpdateChart;
+        UpdateChart();
     end;
 
     local procedure UpdateChart()
@@ -59,4 +63,4 @@ page 2301 "BC O365 Top five Cust"
         Update(CurrPage.Chart);
     end;
 }
-
+#endif

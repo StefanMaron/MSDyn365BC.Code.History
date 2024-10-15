@@ -23,7 +23,7 @@ page 5205 Qualifications
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a description for the qualification.';
                 }
-                field("Qualified Employees"; "Qualified Employees")
+                field("Qualified Employees"; Rec."Qualified Employees")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies if the company has employees with this qualification.';

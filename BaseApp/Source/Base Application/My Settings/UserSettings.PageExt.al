@@ -61,6 +61,7 @@ pageextension 9204 "User Settings" extends "User Settings"
     var
         User: Record User;
         DummyDocumentService: Record "Document Service";
+        DummyDocumentServiceScenario: Record "Document Service Scenario";
         DocumentServiceManagement: Codeunit "Document Service Management";
         EnvironmentInformation: Codeunit "Environment Information";
         DocumentSharing: Codeunit "Document Sharing";
@@ -68,7 +69,7 @@ pageextension 9204 "User Settings" extends "User Settings"
         OneDriveLinkVisible := false;
 
         if Rec."User Security ID" = UserSecurityId() then
-            if DummyDocumentService.ReadPermission() then
+            if DummyDocumentService.ReadPermission() and DummyDocumentServiceScenario.ReadPermission() then
                 if DocumentSharing.ShareEnabled() or EnvironmentInformation.IsSaaSInfrastructure() then begin
                     OneDriveLinkVisible := true;
 

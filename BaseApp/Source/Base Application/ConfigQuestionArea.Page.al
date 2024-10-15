@@ -23,7 +23,7 @@ page 8611 "Config. Question Area"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the question area code.';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the table that the question area manages. You can select any application table from the Objects window.';
@@ -33,7 +33,7 @@ page 8611 "Config. Question Area"
                         CurrPage.Update();
                     end;
                 }
-                field("Table Name"; "Table Name")
+                field("Table Name"; Rec."Table Name")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -81,9 +81,6 @@ page 8611 "Config. Question Area"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Update Questions';
                     Image = Refresh;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Fill the question list based on the fields in the table on which the question area is based.';
 
                     trigger OnAction()
@@ -102,9 +99,6 @@ page 8611 "Config. Question Area"
                     ApplicationArea = Basic, Suite;
                     Caption = '&Apply Answers';
                     Image = Apply;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Implement answers in the questionnaire in the related setup fields.';
 
                     trigger OnAction()
@@ -117,6 +111,20 @@ page 8611 "Config. Question Area"
                             Message(Text002);
                         end;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(UpdateQuestions_Promoted; UpdateQuestions)
+                {
+                }
+                actionref(ApplyAnswers_Promoted; ApplyAnswers)
+                {
                 }
             }
         }

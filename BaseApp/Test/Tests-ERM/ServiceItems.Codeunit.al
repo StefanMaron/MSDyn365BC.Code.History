@@ -233,7 +233,7 @@ codeunit 136103 "Service Items"
 
         // [THEN] Verify that the number of Service Items created matches the Quantity on the Sales Line.
         ServiceItem.SetRange("Item No.", Item."No.");
-        Assert.AreEqual(Quantity, ServiceItem.Count, StrSubstNo(ServiceItemCreationErr, ServiceItem.TableCaption));
+        Assert.AreEqual(Quantity, ServiceItem.Count, StrSubstNo(ServiceItemCreationErr, ServiceItem.TableCaption()));
         ServiceItem.FindFirst();
         ServiceItem.TestField("Service Item Group Code", Item."Service Item Group");
         ServiceItemGroup.Get(ServiceItem."Service Item Group Code");
@@ -296,7 +296,7 @@ codeunit 136103 "Service Items"
         ServiceItem.Delete(true);
 
         // [THEN] Check that the Service Item does not exist in the Service Item table after deletion.
-        Assert.IsFalse(ServiceItem.Get(ServiceItem."No."), StrSubstNo(RecordExistsErr, ServiceItem.TableCaption, ServiceItem."No."));
+        Assert.IsFalse(ServiceItem.Get(ServiceItem."No."), StrSubstNo(RecordExistsErr, ServiceItem.TableCaption(), ServiceItem."No."));
     end;
 
     [Test]
@@ -393,7 +393,7 @@ codeunit 136103 "Service Items"
         // [THEN] Verify that the value of the Default Contract Value is 0. Verify that the value of the Default Contract Cost is the
         // [THEN] product of the Sales Unit Cost field of the Service Item and the Contract Value % field of the Service Management Setup divided by 100.
         ServiceItem.TestField("Default Contract Value", 0);
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         ServiceItem.TestField(
           "Default Contract Cost",
           Round(ServiceItem."Sales Unit Cost" * ContractValuePercentage / 100, Currency."Unit-Amount Rounding Precision"));
@@ -484,7 +484,7 @@ codeunit 136103 "Service Items"
 
         // [THEN] Verify that the value of the Default Contract Value is the product of the Sales Unit Price field of the Service Item and
         // [THEN] the Contract Value % field of the Service Management Setup divided by 100.
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         ServiceItem.TestField(
           "Default Contract Value",
           Round(ServiceItem."Sales Unit Price" * ContractValuePercentage / 100, Currency."Unit-Amount Rounding Precision"));
@@ -587,7 +587,7 @@ codeunit 136103 "Service Items"
 
         // [THEN] Verify that the value of the Default Contract Cost is the product of the Sales Unit Cost field of the Service Item and
         // [THEN] the Contract Value % field of the Service Management Setup divided by 100.
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         ServiceItem.TestField(
           "Default Contract Cost",
           Round(ServiceItem."Sales Unit Cost" * ContractValuePercentage / 100, Currency."Unit-Amount Rounding Precision"));
@@ -1221,7 +1221,7 @@ codeunit 136103 "Service Items"
         ServiceMgtSetup.Get();
         if ServiceMgtSetup."Service Order Nos." = '' then
             ServiceMgtSetup."Service Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        NextServiceOrderNo := NoSeriesManagement.GetNextNo(ServiceMgtSetup."Service Order Nos.", WorkDate, false);
+        NextServiceOrderNo := NoSeriesManagement.GetNextNo(ServiceMgtSetup."Service Order Nos.", WorkDate(), false);
 
         // 2. Exercise: Find Customer and Create new Service Order.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
@@ -1430,7 +1430,7 @@ codeunit 136103 "Service Items"
 
         // 3. Verify: Verify Service Document Log has been deleted.
         Assert.AreEqual(
-          0, ServiceDocumentLog.Count, StrSubstNo(RecordExistsErr, ServiceDocumentLog.TableCaption, ServiceDocumentLog));
+          0, ServiceDocumentLog.Count, StrSubstNo(RecordExistsErr, ServiceDocumentLog.TableCaption(), ServiceDocumentLog));
     end;
 
     [Test]
@@ -1493,7 +1493,7 @@ codeunit 136103 "Service Items"
 
         // 3. Verify: Verify Service Document Log has been deleted.
         Assert.AreEqual(
-          0, ServiceDocumentLog.Count, StrSubstNo(RecordExistsErr, ServiceDocumentLog.TableCaption, ServiceDocumentLog));
+          0, ServiceDocumentLog.Count, StrSubstNo(RecordExistsErr, ServiceDocumentLog.TableCaption(), ServiceDocumentLog));
     end;
 
     [Test]
@@ -1747,7 +1747,7 @@ codeunit 136103 "Service Items"
             ServiceItem.Validate("Item No.", ItemJournalLine."Item No.");
             ServiceItem.Validate("Serial No.", SerialNo[i]);
             ServiceItem.Modify(true);
-            ItemLedgerEntry.Next;
+            ItemLedgerEntry.Next();
         end;
 
         // [WHEN] Create and Post Sales Order.
@@ -1756,7 +1756,7 @@ codeunit 136103 "Service Items"
 
         // [THEN] Verify that the number of Service Items created matches the Quantity on the Sales Line.
         ServiceItem.SetRange("Item No.", ItemJournalLine."Item No.");
-        Assert.AreEqual(ItemJournalLine.Quantity, ServiceItem.Count, StrSubstNo(ServiceItemCreationErr, ServiceItem.TableCaption));
+        Assert.AreEqual(ItemJournalLine.Quantity, ServiceItem.Count, StrSubstNo(ServiceItemCreationErr, ServiceItem.TableCaption()));
 
         // [THEN] Verify that only 1 Service Item with the same Serial No. can be existed in Service Items List
         for i := 1 to ItemJournalLine.Quantity do begin
@@ -1905,7 +1905,7 @@ codeunit 136103 "Service Items"
 
         // [THEN] Number of "X" Service Items are created for Item "I"
         ServiceItem.SetRange("Item No.", Item."No.");
-        Assert.AreEqual(Qty, ServiceItem.Count, StrSubstNo(ServiceItemCreationErr, ServiceItem.TableCaption));
+        Assert.AreEqual(Qty, ServiceItem.Count, StrSubstNo(ServiceItemCreationErr, ServiceItem.TableCaption()));
     end;
 
     [Test]
@@ -1921,7 +1921,7 @@ codeunit 136103 "Service Items"
 
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, false);
-        Assert.IsTrue(ServiceItem.CheckIfCanBeDeleted = '', ServiceItem."No.");
+        Assert.IsTrue(ServiceItem.CheckIfCanBeDeleted() = '', ServiceItem."No.");
     end;
 
     [Test]
@@ -1938,7 +1938,7 @@ codeunit 136103 "Service Items"
         CreateServiceItem(ServiceItem);
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", LibraryFiscalYear.GetFirstPostingDate(false), false);
         Assert.ExpectedMessage(
-          StrSubstNo(CheckIfCanBeDeletedServiceItemDatePeriodErr, ServiceItem.TableCaption, ServiceItem."No."),
+          StrSubstNo(CheckIfCanBeDeletedServiceItemDatePeriodErr, ServiceItem.TableCaption(), ServiceItem."No."),
           ServiceItem.CheckIfCanBeDeleted);
     end;
 
@@ -1957,7 +1957,7 @@ codeunit 136103 "Service Items"
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, true);
 
         Assert.ExpectedMessage(
-          StrSubstNo(CheckIfCanBeDeletedServiceItemOpenErr, ServiceItem.TableCaption, ServiceItem."No."),
+          StrSubstNo(CheckIfCanBeDeletedServiceItemOpenErr, ServiceItem.TableCaption(), ServiceItem."No."),
           ServiceItem.CheckIfCanBeDeleted);
     end;
 
@@ -1995,7 +1995,7 @@ codeunit 136103 "Service Items"
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", LibraryFiscalYear.GetFirstPostingDate(false), false);
 
         Assert.ExpectedMessage(
-          StrSubstNo(CheckIfCanBeDeletedServiceItemDatePeriodErr, ServiceItem.TableCaption, ServiceItem."No."),
+          StrSubstNo(CheckIfCanBeDeletedServiceItemDatePeriodErr, ServiceItem.TableCaption(), ServiceItem."No."),
           MoveEntries.CheckIfServiceItemCanBeDeleted(ServiceLedgerEntry, ServiceItem."No."));
     end;
 
@@ -2015,7 +2015,7 @@ codeunit 136103 "Service Items"
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, true);
 
         Assert.ExpectedMessage(
-          StrSubstNo(CheckIfCanBeDeletedServiceItemOpenErr, ServiceItem.TableCaption, ServiceItem."No."),
+          StrSubstNo(CheckIfCanBeDeletedServiceItemOpenErr, ServiceItem.TableCaption(), ServiceItem."No."),
           MoveEntries.CheckIfServiceItemCanBeDeleted(ServiceLedgerEntry, ServiceItem."No."));
     end;
 
@@ -2035,7 +2035,7 @@ codeunit 136103 "Service Items"
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", 0D, false);
         MoveEntries.MoveServiceItemLedgerEntries(ServiceItem);
 
-        ServiceLedgerEntry.Find;
+        ServiceLedgerEntry.Find();
         Assert.AreEqual(
           '',
           ServiceLedgerEntry."Service Item No. (Serviced)",
@@ -2059,7 +2059,7 @@ codeunit 136103 "Service Items"
         asserterror MoveEntries.MoveServiceItemLedgerEntries(ServiceItem);
 
         Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(StrSubstNo(CheckIfCanBeDeletedServiceItemDatePeriodErr, ServiceItem.TableCaption, ServiceItem."No."));
+        Assert.ExpectedError(StrSubstNo(CheckIfCanBeDeletedServiceItemDatePeriodErr, ServiceItem.TableCaption(), ServiceItem."No."));
     end;
 
     [Test]
@@ -2079,7 +2079,7 @@ codeunit 136103 "Service Items"
         asserterror MoveEntries.MoveServiceItemLedgerEntries(ServiceItem);
 
         Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(StrSubstNo(CheckIfCanBeDeletedServiceItemOpenErr, ServiceItem.TableCaption, ServiceItem."No."));
+        Assert.ExpectedError(StrSubstNo(CheckIfCanBeDeletedServiceItemOpenErr, ServiceItem.TableCaption(), ServiceItem."No."));
     end;
 
     [Test]
@@ -2148,7 +2148,7 @@ codeunit 136103 "Service Items"
 
         // [GIVEN] Troubleshooting Header "XXX" is set for Troubleshooting setup for Item "III"
         TroubleshootingSetupPage1."Troubleshooting No.".Value := TroubleshootingHeader."No.";
-        TroubleshootingSetupPage1.Next;
+        TroubleshootingSetupPage1.Next();
         TroubleshootingSetupPage1.OK.Invoke;
 
         // [WHEN] Open Troubleshooting Setup for Item "III" again
@@ -2366,7 +2366,7 @@ codeunit 136103 "Service Items"
 
         // [GIVEN] Cancelled Service Contract with Customer No. = "C1"
         CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo());
-        ServiceContractHeader.Status := ServiceContractHeader.Status::Canceled;
+        ServiceContractHeader.Status := "Service Contract Status"::Cancelled;
         ServiceContractHeader.Modify();
 
         // [GIVEN] Subsribe to OnBeforeMoveVendEntries to change Customer No. to "C2"
@@ -2581,7 +2581,7 @@ codeunit 136103 "Service Items"
             ServiceLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));  // Input any random value.
             ServiceLine.Validate("Service Item Line No.", ServiceItemLineNo);
             ServiceLine.Modify(true);
-            Item.Next;
+            Item.Next();
         end;
     end;
 
@@ -2645,7 +2645,7 @@ codeunit 136103 "Service Items"
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::"Sales Line");
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure CreateSalesLine(var Quantity: Decimal; SalesHeader: Record "Sales Header"; ItemNo: Code[20])
@@ -2941,14 +2941,14 @@ codeunit 136103 "Service Items"
         // Create and Post Item Journal with Entry Type Purchase after assigning Lotno.
         // Create Item Journal with Entry Type Sale and Update Lot no. using Select Entries Or Assist Edit.
         Initialize();
-        CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, WorkDate,
+        CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, WorkDate(),
           CreateItemWithTwoUnitsOfMeasure(ItemUnitOfMeasure), ItemUnitOfMeasure."Item No.", LibraryRandom.RandDecInRange(11, 20, 2));
         LibraryVariableStorage.Enqueue(ItemTrackingLinesAssignment::AssignLotNo);
         AssignTrackingOnItemJournalLines(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         UpdateExpirationDateOnReservationEntry(ItemUnitOfMeasure."Item No.");
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
         CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::Sale,
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate), ItemUnitOfMeasure.Code, ItemUnitOfMeasure."Item No.",
+          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate()), ItemUnitOfMeasure.Code, ItemUnitOfMeasure."Item No.",
           LibraryRandom.RandDecInRange(1, 10, 2));
         LibraryVariableStorage.Enqueue(AssignedValue);
         Commit();
@@ -2964,12 +2964,12 @@ codeunit 136103 "Service Items"
     local procedure MockServiceItemLedgerEntry(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceItemNo: Code[20]; PostingDate: Date; IsOpen: Boolean)
     begin
         with ServiceLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ServiceLedgerEntry, FieldNo("Entry No."));
             "Service Item No. (Serviced)" := ServiceItemNo;
             "Posting Date" := PostingDate;
             Open := IsOpen;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2984,11 +2984,11 @@ codeunit 136103 "Service Items"
         ServiceItemComponentList.Trap;
         ServiceItemList."Com&ponent List".Invoke;
         ServiceItemComponentList.First;
-        ServiceItemComponentList.Next;
+        ServiceItemComponentList.Next();
         ServiceItemComponentList.Type.SetValue(ServiceItemComponent.Type::Item);
         ServiceItemComponentList."No.".SetValue(ItemNo);
-        ServiceItemComponentList.Close;
-        ServiceItemList.Close;
+        ServiceItemComponentList.Close();
+        ServiceItemList.Close();
     end;
 
     [Scope('OnPrem')]
@@ -3141,7 +3141,7 @@ codeunit 136103 "Service Items"
 
         // Verify: Verify that the Replaced Component list for the first Item selected as component is 1.
         VerifyNoOfReplacedComponents(ServiceItemComponent, 1);
-        ServiceItemComponent.Next;
+        ServiceItemComponent.Next();
 
         // Verify: Verify that the Replaced Component list for the second Item selected as component is empty.
         VerifyNoOfReplacedComponents(ServiceItemComponent, 0);
@@ -3168,7 +3168,7 @@ codeunit 136103 "Service Items"
     begin
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.FindFirst();
-        ReservationEntry.Validate("Expiration Date", CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(5), WorkDate)));
+        ReservationEntry.Validate("Expiration Date", CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(5), WorkDate())));
         ReservationEntry.Modify(true);
     end;
 
@@ -3280,8 +3280,8 @@ codeunit 136103 "Service Items"
             Assert.AreEqual(
               BOMComponent."Quantity per",
               ServiceItemComponent.Count,
-              StrSubstNo(BOMComponentErr, ServiceItemComponent.TableCaption, BOMComponent."Quantity per"));
-        until BOMComponent.Next = 0;
+              StrSubstNo(BOMComponentErr, ServiceItemComponent.TableCaption(), BOMComponent."Quantity per"));
+        until BOMComponent.Next() = 0;
     end;
 
     local procedure VerifyServiceItemLine(ServiceItemLine: Record "Service Item Line")
@@ -3311,7 +3311,7 @@ codeunit 136103 "Service Items"
         // Verify that the value of the Parts Used field in the Service item is the product of the Unit Cost applicable and the Quantity in
         // the Service Line.
         if ServiceLine."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else
             Currency.Get(ServiceLine."Currency Code");
 
@@ -3341,7 +3341,7 @@ codeunit 136103 "Service Items"
         // Check that the Resource Skill attached to the Service Item earlier has been deleted.
         Assert.IsFalse(
           ResourceSkill.Get(ResourceSkill.Type::Item, ResourceSkill."No.", ResourceSkill."Skill Code"),
-          StrSubstNo(RecordExistsErr, ResourceSkill.TableCaption, Format(ResourceSkill)));
+          StrSubstNo(RecordExistsErr, ResourceSkill.TableCaption(), Format(ResourceSkill)));
     end;
 
     local procedure VerifyNoOfReplacedComponents(ServiceItemComponent: Record "Service Item Component"; NumberofLinesReplaced: Integer)
@@ -3357,7 +3357,7 @@ codeunit 136103 "Service Items"
           NumberofLinesReplaced,
           ServiceItemComponent2.Count,
           StrSubstNo(
-            ServiceItemReplacedErr, ServiceItemComponent.TableCaption,
+            ServiceItemReplacedErr, ServiceItemComponent.TableCaption(),
             NumberofLinesReplaced, ServiceItemComponent.FieldCaption("Parent Service Item No."),
             ServiceItemComponent."Parent Service Item No.", ServiceItemComponent.FieldCaption("Line No."),
             ServiceItemComponent."Line No."));

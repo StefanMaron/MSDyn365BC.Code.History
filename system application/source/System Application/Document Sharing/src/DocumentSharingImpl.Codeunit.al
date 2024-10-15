@@ -24,7 +24,11 @@ codeunit 9561 "Document Sharing Impl."
         if Rec.IsEmpty() then
             Error(NoDocToShareErr);
 
-        DocumentSharing.OnCanUploadDocument(CanHandle);
+        if Rec.Source = Rec.Source::App then
+            DocumentSharing.OnCanUploadDocument(CanHandle)
+        else
+            DocumentSharing.OnCanUploadSystemDocument(CanHandle);
+
         if not CanHandle then
             Error(NoDocServiceConfiguredErr);
 
@@ -33,7 +37,7 @@ codeunit 9561 "Document Sharing Impl."
         else
             UploadDialog.Open(StrSubstNo(UploadingBlobTxt, ProductName.Short()));
 
-        Session.LogMessage('0000FKT', UploadingBlobTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentSharingCategoryLbl);
+        Session.LogMessage('0000FKT', StrSubstNo(UploadingBlobTelemetryTxt, Rec.Source), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentSharingCategoryLbl);
         DocumentSharing.OnUploadDocument(Rec, Handled);
         UploadDialog.Close();
 
@@ -94,26 +98,39 @@ codeunit 9561 "Document Sharing Impl."
         end;
     end;
 
-    procedure ShareEnabled(): Boolean
+    procedure ShareEnabled(DocumentSharingSource: Enum "Document Sharing Source"): Boolean
     var
         DocumentSharing: Codeunit "Document Sharing";
+        AzureADUserManagement: Codeunit "Azure AD User Management";
         ClientTypeManagement: Codeunit "Client Type Management";
         CanHandle: Boolean;
     begin
         if ClientTypeManagement.GetCurrentClientType() in [ClientType::Phone, ClientType::Tablet] then
             exit(false);
 
-        DocumentSharing.OnCanUploadDocument(CanHandle);
+        if AzureADUserManagement.IsUserDelegated(UserSecurityId()) then
+            exit(false);
+
+        if DocumentSharingSource = DocumentSharingSource::App then
+            DocumentSharing.OnCanUploadDocument(CanHandle)
+        else
+            DocumentSharing.OnCanUploadSystemDocument(CanHandle);
+
         exit(CanHandle);
     end;
 
-    procedure Share(FileName: Text; FileExtension: Text; InStream: Instream; DocumentSharingIntent: Enum "Document Sharing Intent")
+    procedure Share(FileName: Text; FileExtension: Text; InStream: Instream; DocumentSharingIntent: Enum "Document Sharing Intent"; DocumentSharingSource: Enum "Document Sharing Source")
     var
         TempDocumentSharing: Record "Document Sharing" temporary;
         OutStream: OutStream;
     begin
-        TempDocumentSharing.Name := CopyStr(FileName, 1, MaxStrLen(TempDocumentSharing.Name) - StrLen(FileExtension)) + FileExtension;
+        if FileName.EndsWith(FileExtension) then
+            TempDocumentSharing.Name := CopyStr(FileName, 1, MaxStrLen(TempDocumentSharing.Name))
+        else
+            TempDocumentSharing.Name := CopyStr(FileName, 1, MaxStrLen(TempDocumentSharing.Name) - StrLen(FileExtension)) + FileExtension;
+
         TempDocumentSharing.Extension := CopyStr(FileExtension, 1, MaxStrLen(TempDocumentSharing.Extension));
+        TempDocumentSharing.Source := DocumentSharingSource;
 
         TempDocumentSharing.Data.CreateOutStream(OutStream);
         CopyStream(OutStream, InStream);
@@ -170,7 +187,7 @@ codeunit 9561 "Document Sharing Impl."
         UploadingBlobTxt: Label 'We''re copying this file to your %1 folder in OneDrive', Comment = '%1 is the short product name (e.g. Business Central)';
         UploadingToShareBlobTxt: Label 'We''re copying this file to your %1 folder in OneDrive so you can share it', Comment = '%1 is the short product name (e.g. Business Central)';
         DocumentSharingCategoryLbl: Label 'AL DocumentSharing';
-        UploadingBlobTelemetryTxt: Label 'Uploading document.', Locked = true;
+        UploadingBlobTelemetryTxt: Label 'Uploading document for %1.', Locked = true;
         ShareUxOpenTxt: Label 'Opening share dialog.', Locked = true;
         PreviewOpenTxt: Label 'Opening document preview.', Locked = true;
         DocumentOpenTxt: Label 'Opening document uri.', Locked = true;

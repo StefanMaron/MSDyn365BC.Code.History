@@ -221,7 +221,7 @@ codeunit 136301 "Job Consumption Service"
         asserterror ServiceLine.Validate("Job No.", Job."No.");
 
         // 3. Verify: Check that the application generates an error on assignment of blocked Job to Job No. field of Service Line.
-        Assert.AreEqual(StrSubstNo(JobBlockedError, Job.TableCaption, Job."No.", Job.Blocked), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(JobBlockedError, Job.TableCaption(), Job."No.", Job.Blocked), GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -280,7 +280,7 @@ codeunit 136301 "Job Consumption Service"
             ServiceLine.Validate("Job Task No.", JobTask."Job Task No.");
             ServiceLine.Validate("Job Line Type", Counter mod 4);  // Remainder of division by 4 ensures selection of each Job Line Type.
             ServiceLine.Modify(true)
-        until ServiceLine.Next = 0
+        until ServiceLine.Next() = 0
     end;
 
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToServiceLine: Record "Service Line")
@@ -290,7 +290,7 @@ codeunit 136301 "Job Consumption Service"
                 ToServiceLine.Init();
                 ToServiceLine := FromServiceLine;
                 ToServiceLine.Insert();
-            until FromServiceLine.Next = 0
+            until FromServiceLine.Next() = 0
     end;
 
     local procedure CreateServiceOrderWithJob(var ServiceHeader: Record "Service Header"; ConsumptionFactor: Decimal)
@@ -360,7 +360,7 @@ codeunit 136301 "Job Consumption Service"
         repeat
             ServiceLine.Validate("Job No.", JobNo);
             ServiceLine.Modify(true);
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -401,7 +401,7 @@ codeunit 136301 "Job Consumption Service"
     local procedure VerifyJobConsumedError(ServiceLine: Record "Service Line")
     begin
         Assert.AreEqual(
-          StrSubstNo(QuantityConsumedErrorServTier, ServiceLine.TableCaption, ServiceLine.FieldCaption("Document Type"),
+          StrSubstNo(QuantityConsumedErrorServTier, ServiceLine.TableCaption(), ServiceLine.FieldCaption("Document Type"),
             ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."), ServiceLine."Document No.",
             ServiceLine.FieldCaption("Line No."), ServiceLine."Line No.", ServiceLine."Quantity Consumed"),
           GetLastErrorText, UnknownError);
@@ -415,7 +415,7 @@ codeunit 136301 "Job Consumption Service"
         repeat
             ServiceLine.TestField("Job Task No.", '');
             ServiceLine.TestField("Job Line Type", ServiceLine."Job Line Type"::" ");
-        until ServiceLine.Next = 0
+        until ServiceLine.Next() = 0
     end;
 
     [ConfirmHandler]

@@ -12,7 +12,7 @@ report 701 "Inventory - List"
         {
             DataItemTableView = WHERE(Type = CONST(Inventory));
             RequestFilterFields = "No.", "Search Description", "Assembly BOM", "Inventory Posting Group", "Shelf No.", "Statistics Group";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemFilter; ItemFilter)
@@ -93,7 +93,7 @@ report 701 "Inventory - List"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
     end;
 
     var

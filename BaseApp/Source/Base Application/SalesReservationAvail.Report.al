@@ -15,7 +15,7 @@ report 209 "Sales Reservation Avail."
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(StrsubstnoDocTypeDocNo; StrSubstNo('%1 %2', "Document Type", "Document No."))
@@ -198,8 +198,8 @@ report 209 "Sales Reservation Avail."
                         if "Qty. per Unit of Measure" = 0 then
                             "Qty. per Unit of Measure" := 1;
                         Validate("Qty. to Ship",
-                          Round(LineQuantityOnHand / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
-                        Modify;
+                          Round(LineQuantityOnHand / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
+                        Modify();
                         OnAfterSalesLineModify("Sales Line");
                     end;
                 end;
@@ -262,7 +262,7 @@ report 209 "Sales Reservation Avail."
                 TempSalesLines := "Sales Line";
                 ClearDocumentStatus := true;
 
-                if TempSalesLines.Next <> 0 then
+                if TempSalesLines.Next() <> 0 then
                     ClearDocumentStatus := (TempSalesLines."Document No." <> OldDocumentNo) or (TempSalesLines."Document Type" <> OldDocumentType);
             end;
 
@@ -329,7 +329,6 @@ report 209 "Sales Reservation Avail."
     }
 
     var
-        Text000: Label 'Sales lines must be shown.';
         SalesHeader: Record "Sales Header";
         ReservEntry: Record "Reservation Entry";
         ReservEntryFrom: Record "Reservation Entry";
@@ -352,6 +351,8 @@ report 209 "Sales Reservation Avail."
         DocumentStatus: Option " ",Shipped,"Full Shipment","Partial Shipment","No Shipment";
         LineQuantityOnHand: Decimal;
         EntryQuantityOnHand: Decimal;
+
+        Text000: Label 'Sales lines must be shown.';
         SalesResrvtnAvalbtyCaptionLbl: Label 'Sales Reservation Availability';
         CurrRepPageNoCaptionLbl: Label 'Page';
         SalesLineShpmtDtCaptionLbl: Label 'Shipment Date';

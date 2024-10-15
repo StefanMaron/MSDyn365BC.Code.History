@@ -927,7 +927,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         CalcPhysInvtOrderLines: Report "Calc. Phys. Invt. Order Lines";
     begin
         Item.Get(ItemNo);
-        Item.SetRecFilter;
+        Item.SetRecFilter();
         Clear(CalcPhysInvtOrderLines);
         CalcPhysInvtOrderLines.SetPhysInvtOrderHeader(PhysInvtOrderHeader);
         CalcPhysInvtOrderLines.InitializeRequest(true, CalcQtyExpected);
@@ -940,7 +940,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     var
         CalcPhysInvtOrderBins: Report "Calc. Phys. Invt. Order (Bins)";
     begin
-        Bin.SetRecFilter;
+        Bin.SetRecFilter();
         Clear(CalcPhysInvtOrderBins);
         CalcPhysInvtOrderBins.SetPhysInvtOrderHeader(PhysInvtOrderHeader);
         CalcPhysInvtOrderBins.UseRequestPage(false);
@@ -1103,7 +1103,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         // Enqueue values for use in PostedItemTrackingLinesPageHandler and PostExpPhInTrackListPageHandler.
         LibraryVariableStorage.Enqueue(ItemLedgerEntry."Lot No.");
         LibraryVariableStorage.Enqueue(-ItemLedgerEntry.Quantity + Quantity);
-        PstdPhysInvtOrderLine.ShowPostedItemTrackingLines;  // Invokes PostedItemTrackingLinesPageHandler.
+        PstdPhysInvtOrderLine.ShowPostedItemTrackingLines();  // Invokes PostedItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(ItemLedgerEntry."Lot No.");
         LibraryVariableStorage.Enqueue(ItemLedgerEntry.Quantity);
         PstdPhysInvtOrderLine.ShowPostExpPhysInvtTrackLines;  // Invokes PostExpPhInTrackListPageHandler.

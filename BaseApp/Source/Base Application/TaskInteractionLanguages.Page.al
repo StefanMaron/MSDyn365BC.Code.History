@@ -11,7 +11,7 @@ page 5196 "Task Interaction Languages"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
@@ -21,7 +21,7 @@ page 5196 "Task Interaction Languages"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the interaction template that you have chosen for the task.';
                 }
-                field("""Attachment No."" > 0"; "Attachment No." > 0)
+                field("""Attachment No."" > 0"; Rec."Attachment No." > 0)
                 {
                     ApplicationArea = Basic, Suite;
                     AssistEdit = true;
@@ -98,7 +98,7 @@ page 5196 "Task Interaction Languages"
 
                     trigger OnAction()
                     begin
-                        CopyFromAttachment;
+                        CopyFromAttachment();
                     end;
                 }
                 action(Import)
@@ -111,7 +111,7 @@ page 5196 "Task Interaction Languages"
 
                     trigger OnAction()
                     begin
-                        ImportAttachment;
+                        ImportAttachment();
                     end;
                 }
                 action("E&xport")
@@ -124,7 +124,7 @@ page 5196 "Task Interaction Languages"
 
                     trigger OnAction()
                     begin
-                        ExportAttachment;
+                        ExportAttachment();
                     end;
                 }
                 action(Remove)

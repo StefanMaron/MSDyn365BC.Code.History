@@ -167,6 +167,7 @@ codeunit 18147 "e-Invoice Json Handler"
                         '&SGST=' + Format(SGSTRate, 0, '<Precision,2:2><Standard Format,2>') +
                         '&IGST=' + Format(IGSTRate, 0, '<Precision,2:2><Standard Format,2>');
 
+        OnBeforeGenerateQRCodeForB2C(BankCode, QRCodeInput, SalesInvoiceHeader);
         RecRef.GetTable(SalesInvoiceHeader);
         QRGenerator.GenerateQRCodeImage(QRCodeInput, TempBlob);
         TempBlob.ToRecordRef(RecRef, SalesInvoiceHeader.FieldNo("QR Code"));
@@ -1484,11 +1485,14 @@ codeunit 18147 "e-Invoice Json Handler"
         if not eInvoiceManagement.IsGSTApplicable(DocumentNo, TableID) then
             Error(eInvoiceNonGSTTransactionErr);
 
-        SalesInvHeader.Get(DocumentNo);
-        if SalesInvHeader.FindFirst() then begin
-            SalesInvHeader.Mark(true);
+        if SalesInvHeader.Get(DocumentNo) then begin
             SetSalesInvHeader(SalesInvHeader);
             GenerateQRCodeforB2C(SalesInvHeader);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateQRCodeForB2C(BankCode: Code[20]; var QRCodeInput: Text; var SalesInvHeader: Record "Sales Invoice Header")
+    begin
     end;
 }

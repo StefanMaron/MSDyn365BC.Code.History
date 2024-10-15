@@ -13,27 +13,27 @@ codeunit 3021 DotNet_AppSource
     procedure IsAvailable(): Boolean
     begin
         // do not make external
-        exit(DotNetAppSource.IsAvailable)
+        exit(DotNetAppSource.IsAvailable())
     end;
 
     [Scope('OnPrem')]
     procedure Create()
     begin
         // do not make external
-        DotNetAppSource := DotNetAppSource.Create
+        DotNetAppSource := DotNetAppSource.Create();
     end;
 
     [Scope('OnPrem')]
     procedure ShowAppSource()
     begin
         // do not make external
-        DotNetAppSource.ShowAppSource
+        DotNetAppSource.ShowAppSource();
     end;
 
     [Scope('OnPrem')]
     procedure GetAppSource(var DotNetAppSource2: DotNet AppSource)
     begin
-        DotNetAppSource2 := DotNetAppSource
+        DotNetAppSource2 := DotNetAppSource;
     end;
 
     [Scope('OnPrem')]
