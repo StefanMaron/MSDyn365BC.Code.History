@@ -1,6 +1,5 @@
 page 7209 "CDS Couple Salespersons"
 {
-    AccessByPermission = TableData "CRM Integration Record" = R;
     Caption = 'Couple Dataverse Users with Salespersons', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -8,7 +7,6 @@ page 7209 "CDS Couple Salespersons"
     PageType = List;
     SourceTable = "CRM Systemuser";
     SourceTableView = SORTING(FullName) WHERE(IsIntegrationUser = CONST(false), IsDisabled = CONST(false), IsLicensed = CONST(true));
-    UsageCategory = Lists;
 
     layout
     {
@@ -36,7 +34,7 @@ page 7209 "CDS Couple Salespersons"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Salesperson (Business Central)';
-                    Editable = true;
+                    Editable = HasPermissions;
                     TableRelation = "Salesperson/Purchaser".Code;
                     ToolTip = 'Specifies the code for the salesperson or purchaser.';
 
@@ -95,6 +93,7 @@ page 7209 "CDS Couple Salespersons"
                     ApplicationArea = Suite;
                     Caption = 'Create Salesperson';
                     Image = NewCustomer;
+                    Enabled = HasPermissions;
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
@@ -119,6 +118,7 @@ page 7209 "CDS Couple Salespersons"
                 {
                     AccessByPermission = TableData "CRM Integration Record" = D;
                     ApplicationArea = Suite;
+                    Enabled = HasPermissions;
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
@@ -180,7 +180,10 @@ page 7209 "CDS Couple Salespersons"
     end;
 
     trigger OnInit()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
     begin
+        HasPermissions := CRMIntegrationRecord.ReadPermission();
         Coupled := Coupled::No;
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
         CDSIntegrationImpl.GetDefaultOwningTeamMembership(TempCDSTeammembership);
@@ -225,6 +228,7 @@ page 7209 "CDS Couple Salespersons"
         Coupled: Option Yes,No,Current;
         FirstColumnStyle: Text;
         ClosePageUncoupledUserTxt: Label '%1 out of %2 users are coupled. To prevent issues in initial synchronization Business Central will create salespeople for uncoupled users, couple them and add them to default team. Would you like to continue?', Comment = '%1=No. of users that were coupled, %2=Total no. of users.';
+        HasPermissions: Boolean;
 
     procedure SetCurrentlyCoupledCRMSystemuser(CRMSystemuser: Record "CRM Systemuser")
     begin

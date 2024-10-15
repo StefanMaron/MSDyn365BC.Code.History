@@ -166,7 +166,7 @@ page 5353 "CRM Sales Order List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Create in Business Central';
-                    Enabled = HasRecords;
+                    Enabled = HasRecords and CRMIntegrationEnabled;
                     Image = New;
                     Promoted = true;
                     PromotedCategory = Process;
@@ -204,11 +204,11 @@ page 5353 "CRM Sales Order List"
 
     trigger OnOpenPage()
     var
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         SetRange(StateCode, StateCode::Submitted);
         SetFilter(LastBackofficeSubmit, '%1|%2', 0D, DMY2Date(1, 1, 1900));
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMConnectionSetup.IsEnabled();
     end;
 
     var

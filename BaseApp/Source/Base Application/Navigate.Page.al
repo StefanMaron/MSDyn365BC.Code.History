@@ -655,6 +655,7 @@
                         SalesInvHeader.SetCurrentKey("Sell-to Customer No.", "External Document No.");
                         SalesInvHeader.SetFilter("Sell-to Customer No.", ContactNo);
                         SalesInvHeader.SetFilter("External Document No.", ExtDocNo);
+                        OnFindExtRecordsOnAfterSetSalesInvoiceFilter(SalesInvHeader);
                         InsertIntoDocEntry(Rec, DATABASE::"Sales Invoice Header", PostedSalesInvoiceTxt, SalesInvHeader.Count);
                     end;
                     if ReturnRcptHeader.ReadPermission() then begin
@@ -669,6 +670,7 @@
                         SalesCrMemoHeader.SetCurrentKey("Sell-to Customer No.", "External Document No.");
                         SalesCrMemoHeader.SetFilter("Sell-to Customer No.", ContactNo);
                         SalesCrMemoHeader.SetFilter("External Document No.", ExtDocNo);
+                        OnFindExtRecordsOnAfterSetSalesCrMemoFilter(SalesCrMemoHeader);
                         InsertIntoDocEntry(Rec, DATABASE::"Sales Cr.Memo Header", PostedSalesCreditMemoTxt, SalesCrMemoHeader.Count);
                     end;
                     FindUnpostedServDocs(SOServHeader."Document Type"::Order, ServiceOrderTxt, SOServHeader);
@@ -698,6 +700,7 @@
 
                     DocExists := Rec.FindFirst();
 
+                    OnFindExtRecordsOnBeforeFormUpdate(Rec, SalesInvHeader, SalesCrMemoHeader);
                     UpdateFormAfterFindRecords();
                     FoundRecords := DocExists;
                 end;
@@ -2145,8 +2148,23 @@
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateFormAfterFindRecords()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnFindExtRecordsOnAfterSetSalesCrMemoFilter(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnFindExtRecordsOnAfterSetSalesInvoiceFilter(var SalesInvHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnFindExtRecordsOnBeforeFormUpdate(var Rec: Record "Document Entry"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 

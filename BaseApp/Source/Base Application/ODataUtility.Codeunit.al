@@ -10,11 +10,12 @@
     end;
 
     var
-        ODataWizardTxt: Label 'Set Up Reporting Data';
+        EnvironmentInfo: Codeunit "Environment Information";
         TypeHelper: Codeunit "Type Helper";
         WorksheetWriter: DotNet WorksheetWriter;
         WorkbookWriter: DotNet WorkbookWriter;
         ODataProtocolVersion: Option V3,V4;
+        ODataWizardTxt: Label 'Set Up Reporting Data';
         BalanceSheetHeadingTxt: Label 'Balance Sheet';
         BalanceSheetNameTxt: Label 'BalanceSheet', Locked = true;
         CompanyTxt: Label 'Company';
@@ -74,13 +75,21 @@
         Days31To60StaticTxt: Label '31-60 Days', Locked = true;
         Over60StaticTxt: Label 'Over 60 Days', Locked = true;
         WebServiceErr: Label 'The webservice %1 required for this excel report is missing.', Comment = '%1 - Web service name';
-        GetEndpointCategoryTxt: Label 'AL Get Endpoint Category', Locked = true;
+        ODataUtilityTelemetryCategoryTxt: Label 'AL OData Utility', Locked = true;
         TenantWebserviceDoesNotExistTxt: Label 'Tenant web service does not exist.', Locked = true;
         TenantWebserviceExistTxt: Label 'Tenant web service exist.', Locked = true;
         NewSelectTextTxt: Label 'New select text, creating temporary tenant web service columns.', Locked = true;
         CreateEndpointForObjectTxt: Label 'Creating endpoint for %1 %2.', Locked = true;
         WebServiceHasBeenDisabledErr: Label 'You can''t edit this page in Excel because it''s not set up for it. To use the Edit in Excel feature, you must publish the web service called ''%1''. Contact your system administrator for help.', Comment = '%1 = Web service name';
         WebServiceNameTooLongErr: Label 'The web service name ''%1'' is too long. Make sure the name is no longer than 240 characters.', Comment = '%1 = Web service name';
+        NoTokenForMetadataTelemetryErr: Label 'Access token could not be retrieved.', Locked = true;
+        FailedToSendRequestErr: Label 'The request could not be sent. Details: %1.', Comment = '%1 = a more detailed error message';
+        ErrorStatusCodeReturnedErr: Label 'The request failed with status code: %1.', Comment = '%1 = a http status code, for example 401';
+        BearerTokenTemplateTxt: Label 'Bearer %1', Locked = true;
+        CallingEndpointTxt: Label 'Calling endpoint %1 with correlation id %2', Locked = true;
+        SaveFileDialogTitleMsg: Label 'Save XML file';
+        MetadataFileNameTxt: Label 'metadata.xml', Locked = true;
+        SaveFileDialogFilterMsg: Label 'XML Files (*.xml)|*.xml';
 
     [TryFunction]
     procedure GenerateSelectText(ServiceNameParam: Text; ObjectTypeParam: Option ,,,,,"Codeunit",,,"Page","Query"; var SelectTextParam: Text)
@@ -327,13 +336,12 @@
     procedure CreateAssistedSetup()
     var
         GuidedExperience: Codeunit "Guided Experience";
-        EnvironmentInformation: Codeunit "Environment Information";
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
         Info: ModuleInfo;
         AssistedSetupGroup: Enum "Assisted Setup Group";
         VideoCategory: Enum "Video Category";
     begin
-        If (EnvironmentInformation.IsSaaS() or not CompanyInformationMgt.IsDemoCompany()) then
+        If (EnvironmentInfo.IsSaaS() or not CompanyInformationMgt.IsDemoCompany()) then
             exit;
         NavApp.GetCurrentModuleInfo(Info);
         GuidedExperience.InsertAssistedSetup(ODataWizardTxt, CopyStr(ODataWizardTxt, 1, 50), '', 0, ObjectType::Page,
@@ -457,9 +465,9 @@
     [Scope('OnPrem')]
     procedure GenerateExcelTemplateWorkBook(ObjectTypeParm: Option ,,,,,"Codeunit",,,"Page","Query"; ServiceNameParm: Text[50]; ShowDialogParm: Boolean; StatementType: Option BalanceSheet,SummaryTrialBalance,CashFlowStatement,StatementOfRetainedEarnings,AgedAccountsReceivable,AgedAccountsPayable,IncomeStatement)
     var
+        Company: Record Company;
         TenantWebService: Record "Tenant Web Service";
         MediaResources: Record "Media Resources";
-        EnvironmentInfo: Codeunit "Environment Information";
         FileManagement: Codeunit "File Management";
         AzureADTenant: Codeunit "Azure AD Tenant";
         TempBlob: Codeunit "Temp Blob";
@@ -522,7 +530,10 @@
         WorkbookSettingsManager.SettingsObject.Headers.Clear;
         if EnvironmentInfo.IsSaaS() then
             WorkbookSettingsManager.SettingsObject.Headers.Add('BCEnvironment', EnvironmentInfo.GetEnvironmentName());
-        WorkbookSettingsManager.SettingsObject.Headers.Add('Company', TenantWebService.CurrentCompany);
+        if Company.Get(TenantWebService.CurrentCompany) then
+            WorkbookSettingsManager.SettingsObject.Headers.Add('Company', Format(Company.Id, 0, 4))
+        else
+            WorkbookSettingsManager.SettingsObject.Headers.Add('Company', TenantWebService.CurrentCompany);
         WorkbookSettingsManager.SetAppInfo(OfficeAppInfo);
         WorkbookSettingsManager.SetHostName(HostName);
         WorkbookSettingsManager.SetAuthenticationTenant(AzureADTenant.GetAadTenantId);
@@ -585,7 +596,7 @@
         if not TenantWebService.Published then
             Error(WebServiceHasBeenDisabledErr, TenantWebService."Service Name");
 
-        Session.LogMessage('0000DB6', StrSubstNo(CreateEndpointForObjectTxt, TenantWebService."Object Type", TenantWebService."Object ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetEndpointCategoryTxt);
+        Session.LogMessage('0000DB6', StrSubstNo(CreateEndpointForObjectTxt, TenantWebService."Object Type", TenantWebService."Object ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
 
         TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
 
@@ -597,15 +608,15 @@
 
         // If we don't have an endpoint - we need a new endpoint
         if not TenantWebServiceOData.FindFirst then begin
-            Session.LogMessage('0000DB3', TenantWebserviceDoesNotExistTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetEndpointCategoryTxt);
+            Session.LogMessage('0000DB3', TenantWebserviceDoesNotExistTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
             CreateEndPoint(TenantWebService, ColumnDictionary, DefaultSelectText, TenantWebServiceColumns);
             TenantWebServiceOData.SetRange(TenantWebServiceID, TenantWebService.RecordId);
             TenantWebServiceOData.FindFirst;
         end else begin
-            Session.LogMessage('0000DB4', TenantWebserviceExistTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetEndpointCategoryTxt);
+            Session.LogMessage('0000DB4', TenantWebserviceExistTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
             // If we have a select text mismatch - set the select text for this operation and use a temp column record
             if SavedSelectText <> DefaultSelectText then begin
-                Session.LogMessage('0000DB5', NewSelectTextTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetEndpointCategoryTxt);
+                Session.LogMessage('0000DB5', NewSelectTextTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
                 WebServiceManagement.InsertSelectedColumns(TenantWebService, ColumnDictionary, TempTenantWebServiceColumns, TableNo);
                 TempTenantWebServiceColumns.Modify(true);
                 TempTenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
@@ -642,9 +653,9 @@
     [Scope('OnPrem')]
     procedure CreateDataEntityExportInfo(var TenantWebService: Record "Tenant Web Service"; var DataEntityExportInfoParam: DotNet DataEntityExportInfo; var TenantWebServiceColumns: Record "Tenant Web Service Columns"; SearchFilter: Text)
     var
+        Company: Record Company;
         TenantWebServiceOData: Record "Tenant Web Service OData";
         WebServiceManagement: Codeunit "Web Service Management";
-        EnvironmentInfo: Codeunit "Environment Information";
         AzureADTenant: Codeunit "Azure AD Tenant";
         ConnectionInfo: DotNet ConnectionInfo;
         OfficeAppInfo: DotNet OfficeAppInfo;
@@ -687,7 +698,11 @@
         DataEntityExportInfoParam.RefreshOnOpen := true;
         if EnvironmentInfo.IsSaaS() then
             DataEntityExportInfoParam.Headers.Add('BCEnvironment', EnvironmentInfo.GetEnvironmentName());
-        DataEntityExportInfoParam.Headers.Add('Company', TenantWebService.CurrentCompany);
+        if Company.Get(TenantWebService.CurrentCompany) then
+            DataEntityExportInfoParam.Headers.Add('Company', Format(Company.Id, 0, 4))
+        else
+            DataEntityExportInfoParam.Headers.Add('Company', TenantWebService.CurrentCompany);
+        
         if SearchFilter <> '' then
             DataEntityExportInfoParam.Headers.Add('pageSearchString', DelChr(SearchFilter, '=', '@*'));
         DataEntityInfo := DataEntityInfo.DataEntityInfo;
@@ -1232,17 +1247,70 @@
         TenantWebServiceMetadata := TenantWebServiceMetadata.FromStream(inStream);
     end;
 
+    [Scope('OnPrem')]
+    procedure DownloadODataMetadataDocument()
+    var
+        HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        MetadataTempBlob: Codeunit "Temp Blob";
+        HttpStatusCode: DotNet HttpStatusCode;
+        ResponseHeaders: DotNet NameValueCollection;
+        ResponseInStream: InStream;
+        FileName: Text;
+    begin
+        MetadataTempBlob.CreateInStream(ResponseInStream);
+
+        if not CreateMetadataWebRequest(HttpWebRequestMgt) then
+            Error(FailedToSendRequestErr, GetLastErrorText());
+
+        if not HttpWebRequestMgt.GetResponse(ResponseInStream, HttpStatusCode, ResponseHeaders) then
+            Error(FailedToSendRequestErr, GetLastErrorText());
+
+        if not HttpStatusCode.Equals(HttpStatusCode.OK) then
+            Error(ErrorStatusCodeReturnedErr, HttpStatusCode);
+
+        FileName := MetadataFileNameTxt;
+        DownloadFromStream(ResponseInStream, SaveFileDialogTitleMsg, '', SaveFileDialogFilterMsg, FileName);
+    end;
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure CreateMetadataWebRequest(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt."): Boolean
+    var
+        AzureAdMgt: Codeunit "Azure AD Mgt.";
+        UrlHelper: Codeunit "Url Helper";
+        Token: Text;
+        Endpoint: Text;
+        CorrelationId: Guid;
+    begin
+        if not EnvironmentInfo.IsSaaS() then
+            exit(false);
+
+        Endpoint := GetUrl(CLIENTTYPE::ODataV4) + '/$metadata';
+        Token := AzureAdMgt.GetAccessToken(UrlHelper.GetFixedEndpointWebServiceUrl(), '', false);
+        if Token = '' then begin
+            Session.LogMessage('0000E51', NoTokenForMetadataTelemetryErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
+            exit(false);
+        end;
+
+        CorrelationId := CreateGuid();
+        Session.LogMessage('0000E53', StrSubstNo(CallingEndpointTxt, Endpoint, CorrelationId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ODataUtilityTelemetryCategoryTxt);
+
+        HttpWebRequestMgt.Initialize(Endpoint);
+        HttpWebRequestMgt.SetMethod('GET');
+        HttpWebRequestMgt.AddHeader('Authorization', StrSubstNo(BearerTokenTemplateTxt, Token));
+        HttpWebRequestMgt.AddHeader('x-ms-correlation-id', CorrelationId);
+        HttpWebRequestMgt.SetUserAgent('BusinessCentral/cod6170');
+        exit(true);
+    end;
+
     local procedure GetExcelAddinProviderServiceUrl(): Text
     var
-        EnvironmentInfo: Codeunit "Environment Information";
         UrlHelper: Codeunit "Url Helper";
     begin
         exit(UrlHelper.GetExcelAddinProviderServiceUrl);
     end;
 
     procedure GetHostName(): Text
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
         if EnvironmentInfo.IsSaaS() then
             exit(GetExcelAddinProviderServiceUrl);

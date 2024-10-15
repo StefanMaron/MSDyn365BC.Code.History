@@ -40,7 +40,7 @@
         CRMConnectionSetupTxt: Label 'Set up %1 connection', Comment = '%1 = CRM product name';
         CRMConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115256', Locked = true;
         CRMConnectionSetupDescriptionTxt: Label 'Connect your Dynamics 365 services for better insights.';
-        CDSConnectionSetupTxt: Label 'Set up a connection to Microsoft Dataverse';
+        CDSConnectionSetupTxt: Label 'Set up Dataverse connection';
         CDSConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115257', Locked = true;
         CDSConnectionSetupDescriptionTxt: Label 'Connect to Dataverse for better insights across business applications.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated';
         AzureAdSetupTxt: Label 'Set up Azure Active Directory';

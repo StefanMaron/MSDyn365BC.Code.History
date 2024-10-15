@@ -160,6 +160,13 @@ codeunit 135090 "API Webhook Sending Events"
           StrSubstNo('Incorrect HTTP status code.%1%2', ErrorMessage, ErrorDetails));
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Mgt.", 'OnCanCreateTask', '', false, false)]
+    local procedure HandleOnCanCreateTask(var Handled: Boolean; var CanCreateTask: Boolean)
+    begin
+        Handled := true;
+        CanCreateTask := true;
+    end;
+
     [Scope('OnPrem')]
     procedure AssertEmptyQueue()
     begin

@@ -3477,8 +3477,10 @@ codeunit 134202 "Document Approval - Users"
 
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Document Approval - Users");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Document Approval - Users");
     end;
 
     [ModalPageHandler]
