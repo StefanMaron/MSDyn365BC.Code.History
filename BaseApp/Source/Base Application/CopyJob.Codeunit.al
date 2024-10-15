@@ -352,6 +352,11 @@ codeunit 1006 "Copy Job"
         CopyQuantity := CopyQuantity2;
     end;
 
+    procedure SetCopyPrices(CopyPrices2: Boolean)
+    begin
+        CopyPrices := CopyPrices2;
+    end;
+
     procedure SetCopyJobPlanningLineType(JobPlanningLineType2: Option " ",Budget,Billable)
     begin
         JobPlanningLineType := JobPlanningLineType2;
