@@ -14,7 +14,7 @@ table 4701 "VAT Group Calculation"
         field(2; "VAT Group Submission No."; Code[20])
         {
             DataClassification = CustomerContent;
-            TableRelation = "VAT Group Submission Header" where("No." = field("VAT Group Submission No."));
+            TableRelation = "VAT Group Submission Header"."No." where(ID = field("VAT Group Submission ID"));
             Caption = 'VAT Group Submission';
 
         }
@@ -28,7 +28,7 @@ table 4701 "VAT Group Calculation"
         field(4; "VAT Report No."; Code[20])
         {
             DataClassification = CustomerContent;
-            TableRelation = "VAT Report Header";
+            TableRelation = "VAT Report Header"."No." where("VAT Report Config. Code" = const("VAT Return"));
             Caption = 'VAT Return No.';
         }
         field(5; "Group Member Name"; Text[250])
