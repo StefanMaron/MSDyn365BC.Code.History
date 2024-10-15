@@ -19,20 +19,20 @@ codeunit 27032 "Update CFDI Fields Sales Doc"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         Customer.SetFilter("CFDI Purpose", '<>%1', '');
-        if Customer.IsEmpty then
+        if Customer.IsEmpty() then
             exit;
 
-        Customer.FindSet;
+        Customer.FindSet();
         repeat
             SalesHeader.SetRange("Bill-to Customer No.", Customer."No.");
-            if not SalesHeader.IsEmpty then begin
+            if not SalesHeader.IsEmpty() then begin
                 SalesHeader.ModifyAll("CFDI Purpose", Customer."CFDI Purpose");
                 SalesHeader.ModifyAll("CFDI Relation", Customer."CFDI Relation");
             end;
 
             SalesHeader.SetRange("Bill-to Customer No.", '');
             SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
-            if not SalesHeader.IsEmpty then begin
+            if not SalesHeader.IsEmpty() then begin
                 SalesHeader.ModifyAll("CFDI Purpose", Customer."CFDI Purpose");
                 SalesHeader.ModifyAll("CFDI Relation", Customer."CFDI Relation");
             end;
@@ -43,11 +43,11 @@ codeunit 27032 "Update CFDI Fields Sales Doc"
               SalesInvoiceHeader."Electronic Document Status"::"Stamp Request Error",
               SalesInvoiceHeader."Electronic Document Status"::"Cancel Error");
             SalesInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-            if not SalesInvoiceHeader.IsEmpty then
+            if not SalesInvoiceHeader.IsEmpty() then
                 SalesInvoiceHeader.ModifyAll("CFDI Purpose", Customer."CFDI Purpose");
             SalesInvoiceHeader.SetRange("Bill-to Customer No.", '');
             SalesInvoiceHeader.SetRange("Sell-to Customer No.", Customer."No.");
-            if not SalesInvoiceHeader.IsEmpty then
+            if not SalesInvoiceHeader.IsEmpty() then
                 SalesInvoiceHeader.ModifyAll("CFDI Purpose", Customer."CFDI Purpose");
 
             SalesCrMemoHeader.SetFilter(
@@ -56,17 +56,17 @@ codeunit 27032 "Update CFDI Fields Sales Doc"
               SalesCrMemoHeader."Electronic Document Status"::"Stamp Request Error",
               SalesCrMemoHeader."Electronic Document Status"::"Cancel Error");
             SalesCrMemoHeader.SetRange("Bill-to Customer No.", Customer."No.");
-            if not SalesCrMemoHeader.IsEmpty then begin
+            if not SalesCrMemoHeader.IsEmpty() then begin
                 SalesCrMemoHeader.ModifyAll("CFDI Purpose", Customer."CFDI Purpose");
                 SalesCrMemoHeader.ModifyAll("CFDI Relation", Customer."CFDI Relation");
             end;
             SalesCrMemoHeader.SetRange("Bill-to Customer No.", '');
             SalesCrMemoHeader.SetRange("Sell-to Customer No.", Customer."No.");
-            if not SalesCrMemoHeader.IsEmpty then begin
+            if not SalesCrMemoHeader.IsEmpty() then begin
                 SalesCrMemoHeader.ModifyAll("CFDI Purpose", Customer."CFDI Purpose");
                 SalesCrMemoHeader.ModifyAll("CFDI Relation", Customer."CFDI Relation");
             end;
-        until Customer.Next = 0;
+        until Customer.Next() = 0;
     end;
 
     local procedure UpdateServiceDocuments()
@@ -77,13 +77,13 @@ codeunit 27032 "Update CFDI Fields Sales Doc"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         Customer.SetFilter("CFDI Purpose", '<>%1', '');
-        if Customer.IsEmpty then
+        if Customer.IsEmpty() then
             exit;
 
-        Customer.FindSet;
+        Customer.FindSet();
         repeat
             ServiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-            if not ServiceHeader.IsEmpty then begin
+            if not ServiceHeader.IsEmpty() then begin
                 ServiceHeader.ModifyAll("CFDI Purpose", Customer."CFDI Purpose");
                 ServiceHeader.ModifyAll("CFDI Relation", Customer."CFDI Relation");
             end;
@@ -94,7 +94,7 @@ codeunit 27032 "Update CFDI Fields Sales Doc"
               ServiceInvoiceHeader."Electronic Document Status"::"Stamp Request Error",
               ServiceInvoiceHeader."Electronic Document Status"::"Cancel Error");
             ServiceInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-            if not ServiceInvoiceHeader.IsEmpty then
+            if not ServiceInvoiceHeader.IsEmpty() then
                 ServiceInvoiceHeader.ModifyAll("CFDI Purpose", Customer."CFDI Purpose");
 
             ServiceCrMemoHeader.SetFilter(
@@ -103,11 +103,11 @@ codeunit 27032 "Update CFDI Fields Sales Doc"
               ServiceCrMemoHeader."Electronic Document Status"::"Stamp Request Error",
               ServiceCrMemoHeader."Electronic Document Status"::"Cancel Error");
             ServiceCrMemoHeader.SetRange("Bill-to Customer No.", Customer."No.");
-            if not ServiceCrMemoHeader.IsEmpty then begin
+            if not ServiceCrMemoHeader.IsEmpty() then begin
                 ServiceCrMemoHeader.ModifyAll("CFDI Purpose", Customer."CFDI Purpose");
                 ServiceCrMemoHeader.ModifyAll("CFDI Relation", Customer."CFDI Relation");
             end;
-        until Customer.Next = 0;
+        until Customer.Next() = 0;
     end;
 }
 

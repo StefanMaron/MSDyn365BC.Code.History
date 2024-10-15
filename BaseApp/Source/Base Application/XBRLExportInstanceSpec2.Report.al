@@ -260,7 +260,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                 end;
 
                 NextXBRLLine.Copy("XBRL Taxonomy Line");
-                if NextXBRLLine.Next = 0 then
+                if NextXBRLLine.Next() = 0 then
                     HasChildren := false
                 else
                     HasChildren := (NextXBRLLine.Level = 0) or (NextXBRLLine."Parent Line No." = "Line No.");
@@ -363,7 +363,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                                     schemaLocationStr :=
                                       schemaLocationStr + ' ' +
                                       StrSubstNo('%1 %2', targetNamespace, schemaLocation);
-                        until Next = 0;
+                        until Next() = 0;
                 end;
                 if (XBRLTaxonomy.targetNamespace <> '') and (XBRLTaxonomy.schemaLocation <> '') then
                     schemaLocationStr := StrSubstNo('%1 %2', XBRLTaxonomy.targetNamespace, XBRLTaxonomy.schemaLocation);
@@ -566,7 +566,7 @@ report 505 "XBRL Export Instance - Spec. 2"
                             if LabelLanguage <> '' then begin
                                 XBRLTaxonomyLabel.SetRange("XBRL Taxonomy Name", XBRLTaxonomyName);
                                 XBRLTaxonomyLabel.SetRange("XML Language Identifier", LabelLanguage);
-                                if XBRLTaxonomyLabel.IsEmpty then
+                                if XBRLTaxonomyLabel.IsEmpty() then
                                     Error(UnknownXMLLanguageIDErr, LabelLanguage);
                             end;
                         end;

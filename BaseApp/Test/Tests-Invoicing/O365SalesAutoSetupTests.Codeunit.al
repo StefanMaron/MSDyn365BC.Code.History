@@ -283,7 +283,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
-        MyNotifications.FindSet;
+        MyNotifications.FindSet();
         repeat
             Assert.IsFalse(MyNotifications.Enabled, StrSubstNo(NotificationEnabledErr, MyNotifications.Name));
         until MyNotifications.Next = 0;
@@ -549,27 +549,6 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
                   StrSubstNo('Job queue entry for %1 %2 is not On Hold for Invoicing, but it''s %3.',
                     JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry.Status));
             until JobQueueEntry.Next = 0;
-    end;
-
-    [Test]
-    [HandlerFunctions('VerifyNoNotificationsAreSend')]
-    [TestPermissions(TestPermissions::NonRestrictive)]
-    [Scope('OnPrem')]
-    procedure InvoicingAppAreaEnabledOnInitializeO365Company()
-    var
-        ApplicationAreaSetup: Record "Application Area Setup";
-        O365SalesInitialSetup: Codeunit "O365 Sales Initial Setup";
-    begin
-        // [SCENARIO 197381] Application area #Invoicing is enabled after initialization of O365 company
-        Initialize;
-
-        // [WHEN] O365 company is being initialized
-        O365SalesInitialSetup.HideConfirmDialog;
-        O365SalesInitialSetup.Run;
-
-        // [THEN] #Invoicing is enabled for company's application area setup
-        ApplicationAreaSetup.Get(CompanyName, '', '');
-        Assert.IsTrue(ApplicationAreaSetup.Invoicing, InvoicingAppAreaMustBeEnabledErr);
     end;
 
     [Test]

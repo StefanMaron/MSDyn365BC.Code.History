@@ -56,7 +56,7 @@ codeunit 10150 "O365 Tax Settings Management"
                         TempSalesTaxSetupWizard.City := TaxJurisdiction.GetName;
                         TempSalesTaxSetupWizard."City Rate" += GetTaxRate(TaxJurisdiction.Code)
                     end;
-            until TaxAreaLine.Next = 0;
+            until TaxAreaLine.Next() = 0;
     end;
 
     procedure GetProvince(JurisdictionCode: Code[10]): Text[50]
@@ -147,9 +147,9 @@ codeunit 10150 "O365 Tax Settings Management"
                         repeat
                             SalesLine.UpdateAmounts;
                             SalesLine.Modify(true);
-                        until SalesLine.Next = 0;
+                        until SalesLine.Next() = 0;
                 end;
-            until TaxAreaLine.Next = 0;
+            until TaxAreaLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -214,7 +214,7 @@ codeunit 10150 "O365 Tax Settings Management"
         OldSalesLine: Record "Sales Line";
     begin
         Customer.SetFilter("Tax Area Code", '%1', '');
-        if not Customer.IsEmpty then
+        if not Customer.IsEmpty() then
             Customer.ModifyAll("Tax Area Code", TaxAreaCode);
 
         SalesLine.LockTable();
@@ -229,7 +229,7 @@ codeunit 10150 "O365 Tax Settings Management"
                    (OldSalesLine.Amount <> SalesLine.Amount)
                 then
                     SalesLine.Modify();
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -283,7 +283,7 @@ codeunit 10150 "O365 Tax Settings Management"
 
         TempSalesTaxSetupWizard.SetTaxArea(TaxArea);
         TaxAreaLine.SetRange("Tax Area", TempSalesTaxSetupWizard."Tax Area Code");
-        if not TaxAreaLine.IsEmpty then
+        if not TaxAreaLine.IsEmpty() then
             TaxAreaLine.DeleteAll();
 
         if TempNativeAPITaxSetup."GST or HST Code" <> '' then begin
@@ -310,7 +310,7 @@ codeunit 10150 "O365 Tax Settings Management"
             SalesTaxSetupWizard."Tax Area Code" := SalesTaxSetupWizard.GenerateTaxAreaCode;
     end;
 
-    [EventSubscriber(ObjectType::Table, 2850, 'OnLoadSalesTaxSettings', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Native - API Tax Setup", 'OnLoadSalesTaxSettings', '', false, false)]
     local procedure HandleOnLoadSalesTaxSettings(var NativeAPITaxSetup: Record "Native - API Tax Setup"; var TempTaxAreaBuffer: Record "Tax Area Buffer" temporary)
     var
         CompanyInformation: Record "Company Information";
@@ -326,7 +326,7 @@ codeunit 10150 "O365 Tax Settings Management"
             NativeAPITaxSetup.TransferFields(TempTaxAreaBuffer, true);
             LoadSalesTaxSettingsFromTaxArea(NativeAPITaxSetup, IsCanada);
             NativeAPITaxSetup.Insert(true);
-        until TempTaxAreaBuffer.Next = 0;
+        until TempTaxAreaBuffer.Next() = 0;
     end;
 
     local procedure LoadSalesTaxSettingsFromTaxArea(var NativeAPITaxSetup: Record "Native - API Tax Setup"; IsCanada: Boolean)
@@ -422,10 +422,10 @@ codeunit 10150 "O365 Tax Settings Management"
                         NativeAPITaxSetup."PST Description" := GetProvince(NativeAPITaxSetup."PST Code");
                         NativeAPITaxSetup."PST Rate" := GetTaxRate(NativeAPITaxSetup."PST Code")
                     end;
-            until TaxAreaLine.Next = 0;
+            until TaxAreaLine.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Table, 2850, 'OnSaveSalesTaxSettings', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Native - API Tax Setup", 'OnSaveSalesTaxSettings', '', false, false)]
     local procedure HandleOnSaveSalesTaxSettings(var NewNativeAPITaxSetup: Record "Native - API Tax Setup")
     var
         CompanyInformation: Record "Company Information";
@@ -461,7 +461,7 @@ codeunit 10150 "O365 Tax Settings Management"
         NewNativeAPITaxSetup.Id := TaxArea.Id;
     end;
 
-    [EventSubscriber(ObjectType::Table, 2850, 'OnCanDeleteTaxSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Native - API Tax Setup", 'OnCanDeleteTaxSetup', '', false, false)]
     local procedure HandleOnCanDeleteTaxSetup(var PreventDeletion: Boolean; var NativeAPITaxSetup: Record "Native - API Tax Setup")
     begin
         if PreventDeletion then
@@ -482,7 +482,7 @@ codeunit 10150 "O365 Tax Settings Management"
                 TaxJurisdiction.SetRange(Code, TaxAreaLine."Tax Jurisdiction Code");
                 if TaxJurisdiction.FindFirst then
                     TaxRate := TaxRate + GetTaxRate(TaxJurisdiction.Code)
-            until TaxAreaLine.Next = 0;
+            until TaxAreaLine.Next() = 0;
     end;
 
     local procedure GetCARegionCode(): Code[10]
@@ -529,7 +529,7 @@ codeunit 10150 "O365 Tax Settings Management"
                                 ConfigTemplateLine.Modify(true);
                             end;
                     end;
-            until ConfigTemplateHeader.Next = 0;
+            until ConfigTemplateHeader.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -537,7 +537,7 @@ codeunit 10150 "O365 Tax Settings Management"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 10150, 'OnBeforeSanitizeCustomerTemplateTax', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"O365 Tax Settings Management", 'OnBeforeSanitizeCustomerTemplateTax', '', true, true)]
     local procedure LogWarningIfTemplateIncorrect(ConfigTemplateLine: Record "Config. Template Line")
     begin
         Session.LogMessage('00001OQ', StrSubstNo(TemplateTaxAreaDoesNotExistMsg, ConfigTemplateLine."Default Value"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TemplateInvoicingCategoryTxt);

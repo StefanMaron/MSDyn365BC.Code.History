@@ -359,7 +359,7 @@ report 10107 "Vendor Purchase Statistics"
                                   (VendLedgerEntry."Original Pmt. Disc. Possible" * (VendLedgerEntry."Amount (LCY)" / VendLedgerEntry.Amount
                                                                                      ))
                                   - VendLedgerEntry."Pmt. Disc. Rcd.(LCY)";
-                        until VendLedgerEntry.Next = 0;
+                        until VendLedgerEntry.Next() = 0;
                 end;
                 SetRange("Date Filter");
             end;

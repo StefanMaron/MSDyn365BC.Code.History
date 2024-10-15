@@ -23,7 +23,7 @@ page 88 "Job Card"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -731,6 +731,49 @@ page 88 "Job Card"
                         PriceUXManagement.ShowPriceLists(Rec, "Price Type"::Sale, "Price Amount Type"::Any);
                     end;
                 }
+                action(SalesPriceLines)
+                {
+                    AccessByPermission = TableData "Sales Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up sales price lines for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource, "Price Type"::Sale);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(SalesDiscountLines)
+                {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Discounts';
+                    Image = LineDiscount;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource, "Price Type"::Sale);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
+#if not CLEAN18
                 action(SalesPriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -753,6 +796,7 @@ page 88 "Job Card"
                         PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
                     end;
                 }
+#endif
                 action(PurchasePriceLists)
                 {
                     ApplicationArea = Basic, Suite;
@@ -770,6 +814,49 @@ page 88 "Job Card"
                         PriceUXManagement.ShowPriceLists(Rec, "Price Type"::Purchase, "Price Amount Type"::Any);
                     end;
                 }
+                action(PurchPriceLines)
+                {
+                    AccessByPermission = TableData "Purchase Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Prices';
+                    Image = Price;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up purchase price lines for products that you buy from the vendor. A product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource, "Price Type"::Purchase);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(PurchDiscountLines)
+                {
+                    AccessByPermission = TableData "Purchase Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Discounts';
+                    Image = LineDiscount;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you buy from the vendor. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource, "Price Type"::Purchase);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
+#if not CLEAN18
                 action(PurchasePriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -792,6 +879,7 @@ page 88 "Job Card"
                         PriceUXManagement.ShowPriceLists(Rec, PriceType::Purchase, AmountType::Discount);
                     end;
                 }
+#endif
             }
             group("Plan&ning")
             {
@@ -1089,7 +1177,7 @@ page 88 "Job Card"
 
     local procedure BilltoCustomerNoOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SetNoFieldVisible()

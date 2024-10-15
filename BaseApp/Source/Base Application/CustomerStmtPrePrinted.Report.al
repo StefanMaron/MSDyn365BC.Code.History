@@ -181,7 +181,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                         if TempAppliedCustLedgEntry.Find('-') then
                             repeat
                                 InsertTemp(TempAppliedCustLedgEntry);
-                            until TempAppliedCustLedgEntry.Next = 0;
+                            until TempAppliedCustLedgEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()

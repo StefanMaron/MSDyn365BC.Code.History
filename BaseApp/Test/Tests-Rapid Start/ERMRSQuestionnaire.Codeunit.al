@@ -735,7 +735,7 @@ codeunit 136600 "ERM RS Questionnaire"
     begin
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
-        ConfigQuestion.FindSet;
+        ConfigQuestion.FindSet();
     end;
 
     local procedure InputAnswerValue(var ConfigQuestion: Record "Config. Question"; QuestionnaireCode: Code[10]; QuestionAreaCode: Code[10]; FieldID: Integer; AnswerValue: Text[250])
@@ -842,7 +842,7 @@ codeunit 136600 "ERM RS Questionnaire"
     var
         ConfigQuestion: Record "Config. Question";
     begin
-        ConfigQuestionOld.FindSet;
+        ConfigQuestionOld.FindSet();
         repeat
             Assert.IsTrue(
               ConfigQuestion.Get(ConfigQuestionOld."Questionnaire Code", ConfigQuestionOld."Question Area Code", ConfigQuestionOld."No."),

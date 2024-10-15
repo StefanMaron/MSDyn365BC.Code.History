@@ -368,7 +368,7 @@ page 36720 "Bank Rec. Worksheet Dyn"
     procedure DoRecalc()
     begin
         CalculateBalance;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure AfterGetCurrentRecord()

@@ -5,24 +5,6 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 1105208579 - NamedType 3436912248" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must select an approver before continuing.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust. App. Setup Wizard Tests - NamedType ApproverNotSelectedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1105208579 - NamedType 4117288914" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Customer Approval has not been set up.\\Are you sure that you want to exit?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust. App. Setup Wizard Tests - NamedType CloseWizardConfirmMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1105208579 - NamedType 2736694884" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Action should be enabled.]]></Val>
@@ -41,6 +23,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust. App. Setup Wizard Tests - NamedType ActionShouldNotBeEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1105208579 - NamedType 3436912248" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must select an approver before continuing.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust. App. Setup Wizard Tests - NamedType ApproverNotSelectedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1105208579 - NamedType 4117288914" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Customer Approval has not been set up.\\Are you sure that you want to exit?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust. App. Setup Wizard Tests - NamedType CloseWizardConfirmMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 989765281 - NamedType 3828587597" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You do not have permission to delegate one or more of the selected approval requests.]]></Val>
@@ -48,24 +48,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Approval - Requests - NamedType NoPermissionToDelegateErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4136179997 - NamedType 3436912248" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must select an approver before continuing.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item App. Setup Wizard Tests - NamedType ApproverNotSelectedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4136179997 - NamedType 4117288914" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Item Approval has not been set up.\\Are you sure that you want to exit?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item App. Setup Wizard Tests - NamedType CloseWizardConfirmMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4136179997 - NamedType 2736694884" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -86,40 +68,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item App. Setup Wizard Tests - NamedType ActionShouldNotBeEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4233590452 - NamedType 4088736714" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4136179997 - NamedType 3436912248" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Document exceeded timeout when posting: Header %1 still present and JobQueueStatus is %2.]]></Val>
+      <Val><![CDATA[You must select an approver before continuing.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType PostTimeoutErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item App. Setup Wizard Tests - NamedType ApproverNotSelectedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4233590452 - NamedType 1628359456" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4136179997 - NamedType 4117288914" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The count of job queue log entries is not the expected one.]]></Val>
+      <Val><![CDATA[Item Approval has not been set up.\\Are you sure that you want to exit?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType JobQueueLogEntriesCntErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4233590452 - NamedType 3289377875" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 was not found in %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType HeaderNotFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4233590452 - NamedType 804522421" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Document No.: %1 was not found in %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType TextNotFoundErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item App. Setup Wizard Tests - NamedType CloseWizardConfirmMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4233590452 - NamedType 1942853941" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -131,13 +95,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType FinishedSuccessfullyTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2549444800 - NamedType 3808286743" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 4233590452 - NamedType 3289377875" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Batch workflow Status factbox is not hidden]]></Val>
+      <Val><![CDATA[%1 was not found in %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Workflow Factboxes - NamedType BatchWorkflowNotHiddenErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType HeaderNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4233590452 - NamedType 1628359456" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The count of job queue log entries is not the expected one.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType JobQueueLogEntriesCntErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4233590452 - NamedType 4088736714" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document exceeded timeout when posting: Header %1 still present and JobQueueStatus is %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType PostTimeoutErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4233590452 - NamedType 804522421" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No.: %1 was not found in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Background Posting - NamedType TextNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2549444800 - NamedType 2273789172" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -149,13 +140,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Workflow Factboxes - NamedType BatchWorkflowHiddenErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2549444800 - NamedType 4131612513" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2549444800 - NamedType 3808286743" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Line workflow Status factbox is not hidden]]></Val>
+      <Val><![CDATA[Batch workflow Status factbox is not hidden]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Workflow Factboxes - NamedType LineWorkflowNotHiddenErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Workflow Factboxes - NamedType BatchWorkflowNotHiddenErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2549444800 - NamedType 126953742" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -165,6 +156,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Workflow Factboxes - NamedType LineWorkflowHiddenErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2549444800 - NamedType 4131612513" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line workflow Status factbox is not hidden]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Workflow Factboxes - NamedType LineWorkflowNotHiddenErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2268614649 - NamedType 3114637384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -194,6 +194,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Cust Cred Lmt Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2523762499 - NamedType 2394459992" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The approval comment for this approval entry was not deleted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Customer Approval - NamedType ApprovalCommentWasNotDeletedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2523762499 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[An approval request has been sent.]]></Val>
@@ -201,15 +210,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Customer Approval - NamedType ApprovalRequestSendMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2523762499 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Customer Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2523762499 - NamedType 1637744580" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -221,15 +221,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Customer Approval - NamedType NoApprovalCommentExistsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2523762499 - NamedType 2394459992" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The approval comment for this approval entry was not deleted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Customer Approval - NamedType ApprovalCommentWasNotDeletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2523762499 - NamedType 2404932207" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot use %1 for this action.]]></Val>
@@ -239,13 +230,13 @@
       <Cmt Name="Dev"><![CDATA[You cannot use Customer 10000 for this action.]D;]A;(LookupHint=Codeunit WF Demo Customer Approval - NamedType RecordRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 573123115 - NamedType 2381905420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2523762499 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dialog]]></Val>
+      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo General Journal Batch - NamedType DialogTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Customer Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 573123115 - NamedType 2898171381" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -257,31 +248,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo General Journal Batch - NamedType ApprovalRequestExistsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1634946774 - NamedType 59108439" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 573123115 - NamedType 2381905420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The document can only be created when the approval process is complete.]]></Val>
+      <Val><![CDATA[Dialog]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType DocWhenApprovalIsCompleteErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1634946774 - NamedType 420358397" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The document can only be sent to the OCR service when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType OCRWhenApprovalIsCompleteErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1634946774 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo General Journal Batch - NamedType DialogTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1634946774 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -293,15 +266,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1634946774 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1634946774 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
@@ -309,6 +273,42 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1634946774 - NamedType 59108439" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The document can only be created when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType DocWhenApprovalIsCompleteErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1634946774 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1634946774 - NamedType 420358397" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The document can only be sent to the OCR service when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType OCRWhenApprovalIsCompleteErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1634946774 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Inc. Doc. Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1634946774 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -329,6 +329,15 @@
       <Cmt Name="Dev"><![CDATA[%1=TableCaption]D;]A;(LookupHint=Codeunit WF Demo Incoming Doc - NamedType RecordNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2188380948 - NamedType 2394459992" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The approval comment for this approval entry was not deleted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Item Approval - NamedType ApprovalCommentWasNotDeletedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2188380948 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[An approval request has been sent.]]></Val>
@@ -336,15 +345,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Item Approval - NamedType ApprovalRequestSendMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2188380948 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Item Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2188380948 - NamedType 1637744580" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -356,13 +356,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Item Approval - NamedType NoApprovalCommentExistsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2188380948 - NamedType 2394459992" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2188380948 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The approval comment for this approval entry was not deleted.]]></Val>
+      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Item Approval - NamedType ApprovalCommentWasNotDeletedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Item Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3736882455 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -383,33 +383,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Overdue Notifications - NamedType NoWorkflowEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3406158290 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3406158290 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3406158290 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3406158290 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[An approval request has been sent.]]></Val>
@@ -417,15 +390,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3406158290 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3406158290 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -437,31 +401,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2798048027 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3406158290 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2798048027 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2798048027 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3406158290 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3406158290 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3406158290 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch BOrder Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2798048027 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -473,15 +446,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2798048027 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2798048027 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
@@ -489,6 +453,42 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2798048027 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2798048027 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2798048027 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2798048027 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2798048027 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -500,31 +500,130 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch CrMemo Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 311712301 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 630459484 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+      <Val><![CDATA[An approval request has been sent.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 311712301 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 630459484 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 630459484 - NamedType 430806804" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType DocCannotBeMadeOrderErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 311712301 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 630459484 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 630459484 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 630459484 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 630459484 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1523353721 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[An approval request has been sent.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType ApprovalRequestSendMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1523353721 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1523353721 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1523353721 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1523353721 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1523353721 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType RecordIsRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1523353721 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 311712301 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -536,15 +635,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 311712301 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 311712301 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
@@ -552,6 +642,42 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 311712301 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 311712301 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 311712301 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 311712301 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch. Inv. Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 311712301 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -581,33 +707,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Invoice - NamedType UserIDIsNotRequiredErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4032696654 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4032696654 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4032696654 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4032696654 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[An approval request has been sent.]]></Val>
@@ -615,15 +714,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4032696654 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4032696654 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -635,6 +725,42 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4032696654 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4032696654 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4032696654 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4032696654 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4032696654 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
@@ -642,159 +768,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch. Order Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 630459484 - NamedType 430806804" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType DocCannotBeMadeOrderErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 630459484 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 630459484 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 630459484 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 630459484 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[An approval request has been sent.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 630459484 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 630459484 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Quote Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1523353721 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType DocCannotBeReleasedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1523353721 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = PurchHeader."Document Type", %2 = PurchHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType DocCannotBePostedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1523353721 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1523353721 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType NoWorkflowEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1523353721 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[An approval request has been sent.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType ApprovalRequestSendMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1523353721 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1523353721 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Purch Rtrn Order Appr. - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1168594566 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1168594566 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1168594566 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1168594566 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -806,15 +779,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1168594566 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1168594566 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
@@ -824,40 +788,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 721234855 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1168594566 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 721234855 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 721234855 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 721234855 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1168594566 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1168594566 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1168594566 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales BOrder Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 721234855 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -869,15 +833,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 721234855 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 721234855 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
@@ -887,13 +842,67 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1256062315 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 721234855 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 721234855 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 721234855 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 721234855 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 721234855 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales CrMemo Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1256062315 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[An approval request has been sent.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1256062315 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1256062315 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -905,13 +914,13 @@
       <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1256062315 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1256062315 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1256062315 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -921,15 +930,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1256062315 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[An approval request has been sent.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1256062315 - NamedType 3808770419" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -950,94 +950,13 @@
       <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1256062315 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1476927636 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1476927636 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1476927636 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1256062315 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1476927636 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1476927636 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[An approval request has been sent.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 974906204 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 974906204 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 974906204 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 974906204 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Inv. Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 974906204 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1049,15 +968,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 974906204 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 974906204 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
@@ -1067,49 +977,67 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 722135856 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType DocCannotBeReleasedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 722135856 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 974906204 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType DocCannotBePostedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 722135856 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 974906204 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 722135856 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 974906204 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType NoWorkflowEnabledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 722135856 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 974906204 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 974906204 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Order Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 358198728 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[An approval request has been sent.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType ApprovalRequestSendMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Quote Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 358198728 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Quote Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 358198728 - NamedType 430806804" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1130,15 +1058,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Quote Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 358198728 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Quote Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 358198728 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
@@ -1146,15 +1065,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Quote Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 358198728 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[An approval request has been sent.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Quote Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 358198728 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1166,49 +1076,13 @@
       <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales Quote Approvals - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 358198728 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Quote Approvals - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2328175407 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType DocCannotBeReleasedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2328175407 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType DocCannotBePostedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2328175407 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 358198728 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2328175407 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType NoWorkflowEnabledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales Quote Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2328175407 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1220,15 +1094,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2328175407 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2328175407 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
@@ -1238,13 +1103,148 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3829500651 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2328175407 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2328175407 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2328175407 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType NoWorkflowEnabledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2328175407 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType RecordIsRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2328175407 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Sales RtOrder Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1476927636 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[An approval request has been sent.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType ApprovalRequestSendMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1476927636 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1476927636 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1476927636 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1476927636 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesInv CL Approvals - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 722135856 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[An approval request has been sent.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType ApprovalRequestSendMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 722135856 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 must be approved and released before you can perform this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 722135856 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 722135856 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 722135856 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of approval entries found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo SalesOrder CL Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3829500651 - NamedType 2394459992" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The approval comment for this approval entry was not deleted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType ApprovalCommentWasNotDeletedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3829500651 - NamedType 717712229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1256,15 +1256,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType ApprovalRequestSendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3829500651 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3829500651 - NamedType 1637744580" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is no approval comment for this approval entry.]]></Val>
@@ -1274,13 +1265,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType NoApprovalCommentExistsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3829500651 - NamedType 2394459992" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3829500651 - NamedType 4005917478" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The approval comment for this approval entry was not deleted.]]></Val>
+      <Val><![CDATA[No approval workflow for this record type is enabled.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType ApprovalCommentWasNotDeletedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType NoWorkflowEnabledErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3829500651 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Demo Vendor Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3829500651 - NamedType 2120157239" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1301,15 +1301,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Notification Schedule Tests - NamedType WrongFieldErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1922943253 - NamedType 3183848495" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Response %1 is not supported in the workflow.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=a function name, an internal code that identifies the function.]D;]A;(LookupHint=Codeunit WF Partner Extension Tests - NamedType NotSupportedResponseErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1922943253 - NamedType 1541985386" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[New custom response was executed.]]></Val>
@@ -1317,6 +1308,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WF Partner Extension Tests - NamedType CustomResponseExecutedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1922943253 - NamedType 3183848495" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Response %1 is not supported in the workflow.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=a function name, an internal code that identifies the function.]D;]A;(LookupHint=Codeunit WF Partner Extension Tests - NamedType NotSupportedResponseErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1153111 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1328,15 +1328,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Customer Approval - NamedType BogusUserIdTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1153111 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Customer Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1153111 - NamedType 2404932207" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot use %1 for this action.]]></Val>
@@ -1344,6 +1335,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[You cannot use Customer 10000 for this action.]D;]A;(LookupHint=Codeunit WFWH Customer Approval - NamedType RecordRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1153111 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Customer Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3266576520 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1373,13 +1373,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3364249448 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3364249448 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+      <Val><![CDATA[Contoso]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType DocCannotBeReleasedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType BogusUserIdTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3364249448 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1389,6 +1389,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = PurchaseHeader."Document Type", %2 = PurchaseHeader."No."]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3364249448 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType DocCannotBeReleasedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3364249448 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3364249448 - NamedType 73593933" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1418,24 +1436,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = NAV USERID]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType UserCannotRejectErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3364249448 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Contoso]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType BogusUserIdTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3364249448 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType RecordIsRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1004775658 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The approval process must be cancelled or completed to reopen this document.]]></Val>
@@ -1445,13 +1445,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Sales Document Approval - NamedType ApprovalShouldBeHandledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1004775658 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1004775658 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+      <Val><![CDATA[Contoso]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Sales Document Approval - NamedType DocCannotBeReleasedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Sales Document Approval - NamedType BogusUserIdTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1004775658 - NamedType 779062686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1461,6 +1461,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = SalesHeader."Document Type", %2 = SalesHeader."No."]D;]A;(LookupHint=Codeunit WFWH Sales Document Approval - NamedType DocCannotBePostedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1004775658 - NamedType 844849674" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This document can only be released when the approval process is complete.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Sales Document Approval - NamedType DocCannotBeReleasedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1004775658 - NamedType 4027959969" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1497,15 +1506,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = NAV USERID]D;]A;(LookupHint=Codeunit WFWH Sales Document Approval - NamedType UserCannotRejectErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1004775658 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Contoso]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Sales Document Approval - NamedType BogusUserIdTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 93122047 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1553,15 +1553,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Delete Tests - NamedType CannotDeleteEnabledWorkflowErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1152258713 - NamedType 1904798889" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There should be no records in the workflow step argument table.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Delete Tests - NamedType NoWorkflowStepArgumentsShouldExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1152258713 - NamedType 3041095039" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There should be no records in the workflow table.]]></Val>
@@ -1569,6 +1560,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Delete Tests - NamedType NoWorkflowShouldExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1152258713 - NamedType 1904798889" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There should be no records in the workflow step argument table.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Delete Tests - NamedType NoWorkflowStepArgumentsShouldExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1152258713 - NamedType 3390386369" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1598,13 +1598,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Delete Tests - NamedType WorkflowHasActiveInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2710729220 - NamedType 3601724229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2710729220 - NamedType 786748101" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<Select Response>]]></Val>
+      <Val><![CDATA[Due Date Formula must be a positive value.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Designer Page Tests - NamedType SelectResponseTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Designer Page Tests - NamedType DueDateFormulaErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2710729220 - NamedType 761809759" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1616,13 +1616,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Designer Page Tests - NamedType NextStepTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2710729220 - NamedType 786748101" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2710729220 - NamedType 3601724229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Due Date Formula must be a positive value.]]></Val>
+      <Val><![CDATA[<Select Response>]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Designer Page Tests - NamedType DueDateFormulaErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Designer Page Tests - NamedType SelectResponseTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 374666592 - NamedType 3539941690" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot delete a workflow template.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType CannotDeleteWorkflowTemplateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 374666592 - NamedType 2254829066" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1632,6 +1641,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType CannotEditEnabledWorkflowErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 374666592 - NamedType 3309856740" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Workflow templates cannot be edited.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType CannotEditTemplateWorkflowsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 374666592 - NamedType 2824423599" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1650,6 +1668,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType EventOnlyEntryPointsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 374666592 - NamedType 815150457" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[All workflow steps must have valid function names.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType MissingFunctionNamesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 374666592 - NamedType 1336088190" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is not enough space to save the record.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType NotEnoughSpaceErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 374666592 - NamedType 3023250626" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The type is not supported.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType NotSupportedTypeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 374666592 - NamedType 4204272775" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1679,24 +1724,6 @@
       <Cmt Name="Dev"><![CDATA[%1=TableCaption]D;]A;(LookupHint=Codeunit Workflow Engine UT - NamedType RecordNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 374666592 - NamedType 459863040" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 cannot be the same as %2 in %3 %4='%5',ID='%6'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Example: Previous Workflow Step ID cannot be the same as ID in Workflow Step Workflow Code='GU00000016',ID='10000'.]D;]A;(LookupHint=Codeunit Workflow Engine UT - NamedType StepIdsCannotBeTheSameErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 374666592 - NamedType 3309856740" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Workflow templates cannot be edited.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType CannotEditTemplateWorkflowsErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 374666592 - NamedType 2399250197" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[One or more entry-point steps exist that use the same event on table %1. You must specify unique event conditions on entry-point steps that use the same table.]]></Val>
@@ -1706,6 +1733,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Table Caption]D;]A;(LookupHint=Codeunit Workflow Engine UT - NamedType SameEventConditionsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 374666592 - NamedType 459863040" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 cannot be the same as %2 in %3 %4='%5',ID='%6'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[Example: Previous Workflow Step ID cannot be the same as ID in Workflow Step Workflow Code='GU00000016',ID='10000'.]D;]A;(LookupHint=Codeunit Workflow Engine UT - NamedType StepIdsCannotBeTheSameErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 374666592 - NamedType 1228318437" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must define a table relation between all records used in events.]]></Val>
@@ -1713,24 +1749,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType ValidateTableRelationErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 374666592 - NamedType 3023250626" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The type is not supported.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType NotSupportedTypeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 374666592 - NamedType 1336088190" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is not enough space to save the record.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType NotEnoughSpaceErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 374666592 - NamedType 3554753308" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1749,24 +1767,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType WorkflowMustRevertValuesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 374666592 - NamedType 3539941690" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot delete a workflow template.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType CannotDeleteWorkflowTemplateErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 374666592 - NamedType 815150457" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[All workflow steps must have valid function names.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Engine UT - NamedType MissingFunctionNamesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1130895803 - NamedType 2254829066" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1913,31 +1913,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Event Response Tests - NamedType UserEmailAddressTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1986130734 - NamedType 917367647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1986130734 - NamedType 2614059161" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Record type %1 is not supported by this workflow response.]]></Val>
+      <Val><![CDATA[The current value of the field is different from the value before the change.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Record type Item is not supported by this workflow response.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType UnsupportedRecordTypeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1986130734 - NamedType 95990807" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Purchase Header does not exist. Identification fields and values: Document Type='%1',No.='%2']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[The Purchase Header does not exist. Identification fields and values: Document Type='Invoice',No.='0001']D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType PurchaseDocDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1986130734 - NamedType 2735558130" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Sales Header does not exist. Identification fields and values: Document Type='%1',No.='%2']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[The Sales Header does not exist. Identification fields and values: Document Type='Invoice',No.='0001']D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType SalesDocDoesNotExistErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType ApplyNewValuesTestMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 3934725015" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1976,31 +1958,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType CreateNotificationForUserTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1986130734 - NamedType 716040745" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1986130734 - NamedType 3167015850" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This is just a test message.]]></Val>
+      <Val><![CDATA[No record changes exist to apply the saved values to using the current options.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType ShowMessageTestMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1986130734 - NamedType 2404932207" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[You cannot use Customer 10000 for this action.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType RecordRestrictedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1986130734 - NamedType 1647808636" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[has been approved.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType RecHasBeenApprovedMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType NoRecordChangesFoundMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 1630916515" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2012,6 +1976,42 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType PendingApprovalMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1986130734 - NamedType 95990807" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Purchase Header does not exist. Identification fields and values: Document Type='%1',No.='%2']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[The Purchase Header does not exist. Identification fields and values: Document Type='Invoice',No.='0001']D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType PurchaseDocDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1986130734 - NamedType 1647808636" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[has been approved.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType RecHasBeenApprovedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1986130734 - NamedType 2404932207" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use %1 for this action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[You cannot use Customer 10000 for this action.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType RecordRestrictedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1986130734 - NamedType 2735558130" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Sales Header does not exist. Identification fields and values: Document Type='%1',No.='%2']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[The Sales Header does not exist. Identification fields and values: Document Type='Invoice',No.='0001']D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType SalesDocDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 1073114573" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[<Sender>]]></Val>
@@ -2021,22 +2021,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType SenderTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1986130734 - NamedType 2614059161" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1986130734 - NamedType 716040745" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The current value of the field is different from the value before the change.]]></Val>
+      <Val><![CDATA[This is just a test message.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType ApplyNewValuesTestMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType ShowMessageTestMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1986130734 - NamedType 3167015850" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1986130734 - NamedType 917367647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No record changes exist to apply the saved values to using the current options.]]></Val>
+      <Val><![CDATA[Record type %1 is not supported by this workflow response.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType NoRecordChangesFoundMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[Record type Item is not supported by this workflow response.]D;]A;(LookupHint=Codeunit Workflow Respo. Lib. Tests - NamedType UnsupportedRecordTypeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1986130734 - NamedType 2138144800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2057,13 +2057,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType EvaluationFailedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1587177108 - NamedType 3334175472" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1587177108 - NamedType 1454078183" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Left argument should not be equal to the right.]]></Val>
+      <Val><![CDATA[Left argument should be different than the right.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftNotEqualToRightErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftDifferentFromRightErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1587177108 - NamedType 3827823691" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2075,13 +2075,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftEqualToRightErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1587177108 - NamedType 2933831371" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1587177108 - NamedType 3573586785" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Left argument should be not be less than the right.]]></Val>
+      <Val><![CDATA[Left argument should be greater than the right.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftNotLessThanRightErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftGreaterThanRightErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1587177108 - NamedType 60422728" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2093,24 +2093,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftLessThanRightErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1587177108 - NamedType 3573586785" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Left argument should be greater than the right.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftGreaterThanRightErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1587177108 - NamedType 1454078183" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Left argument should be different than the right.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftDifferentFromRightErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1587177108 - NamedType 388439380" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Left argument should not be different than the right.]]></Val>
@@ -2120,13 +2102,31 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftNotDifferentFromRightErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1450676016 - NamedType 2332069388" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1587177108 - NamedType 3334175472" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<Template>]]></Val>
+      <Val><![CDATA[Left argument should not be equal to the right.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Step Buffer Tests - NamedType TemplateTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftNotEqualToRightErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1587177108 - NamedType 2933831371" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Left argument should be not be less than the right.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Rule Tests - NamedType LeftNotLessThanRightErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1450676016 - NamedType 3910898602" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cancelled.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Step Buffer Tests - NamedType CancelledErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1450676016 - NamedType 2337343324" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2138,6 +2138,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Step Buffer Tests - NamedType GenJnlBatchTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1450676016 - NamedType 2332069388" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<Template>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Step Buffer Tests - NamedType TemplateTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1450676016 - NamedType 988394908" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Next when "%1"]]></Val>
@@ -2147,13 +2156,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Step Buffer Tests - NamedType WhenNextStepDescTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1450676016 - NamedType 3910898602" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 894761999 - NamedType 1222039610" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cancelled.]]></Val>
+      <Val><![CDATA[Result must be negative.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Step Buffer Tests - NamedType CancelledErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Trigger/Event Tests - NamedType NegativeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 894761999 - NamedType 1748318523" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2183,42 +2192,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Trigger/Event Tests - NamedType PositiveErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 894761999 - NamedType 1222039610" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Result must be negative.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Trigger/Event Tests - NamedType NegativeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2467357662 - NamedType 2585625552" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The UI Element does not have the correct stat according to the type of the workflow]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType UIElementDoesNotHaveCorrectStateErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2467357662 - NamedType 877616224" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The record already exists, as a workflow template.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType WorkflowExistsAsTemplateErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2467357662 - NamedType 716040745" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test Message]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType ShowMessageTestMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2467357662 - NamedType 28648133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Workflow Code must have a value in Workflow Step: Workflow Code=, ID=0. It cannot be zero or empty.]]></Val>
@@ -2226,15 +2199,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType CannotAddStepToNoCodeWorkflowErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2467357662 - NamedType 2689946489" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The field should be visible]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType FieldShouldBeVisibleErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2467357662 - NamedType 2777467521" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2246,6 +2210,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType FieldShouldBeEditableErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2467357662 - NamedType 2689946489" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The field should be visible]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType FieldShouldBeVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2467357662 - NamedType 716040745" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Message]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType ShowMessageTestMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2467357662 - NamedType 2585625552" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The UI Element does not have the correct stat according to the type of the workflow]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType UIElementDoesNotHaveCorrectStateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2467357662 - NamedType 120258855" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The values are not the same]]></Val>
@@ -2253,6 +2244,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType ValuesAreNotTheSameErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2467357662 - NamedType 877616224" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The record already exists, as a workflow template.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow UI Tests - NamedType WorkflowExistsAsTemplateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1881495900 - NamedType 3974808153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

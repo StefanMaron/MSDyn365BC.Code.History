@@ -176,7 +176,7 @@ report 10136 "Item Transaction Detail"
                     if ValueEntry.FindSet then begin
                         repeat
                             Adjustment := Adjustment + ValueEntry."Cost Amount (Actual)";
-                        until ValueEntry.Next = 0;
+                        until ValueEntry.Next() = 0;
                         if Adjustment <> 0 then
                             ValueOnHand := ValueOnHand + Adjustment
                         else

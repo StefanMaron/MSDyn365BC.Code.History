@@ -452,7 +452,7 @@ report 10042 "Customer Account Detail"
                                     TempCurrency.Description := Description;
                                     TempCurrency.Insert();
                                 end;
-                            until Next = 0;
+                            until Next() = 0;
                     GetCurrencyRecord(Currency, "Currency Code");
                 end;
 
@@ -476,7 +476,7 @@ report 10042 "Customer Account Detail"
                                     Currency.Code,
                                     "Net Change");
                                 EndingBalanceToPrint := EndingBalanceToPrint + "Net Change";
-                            until TempCurrency.Next = 0;
+                            until TempCurrency.Next() = 0;
                         SetRange("Currency Filter");
                         EndingBalanceToPrint := Round(EndingBalanceToPrint, Currency."Amount Rounding Precision");
                     end else begin
@@ -498,7 +498,7 @@ report 10042 "Customer Account Detail"
                                     Currency.Code,
                                     "Net Change");
                                 BalanceToPrint := BalanceToPrint + "Net Change";
-                            until TempCurrency.Next = 0;
+                            until TempCurrency.Next() = 0;
                         SetRange("Currency Filter");
                         BalanceToPrint := Round(BalanceToPrint, Currency."Amount Rounding Precision");
                     end else

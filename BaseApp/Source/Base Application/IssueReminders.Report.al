@@ -66,7 +66,7 @@ report 190 "Issue Reminders"
                                 IssuedReminderHeaderPrint.SetRecFilter;
                                 IssuedReminderHeaderPrint.PrintRecords(false, PrintDoc = PrintDoc::Email, HideDialog);
                             end;
-                        until TempIssuedReminderHeader.Next = 0;
+                        until TempIssuedReminderHeader.Next() = 0;
                 MarkedOnly := true;
                 if FindFirst then
                     if ConfirmManagement.GetResponse(Text003, true) then

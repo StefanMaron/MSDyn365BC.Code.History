@@ -22,7 +22,7 @@ codeunit 1269 "Export Mapping"
             Window.Update(1, LineNo);
 
             PaymentExportMgt.ProcessColumnMapping(Rec, SourceRecRef, LineNo, "Data Exch. Line Def Code", SourceRecRef.Number);
-        until SourceRecRef.Next = 0;
+        until SourceRecRef.Next() = 0;
 
         Window.Close;
     end;

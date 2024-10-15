@@ -1157,7 +1157,7 @@ report 5915 "Service Document - Test"
                         Invoice := false;
                         repeat
                             Invoice := (ServiceLine."Quantity Shipped" - ServiceLine."Quantity Invoiced") <> 0;
-                        until Invoice or (ServiceLine.Next = 0);
+                        until Invoice or (ServiceLine.Next() = 0);
                     end;
                 end;
 
@@ -1532,7 +1532,7 @@ report 5915 "Service Document - Test"
                         ServiceShptLine."Quantity Invoiced" := ServiceShptLine."Quantity Invoiced" - QtyToBeInvoiced;
                         ServiceShptLine."Qty. Shipped Not Invoiced" :=
                           ServiceShptLine.Quantity - ServiceShptLine."Quantity Invoiced"
-                    until (ServiceShptLine.Next = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Qty. to Ship"))
+                    until (ServiceShptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Qty. to Ship"))
                 else
                     AddError(
                       StrSubstNo(
@@ -1575,7 +1575,7 @@ report 5915 "Service Document - Test"
                 DimTxtArr[DimTxtArrLength] := TxtToAdd
             end else
                 DimTxtArr[DimTxtArrLength] := DimTxtArr[DimTxtArrLength] + Separation + TxtToAdd;
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
     end;
 
     procedure CheckQuantity(var ServiceLine: Record "Service Line")

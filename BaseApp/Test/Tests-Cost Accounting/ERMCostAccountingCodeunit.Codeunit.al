@@ -3488,11 +3488,11 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // To find the GL entry.
         GLRegister.FindLast;
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
 
         // Validate First cost entry.
         CostEntry.SetRange("Entry No.", CostRegister."From Cost Entry No.", CostRegister."To Cost Entry No.");
-        CostEntry.FindSet;
+        CostEntry.FindSet();
         VerifyCommonFields(CostEntry, GLEntry, CostCenterCode, CostObjectCode);
 
         // Validate Second cost entry.
@@ -3624,7 +3624,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     begin
         CostBudgetEntry.SetRange("Budget Name", BudgetName);
         CostBudgetEntry.SetRange("Cost Center Code", CostCenterCode);
-        CostBudgetEntry.FindSet;
+        CostBudgetEntry.FindSet();
         repeat
             Amount += CostBudgetEntry.Amount;
         until CostBudgetEntry.Next = 0;

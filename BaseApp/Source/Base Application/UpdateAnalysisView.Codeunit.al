@@ -78,7 +78,7 @@ codeunit 410 "Update Analysis View"
         if DirectlyFromPosting then
             AnalysisView2.SetRange("Update on Posting", true);
 
-        if AnalysisView2.IsEmpty then
+        if AnalysisView2.IsEmpty() then
             exit;
 
         InitLastEntryNo;
@@ -91,7 +91,7 @@ codeunit 410 "Update Analysis View"
         if AnalysisView2.FindSet then
             repeat
                 UpdateOne(AnalysisView2, Which, not DirectlyFromPosting and (AnalysisView2."Last Entry No." < LastGLEntryNo - 1000));
-            until AnalysisView2.Next = 0;
+            until AnalysisView2.Next() = 0;
 
         OnAfterUpdateAll(Which, DirectlyFromPosting);
     end;
@@ -246,7 +246,7 @@ codeunit 410 "Update Analysis View"
                     EntryNo := EntryNo + 1;
                     if ShowProgressWindow then
                         UpdateWindowCounter(EntryNo);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -289,7 +289,7 @@ codeunit 410 "Update Analysis View"
                   CFForecastEntry."Entry No.");
             if ShowProgressWindow then
                 UpdateWindowCounter(CFForecastEntry."Entry No.");
-        until CFForecastEntry.Next = 0;
+        until CFForecastEntry.Next() = 0;
         if ShowProgressWindow then
             UpdateWindowCounter(CFForecastEntry."Entry No.");
     end;
@@ -317,7 +317,7 @@ codeunit 410 "Update Analysis View"
                   GetDimVal(AnalysisView."Dimension 4 Code", GLBudgetEntry."Dimension Set ID"));
             if ShowProgressWindow then
                 UpdateWindowCounter(GLBudgetEntry."Entry No.");
-        until GLBudgetEntry.Next = 0;
+        until GLBudgetEntry.Next() = 0;
         if ShowProgressWindow then
             UpdateWindowCounter(GLBudgetEntry."Entry No.");
         FlushAnalysisViewBudgetEntry;
@@ -462,7 +462,7 @@ codeunit 410 "Update Analysis View"
                       TempAnalysisViewEntry."Add.-Curr. Credit Amount";
                     AnalysisViewEntry.Modify();
                 end;
-            until TempAnalysisViewEntry.Next = 0;
+            until TempAnalysisViewEntry.Next() = 0;
         TempAnalysisViewEntry.DeleteAll();
         NoOfEntries := 0;
         if ShowProgressWindow then
@@ -483,7 +483,7 @@ codeunit 410 "Update Analysis View"
                       AnalysisViewBudgetEntry.Amount + TempAnalysisViewBudgetEntry.Amount;
                     AnalysisViewBudgetEntry.Modify();
                 end;
-            until TempAnalysisViewBudgetEntry.Next = 0;
+            until TempAnalysisViewBudgetEntry.Next() = 0;
         TempAnalysisViewBudgetEntry.DeleteAll();
         NoOfEntries := 0;
         if ShowProgressWindow then
@@ -561,7 +561,7 @@ codeunit 410 "Update Analysis View"
                 AnalysisView2 := AnalysisView;
                 AnalysisView2."Last Budget Entry No." := NewLastBudgetEntryNo;
                 AnalysisView2.Modify();
-            until AnalysisView.Next = 0;
+            until AnalysisView.Next() = 0;
     end;
 
     local procedure IsValueIncludedInFilter(DimValue: Code[20]; DimFilter: Code[250]): Boolean
@@ -602,7 +602,7 @@ codeunit 410 "Update Analysis View"
                 else
                     InFilters :=
                       InFilters and IsValueIncludedInFilter('', AnalysisViewFilter."Dimension Value Filter");
-            until (AnalysisViewFilter.Next = 0) or not InFilters;
+            until (AnalysisViewFilter.Next() = 0) or not InFilters;
         TempDimEntryBuffer."No." := DimSetID;
         if InFilters then
             TempDimEntryBuffer."Dimension Entry No." := 1

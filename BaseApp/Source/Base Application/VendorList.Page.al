@@ -386,11 +386,15 @@ page 27 "Vendor List"
                                   "No." = FIELD("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
+#if not CLEAN18
                 action("Cross Re&ferences")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cross Re&ferences';
                     Image = Change;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Item Reference feature.';
+                    ObsoleteTag = '18.0';
                     Promoted = true;
                     PromotedCategory = Category5;
                     RunObject = Page "Cross References";
@@ -399,6 +403,7 @@ page 27 "Vendor List"
                     RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
+#endif
                 action("Item Refe&rences")
                 {
                     ApplicationArea = Basic, Suite;
@@ -469,6 +474,49 @@ page 27 "Vendor List"
                         PriceUXManagement.ShowPriceLists(Rec, "Price Amount Type"::Any);
                     end;
                 }
+                action(PriceLines)
+                {
+                    AccessByPermission = TableData "Purchase Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Prices';
+                    Image = Price;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up purchase price lines for products that you buy from the vendor. A product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(DiscountLines)
+                {
+                    AccessByPermission = TableData "Purchase Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Discounts';
+                    Image = LineDiscount;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you buy from the vendor. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
+#if not CLEAN18
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -488,6 +536,8 @@ page 27 "Vendor List"
                         PriceUXManagement.ShowPriceLists(Rec, AmountType::Discount);
                     end;
                 }
+#endif
+#if not CLEAN17
                 action(Prices)
                 {
                     ApplicationArea = Advanced;
@@ -520,6 +570,7 @@ page 27 "Vendor List"
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 action("Prepa&yment Percentages")
                 {
                     ApplicationArea = Prepayments;
@@ -606,7 +657,7 @@ page 27 "Vendor List"
                 Image = History;
                 action("Ledger E&ntries")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Ledger E&ntries';
                     Image = VendorLedger;
                     Promoted = true;
@@ -765,7 +816,7 @@ page 27 "Vendor List"
                     }
                     action(DeleteCDSCoupling)
                     {
-                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        AccessByPermission = TableData "CRM Integration Record" = D;
                         ApplicationArea = Suite;
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
@@ -1016,6 +1067,25 @@ page 27 "Vendor List"
                               "Applies-to ID" = FILTER(''),
                               "Document Type" = FILTER(Invoice);
                 ToolTip = 'Opens vendor ledger entries for the selected vendor with invoices that have not been paid yet.';
+            }
+            action(WordTemplate)
+            {
+                ApplicationArea = All;
+                Caption = 'Word Template';
+                ToolTip = 'Apply a Word template on the selected records.';
+                Image = Word;
+                Promoted = true;
+                PromotedCategory = Category5;
+
+                trigger OnAction()
+                var
+                    Vendor: Record Vendor;
+                    WordTemplateSelectionWizard: Page "Word Template Selection Wizard";
+                begin
+                    CurrPage.SetSelectionFilter(Vendor);
+                    WordTemplateSelectionWizard.SetData(Vendor);
+                    WordTemplateSelectionWizard.RunModal();
+                end;
             }
             group(Display)
             {

@@ -34,7 +34,7 @@ codeunit 10102 "Manage Sales Tax Journal"
         GenJnlLine.Validate("Account No.", BalanceAccNo);
         GenJnlLine.Validate(Amount, TotalAmount);
         GenJnlLine.Modify();
-        GeneralJnlLine.FindSet;
+        GeneralJnlLine.FindSet();
     end;
 
     procedure CreateTempGenJnlLines(GenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line")
@@ -54,7 +54,7 @@ codeunit 10102 "Manage Sales Tax Journal"
                 TempGenJnlLine.Insert();
                 TempGenJnlLine."Bal. Account No." := '';
                 TempGenJnlLine.Modify();
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
 
         TempGenJnlLine.Init();
         TempGenJnlLine.TransferFields(GenJnlLine, false);
@@ -66,7 +66,7 @@ codeunit 10102 "Manage Sales Tax Journal"
         TempGenJnlLine.Validate("Account No.", BalanceAccNo);
         TempGenJnlLine.Validate(Amount, TotalAmount);
         TempGenJnlLine.Modify();
-        TempGenJnlLine.FindSet;
+        TempGenJnlLine.FindSet();
     end;
 
     local procedure GetLastNosForVAT()
@@ -111,7 +111,7 @@ codeunit 10102 "Manage Sales Tax Journal"
         if GenJournlLine.FindSet then
             repeat
                 TotalAmount := TotalAmount - GenJournlLine.Amount;
-            until GenJournlLine.Next = 0;
+            until GenJournlLine.Next() = 0;
 
         if TotalAmount = 0 then begin
             GenJournlLine.FindFirst;

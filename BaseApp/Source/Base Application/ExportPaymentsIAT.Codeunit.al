@@ -198,7 +198,6 @@ codeunit 10093 "Export Payments (IAT)"
                 DestinationCountryCode := Vendor."Country/Region Code";
                 DestinationCounty := Vendor.County;
                 DestinationPostCode := Vendor."Post Code";
-
                 VendorBankAcct.TestField("Bank Account No.");
                 DestinationBankName := VendorBankAcct.Name;
                 DestinationBankTransitNo := VendorBankAcct."Transit No.";

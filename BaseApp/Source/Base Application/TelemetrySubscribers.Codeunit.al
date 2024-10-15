@@ -49,13 +49,14 @@ codeunit 1351 "Telemetry Subscribers"
         BankAccountRecAutoMatchMsg: Label 'Total number of lines in the bank statement: %1; Total number of automatches: %2', Locked = true;
         BankAccountRecTextToAccountCountLbl: Label 'Number of lines where Text-To-Applied was used: %1', Locked = true;
         BankAccountRecTransferToGJMsg: Label 'Lines of Bank Statement to transfer to GJ: %1', Locked = true;
-        PurchaseDocumentInformationLbl: Label 'Purchase document information', Locked = true;
-        SalesDocumentInformationLbl: Label 'Sales document information', Locked = true;
-        SalesInvoiceInformationLbl: Label 'Sales invoice information', Locked = true;
+        PurchaseDocumentInformationLbl: Label 'Purchase document posted: %1', Locked = true;
+        SalesDocumentInformationLbl: Label 'Sales document posted: %1 ', Locked = true;
+        SalesInvoiceInformationLbl: Label 'Sales invoice posted: %1', Locked = true;
         EmailCategoryLbl: Label 'Email', Locked = true;
         UserPlansTelemetryLbl: Label 'User with %1 plans opened the %2 page.', Comment = '%1 - User plans; %2 - page name', Locked = true;
 
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterCompanyOpen', '', true, true)]
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', true, true)]
     local procedure ScheduleMasterdataTelemetryAfterCompanyOpen()
     var
         CodeUnitMetadata: Record "CodeUnit Metadata";
@@ -68,7 +69,7 @@ codeunit 1351 "Telemetry Subscribers"
         TelemetryManagement.ScheduleCalEventsForTelemetryAsync(CodeUnitMetadata.RecordId, CODEUNIT::"Create Telemetry Cal. Events", 20);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterCompanyOpen', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', true, true)]
     local procedure ScheduleActivityTelemetryAfterCompanyOpen()
     var
         CodeUnitMetadata: Record "CodeUnit Metadata";
@@ -81,7 +82,7 @@ codeunit 1351 "Telemetry Subscribers"
         TelemetryManagement.ScheduleCalEventsForTelemetryAsync(CodeUnitMetadata.RecordId, CODEUNIT::"Create Telemetry Cal. Events", 21);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9170, 'OnProfileChanged', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Conf./Personalization Mgt.", 'OnProfileChanged', '', true, true)]
     local procedure SendTraceOnProfileChanged(PrevAllProfile: Record "All Profile"; CurrentAllProfile: Record "All Profile")
     begin
         if not IsSaaS() then
@@ -90,7 +91,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('00001O5', StrSubstNo(ProfileChangedTelemetryMsg, PrevAllProfile."Profile ID", CurrentAllProfile."Profile ID"), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', ProfileChangedTelemetryCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 2340, 'OnAfterNoSeriesModified', '', true, true)]
+    [EventSubscriber(ObjectType::Page, Page::"BC O365 No. Series Card", 'OnAfterNoSeriesModified', '', true, true)]
     local procedure LogNoSeriesModifiedInvoicing()
     begin
         if not IsSaaS() then
@@ -99,7 +100,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('00001PI', NoSeriesEditedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', NoSeriesCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 9802, 'OnAfterInsertEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Permission Set Link", 'OnAfterInsertEvent', '', true, true)]
     local procedure SendTraceOnPermissionSetLinkAdded(var Rec: Record "Permission Set Link"; RunTrigger: Boolean)
     var
         PermissionSetLink: Record "Permission Set Link";
@@ -133,7 +134,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000E29', StrSubstNo(PermissionSetLinkRemovedTelemetryScopeAllTxt, Rec."Permission Set ID", Rec."Linked Permission Set ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000165, 'OnAfterInsertEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Tenant Permission Set", 'OnAfterInsertEvent', '', true, true)]
     local procedure SendTraceOnUserDefinedPermissionSetIsAdded(var Rec: Record "Tenant Permission Set"; RunTrigger: Boolean)
     var
         TenantPermissionSet: Record "Tenant Permission Set";
@@ -175,7 +176,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000E2B', StrSubstNo(PermissionSetRemovedTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000053, 'OnAfterInsertEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Access Control", 'OnAfterInsertEvent', '', true, true)]
     local procedure SendTraceOnUserDefinedPermissionSetIsAssignedToAUser(var Rec: Record "Access Control"; RunTrigger: Boolean)
     var
         TenantPermissionSet: Record "Tenant Permission Set";
@@ -217,7 +218,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000E2D', StrSubstNo(PermissionSetRemovedFromUserTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
-    [EventSubscriber(ObjectType::Table, 9003, 'OnAfterInsertEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"User Group Permission Set", 'OnAfterInsertEvent', '', true, true)]
     local procedure SendTraceOnUserDefinedPermissionSetIsAssignedToAUserGroup(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
     var
         TenantPermissionSet: Record "Tenant Permission Set";
@@ -261,7 +262,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000E2F', StrSubstNo(PermissionSetRemovedFromUserGroupTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnAfterEnqueueJobQueueEntry', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnAfterEnqueueJobQueueEntry', '', false, false)]
     local procedure SendTraceOnAfterEnqueueJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
     var
         TranslationHelper: Codeunit "Translation Helper";
@@ -284,7 +285,7 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 448, 'OnBeforeExecuteJob', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnBeforeExecuteJob', '', false, false)]
     local procedure SendTraceOnJobQueueEntryStarted(var JobQueueEntry: Record "Job Queue Entry")
     var
         TranslationHelper: Codeunit "Translation Helper";
@@ -306,7 +307,7 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 448, 'OnAfterExecuteJob', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterExecuteJob', '', false, false)]
     local procedure SendTraceOnJobQueueEntryFinished(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean)
     var
         TranslationHelper: Codeunit "Translation Helper";
@@ -328,14 +329,14 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 448, 'OnAfterHandleRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Dispatcher", 'OnAfterHandleRequest', '', false, false)]
     local procedure SendTraceOnJobQueueEntryRequestFinished(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean; JobQueueExecutionTime: Integer)
     var
         TranslationHelper: Codeunit "Translation Helper";
         Result: Text[10];
         Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         if WasSuccess then
@@ -357,7 +358,7 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5815, 'OnAfterCode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Sales Shipment Line", 'OnAfterCode', '', false, false)]
     local procedure SendTraceUndoSalesShipmentNoOfLines(var SalesShipmentLine: Record "Sales Shipment Line")
     begin
         if not IsSaaS() then
@@ -367,7 +368,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('000085N', StrSubstNo(UndoSalesShipmentNoOfLinesTxt, SalesShipmentLine.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', UndoSalesShipmentCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 9852, 'OnEffectivePermissionsPopulated', '', true, true)]
+    [EventSubscriber(ObjectType::Page, Page::"Effective Permissions", 'OnEffectivePermissionsPopulated', '', true, true)]
     local procedure EffectivePermissionsFetchedInPage(CurrUserId: Guid; CurrCompanyName: Text[30]; CurrObjectType: Integer; CurrObjectId: Integer)
     begin
         if not IsSaaS() then
@@ -376,7 +377,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('000027E', StrSubstNo(EffectivePermsCalculatedTxt, CurrCompanyName, CurrObjectType, CurrObjectId), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9852, 'OnTenantPermissionModified', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Effective Permissions Mgt.", 'OnTenantPermissionModified', '', true, true)]
     local procedure EffectivePermissionsChangeInPage(PermissionSetId: Code[20])
     begin
         if not IsSaaS() then
@@ -385,47 +386,53 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('000027G', StrSubstNo(TenantPermissionsChangedFromEffectivePermissionsPageTxt, PermissionSetId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 91, 'OnAfterConfirmPost', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post (Yes/No)", 'OnAfterPost', '', true, true)]
     local procedure LogNumberOfPurchaseLines(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
         DocumentType: Integer;
+        DocumentNumber: Code[20];
         Attributes: Dictionary of [Text, Text];
     begin
         DocumentType := PurchaseHeader."Document Type".AsInteger();
-
+        DocumentNumber := PurchaseHeader."No.";
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
 
-        Attributes.Add('Document Type', Format(DocumentType));
-        Attributes.Add('Number of lines', Format(PurchaseLine.Count()));
-        Session.LogMessage('0000CST', PurchaseDocumentInformationLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
+        Attributes.Add('DocumentType', Format(DocumentType));
+        Attributes.Add('DocumentNumber', Format(DocumentNumber));
+        Attributes.Add('NumberOfLines', Format(PurchaseLine.Count()));
+        Session.LogMessage('0000CST', StrSubstNo(PurchaseDocumentInformationLbl, DocumentNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 81, 'OnAfterConfirmPost', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post (Yes/No)", 'OnAfterConfirmPost', '', true, true)]
     local procedure LogNumberOfSalesLines(SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         DocumentType: Integer;
+        DocumentNumber: Code[20];
         Attributes: Dictionary of [Text, Text];
     begin
         DocumentType := SalesHeader."Document Type".AsInteger();
-
+        DocumentNumber := SalesHeader."No.";
         SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
 
         Session.LogMessage('000085U', StrSubstNo(NumberOfDocumentLinesMsg, Format(DocumentType), SalesLine.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RecordCountCategoryTxt);
 
-        Attributes.Add('Document Type', Format(DocumentType));
-        Attributes.Add('Number of lines', Format(SalesLine.Count()));
-        Session.LogMessage('0000CSU', SalesDocumentInformationLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
+        Attributes.Add('DocumentType', Format(DocumentType));
+        Attributes.Add('DocumentNumber', Format(DocumentnUmber));
+        Attributes.Add('NumberOfLines', Format(SalesLine.Count()));
+        Session.LogMessage('0000CSU', StrSubstNo(SalesDocumentInformationLbl, DocumentNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
     end;
 
-    [EventSubscriber(ObjectType::Report, 1306, 'OnAfterGetSalesHeader', '', true, true)]
+    [EventSubscriber(ObjectType::Report, Report::"Standard Sales - Invoice", 'OnAfterGetSalesHeader', '', true, true)]
     local procedure LogNumberOfSalesInvoiceLinesForReport1306(SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         LogNumberOfSalesInvoiceLines(SalesInvoiceHeader);
     end;
 
-    [EventSubscriber(ObjectType::Report, 206, 'OnAfterGetRecordSalesInvoiceHeader', '', true, true)]
+    [EventSubscriber(ObjectType::Report, Report::"Sales - Invoice", 'OnAfterGetRecordSalesInvoiceHeader', '', true, true)]
     local procedure LogNumberOfSalesInvoiceLinesForReport206(SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         LogNumberOfSalesInvoiceLines(SalesInvoiceHeader);
@@ -434,14 +441,16 @@ codeunit 1351 "Telemetry Subscribers"
     local procedure LogNumberOfSalesInvoiceLines(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
+        DocumentNumber: Code[20];
         Attributes: Dictionary of [Text, Text];
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-
+        DocumentNumber := SalesInvoiceHeader."No.";
         Session.LogMessage('000085V', StrSubstNo(NumberOfDocumentLinesMsg, 'Sales Invoice - export', SalesInvoiceLine.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RecordCountCategoryTxt);
+        Attributes.Add('DocumentNumber', Format(DocumentnUmber));
+        Attributes.Add('NumberOfLines', Format(SalesInvoiceLine.Count()));
 
-        Attributes.Add('Number of lines', Format(SalesInvoiceLine.Count()));
-        Session.LogMessage('0000CZ0', SalesInvoiceInformationLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
+        Session.LogMessage('0000CZ0', StrSubstNo(SalesInvoiceInformationLbl, DocumentNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Attributes);
     end;
 
     local procedure IsSaas(): Boolean
@@ -451,7 +460,7 @@ codeunit 1351 "Telemetry Subscribers"
         exit(EnvironmentInfo.IsSaaS());
     end;
 
-    [EventSubscriber(ObjectType::Page, 1811, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Setup Email Logging", 'OnOpenPageEvent', '', false, false)]
     local procedure LogTelemetryOnOpenSetupEmailLoggingPage()
     var
         SetupEmailLogging: Page "Setup Email Logging";
@@ -459,7 +468,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('000089V', StrSubstNo(UserSettingUpEmailLoggingTxt, SetupEmailLogging.Caption), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
     end;
 
-    [EventSubscriber(ObjectType::Page, 1811, 'OnAfterAssistedSetupEmailLoggingCompleted', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Setup Email Logging", 'OnAfterAssistedSetupEmailLoggingCompleted', '', false, false)]
     local procedure LogTelemetryOnAfterAssistedSetupEmailLoggingCompleted()
     var
         SetupEmailLogging: Page "Setup Email Logging";
@@ -467,7 +476,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('000089W', StrSubstNo(UserCompletedSettingUpEmailLoggingTxt, SetupEmailLogging.Caption), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
     end;
 
-    [EventSubscriber(ObjectType::Page, 5094, 'OnAfterMarketingSetupEmailLoggingUsed', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Marketing Setup", 'OnAfterMarketingSetupEmailLoggingUsed', '', false, false)]
     local procedure LogTelemetryOnAfterMarketingSetupEmailLoggingUsed()
     var
         MarketingSetup: Page "Marketing Setup";
@@ -475,7 +484,7 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('000089X', StrSubstNo(UserSettingUpEmailLoggingTxt, MarketingSetup.Caption), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
     end;
 
-    [EventSubscriber(ObjectType::Page, 5094, 'OnAfterMarketingSetupEmailLoggingCompleted', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Marketing Setup", 'OnAfterMarketingSetupEmailLoggingCompleted', '', false, false)]
     local procedure LogTelemetryOnAfterMarketingSetupEmailLoggingCompleted()
     var
         MarketingSetup: Page "Marketing Setup";
@@ -483,13 +492,13 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('000089Y', StrSubstNo(UserCompletedSettingUpEmailLoggingTxt, MarketingSetup.Caption), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5064, 'OnAfterInsertInteractionLogEntry', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Email Logging Dispatcher", 'OnAfterInsertInteractionLogEntry', '', false, false)]
     local procedure LogTelemetryOnAfterInsertInteractionLogEntry()
     begin
         Session.LogMessage('000089Z', UserCreatingInteractionLogEntryBasedOnEmailTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 10140, 'OnAfterDepositPost', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Deposit-Post", 'OnAfterDepositPost', '', true, true)]
     local procedure LogNumberOfPostedDepositLines(DepositHeader: Record "Deposit Header"; PostedDepositHeader: Record "Posted Deposit Header")
     var
         PostedDepositLine: Record "Posted Deposit Line";

@@ -8,8 +8,10 @@ codeunit 134255 "Delete Bank Reconciliation"
     end;
 
     var
+
         Assert: Codeunit Assert;
         LedgerEntryDate: Date;
+
 
     [Test]
     [HandlerFunctions('BankAccReconciliationPageHandler,SuggestBankLedgerEntriesLinesHandler')]

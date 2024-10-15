@@ -7,7 +7,6 @@ codeunit 2110 "O365 Sales Initial Setup"
     begin
         InitializeO365SalesCompany;
         InitializeAccountingPeriod; // ensure accounting period is always valid
-        EnableCompanyInvoicingApplicationArea;
         CreatePaymentRegistrationSetupForCurrentUser; // payment registration setup needs to be initialized per user
         ValidateUserLocale;
     end;
@@ -46,7 +45,7 @@ codeunit 2110 "O365 Sales Initial Setup"
 
     local procedure InitializeO365SalesCompany()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Overwrite: Boolean;
     begin
         // Override defaults for O365 Sales
@@ -73,7 +72,9 @@ codeunit 2110 "O365 Sales Initial Setup"
             InitializeNoSeries;
             InitializeDefaultBCC;
             InitializeCustomerTemplate;
+#if not CLEAN18
             InitializeContactToCustomerTemplate;
+#endif
             InitializePaymentInstructions;
             InitializeItemTemplate;
             ClearPaymentMethodsBalAccount;
@@ -87,7 +88,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         O365SalesInitialSetup."Is initialized" := true;
         O365SalesInitialSetup.Modify();
 
-        AssistedSetup.Complete(PAGE::"Assisted Company Setup Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Assisted Company Setup Wizard");
     end;
 
     local procedure InitializePaymentRegistrationSetup()
@@ -174,6 +175,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         ConfigTmplSelectionRules.Modify(true);
     end;
 
+#if not CLEAN18
     local procedure InitializeContactToCustomerTemplate()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -242,7 +244,7 @@ codeunit 2110 "O365 Sales Initial Setup"
                 CompanyTemplateFieldRef.Validate(ConfigTemplateLine."Default Value");
                 PersonTemplateFieldRef.Validate(ConfigTemplateLine."Default Value");
             end;
-        until ConfigTemplateLine.Next = 0;
+        until ConfigTemplateLine.Next() = 0;
 
         // NA Customer template has Tax Liable and Tax Area Code but does not use the same IDs
         // They must be set manually
@@ -267,6 +269,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         CompanyTemplateRecordRef.Modify(true);
         PersonTemplateRecordRef.Modify(true);
     end;
+#endif
 
     local procedure InitializeItemTemplate()
     var
@@ -438,7 +441,7 @@ codeunit 2110 "O365 Sales Initial Setup"
 
         // Auto-create accounting periods will fail with items with average costing.
         Item.SetRange("Costing Method", Item."Costing Method"::Average);
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             exit;
 
         AccountingPeriod.LockTable();
@@ -492,7 +495,7 @@ codeunit 2110 "O365 Sales Initial Setup"
                     O365PaymentInstrTransl.SetTranslPaymentInstructions(
                       StrSubstNo(O365PaymentInstrTransl.GetTransPaymentInstructions, Company."Display Name"));
                     O365PaymentInstrTransl.Modify(true);
-                until O365PaymentInstrTransl.Next = 0;
+                until O365PaymentInstrTransl.Next() = 0;
         end;
     end;
 
@@ -553,7 +556,7 @@ codeunit 2110 "O365 Sales Initial Setup"
             SetRange("Object Type to Run", ObjectTypeToRun);
             SetRange("Object ID to Run", ObjectIdToRun);
             SetFilter(Status, '<>%1', Status::"On Hold");
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
 
             ModifyAll(Status, Status::"On Hold", true);
@@ -681,7 +684,9 @@ codeunit 2110 "O365 Sales Initial Setup"
         ConfigTemplateHeader: Record "Config. Template Header";
         ConfigTemplateLine: Record "Config. Template Line";
         CustomReportLayout: Record "Custom Report Layout";
+#if not CLEAN18
         CustomerTemplate: Record "Customer Template";
+#endif
         CompanyInformation: Record "Company Information";
         GenJournalBatch: Record "Gen. Journal Batch";
         MarketingSetup: Record "Marketing Setup";
@@ -709,7 +714,9 @@ codeunit 2110 "O365 Sales Initial Setup"
                             ConfigTemplateHeader.WritePermission,
                             ConfigTemplateLine.WritePermission,
                             CustomReportLayout.WritePermission,
+#if not CLEAN18
                             CustomerTemplate.WritePermission,
+#endif
                             CompanyInformation.WritePermission,
                             GenJournalBatch.WritePermission,
                             MarketingSetup.WritePermission,
@@ -751,19 +758,19 @@ codeunit 2110 "O365 Sales Initial Setup"
         Item: Record Item;
     begin
         // Simple logic to determine if this is a new company
-        if not GLRegister.IsEmpty then
+        if not GLRegister.IsEmpty() then
             exit(false);
 
-        if not Customer.IsEmpty then
+        if not Customer.IsEmpty() then
             exit(false);
 
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             exit(false);
 
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterCompanyOpen', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', false, false)]
     local procedure OnAfterCompanyOpen()
     var
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
@@ -805,7 +812,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
     end;
 
-    [EventSubscriber(ObjectType::Table, 79, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Company Information", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterCompanyInformationModify(var Rec: Record "Company Information"; var xRec: Record "Company Information"; RunTrigger: Boolean)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
@@ -823,25 +830,6 @@ codeunit 2110 "O365 Sales Initial Setup"
                 ConfigTemplateManagement.InsertConfigTemplateLine(ConfigTemplateHeader.Code,
                   DummyCustomer.FieldNo("Country/Region Code"), Rec."Country/Region Code", ConfigTemplateHeader."Table ID");
             end;
-    end;
-
-    local procedure EnableCompanyInvoicingApplicationArea()
-    var
-        ApplicationAreaSetup: Record "Application Area Setup";
-        ExperienceTierSetup: Record "Experience Tier Setup";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        CurrentExperienceTier: Text;
-    begin
-        if not (GetO365SalesInitialSetup and O365SalesInitialSetup."Is initialized") then
-            exit;
-
-        if GetCompany and Company."Evaluation Company" then
-            exit;
-
-        if ApplicationAreaMgmtFacade.GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then;
-        if ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(CurrentExperienceTier) then;
-        if not ApplicationAreaSetup.Invoicing or (CurrentExperienceTier <> ExperienceTierSetup.FieldCaption(Invoicing)) then
-            ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Invoicing));
     end;
 
     local procedure GetCanadaTaxDefaults(var TaxAreaCode: Code[20])
@@ -980,14 +968,14 @@ codeunit 2110 "O365 Sales Initial Setup"
         ConfigTmplSelectionRules.Insert(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforePostSalesDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostSalesDoc', '', false, false)]
     local procedure BlockSendingTestInvoices(var SalesHeader: Record "Sales Header")
     begin
         if SalesHeader.IsTest then
             Error(CannotSendTestInvoiceErr);
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnAfterInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnAfterInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnAfterInitializingNotificationsDisable()
     var
         MyNotifications: Record "My Notifications";
@@ -1015,7 +1003,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         exit(O365SalesInitSetupRead);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1518, 'OnAfterIsNotificationEnabled', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"My Notifications", 'OnAfterIsNotificationEnabled', '', false, false)]
     local procedure DisableMyNotifications(NotificationId: Guid; var IsNotificationEnabled: Boolean)
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";

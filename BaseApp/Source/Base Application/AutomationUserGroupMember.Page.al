@@ -4,6 +4,9 @@ page 5442 "Automation User Group Member"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "User Group Member";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

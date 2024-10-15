@@ -266,7 +266,7 @@ page 10009 "Customer Order Header Status"
                 TotalOpenAmount := TotalOpenAmount + SalesHeader."Outstanding Amount ($)";
                 if SalesHeader."On Hold" <> '' then
                     TotalOpenAmountOnHold := TotalOpenAmountOnHold + SalesHeader."Outstanding Amount ($)";
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
     end;
 
     procedure GetLastShipmentInvoice()

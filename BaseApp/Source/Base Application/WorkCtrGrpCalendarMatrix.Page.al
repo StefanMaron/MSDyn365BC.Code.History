@@ -470,7 +470,7 @@ page 9295 "Work Ctr. Grp. Calendar Matrix"
                   WorkCenter."Capacity (Effective)" *
                   CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code") /
                   CalendarMgt.TimeFactor(CapacityUoM);
-            until WorkCenter.Next = 0;
+            until WorkCenter.Next() = 0;
 
         exit(Capacity);
     end;

@@ -1077,7 +1077,7 @@ codeunit 142065 "Job Reports NA"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure ModifySalesReceivablesSetup()

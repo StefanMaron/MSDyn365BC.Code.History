@@ -34,7 +34,7 @@ codeunit 1636 "Office Contact Handler"
                 ContactBusinessRelation.ChangeCompany(TempCompany.Name);
                 FindContacts(TempOfficeAddinContext, TempOfficeContactDetails, Contact, ContactBusinessRelation, TempCompany.Name);
                 ContactBusinessRelation.Reset();
-            until TempCompany.Next = 0;
+            until TempCompany.Next() = 0;
 
 
         if TempOfficeContactDetails.IsEmpty() then begin
@@ -199,7 +199,7 @@ codeunit 1636 "Office Contact Handler"
                     ContactFilter += Contact."No." + '|';
                 if (StrPos(ContactFilter, Contact."Company No.") = 0) and (Contact."Company No." <> '') then
                     ContactFilter += Contact."Company No." + '|';
-            until Contact.Next = 0;
+            until Contact.Next() = 0;
 
         ContactBusinessRelation.SetFilter("Contact No.", DelChr(ContactFilter, '>', '|'));
     end;
@@ -249,7 +249,7 @@ codeunit 1636 "Office Contact Handler"
         OfficeDocumentHandler.HandlePurchaseCommand(Vendor, TempOfficeAddinContext);
     end;
 
-    [EventSubscriber(ObjectType::Page, 5052, 'OnClosePageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Contact List", 'OnClosePageEvent', '', false, false)]
     local procedure OnContactSelected(var Rec: Record Contact)
     var
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;

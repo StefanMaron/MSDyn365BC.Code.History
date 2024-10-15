@@ -1,4 +1,4 @@
-﻿page 248 "VAT Registration Config"
+page 248 "VAT Registration Config"
 {
     Caption = 'EU VAT Registration No. Validation Service Setup';
     DataCaptionExpression = '';

@@ -503,7 +503,7 @@ table 5077 "Segment Line"
 
         SegLine.SetRange("Segment No.", "Segment No.");
         SegLine.SetFilter("Line No.", '<>%1', "Line No.");
-        if SegLine.IsEmpty then begin
+        if SegLine.IsEmpty() then begin
             if SegHeader.Get("Segment No.") then
                 SegHeader.CalcFields("No. of Criteria Actions");
             if SegHeader."No. of Criteria Actions" > 1 then
@@ -516,7 +516,7 @@ table 5077 "Segment Line"
         end;
         if "Contact No." <> '' then begin
             SegLine.SetRange("Contact No.", "Contact No.");
-            if SegLine.IsEmpty then begin
+            if SegLine.IsEmpty() then begin
                 Task.SetRange("Segment No.", "Segment No.");
                 Task.SetRange("Contact No.", "Contact No.");
                 Task.ModifyAll("Segment No.", '');
@@ -587,12 +587,14 @@ table 5077 "Segment Line"
         exit('');
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by MaintainSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure MaintainAttachment()
     begin
         MaintainSegLineAttachment();
     end;
+#endif
 
     procedure MaintainSegLineAttachment()
     var
@@ -611,12 +613,14 @@ table 5077 "Segment Line"
             CreateSegLineAttachment();
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CreateSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure CreateAttachment()
     begin
         CreateSegLineAttachment();
     end;
+#endif
 
     procedure CreateSegLineAttachment()
     var
@@ -634,12 +638,14 @@ table 5077 "Segment Line"
         SegInteractLanguage.CreateAttachment();
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by OpenSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure OpenAttachment()
     begin
         OpenSegLineAttachment();
     end;
+#endif
 
     procedure OpenSegLineAttachment()
     var
@@ -676,12 +682,14 @@ table 5077 "Segment Line"
         end
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ImportSegLineAttachment', '17.0')]
     [Scope('OnPrem')]
     procedure ImportAttachment()
     begin
         ImportSegLineAttachment();
     end;
+#endif
 
     procedure ImportSegLineAttachment()
     var
@@ -698,12 +706,14 @@ table 5077 "Segment Line"
         SegInteractLanguage.ImportAttachment;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ExportSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure ExportAttachment()
     begin
         ExportSegLineAttachment();
     end;
+#endif
 
     procedure ExportSegLineAttachment()
     var
@@ -805,7 +815,7 @@ table 5077 "Segment Line"
         SegInteractLanguage.SetRange("Segment Line No.", "Line No.");
         SegInteractLanguage.SetRange("Language Code", "Language Code");
         SegInteractLanguage.SetRange("Attachment No.", "Attachment No.");
-        if not SegInteractLanguage.IsEmpty then
+        if not SegInteractLanguage.IsEmpty() then
             exit(false);
 
         SegInteractLanguage.SetRange("Segment Line No.", 0);
@@ -892,12 +902,14 @@ table 5077 "Segment Line"
         OnAfterCopyFromInteractionLogEntry(Rec, InteractLogEntry);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CreateSegLineInteractionFromContact()', '17.0')]
     [Scope('OnPrem')]
     procedure CreateInteractionFromContact(var Contact: Record Contact)
     begin
         CreateSegLineInteractionFromContact(Contact);
     end;
+#endif
 
     procedure CreateSegLineInteractionFromContact(var Contact: Record Contact)
     begin
@@ -1123,12 +1135,14 @@ table 5077 "Segment Line"
         OnAfterCheckStatus(Rec);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by FinishSegLineWizard()', '17.0')]
     [Scope('OnPrem')]
     procedure FinishWizard(IsFinish: Boolean)
     begin
         FinishSegLineWizard(IsFinish);
     end;
+#endif
 
     procedure FinishSegLineWizard(IsFinish: Boolean)
     var
@@ -1293,12 +1307,14 @@ table 5077 "Segment Line"
                 Attachment.RemoveAttachment(false);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by LoadSegLineAttachment()', '17.0')]
     [Scope('OnPrem')]
     procedure LoadAttachment(ForceReload: Boolean)
     begin
         LoadSegLineAttachment(ForceReload);
     end;
+#endif
 
     procedure LoadSegLineAttachment(ForceReload: Boolean)
     begin
@@ -1310,7 +1326,7 @@ table 5077 "Segment Line"
                     TempInterLogEntryCommentLine.TransferFields(InterLogEntryCommentLine, false);
                     TempInterLogEntryCommentLine."Line No." := InterLogEntryCommentLine."Line No.";
                     TempInterLogEntryCommentLine.Insert();
-                until InterLogEntryCommentLine.Next = 0;
+                until InterLogEntryCommentLine.Next() = 0;
             ResumedAttachmentNo := "Attachment No.";
         end;
         if "Attachment No." <> 0 then
@@ -1382,12 +1398,14 @@ table 5077 "Segment Line"
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by LogSegLinePhoneCall()', '17.0')]
     [Scope('OnPrem')]
     procedure LogPhoneCall()
     begin
         LogSegLinePhoneCall();
     end;
+#endif
 
     procedure LogSegLinePhoneCall()
     var
@@ -1420,7 +1438,7 @@ table 5077 "Segment Line"
             repeat
                 TempInterLogEntryCommentLine := InterLogEntryCommentLine;
                 TempInterLogEntryCommentLine.Insert();
-            until InterLogEntryCommentLine.Next = 0;
+            until InterLogEntryCommentLine.Next() = 0;
     end;
 
     local procedure SetCorrespondenceType()
@@ -1456,12 +1474,14 @@ table 5077 "Segment Line"
         exit(TempAttachment.IsHTML);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by PreviewSegLineHTMLContent()', '17.0')]
     [Scope('OnPrem')]
     procedure PreviewHTMLContent()
     begin
         PreviewSegLineHTMLContent();
     end;
+#endif
 
     procedure PreviewSegLineHTMLContent()
     begin

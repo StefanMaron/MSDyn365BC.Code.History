@@ -301,7 +301,7 @@ page 5977 "Posted Service Invoices"
                             repeat
                                 ServiceInvoiceHeader.RequestStampEDocument;
                                 ProgressWindow.Update(1, ServiceInvoiceHeader."No.");
-                            until ServiceInvoiceHeader.Next = 0;
+                            until ServiceInvoiceHeader.Next() = 0;
                         end;
                         ProgressWindow.Close;
                     end;
@@ -345,7 +345,7 @@ page 5977 "Posted Service Invoices"
                             repeat
                                 ServiceInvoiceHeader.CancelEDocument;
                                 ProgressWindow.Update(1, ServiceInvoiceHeader."No.");
-                            until ServiceInvoiceHeader.Next = 0;
+                            until ServiceInvoiceHeader.Next() = 0;
                         end;
                         ProgressWindow.Close;
                     end;

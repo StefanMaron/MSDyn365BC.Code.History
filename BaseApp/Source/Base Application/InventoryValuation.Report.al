@@ -210,7 +210,7 @@ report 10139 "Inventory Valuation"
 
     trigger OnPostReport()
     begin
-        Progress.Close;
+        Progress.Close();
     end;
 
     trigger OnPreReport()
@@ -229,7 +229,7 @@ report 10139 "Inventory Valuation"
             Error(Text002, Item.FieldCaption("Date Filter"), Item.TableCaption);
 
         CompanyInformation.Get();
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
         GLSetup.Get();
         if GLSetup."Additional Reporting Currency" = '' then
             ShowACY := false

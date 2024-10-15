@@ -107,7 +107,7 @@ codeunit 9610 "XSD Parser"
         if ChildXMLSchemaElement.FindSet then
             repeat
                 UpdateSelectedProperty(ChildXMLSchemaElement, XMLSchemaElement."Sort Key", XMLSchema);
-            until ChildXMLSchemaElement.Next = 0;
+            until ChildXMLSchemaElement.Next() = 0;
 
         XMLSchemaElement."Defintion XML Schema Code" := '';
         XMLSchemaElement."Definition XML Schema ID" := 0;
@@ -150,7 +150,7 @@ codeunit 9610 "XSD Parser"
             Clear(ParentXMLSchemaElement);
             ParentXMLSchemaElement.Indentation := -1;
             ExtendElementDefinition(TempRootXMLSchemaElement, ParentXMLSchemaElement, 0, XMLSchema, CurrentID, '');
-        until TempRootXMLSchemaElement.Next = 0;
+        until TempRootXMLSchemaElement.Next() = 0;
     end;
 
     local procedure ImportFile(var CurrentXMLSchema: Record "XML Schema"; FilePath: Text): Boolean
@@ -443,7 +443,7 @@ codeunit 9610 "XSD Parser"
             repeat
                 ExtendElementDefinition(
                   TempNextXMLSchemaElementDefintion, ParentXMLSchemaElement, NestingLevel + 1, XMLSchema, CurrentID, SchemaPrefix);
-            until TempNextXMLSchemaElementDefintion.Next = 0;
+            until TempNextXMLSchemaElementDefintion.Next() = 0;
     end;
 
     local procedure ExtendReferenceElementDefinition(var CurrentDefinitionXMLSchemaElement: Record "XML Schema Element"; var ParentXMLSchemaElement: Record "XML Schema Element"; NestingLevel: Integer; XMLSchema: Record "XML Schema"; var CurrentID: Integer; SchemaPrefix: Text)
@@ -470,7 +470,7 @@ codeunit 9610 "XSD Parser"
             repeat
                 ExtendElementDefinition(
                   TempNextXMLSchemaElementDefintion, ParentXMLSchemaElement, NestingLevel + 1, XMLSchema, CurrentID, SchemaPrefix);
-            until TempNextXMLSchemaElementDefintion.Next = 0;
+            until TempNextXMLSchemaElementDefintion.Next() = 0;
     end;
 
     local procedure ExtendTypeElementDefinition(var CurrentDefinitionXMLSchemaElement: Record "XML Schema Element"; var ParentXMLSchemaElement: Record "XML Schema Element"; NestingLevel: Integer; XMLSchema: Record "XML Schema"; var CurrentID: Integer; SchemaPrefix: Text)
@@ -481,7 +481,7 @@ codeunit 9610 "XSD Parser"
             repeat
                 ExtendElementDefinition(
                   TempNextXMLSchemaElementDefintion, ParentXMLSchemaElement, NestingLevel + 1, XMLSchema, CurrentID, SchemaPrefix);
-            until TempNextXMLSchemaElementDefintion.Next = 0
+            until TempNextXMLSchemaElementDefintion.Next() = 0
         else
             UpdateSimpleType(ParentXMLSchemaElement, ParentXMLSchemaElement."Data Type");
     end;
@@ -575,7 +575,7 @@ codeunit 9610 "XSD Parser"
         if XMLSchemaElement.FindSet then
             repeat
                 UpdateSelectedProperty(XMLSchemaElement, '', XMLSchema);
-            until XMLSchemaElement.Next = 0;
+            until XMLSchemaElement.Next() = 0;
     end;
 
     local procedure UpdateSelectedProperty(var CurrentXMLSchemaElement: Record "XML Schema Element"; ParentSortKey: Text[250]; XMLSchema: Record "XML Schema")
@@ -594,7 +594,7 @@ codeunit 9610 "XSD Parser"
             if ChildXMLSchemaElement.FindSet then
                 repeat
                     UpdateSelectedProperty(ChildXMLSchemaElement, CurrentXMLSchemaElement."Sort Key", XMLSchema);
-                until ChildXMLSchemaElement.Next = 0;
+                until ChildXMLSchemaElement.Next() = 0;
         end;
     end;
 
@@ -642,7 +642,7 @@ codeunit 9610 "XSD Parser"
         repeat
             ReferenceXMLSchemaElement.Copy(TempAllXMLSchemaElement);
             ReferenceXMLSchemaElement.Insert();
-        until TempAllXMLSchemaElement.Next = 0;
+        until TempAllXMLSchemaElement.Next() = 0;
 
         ReferenceXMLSchemaElement.FindFirst;
         exit(true);
@@ -722,7 +722,7 @@ codeunit 9610 "XSD Parser"
                 ReferenceXMLSchemaElement.Insert();
                 exit(true);
             end;
-        until ReferencedXMLSchema.Next = 0;
+        until ReferencedXMLSchema.Next() = 0;
 
         exit(false);
     end;
@@ -781,7 +781,7 @@ codeunit 9610 "XSD Parser"
             LastRestrictionID += 1;
             XMLSchemaRestriction."Element ID" := ActualXMLSchemaElement.ID;
             XMLSchemaRestriction.Insert();
-        until TempXMLSchemaRestriction.Next = 0;
+        until TempXMLSchemaRestriction.Next() = 0;
     end;
 
     local procedure InsertXMLSchemaElementFromDefinition(DefinitionXMLSchemaElement: Record "XML Schema Element"; ParentXMLSchemaElement: Record "XML Schema Element"; var XMLSchemaElement: Record "XML Schema Element"; XMLSchema: Record "XML Schema"; var CurrentID: Integer; SchemaPrefix: Text)
@@ -859,7 +859,7 @@ codeunit 9610 "XSD Parser"
                         XMLSchemaElement.Visible := false;
                 LevelVisible[XMLSchemaElement.Indentation + 1] := XMLSchemaElement.Visible;
                 XMLSchemaElement.Modify();
-            until XMLSchemaElement.Next = 0;
+            until XMLSchemaElement.Next() = 0;
 
         XMLSchemaElement.SetRange(Visible, true);
         if XMLSchemaElement.Get(XMLSchemaElement."XML Schema Code", xXMLSchemaElementID) then;
@@ -923,6 +923,7 @@ codeunit 9610 "XSD Parser"
         TempXMLSchemaRestriction.DeleteAll();
     end;
 
+    [Obsolete('Function will be removed', '18.0')]
     [Scope('OnPrem')]
     procedure CreateXMLPortFile(var XMLSchemaElement: Record "XML Schema Element"; NewObjectNo: Integer; NewName: Text[30]; ShowFileDialog: Boolean; ForImport: Boolean): Text
     var
@@ -941,7 +942,7 @@ codeunit 9610 "XSD Parser"
         XMLSchema.Get(XMLSchemaElement."XML Schema Code");
         xXMLSchemaElement := XMLSchemaElement;
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchemaElement."XML Schema Code");
-        XMLSchemaElement.FindSet;
+        XMLSchemaElement.FindSet();
         File.TextMode := true;
 
         File.CreateTempFile;
@@ -999,7 +1000,7 @@ codeunit 9610 "XSD Parser"
                 File.Write('');
                 TempXMLSchemaElement := XMLSchemaElement;
                 TempXMLSchemaElement.Insert();
-            until Next = 0;
+            until Next() = 0;
         File.Write('  }');
         File.Write('  EVENTS');
         File.Write('  {');
@@ -1069,7 +1070,7 @@ codeunit 9610 "XSD Parser"
     begin
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
         XMLSchemaElement.SetRange(Selected, true);
-        XMLSchemaElement.FindSet;
+        XMLSchemaElement.FindSet();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
         if not DataExchLineDef.FindFirst then begin
@@ -1099,7 +1100,7 @@ codeunit 9610 "XSD Parser"
                     DataExchColumnDef.Path := CopyStr(FullPath, 1, MaxStrLen(DataExchColumnDef.Path));
                     DataExchColumnDef.Modify();
                 end;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure PushDefinitionOnStack(var TempDefinitionXMLSchemaElement: Record "XML Schema Element" temporary)
@@ -1162,7 +1163,7 @@ codeunit 9610 "XSD Parser"
                 if TempAllXMLSchemaElement."XML Schema Code" = MainDefinitionSchemaCode then
                     TempAllXMLSchemaElement."XML Schema Code" := XMLSchema.Code;
                 TempAllXMLSchemaElement.Insert();
-            until XMLSchemaElement.Next = 0;
+            until XMLSchemaElement.Next() = 0;
 
         TempXMLSchemaRestriction.Reset();
         TempXMLSchemaRestriction.DeleteAll();
@@ -1175,7 +1176,7 @@ codeunit 9610 "XSD Parser"
                 if TempXMLSchemaRestriction."XML Schema Code" = MainDefinitionSchemaCode then
                     TempXMLSchemaRestriction."XML Schema Code" := XMLSchema.Code;
                 TempXMLSchemaRestriction.Insert();
-            until XMLSchemaRestriction.Next = 0;
+            until XMLSchemaRestriction.Next() = 0;
     end;
 }
 

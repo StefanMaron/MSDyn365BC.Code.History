@@ -49,8 +49,7 @@ codeunit 398 "Sales Tax Calculate"
         Text1020000: Label 'Tax country/region %1 is being used.  You must use %2.';
         Text1020001: Label 'Note to Programmers: The function "CopyTaxDifferences" must not be called unless the function "EndSalesTaxCalculation", or the function "PutSalesTaxAmountLineTable", is called first.';
         Text1020003: Label 'Invalid function call. Function reserved for external tax engines only.';
-        TempPrepaidSalesLine: Record "Sales Line" temporary;
-        PrepmtPosting: Boolean;
+        IsTotalTaxAmountRoundingSpecified: Boolean;
 
     procedure CallExternalTaxEngineForDoc(DocTable: Integer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]) STETransactionID: Text[20]
     begin
@@ -118,7 +117,9 @@ codeunit 398 "Sales Tax Calculate"
         IsHandled: Boolean;
     begin
         TaxAmount := 0;
+#if not CLEAN17
         OnBeforeCalculateTax(TaxAreaCode, TaxGroupCode, TaxLiable);
+#endif
         IsHandled := false;
         OnBeforeCalculateTaxProcedure(TaxAreaCode, TaxGroupCode, TaxLiable, Date, Amount, Quantity, ExchangeRate, TaxAmount, IsHandled);
         If IsHandled then
@@ -592,7 +593,7 @@ codeunit 398 "Sales Tax Calculate"
             TotalTaxAmountRounding := 0;
             FirstLine := false;
         end else
-            if TMPTaxDetail.Next = 0 then begin
+            if TMPTaxDetail.Next() = 0 then begin
                 Initialised := false;
                 exit(false);
             end;
@@ -655,7 +656,6 @@ codeunit 398 "Sales Tax Calculate"
             exit;
 
         if not SalesHeaderRead then begin
-            TempPrepaidSalesLine.DeleteAll();
             if TempSalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
                 SalesHeader := TempSalesHeader
             else
@@ -681,11 +681,6 @@ codeunit 398 "Sales Tax Calculate"
             exit;
 
         SalesLine.TestField("Tax Group Code");
-        if IsFinalPrepaidSalesLine(SalesLine) then begin
-            TempPrepaidSalesLine := SalesLine;
-            TempPrepaidSalesLine.Insert();
-        end;
-
         with TempSalesTaxLine do begin
             Reset;
             case TaxCountry of
@@ -753,7 +748,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Invoice Discount Amount" := "Invoice Discount Amount" + SalesLine."Inv. Discount Amount";
                         Modify;
                     end;
-                until TaxAreaLine.Next = 0;
+                until TaxAreaLine.Next() = 0;
         end;
 
         OnAfterAddSalesLine(TempSalesTaxLine, SalesLine, SalesHeader, ExchangeFactor);
@@ -782,7 +777,7 @@ codeunit 398 "Sales Tax Calculate"
                 SalesTaxAmountLineCalc.InitFromSalesInvLine(SalesInvoiceLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
                   TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
           TaxAmountDifference."Document Product Area"::"Posted Sale",
@@ -813,7 +808,7 @@ codeunit 398 "Sales Tax Calculate"
                 SalesTaxAmountLineCalc.InitFromSalesCrMemoLine(SalesCrMemoLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
                   TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
           TaxAmountDifference."Document Product Area"::"Posted Sale",
@@ -918,7 +913,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Invoice Discount Amount" := "Invoice Discount Amount" + PurchLine."Inv. Discount Amount";
                         Modify;
                     end;
-                until TaxAreaLine.Next = 0;
+                until TaxAreaLine.Next() = 0;
         end;
 
         OnAfterAddPurchLine(TempSalesTaxLine, PurchLine, PurchHeader, ExchangeFactor);
@@ -948,7 +943,7 @@ codeunit 398 "Sales Tax Calculate"
                 SalesTaxAmountLineCalc.CalcPurchLineSalesTaxAmountLine(
                   TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor, TaxDetail, PurchInvHeader."Posting Date");
                 OnAddPurchInvoiceLinesOnAfterCalcPurchLineSalesTaxAmountLine(TempSalesTaxLine, PurchInvLine, PurchInvHeader, ExchangeFactor);
-            until PurchInvLine.Next = 0;
+            until PurchInvLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
           TaxAmountDifference."Document Product Area"::"Posted Purchase",
@@ -979,7 +974,7 @@ codeunit 398 "Sales Tax Calculate"
                 SalesTaxAmountLineCalc.InitFromPurchCrMemoLine(PurchCrMemoLine);
                 SalesTaxAmountLineCalc.CalcPurchLineSalesTaxAmountLine(
                   TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor, TaxDetail, PurchCrMemoHeader."Posting Date");
-            until PurchCrMemoLine.Next = 0;
+            until PurchCrMemoLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
           TaxAmountDifference."Document Product Area"::"Posted Purchase",
@@ -1063,7 +1058,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Invoice Discount Amount" := "Invoice Discount Amount" + ServiceLine."Inv. Discount Amount";
                         Modify;
                     end;
-                until TaxAreaLine.Next = 0;
+                until TaxAreaLine.Next() = 0;
         end;
     end;
 
@@ -1090,7 +1085,7 @@ codeunit 398 "Sales Tax Calculate"
                 SalesTaxAmountLineCalc.InitFromServInvLine(ServInvLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
                   TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
-            until ServInvLine.Next = 0;
+            until ServInvLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
           TaxAmountDifference."Document Product Area"::"Posted Service",
@@ -1121,7 +1116,7 @@ codeunit 398 "Sales Tax Calculate"
                 SalesTaxAmountLineCalc.InitFromServCrMemoLine(ServCrMemoLine);
                 SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(
                   TempSalesTaxLine, TaxAreaLine, TaxCountry, TaxArea, TaxJurisdiction, ExchangeFactor);
-            until ServCrMemoLine.Next = 0;
+            until ServCrMemoLine.Next() = 0;
 
         CopyTaxDifferencesToTemp(
           TaxAmountDifference."Document Product Area"::"Posted Service",
@@ -1176,7 +1171,7 @@ codeunit 398 "Sales Tax Calculate"
                         Insert;
                         "Tax Type" := "Tax Type"::"Sales and Use Tax";
                     end;
-                until Next = 0;
+                until Next() = 0;
             Reset;
             if FindSet(true) then
                 repeat
@@ -1192,7 +1187,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Tax Difference" := TempTaxAmountDifference."Tax Difference";
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
             Reset;
             SetCurrentKey("Tax Area Code for Key", "Tax Group Code", "Tax Type", "Calculation Order");
             if FindLast then begin
@@ -1279,7 +1274,6 @@ codeunit 398 "Sales Tax Calculate"
                     OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Insert(SalesTaxAmountLine2, TempSalesTaxLine);
                     SalesTaxAmountLine2.Insert();
                 until Next(-1) = 0;
-                UpdateSalesTaxForPrepmt(SalesTaxAmountLine2, TotalTaxAmount, RoundTax);
                 HandleRoundTaxUpOrDown(SalesTaxAmountLine2, RoundTax, TotalTaxAmount, LastTaxAreaCode, LastTaxGroupCode);
             end;
             DeleteAll();
@@ -1288,7 +1282,7 @@ codeunit 398 "Sales Tax Calculate"
                 repeat
                     Copy(SalesTaxAmountLine2);
                     Insert;
-                until SalesTaxAmountLine2.Next = 0;
+                until SalesTaxAmountLine2.Next() = 0;
         end;
     end;
 
@@ -1355,7 +1349,7 @@ codeunit 398 "Sales Tax Calculate"
                     else
                         "Tax Amount" += TempSalesTaxLine."Tax Base Amount FCY" * TempSalesTaxLine."Tax %" / 100;
                     Modify;
-                until TempSalesTaxLine.Next = 0;
+                until TempSalesTaxLine.Next() = 0;
 
             SetRange("Tax Amount", 0);
             DeleteAll();
@@ -1375,7 +1369,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Tax Amount" -= RemTaxAmt;
                     end;
                     Modify;
-                until Next = 0;
+                until Next() = 0;
 
             SetRange("Tax Amount", 0);
             DeleteAll();
@@ -1390,7 +1384,7 @@ codeunit 398 "Sales Tax Calculate"
             repeat
                 SalesTaxLine2.Copy(TempSalesTaxLine);
                 SalesTaxLine2.Insert();
-            until TempSalesTaxLine.Next = 0;
+            until TempSalesTaxLine.Next() = 0;
     end;
 
     procedure PutSalesTaxAmountLineTable(var SalesTaxLine2: Record "Sales Tax Amount Line" temporary; ProductArea: Integer; DocumentType: Integer; DocumentNo: Code[20])
@@ -1401,7 +1395,7 @@ codeunit 398 "Sales Tax Calculate"
             repeat
                 TempSalesTaxLine.Copy(SalesTaxLine2);
                 TempSalesTaxLine.Insert();
-            until SalesTaxLine2.Next = 0;
+            until SalesTaxLine2.Next() = 0;
 
         CreateSingleTaxDifference(ProductArea, DocumentType, DocumentNo);
     end;
@@ -1421,7 +1415,9 @@ codeunit 398 "Sales Tax Calculate"
         if IsHandled then
             exit;
 
-        TotalTaxAmountRounding := 0;
+        if not IsTotalTaxAmountRoundingSpecified then
+            TotalTaxAmountRounding := 0;
+
         if not SalesHeaderRead then begin
             if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
                 exit;
@@ -1488,15 +1484,11 @@ codeunit 398 "Sales Tax Calculate"
                             SalesLine."VAT Base Amount" := SalesLine.Amount;
                             OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetSalesLineVATBaseAmount(SalesLine, SalesHeader);
                             if SalesLine2.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then begin
-                                if not IsFinalPrepaidSalesLine(SalesLine) then
-                                    SalesLine2."Amount Including VAT" := SalesLine2."Amount Including VAT" + ReturnTaxAmount;
+                                SalesLine2."Amount Including VAT" := SalesLine2."Amount Including VAT" + ReturnTaxAmount;
                                 SalesLine2.Modify();
                             end else begin
                                 SalesLine2.Copy(SalesLine);
-                                if IsFinalPrepaidSalesLine(SalesLine) then
-                                    SalesLine2."Amount Including VAT" := SalesLine2."Amount Including VAT" - SalesLine.GetPrepaidSalesAmountInclVAT
-                                else
-                                    SalesLine2."Amount Including VAT" := SalesLine.Amount + ReturnTaxAmount;
+                                SalesLine2."Amount Including VAT" := SalesLine.Amount + ReturnTaxAmount;
                                 SalesLine2.Insert();
                             end;
                             if SalesLine."Tax Liable" then
@@ -1509,8 +1501,8 @@ codeunit 398 "Sales Tax Calculate"
                                 SalesLine."VAT %" := 0;
                             SalesLine.Modify();
                         end;
-                    until SalesLine.Next = 0;
-                until Next = 0;
+                    until SalesLine.Next() = 0;
+                until Next() = 0;
             SalesLine.SetRange("Tax Area Code");
             SalesLine.SetRange("Tax Group Code");
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -1533,7 +1525,7 @@ codeunit 398 "Sales Tax Calculate"
                     if ((SalesLine."Tax Area Code" = '') and ("Tax Area Code" <> '')) or (SalesLine."Tax Group Code" = '') then
                         SalesLine."Amount Including VAT" := SalesLine.Amount;
                     SalesLine.Modify();
-                until SalesLine.Next = 0;
+                until SalesLine.Next() = 0;
         end;
     end;
 
@@ -1660,8 +1652,8 @@ codeunit 398 "Sales Tax Calculate"
                             UpdatePurchaseLineVatPct(PurchLine);
                             PurchLine.Modify();
                         end;
-                    until PurchLine.Next = 0;
-                until Next = 0;
+                    until PurchLine.Next() = 0;
+                until Next() = 0;
             PurchLine.SetRange("Tax Area Code");
             PurchLine.SetRange("Tax Group Code");
             PurchLine.SetRange("Use Tax");
@@ -1686,7 +1678,7 @@ codeunit 398 "Sales Tax Calculate"
                         PurchLine."Amount Including VAT" := PurchLine.Amount;
                     if PurchLine.Amount <> 0 then
                         PurchLine.Modify();
-                until PurchLine.Next = 0;
+                until PurchLine.Next() = 0;
         end;
     end;
 
@@ -1772,8 +1764,8 @@ codeunit 398 "Sales Tax Calculate"
                                 ServLine."VAT %" := 0;
                             ServLine.Modify();
                         end;
-                    until ServLine.Next = 0;
-                until Next = 0;
+                    until ServLine.Next() = 0;
+                until Next() = 0;
             ServLine.SetRange("Tax Area Code");
             ServLine.SetRange("Tax Group Code");
             ServLine.SetRange("Document Type", ServiceHeader."Document Type");
@@ -1785,7 +1777,7 @@ codeunit 398 "Sales Tax Calculate"
                       Round(ServLine."Line Amount" - ServLine."Inv. Discount Amount", Currency."Amount Rounding Precision");
                     ServLine."VAT Base Amount" := ServLine.Amount;
                     ServLine.Modify();
-                until ServLine.Next = 0;
+                until ServLine.Next() = 0;
         end;
     end;
 
@@ -1870,7 +1862,7 @@ codeunit 398 "Sales Tax Calculate"
             repeat
                 TempTaxAmountDifference := TaxAmountDifference;
                 TempTaxAmountDifference.Insert();
-            until TaxAmountDifference.Next = 0
+            until TaxAmountDifference.Next() = 0
         else
             CreateSingleTaxDifference(ProductArea, DocumentType, DocumentNo);
     end;
@@ -1918,7 +1910,7 @@ codeunit 398 "Sales Tax Calculate"
                 TaxAmountDifference."Tax Difference" := TempSalesTaxLine."Tax Difference";
                 TaxAmountDifference.Positive := TempSalesTaxLine.Positive;
                 TaxAmountDifference.Insert();
-            until TempSalesTaxLine.Next = 0;
+            until TempSalesTaxLine.Next() = 0;
     end;
 
     procedure SetPurchHeader(NewPurchHeader: Record "Purchase Header")
@@ -2082,7 +2074,7 @@ codeunit 398 "Sales Tax Calculate"
                     TempSalesTaxLine.SetRange("Tax Area Code", TaxAreaCode);
                     TempSalesTaxLine.SetRange("Tax Group Code", "Tax Group Code");
                     TempSalesTaxLine.SetRange("Use Tax", "Use Tax");
-                    if TempSalesTaxLine.IsEmpty then begin
+                    if TempSalesTaxLine.IsEmpty() then begin
                         Amount := "Line Amount" - "Inv. Discount Amount";
                         "Amount Including VAT" := Amount;
                         "VAT Base Amount" := Amount;
@@ -2090,7 +2082,7 @@ codeunit 398 "Sales Tax Calculate"
                         "Tax To Be Expensed" := 0;
                         Modify;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -2103,76 +2095,32 @@ codeunit 398 "Sales Tax Calculate"
                 repeat
                     TempSalesTaxLine.SetRange("Tax Area Code", TaxAreaCode);
                     TempSalesTaxLine.SetRange("Tax Group Code", "Tax Group Code");
-                    if TempSalesTaxLine.IsEmpty then begin
+                    if TempSalesTaxLine.IsEmpty() then begin
                         Amount := "Line Amount" - "Inv. Discount Amount";
                         "Amount Including VAT" := Amount;
                         "VAT Base Amount" := Amount;
                         "VAT %" := 0;
                         Modify;
                     end;
-                until Next = 0;
-        end;
-    end;
-
-    local procedure IsFinalPrepaidSalesLine(SalesLine: Record "Sales Line"): Boolean
-    var
-        SalesHeader: Record "Sales Header";
-        CheckSalesLine: Record "Sales Line";
-    begin
-        if not PrepmtPosting then
-            exit(false);
-
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        if not CheckSalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then
-            exit(false);
-
-        if CheckSalesLine."Prepayment %" = 0 then
-            exit;
-
-        if not SalesHeader."Prepmt. Include Tax" then
-            if CheckSalesLine."Prepmt. Amt. Inv." = 0 then
-                exit(false);
-
-        exit(CheckSalesLine.IsFinalInvoice);
-    end;
-
-    local procedure UpdateSalesTaxForPrepmt(var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var TotalTaxAmount: Decimal; RoundTax: Option "To Nearest",Up,Down)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        CheckTotalTaxAmount: Decimal;
-        TaxRoundingDiff: Decimal;
-    begin
-        if TotalTaxAmount = 0 then
-            exit;
-
-        case RoundTax of
-            RoundTax::"To Nearest":
-                CheckTotalTaxAmount := Round(TotalTaxAmount);
-            RoundTax::Up:
-                CheckTotalTaxAmount := Round(TotalTaxAmount, 0.01, '>');
-            RoundTax::Down:
-                CheckTotalTaxAmount := Round(TotalTaxAmount, 0.01, '<');
-        end;
-
-        if not TempPrepaidSalesLine.IsEmpty then begin
-            TempPrepaidSalesLine.CalcSums("Amount Including VAT");
-            TaxRoundingDiff :=
-              TempPrepaidSalesLine."Amount Including VAT" - TempPrepaidSalesLine.GetPrepaidSalesAmountInclVAT -
-              (SalesTaxAmountLine."Tax Base Amount" + CheckTotalTaxAmount);
-            GeneralLedgerSetup.Get();
-            if Abs(TaxRoundingDiff) <= GeneralLedgerSetup."Amount Rounding Precision" then begin
-                TotalTaxAmount := TotalTaxAmount + TaxRoundingDiff;
-                SalesTaxAmountLine."Tax Amount" += TaxRoundingDiff;
-                SalesTaxAmountLine."Amount Including Tax" += TaxRoundingDiff;
-                SalesTaxAmountLine.Modify();
-            end;
+                until Next() = 0;
         end;
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Not relevant anymore: redesign of Sales Tax roundings.', '18.0')]
     procedure SetPrepmtPosting(NewPrepmtPosting: Boolean)
     begin
-        PrepmtPosting := NewPrepmtPosting;
+    end;
+
+    internal procedure SetTotalTaxAmountRounding(NewTotalTaxAmountRounding: Decimal)
+    begin
+        TotalTaxAmountRounding := NewTotalTaxAmountRounding;
+        IsTotalTaxAmountRoundingSpecified := true;
+    end;
+
+    internal procedure GetTotalTaxAmountRounding(): Decimal
+    begin
+        exit(TotalTaxAmountRounding);
     end;
 
     local procedure SetTaxDetailFilter(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; Date: Date)
@@ -2209,12 +2157,13 @@ codeunit 398 "Sales Tax Calculate"
     begin
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by OnBeforeCalculateTaxProcedure', '17.0')]
     [IntegrationEvent(false, false)]
     procedure OnBeforeCalculateTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTaxProcedure(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal; var TaxAmount: Decimal; var IsHandled: Boolean)
     begin

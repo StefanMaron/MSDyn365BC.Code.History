@@ -257,7 +257,7 @@ page 10007 "Customer Credit Information"
                 CustLedgerEntry2.CalcFields("Remaining Amt. (LCY)");
                 CustLedgerEntry[Index]."Remaining Amt. (LCY)" :=
                   CustLedgerEntry[Index]."Remaining Amt. (LCY)" + CustLedgerEntry2."Remaining Amt. (LCY)";
-            until CustLedgerEntry2.Next = 0;
+            until CustLedgerEntry2.Next() = 0;
 
         if PeriodBeginDate <> 0D then
             NumDaysToBegin := WorkDate - PeriodBeginDate;

@@ -1032,7 +1032,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         ServiceCrMemoHeader.FindFirst;
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        ServiceCrMemoLine.FindSet;
+        ServiceCrMemoLine.FindSet();
         repeat
             TotalAmount += -ServiceCrMemoLine."Amount Including VAT";
         until ServiceCrMemoLine.Next = 0;
@@ -1046,7 +1046,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         ServiceInvoiceHeader.FindFirst;
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
         repeat
             TotalAmount += ServiceInvoiceLine."Amount Including VAT";
         until ServiceInvoiceLine.Next = 0;
@@ -1179,7 +1179,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure GetStdCodeForGL(var StandardServiceCode: Record "Standard Service Code"; var ServiceItemLine: Record "Service Item Line")
@@ -1297,7 +1297,7 @@ codeunit 136119 "Service Standard Codes"
     local procedure UpdateQuantityOnStdServiceLine(var StandardServiceLine: Record "Standard Service Line"; StandardServiceCode: Code[10]; Quantity: Decimal)
     begin
         StandardServiceLine.SetRange("Standard Service Code", StandardServiceCode);
-        StandardServiceLine.FindSet;
+        StandardServiceLine.FindSet();
         repeat
             StandardServiceLine.Validate(Quantity, Quantity);
             StandardServiceLine.Modify(true);
@@ -1330,7 +1330,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.TestField("Posting Date", PostingDate);
         until CustLedgerEntry.Next = 0;
@@ -1342,7 +1342,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedCustLedgEntry.FindSet;
+        DetailedCustLedgEntry.FindSet();
         repeat
             DetailedCustLedgEntry.TestField(Amount, TotalAmount);
         until DetailedCustLedgEntry.Next = 0;
@@ -1357,7 +1357,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceCrMemoHeader.FindFirst;
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
         GLEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceCrMemoHeader."Bill-to Customer No.");
@@ -1374,7 +1374,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceInvoiceHeader.FindFirst;
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
@@ -1435,7 +1435,7 @@ codeunit 136119 "Service Standard Codes"
         StandardServiceLine: Record "Standard Service Line";
     begin
         StandardServiceLine.SetRange("Standard Service Code", StandardServiceCode);
-        StandardServiceLine.FindSet;
+        StandardServiceLine.FindSet();
         repeat
             StandardServiceLine.TestField(Quantity, Quantity);
         until StandardServiceLine.Next = 0;
@@ -1514,7 +1514,7 @@ codeunit 136119 "Service Standard Codes"
     begin
         ServiceLedgerEntry.SetRange("Document Type", DocumentType);
         ServiceLedgerEntry.SetRange("Document No.", DocumentNo);
-        ServiceLedgerEntry.FindSet;
+        ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField("Customer No.", CustomerNo);
         until ServiceLedgerEntry.Next = 0;
@@ -1526,7 +1526,7 @@ codeunit 136119 "Service Standard Codes"
         ServiceLine: Record "Service Line";
     begin
         StandardServiceLine.SetRange("Standard Service Code", StandardServiceCode);
-        StandardServiceLine.FindSet;
+        StandardServiceLine.FindSet();
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
         repeat

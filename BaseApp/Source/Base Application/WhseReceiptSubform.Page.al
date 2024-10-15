@@ -16,45 +16,45 @@ page 5769 "Whse. Receipt Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Source Document"; "Source Document")
+                field("Source Document"; Rec."Source Document")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the type of document that the line relates to.';
                 }
-                field("Source No."; "Source No.")
+                field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the item that is expected to be received.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item in the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location where the items should be received.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone in which the items are being received.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
@@ -65,36 +65,36 @@ page 5769 "Whse. Receipt Subform"
                         BinCodeOnAfterValidate;
                     end;
                 }
-                field("Cross-Dock Zone Code"; "Cross-Dock Zone Code")
+                field("Cross-Dock Zone Code"; Rec."Cross-Dock Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone code that will be used for the quantity of items to be cross-docked.';
                     Visible = false;
                 }
-                field("Cross-Dock Bin Code"; "Cross-Dock Bin Code")
+                field("Cross-Dock Bin Code"; Rec."Cross-Dock Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin code that will be used for the quantity of items to be cross-docked.';
                     Visible = false;
                 }
-                field("Shelf No."; "Shelf No.")
+                field("Shelf No."; Rec."Shelf No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the shelf number of the item for information use.';
                     Visible = false;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that should be received.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity to be received, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. to Receive"; "Qty. to Receive")
+                field("Qty. to Receive"; Rec."Qty. to Receive")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity of items that remains to be received.';
@@ -104,7 +104,7 @@ page 5769 "Whse. Receipt Subform"
                         QtytoReceiveOnAfterValidate();
                     end;
                 }
-                field("Qty. to Cross-Dock"; "Qty. to Cross-Dock")
+                field("Qty. to Cross-Dock"; Rec."Qty. to Cross-Dock")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the suggested quantity to put into the cross-dock bin on the put-away document when the receipt is posted.';
@@ -112,23 +112,23 @@ page 5769 "Whse. Receipt Subform"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ShowCrossDockOpp(CrossDockOpp2);
-                        CurrPage.Update;
+                        ShowCrossDockOpp(WhseCrossDockOpp2);
+                        CurrPage.Update();
                     end;
                 }
-                field("Qty. Received"; "Qty. Received")
+                field("Qty. Received"; Rec."Qty. Received")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity for this line that has been posted as received.';
                     Visible = true;
                 }
-                field("Qty. to Receive (Base)"; "Qty. to Receive (Base)")
+                field("Qty. to Receive (Base)"; Rec."Qty. to Receive (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the Qty. to Receive in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. to Cross-Dock (Base)"; "Qty. to Cross-Dock (Base)")
+                field("Qty. to Cross-Dock (Base)"; Rec."Qty. to Cross-Dock (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the suggested base quantity to put into the cross-dock bin on the put-away document hen the receipt is posted.';
@@ -136,44 +136,44 @@ page 5769 "Whse. Receipt Subform"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ShowCrossDockOpp(CrossDockOpp2);
-                        CurrPage.Update;
+                        ShowCrossDockOpp(WhseCrossDockOpp2);
+                        CurrPage.Update();
                     end;
                 }
-                field("Qty. Received (Base)"; "Qty. Received (Base)")
+                field("Qty. Received (Base)"; Rec."Qty. Received (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity received, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Qty. Outstanding"; "Qty. Outstanding")
+                field("Qty. Outstanding"; Rec."Qty. Outstanding")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled.';
                     Visible = true;
                 }
-                field("Qty. Outstanding (Base)"; "Qty. Outstanding (Base)")
+                field("Qty. Outstanding (Base)"; Rec."Qty. Outstanding (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the quantity that still needs to be handled, in the base unit of measure.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date on which you expect to receive the items on the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of base units of measure, that are in the unit of measure specified for the item on the line.';
                 }
-                field("Over-Receipt Quantity"; "Over-Receipt Quantity")
+                field("Over-Receipt Quantity"; Rec."Over-Receipt Quantity")
                 {
                     ApplicationArea = Warehouse;
                     Visible = OverReceiptAllowed;
@@ -184,7 +184,7 @@ page 5769 "Whse. Receipt Subform"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Over-Receipt Code"; "Over-Receipt Code")
+                field("Over-Receipt Code"; Rec."Over-Receipt Code")
                 {
                     ApplicationArea = Warehouse;
                     Visible = OverReceiptAllowed;
@@ -211,7 +211,7 @@ page 5769 "Whse. Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowSourceLine;
+                        ShowSourceLine();
                     end;
                 }
                 action("&Bin Contents List")
@@ -224,7 +224,7 @@ page 5769 "Whse. Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        ShowBinContents;
+                        ShowBinContents();
                     end;
                 }
                 group("Item Availability by")
@@ -280,6 +280,17 @@ page 5769 "Whse. Receipt Subform"
                             ItemAvailability(ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                 }
                 action(ItemTrackingLines)
                 {
@@ -291,7 +302,7 @@ page 5769 "Whse. Receipt Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -299,10 +310,12 @@ page 5769 "Whse. Receipt Subform"
     }
 
     var
-        CrossDockOpp2: Record "Whse. Cross-Dock Opportunity";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         Text001: Label 'Cross-docking has been disabled for item %1 or location %2.';
         OverReceiptAllowed: Boolean;
+
+    protected var
+        WhseCrossDockOpp2: Record "Whse. Cross-Dock Opportunity";
 
     trigger OnOpenPage()
     begin
@@ -314,14 +327,14 @@ page 5769 "Whse. Receipt Subform"
         WMSMgt: Codeunit "WMS Management";
     begin
         WMSMgt.ShowSourceDocLine(
-          "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
+          Rec."Source Type", Rec."Source Subtype", Rec."Source No.", Rec."Source Line No.", 0);
     end;
 
     local procedure ShowBinContents()
     var
         BinContent: Record "Bin Content";
     begin
-        BinContent.ShowBinContents("Location Code", "Item No.", "Variant Code", "Bin Code");
+        BinContent.ShowBinContents(Rec."Location Code", Rec."Item No.", Rec."Variant Code", Rec."Bin Code");
     end;
 
     local procedure ItemAvailability(AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
@@ -335,8 +348,8 @@ page 5769 "Whse. Receipt Subform"
     begin
         WhseRcptLine.Copy(Rec);
         CODEUNIT.Run(CODEUNIT::"Whse.-Post Receipt (Yes/No)", WhseRcptLine);
-        Reset;
-        SetCurrentKey("No.", "Sorting Sequence No.");
+        Rec.Reset();
+        Rec.SetCurrentKey("No.", "Sorting Sequence No.");
         CurrPage.Update(false);
     end;
 
@@ -346,8 +359,8 @@ page 5769 "Whse. Receipt Subform"
     begin
         WhseRcptLine.Copy(Rec);
         CODEUNIT.Run(CODEUNIT::"Whse.-Post Receipt + Print", WhseRcptLine);
-        Reset;
-        SetCurrentKey("No.", "Sorting Sequence No.");
+        Rec.Reset();
+        Rec.SetCurrentKey("No.", "Sorting Sequence No.");
         CurrPage.Update(false);
     end;
 
@@ -357,7 +370,7 @@ page 5769 "Whse. Receipt Subform"
     begin
         WhseRcptLine.Copy(Rec);
         CODEUNIT.Run(CODEUNIT::"Whse.-Post Receipt + Pr. Pos.", WhseRcptLine);
-        Reset;
+        Rec.Reset();
         CurrPage.Update(false);
     end;
 
@@ -366,8 +379,8 @@ page 5769 "Whse. Receipt Subform"
         WhseRcptLine: Record "Warehouse Receipt Line";
     begin
         WhseRcptLine.Copy(Rec);
-        WhseRcptLine.SetRange("No.", "No.");
-        AutofillQtyToReceive(WhseRcptLine);
+        WhseRcptLine.SetRange("No.", Rec."No.");
+        Rec.AutofillQtyToReceive(WhseRcptLine);
     end;
 
     procedure DeleteQtyToReceive()
@@ -375,8 +388,8 @@ page 5769 "Whse. Receipt Subform"
         WhseRcptLine: Record "Warehouse Receipt Line";
     begin
         WhseRcptLine.Copy(Rec);
-        WhseRcptLine.SetRange("No.", "No.");
-        DeleteQtyToReceive(WhseRcptLine);
+        WhseRcptLine.SetRange("No.", Rec."No.");
+        Rec.DeleteQtyToReceive(WhseRcptLine);
     end;
 
     protected procedure ShowCrossDockOpp(var CrossDockOpp: Record "Whse. Cross-Dock Opportunity" temporary)
@@ -384,15 +397,15 @@ page 5769 "Whse. Receipt Subform"
         CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
         UseCrossDock: Boolean;
     begin
-        CrossDockMgt.GetUseCrossDock(UseCrossDock, "Location Code", "Item No.");
+        CrossDockMgt.GetUseCrossDock(UseCrossDock, Rec."Location Code", Rec."Item No.");
         if not UseCrossDock then
-            Error(Text001, "Item No.", "Location Code");
-        CrossDockMgt.ShowCrossDock(CrossDockOpp, '', "No.", "Line No.", "Location Code", "Item No.", "Variant Code");
+            Error(Text001, Rec."Item No.", Rec."Location Code");
+        CrossDockMgt.ShowCrossDock(CrossDockOpp, '', Rec."No.", Rec."Line No.", Rec."Location Code", Rec."Item No.", Rec."Variant Code");
     end;
 
     protected procedure BinCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     protected procedure QtytoReceiveOnAfterValidate()

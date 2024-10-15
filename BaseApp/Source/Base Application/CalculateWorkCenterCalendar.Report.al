@@ -40,7 +40,7 @@ report 99001046 "Calculate Work Center Calendar"
                             if TempCalendar.Insert() then;
                             TempCalendar."Starting Time" := Calendar."Ending Time";
                             if TempCalendar.Insert() then;
-                        until Calendar.Next = 0;
+                        until Calendar.Next() = 0;
 
                     Calendar.Reset();
                     Calendar.SetCurrentKey("Work Center No.", Date);
@@ -69,7 +69,7 @@ report 99001046 "Calculate Work Center Calendar"
                                             repeat
                                                 Calendar2.Capacity := Calendar2.Capacity + (Calendar.Capacity - Calendar."Absence Capacity") *
                                                   Calendar.Efficiency / 100;
-                                            until Calendar.Next = 0;
+                                            until Calendar.Next() = 0;
                                             if Calendar2.Capacity <> 0 then begin
                                                 Calendar2.Validate(Capacity);
                                                 Calendar2.Insert();
@@ -77,9 +77,9 @@ report 99001046 "Calculate Work Center Calendar"
                                         end;
                                         LastTime := TempCalendar."Starting Time";
                                     end;
-                                until TempCalendar.Next = 0;
+                                until TempCalendar.Next() = 0;
                             TempCalendar.SetRange(Date);
-                        until TempCalendar.Next = 0;
+                        until TempCalendar.Next() = 0;
                 end else begin
                     TestField(Capacity);
                     TestField("Unit of Measure Code");

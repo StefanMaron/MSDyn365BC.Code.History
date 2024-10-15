@@ -420,7 +420,7 @@ report 10143 "Item List"
                                 ItemLedgerEntry."Cost Amount (Actual)" := ItemLedgerEntry."Cost Amount (Expected)";
                             TotalValue := TotalValue +
                               ItemLedgerEntry."Remaining Quantity" * ItemLedgerEntry."Cost Amount (Actual)" / ItemLedgerEntry.Quantity;
-                        until ItemLedgerEntry.Next = 0;
+                        until ItemLedgerEntry.Next() = 0;
                     NewTotalValue := NewTotalValue + TotalValue;
 
                 end;
@@ -457,7 +457,7 @@ report 10143 "Item List"
                                 ItemLedgerEntry."Cost Amount (Actual)" := ItemLedgerEntry."Cost Amount (Expected)";
                             TotalValue := TotalValue +
                               ItemLedgerEntry."Remaining Quantity" * ItemLedgerEntry."Cost Amount (Actual)" / ItemLedgerEntry.Quantity;
-                        until ItemLedgerEntry.Next = 0;
+                        until ItemLedgerEntry.Next() = 0;
                 end;
                 NewTotalValue := NewTotalValue + TotalValue;
 

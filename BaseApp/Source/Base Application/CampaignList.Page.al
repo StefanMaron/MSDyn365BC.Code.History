@@ -180,6 +180,7 @@ page 5087 "Campaign List"
                     RunPageView = SORTING("Campaign No.");
                     ToolTip = 'View sales opportunities handled by salespeople.';
                 }
+#if not CLEAN17
                 action("Sales &Prices")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -226,6 +227,7 @@ page 5087 "Campaign List"
                         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
                     end;
                 }
+#endif
                 action(PriceLists)
                 {
                     ApplicationArea = Basic, Suite;
@@ -243,6 +245,47 @@ page 5087 "Campaign List"
                         PriceUXManagement.ShowPriceLists(Rec, "Price Type"::Sale, "Price Amount Type"::Any);
                     end;
                 }
+                action(PriceLines)
+                {
+                    AccessByPermission = TableData "Sales Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Prices';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up sales price lines for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(DiscountLines)
+                {
+                    AccessByPermission = TableData "Sales Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sales Discounts';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
+#if not CLEAN18
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -263,6 +306,7 @@ page 5087 "Campaign List"
                         PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
                     end;
                 }
+#endif
             }
         }
         area(processing)

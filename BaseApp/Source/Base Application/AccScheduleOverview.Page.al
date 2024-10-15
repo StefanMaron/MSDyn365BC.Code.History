@@ -1,4 +1,4 @@
-﻿page 490 "Acc. Schedule Overview"
+page 490 "Acc. Schedule Overview"
 {
     Caption = 'Acc. Schedule Overview';
     DataCaptionExpression = CurrentSchedName + ' - ' + CurrentColumnName;
@@ -78,7 +78,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(PeriodType; PeriodType)
@@ -93,7 +93,7 @@
                     begin
                         AccSchedManagement.FindPeriod(Rec, '', PeriodType);
                         DateFilter := GetFilter("Date Filter");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -110,7 +110,7 @@
                         FilterTokens.MakeDateFilter(DateFilter);
                         SetFilter("Date Filter", DateFilter);
                         DateFilter := GetFilter("Date Filter");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -227,7 +227,7 @@
                             SetFilter("Cost Center Filter", CostCenterFilter);
 
                         OnAfterValidateCostCenterFilter(Rec, CostCenterFilter, Dim1Filter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(CostObjectFilter; CostObjectFilter)
@@ -252,7 +252,7 @@
                             SetFilter("Cost Object Filter", CostObjectFilter);
 
                         OnAfterValidateCostObjectFilter(Rec, CostObjectFilter, Dim2Filter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(CashFlowFilter; CashFlowFilter)
@@ -275,7 +275,7 @@
                             SetRange("Cash Flow Forecast Filter")
                         else
                             SetFilter("Cash Flow Forecast Filter", CashFlowFilter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("G/LBudgetFilter"; GLBudgetFilter)
@@ -303,7 +303,7 @@
                             SetRange("G/L Budget Filter")
                         else
                             SetFilter("G/L Budget Filter", GLBudgetFilter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(CostBudgetFilter; CostBudgetFilter)
@@ -331,7 +331,7 @@
                             SetRange("Cost Budget Filter")
                         else
                             SetFilter("Cost Budget Filter", CostBudgetFilter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -724,7 +724,7 @@
                 ColumnLayoutArr[ColumnNo - ColumnOffset] := TempColumnLayout;
                 GetStyle(ColumnNo - ColumnOffset, "Line No.", TempColumnLayout."Line No.");
             end;
-        until TempColumnLayout.Next = 0;
+        until TempColumnLayout.Next() = 0;
         AccSchedManagement.ForceRecalculate(false);
     end;
 
@@ -900,7 +900,7 @@
         end;
 
         OnAfterSetDimFilters(Rec, DimNo, DimValueFilter, CostCenterFilter, CostObjectFilter);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure FormGetCaptionClass(DimNo: Integer): Text[250]
@@ -958,7 +958,7 @@
                 ColumnNo := ColumnNo + 1;
                 if (ColumnNo > ColumnOffset) and (ColumnNo - ColumnOffset <= ArrayLen(ColumnCaptions)) then
                     ColumnCaptions[ColumnNo - ColumnOffset] := TempColumnLayout."Column Header";
-            until (ColumnNo - ColumnOffset = ArrayLen(ColumnCaptions)) or (TempColumnLayout.Next = 0);
+            until (ColumnNo - ColumnOffset = ArrayLen(ColumnCaptions)) or (TempColumnLayout.Next() = 0);
         // Set unused columns to blank to prevent RTC to display control ID as caption
         for i := ColumnNo - ColumnOffset + 1 to ArrayLen(ColumnCaptions) do
             ColumnCaptions[i] := ' ';

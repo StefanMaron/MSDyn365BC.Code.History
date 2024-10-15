@@ -779,7 +779,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         Commit();
     end;
 
-    local procedure CreateTimeSheetLine(TimeSheetHeaderNo: Code[20]; Type: Option): Integer
+    local procedure CreateTimeSheetLine(TimeSheetHeaderNo: Code[20]; Type: Enum "Time Sheet Line Type"): Integer
     var
         TimeSheetLine: Record "Time Sheet Line";
         TimeSheetHeader: Record "Time Sheet Header";

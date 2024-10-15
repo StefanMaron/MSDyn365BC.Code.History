@@ -435,7 +435,7 @@ report 10138 "Inventory to G/L Reconcile"
                     InvoicedValueACY := InvoicedValueACY + ValueEntry."Cost Amount (Actual) (ACY)";
                     InvoicedPostedToGL := InvoicedPostedToGL + ValueEntry."Cost Posted to G/L";
                     InvoicedPostedToGLACY := InvoicedPostedToGLACY + ValueEntry."Cost Posted to G/L (ACY)";
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
 
             if ValuedQty = 0 then
                 ValuedQty := InvoicedQty

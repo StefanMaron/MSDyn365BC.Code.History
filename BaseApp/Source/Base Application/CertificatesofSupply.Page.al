@@ -99,7 +99,7 @@ page 780 "Certificates of Supply"
                 var
                     CertificateOfSupply: Record "Certificate of Supply";
                 begin
-                    if not IsEmpty then begin
+                    if not IsEmpty() then begin
                         CertificateOfSupply.Copy(Rec);
                         CertificateOfSupply.SetRange("Document Type", "Document Type");
                         CertificateOfSupply.SetRange("Document No.", "Document No.");

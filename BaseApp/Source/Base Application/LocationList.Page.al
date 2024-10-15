@@ -177,8 +177,16 @@ page 15 "Location List"
                 Promoted = true;
                 PromotedCategory = "Report";
                 PromotedOnly = true;
-                RunObject = Report "Items with Negative Inventory";
+
                 ToolTip = 'View a list of items with negative inventory.';
+
+                trigger OnAction()
+                var
+                    ItemsWithNegativeInventory: Report "Items with Negative Inventory";
+                begin
+                    ItemsWithNegativeInventory.InitializeRequest(Code);
+                    ItemsWithNegativeInventory.Run();
+                end;
             }
         }
     }

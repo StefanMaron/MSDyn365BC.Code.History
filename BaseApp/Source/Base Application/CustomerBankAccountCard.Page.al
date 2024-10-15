@@ -142,7 +142,7 @@ page 423 "Customer Bank Account Card"
                 field("Use for Electronic Payments"; "Use for Electronic Payments")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies if this vendor bank account will be the one that will be used for electronic payments. Be sure to select only one per vendor.';
+                    ToolTip = 'Specifies if this customer bank account will be used for electronic payments.';
                 }
             }
         }

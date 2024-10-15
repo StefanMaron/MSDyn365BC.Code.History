@@ -235,23 +235,23 @@ report 10153 "Picking List by Order"
                             column(Sales_Line_Line_No_; "Line No.")
                             {
                             }
-                            dataitem("Tracking Specification"; "Tracking Specification")
+                            dataitem("Reservation Entry"; "Reservation Entry")
                             {
                                 DataItemLink = "Source ID" = FIELD("Document No."), "Source Ref. No." = FIELD("Line No.");
                                 DataItemTableView = SORTING("Source ID", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.") WHERE("Source Type" = CONST(37), "Source Subtype" = CONST("1"));
-                                column(Tracking_Specification__Serial_No__; "Serial No.")
+                                column(Reservation_Entry__Serial_No__; "Serial No.")
                                 {
                                 }
-                                column(Tracking_Specification_Entry_No_; "Entry No.")
+                                column(Reservation_Entry_Entry_No_; "Entry No.")
                                 {
                                 }
-                                column(Tracking_Specification_Source_ID; "Source ID")
+                                column(Reservation_Entry_Source_ID; "Source ID")
                                 {
                                 }
-                                column(Tracking_Specification_Source_Ref__No_; "Source Ref. No.")
+                                column(Reservation_Entry_Source_Ref__No_; "Source Ref. No.")
                                 {
                                 }
-                                column(Tracking_Specification__Serial_No__Caption; FieldCaption("Serial No."))
+                                column(Reservation_Entry__Serial_No__Caption; FieldCaption("Serial No."))
                                 {
                                 }
 

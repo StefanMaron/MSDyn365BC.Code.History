@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 1341 "Cust. Template Card"
 {
     Caption = 'Customer Template';
@@ -311,4 +312,5 @@ page 1341 "Cust. Template Card"
             NoSeries := ConfigTemplateHeader."Instance No. Series";
     end;
 }
+#endif
 

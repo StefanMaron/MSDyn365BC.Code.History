@@ -2278,7 +2278,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         PaymentExportGenJnlCheck: Codeunit "Payment Export Gen. Jnl Check";
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalTemplateName);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             if PaymentExportGenJnlCheck.Run(GenJournalLine) then;
         until GenJournalLine.Next = 0;
@@ -2447,7 +2447,7 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         LibraryVariableStorage.Enqueue(0);
     end;
 
-    [EventSubscriber(ObjectType::Table, 232, 'OnCheckGenJournalLineExportRestrictions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnCheckGenJournalLineExportRestrictions', '', false, false)]
     local procedure CountEventHitsOnCheckGenJournalLineExportRestrictions(var Sender: Record "Gen. Journal Batch")
     begin
         LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger + 1);

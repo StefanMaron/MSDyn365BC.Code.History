@@ -190,13 +190,13 @@ page 2317 "BC O365 Item Card"
 
     local procedure CreateItemFromTemplate()
     var
-        ItemTemplate: Record "Item Template";
         Item: Record Item;
         TaxSetup: Record "Tax Setup";
         O365SalesManagement: Codeunit "O365 Sales Management";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         if NewMode and (not Created) then
-            if ItemTemplate.NewItemFromTemplate(Item) then begin
+            if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
                 O365SalesManagement.SetItemDefaultValues(Item);
                 Copy(Item);
                 Created := true;

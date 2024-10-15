@@ -91,7 +91,7 @@ page 6655 "Return Shipment Statistics"
                     TotalParcels += Round(ReturnShptLine.Quantity / ReturnShptLine."Units per Parcel", 1, '>');
                 OnCalculateTotalsOnAfterAddLineTotals(
                     ReturnShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
-            until ReturnShptLine.Next = 0;
+            until ReturnShptLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

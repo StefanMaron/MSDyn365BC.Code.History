@@ -36,12 +36,12 @@ page 768 "Aged Acc. Receivable Chart"
 
                 trigger AddInReady()
                 begin
-                    Initialize;
+                    Initialize();
                 end;
 
                 trigger Refresh()
                 begin
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
         }
@@ -61,7 +61,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Day;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(WeekPeriod)
@@ -74,7 +74,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Week;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(MonthPeriod)
@@ -87,7 +87,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Month;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(QuarterPeriod)
@@ -100,7 +100,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Quarter;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(YearPeriod)
@@ -113,7 +113,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Year;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             action(All)
@@ -126,7 +126,7 @@ page 768 "Aged Acc. Receivable Chart"
                 trigger OnAction()
                 begin
                     BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::None;
-                    UpdatePage;
+                    UpdatePage();
                 end;
             }
             separator(Action5)
@@ -147,22 +147,6 @@ page 768 "Aged Acc. Receivable Chart"
         }
     }
 
-    trigger OnAfterGetRecord()
-    begin
-        if "No." <> xRec."No." then begin
-            CustomerNo := "No.";
-            UpdateChart;
-        end;
-    end;
-
-    trigger OnOpenPage()
-    var
-        BusChartUserSetup: Record "Business Chart User Setup";
-    begin
-        BusChartUserSetup.InitSetupPage(PAGE::"Aged Acc. Receivable Chart");
-        BusinessChartBuffer."Period Length" := BusChartUserSetup."Period Length";
-    end;
-
     var
         BusinessChartBuffer: Record "Business Chart Buffer";
         TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary;
@@ -177,22 +161,106 @@ page 768 "Aged Acc. Receivable Chart"
         AllEnabled: Boolean;
         CustomerNo: Code[20];
         UpdatedCustomerNo: Code[20];
+        BackgroundTaskId: Integer;
+        UpdatePending: Boolean;
+
+    trigger OnFindRecord(which: Text): Boolean
+    begin
+        CustomerNo := '';
+        Rec.FilterGroup(4);
+        if Rec.GetFilter("No.") <> '' then
+            CustomerNo := Rec.GetRangeMax("No.");
+        Rec.FilterGroup(0);
+        if CustomerNo <> '' then
+            if UpdatePending then begin
+                BusinessChartBuffer.Update(CurrPage.BusinessChart);
+                UpdatePending := false;
+            end else
+                UpdateChart();
+        exit(CustomerNo <> '');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        if UpdatedCustomerNo <> Rec."No." then
+            if isInitialized then
+                BusinessChartBuffer.Initialize();
+        if UpdatePending then begin
+            BusinessChartBuffer.Update(CurrPage.BusinessChart);
+            UpdatePending := false;
+        end;
+    end;
+
+    trigger OnOpenPage()
+    var
+        BusChartUserSetup: Record "Business Chart User Setup";
+    begin
+        BusChartUserSetup.InitSetupPage(PAGE::"Aged Acc. Receivable Chart");
+        BusinessChartBuffer."Period Length" := BusChartUserSetup."Period Length";
+    end;
 
     local procedure Initialize()
     begin
         isInitialized := true;
-        UpdatePage;
+
+        BusinessChartBuffer.Initialize();
+        BusinessChartBuffer."Period Filter Start Date" := WorkDate;
+        BusinessChartBuffer.Update(CurrPage.BusinessChart);
+
+        UpdatePage();
     end;
 
     local procedure UpdatePage()
     begin
-        EnableActions;
-        UpdateStatusText;
-        UpdateChart;
-        SavePeriodSelection;
+        EnableActions();
+        UpdateStatusText();
+        UpdateChart();
+        SavePeriodSelection();
+    end;
+
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    var
+        RowNo: Integer;
+    begin
+        if TaskId <> BackgroundTaskId then
+            exit;
+        if Results.Count() = 0 then
+            exit;
+        TempEntryNoAmountBuf.deleteall;
+        clear(TempEntryNoAmountBuf);
+        for RowNo := 1 to Results.Count() div 5 do begin
+            TempEntryNoAmountBuf.init;
+            if evaluate(TempEntryNoAmountBuf."Entry No.", GetDictValue(Results, 'EntryNo¤%1' + Format(RowNo)), 9) then;
+            if evaluate(TempEntryNoAmountBuf.Amount, GetDictValue(Results, 'Amount¤%1' + Format(RowNo)), 9) then;
+            if evaluate(TempEntryNoAmountBuf.Amount2, GetDictValue(Results, 'Amount2¤%1' + Format(RowNo)), 9) then;
+            if evaluate(TempEntryNoAmountBuf."End Date", GetDictValue(Results, 'EndDate¤%1' + Format(RowNo)), 9) then;
+            if evaluate(TempEntryNoAmountBuf."Start Date", GetDictValue(Results, 'StartDate¤%1' + Format(RowNo)), 9) then;
+            TempEntryNoAmountBuf.Insert();
+        end;
+        AgedAccReceivable.UpdateDataPerCustomer(BusinessChartBuffer, CustomerNo, TempEntryNoAmountBuf, true);
+        UpdatedCustomerNo := CustomerNo;
+        BusinessChartBuffer.Update(CurrPage.BusinessChart);
+        UpdatePending := false;
+    end;
+
+    local procedure GetDictValue(var Results: Dictionary of [Text, Text]; keyVal: Text): Text
+    var
+        t: Text;
+    begin
+        if not TryGetDictValue(Results, keyVal, t) then
+            exit('');
+        exit(t);
+    end;
+
+    [TryFunction]
+    local procedure TryGetDictValue(var Results: Dictionary of [Text, Text]; keyVal: Text; var Result: Text)
+    begin
+        Result := Results.Get(keyVal);
     end;
 
     local procedure UpdateChart()
+    var
+        Args: Dictionary of [Text, Text];
     begin
         if not isInitialized then
             exit;
@@ -203,10 +271,17 @@ page 768 "Aged Acc. Receivable Chart"
         if UpdatedCustomerNo = CustomerNo then
             exit;
 
+        if UpdatedCustomerNo <> '' then begin
+            BusinessChartBuffer.Initialize();
+            BusinessChartBuffer.Update(CurrPage.BusinessChart);
+        end;
         BusinessChartBuffer."Period Filter Start Date" := WorkDate;
-        AgedAccReceivable.UpdateDataPerCustomer(BusinessChartBuffer, CustomerNo, TempEntryNoAmountBuf);
-        BusinessChartBuffer.Update(CurrPage.BusinessChart);
-        UpdatedCustomerNo := CustomerNo;
+
+        Args.Add('CustomerNo', CustomerNo);
+        Args.Add('StartDate', format(BusinessChartBuffer."Period Filter Start Date", 0, 9));
+        Args.Add('PeriodLength', format(BusinessChartBuffer."Period Length", 0, 9));
+
+        CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Aged Acc. Receivable", Args);
     end;
 
     local procedure SavePeriodSelection()
@@ -246,11 +321,10 @@ page 768 "Aged Acc. Receivable Chart"
         StatusText := AgedAccReceivable.UpdateStatusText(BusinessChartBuffer);
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateChartForCustomer(NewCustomerNo: Code[20])
     begin
         CustomerNo := NewCustomerNo;
-        UpdateChart;
+        UpdateChart();
     end;
 }
 

@@ -272,7 +272,7 @@ codeunit 10095 "Export EFT (RB)"
         RecipientCountryCode := Customer."Country/Region Code";
         RecipientCounty := Customer.County;
         RecipientPostCode := Customer."Post Code";
-        
+
         EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, AcctNo);
 
         CustomerBankAccount.TestField("Bank Account No.");

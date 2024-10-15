@@ -39,6 +39,17 @@ codeunit 2504 "Extension Management"
     end;
 
     /// <summary>
+    /// Uninstalls an extension, based on its PackageId and permanently deletes the tables that contain data for the extension.
+    /// </summary>
+    /// <param name="PackageId">The ID of the extension package.</param>
+    /// <param name="IsUIEnabled">Indicates if the uninstall operation is invoked through the UI.</param>
+    /// <returns>True if the extention is uninstalled successfully; false otherwise.</returns>
+    procedure UninstallExtensionAndDeleteExtensionData(PackageId: Guid; IsUIEnabled: Boolean): Boolean
+    begin
+        exit(ExtensionInstallationImpl.UninstallExtension(PackageId, IsUIEnabled, true));
+    end;
+
+    /// <summary>
     /// Uploads an extension, using a File Stream and based on the Locale Identifier.
     /// This method is only applicable in SaaS environment.
     /// </summary>

@@ -471,10 +471,10 @@ page 9308 "Purchase Invoices"
                     begin
                         CurrPage.SetSelectionFilter(PurchaseHeader);
                         if PurchaseHeader.Count > 1 then begin
-                            PurchaseHeader.FindSet;
+                            PurchaseHeader.FindSet();
                             repeat
                                 VerifyTotal(PurchaseHeader);
-                            until PurchaseHeader.Next = 0;
+                            until PurchaseHeader.Next() = 0;
                             PurchaseBatchPostMgt.RunWithUI(PurchaseHeader, Count, ReadyToPostQst);
                         end else begin
                             VerifyTotal(Rec);
@@ -639,11 +639,17 @@ page 9308 "Purchase Invoices"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
         SendToPosting(PostingCodeunitID);
+
+        IsHandled := false;
+        OnPostBeforeNavigateAfterPosting(Rec, PostingCodeunitID, IsHandled);
+        if IsHandled then
+            exit;
 
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             ShowPostedConfirmationMessage;
@@ -673,5 +679,10 @@ page 9308 "Purchase Invoices"
     local procedure OnBeforeCalculateSalesTaxStatistics(var PurchaseHeader: Record "Purchase Header"; ShowDialog: Boolean)
     begin
     end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var IsHandled: Boolean)
+    begin
+    end;    
 }
 

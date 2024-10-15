@@ -576,14 +576,14 @@ page 2142 "O365 First Invoice Wizard"
     local procedure CreateCustomer(CustomerName: Text[100])
     var
         Customer2: Record Customer;
-        MiniCustomerTemplate: Record "Mini Customer Template";
         CustContUpdate: Codeunit "CustCont-Update";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
     begin
         if Customer."No." <> '' then
             exit;
 
         Customer2.Init();
-        if MiniCustomerTemplate.NewCustomerFromTemplate(Customer2) then begin
+        if CustomerTemplMgt.InsertCustomerFromTemplate(Customer2) then begin
             Customer2.Validate(Name, CustomerName);
             Customer2.Validate("E-Mail", CustomerEmail);
             Customer2.Validate("Tax Liable", true);
@@ -597,11 +597,11 @@ page 2142 "O365 First Invoice Wizard"
 
     local procedure CreateItem()
     var
-        ItemTemplate: Record "Item Template";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         if Item."No." = '' then begin
             Item.Init();
-            if ItemTemplate.NewItemFromTemplate(Item) then begin
+            if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
                 Item.Validate(Description, ItemDescription);
                 Item.Validate("Unit Price", ItemPrice);
                 if IsUsingVAT then

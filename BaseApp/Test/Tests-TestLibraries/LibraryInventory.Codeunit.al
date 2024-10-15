@@ -39,7 +39,7 @@ codeunit 132201 "Library - Inventory"
         CalculateInventory(ItemJournalLine, Item, PostingDate, ItemsNotOnInvt, ItemsWithNoTransactions);
     end;
 
-    procedure CreateAnalysisColumnTemplate(var AnalysisColumnTemplate: Record "Analysis Column Template"; AnalysisArea: Option)
+    procedure CreateAnalysisColumnTemplate(var AnalysisColumnTemplate: Record "Analysis Column Template"; AnalysisArea: Enum "Analysis Area Type")
     begin
         AnalysisColumnTemplate.Init();
         AnalysisColumnTemplate.Validate("Analysis Area", AnalysisArea);
@@ -48,7 +48,7 @@ codeunit 132201 "Library - Inventory"
         AnalysisColumnTemplate.Insert(true);
     end;
 
-    procedure CreateAnalysisColumn(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; AnalysisColumnTemplateName: Code[10])
+    procedure CreateAnalysisColumn(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Enum "Analysis Area Type"; AnalysisColumnTemplateName: Code[10])
     var
         RecRef: RecordRef;
     begin
@@ -80,7 +80,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalLine.DeleteAll();
     end;
 
-    procedure CreateAnalysisLine(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Option; AnalysisLineTemplateName: Code[10])
+    procedure CreateAnalysisLine(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Enum "Analysis Area Type"; AnalysisLineTemplateName: Code[10])
     var
         RecRef: RecordRef;
     begin
@@ -92,7 +92,7 @@ codeunit 132201 "Library - Inventory"
         AnalysisLine.Insert(true);
     end;
 
-    procedure CreateAnalysisLineTemplate(var AnalysisLineTemplate: Record "Analysis Line Template"; AnalysisArea: Option)
+    procedure CreateAnalysisLineTemplate(var AnalysisLineTemplate: Record "Analysis Line Template"; AnalysisArea: Enum "Analysis Area Type")
     begin
         AnalysisLineTemplate.Init();
         AnalysisLineTemplate.Validate("Analysis Area", AnalysisArea);
@@ -101,7 +101,7 @@ codeunit 132201 "Library - Inventory"
         AnalysisLineTemplate.Insert(true);
     end;
 
-    procedure CreateAnalysisReportName(var AnalysisReportName: Record "Analysis Report Name"; AnalysisArea: Option)
+    procedure CreateAnalysisReportName(var AnalysisReportName: Record "Analysis Report Name"; AnalysisArea: Enum "Analysis Area Type")
     begin
         AnalysisReportName.Init();
         AnalysisReportName.Validate("Analysis Area", AnalysisArea);
@@ -356,7 +356,17 @@ codeunit 132201 "Library - Inventory"
         ItemAttributeValueMapping.Insert(true);
     end;
 
-    procedure CreateItemBudgetEntry(var ItemBudgetEntry: Record "Item Budget Entry"; AnalysisArea: Option; BudgetName: Code[10]; Date: Date; ItemNo: Code[20])
+    procedure CreateItemWithVATProdPostingGroup(VATProdPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    procedure CreateItemBudgetEntry(var ItemBudgetEntry: Record "Item Budget Entry"; AnalysisArea: Enum "Analysis Area Type"; BudgetName: Code[10]; Date: Date; ItemNo: Code[20])
     begin
         Clear(ItemBudgetEntry);
         ItemBudgetEntry.Validate("Analysis Area", AnalysisArea);
@@ -371,6 +381,45 @@ codeunit 132201 "Library - Inventory"
         ItemCategory.Init();
         ItemCategory.Validate(Code, LibraryUtility.GenerateRandomCode(ItemCategory.FieldNo(Code), DATABASE::"Item Category"));
         ItemCategory.Insert(true);
+    end;
+
+    procedure CreateInvtDocument(var InvtDocumentHeader: Record "Invt. Document Header"; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10])
+    begin
+        InvtDocumentHeader.Init();
+        InvtDocumentHeader."Document Type" := DocumentType;
+        InvtDocumentHeader.Insert(true);
+        InvtDocumentHeader.Validate("Location Code", LocationCode);
+        InvtDocumentHeader.Modify();
+    end;
+
+    procedure CreateInvtDocumentLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; ItemNo: Code[20]; UnitCost: Decimal; Quantity: Decimal)
+    var
+        RecRef: RecordRef;
+    begin
+        InvtDocumentLine.Init();
+        InvtDocumentLine.Validate("Document Type", InvtDocumentHeader."Document Type");
+        InvtDocumentLine.Validate("Document No.", InvtDocumentHeader."No.");
+        RecRef.GetTable(InvtDocumentLine);
+        InvtDocumentLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, InvtDocumentLine.FieldNo("Line No.")));
+        InvtDocumentLine.Insert(true);
+        InvtDocumentLine.Validate("Item No.", ItemNo);
+        InvtDocumentLine.Validate("Unit Cost", UnitCost);
+        InvtDocumentLine.Validate(Quantity, Quantity);
+        InvtDocumentLine.Modify(true);
+    end;
+
+    procedure PostInvtDocument(InvtDocumentHeader: Record "Invt. Document Header")
+    var
+        InvtDocPostReceipt: Codeunit "Invt. Doc.-Post Receipt";
+        InvtDocPostShipment: Codeunit "Invt. Doc.-Post Shipment";
+    begin
+        with InvtDocumentHeader do
+            case "Document Type" of
+                "Document Type"::Receipt:
+                    InvtDocPostReceipt.Run(InvtDocumentHeader);
+                "Document Type"::Shipment:
+                    InvtDocPostShipment.Run(InvtDocumentHeader);
+            end;
     end;
 
     procedure CreateItemTemplate(var ItemTemplate: Record "Item Template")
@@ -489,6 +538,7 @@ codeunit 132201 "Library - Inventory"
         ItemChargeAssignmentPurch.Modify(true);
     end;
 
+#if not CLEAN16
     procedure CreateItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; CrossReferenceType: Option; CrossReferenceTypeNo: Code[30])
     begin
         CreateItemCrossReferenceWithNo(
@@ -507,6 +557,7 @@ codeunit 132201 "Library - Inventory"
         ItemCrossReference.Validate("Cross-Reference No.", CrossRefNo);
         ItemCrossReference.Insert(true);
     end;
+#endif
 
     procedure CreateItemJournal(var ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; ItemJournalTemplateType: Enum "Item Journal Template Type"; ProductionOrderNo: Code[20])
     var
@@ -598,6 +649,19 @@ codeunit 132201 "Library - Inventory"
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Validate("Bin Code", BinCode);
         ItemJournalLine.Modify(true);
+    end;
+
+    procedure CreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
+    var
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJnlBatch: Record "Item Journal Batch";
+    begin
+        FindItemJournalTemplate(ItemJnlTemplate);
+        FindItemJournalBatch(ItemJnlBatch, ItemJnlTemplate);
+        CreateItemJournalLine(ItemJnlLine, ItemJnlTemplate.Name, ItemJnlBatch.Name, EntryType, ItemNo, Qty);
+        ItemJnlLine."Posting Date" := PostingDate;
+        ItemJnlLine."Location Code" := LocationCode;
+        ItemJnlLine.Modify();
     end;
 
     procedure CreateItemJnlLineWithNoItem(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Enum "Item Ledger Entry Type")
@@ -983,6 +1047,24 @@ codeunit 132201 "Library - Inventory"
         DateCompItemBudgetEntries.RunModal;
     end;
 
+    procedure FindItemJournalBatch(var ItemJnlBatch: Record "Item Journal Batch"; ItemJnlTemplate: Record "Item Journal Template")
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        ItemJnlBatch.SetRange("Template Type", ItemJnlTemplate.Type);
+        ItemJnlBatch.SetRange("Journal Template Name", ItemJnlTemplate.Name);
+
+        if not ItemJnlBatch.FindFirst() then
+            CreateItemJournalBatch(ItemJnlBatch, ItemJnlTemplate.Name);
+
+        if ItemJnlBatch."No. Series" = '' then begin
+            LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+            ItemJnlBatch."No. Series" := NoSeries.Code;
+        end;
+    end;
+
     procedure FindItemJournalTemplate(var ItemJournalTemplate: Record "Item Journal Template")
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
@@ -1092,8 +1174,20 @@ codeunit 132201 "Library - Inventory"
     end;
 
     procedure PostDirectTransferOrder(var TransferHeader: Record "Transfer Header")
+    var
+        InventorySetup: Record "Inventory Setup";
+        TransferOrderPostTransfer: Codeunit "TransferOrder-Post Transfer";
     begin
-        PostTransferHeader(TransferHeader, true, true);
+        InventorySetup.Get();
+        case InventorySetup."Direct Transfer Posting" of
+            InventorySetup."Direct Transfer Posting"::"Receipt and Shipment":
+                PostTransferHeader(TransferHeader, true, true);
+            InventorySetup."Direct Transfer Posting"::"Direct Transfer":
+                begin
+                    TransferOrderPostTransfer.SetHideValidationDialog(true);
+                    TransferOrderPostTransfer.Run(TransferHeader);
+                end;
+        end;
     end;
 
     procedure PostItemJournalBatch(ItemJournalBatch: Record "Item Journal Batch")
@@ -1109,6 +1203,13 @@ codeunit 132201 "Library - Inventory"
         ItemJournalLine.Validate("Journal Template Name", JournalTemplateName);
         ItemJournalLine.Validate("Journal Batch Name", JournalBatchName);
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+    end;
+
+    procedure PostItemJnlLineWithCheck(ItemJnlLine: Record "Item Journal Line")
+    var
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+    begin
+        ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
     procedure PostTransferHeader(var TransferHeader: Record "Transfer Header"; Ship: Boolean; Receive: Boolean)

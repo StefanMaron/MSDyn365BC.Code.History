@@ -148,7 +148,7 @@ report 10219 "Job Cost Suggested Billing"
                             InvoicedPrice := InvoicedPrice - JobLedgerEntry."Total Price (LCY)"
                         else
                             UsagePrice := UsagePrice + JobLedgerEntry."Total Price (LCY)";
-                    until JobLedgerEntry.Next = 0;
+                    until JobLedgerEntry.Next() = 0;
 
                 if UsagePrice > InvoicedPrice then
                     SuggestedBilling := UsagePrice - InvoicedPrice;

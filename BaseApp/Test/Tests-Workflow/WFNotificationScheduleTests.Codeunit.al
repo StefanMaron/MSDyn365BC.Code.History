@@ -25,7 +25,7 @@ codeunit 134314 "WF Notification Schedule Tests"
     var
         NotificationSchedule: Record "Notification Schedule";
         NewUserId: Text[50];
-        NotificationType: Option;
+        NotificationType: Enum "Notification Entry Type";
     begin
         // [SCENARIO TFS120835] Create new Notification Schedule
 
@@ -33,7 +33,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationType := NotificationSchedule."Notification Type"::Approval;
 
         // [WHEN] A schedule is being created with User ID X and Notification Type Y
-        NotificationSchedule.NewRecord(NewUserId, NotificationType);
+        NotificationSchedule.CreateNewRecord(NewUserId, NotificationType);
 
         // [THEN] The schedule contains User ID X and Notification Type Y
         // [THEN] The default recurrence pattern is Instantly
@@ -143,7 +143,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         // [GIVEN] One Instant Schedule exist.
         Initialize;
 
-        NotificationSchedule.NewRecord('', NotificationSchedule."Notification Type"::Approval);
+        NotificationSchedule.CreateNewRecord('', NotificationSchedule."Notification Type"::Approval);
 
         // [WHEN] A number of Notification Entry are created.
         NotificationEntry.CreateNotificationEntry(
@@ -175,7 +175,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         UserName := 'SomeUser';
         AddUserSetup(UserName);
 
-        NotificationSchedule.NewRecord(UserName, NotificationSchedule."Notification Type"::Approval);
+        NotificationSchedule.CreateNewRecord(UserName, NotificationSchedule."Notification Type"::Approval);
         NotificationSchedule.Validate(Recurrence, NotificationSchedule.Recurrence::Monthly);
         NotificationSchedule.Modify(true);
 
@@ -354,7 +354,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         // [GIVEN] An existing weekly schedule set to workday
         Initialize;
         with NotificationSchedule do begin
-            NewRecord(LibraryUtility.GenerateGUID, "Notification Type"::Approval);
+            CreateNewRecord(LibraryUtility.GenerateGUID, "Notification Type"::Approval);
             Validate(Recurrence, Recurrence::Weekly);
             Validate(Time, 120000T);
 
@@ -381,7 +381,7 @@ codeunit 134314 "WF Notification Schedule Tests"
         // [GIVEN] An existing daily schedule set to weekday (workday)
         Initialize;
         with NotificationSchedule do begin
-            NewRecord(LibraryUtility.GenerateGUID, "Notification Type"::Approval);
+            CreateNewRecord(LibraryUtility.GenerateGUID, "Notification Type"::Approval);
             Validate(Recurrence, Recurrence::Daily);
             Validate("Daily Frequency", "Daily Frequency"::Weekday);
             Validate(Time, 120000T);
@@ -455,7 +455,7 @@ codeunit 134314 "WF Notification Schedule Tests"
           'ID not correct. Event Subscriber failed on AutoIncrement field.');
     end;
 
-    [EventSubscriber(ObjectType::Table, 1511, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Notification Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure NotificationEntryCreatedSubscriber(var Rec: Record "Notification Entry"; RunTrigger: Boolean)
     begin
         Rec."Error Message" := Format(Rec.ID);
@@ -465,7 +465,7 @@ codeunit 134314 "WF Notification Schedule Tests"
     local procedure CreateMonthlyScheduleForApproval(var NotificationSchedule: Record "Notification Schedule")
     begin
         with NotificationSchedule do begin
-            NewRecord(UserId, "Notification Type"::Approval);
+            CreateNewRecord(UserId, "Notification Type"::Approval);
             Validate(Recurrence, Recurrence::Monthly);
             Modify(true);
         end;

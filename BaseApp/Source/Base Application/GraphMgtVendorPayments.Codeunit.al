@@ -20,7 +20,6 @@ codeunit 5011 "Graph Mgt - Vendor Payments"
     begin
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
-        GenJournalLine.SetRange("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.SetRange("Journal Template Name", GraphMgtJournal.GetDefaultVendorPaymentsTemplateName());
     end;
 

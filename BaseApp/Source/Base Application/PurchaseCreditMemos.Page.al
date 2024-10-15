@@ -447,10 +447,10 @@ page 9309 "Purchase Credit Memos"
                     begin
                         CurrPage.SetSelectionFilter(PurchaseHeader);
                         if PurchaseHeader.Count > 1 then begin
-                            PurchaseHeader.FindSet;
+                            PurchaseHeader.FindSet();
                             repeat
                                 CheckPurchaseCheckAllLinesHaveQuantityAssigned(PurchaseHeader);
-                            until PurchaseHeader.Next = 0;
+                            until PurchaseHeader.Next() = 0;
                             PurchaseBatchPostMgt.RunWithUI(PurchaseHeader, Count, ReadyToPostQst);
                         end else
                             PostDocument(CODEUNIT::"Purch.-Post (Yes/No)");
@@ -669,6 +669,7 @@ page 9309 "Purchase Credit Memos"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsScheduledPosting: Boolean;
+        IsHandled: Boolean;        
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
@@ -680,6 +681,11 @@ page 9309 "Purchase Credit Memos"
         if IsScheduledPosting then
             CurrPage.Close;
         CurrPage.Update(false);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, IsHandled);
+        if IsHandled then
+            exit;
 
         if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
             exit;
@@ -704,6 +710,11 @@ page 9309 "Purchase Credit Memos"
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
                 PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

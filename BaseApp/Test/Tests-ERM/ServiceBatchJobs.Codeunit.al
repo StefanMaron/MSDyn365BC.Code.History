@@ -692,7 +692,7 @@ codeunit 136122 "Service Batch Jobs"
 
     local procedure CopyServiceLines(var TempServiceLine: Record "Service Line" temporary; var FromServiceLine: Record "Service Line")
     begin
-        FromServiceLine.FindSet;
+        FromServiceLine.FindSet();
         repeat
             TempServiceLine := FromServiceLine;
             TempServiceLine.Insert();
@@ -730,7 +730,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         ServiceLine.SetFilter("Line No.", '<> %1', ServiceLine."Line No.");
         ServiceLine.DeleteAll(true);
     end;
@@ -753,7 +753,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure InsertFaultResolRelation(FromDate: Date; ToDate: Date; BasedOnServItemGr: Boolean; RetainManuallyInserted: Boolean)
@@ -973,7 +973,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         ServiceCrMemoHeader.FindFirst;
         GeneralLedgerSetup.Get();
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         repeat
             ServiceCrMemoLine.Get(ServiceCrMemoHeader."No.", TempServiceLine."Line No.");
             ServiceCrMemoLine.TestField("No.", TempServiceLine."No.");
@@ -992,7 +992,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         ServiceInvoiceHeader.FindFirst;
         GeneralLedgerSetup.Get();
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", TempServiceLine."Line No.");
             ServiceInvoiceLine.TestField("No.", TempServiceLine."No.");

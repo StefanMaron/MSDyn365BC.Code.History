@@ -113,7 +113,7 @@ codeunit 137459 "CopyPhysInvtOrder UT REP"
 
         // [THEN] Verify Physical Inventory Order Line of same Physical Inventory Order Header is not copied again.
         PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader2."No.");
-        PhysInvtOrderLine.FindSet;
+        PhysInvtOrderLine.FindSet();
         PhysInvtOrderLineCount := PhysInvtOrderLine.Count();
         Assert.AreEqual(PhysInvtOrderLineCount, 1, 'Order Line Count must not be greater than 1.');
     end;

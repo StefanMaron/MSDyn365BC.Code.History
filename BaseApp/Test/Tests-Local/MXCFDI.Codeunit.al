@@ -909,7 +909,7 @@ codeunit 144001 "MX CFDI"
         // [THEN] 'DoctoRelacionado' node has attribute 'MetodoDePagoDR' = "PT" (TFS 362812)
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'MetodoDePagoDR',
-    	  SATUtilities.GetSATPaymentTerm(SalesInvoiceHeader."Payment Terms Code"));
+          SATUtilities.GetSATPaymentTerm(SalesInvoiceHeader."Payment Terms Code"));
 
         // [THEN] 'Complemento' node has attribute 'FormaDePagoP' = '03' (TFS 375439)          
         LibraryXPathXMLReader.VerifyAttributeValue(
@@ -1045,8 +1045,8 @@ codeunit 144001 "MX CFDI"
           'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'NumParcialidad', '1');
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'MetodoDePagoDR',
-    	  SATUtilities.GetSATPaymentTerm(ServiceInvoiceHeader."Payment Terms Code"));
-	  		
+          SATUtilities.GetSATPaymentTerm(ServiceInvoiceHeader."Payment Terms Code"));
+
         // [THEN] Original stamp string has NumParcialidad (partial payment number) = '1' (TFS 363806)
         // [THEN] String for digital stamp has 'MetodoDePagoDR' = "PT" (TFS 362812)	
         CustLedgerEntry.CalcFields("Original String");
@@ -4720,7 +4720,7 @@ codeunit 144001 "MX CFDI"
         FALedgerEntry."FA No." := FANo;
         FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::"Proceeds on Disposal";
         FALedgerEntry."Depreciation Book Code" := FADepreciationBook."Depreciation Book Code";
-        FALedgerEntry.Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        FALedgerEntry.Amount := -LibraryRandom.RandDecInRange(1000, 2000, 2);
         FALedgerEntry.Insert();
     end;
 
@@ -4782,7 +4782,7 @@ codeunit 144001 "MX CFDI"
         PostedLineRecRef.Open(TableNo);
         DocumentNoFieldRef := PostedLineRecRef.Field(FieldNo);
         DocumentNoFieldRef.SetRange(DocumentNo);
-        PostedLineRecRef.FindSet;
+        PostedLineRecRef.FindSet();
     end;
 
     local procedure FindTimeZone(var TimeZoneID: Text[180]; var TimeZoneOffset: Duration; var UserOffset: Duration)
@@ -4792,7 +4792,7 @@ codeunit 144001 "MX CFDI"
     begin
         TypeHelper.GetUserClientTypeOffset(UserOffset);
         TimeZone.SetFilter("Display Name", '*:00*');
-        TimeZone.FindSet;
+        TimeZone.FindSet();
         TimeZone.Next(LibraryRandom.RandInt(TimeZone.Count));
         TimeZoneID := TimeZone.ID;
         TypeHelper.GetTimezoneOffset(TimeZoneOffset, TimeZone.ID);
@@ -5331,9 +5331,8 @@ codeunit 144001 "MX CFDI"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
-    [Scope('OnPrem')]
-    procedure SetFilePathOnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
+    local procedure SetFilePathOnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     begin
         if NameValueBuffer.FindLast() then;
         NameValueBuffer.ID += 1;

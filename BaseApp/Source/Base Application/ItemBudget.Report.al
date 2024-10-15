@@ -23,8 +23,6 @@ report 7130 "Item Budget"
             }
             column(AnalysisAreaSelection; AnalysisAreaSelection)
             {
-                OptionCaption = 'Sales,Purchase';
-                OptionMembers = Sales,Purchase;
             }
             column(InThousands; InThousands)
             {
@@ -182,7 +180,6 @@ report 7130 "Item Budget"
                     {
                         ApplicationArea = ItemBudget;
                         Caption = 'Analysis Area';
-                        OptionCaption = 'Sales,Purchase';
                         ToolTip = 'Specifies the application area of the item budget entry. Sales: The budget was set up in Sales & Receivables. Purchase: The budget was set up in Purchases & Payables.';
                     }
                     field(ItemBudgetFilterCtrl; ItemBudgetFilter)
@@ -248,7 +245,7 @@ report 7130 "Item Budget"
     var
         ItemStatBuffer: Record "Item Statistics Buffer";
         InThousands: Boolean;
-        AnalysisAreaSelection: Option Sales,Purchase,Inventory;
+        AnalysisAreaSelection: Enum "Analysis Area Type";
         ValueType: Option "Sales Amount","Cost Amount",Quantity;
         ItemFilter: Text;
         ItemBudgetFilter: Text[250];

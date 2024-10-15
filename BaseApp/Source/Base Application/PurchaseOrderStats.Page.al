@@ -616,7 +616,7 @@ page 10039 "Purchase Order Stats."
             if TempPurchLine.Find('-') then
                 repeat
                     SalesTaxCalculate.AddPurchLine(TempPurchLine);
-                until TempPurchLine.Next = 0;
+                until TempPurchLine.Next() = 0;
             TempPurchLine.Reset();
             case i of
                 1:
@@ -674,7 +674,7 @@ page 10039 "Purchase Order Stats."
                         end;
                         BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
                         VATAmount[i] := VATAmount[i] + "Tax Amount";
-                    until Next = 0;
+                    until Next() = 0;
                 TotalAmount2[i] := TotalAmount2[i] + VATAmount[i];
             end;
         end;

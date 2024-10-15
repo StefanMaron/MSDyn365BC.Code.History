@@ -48,9 +48,9 @@ codeunit 5918 "ServOrder-Check Response Time"
                                         SendEMail(ServMgtSetup."Send Third Warning To");
                             end;
 
-                    until ServItemLine.Next = 0;
+                    until ServItemLine.Next() = 0;
                 end;
-            until ServHeader.Next = 0
+            until ServHeader.Next() = 0
         else  // No Pending ServiceHeaders -> deactivate the job queue entry.
             SetStatus(Status::"On Hold");
     end;

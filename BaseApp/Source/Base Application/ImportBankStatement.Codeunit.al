@@ -1,4 +1,4 @@
-﻿codeunit 1200 "Import Bank Statement"
+codeunit 1200 "Import Bank Statement"
 {
     Permissions = TableData "Data Exch. Field" = rimd;
     TableNo = "Data Exch.";

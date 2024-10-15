@@ -205,7 +205,7 @@ page 10016 "Vendor 1099 Statistics"
             if Find('-') then
                 repeat
                     ProcessInvoices;
-                until Next = 0;
+                until Next() = 0;
 
             if LastLineNo > 1 then
                 SortHiToLo;
@@ -225,7 +225,7 @@ page 10016 "Vendor 1099 Statistics"
             if Find('-') then
                 repeat
                     Calculate1099Amount("Amount to Apply");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

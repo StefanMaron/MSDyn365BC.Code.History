@@ -851,7 +851,7 @@ report 10025 "Trial Balance, Spread G. Dim."
                           "G/L Account".FieldCaption("Global Dimension 2 Filter"));
                     end;
                     ColumnFilter[NumCol] := Code;
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(NumCol);
 

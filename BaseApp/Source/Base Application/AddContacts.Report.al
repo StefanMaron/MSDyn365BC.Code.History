@@ -353,14 +353,14 @@ report 5198 "Add Contacts"
                     TempCont2 := Cont;
                     if TempCont2.Insert() then;
                 end;
-            until TempCont.Next = 0;
+            until TempCont.Next() = 0;
 
         TempCont.DeleteAll();
         if TempCont2.Find('-') then
             repeat
                 TempCont := TempCont2;
                 TempCont.Insert();
-            until TempCont2.Next = 0;
+            until TempCont2.Next() = 0;
         TempCont2.DeleteAll();
     end;
 
@@ -376,19 +376,19 @@ report 5198 "Add Contacts"
                         repeat
                             TempCont2 := Cont;
                             if TempCont2.Insert() then;
-                        until Cont.Next = 0
+                        until Cont.Next() = 0
                 end else begin
                     TempCont2 := TempCont;
                     TempCont2.Insert();
                 end;
-            until TempCont.Next = 0;
+            until TempCont.Next() = 0;
 
         TempCont.DeleteAll();
         if TempCont2.Find('-') then
             repeat
                 TempCont := TempCont2;
                 TempCont.Insert();
-            until TempCont2.Next = 0;
+            until TempCont2.Next() = 0;
         TempCont2.DeleteAll();
     end;
 
@@ -435,7 +435,7 @@ report 5198 "Add Contacts"
                       SegLine."Segment No.", SegLine."Contact No.", SegLine."Line No.");
                     NextLineNo := SegLine."Line No." + 10000;
                 end;
-            until TempCont.Next = 0;
+            until TempCont.Next() = 0;
     end;
 
     local procedure FindContInPostDocuments(ContactNo: Code[20]; ValueEntry: Record "Value Entry"): Boolean

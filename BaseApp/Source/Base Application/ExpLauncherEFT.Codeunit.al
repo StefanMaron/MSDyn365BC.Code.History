@@ -67,7 +67,7 @@ codeunit 10320 "Exp. Launcher EFT"
                 InsertDataExchForDetails(DataExchDefCode);
                 repeat
                     ProcessDetails(TempEFTExportWorkset, BankAccount, DataExchDefCode, DataExchEntryCodeDetail, DetailArray, Filename, EFTValues);
-                until TempEFTExportWorkset.Next = 0;
+                until TempEFTExportWorkset.Next() = 0;
                 TempEFTExportWorkset.FindFirst;
                 ProcessFooters(TempEFTExportWorkset, BankAccount, DataExchDefCode, FooterArray, Filename, DataExchEntryCodeFooter, EFTValues);
 
@@ -178,7 +178,7 @@ codeunit 10320 "Exp. Launcher EFT"
                 DataExchDef.Get(DataExchDefCode);
                 if DataExchDef."Reading/Writing Codeunit" = CODEUNIT::"Exp. Writing EFT" then
                     EFTExportMgt.ExportDataExchToFlatFile(DataExch."Entry No.", Filename, DataExchLineDef."Line Type", HdrCount);
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
         end;
     end;
 
@@ -241,7 +241,7 @@ codeunit 10320 "Exp. Launcher EFT"
                     else
                         CODEUNIT.Run(DataExchDef."Reading/Writing Codeunit", DataExch);
 
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
         end;
     end;
 
@@ -318,7 +318,7 @@ codeunit 10320 "Exp. Launcher EFT"
                 if DataExchDef."Reading/Writing Codeunit" = CODEUNIT::"Exp. Writing EFT" then
                     EFTExportMgt.ExportDataExchToFlatFile(DataExch."Entry No.", Filename, DataExchLineDef."Line Type", 0);
                 DataExchEntryCodeFooter := DataExch."Entry No.";
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
             if BankAccount."Export Format" = BankAccount."Export Format"::US then
                 EFTExportMgt.AddPadBlocks(Filename, EFTValues);
         end;
@@ -354,7 +354,7 @@ codeunit 10320 "Exp. Launcher EFT"
                 DataExch."Data Exch. Def Code" := DataExchDefCode;
                 DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
                 DataExch.Insert();
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
         Commit();
     end;
 

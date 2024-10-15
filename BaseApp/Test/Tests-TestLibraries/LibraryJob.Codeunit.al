@@ -65,7 +65,7 @@ codeunit 131920 "Library - Job"
         JobTask.Modify(true)
     end;
 
-    procedure CreateJobPlanningLine(LineType: Option; Type: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line")
+    procedure CreateJobPlanningLine(LineType: Enum "Job Planning Line Line Type"; Type: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line")
     begin
         // Create a job planning line for job task <JobTask> of type <LineType> for consumable type <Type>
 
@@ -93,7 +93,7 @@ codeunit 131920 "Library - Job"
         JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.")
     end;
 
-    procedure CreateJobJournalLine(LineType: Option; JobTask: Record "Job Task"; var JobJournalLine: Record "Job Journal Line")
+    procedure CreateJobJournalLine(LineType: Enum "Job Line Type"; JobTask: Record "Job Task"; var JobJournalLine: Record "Job Journal Line")
     var
         JobJournalTemplate: Record "Job Journal Template";
         JobJournalBatch: Record "Job Journal Batch";
@@ -132,7 +132,7 @@ codeunit 131920 "Library - Job"
         end
     end;
 
-    procedure CreateJobJournalLineForType(LineType: Option; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; var JobJournalLine: Record "Job Journal Line")
+    procedure CreateJobJournalLineForType(LineType: Enum "Job Line Type"; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; var JobJournalLine: Record "Job Journal Line")
     begin
         CreateJobJournalLine(LineType, JobTask, JobJournalLine);
 
@@ -142,7 +142,7 @@ codeunit 131920 "Library - Job"
         JobJournalLine.Modify(true)
     end;
 
-    procedure CreateJobJournalLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Option; Fraction: Decimal; var JobJournalLine: Record "Job Journal Line")
+    procedure CreateJobJournalLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var JobJournalLine: Record "Job Journal Line")
     var
         JobTask: Record "Job Task";
         ChangeFactor: Decimal;
@@ -166,7 +166,7 @@ codeunit 131920 "Library - Job"
         end
     end;
 
-    procedure CreateGenJournalLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Option; Fraction: Decimal; var GenJournalLine: Record "Gen. Journal Line")
+    procedure CreateGenJournalLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var GenJournalLine: Record "Gen. Journal Line")
     var
         JobTask: Record "Job Task";
     begin
@@ -195,7 +195,7 @@ codeunit 131920 "Library - Job"
         JobWIPMethod.Insert(true)
     end;
 
-    procedure CreatePurchaseLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Option; Fraction: Decimal; var PurchaseLine: Record "Purchase Line")
+    procedure CreatePurchaseLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var PurchaseLine: Record "Purchase Line")
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -222,7 +222,7 @@ codeunit 131920 "Library - Job"
         end
     end;
 
-    procedure CreateServiceLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Option; Fraction: Decimal; var ServiceLine: Record "Service Line")
+    procedure CreateServiceLineForPlan(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var ServiceLine: Record "Service Line")
     var
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -347,7 +347,7 @@ codeunit 131920 "Library - Job"
         exit(JobJournalTemplate.Name)
     end;
 
-    procedure CreateJobGLJournalLine(JobLineType: Option; JobTask: Record "Job Task"; var GenJournalLine: Record "Gen. Journal Line")
+    procedure CreateJobGLJournalLine(JobLineType: Enum "Job Line Type"; JobTask: Record "Job Task"; var GenJournalLine: Record "Gen. Journal Line")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -567,13 +567,13 @@ codeunit 131920 "Library - Job"
         exit(JobPostingGroup.Code);
     end;
 
-    procedure UseJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Option; Fraction: Decimal; var JobJournalLine: Record "Job Journal Line")
+    procedure UseJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; var JobJournalLine: Record "Job Journal Line")
     begin
         CreateJobJournalLineForPlan(JobPlanningLine, UsageLineType, Fraction, JobJournalLine);
         PostJobJournal(JobJournalLine)
     end;
 
-    procedure UseJobPlanningLineExplicit(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Option; Fraction: Decimal; Source: Option; var JobJournalLine: Record "Job Journal Line")
+    procedure UseJobPlanningLineExplicit(JobPlanningLine: Record "Job Planning Line"; UsageLineType: Enum "Job Line Type"; Fraction: Decimal; Source: Option; var JobJournalLine: Record "Job Journal Line")
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -691,7 +691,7 @@ codeunit 131920 "Library - Job"
         GLEntry: Record "G/L Entry";
     begin
         // Verify that each job entry has corresponding g/l entry with a job no.
-        JobLedgerEntry.FindSet;
+        JobLedgerEntry.FindSet();
         repeat
             GetGLEntry(JobLedgerEntry, GLEntry);
             Assert.AreEqual(JobLedgerEntry."Job No.", GLEntry."Job No.", JobNoError)
@@ -705,7 +705,7 @@ codeunit 131920 "Library - Job"
     begin
         // Verify posting of a purchase line for a job.
         PurchaseLine.SetFilter("Job No.", '<>''''');
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         Job.Get(PurchaseLine."Job No.");
 
         repeat
@@ -731,7 +731,7 @@ codeunit 131920 "Library - Job"
         // Verify that the journal lines were posted correctly.
 
         Assert.IsFalse(JobJournalLine.IsEmpty, 'Not verifying any Job Journal Lines!');
-        JobJournalLine.FindSet;
+        JobJournalLine.FindSet();
         repeat
             VerifyJobLedger(JobJournalLine);
             VerifyPlanningLines(JobJournalLine, UsageLink)
@@ -919,7 +919,7 @@ codeunit 131920 "Library - Job"
 
         repeat
             GenBusinessPostingGroupCode := GenBusinessPostingGroup.Code;
-            GenProductPostingGroup.FindSet;
+            GenProductPostingGroup.FindSet();
             repeat
                 if not GeneralPostingSetup.Get(GenBusinessPostingGroupCode, GenProductPostingGroup.Code) then
                     CreateGeneralPostingSetup(GenBusinessPostingGroupCode, GenProductPostingGroup.Code, GeneralPostingSetup);
@@ -1132,7 +1132,7 @@ codeunit 131920 "Library - Job"
 
     procedure CopyPurchaseLines(var FromPurchaseLine: Record "Purchase Line"; var ToPurchaseLine: Record "Purchase Line")
     begin
-        FromPurchaseLine.FindSet;
+        FromPurchaseLine.FindSet();
         repeat
             ToPurchaseLine := FromPurchaseLine;
             ToPurchaseLine.Insert();
@@ -1141,7 +1141,7 @@ codeunit 131920 "Library - Job"
 
     procedure CopyJobJournalLines(var FromJobJournalLine: Record "Job Journal Line"; var ToJobJournalLine: Record "Job Journal Line")
     begin
-        FromJobJournalLine.FindSet;
+        FromJobJournalLine.FindSet();
         repeat
             ToJobJournalLine := FromJobJournalLine;
             ToJobJournalLine.Insert(true);
@@ -1149,7 +1149,7 @@ codeunit 131920 "Library - Job"
         ToJobJournalLine.CopyFilters(FromJobJournalLine)
     end;
 
-    procedure UsageLineType(PlanningLineType: Option): Integer
+    procedure UsageLineType(PlanningLineType: Enum "Job Planning Line Line Type"): Enum "Job Line Type"
     begin
         case PlanningLineType of
             PlanningLineTypeSchedule:
@@ -1163,35 +1163,35 @@ codeunit 131920 "Library - Job"
         end
     end;
 
-    procedure UsageLineTypeBlank(): Integer
+    procedure UsageLineTypeBlank(): Enum "Job Line Type"
     var
         JobJournalLine: Record "Job Journal Line";
     begin
         exit(JobJournalLine."Line Type"::" ")
     end;
 
-    procedure UsageLineTypeSchedule(): Integer
+    procedure UsageLineTypeSchedule(): Enum "Job Line Type"
     var
         JobJournalLine: Record "Job Journal Line";
     begin
         exit(JobJournalLine."Line Type"::Budget)
     end;
 
-    procedure UsageLineTypeContract(): Integer
+    procedure UsageLineTypeContract(): Enum "Job Line Type"
     var
         JobJournalLine: Record "Job Journal Line";
     begin
         exit(JobJournalLine."Line Type"::Billable)
     end;
 
-    procedure UsageLineTypeBoth(): Integer
+    procedure UsageLineTypeBoth(): Enum "Job Line Type"
     var
         JobJournalLine: Record "Job Journal Line";
     begin
         exit(JobJournalLine."Line Type"::"Both Budget and Billable")
     end;
 
-    procedure PlanningLineType(UsageLineType: Option): Integer
+    procedure PlanningLineType(UsageLineType: Enum "Job Line Type"): Enum "Job Planning Line Line Type"
     begin
         case UsageLineType of
             UsageLineTypeSchedule:
@@ -1205,21 +1205,21 @@ codeunit 131920 "Library - Job"
         end
     end;
 
-    procedure PlanningLineTypeSchedule(): Integer
+    procedure PlanningLineTypeSchedule(): Enum "Job Planning Line Line Type"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         exit(JobPlanningLine."Line Type"::Budget)
     end;
 
-    procedure PlanningLineTypeContract(): Integer
+    procedure PlanningLineTypeContract(): Enum "Job Planning Line Line Type"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
         exit(JobPlanningLine."Line Type"::Billable)
     end;
 
-    procedure PlanningLineTypeBoth(): Integer
+    procedure PlanningLineTypeBoth(): Enum "Job Planning Line Line Type"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
@@ -1300,7 +1300,7 @@ codeunit 131920 "Library - Job"
 
         InventoryPostingSetup.SetRange("Invt. Posting Group Code", ServiceLine."Posting Group");
         InventoryPostingSetup.SetFilter("Location Code", '<>%1', '');
-        InventoryPostingSetup.FindSet;
+        InventoryPostingSetup.FindSet();
         repeat
             Location.Get(InventoryPostingSetup."Location Code");
             if not Location."Use As In-Transit" and not Location."Bin Mandatory" and not Location."Require Shipment" then

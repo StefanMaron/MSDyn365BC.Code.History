@@ -760,7 +760,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         GLRegister.FindLast;
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         CustLedgerEntry.SetRange("Applying Entry", false);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             if (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice) or
                (CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::"Credit Memo")
@@ -866,7 +866,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Watch Remaining Amount expected value should be change after Delta amount application.
-        TempGenJournalLine.FindSet;
+        TempGenJournalLine.FindSet();
         repeat
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             CustLedgerEntry.FindFirst;
@@ -894,7 +894,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Watch Remaining Amount expected value should remain same after Delta amount application on same entry.
-        TempGenJournalLine.FindSet;
+        TempGenJournalLine.FindSet();
         repeat
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             CustLedgerEntry.FindFirst;
@@ -1012,7 +1012,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             TempGenJournalLine := GenJournalLine;
             TempGenJournalLine.Insert();
@@ -1024,7 +1024,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Verify all Customer Entries are Close/Open.
-        TempGenJournalLine.FindSet;
+        TempGenJournalLine.FindSet();
         repeat
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             CustLedgerEntry.FindFirst;
@@ -1046,7 +1046,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry.TestField("Remaining Amount", RemainingAmount);
     end;
 
-    local procedure VerifyAmountRemainingAmountOpenOnLedger(DocumentType: Option; CustomerNo: Code[20]; ExpectedAmount: Decimal; ExpectedRemainingAmount: Decimal; ExpectedOpen: Boolean)
+    local procedure VerifyAmountRemainingAmountOpenOnLedger(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; ExpectedAmount: Decimal; ExpectedRemainingAmount: Decimal; ExpectedOpen: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

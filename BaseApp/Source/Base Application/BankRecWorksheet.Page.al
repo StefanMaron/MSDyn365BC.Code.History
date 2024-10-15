@@ -96,7 +96,7 @@ page 10120 "Bank Rec. Worksheet"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Outstanding Deposits"; "Outstanding Deposits")
@@ -128,35 +128,38 @@ page 10120 "Bank Rec. Worksheet"
                     ToolTip = 'Specifies the sum of values in the Balance on Statement field, plus the Outstanding Deposits field, minus the Outstanding Checks field.';
                 }
             }
-            group(Checks)
+            part(ChecksSubForm; "Bank Rec. Check Lines Subform")
             {
                 Caption = 'Checks';
-                part(ChecksSubForm; "Bank Rec. Check Lines Subform")
-                {
-                    ApplicationArea = Basic, Suite;
-                    SubPageLink = "Bank Account No." = FIELD("Bank Account No."),
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "Bank Account No." = FIELD("Bank Account No."),
                                   "Statement No." = FIELD("Statement No.");
-                }
+            }
+            group(Checks)
+            {
+                // the subpage above is moved out of this group to enable focus mode for the part
+            }
+            part(DepositsSubForm; "Bank Rec. Dep. Lines Subform")
+            {
+                Caption = 'Deposits/Transfers';
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "Bank Account No." = FIELD("Bank Account No."),
+                                  "Statement No." = FIELD("Statement No.");
             }
             group("Deposits/Transfers")
             {
-                Caption = 'Deposits/Transfers';
-                part(DepositsSubForm; "Bank Rec. Dep. Lines Subform")
-                {
-                    ApplicationArea = Basic, Suite;
-                    SubPageLink = "Bank Account No." = FIELD("Bank Account No."),
+                // the subpage above is moved out of this group to enable focus mode for the part
+            }
+            part(AdjustmentsSubForm; "Bank Rec. Adj. Lines Subform")
+            {
+                Caption = 'Adjustments';
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "Bank Account No." = FIELD("Bank Account No."),
                                   "Statement No." = FIELD("Statement No.");
-                }
             }
             group(Adjustments)
             {
-                Caption = 'Adjustments';
-                part(AdjustmentsSubForm; "Bank Rec. Adj. Lines Subform")
-                {
-                    ApplicationArea = Basic, Suite;
-                    SubPageLink = "Bank Account No." = FIELD("Bank Account No."),
-                                  "Statement No." = FIELD("Statement No.");
-                }
+                // the subpage above is moved out of this group to enable focus mode for the part
             }
             group("Control Info")
             {
@@ -166,12 +169,14 @@ page 10120 "Bank Rec. Worksheet"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     Lookup = false;
+                    Visible = false;
                     ToolTip = 'Specifies the code for the bank account the reconciliation applies to.';
                 }
                 field("Statement No.2"; "Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    Visible = false;
                     ToolTip = 'Specifies the statement number to be reconciled.';
                 }
                 field("Currency Code"; "Currency Code")
@@ -188,6 +193,7 @@ page 10120 "Bank Rec. Worksheet"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    Visible = false;
                     ToolTip = 'Specifies the as-of date of the statement. All G/L balances will be calculated based upon this date.';
                 }
                 field("Date Created"; "Date Created")
@@ -458,11 +464,13 @@ page 10120 "Bank Rec. Worksheet"
     trigger OnOpenPage()
     begin
         RefreshSharedTempTable;
+        BankRecWkshNotification.ShowBankRecWorksheetUIImprovementNotification();
     end;
 
     var
         TempBankAccReconciliationDataset: Record "Bank Acc. Reconciliation" temporary;
         ReportPrint: Codeunit "Test Report-Print";
+        BankRecWkshNotification: Codeunit "Bank Rec. Wksh. Notification";
         Text001: Label 'Do you want to recalculate the G/L Balance from the General Ledger?';
 
     procedure SetupRecord()
@@ -502,7 +510,7 @@ page 10120 "Bank Rec. Worksheet"
     procedure DoRecalc()
     begin
         CalculateBalance;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure AfterGetCurrentRecord()

@@ -1438,7 +1438,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractLine."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         ServContractManagement.InitCodeUnit;
         repeat
             CreditMemoNo := ServContractManagement.CreateContractLineCreditMemo(ServiceContractLine, false);
@@ -1701,7 +1701,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
     end;
 
     local procedure FindServiceCreditMemo(var ServiceHeader: Record "Service Header"; ServiceContractNo: Code[20])
@@ -1747,7 +1747,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceHeader.FindFirst;
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure PostServiceInvoice(ServiceContractNo: Code[20])
@@ -1781,7 +1781,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractLine."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         repeat
             TempServiceContractLine.Init();
             TempServiceContractLine := ServiceContractLine;
@@ -1795,7 +1795,7 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine.Init();
             TempServiceLine := ServiceLine;
@@ -1866,13 +1866,13 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceInvoiceAmount: Decimal;
     begin
         ServiceInvoiceLine.SetRange("Contract No.", ContractNo);
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
         repeat
             ServiceInvoiceAmount += ServiceInvoiceLine."Line Amount";
         until ServiceInvoiceLine.Next = 0;
 
         ServiceCrMemoLine.SetRange("Contract No.", ContractNo);
-        ServiceCrMemoLine.FindSet;
+        ServiceCrMemoLine.FindSet();
         repeat
             CrMemoAmount += ServiceCrMemoLine."Line Amount";
         until ServiceCrMemoLine.Next = 0;
@@ -1891,10 +1891,10 @@ codeunit 136104 "Service Posting - Credit Memo"
         // Verify that the Service Line created corresponds with the relevant Service Contract Line.
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractLine."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::"Credit Memo");
         ServiceLine.SetRange("Document No.", CreditMemoNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Next;  // The first line of Credit Memo contains only Description
             ServiceLine.TestField("Customer No.", ServiceContractLine."Customer No.");
@@ -1908,10 +1908,10 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceLine: Record "Service Line";
     begin
         // Verify that the Service Line created corresponds with the relevant Service Contract Line saved in temporary table.
-        TempServiceContractLine.FindSet;
+        TempServiceContractLine.FindSet();
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::"Credit Memo");
         ServiceLine.SetRange("Document No.", CreditMemoNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Next;  // The first line of Credit Memo contains only Description.
             ServiceLine.TestField("Customer No.", TempServiceContractLine."Customer No.");
@@ -1927,10 +1927,10 @@ codeunit 136104 "Service Posting - Credit Memo"
         // Verify that the Service Line created corresponds with the relevant Service Contract Line.
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractLine."Contract No.");
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::"Credit Memo");
         ServiceLine.SetRange("Document No.", CreditMemoNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         ServiceLine.Next;  // The first line of Credit Memo contains only Description.
         repeat
             ServiceLine.TestField("Customer No.", ServiceContractLine."Customer No.");
@@ -1945,7 +1945,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         // Verify that the Posted Service Credit Memo Lines created corresponds with the relevant Service Credit Memo Lines.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", TempServiceLine."Document No.");
         ServiceCrMemoHeader.FindFirst;
         repeat
@@ -1983,7 +1983,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
         GLEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Posting Date", TempServiceLine."Posting Date");
             GLEntry.TestField("Source No.", TempServiceLine."Bill-to Customer No.");
@@ -2001,7 +2001,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoHeader.FindFirst;
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::"Credit Memo");
         DetailedCustLedgEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        DetailedCustLedgEntry.FindSet;
+        DetailedCustLedgEntry.FindSet();
         repeat
             DetailedCustLedgEntry.TestField("Posting Date", TempServiceLine."Posting Date");
             DetailedCustLedgEntry.TestField("Customer No.", TempServiceLine."Bill-to Customer No.");
@@ -2019,7 +2019,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoHeader.FindFirst;
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::"Credit Memo");
         VATEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             VATEntry.TestField("Posting Date", TempServiceLine."Posting Date");
             VATEntry.TestField("Bill-to/Pay-to No.", TempServiceLine."Bill-to Customer No.");
@@ -2032,7 +2032,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         // Verify that the Value Entry created correspond with the relevant Service Credit Memo Lines.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", TempServiceLine."Document No.");
         ServiceCrMemoHeader.FindFirst;
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Credit Memo");
@@ -2053,10 +2053,10 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
         ServiceCrMemoLine.SetRange("Contract No.", ContractNo);
-        ServiceCrMemoLine.FindSet;
+        ServiceCrMemoLine.FindSet();
         ServiceContractLine.SetRange("Contract Type", ServiceContractLine."Contract Type"::Contract);
         ServiceContractLine.SetRange("Contract No.", ContractNo);
-        ServiceContractLine.FindSet;
+        ServiceContractLine.FindSet();
         repeat
             ServiceContractLine.TestField("Service Item No.", ServiceCrMemoLine."Service Item No.");
             ServiceContractLine.Next;
@@ -2095,7 +2095,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceInvoiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ServiceInvoiceHeader.FindFirst;
         ServiceInvoiceHeader.TestField("Customer No.", ServiceContractHeader."Customer No.");
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", TempServiceLine."Line No.");
             TempServiceLine.TestField("Line Amount", ServiceInvoiceLine."Line Amount");
@@ -2110,12 +2110,12 @@ codeunit 136104 "Service Posting - Credit Memo"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceLine."Document No.");
         ServiceCrMemoHeader.FindFirst;
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::"Credit Memo");
         ServiceLedgerEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
-        ServiceLedgerEntry.FindSet;
+        ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField(Quantity, ServiceLine.Quantity);
             ServiceLedgerEntry.TestField("Customer No.", ServiceLine."Customer No.");
@@ -2168,7 +2168,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Credit Memo");
         GLEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             if GLEntry."Debit Amount" > 0 then
                 Error(CorrectionErr, GLEntry.FieldCaption("Debit Amount"), GLEntry."G/L Account No.");

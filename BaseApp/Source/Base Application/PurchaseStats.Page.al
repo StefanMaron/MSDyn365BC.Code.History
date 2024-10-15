@@ -207,7 +207,7 @@ page 10043 "Purchase Stats."
                 TempPurchLine.Insert();
                 if not TaxArea."Use External Tax Engine" then
                     SalesTaxCalculate.AddPurchLine(TempPurchLine);
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
         TempSalesTaxLine.DeleteAll();
         if TaxArea."Use External Tax Engine" then
             SalesTaxCalculate.CallExternalTaxEngineForPurch(Rec, true)
@@ -453,7 +453,7 @@ page 10043 "Purchase Stats."
                         TaxAmount := TaxAmount + "Tax Amount"
                     else
                         BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Difference";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 }

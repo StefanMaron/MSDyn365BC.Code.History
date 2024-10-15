@@ -77,7 +77,7 @@ table 1270 "OCR Service Setup"
                 OCRServiceDocumentTemplate: Record "OCR Service Document Template";
                 OCRServiceMgt: Codeunit "OCR Service Mgt.";
             begin
-                if OCRServiceDocumentTemplate.IsEmpty then begin
+                if OCRServiceDocumentTemplate.IsEmpty() then begin
                     OCRServiceMgt.SetupConnection(Rec);
                     Commit();
                 end;

@@ -163,7 +163,7 @@ table 172 "Standard Customer Sales Code"
             if StdCustSalesCode.FindSet then
                 repeat
                     ApplyStdCodesToSalesLines(SalesHeader, StdCustSalesCode);
-                until StdCustSalesCode.Next = 0;
+                until StdCustSalesCode.Next() = 0;
         end;
     end;
 
@@ -237,7 +237,7 @@ table 172 "Standard Customer Sales Code"
                     SalesLine.AutoAsmToOrder;
                     InsertExtendedText(SalesLine, SalesHeader);
                 end;
-            until StdSalesLine.Next = 0;
+            until StdSalesLine.Next() = 0;
             SalesLine.CalcSalesTaxLines(SalesHeader, SalesLine);
         end;
 

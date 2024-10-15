@@ -8,7 +8,7 @@ codeunit 130410 "Sys. Warmup Test Runner"
         CODEUNIT.Run(CODEUNIT::"Sys. Warmup Scenarios");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 40, 'OnAfterCompanyOpen', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"LogInManagement", 'OnAfterCompanyOpen', '', true, true)]
     local procedure WarmUpOnAfterCompanyOpen()
     var
         O365GettingStarted: Record "O365 Getting Started";
@@ -24,7 +24,7 @@ codeunit 130410 "Sys. Warmup Test Runner"
         if not EnvironmentInfo.IsSaaS then
             exit;
 
-        if not O365GettingStarted.IsEmpty then
+        if not O365GettingStarted.IsEmpty() then
             exit;
 
         if not TASKSCHEDULER.CanCreateTask then

@@ -38,7 +38,6 @@ codeunit 134922 "ERM Budget"
         IncorrectDateFilterErr: Label 'Incorrect date filter.';
         WrongFieldValueErr: Label 'Wrong value in field %1.', Comment = '%1 = Field Caption';
         WrongValueInBudgetErr: Label 'Wrong value showing in row of Sales Budget.';
-        AnalysisArea: Option Sales,Purchase;
         WrongPeriodLengthErr: Label 'Wrong value of Period Lenght.';
         FirstBudgetDimensionDefaultCaptionTxt: Label 'Budget Dimension 1 Code';
         SecondBudgetDimensionDefaultCaptionTxt: Label 'Budget Dimension 2 Code';
@@ -804,7 +803,7 @@ codeunit 134922 "ERM Budget"
         // [GIVEN] Create two budget with some same budget entries
         // [GIVEN] Set different values in budget entries and open Sales Budget Overview
         InitBudgetAmounts(BudgetAmounts);
-        CreateTwoItemBudgetNamesWithItemBudgetEntries(BudgetAmounts, AnalysisArea::Sales);
+        CreateTwoItemBudgetNamesWithItemBudgetEntries(BudgetAmounts, "Analysis Area Type"::Sales);
         // [WHEN] Open page and change budget there
         LibraryLowerPermissions.SetFinancialReporting;
         OpenSalesBudgetOverviewPage;
@@ -826,7 +825,7 @@ codeunit 134922 "ERM Budget"
         // [GIVEN] Create two budget with some same budget entries
         // [GIVEN] Set different values in budget entries and open Purchase Budget Overview
         InitBudgetAmounts(BudgetAmounts);
-        CreateTwoItemBudgetNamesWithItemBudgetEntries(BudgetAmounts, AnalysisArea::Purchase);
+        CreateTwoItemBudgetNamesWithItemBudgetEntries(BudgetAmounts, "Analysis Area Type"::Purchase);
         // [WHEN] Open page and change budget there
         LibraryLowerPermissions.SetFinancialReporting;
         OpenPurchaseBudgetOverviewPage;
@@ -1120,7 +1119,7 @@ codeunit 134922 "ERM Budget"
 
         // [THEN] The column "Department Code" in exported Excel file is filled with value "Y" for all G/L Accounts
         LibraryReportValidation.OpenExcelFile;
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         i := 5;
         repeat
             i += 1;
@@ -1139,7 +1138,7 @@ codeunit 134922 "ERM Budget"
           "Dimension Value Type",
           '%1|%2',
           DimensionValue."Dimension Value Type"::Standard, DimensionValue."Dimension Value Type"::"Begin-Total");
-        DimensionValue.FindSet;
+        DimensionValue.FindSet();
         repeat
             i += 1;
             LibraryReportValidation.VerifyCellValueByRef('A', i + 200, 1, DimensionValue.Code);
@@ -1194,7 +1193,7 @@ codeunit 134922 "ERM Budget"
 
         // [THEN] The column "Department Code" in exported Excel file is blank for all G/L Accounts
         LibraryReportValidation.OpenExcelFile;
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         i := 5;
         repeat
             i += 1;
@@ -1262,7 +1261,7 @@ codeunit 134922 "ERM Budget"
 
         // [THEN] All four columns with budget dimensions in exported Excel file is filled with a certain value "DV" for all G/L Accounts
         LibraryReportValidation.OpenExcelFile;
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         i := 8;
         repeat
             i += 1;
@@ -1362,7 +1361,7 @@ codeunit 134922 "ERM Budget"
         asserterror VerifyDimCaptionInCellValue('G', RowNo, SelectedDimension[5]."Dimension Code");
 
         // [THEN] All four columns with budget dimensions in exported Excel file is blank for all G/L Accounts
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         repeat
             RowNo += 1;
             LibraryReportValidation.VerifyEmptyCellByRef('C', RowNo, 1);
@@ -2509,7 +2508,7 @@ codeunit 134922 "ERM Budget"
         exit(Item."No.");
     end;
 
-    local procedure FindItemBudgetByAnalysisArea(AnalysisArea: Option): Code[10]
+    local procedure FindItemBudgetByAnalysisArea(AnalysisArea: Enum "Analysis Area Type"): Code[10]
     var
         ItemBudgetName: Record "Item Budget Name";
     begin
@@ -2766,7 +2765,7 @@ codeunit 134922 "ERM Budget"
         exit(StrSubstNo('%1..%2', StartDate, CalcDate('<CM>', WorkDate)));
     end;
 
-    local procedure CreateTwoItemBudgetNamesWithItemBudgetEntries(BudgetAmounts: array[2] of Decimal; AnalysisArea: Option Sales,Purchase)
+    local procedure CreateTwoItemBudgetNamesWithItemBudgetEntries(BudgetAmounts: array[2] of Decimal; AnalysisArea: Enum "Analysis Area Type")
     var
         Item: Record Item;
         ItemBudgetName: Record "Item Budget Name";
@@ -2780,7 +2779,7 @@ codeunit 134922 "ERM Budget"
         CreateItemBudgetName(ItemBudgetName, ItemNo, BudgetAmounts[2], AnalysisArea);
     end;
 
-    local procedure CreateItemBudgetName(var ItemBudgetName: Record "Item Budget Name"; ItemNo: Code[20]; BudgetAmount: Decimal; AnalysisArea: Option Sales,Purchase)
+    local procedure CreateItemBudgetName(var ItemBudgetName: Record "Item Budget Name"; ItemNo: Code[20]; BudgetAmount: Decimal; AnalysisArea: Enum "Analysis Area Type")
     begin
         with ItemBudgetName do begin
             Init;
@@ -2791,14 +2790,14 @@ codeunit 134922 "ERM Budget"
         end;
     end;
 
-    local procedure CreateItemBudgetWithDimensionCode(var ItemBudgetName: Record "Item Budget Name"; DimensionCode: Code[20]; AnalysisArea: Option)
+    local procedure CreateItemBudgetWithDimensionCode(var ItemBudgetName: Record "Item Budget Name"; DimensionCode: Code[20]; AnalysisArea: Enum "Analysis Area Type")
     begin
         LibraryERM.CreateItemBudgetName(ItemBudgetName, AnalysisArea);
         ItemBudgetName.Validate("Budget Dimension 1 Code", DimensionCode);
         ItemBudgetName.Modify(true);
     end;
 
-    local procedure CreateItemBudgetEntry(BudgetName: Code[10]; ItemNo: Code[20]; BudgetAmount: Decimal; AnalysisArea: Option Sales,Purchase)
+    local procedure CreateItemBudgetEntry(BudgetName: Code[10]; ItemNo: Code[20]; BudgetAmount: Decimal; AnalysisArea: Enum "Analysis Area Type")
     var
         ItemBudgetEntry: Record "Item Budget Entry";
     begin
@@ -2843,7 +2842,7 @@ codeunit 134922 "ERM Budget"
         end;
     end;
 
-    local procedure CreateItemViewWithItemBudgetEntry(var ItemAnalysisView: Record "Item Analysis View"; AnalysisArea: Option; ItemNo: Code[20])
+    local procedure CreateItemViewWithItemBudgetEntry(var ItemAnalysisView: Record "Item Analysis View"; AnalysisArea: Enum "Analysis Area Type"; ItemNo: Code[20])
     var
         ItemBudgetEntry: Record "Item Budget Entry";
     begin
@@ -3444,6 +3443,7 @@ codeunit 134922 "ERM Budget"
         ExportBudgettoExcel.PeriodLength.SetValue('1M');
         ExportBudgettoExcel.ColumnDimensions.SetValue(LibraryVariableStorage.DequeueText);
         ExportBudgettoExcel.OK.Invoke;
+        Sleep(200);
     end;
 
     [ModalPageHandler]

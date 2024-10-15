@@ -251,7 +251,7 @@ report 706 Status
                 if Find('-') then
                     repeat
                         SumQty(RemainingQty, "Outbound Item Entry No.", Quantity);
-                    until Next = 0;
+                    until Next() = 0;
             end else begin
                 Reset;
                 SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
@@ -261,7 +261,7 @@ report 706 Status
                 if Find('-') then
                     repeat
                         SumQty(RemainingQty, "Inbound Item Entry No.", -Quantity);
-                    until Next = 0;
+                    until Next() = 0;
             end;
     end;
 
@@ -290,7 +290,7 @@ report 706 Status
                         SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Valued Quantity")
                     else
                         SumUnitCost(UnitCost, "Cost Amount (Actual)" + "Cost Amount (Expected)", "Item Ledger Entry".Quantity);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

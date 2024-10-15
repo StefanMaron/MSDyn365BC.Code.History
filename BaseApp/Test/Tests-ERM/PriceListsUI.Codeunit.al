@@ -20,11 +20,13 @@ codeunit 134117 "Price Lists UI"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         FeatureIsOffErr: Label 'Extended price calculation feature is not enabled.';
         IsInitialized: Boolean;
         CreateNewTxt: Label 'Create New...';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
+        AllLinesVerifiedMsg: Label 'All price list lines are verified.';
 
     [Test]
     procedure T000_SalesPriceListsPageIsNotEditable()
@@ -178,7 +180,75 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
-    procedure T004_SalesPriceListsPricesForPriceGroupFromCustomersCard()
+    procedure T004_SalesPriceLinesFromCustomersCard()
+    var
+        Customer: Array[2] of Record Customer;
+        PriceListLine: Array[4] of Record "Price List Line";
+        CustomerCard: TestPage "Customer Card";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Sales Price Review page shows price lines for one customer open from the customer card.
+        Initialize(true);
+        // [GIVEN] Customers 'A' and 'B'
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Customers'
+        // [GIVEN] Price List #2, where "Source Type" is 'Customer' 'A', "Amount Type" is 'Price'
+        // [GIVEN] Price List #3, where "Source Type" is 'Customer' 'B'
+        // [GIVEN] Price List #4, where "Source Type" is 'Customer' 'A', "Amount Type" is 'Discount'
+        CreateSalesPriceLinesForCustomers(Customer, PriceListLine);
+
+        // [GIVEN] Open Customer Card for customer 'A'
+        CustomerCard.OpenEdit();
+        CustomerCard.Filter.SetFilter("No.", Customer[1]."No.");
+
+        // [WHEN] Run action "Sales Prices"
+        PriceListLineReview.Trap();
+        CustomerCard.PriceLines.Invoke();
+
+        // [THEN] There is 1 price line - #2
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first');
+        PriceListLineReview."Price List Code".AssertEquals('002');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 2th');
+    end;
+
+    [Test]
+    procedure T005_SalesDiscountLinesFromCustomersList()
+    var
+        Customer: Array[2] of Record Customer;
+        PriceListLine: Array[4] of Record "Price List Line";
+        CustomerList: TestPage "Customer List";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Sales Price Review page shows discount lines for one customer open from the customer card.
+        Initialize(true);
+        // [GIVEN] Customers 'A' and 'B'
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Customers'
+        // [GIVEN] Price List #2, where "Source Type" is 'Customer' 'A', "Amount Type" is 'Price'
+        // [GIVEN] Price List #3, where "Source Type" is 'Customer' 'B'
+        // [GIVEN] Price List #4, where "Source Type" is 'Customer' 'A', "Amount Type" is 'Discount'
+        CreateSalesPriceLinesForCustomers(Customer, PriceListLine);
+
+        // [GIVEN] Open Customer List for customer 'A'
+        CustomerList.OpenEdit();
+        CustomerList.Filter.SetFilter("No.", Customer[1]."No.");
+
+        // [WHEN] Run action "Sales Discounts"
+        PriceListLineReview.Trap();
+        CustomerList.DiscountLines.Invoke();
+
+        // [THEN] There is 1 price line - #4
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first');
+        PriceListLineReview."Price List Code".AssertEquals('004');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 2th');
+    end;
+
+    [Test]
+    procedure T006_SalesPriceListsPricesForPriceGroupFromCustomersCard()
     var
         Customer: Array[2] of Record Customer;
         CustomerDiscountGroup: Record "Customer Discount Group";
@@ -242,7 +312,67 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
-    procedure T005_SalesPriceListsDiscForDiscGroupFromCustomersCard()
+    procedure T007_SalesPriceLinesForPriceGroupFromCustomersCard()
+    var
+        Customer: Array[2] of Record Customer;
+        CustomerDiscountGroup: Record "Customer Discount Group";
+        CustomerPriceGroup: Record "Customer Price Group";
+        PriceListLine: Array[5] of Record "Price List Line";
+        CustomerPriceGroups: TestPage "Customer Price Groups";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Sales Price lists page shows prices for one customer and its price group open from the customer card.
+        Initialize(true);
+        // [GIVEN] Customers 'A', where "Customer Price Group" is 'X', "Customer Disc. Group" 'Y', and Customer 'B'
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        Customer[1]."Customer Price Group" := CustomerPriceGroup.Code;
+        LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
+        Customer[1]."Customer Disc. Group" := CustomerDiscountGroup.Code;
+        Customer[1].Modify();
+        LibrarySales.CreateCustomer(Customer[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Customers'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], '001', "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[1]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[1].Modify();
+        // [GIVEN] Price List #2, where "Source Type" is 'Customer' 'A', "Amount Type" is 'Price'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], '002', "Price Source Type"::Customer, Customer[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        // [GIVEN] Price List #3, where "Source Type" is 'Customer' 'B'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[3], '003', "Price Source Type"::Customer, Customer[2]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[3]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[3].Modify();
+        // [GIVEN] Price List #4, where "Source Type" is 'Customer Price Group' 'X', "Amount Type" is 'Price'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[4], '004', "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code,
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        // [GIVEN] Price List #5, where "Source Type" is 'Customer Discount Group' 'Y', "Amount Type" is 'Discount'
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine[4], '004', "Price Source Type"::"Customer Disc. Group", CustomerDiscountGroup.Code,
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        // [GIVEN] Open Customer Price Groups page
+        CustomerPriceGroups.OpenEdit();
+        CustomerPriceGroups.Filter.SetFilter(Code, CustomerPriceGroup.Code);
+
+        // [WHEN] Run action "Sales Prices"
+        PriceListLineReview.Trap();
+        CustomerPriceGroups.PriceLines.Invoke();
+
+        // [THEN] There is 1 price line - #4
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first');
+        PriceListLineReview."Price List Code".AssertEquals('004');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 2nd');
+    end;
+
+    [Test]
+    procedure T008_SalesPriceListsDiscForDiscGroupFromCustomersCard()
     var
         Customer: Array[2] of Record Customer;
         CustomerDiscountGroup: Record "Customer Discount Group";
@@ -305,6 +435,66 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T009_SalesDisounctLinesForDiscGroupFromCustomerDiscountGroups()
+    var
+        Customer: Array[2] of Record Customer;
+        CustomerDiscountGroup: Record "Customer Discount Group";
+        CustomerPriceGroup: Record "Customer Price Group";
+        PriceListLine: Array[5] of Record "Price List Line";
+        CustomerDiscGroups: TestPage "Customer Disc. Groups";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Sales Price lists page shows prices for one customer and its price group open from the customer card.
+        Initialize(true);
+        // [GIVEN] Customers 'A', where "Customer Price Group" is 'X', "Customer Disc. Group" 'Y', and Customer 'B'
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        Customer[1]."Customer Price Group" := CustomerPriceGroup.Code;
+        LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
+        Customer[1]."Customer Disc. Group" := CustomerDiscountGroup.Code;
+        Customer[1].Modify();
+        LibrarySales.CreateCustomer(Customer[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Customers'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], '001', "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[1]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[1].Modify();
+        // [GIVEN] Price List #2, where "Source Type" is 'Customer' 'A', "Amount Type" is 'Price'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], '002', "Price Source Type"::Customer, Customer[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        // [GIVEN] Price List #3, where "Source Type" is 'Customer' 'B'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[3], '003', "Price Source Type"::Customer, Customer[2]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[3]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[3].Modify();
+        // [GIVEN] Price List #4, where "Source Type" is 'Customer Price Group' 'X', "Amount Type" is 'Price'
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[4], '004', "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code,
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        // [GIVEN] Price List #5, where "Source Type" is 'Customer Discount Group' 'Y', "Amount Type" is 'Discount'
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine[4], '005', "Price Source Type"::"Customer Disc. Group", CustomerDiscountGroup.Code,
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        // [GIVEN] Open Customer Discount Groups page
+        CustomerDiscGroups.OpenEdit();
+        CustomerDiscGroups.Filter.SetFilter(Code, CustomerDiscountGroup.Code);
+
+        // [WHEN] Run action "Sales Discounts"
+        PriceListLineReview.Trap();
+        CustomerDiscGroups.DiscountLines.Invoke();
+
+        // [THEN] There is 1 price line - #5
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first');
+        PriceListLineReview."Price List Code".AssertEquals('005');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 2nd');
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmYesHandler')]
     procedure T010_SalesStatusFromDraftToActive()
     var
@@ -364,6 +554,201 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(SalesPriceList.Status.Editable(), 'Status.not Editable');
         Assert.IsTrue(SalesPriceList.AmountType.Editable(), 'AmountType.not Editable');
         VerifyAllControlsEditable(SalesPriceList);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure T012_SalesStatusFromDraftToActiveIfActiveIsEditable()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] Sales Price list page gets editable if Status set to Active and "Allow Editing Active Price".
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price List, where Status is 'Draft'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::" ", '');
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        // [GIVEN] Price list page open, where Status is 'Draft', all controls are editable
+        Assert.IsTrue(SalesPriceList.Status.Editable(), 'Status.not Editable');
+        Assert.IsTrue(SalesPriceList.AmountType.Editable(), 'AmountType.not Editable');
+        VerifyAllControlsEditable(SalesPriceList);
+
+        // [WHEN] Change Status to 'Active' (answer 'Yes' to confirmation)
+        SalesPriceList.Status.SetValue(PriceListHeader.Status::Active);
+
+        // [THEN] All fields and lines part are editable,
+        VerifyAllControlsEditable(SalesPriceList);
+        // [THEN] Controls "Status", "View Columns For" are editable
+        Assert.IsTrue(SalesPriceList.Status.Editable(), 'Active Status.not Editable');
+        Assert.IsTrue(SalesPriceList.AmountType.Editable(), 'AmountType.not Editable');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler,MessageHandler')]
+    procedure T013_NewLineAsDraftInActiveEditableSalesPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] New line added to the active (editable) price list gets status 'Draft', gets 'Active' by "Verify Lines" action.
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price List, where Status is 'Active'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::" ", '');
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list card
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [WHEN] Add a new line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Price" is 100
+        ItemNo := LibraryInventory.CreateItemNo();
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset Type".SetValue('Item');
+        SalesPriceList.Lines."Asset No.".SetValue(ItemNo);
+        SalesPriceList.Lines."Unit Price".SetValue(100);
+        SalesPriceList.Lines.First();
+
+        // [THEN] New line, where Status is 'Draft'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Asset No.", ItemNo);
+        PriceListLine.FindFirst();
+        PriceListLine.TestField(Status, "Price Status"::Draft);
+
+        // [WHEN] Run "Verify Lines" action
+        SalesPriceList.VerifyLines.Invoke();
+
+        // [THEN] Message "All lines are verified"
+        Assert.AreEqual(AllLinesVerifiedMsg, LibraryVariableStorage.DequeueText(), 'Wrong message');
+        LibraryVariableStorage.AssertEmpty();
+        // [THEN] Both lines are 'Active'
+        PriceListLine.SetRange("Asset No.");
+        PriceListLine.SetRange(Status, "Price Status"::Active);
+        Assert.RecordCount(PriceListLine, 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler,NotificationHandler,MessageHandler')]
+    procedure T014_NewLineAsDraftOnClosingActiveEditableSalesPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] New line added to the active (editable) price list gets status 'Draft', gets 'Active' on page closing.
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price List, where Status is 'Active'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::" ", '');
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list card
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [WHEN] Add a new line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Price" is 100
+        ItemNo := LibraryInventory.CreateItemNo();
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset Type".SetValue('Item');
+        SalesPriceList.Lines."Asset No.".SetValue(ItemNo);
+        SalesPriceList.Lines."Unit Price".SetValue(100);
+        SalesPriceList.Lines.First();
+
+        // [THEN] New line, where Status is 'Draft'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Asset No.", ItemNo);
+        PriceListLine.FindFirst();
+        PriceListLine.TestField(Status, "Price Status"::Draft);
+
+        // [WHEN] Close the price list page
+        SalesPriceList.Close();
+        // [WHEN] Notification appears, click "Verify Lines"
+        Assert.AreEqual(PriceListHeader.Code, LibraryVariableStorage.DequeueText(), 'Header Code in notification');
+
+        // [THEN] Message "All lines are verified"
+        Assert.AreEqual(AllLinesVerifiedMsg, LibraryVariableStorage.DequeueText(), 'Wrong message');
+        // [THEN] Both lines are 'Active'
+        PriceListLine.SetRange("Asset No.");
+        PriceListLine.SetRange(Status, "Price Status"::Active);
+        Assert.RecordCount(PriceListLine, 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler,DuplicatePriceLinesModalHandler,MessageHandler')]
+    procedure T015_NewDuplicateLineAsDraftOnVerifyLinesInActiveEditableSalesPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        SalesPriceList: TestPage "Sales Price List";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] New (duplicate) line added to the active (editable) price list needs resolution on "Verify Lines" action.
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price List, where Status is 'Active'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        // [WHEN] Price line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Price" is 50
+        ItemNo := LibraryInventory.CreateItemNo();
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, ItemNo);
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list card
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [GIVEN] Add a new (duplicate) line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Price" is 100
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset Type".SetValue('Item');
+        SalesPriceList.Lines."Asset No.".SetValue(ItemNo);
+        SalesPriceList.Lines."Unit Price".SetValue(100);
+        SalesPriceList.Lines.First();
+
+        // [GIVEN] Run "Verify Lines" action
+        SalesPriceList.VerifyLines.Invoke();
+
+        // [WHEN] Opened page "Duplicate Price Lines", where mark first line for removal, and pushed OK (by DuplicatePriceLinesModalHandler)
+        // [THEN] Second line is 'Active' and the only line in the price list
+        PriceListLine.SetRange("Asset No.");
+        Assert.RecordCount(PriceListLine, 1);
+        PriceListLine.SetRange(Status, "Price Status"::Active);
+        Assert.RecordCount(PriceListLine, 1);
+        // [THEN] Message "All lines are verified"
+        Assert.AreEqual(AllLinesVerifiedMsg, LibraryVariableStorage.DequeueText(), 'Wrong message');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -650,6 +1035,81 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T054_PurchasePriceLinesFromVendorsCard()
+    var
+        Vendor: Array[2] of Record Vendor;
+        PriceListLine: Array[4] of Record "Price List Line";
+        VendorCard: TestPage "Vendor Card";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Purchase Price overview page shows price lines for one Vendor open from the Vendor card.
+        Initialize(true);
+        // [GIVEN] Vendors 'A' and 'B'
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        LibraryPurchase.CreateVendor(Vendor[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Vendors'
+        // [GIVEN] Price List #2, where "Source Type" is 'Vendor' 'A', "Amount Type" is 'Price'
+        // [GIVEN] Price List #3, where "Source Type" is 'Vendor' 'B'
+        // [GIVEN] Price List #4, where "Source Type" is 'Vendor' 'A', "Amount Type" is 'Discount'
+        CreatePurchPriceLinesForVendors(Vendor, PriceListLine);
+
+        // [GIVEN] Open Vendor Card for Vendor 'A'
+        VendorCard.OpenEdit();
+        VendorCard.Filter.SetFilter("No.", Vendor[1]."No.");
+
+        // [WHEN] Run action "Purchase Prices"
+        PriceListLineReview.Trap();
+        VendorCard.PriceLines.Invoke();
+
+        // [THEN] "Source Type", "Source No." are hidden, "Asset Type", "Asset No." are visible
+        Assert.IsFalse(PriceListLineReview."Source Type".Visible(), 'Source Type.Visible');
+        Assert.IsFalse(PriceListLineReview."Source No.".Visible(), 'Source No.Visible');
+        Assert.IsTrue(PriceListLineReview."Asset Type".Visible(), 'Asset Type.Visible');
+        Assert.IsTrue(PriceListLineReview."Asset No.".Visible(), 'Asset No.Visible');
+        // [THEN] PriceListLineReview page open, where are 1 price line - #2
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first price');
+        PriceListLineReview."Price List Code".AssertEquals('002');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found second price');
+        PriceListLineReview.Close();
+    end;
+
+    [Test]
+    procedure T055_PurchaseDiscountLinesFromVendorsList()
+    var
+        Vendor: Array[2] of Record Vendor;
+        PriceListLine: Array[4] of Record "Price List Line";
+        VendorList: TestPage "Vendor List";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Purchase Price overview page shows price lines for one Vendor open from the Vendor List.
+        Initialize(true);
+        // [GIVEN] Vendors 'A' and 'B'
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        LibraryPurchase.CreateVendor(Vendor[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Vendors'
+        // [GIVEN] Price List #2, where "Source Type" is 'Vendor' 'A', "Amount Type" is 'Price'
+        // [GIVEN] Price List #3, where "Source Type" is 'Vendor' 'B'
+        // [GIVEN] Price List #4, where "Source Type" is 'Vendor' 'A', "Amount Type" is 'Discount'
+        CreatePurchPriceLinesForVendors(Vendor, PriceListLine);
+
+        // [GIVEN] Open Vendor Card for Vendor 'A'
+        VendorList.OpenEdit();
+        VendorList.Filter.SetFilter("No.", Vendor[1]."No.");
+
+        // [WHEN] Run action "Purchase Discounts"
+        PriceListLineReview.Trap();
+        VendorList.DiscountLines.Invoke();
+
+        // [THEN] PriceListLineReview page open, where are 1 discount line - #4
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first discount');
+        PriceListLineReview."Price List Code".AssertEquals('004');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found second discount');
+        PriceListLineReview.Close();
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmYesHandler')]
     procedure T060_PurchStatusFromDraftToActive()
     var
@@ -709,6 +1169,201 @@ codeunit 134117 "Price Lists UI"
         Assert.IsTrue(PurchasePriceList.Status.Editable(), 'Status.not Editable');
         Assert.IsTrue(PurchasePriceList.AmountType.Editable(), 'AmountType.not Editable');
         VerifyAllControlsEditable(PurchasePriceList);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure T062_PurchStatusFromDraftToActiveIfActiveIsEditable()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchasePriceList: TestPage "Purchase Price List";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] Purchase Price list page gets editable if Status set to Active and "Allow Editing Active Price".
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Purchase
+        LibraryPriceCalculation.AllowEditingActivePurchPrice();
+        // [GIVEN] Price List, where Status is 'Draft'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::" ", '');
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        // [GIVEN] Price list page open, where Status is 'Draft', all controls are editable
+        Assert.IsTrue(PurchasePriceList.Status.Editable(), 'Status.not Editable');
+        Assert.IsTrue(PurchasePriceList.AmountType.Editable(), 'AmountType.not Editable');
+        VerifyAllControlsEditable(PurchasePriceList);
+
+        // [WHEN] Change Status to 'Active' (answer 'Yes' to confirmation)
+        PurchasePriceList.Status.SetValue(PriceListHeader.Status::Active);
+
+        // [THEN] All fields and lines part are editable,
+        VerifyAllControlsEditable(PurchasePriceList);
+        // [THEN] Controls "Status", "View Columns For" are editable
+        Assert.IsTrue(PurchasePriceList.Status.Editable(), 'Active Status.not Editable');
+        Assert.IsTrue(PurchasePriceList.AmountType.Editable(), 'AmountType.not Editable');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler,MessageHandler')]
+    procedure T063_NewLineAsDraftInActiveEditablePurchPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchasePriceList: TestPage "Purchase Price List";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] New line added to the active (editable) price list gets status 'Draft', gets 'Active' by "Verify Lines" action.
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Purchase
+        LibraryPriceCalculation.AllowEditingActivePurchPrice();
+        // [GIVEN] Price List, where Status is 'Active'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::" ", '');
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list card
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [WHEN] Add a new line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Cost" is 100
+        ItemNo := LibraryInventory.CreateItemNo();
+        PurchasePriceList.Lines.New();
+        PurchasePriceList.Lines."Asset Type".SetValue('Item');
+        PurchasePriceList.Lines."Asset No.".SetValue(ItemNo);
+        PurchasePriceList.Lines."Unit Cost".SetValue(100);
+        PurchasePriceList.Lines.First();
+
+        // [THEN] New line, where Status is 'Draft'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Asset No.", ItemNo);
+        PriceListLine.FindFirst();
+        PriceListLine.TestField(Status, "Price Status"::Draft);
+
+        // [WHEN] Run "Verify Lines" action
+        PurchasePriceList.VerifyLines.Invoke();
+
+        // [THEN] Message "All lines are verified"
+        Assert.AreEqual(AllLinesVerifiedMsg, LibraryVariableStorage.DequeueText(), 'Wrong message');
+        LibraryVariableStorage.AssertEmpty();
+        // [THEN] Both lines are 'Active'
+        PriceListLine.SetRange("Asset No.");
+        PriceListLine.SetRange(Status, "Price Status"::Active);
+        Assert.RecordCount(PriceListLine, 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler,NotificationHandler,MessageHandler')]
+    procedure T064_NewLineAsDraftOnClosingActiveEditablePurchPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchasePriceList: TestPage "Purchase Price List";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] New line added to the active (editable) price list gets status 'Draft', gets 'Active' on page closing.
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Purchase
+        LibraryPriceCalculation.AllowEditingActivePurchPrice();
+        // [GIVEN] Price List, where Status is 'Active'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::" ", '');
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list card
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [WHEN] Add a new line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Cost" is 100
+        ItemNo := LibraryInventory.CreateItemNo();
+        PurchasePriceList.Lines.New();
+        PurchasePriceList.Lines."Asset Type".SetValue('Item');
+        PurchasePriceList.Lines."Asset No.".SetValue(ItemNo);
+        PurchasePriceList.Lines."Unit Cost".SetValue(100);
+        PurchasePriceList.Lines.First();
+
+        // [THEN] New line, where Status is 'Draft'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Asset No.", ItemNo);
+        PriceListLine.FindFirst();
+        PriceListLine.TestField(Status, "Price Status"::Draft);
+
+        // [WHEN] Close the price list page
+        PurchasePriceList.Close();
+        // [WHEN] Notification appears, click "Verify Lines"
+        Assert.AreEqual(PriceListHeader.Code, LibraryVariableStorage.DequeueText(), 'Header Code in notification');
+
+        // [THEN] Message "All lines are verified"
+        Assert.AreEqual(AllLinesVerifiedMsg, LibraryVariableStorage.DequeueText(), 'Wrong message');
+        // [THEN] Both lines are 'Active'
+        PriceListLine.SetRange("Asset No.");
+        PriceListLine.SetRange(Status, "Price Status"::Active);
+        Assert.RecordCount(PriceListLine, 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler,DuplicatePriceLinesModalHandler,MessageHandler')]
+    procedure T065_NewDuplicateLineAsDraftOnVerifyLinesInActiveEditablePurchPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListsUI: Codeunit "Price Lists UI";
+        PurchasePriceList: TestPage "Purchase Price List";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] New (duplicate) line added to the active (editable) price list needs resolution on "Verify Lines" action.
+        Initialize(true);
+        BindSubscription(PriceListsUI);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Purchase
+        LibraryPriceCalculation.AllowEditingActivePurchPrice();
+        // [GIVEN] Price List, where Status is 'Active'
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        // [WHEN] Price line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Price" is 50
+        ItemNo := LibraryInventory.CreateItemNo();
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, ItemNo);
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open price list card
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [GIVEN] Add a new (duplicate) line, where "Asset Type" is 'Item', "Asset No." is 'X', "Unit Cost" is 100
+        PurchasePriceList.Lines.New();
+        PurchasePriceList.Lines."Asset Type".SetValue('Item');
+        PurchasePriceList.Lines."Asset No.".SetValue(ItemNo);
+        PurchasePriceList.Lines."Unit Cost".SetValue(100);
+        PurchasePriceList.Lines.First();
+
+        // [GIVEN] Run "Verify Lines" action
+        PurchasePriceList.VerifyLines.Invoke();
+
+        // [WHEN] Opened page "Duplicate Price Lines", where mark first line for removal, and pushed OK (by DuplicatePriceLinesModalHandler)
+        // [THEN] Second line is 'Active' and the only line in the price list
+        PriceListLine.SetRange("Asset No.");
+        Assert.RecordCount(PriceListLine, 1);
+        PriceListLine.SetRange(Status, "Price Status"::Active);
+        Assert.RecordCount(PriceListLine, 1);
+        // [THEN] Message "All lines are verified"
+        Assert.AreEqual(AllLinesVerifiedMsg, LibraryVariableStorage.DequeueText(), 'Wrong message');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -970,6 +1625,84 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T104_SalesJobPricesFromJobsCard()
+    var
+        Job: Array[2] of Record Job;
+        JobTask: Record "Job Task";
+        PriceListLine: Array[5] of Record "Price List Line";
+        JobCard: TestPage "Job Card";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Sales Job Price line review page shows sales price list lines for one job open from the job card.
+        Initialize(true);
+        // [GIVEN] Jobs 'A' and 'B', Job Task 'C' for Job 'A'
+        LibraryJob.CreateJob(Job[1]);
+        LibraryJob.CreateJobTAsk(Job[1], JobTask);
+        LibraryJob.CreateJob(Job[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Jobs'
+        // [GIVEN] Price List #2, where "Source Type" is 'Job' 'A', "Amount Type" is 'Price'
+        // [GIVEN] Price List #3, where "Source Type" is 'Job' 'B'
+        // [GIVEN] Price List #4, where "Source Type" is 'Job' 'A', "Amount Type" is 'Discount'
+        // [GIVEN] Price List #5, where "Source Type" is 'Job Task' 'C', Job 'A'
+        CreateSalesPriceLinesForJobs(Job, JobTask, PriceListLine, "Price Amount Type"::Price);
+
+        // [GIVEN] Open Job Card for Job 'A'
+        JobCard.OpenEdit();
+        JobCard.Filter.SetFilter("No.", Job[1]."No.");
+
+        // [WHEN] Run action "Sales Prices"
+        PriceListLineReview.Trap();
+        JobCard.SalesPriceLines.Invoke();
+
+        // [THEN] There are 2 price lines - #2, #5
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first');
+        PriceListLineReview."Price List Code".AssertEquals('002');
+        Assert.IsTrue(PriceListLineReview.Next(), 'not found 2th');
+        PriceListLineReview."Price List Code".AssertEquals('005');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd');
+    end;
+
+    [Test]
+    procedure T105_SalesJobDiscountsFromJobsList()
+    var
+        Job: Array[2] of Record Job;
+        JobTask: Record "Job Task";
+        PriceListLine: Array[5] of Record "Price List Line";
+        JobList: TestPage "Job List";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Sales Job Price line review page shows sales price list lines for one job open from the job List.
+        Initialize(true);
+        // [GIVEN] Jobs 'A' and 'B', Job Task 'C' for Job 'A'
+        LibraryJob.CreateJob(Job[1]);
+        LibraryJob.CreateJobTAsk(Job[1], JobTask);
+        LibraryJob.CreateJob(Job[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Jobs'
+        // [GIVEN] Price List #2, where "Source Type" is 'Job' 'A', "Amount Type" is 'Price'
+        // [GIVEN] Price List #3, where "Source Type" is 'Job' 'B'
+        // [GIVEN] Price List #4, where "Source Type" is 'Job' 'A', "Amount Type" is 'Discount'
+        // [GIVEN] Price List #5, where "Source Type" is 'Job Task' 'C', Job 'A', "Amount Type" is 'Discount'
+        CreateSalesPriceLinesForJobs(Job, JobTask, PriceListLine, "Price Amount Type"::Discount);
+
+        // [GIVEN] Open Job List for Job 'A'
+        JobList.OpenEdit();
+        JobList.Filter.SetFilter("No.", Job[1]."No.");
+
+        // [WHEN] Run action "Sales Discounts"
+        PriceListLineReview.Trap();
+        JobList.SalesDiscountLines.Invoke();
+
+        // [THEN] There are 2 price lines - #4, #5
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first');
+        PriceListLineReview."Price List Code".AssertEquals('004');
+        Assert.IsTrue(PriceListLineReview.Next(), 'not found 2th');
+        PriceListLineReview."Price List Code".AssertEquals('005');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd');
+    end;
+
+    [Test]
     procedure T120_JobCardPriceListsActionVisibleIfFeatureOn()
     var
         JobCard: TestPage "Job Card";
@@ -1215,6 +1948,84 @@ codeunit 134117 "Price Lists UI"
         PurchaseJobPriceLists.SourceType.AssertEquals(PriceListHeader[2]."Source Type");
         PurchaseJobPriceLists.SourceNo.AssertEquals(PriceListHeader[2]."Source No.");
         Assert.IsFalse(PurchaseJobPriceLists.Next(), 'found third');
+    end;
+
+    [Test]
+    procedure T154_PurchaseJobPricesFromJobsCard()
+    var
+        Job: Array[2] of Record Job;
+        JobTask: Record "Job Task";
+        PriceListLine: Array[5] of Record "Price List Line";
+        JobCard: TestPage "Job Card";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Purchase Job Price line review page shows sales price list lines for one job open from the job card.
+        Initialize(true);
+        // [GIVEN] Jobs 'A' and 'B', Job Task 'C' for Job 'A'
+        LibraryJob.CreateJob(Job[1]);
+        LibraryJob.CreateJobTAsk(Job[1], JobTask);
+        LibraryJob.CreateJob(Job[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Jobs'
+        // [GIVEN] Price List #2, where "Source Type" is 'Job' 'A', "Amount Type" is 'Price'
+        // [GIVEN] Price List #3, where "Source Type" is 'Job' 'B'
+        // [GIVEN] Price List #4, where "Source Type" is 'Job' 'A', "Amount Type" is 'Discount'
+        // [GIVEN] Price List #5, where "Source Type" is 'Job Task' 'C', Job 'A'
+        CreatePurchPriceLinesForJobs(Job, JobTask, PriceListLine, "Price Amount Type"::Price);
+
+        // [GIVEN] Open Job Card for Job 'A'
+        JobCard.OpenEdit();
+        JobCard.Filter.SetFilter("No.", Job[1]."No.");
+
+        // [WHEN] Run action "Purchase Prices"
+        PriceListLineReview.Trap();
+        JobCard.PurchPriceLines.Invoke();
+
+        // [THEN] There are 2 price lines - #2, #5
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first');
+        PriceListLineReview."Price List Code".AssertEquals('002');
+        Assert.IsTrue(PriceListLineReview.Next(), 'not found 2th');
+        PriceListLineReview."Price List Code".AssertEquals('005');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd');
+    end;
+
+    [Test]
+    procedure T155_PurchaseJobDiscountsFromJobsList()
+    var
+        Job: Array[2] of Record Job;
+        JobTask: Record "Job Task";
+        PriceListLine: Array[5] of Record "Price List Line";
+        JobList: TestPage "Job List";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [SCENARIO] Purchase Job Price line review page shows sales price list lines for one job open from the job List.
+        Initialize(true);
+        // [GIVEN] Jobs 'A' and 'B', Job Task 'C' for Job 'A'
+        LibraryJob.CreateJob(Job[1]);
+        LibraryJob.CreateJobTAsk(Job[1], JobTask);
+        LibraryJob.CreateJob(Job[2]);
+
+        // [GIVEN] Price List #1, where "Source Type" is 'All Jobs'
+        // [GIVEN] Price List #2, where "Source Type" is 'Job' 'A', "Amount Type" is 'Price'
+        // [GIVEN] Price List #3, where "Source Type" is 'Job' 'B'
+        // [GIVEN] Price List #4, where "Source Type" is 'Job' 'A', "Amount Type" is 'Discount'
+        // [GIVEN] Price List #5, where "Source Type" is 'Job Task' 'C', Job 'A'
+        CreatePurchPriceLinesForJobs(Job, JobTask, PriceListLine, "Price Amount Type"::Discount);
+
+        // [GIVEN] Open Job List for Job 'A'
+        JobList.OpenEdit();
+        JobList.Filter.SetFilter("No.", Job[1]."No.");
+
+        // [WHEN] Run action "Purchase Discounts"
+        PriceListLineReview.Trap();
+        JobList.PurchDiscountLines.Invoke();
+
+        // [THEN] There are 2 price lines - #4, #5
+        Assert.IsTrue(PriceListLineReview.First(), 'not found first');
+        PriceListLineReview."Price List Code".AssertEquals('004');
+        Assert.IsTrue(PriceListLineReview.Next(), 'not found 2th');
+        PriceListLineReview."Price List Code".AssertEquals('005');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd');
     end;
 
     [Test]
@@ -1543,18 +2354,110 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T190_ActivePriceLineEditableInReviewPageIfEditingAllowed()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        Initialize(true);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Active Price list line
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, LibraryUtility.GenerateGUID(), "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+        // [GIVEN] Open "Price List Line Review" 
+        PriceListLineReview.OpenEdit();
+        PriceListLineReview.Filter.Setfilter("Price List Code", PriceListLine."Price List Code");
+        // [WHEN] Edit the line: "Minimum Quantity" = 10, "Unit Price" = 1000
+        Assert.IsTrue(PriceListLineReview."Minimum Quantity".Editable(), '"Minimum Quantity".Editable');
+        PriceListLineReview."Minimum Quantity".SetValue(10);
+        Assert.IsTrue(PriceListLineReview."Unit Price".Editable(), '"Unit Price".Editable');
+        PriceListLineReview."Unit Price".SetValue(1000);
+        // [THEN] "Status" is 'Draft' in the modified line
+        Assert.AreEqual('Draft', PriceListLineReview.Status.Value, 'Status.Value');
+    end;
+
+    [Test]
+    procedure T191_VerifyActiveLineModifiedInReviewPage()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        Initialize(true);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Active Price list line
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, LibraryUtility.GenerateGUID(), "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+        // [GIVEN] Open "Price List Line Review" 
+        PriceListLineReview.OpenEdit();
+        PriceListLineReview.Filter.Setfilter("Price List Code", PriceListLine."Price List Code");
+        Assert.AreEqual(0, PriceListLineReview."Minimum Quantity".AsDecimal(), 'Minimum Quantity');
+        // [GIVEN] Change "Minimum Quantity" to 1
+        PriceListLineReview."Minimum Quantity".SetValue(1);
+        // [WHEN] Run 'Verify Lines' action
+        PriceListLineReview.VerifyLines.Invoke();
+
+        // [THEN] "Status" is 'Active' in the modified line
+        Assert.AreEqual('Active', PriceListLineReview.Status.Value, 'Status.Value');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler,NotificationLineHandler')]
+    procedure T192_NotificationToVerifyActiveLineModifiedInReviewPage()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        Initialize(true);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Active Price list line
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+        PriceListHeader.Modify();
+        // [GIVEN] Open "Price List Line Review" 
+        PriceListLineReview.OpenEdit();
+        PriceListLineReview.Filter.Setfilter("Price List Code", PriceListLine."Price List Code");
+        Assert.AreEqual(0, PriceListLineReview."Minimum Quantity".AsDecimal(), 'Minimum Quantity');
+        // [GIVEN] Change "Minimum Quantity" to 1
+        PriceListLineReview."Minimum Quantity".SetValue(1);
+
+        // [WHEN] Close the page
+        PriceListLineReview.Close();
+        // [THEN] Notification (without "Verify Lines" action) appears
+        // checked by NotificationLineHandler
+        // [THEN] "Status" is still 'Draft' in the modified line
+        PriceListLine.Find();
+        PriceListLine.TestField(Status, "Price Status"::Draft);
+    end;
+
+    [Test]
     [HandlerFunctions('ResourceListModalHandler')]
     procedure T200_WorkTypeVariantCodeOnSalesPriceListLineResource()
     var
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         Resource: Record Resource;
-        PriceListsUI: Codeunit "Price Lists UI";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Sales] [Resource]
         Initialize(true);
-        BindSubscription(PriceListsUI);
         // [GIVEN] Resource 'X'
         LibraryResource.CreateResource(Resource, '');
 
@@ -1595,12 +2498,10 @@ codeunit 134117 "Price Lists UI"
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         ResourceGroup: Record "Resource Group";
-        PriceListsUI: Codeunit "Price Lists UI";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Sales] [Resource Group]
         Initialize(true);
-        BindSubscription(PriceListsUI);
         // [GIVEN] Resource Group 'X'
         LibraryResource.CreateResourceGroup(ResourceGroup);
 
@@ -1629,12 +2530,10 @@ codeunit 134117 "Price Lists UI"
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         Item: Record Item;
-        PriceListsUI: Codeunit "Price Lists UI";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Sales] [Item]
         Initialize(true);
-        BindSubscription(PriceListsUI);
         // [GIVEN] Item 'X'
         LibraryInventory.CreateItem(Item);
 
@@ -1663,12 +2562,10 @@ codeunit 134117 "Price Lists UI"
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         GLAccount: Record "G/L Account";
-        PriceListsUI: Codeunit "Price Lists UI";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Sales] [Item]
         Initialize(true);
-        BindSubscription(PriceListsUI);
         // [GIVEN] Item 'X'
         LibraryERM.CreateGLAccount(GLAccount);
 
@@ -1699,12 +2596,10 @@ codeunit 134117 "Price Lists UI"
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         Resource: Record Resource;
-        PriceListsUI: Codeunit "Price Lists UI";
         PurchasePriceList: TestPage "Purchase Price List";
     begin
         // [FEATURE] [Purchase] [Resource]
         Initialize(true);
-        BindSubscription(PriceListsUI);
         // [GIVEN] Resource 'X'
         LibraryResource.CreateResource(Resource, '');
 
@@ -1745,12 +2640,10 @@ codeunit 134117 "Price Lists UI"
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         ResourceGroup: Record "Resource Group";
-        PriceListsUI: Codeunit "Price Lists UI";
         PurchasePriceList: TestPage "Purchase Price List";
     begin
         // [FEATURE] [Purchase] [Resource Group]
         Initialize(true);
-        BindSubscription(PriceListsUI);
         // [GIVEN] Resource Group 'X'
         LibraryResource.CreateResourceGroup(ResourceGroup);
 
@@ -1779,12 +2672,10 @@ codeunit 134117 "Price Lists UI"
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         Item: Record Item;
-        PriceListsUI: Codeunit "Price Lists UI";
         PurchasePriceList: TestPage "Purchase Price List";
     begin
         // [FEATURE] [Purchase] [Item]
         Initialize(true);
-        BindSubscription(PriceListsUI);
         // [GIVEN] Item 'X'
         LibraryInventory.CreateItem(Item);
 
@@ -1813,12 +2704,10 @@ codeunit 134117 "Price Lists UI"
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
         GLAccount: Record "G/L Account";
-        PriceListsUI: Codeunit "Price Lists UI";
         PurchasePriceList: TestPage "Purchase Price List";
     begin
         // [FEATURE] [Purchase] [Item]
         Initialize(true);
-        BindSubscription(PriceListsUI);
         // [GIVEN] Item 'X'
         LibraryERM.CreateGLAccount(GLAccount);
 
@@ -1845,12 +2734,17 @@ codeunit 134117 "Price Lists UI"
     local procedure Initialize(Enable: Boolean)
     var
         PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Price Lists UI");
 
         LibraryPriceCalculation.EnableExtendedPriceCalculation(Enable);
+        LibraryPriceCalculation.DisallowEditingActiveSalesPrice();
+        LibraryPriceCalculation.DisallowEditingActivePurchPrice();
         PriceListHeader.ModifyAll(Status, PriceListHeader.Status::Draft);
         PriceListHeader.DeleteAll(true);
+        PriceListLine.ModifyAll(Status, PriceListLine.Status::Draft);
+        PriceListLine.DeleteAll(true);
 
         LibraryVariableStorage.Clear;
 
@@ -1940,6 +2834,104 @@ codeunit 134117 "Price Lists UI"
                 end;
             SourceType := SourceType::"All Vendors";
         end;
+    end;
+
+    local procedure CreateSalesPriceLinesForCustomers(Customer: Array[2] of Record Customer; var PriceListLine: Array[4] of Record "Price List Line")
+    begin
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], '001', "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[1]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[1].Modify();
+
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], '002', "Price Source Type"::Customer, Customer[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[3], '003', "Price Source Type"::Customer, Customer[2]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[3]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[3].Modify();
+
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine[4], '004', "Price Source Type"::Customer, Customer[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+    end;
+
+    local procedure CreatePurchPriceLinesForVendors(Vendor: Array[2] of Record Vendor; var PriceListLine: Array[4] of Record "Price List Line")
+    begin
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[1], '001', "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[1]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[1].Modify();
+
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[2], '002', "Price Source Type"::Vendor, Vendor[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[3], '003', "Price Source Type"::Vendor, Vendor[2]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        LibraryPriceCalculation.CreatePurchDiscountLine(
+            PriceListLine[4], '004', "Price Source Type"::Vendor, Vendor[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+    end;
+
+    local procedure CreatePurchPriceLinesForJobs(Job: Array[2] of Record Job; JobTask: Record "Job Task"; var PriceListLine: Array[5] of Record "Price List Line"; FifthPriceAmountType: Enum "Price Amount Type")
+    begin
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[1], '001', "Price Source Type"::"All Jobs", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[1]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[1].Modify();
+
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[2], '002', "Price Source Type"::Job, Job[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine[3], '003', "Price Source Type"::Job, Job[2]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[3]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[3].Modify();
+
+        LibraryPriceCalculation.CreatePurchDiscountLine(
+            PriceListLine[4], '004', "Price Source Type"::Job, Job[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[5], '005', "Price Type"::Purchase, "Price Source Type"::"Job Task", Job[1]."No.", JobTask."Job Task No.",
+            FifthPriceAmountType, "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+    end;
+
+    local procedure CreateSalesPriceLinesForJobs(Job: Array[2] of Record Job; JobTask: Record "Job Task"; var PriceListLine: Array[5] of Record "Price List Line"; FifthPriceAmountType: Enum "Price Amount Type")
+    begin
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[1], '001', "Price Source Type"::"All Jobs", '',
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[1]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[1].Modify();
+
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[2], '002', "Price Source Type"::Job, Job[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine[3], '003', "Price Source Type"::Job, Job[2]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+        PriceListLine[3]."Amount Type" := "Price Amount Type"::Any;
+        PriceListLine[3].Modify();
+
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine[4], '004', "Price Source Type"::Job, Job[1]."No.",
+            "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
+
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[5], '005', "Price Type"::Sale, "Price Source Type"::"Job Task", Job[1]."No.", JobTask."Job Task No.",
+            FifthPriceAmountType, "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
     end;
 
     local procedure FillPriceListNos()
@@ -2040,6 +3032,7 @@ codeunit 134117 "Price Lists UI"
             until not PriceListLineReview.Next();
     end;
 
+
     [ModalPageHandler]
     procedure ResourceListModalHandler(var ResourceList: TestPage "Resource List")
     begin
@@ -2047,15 +3040,41 @@ codeunit 134117 "Price Lists UI"
         ResourceList.OK().Invoke();
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
-    local procedure OnAfterSetSalesSubFormLinkFilter(var Sender: Page "Price List Lines"; var SkipActivate: Boolean);
+    [ModalPageHandler]
+    procedure DuplicatePriceLinesModalHandler(var DuplicatePriceLines: TestPage "Duplicate Price Lines")
     begin
-        SkipActivate := true;
+        Assert.IsTrue(DuplicatePriceLines.Last(), 'not found the last line');
+        DuplicatePriceLines.Remove.SetValue(Format(false));
+
+        Assert.IsTrue(DuplicatePriceLines.First(), 'not found the first line');
+        Assert.IsTrue(DuplicatePriceLines.Remove.AsBoolean(), 'Remove.Value must be true in the first line');
+        DuplicatePriceLines.OK().Invoke();
     end;
 
-    [EventSubscriber(ObjectType::Page, Page::"Purchase Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
-    local procedure OnAfterSetPurchSubFormLinkFilter(var Sender: Page "Purchase Price List Lines"; var SkipActivate: Boolean);
+
+    [SendNotificationHandler]
+    procedure NotificationHandler(var VerifyLineNotification: Notification): Boolean;
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListManagement: Codeunit "Price List Management";
     begin
-        SkipActivate := true;
+        LibraryVariableStorage.Enqueue(VerifyLineNotification.GetData(PriceListHeader.FieldName(Code)));
+        // simulate action "Verify Lines" of notification
+        PriceListManagement.ActivateDraftLines(VerifyLineNotification);
+    end;
+
+    [SendNotificationHandler]
+    procedure NotificationLineHandler(var VerifyLineNotification: Notification): Boolean;
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // Notification without 'Verify Lines' action
+        Assert.IsFalse(VerifyLineNotification.HasData(PriceListHeader.FieldName(Code)), 'Notification.HasData');
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Msg: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Msg);
     end;
 }

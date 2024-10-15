@@ -85,7 +85,7 @@ report 6032 "Post Prepaid Contract Entries"
                             ServContractHdr.CalcFields("No. of Unposted Credit Memos");
                             if ServContractHdr."No. of Unposted Credit Memos" <> 0 then
                                 Error(Text005, Text007, Text008, ServContractHdr."Contract No.", Text006);
-                        until ServContractHdr.Next = 0;
+                        until ServContractHdr.Next() = 0;
                     end;
                 end;
 
@@ -257,7 +257,7 @@ report 6032 "Post Prepaid Contract Entries"
                 GenJnlLine."VAT Prod. Posting Group" := '';
                 GenJnlPostLine.Run(GenJnlLine);
             end;
-        until TempServLedgEntry.Next = 0;
+        until TempServLedgEntry.Next() = 0;
 
         TempServLedgEntry.Reset();
         TempServLedgEntry.DeleteAll();

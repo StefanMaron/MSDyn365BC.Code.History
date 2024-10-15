@@ -21,7 +21,7 @@ page 5935 "Service Credit Memo"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Customer No."; "Customer No.")
@@ -347,7 +347,7 @@ page 5935 "Service Credit Memo"
                         ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
                         if ChangeExchangeRate.RunModal = ACTION::OK then begin
                             Validate("Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
                     end;
@@ -903,7 +903,7 @@ page 5935 "Service Credit Memo"
         if GetFilter("Customer No.") = xRec."Customer No." then
             if "Customer No." <> xRec."Customer No." then
                 SetRange("Customer No.");
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SalespersonCodeOnAfterValidate()
@@ -918,22 +918,22 @@ page 5935 "Service Credit Memo"
 
     local procedure BilltoCustomerNoOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20])

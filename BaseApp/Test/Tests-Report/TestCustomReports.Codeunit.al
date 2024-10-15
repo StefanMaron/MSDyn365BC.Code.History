@@ -49,7 +49,6 @@ codeunit 134761 "Test Custom Reports"
         LibraryERM: Codeunit "Library - ERM";
         FormatDocument: Codeunit "Format Document";
         Usage: Option Quote,"Confirmation Order",Invoice,"Credit Memo","Customer Statement";
-        ReportSelectionsUsage: Option "S.Quote","S.Order","S.Invoice","S.Cr.Memo","S.Test","P.Quote","P.Order","P.Invoice","P.Cr.Memo","P.Receipt","P.Ret.Shpt.","P.Test","B.Stmt","B.Recon.Test","B.Check",Reminder,"Fin.Charge","Rem.Test","F.C.Test","Prod.Order","S.Blanket","P.Blanket",M1,M2,M3,M4,Inv1,Inv2,Inv3,"SM.Quote","SM.Order","SM.Invoice","SM.Credit Memo","SM.Contract Quote","SM.Contract","SM.Test","S.Return","P.Return","S.Shipment","S.Ret.Rcpt.","S.Work Order","Invt. Period Test","SM.Shipment","S.Test Prepmt.","P.Test Prepmt.","S.Arch.Quote","S.Arch.Order","P.Arch.Quote","P.Arch.Order","S.Arch.Return","P.Arch.Return","Asm.Order","P.Asm.Order","S.Order Pick",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"C.Statement","V.Remittance",JQ,"S.Invoice Draft";
         IsInitialized: Boolean;
         ExpectedFilesErr: Label 'Expected files as report output in temporary directory. None found.', Comment = '%1, filename.';
         ExpectedMissingFilePathErr: Label 'Expected files to not be present in output directory. Found %1', Comment = '%1 - filename';
@@ -536,7 +535,7 @@ codeunit 134761 "Test Custom Reports"
 
         // Get the report selection for the first test data customer
         CustomReportSelection.SetRange("Source No.", Customer."No.");
-        CustomReportSelection.SetRange(Usage, ReportSelectionsUsage::"C.Statement");
+        CustomReportSelection.SetRange(Usage, "Report Selection Usage"::"C.Statement");
         CustomReportSelection.SetRange("Report ID", REPORT::Statement);
         CustomReportSelection.FindFirst;
         CustomReportLayout.Get(CustomReportSelection."Custom Report Layout Code");
@@ -616,7 +615,7 @@ codeunit 134761 "Test Custom Reports"
 
         // Get the report selection for the first test data customer
         CustomReportSelection.SetRange("Source No.", CustomerFullMod."No.");
-        CustomReportSelection.SetRange(Usage, ReportSelectionsUsage::"C.Statement");
+        CustomReportSelection.SetRange(Usage, "Report Selection Usage"::"C.Statement");
         CustomReportSelection.SetRange("Report ID", REPORT::"Standard Statement");
         CustomReportSelection.FindFirst;
         CustomReportLayout.SetRange(Code, CustomReportSelection."Custom Report Layout Code");
@@ -1952,7 +1951,7 @@ codeunit 134761 "Test Custom Reports"
         // [GIVEN] Customers C1..C3|C5|C7 has Custom Layout "L1" for Usage "C.Statement".
         CustomerNoFilter := StrSubstNo('%1..%2|%3|%4', CustomerNo[1], CustomerNo[3], CustomerNo[5], CustomerNo[7]);
         TempCustomer.SetFilter("No.", CustomerNoFilter);
-        TempCustomer.FindSet;
+        TempCustomer.FindSet();
         repeat
             AssignCustomLayoutToCustomer(
               DATABASE::Customer, TempCustomer."No.", CustomReportSelection.Usage::"C.Statement", REPORT::"Standard Statement",
@@ -2007,7 +2006,7 @@ codeunit 134761 "Test Custom Reports"
         // [GIVEN] Vendors V1..V3|V5|V7 has Custom Layout "L1" for Usage "P.Invoice".
         VendorNoFilter := StrSubstNo('%1..%2|%3|%4', VendorNo[1], VendorNo[3], VendorNo[5], VendorNo[7]);
         TempVendor.SetFilter("No.", VendorNoFilter);
-        TempVendor.FindSet;
+        TempVendor.FindSet();
         repeat
             AssignCustomLayoutToCustomer(
               DATABASE::Vendor, TempVendor."No.", CustomReportSelection.Usage::"P.Invoice", REPORT::"Purchase - Invoice",
@@ -2075,7 +2074,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [WHEN] Run "Statement" (Preview) report filtered by empty Customer, "Include All Customers with a Balance" = true, "Include All Customers with Ledger Entries" = true.
         Customer.SetRange("No.", LibrarySales.CreateCustomerNo());
@@ -2105,7 +2104,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [WHEN] Run "Statement" (Preview) report filtered by empty Customer, "Include All Customers with a Balance" = true, "Include All Customers with Ledger Entries" = false.
         Customer.SetRange("No.", LibrarySales.CreateCustomerNo());
@@ -2135,7 +2134,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [WHEN] Run "Statement" (Preview) report filtered by empty Customer, "Include All Customers with a Balance" = false, "Include All Customers with Ledger Entries" = true.
         Customer.SetRange("No.", LibrarySales.CreateCustomerNo());
@@ -2165,7 +2164,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [GIVEN] Customer has ledger entries for 02/02/2020.
         LibrarySales.CreateCustomer(Customer);
@@ -2199,7 +2198,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [GIVEN] Customer has ledger entries for 02/02/2020.
         LibrarySales.CreateCustomer(Customer);
@@ -2233,7 +2232,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
-        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [GIVEN] Customer has ledger entries for 02/02/2020.
         LibrarySales.CreateCustomer(Customer);
@@ -2552,10 +2551,10 @@ codeunit 134761 "Test Custom Reports"
         ReportSelections: Record "Report Selections";
     begin
         // Sequence 1 is Standard statement, set other items to a different usage to exclude them from statement print runs
-        SetAllSelectionUsages(ReportSelectionsUsage::Reminder);
+        SetAllSelectionUsages("Report Selection Usage"::Reminder);
 
-        ReportSelections.Get(ReportSelectionsUsage::Reminder, '1');
-        ReportSelections.Rename(ReportSelectionsUsage::"C.Statement", '1');
+        ReportSelections.Get("Report Selection Usage"::Reminder, '1');
+        ReportSelections.Rename("Report Selection Usage"::"C.Statement", '1');
         Commit();
     end;
 
@@ -2564,14 +2563,14 @@ codeunit 134761 "Test Custom Reports"
         ReportSelections: Record "Report Selections";
     begin
         // Sequence 2 is Statement, set other items to a different usage to exclude them from statement print runs
-        SetAllSelectionUsages(ReportSelectionsUsage::Reminder);
+        SetAllSelectionUsages("Report Selection Usage"::Reminder);
 
-        ReportSelections.Get(ReportSelectionsUsage::Reminder, '2');
-        ReportSelections.Rename(ReportSelectionsUsage::"C.Statement", '2');
+        ReportSelections.Get("Report Selection Usage"::Reminder, '2');
+        ReportSelections.Rename("Report Selection Usage"::"C.Statement", '2');
         Commit();
     end;
 
-    local procedure SetAllSelectionUsages(ReportSelectionUsage: Integer)
+    local procedure SetAllSelectionUsages(ReportSelectionUsage: Enum "Report Selection Usage")
     var
         ReportSelections: Record "Report Selections";
     begin
@@ -2656,7 +2655,7 @@ codeunit 134761 "Test Custom Reports"
 
     local procedure RunStatementReportWithAllSelection(var Customer: Record Customer; var CustomLayoutReporting: Codeunit "Custom Layout Reporting"; SavePath: Text; SuppressOutput: Boolean; UseSameIterator: Boolean)
     begin
-        SetAllSelectionUsages(ReportSelectionsUsage::"C.Statement");
+        SetAllSelectionUsages("Report Selection Usage"::"C.Statement");
         RunCustomerStatement(Customer, CustomLayoutReporting, SavePath, SuppressOutput, UseSameIterator, GetStartDate);
     end;
 
@@ -3140,8 +3139,8 @@ codeunit 134761 "Test Custom Reports"
           ExpectedCustomReportLayout.Code, CustomReportSelection."Custom Report Layout Code",
           'Incorrect Value in Customer Report Selections');
     end;
-    
-    [EventSubscriber(ObjectType::Codeunit, 8800, 'OnIsTestMode', '', false, false)]
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnIsTestMode', '', false, false)]
     local procedure EnableTestModeOnIsTestMode(var TestMode: Boolean)
     begin
         TestMode := true

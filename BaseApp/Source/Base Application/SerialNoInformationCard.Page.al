@@ -183,9 +183,11 @@ page 6504 "Serial No. Information Card"
 
                 trigger OnAction()
                 var
+                    ItemTrackingSetup: Record "Item Tracking Setup";
                     Navigate: Page Navigate;
                 begin
-                    Navigate.SetTracking("Serial No.", '');
+                    ItemTrackingSetup."Serial No." := Rec."Serial No.";
+                    Navigate.SetTracking(ItemTrackingSetup);
                     Navigate.Run;
                 end;
             }

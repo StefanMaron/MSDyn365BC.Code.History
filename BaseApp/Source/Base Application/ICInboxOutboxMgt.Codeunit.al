@@ -82,7 +82,7 @@
                 Error(Text002, ICPartner.TableCaption, ICPartner.Code, ICPartner.FieldCaption("Inbox Type"), ICPartner."Inbox Type");
         ICPartner.TestField(Blocked, false);
         OnSendSalesDocOnBeforeReleaseSalesDocument(SalesHeader, Post);
-	
+
         CheckICSalesDocumentAlreadySent(SalesHeader);
 
         if not Post then
@@ -105,7 +105,7 @@
         ICPartner.TestField(Blocked, false);
 
         OnSendPurchDocOnBeforeReleasePurchDocument(PurchHeader, Post);
-	
+
         CheckICPurchaseDocumentAlreadySent(PurchHeader);
 
         if not Post then
@@ -205,7 +205,7 @@
                         LinesCreated := true;
                     end;
                     OnAfterICOutBoxSalesLineInsert(SalesLine, ICOutBoxSalesLine);
-                until SalesLine.Next = 0;
+                until SalesLine.Next() = 0;
         end;
 
         if LinesCreated then begin
@@ -228,7 +228,9 @@
         ICOutBoxSalesHeader: Record "IC Outbox Sales Header";
         ICOutBoxSalesLine: Record "IC Outbox Sales Line";
         ICDocDim: Record "IC Document Dimension";
+#if not CLEAN17                            
         ItemCrossReference: Record "Item Cross Reference";
+#endif
         ItemReference: Record "Item Reference";
         Item: Record Item;
         TransactionNo: Integer;
@@ -308,21 +310,25 @@
                                         "IC Partner Reference" := SalesInvLine."No.";
                                     end;
                                 ICPartner."Outbound Sales Item No. Type"::"Cross Reference":
-                                    if ItemReferenceMgt.IsEnabled() then begin
+                                    begin
                                         Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross reference");
-                                        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Customer);
-                                        ItemReference.SetRange("Reference Type No.", SalesInvLine."Bill-to Customer No.");
-                                        ItemReference.SetRange("Item No.", SalesInvLine."No.");
-                                        if ItemReference.FindFirst() then
-                                            "IC Item Reference No." := ItemReference."Reference No.";
-                                    end else begin
-                                        Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross reference");
-                                        ItemCrossReference.SetRange("Cross-Reference Type",
-                                          ItemCrossReference."Cross-Reference Type"::Customer);
-                                        ItemCrossReference.SetRange("Cross-Reference Type No.", SalesInvLine."Bill-to Customer No.");
-                                        ItemCrossReference.SetRange("Item No.", SalesInvLine."No.");
-                                        if ItemCrossReference.FindFirst then
-                                            "IC Partner Reference" := ItemCrossReference."Cross-Reference No.";
+                                        if ItemReferenceMgt.IsEnabled() then begin
+                                            ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Customer);
+                                            ItemReference.SetRange("Reference Type No.", SalesInvLine."Bill-to Customer No.");
+                                            ItemReference.SetRange("Item No.", SalesInvLine."No.");
+                                            if ItemReference.FindFirst() then
+                                                "IC Item Reference No." := ItemReference."Reference No.";
+                                        end;
+#if not CLEAN17
+                                        if not ItemReferenceMgt.IsEnabled() then begin
+                                            ItemCrossReference.SetRange("Cross-Reference Type",
+                                            ItemCrossReference."Cross-Reference Type"::Customer);
+                                            ItemCrossReference.SetRange("Cross-Reference Type No.", SalesInvLine."Bill-to Customer No.");
+                                            ItemCrossReference.SetRange("Item No.", SalesInvLine."No.");
+                                            if ItemCrossReference.FindFirst then
+                                                "IC Partner Reference" := ItemCrossReference."Cross-Reference No.";
+                                        end;
+#endif
                                     end;
                                 ICPartner."Outbound Sales Item No. Type"::"Common Item No.":
                                     begin
@@ -337,7 +343,7 @@
                         ICDocDim."Line No." := SalesInvLine."Line No.";
                         CreateICDocDimFromPostedDocDim(ICDocDim, SalesInvLine."Dimension Set ID", DATABASE::"IC Outbox Sales Line");
                     end;
-                until SalesInvLine.Next = 0;
+                until SalesInvLine.Next() = 0;
         end;
 
         OnBeforeICOutboxTransactionCreatedSalesInvTrans(SalesInvHdr, SalesInvLine, ICOutBoxSalesHeader, OutboxTransaction);
@@ -427,7 +433,7 @@
                         ICDocDim."Line No." := SalesCrMemoLine."Line No.";
                         CreateICDocDimFromPostedDocDim(ICDocDim, SalesCrMemoLine."Dimension Set ID", DATABASE::"IC Outbox Sales Line");
                     end;
-                until SalesCrMemoLine.Next = 0;
+                until SalesCrMemoLine.Next() = 0;
         end;
         OnBeforeICOutboxTransactionCreatedSalesCrMemoTrans(SalesCrMemoHdr, SalesCrMemoLine, ICOutBoxSalesHeader, OutboxTransaction);
         OnInsertICOutboxSalesCrMemoTransaction(OutboxTransaction);
@@ -520,7 +526,7 @@
                         OnCreateOutboxPurchDocTransOnAfterICOutBoxPurchLineInsert(ICOutBoxPurchLine, PurchLine);
                         LinesCreated := true;
                     end;
-                until PurchLine.Next = 0;
+                until PurchLine.Next() = 0;
         end;
 
         if LinesCreated then begin
@@ -787,7 +793,7 @@
                       ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
                     if ICDocDim.Find('-') then
                         DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", "Transaction Source");
-                until Next = 0;
+                until Next() = 0;
         end;
 
         OnAfterCreateSalesDocument(SalesHeader, ICInboxSalesHeader, HandledICInboxSalesHeader);
@@ -797,7 +803,9 @@
     var
         SalesLine: Record "Sales Line";
         ICDocDim: Record "IC Document Dimension";
+#if not CLEAN17
         ItemCrossReference: Record "Item Cross Reference";
+#endif
         Currency: Record Currency;
         Precision: Decimal;
         DimensionSetIDArr: array[10] of Integer;
@@ -824,25 +832,25 @@
                     begin
                         SalesLine.Validate(Type, SalesLine.Type::Item);
                         if ItemReferenceMgt.IsEnabled() then
-                            SalesLine.Validate("Item Reference No.", "IC Item Reference No.")
-                        else
+                            SalesLine.Validate("Item Reference No.", "IC Item Reference No.");
+#if not CLEAN16                            
+                        if not ItemReferenceMgt.IsEnabled() then
                             SalesLine.Validate("Cross-Reference No.", "IC Partner Reference");
+#endif                            
                     end;
                 "IC Partner Ref. Type"::Item, "IC Partner Ref. Type"::"Vendor Item No.":
-                    if ItemReferenceMgt.IsEnabled() then begin
+                    begin
                         SalesLine.Validate(Type, SalesLine.Type::Item);
-                        SalesLine."No." :=
-                          GetItemFromItemRef(
-                            "IC Item Reference No.", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
-                        if SalesLine."No." <> '' then
-                            SalesLine.Validate("No.", SalesLine."No.")
-                        else
-                            SalesLine."No." := "IC Partner Reference";
-                    end else begin
-                        SalesLine.Validate(Type, SalesLine.Type::Item);
-                        SalesLine."No." :=
-                          GetItemFromRef(
-                            "IC Partner Reference", ItemCrossReference."Cross-Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
+                        if ItemReferenceMgt.IsEnabled() then
+                            SalesLine."No." :=
+                                GetItemFromItemRef(
+                                    "IC Item Reference No.", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
+#if not CLEAN17
+                        if not ItemReferenceMgt.IsEnabled() then
+                            SalesLine."No." :=
+                                GetItemFromRef(
+                                    "IC Partner Reference", ItemCrossReference."Cross-Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
+#endif
                         if SalesLine."No." <> '' then
                             SalesLine.Validate("No.", SalesLine."No.")
                         else
@@ -1003,7 +1011,7 @@
                       ICDocDim, DATABASE::"IC Inbox Purchase Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
                     if ICDocDim.Find('-') then
                         DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", "Transaction Source");
-                until Next = 0;
+                until Next() = 0;
         end;
         OnAfterCreatePurchDocument(PurchHeader, ICInboxPurchHeader, HandledICInboxPurchHeader);
     end;
@@ -1012,7 +1020,9 @@
     var
         PurchLine: Record "Purchase Line";
         ICDocDim: Record "IC Document Dimension";
+#if not CLEAN17
         ItemCrossReference: Record "Item Cross Reference";
+#endif
         Currency: Record Currency;
         Precision: Decimal;
         Precision2: Decimal;
@@ -1047,11 +1057,13 @@
                         if ItemReferenceMgt.IsEnabled() then
                             PurchLine."No." :=
                                 GetItemFromItemRef(
-                                    "IC Item Reference No.", "Item Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.")
-                        else
+                                    "IC Item Reference No.", "Item Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.");
+#if not CLEAN17
+                        if not ItemReferenceMgt.IsEnabled() then
                             PurchLine."No." :=
                                 GetItemFromRef(
                                     "IC Partner Reference", ItemCrossReference."Cross-Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.");
+#endif
                         if PurchLine."No." <> '' then
                             PurchLine.Validate("No.", PurchLine."No.")
                         else
@@ -1071,9 +1083,11 @@
                     begin
                         PurchLine.Validate(Type, PurchLine.Type::Item);
                         if ItemReferenceMgt.IsEnabled() then
-                            PurchLine.Validate("Item Reference No.", "IC Item Reference No.")
-                        else
+                            PurchLine.Validate("Item Reference No.", "IC Item Reference No.");
+#if not CLEAN16                            
+                        if not ItemReferenceMgt.IsEnabled() then
                             PurchLine.Validate("Cross-Reference No.", "IC Partner Reference");
+#endif                            
                     end;
                 else
                     OnCreatePurchLinesOnICPartnerRefTypeCaseElse(PurchLine, PurchHeader, ICInboxPurchLine);
@@ -1226,7 +1240,7 @@
                                 ICIOMgt.MoveICJnlDimToHandled(DATABASE::"Handled IC Inbox Jnl. Line", DATABASE::"IC Inbox Jnl. Line",
                                   HandledInboxTransaction."Transaction No.", HandledInboxTransaction."IC Partner Code",
                                   false, 0);
-                            until HandledInboxJnlLine.Next = 0;
+                            until HandledInboxJnlLine.Next() = 0;
                         HandleICComments(ICCommentLine."Table Name"::"Handled IC Inbox Transaction",
                           ICCommentLine."Table Name"::"IC Inbox Transaction", HandledInboxTransaction2."Transaction No.",
                           HandledInboxTransaction2."IC Partner Code", HandledInboxTransaction2."Transaction Source");
@@ -1267,7 +1281,7 @@
                                         DimMgt.MoveICDocDimtoICDocDim(
                                           ICDocDim, ICDocDim2, DATABASE::"IC Inbox Sales Line", InboxSalesLine."Transaction Source");
                                     HandledInboxSalesLine.Delete(true);
-                                until HandledInboxSalesLine.Next = 0;
+                                until HandledInboxSalesLine.Next() = 0;
                         end;
                         HandleICComments(ICCommentLine."Table Name"::"Handled IC Inbox Transaction",
                           ICCommentLine."Table Name"::"IC Inbox Transaction", HandledInboxTransaction2."Transaction No.",
@@ -1311,7 +1325,7 @@
                                         DimMgt.MoveICDocDimtoICDocDim(
                                           ICDocDim, ICDocDim2, DATABASE::"IC Inbox Purchase Line", InboxPurchLine."Transaction Source");
                                     HandledInboxPurchLine.Delete(true);
-                                until HandledInboxPurchLine.Next = 0;
+                                until HandledInboxPurchLine.Next() = 0;
                         end;
                         HandleICComments(ICCommentLine."Table Name"::"Handled IC Inbox Transaction",
                           ICCommentLine."Table Name"::"IC Inbox Transaction", HandledInboxTransaction2."Transaction No.",
@@ -1381,7 +1395,7 @@
                                 ICIOMgt.MoveICJnlDimToHandled(DATABASE::"Handled IC Outbox Jnl. Line", DATABASE::"IC Outbox Jnl. Line",
                                   HandledOutboxTransaction."Transaction No.", HandledOutboxTransaction."IC Partner Code",
                                   false, 0);
-                            until HandledOutboxJnlLine.Next = 0;
+                            until HandledOutboxJnlLine.Next() = 0;
                         HandleICComments(ICCommentLine."Table Name"::"Handled IC Outbox Transaction",
                           ICCommentLine."Table Name"::"IC Outbox Transaction", HandledOutboxTransaction2."Transaction No.",
                           HandledOutboxTransaction2."IC Partner Code", HandledOutboxTransaction2."Transaction Source");
@@ -1419,7 +1433,7 @@
                                         DimMgt.MoveICDocDimtoICDocDim(
                                           ICDocDim, ICDocDim2, DATABASE::"IC Outbox Sales Line", OutboxSalesLine."Transaction Source");
                                     HandledOutboxSalesLine.Delete(true);
-                                until HandledOutboxSalesLine.Next = 0;
+                                until HandledOutboxSalesLine.Next() = 0;
                         end;
                         HandleICComments(ICCommentLine."Table Name"::"Handled IC Outbox Transaction",
                           ICCommentLine."Table Name"::"IC Outbox Transaction", HandledOutboxTransaction2."Transaction No.",
@@ -1462,7 +1476,7 @@
                                         DimMgt.MoveICDocDimtoICDocDim(
                                           ICDocDim, ICDocDim2, DATABASE::"IC Outbox Purchase Line", OutboxPurchLine."Transaction Source");
                                     HandledOutboxPurchLine.Delete(true);
-                                until HandledOutboxPurchLine.Next = 0;
+                                until HandledOutboxPurchLine.Next() = 0;
                         end;
                         HandleICComments(ICCommentLine."Table Name"::"Handled IC Outbox Transaction",
                           ICCommentLine."Table Name"::"IC Outbox Transaction", HandledOutboxTransaction2."Transaction No.",
@@ -1534,9 +1548,9 @@
                                         ICJnlLineDim2."Table ID" := DATABASE::"IC Outbox Jnl. Line";
                                         ICJnlLineDim2."Transaction Source" := OutboxJnlLine."Transaction Source";
                                         ICJnlLineDim2.Insert();
-                                    until ICJnlLineDim.Next = 0;
+                                    until ICJnlLineDim.Next() = 0;
 
-                            until InboxJnlLine.Next = 0;
+                            until InboxJnlLine.Next() = 0;
                     end;
                 "Source Type"::"Sales Document":
                     begin
@@ -1577,7 +1591,7 @@
                                     if ICDocDim.Find('-') then
                                         DimMgt.MoveICDocDimtoICDocDim(
                                           ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", InboxSalesLine."Transaction Source");
-                                until InboxSalesLine.Next = 0;
+                                until InboxSalesLine.Next() = 0;
                         end;
                         OnAfterForwardToOutBoxSalesDoc(InboxTransaction, OutboxTransaction);
                     end;
@@ -1619,7 +1633,7 @@
                                     if ICDocDim.Find('-') then
                                         DimMgt.MoveICDocDimtoICDocDim(
                                           ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", InboxPurchLine."Transaction Source");
-                                until InboxPurchLine.Next = 0;
+                                until InboxPurchLine.Next() = 0;
                         end;
                         OnAfterForwardToOutBoxPurchDoc(InboxTransaction, OutboxTransaction);
                     end;
@@ -1643,7 +1657,7 @@
                     ICCommentLine2."Table Name" := ICCommentLine."Table Name"::"IC Outbox Transaction";
                     ICCommentLine2."Transaction Source" := ICCommentLine."Transaction Source"::Rejected;
                     ICCommentLine2.Insert();
-                until ICCommentLine.Next = 0;
+                until ICCommentLine.Next() = 0;
         end;
     end;
 
@@ -1679,6 +1693,7 @@
         exit(Item."No.");
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetItemFromItemRef().', '17.0')]
     procedure GetItemFromRef("Code": Code[20]; CrossRefType: Option; CrossRefTypeNo: Code[20]): Code[20]
     var
@@ -1705,6 +1720,7 @@
         end;
         exit('');
     end;
+#endif
 
     procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]): Code[20]
     var
@@ -1757,12 +1773,12 @@
                 TempICCommentLine."Table Name" := NewTableName;
                 TempICCommentLine."Transaction Source" := TransactionSource;
                 TempICCommentLine.Insert();
-            until ICCommentLine.Next = 0;
+            until ICCommentLine.Next() = 0;
             if TempICCommentLine.Find('-') then
                 repeat
                     ICCommentLine := TempICCommentLine;
                     ICCommentLine.Insert();
-                until TempICCommentLine.Next = 0;
+                until TempICCommentLine.Next() = 0;
         end;
     end;
 
@@ -2098,12 +2114,12 @@
                 InOutboxJnlLineDim.Delete();
                 TempInOutboxJnlLineDim."Table ID" := NewTableID;
                 TempInOutboxJnlLineDim.Insert();
-            until InOutboxJnlLineDim.Next = 0;
+            until InOutboxJnlLineDim.Next() = 0;
             if TempInOutboxJnlLineDim.Find('-') then
                 repeat
                     InOutboxJnlLineDim := TempInOutboxJnlLineDim;
                     InOutboxJnlLineDim.Insert();
-                until TempInOutboxJnlLineDim.Next = 0;
+                until TempInOutboxJnlLineDim.Next() = 0;
         end;
     end;
 
@@ -2123,7 +2139,7 @@
                 HandledICDocDim."Table ID" := ToTableID;
                 HandledICDocDim.Insert();
                 ICDocDim.Delete();
-            until ICDocDim.Next = 0;
+            until ICDocDim.Next() = 0;
     end;
 
     procedure MoveOutboxTransToHandledOutbox(var ICOutboxTrans: Record "IC Outbox Transaction")
@@ -2160,9 +2176,9 @@
                         HandledICInOutJnlLineDim."Table ID" := DATABASE::"Handled IC Outbox Jnl. Line";
                         HandledICInOutJnlLineDim.Insert();
                         ICInOutJnlLineDim.Delete();
-                    until ICInOutJnlLineDim.Next = 0;
+                    until ICInOutJnlLineDim.Next() = 0;
                 ICOutboxJnlLine.Delete();
-            until ICOutboxJnlLine.Next = 0;
+            until ICOutboxJnlLine.Next() = 0;
 
         ICOutboxSalesHdr.SetRange("IC Transaction No.", ICOutboxTrans."Transaction No.");
         if ICOutboxSalesHdr.Find('-') then
@@ -2189,9 +2205,9 @@
                             ICOutboxSalesHdr."IC Partner Code", ICOutboxSalesHdr."Transaction Source", ICOutboxSalesLine."Line No.");
                         OnMoveOutboxTransToHandledOutboxOnBeforeICOutboxSalesLineDelete(ICOutboxSalesLine, HandledICOutboxSalesLine);
                         ICOutboxSalesLine.Delete();
-                    until ICOutboxSalesLine.Next = 0;
+                    until ICOutboxSalesLine.Next() = 0;
                 ICOutboxSalesHdr.Delete();
-            until ICOutboxSalesHdr.Next = 0;
+            until ICOutboxSalesHdr.Next() = 0;
 
         ICOutboxPurchHdr.SetRange("IC Transaction No.", ICOutboxTrans."Transaction No.");
         if ICOutboxPurchHdr.Find('-') then
@@ -2219,9 +2235,9 @@
                           ICOutboxPurchHdr."IC Partner Code", ICOutboxPurchHdr."Transaction Source", ICOutboxPurchLine."Line No.");
                         OnMoveOutboxTransToHandledOutboxOnBeforeICOutboxPurchLineDelete(ICOutboxPurchLine, HandledICOutboxPurchLine);
                         ICOutboxPurchLine.Delete();
-                    until ICOutboxPurchLine.Next = 0;
+                    until ICOutboxPurchLine.Next() = 0;
                 ICOutboxPurchHdr.Delete();
-            until ICOutboxPurchHdr.Next = 0;
+            until ICOutboxPurchHdr.Next() = 0;
 
         OnMoveOutboxTransToHandledOutboxOnBeforeHandledICOutboxTransTransferFields(HandledICOutboxTrans, ICOutboxTrans);
         HandledICOutboxTrans.TransferFields(ICOutboxTrans, true);
@@ -2249,7 +2265,7 @@
                 HandledICCommentLine."Table Name" := HandledICCommentLine."Table Name"::"Handled IC Outbox Transaction";
                 HandledICCommentLine.Insert();
                 ICCommentLine.Delete();
-            until ICCommentLine.Next = 0;
+            until ICCommentLine.Next() = 0;
     end;
 
     procedure CreateICDocDimFromPostedDocDim(ICDocDim: Record "IC Document Dimension"; DimSetID: Integer; TableNo: Integer)
@@ -2266,7 +2282,7 @@
                   DimMgt.ConvertDimValuetoICDimVal(DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
                 if (ICDocDim."Dimension Code" <> '') and (ICDocDim."Dimension Value Code" <> '') then
                     ICDocDim.Insert();
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     local procedure FindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLineSource: Record "Purchase Line"): Boolean
@@ -2295,7 +2311,7 @@
                     PurchaseLine.CalcSums(Quantity);
                     if Abs("Qty. Rcd. Not Invoiced" - PurchaseLine.Quantity) >= Abs(PurchaseLineSource.Quantity) then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
             exit(false);
         end;
     end;
@@ -2325,7 +2341,7 @@
                     PurchaseLine.CalcSums(Quantity);
                     if Abs("Return Qty. Shipped Not Invd." - PurchaseLine.Quantity) >= Abs(PurchaseLineSource.Quantity) then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
             exit(false);
         end;
     end;
@@ -2363,7 +2379,9 @@
     local procedure UpdateSalesLineICPartnerReference(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ICInboxSalesLine: Record "IC Inbox Sales Line")
     var
         ICPartner: Record "IC Partner";
+#if not CLEAN16
         ItemCrossReference: Record "Item Cross Reference";
+#endif        
         ItemReference: Record "Item Reference";
         GLAccount: Record "G/L Account";
     begin
@@ -2391,13 +2409,16 @@
                                 ItemReference.SetRange("Item No.", "IC Partner Reference");
                                 if ItemReference.FindFirst then
                                     SalesLine."IC Item Reference No." := ItemReference."Reference No.";
-                            end else begin
+                            end;
+#if not CLEAN16                            
+                            if not ItemReferenceMgt.IsEnabled() then begin
                                 ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Customer);
                                 ItemCrossReference.SetRange("Cross-Reference Type No.", SalesHeader."Sell-to Customer No.");
                                 ItemCrossReference.SetRange("Item No.", "IC Partner Reference");
                                 if ItemCrossReference.FindFirst then
                                     SalesLine."IC Partner Reference" := ItemCrossReference."Cross-Reference No.";
                             end;
+#endif                            
                         end;
                 end;
             end else begin
@@ -2414,7 +2435,9 @@
     local procedure UpdatePurchLineICPartnerReference(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
     var
         ICPartner: Record "IC Partner";
+#if not CLEAN17                            
         ItemCrossReference: Record "Item Cross Reference";
+#endif
         ItemReference: Record "Item Reference";
         GLAccount: Record "G/L Account";
         IsHandled: Boolean;
@@ -2448,13 +2471,16 @@
                                 ItemReference.SetRange("Item No.", "IC Partner Reference");
                                 if ItemReference.FindFirst() then
                                     PurchaseLine."IC Item Reference No." := ItemReference."Reference No.";
-                            end else begin
+                            end;
+#if not CLEAN17                            
+                            if not ItemReferenceMgt.IsEnabled() then begin
                                 ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
                                 ItemCrossReference.SetRange("Cross-Reference Type No.", PurchaseHeader."Buy-from Vendor No.");
                                 ItemCrossReference.SetRange("Item No.", "IC Partner Reference");
                                 if ItemCrossReference.FindFirst then
                                     PurchaseLine."IC Partner Reference" := ItemCrossReference."Cross-Reference No.";
                             end;
+#endif
                         end;
                     ICPartner."Outbound Purch. Item No. Type"::"Vendor Item No.":
                         begin

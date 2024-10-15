@@ -929,11 +929,15 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'View posted bank statements and reconciliations.';
                 }
             }
+#if not CLEAN18
             group(SetupAndExtensions)
             {
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                ObsoleteTag = '18.0';
                 action("Assisted Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -941,6 +945,9 @@ page 9027 "Accountant Role Center"
                     Image = QuestionaireSetup;
                     RunObject = Page "Assisted Setup";
                     ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action("Manual Setup")
                 {
@@ -948,6 +955,9 @@ page 9027 "Accountant Role Center"
                     Caption = 'Manual Setup';
                     RunObject = Page "Manual Setup";
                     ToolTip = 'Define your company policies for business departments and for general activities.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action("Service Connections")
                 {
@@ -956,6 +966,9 @@ page 9027 "Accountant Role Center"
                     Image = ServiceTasks;
                     RunObject = Page "Service Connections";
                     ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Extensions)
                 {
@@ -964,6 +977,9 @@ page 9027 "Accountant Role Center"
                     Image = NonStockItemSetup;
                     RunObject = Page "Extension Management";
                     ToolTip = 'Install Extensions for greater functionality of the system.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Workflows)
                 {
@@ -973,8 +989,12 @@ page 9027 "Accountant Role Center"
                     PromotedCategory = Process;
                     RunObject = Page Workflows;
                     ToolTip = 'Set up or enable workflows that connect business-process tasks performed by different users. System tasks, such as automatic posting, can be included as steps in workflows, preceded or followed by user tasks. Requesting and granting approval to create new records are typical workflow steps.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
             }
+#endif
         }
         area(creation)
         {

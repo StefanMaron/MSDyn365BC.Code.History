@@ -48,7 +48,7 @@ codeunit 429 "IC Dimension Value-Indent"
 
                     if "Dimension Value Type" = "Dimension Value Type"::"Begin-Total" then
                         i += 1;
-                until Next = 0;
+                until Next() = 0;
 
         Window.Close;
     end;

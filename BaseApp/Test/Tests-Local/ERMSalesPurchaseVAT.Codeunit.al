@@ -642,7 +642,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         PurchaseHeader.Validate("Applies-to Doc. Type", PurchaseHeader."Applies-to Doc. Type"::Invoice);
         PurchaseHeader.Validate("Applies-to Doc. No.", AppliesToDocNo);
         PurchaseHeader.Modify(true);
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
     end;
 
     local procedure CreateSalesCreditMemoWithRevFunction(var SalesHeader: Record "Sales Header"; SellToCustomerNo: Code[20]; AppliesToDocNo: Code[20])
@@ -652,7 +652,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
         SalesHeader.Validate("Applies-to Doc. No.", AppliesToDocNo);
         SalesHeader.Modify(true);
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
     end;
 
     local procedure CreateCurrencyACY(): Code[10]

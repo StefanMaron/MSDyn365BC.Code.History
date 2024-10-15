@@ -49,7 +49,7 @@ report 10500 "GST/HST Internet File Transfer"
                 end;
 
                 VATEntry.Copy("VAT Entry");
-                if VATEntry.Next = 0 then begin
+                if VATEntry.Next() = 0 then begin
                     CheckValue(NewHousingRebates, '135');
                     CheckValue(PensionRebate, '136');
                     WriteToFile;

@@ -508,11 +508,9 @@ table 5107 "Sales Header Archive"
             MaxValue = 100;
             MinValue = 0;
         }
-        field(120; Status; Option)
+        field(120; Status; Enum "Sales Document Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Open,Released,Pending Approval,Pending Prepayment';
-            OptionMembers = Open,Released,"Pending Approval","Pending Prepayment";
         }
         field(121; "Invoice Discount Calculation"; Option)
         {
@@ -529,11 +527,9 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Send IC Document';
         }
-        field(124; "IC Status"; Option)
+        field(124; "IC Status"; Enum "Sales Document IC Status")
         {
             Caption = 'IC Status';
-            OptionCaption = 'New,Pending,Sent';
-            OptionMembers = New,Pending,Sent;
         }
         field(125; "Sell-to IC Partner Code"; Code[20])
         {
@@ -706,7 +702,17 @@ table 5107 "Sales Header Archive"
         field(5051; "Sell-to Customer Template Code"; Code[10])
         {
             Caption = 'Sell-to Customer Template Code';
+#if not CLEAN18
             TableRelation = "Customer Template";
+#endif
+            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
+#if not CLEAN18
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(5052; "Sell-to Contact No."; Code[20])
         {
@@ -728,17 +734,20 @@ table 5107 "Sales Header Archive"
             TableRelation = Opportunity."No." WHERE("Contact No." = FIELD("Sell-to Contact No."),
                                                      Closed = CONST(false));
         }
+        field(5056; "Sell-to Customer Templ. Code"; Code[20])
+        {
+            Caption = 'Sell-to Customer Template Code';
+            TableRelation = "Customer Templ.";
+        }
         field(5700; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-        field(5750; "Shipping Advice"; Option)
+        field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(5752; "Completely Shipped"; Boolean)
         {
@@ -896,7 +905,7 @@ table 5107 "Sales Header Archive"
         if SalesLineArchive.FindSet(true) then
             repeat
                 CatalogItemMgt.DelNonStockSalesArch(SalesLineArchive);
-            until SalesLineArchive.Next = 0;
+            until SalesLineArchive.Next() = 0;
         SalesLineArchive.SetRange(Nonstock);
         SalesLineArchive.DeleteAll();
 

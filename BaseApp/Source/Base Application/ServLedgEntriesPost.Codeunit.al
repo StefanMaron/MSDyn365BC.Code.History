@@ -1,4 +1,4 @@
-﻿codeunit 5912 "ServLedgEntries-Post"
+codeunit 5912 "ServLedgEntries-Post"
 {
     Permissions = TableData "Service Ledger Entry" = rimd,
                   TableData "Warranty Ledger Entry" = rimd,
@@ -627,7 +627,7 @@
                 TempNewServLedgEntry."Entry No." := NextServLedgerEntryNo;
                 TempNewServLedgEntry.Insert();
                 NextServLedgerEntryNo += 1;
-            until ServLedgEntry.Next = 0;
+            until ServLedgEntry.Next() = 0;
 
             with TempNewServLedgEntry do begin
                 Reset;
@@ -636,7 +636,7 @@
                         ServLedgEntry.Init();
                         ServLedgEntry.Copy(TempNewServLedgEntry);
                         ServLedgEntry.Insert();
-                    until Next = 0;
+                    until Next() = 0;
                 DeleteAll();
             end;
         end;

@@ -64,7 +64,7 @@ codeunit 5355 "CRM Notes Synch Job"
         IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetOrderNotesUpdateFinalMessage);
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnFindingIfJobNeedsToBeRun', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnFindingIfJobNeedsToBeRun', '', false, false)]
     local procedure OnFindingIfJobNeedsToBeRun(var Sender: Record "Job Queue Entry"; var Result: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
@@ -152,12 +152,12 @@ codeunit 5355 "CRM Notes Synch Job"
         repeat
             TempCRMAnnotationBuffer.TransferFields(CRMAnnotationBuffer);
             TempCRMAnnotationBuffer.Insert();
-        until CRMAnnotationBuffer.Next = 0;
+        until CRMAnnotationBuffer.Next() = 0;
 
         if TempCRMAnnotationBuffer.FindSet then
             repeat
                 CreatedAnnotations += ProcessCRMAnnotationBufferEntry(TempCRMAnnotationBuffer);
-            until TempCRMAnnotationBuffer.Next = 0;
+            until TempCRMAnnotationBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -171,7 +171,7 @@ codeunit 5355 "CRM Notes Synch Job"
         if CRMAnnotation.FindSet then
             repeat
                 CreatedNotes += CreateAndCoupleNote(CRMAnnotation);
-            until CRMAnnotation.Next = 0;
+            until CRMAnnotation.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -185,7 +185,7 @@ codeunit 5355 "CRM Notes Synch Job"
         if CRMAnnotation.FindSet then
             repeat
                 ModifiedNotes += ModifyNote(CRMAnnotation);
-            until CRMAnnotation.Next = 0;
+            until CRMAnnotation.Next() = 0;
     end;
 
     local procedure CreateAndCoupleNote(CRMAnnotation: Record "CRM Annotation"): Integer
@@ -290,7 +290,7 @@ codeunit 5355 "CRM Notes Synch Job"
             CRMAnnotationBuffer.Delete();
     end;
 
-    [EventSubscriber(ObjectType::Table, 2000000068, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Record Link", 'OnAfterInsertEvent', '', false, false)]
     local procedure CreateCRMAnnotationBufferOnAfterInsertRecordLink(var Rec: Record "Record Link"; RunTrigger: Boolean)
     var
         SalesHeader: Record "Sales Header";

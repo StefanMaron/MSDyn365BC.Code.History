@@ -808,7 +808,7 @@ page 10038 "Sales Order Stats."
             if TempSalesLine.Find('-') then
                 repeat
                     SalesTaxCalculate.AddSalesLine(TempSalesLine);
-                until TempSalesLine.Next = 0;
+                until TempSalesLine.Next() = 0;
             TempSalesLine.Reset();
             OnBeforeCalculateSalesTaxSalesOrderStats(
               Rec, TempSalesLine, i, TempSalesTaxLine1, TempSalesTaxLine2, TempSalesTaxLine3, TempSalesTaxAmtLine, SalesTaxCalculationOverridden);
@@ -876,7 +876,7 @@ page 10038 "Sales Order Stats."
                         end;
                         BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
                         VATAmount[i] := VATAmount[i] + "Tax Amount";
-                    until Next = 0;
+                    until Next() = 0;
                 TotalAmount2[i] := TotalAmount2[i] + VATAmount[i];
             end;
         end;

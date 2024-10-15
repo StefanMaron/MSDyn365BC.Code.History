@@ -473,6 +473,17 @@ page 291 "Req. Worksheet"
                             ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Assembly;
@@ -594,7 +605,8 @@ page 291 "Req. Worksheet"
                         Image = Document;
                         Promoted = true;
                         PromotedCategory = Category4;
-                        ToolTip = 'Create a new sales order for an item that is shipped directly from the vendor to the customer. The Drop Shipment check box must be selected on the sales order line, and the Vendor No. field must be filled on the item card.';
+                        Enabled = "Sales Order No." <> '';
+                        ToolTip = 'View the sales order that is the source of the line. This applies only to drop shipments and special orders.';
 
                         trigger OnAction()
                         begin
@@ -636,7 +648,8 @@ page 291 "Req. Worksheet"
                         Image = Document;
                         Promoted = true;
                         PromotedCategory = Category5;
-                        ToolTip = 'Create a new sales order for an item that is shipped directly from the vendor to the customer. The Drop Shipment check box must be selected on the sales order line, and the Vendor No. field must be filled on the item card.';
+                        Enabled = "Sales Order No." <> '';
+                        ToolTip = 'View the sales order that is the source of the line. This applies only to drop shipments and special orders.';
 
                         trigger OnAction()
                         begin
@@ -814,11 +827,11 @@ page 291 "Req. Worksheet"
         ChangeExchangeRate: Page "Change Exchange Rate";
         SalesOrder: Page "Sales Order";
         CurrentJnlBatchName: Code[10];
-        Description2: Text[100];
-        BuyFromVendorName: Text[100];
         OpenedFromBatch: Boolean;
 
     protected var
+        Description2: Text[100];
+        BuyFromVendorName: Text[100];
         ShortcutDimCode: array[8] of Code[20];
 
     local procedure CurrentJnlBatchNameOnAfterVali()

@@ -16,6 +16,10 @@ page 5441 "Automation Extensions Entity"
                       WHERE(Name = FILTER(<> '_Exclude_*'),
                             "Tenant Visible" = CONST(true),
                             "Package Type" = FILTER(= Extension | Designer));
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
+                            
 
     layout
     {

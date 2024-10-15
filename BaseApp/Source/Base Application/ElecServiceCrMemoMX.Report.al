@@ -1183,7 +1183,7 @@ report 10478 "Elec. Service Cr Memo MX"
 
         if ServiceShipmentBuffer.Find('-') then begin
             ServiceShipmentBuffer2 := ServiceShipmentBuffer;
-            if ServiceShipmentBuffer.Next = 0 then begin
+            if ServiceShipmentBuffer.Next() = 0 then begin
                 ServiceShipmentBuffer.Get(ServiceShipmentBuffer2."Document No.", ServiceShipmentBuffer2."Line No.", ServiceShipmentBuffer2.
                   "Entry No.");
                 ServiceShipmentBuffer.Delete();
@@ -1225,7 +1225,7 @@ report 10478 "Elec. Service Cr Memo MX"
                     TotalQuantity := TotalQuantity - ValueEntry."Invoiced Quantity";
                 end;
                 FirstValueEntryNo := ValueEntry."Entry No." + 1;
-            until (ValueEntry.Next = 0) or (TotalQuantity = 0);
+            until (ValueEntry.Next() = 0) or (TotalQuantity = 0);
     end;
 
     procedure AddBufferEntry(ServiceCrMemoLine: Record "Service Cr.Memo Line"; QtyOnShipment: Decimal; PostingDate: Date)
@@ -1278,7 +1278,7 @@ report 10478 "Elec. Service Cr Memo MX"
                 DimTxtArr[DimTxtArrLength] := TxtToAdd
             end else
                 DimTxtArr[DimTxtArrLength] := DimTxtArr[DimTxtArrLength] + Separation + TxtToAdd;
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
     end;
 
     local procedure CalculateAmountInWords(AmountInclVAT: Decimal)

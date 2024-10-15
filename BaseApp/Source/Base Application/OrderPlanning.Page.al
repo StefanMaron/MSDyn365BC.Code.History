@@ -446,6 +446,17 @@ page 5522 "Order Planning"
                             ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Assembly;
@@ -739,14 +750,6 @@ page 5522 "Order Planning"
         [InDataSet]
         DescriptionIndent: Integer;
         [InDataSet]
-        DemandQuantityHideValue: Boolean;
-        [InDataSet]
-        DemandQtyAvailableHideValue: Boolean;
-        [InDataSet]
-        ReplenishmentSystemHideValue: Boolean;
-        [InDataSet]
-        QuantityHideValue: Boolean;
-        [InDataSet]
         SupplyFromEditable: Boolean;
         [InDataSet]
         ReserveEditable: Boolean;
@@ -757,6 +760,16 @@ page 5522 "Order Planning"
         SubstitionAvailable: Boolean;
         QtyATP: Decimal;
         EarliestShptDateAvailable: Date;
+
+    protected var
+        [InDataSet]
+        DemandQuantityHideValue: Boolean;
+        [InDataSet]
+        DemandQtyAvailableHideValue: Boolean;
+        [InDataSet]
+        ReplenishmentSystemHideValue: Boolean;
+        [InDataSet]
+        QuantityHideValue: Boolean;
 
     procedure SetSalesOrder(SalesHeader2: Record "Sales Header")
     begin
@@ -810,7 +823,7 @@ page 5522 "Order Planning"
                 Insert;
                 if ReqLine.Level = 0 then
                     FindReqLineForCursor(ReqLineWithCursor, ReqLine);
-            until ReqLine.Next = 0;
+            until ReqLine.Next() = 0;
 
         if FindFirst then
             if ReqLineWithCursor."Line No." > 0 then
@@ -843,7 +856,7 @@ page 5522 "Order Planning"
             repeat
                 ReqLine := Rec;
                 if not ReqLine.Find or
-                   ((Level = 0) and ((ReqLine.Next = 0) or (ReqLine.Level = 0)))
+                   ((Level = 0) and ((ReqLine.Next() = 0) or (ReqLine.Level = 0)))
                 then begin
                     if Level = 0 then begin
                         ReqLine := Rec;
@@ -852,7 +865,7 @@ page 5522 "Order Planning"
                     end;
                     Delete
                 end;
-            until Next = 0;
+            until Next() = 0;
 
         Copy(TempReqLine2);
     end;

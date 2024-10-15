@@ -701,7 +701,7 @@ page 863 "CF Entries Dim. Matrix"
             repeat
                 TempCFForecastEntry := NewCFForecastEntry;
                 TempCFForecastEntry.Insert();
-            until NewCFForecastEntry.Next = 0;
+            until NewCFForecastEntry.Next() = 0;
     end;
 
     procedure SetColumnVisibility()

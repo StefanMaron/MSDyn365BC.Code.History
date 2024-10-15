@@ -52,6 +52,56 @@ codeunit 139305 "Data Migration Wizard Tests"
     end;
 
     [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestWizardVerifyCostingMethodChange()
+    var
+        InventorySetup: Record "Inventory Setup";
+        CostingMethodConfiguration: TestPage "Costing Method Configuration";
+    begin
+        // [WHEN] Opening Costing Method Configuration Page
+        CostingMethodConfiguration.Trap;
+        PAGE.Run(PAGE::"Costing Method Configuration");
+
+        // [WHEN] Changing the costing method to Average
+        CostingMethodConfiguration."Costing Method".SetValue(InventorySetup."Default Costing Method"::Average);
+
+        // [THEN] The inventory setup Default Costing Method is updated to Average both in the Page and the Table
+        InventorySetup.Reset();
+        InventorySetup.Get();
+        InventorySetup.TestField("Default Costing Method", InventorySetup."Default Costing Method"::Average);
+        CostingMethodConfiguration."Costing Method".AssertEquals(InventorySetup."Default Costing Method");
+
+        // [WHEN] Changing the costing method to Average
+        CostingMethodConfiguration."Costing Method".SetValue(InventorySetup."Default Costing Method"::LIFO);
+
+        // [THEN] The inventory setup Default Costing Method is updated to Average both in the Page and the Table
+        InventorySetup.Reset();
+        InventorySetup.Get();
+        InventorySetup.TestField("Default Costing Method", InventorySetup."Default Costing Method"::LIFO);
+        CostingMethodConfiguration."Costing Method".AssertEquals(InventorySetup."Default Costing Method");
+
+        // [WHEN] Reopening the Wizard on the costing method page
+        CostingMethodConfiguration.Close;
+        CostingMethodConfiguration.Trap;
+        PAGE.Run(PAGE::"Costing Method Configuration");
+
+        // // [THEN] The wizard shows the previously changed value of Average
+        CostingMethodConfiguration."Costing Method".AssertEquals(InventorySetup."Default Costing Method"::LIFO);
+    end;
+
+    [Test]
+    [HandlerFunctions('NotificationHandler,ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure TestNotificationCostingMethodWhenPageOpens()
+    var
+        DataMigrationWizard: TestPage "Data Migration Wizard";
+    begin
+        DataMigrationWizard.OpenView();
+        DataMigrationWizard.Close();
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmYesHandler,DataMigrationOverviewHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -88,7 +138,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         DataMigrationWizardTests: Codeunit "Data Migration Wizard Tests";
         DataMigrationWizard: TestPage "Data Migration Wizard";
     begin
@@ -101,7 +151,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
     end;
 
     [Test]
@@ -110,7 +160,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         DataMigrationWizardTests: Codeunit "Data Migration Wizard Tests";
         DataMigrationWizard: TestPage "Data Migration Wizard";
     begin
@@ -124,7 +174,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
     end;
 
     [Test]
@@ -133,7 +183,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyStatusCompletedWhenFinished()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         DataMigrationWizardTests: Codeunit "Data Migration Wizard Tests";
         DataMigrationWizard: TestPage "Data Migration Wizard";
     begin
@@ -146,7 +196,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Data Migration Wizard"), 'Migrate Data status should be completed.');
+        Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Data Migration Wizard"), 'Migrate Data status should be completed.');
     end;
 
     [Test]
@@ -155,7 +205,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     [Scope('OnPrem')]
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         DataMigrationWizardTests: Codeunit "Data Migration Wizard Tests";
         DataMigrationWizard: TestPage "Data Migration Wizard";
     begin
@@ -169,7 +219,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
+        Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
 
         // [THEN] No events were fired
         VerifyDataTypeBuffer(OnGetInstructionsTxt, false);
@@ -748,7 +798,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         exit(CODEUNIT::"Data Migration Wizard Tests");
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnRegisterDataMigrator', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnRegisterDataMigrator', '', false, false)]
     local procedure RegisterDataMigrator(var Sender: Record "Data Migrator Registration")
     begin
         Sender.RegisterDataMigrator(GetCodeunitNumber, 'Test');
@@ -756,7 +806,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnRegisterDataMigratorTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnHasSettings', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasSettings', '', false, false)]
     local procedure HasSettings(var Sender: Record "Data Migrator Registration"; var HasSettings: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -767,7 +817,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnHasSettingsTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnOpenSettings', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnOpenSettings', '', false, false)]
     local procedure OpenSettings(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -777,7 +827,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnOpenSettingsTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnGetInstructions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnGetInstructions', '', false, false)]
     local procedure GetInstructions(var Sender: Record "Data Migrator Registration"; var Instructions: Text; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -789,7 +839,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnGetInstructionsTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnHasTemplate', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasTemplate', '', false, false)]
     local procedure HasTemplate(var Sender: Record "Data Migrator Registration"; var HasTemplate: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -799,7 +849,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnHasTemplateTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnDownloadTemplate', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnDownloadTemplate', '', false, false)]
     local procedure DownloadTemplate(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -809,7 +859,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnDownloadTemplateTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnDataImport', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnDataImport', '', false, false)]
     local procedure ImportData(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -819,7 +869,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnDataImportTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnSelectDataToApply', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnSelectDataToApply', '', false, false)]
     local procedure SelectDataToApply(var Sender: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -831,7 +881,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnSelectDataToApplyTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnHasAdvancedApply', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasAdvancedApply', '', false, false)]
     local procedure HasAdvancedApply(var Sender: Record "Data Migrator Registration"; var HasAdvancedApply: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -841,7 +891,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnHasAdvancedApplyTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnOpenAdvancedApply', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnOpenAdvancedApply', '', false, false)]
     local procedure OpenAdvancedApply(var Sender: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -851,7 +901,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnOpenAdvancedApplyTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnApplySelectedData', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnApplySelectedData', '', false, false)]
     local procedure ApplySelectedData(var Sender: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -861,7 +911,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnApplySelectedDataTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnHideSelected', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHideSelected', '', false, false)]
     local procedure HideSelectedColumn(var Sender: Record "Data Migrator Registration"; var HideSelectedCheckBoxes: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -877,7 +927,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         HideSelectedCheckBoxes := LibraryVariableStorage.DequeueBoolean;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnHasErrors', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasErrors', '', false, false)]
     local procedure HasErrors(var Sender: Record "Data Migrator Registration"; var HasErrors: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -887,7 +937,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnHasErrorsTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnShowErrors', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowErrors', '', false, false)]
     local procedure ShowErrors(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -897,7 +947,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         InsertDataTypeBuffer(OnShowErrorsTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnShowDuplicateContactsText', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowDuplicateContactsText', '', false, false)]
     local procedure ShowDuplicateContactText(var Sender: Record "Data Migrator Registration"; var ShowDuplicateContactText: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -913,7 +963,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         ShowDuplicateContactText := LibraryVariableStorage.DequeueBoolean;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnShowPostingOptions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowPostingOptions', '', false, false)]
     local procedure ShowPostingOptions(var Sender: Record "Data Migrator Registration"; var ShowPostingOptions: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -929,7 +979,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         ShowPostingOptions := LibraryVariableStorage.DequeueBoolean;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnShowBalance', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowBalance', '', false, false)]
     local procedure ShowBalanceColumn(var Sender: Record "Data Migrator Registration"; var ShowBalance: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -945,7 +995,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         ShowBalance := LibraryVariableStorage.DequeueBoolean;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnShowThatsItMessage', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowThatsItMessage', '', false, false)]
     local procedure ShowThatsItText(var Sender: Record "Data Migrator Registration"; var Message: Text)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -1016,11 +1066,17 @@ codeunit 139305 "Data Migration Wizard Tests"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnEnableTogglingDataMigrationOverviewPage', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnEnableTogglingDataMigrationOverviewPage', '', false, false)]
     [Scope('OnPrem')]
     procedure OnShowOverview(var Sender: Codeunit "Data Migration Facade"; var DataMigratorRegistration: Record "Data Migrator Registration"; var EnableTogglingOverviewPage: Boolean)
     begin
         EnableTogglingOverviewPage := true;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure NotificationHandler(var Notification: Notification): Boolean
+    begin
     end;
 }
 

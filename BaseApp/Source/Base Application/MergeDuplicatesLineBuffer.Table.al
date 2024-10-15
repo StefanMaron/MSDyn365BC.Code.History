@@ -216,7 +216,7 @@ table 65 "Merge Duplicates Line Buffer"
                     TempMergeDuplicatesConflict."Field ID" := ID;
                     TempMergeDuplicatesConflict.Insert();
                 end;
-            until RecordRef.Next = 0;
+            until RecordRef.Next() = 0;
         RecordRef.Close;
 
         Conflicts := TempMergeDuplicatesConflict.Count();
@@ -294,7 +294,7 @@ table 65 "Merge Duplicates Line Buffer"
             repeat
                 FieldRef := RecRef.Field(TempMergeDuplicatesLineBuffer.ID);
                 FieldRef.SetFilter(TempMergeDuplicatesLineBuffer."Duplicate Value");
-            until TempMergeDuplicatesLineBuffer.Next = 0;
+            until TempMergeDuplicatesLineBuffer.Next() = 0;
         if RecRef.FindFirst then begin
             FieldRef := RecRef.Field(ID);
             FieldRef.Validate("Duplicate Value");

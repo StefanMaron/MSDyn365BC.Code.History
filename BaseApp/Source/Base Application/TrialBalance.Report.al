@@ -290,7 +290,7 @@ report 10022 "Trial Balance"
 
             trigger OnPreDataItem()
             begin
-                if IsEmpty then
+                if IsEmpty() then
                     Error(MissingGLAccountErr);
             end;
         }

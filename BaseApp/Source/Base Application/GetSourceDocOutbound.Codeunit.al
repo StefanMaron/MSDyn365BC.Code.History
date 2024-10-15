@@ -1,4 +1,4 @@
-﻿codeunit 5752 "Get Source Doc. Outbound"
+codeunit 5752 "Get Source Doc. Outbound"
 {
 
     trigger OnRun()
@@ -21,7 +21,7 @@
         if IsHandled then
             exit(Result);
 
-        if WarehouseRequest.IsEmpty then
+        if WarehouseRequest.IsEmpty() then
             exit(false);
 
         Clear(GetSourceDocuments);
@@ -107,7 +107,7 @@
 
         FindWarehouseRequestForSalesOrder(WhseRqst, SalesHeader);
 
-        if WhseRqst.IsEmpty then
+        if WhseRqst.IsEmpty() then
             exit(false);
 
         CreateWhseShipmentHeaderFromWhseRequest(WhseRqst);
@@ -262,7 +262,7 @@
                         then
                             exit(true);
                     end;
-                until SalesLine.Next = 0; // sorted by item
+                until SalesLine.Next() = 0; // sorted by item
             end;
         end;
     end;
@@ -335,7 +335,7 @@
                         then // outbound
                             exit(true);
                     end;
-                until TransferLine.Next = 0; // sorted by item
+                until TransferLine.Next() = 0; // sorted by item
             end;
         end;
     end;
@@ -373,7 +373,7 @@
                 repeat
                     ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
                     QtyReservedForOrder += ReservEntry2."Quantity (Base)";
-                until ReservEntry.Next = 0;
+                until ReservEntry.Next() = 0;
 
             NotAvailable := Inventory - ("Reserved Qty. on Inventory" - QtyReservedForOrder) < QtyBaseNeeded;
             ErrorMessage := StrSubstNo(Text002, CurrItemVariant."Item No.", LocationCode, FormCaption, SourceID);
@@ -418,7 +418,7 @@
             repeat
                 if Location.RequireShipment(WhseRqst."Location Code") then
                     LocationCode += WhseRqst."Location Code" + '|';
-            until WhseRqst.Next = 0;
+            until WhseRqst.Next() = 0;
             if LocationCode <> '' then begin
                 LocationCode := CopyStr(LocationCode, 1, StrLen(LocationCode) - 1);
                 if LocationCode[1] = '|' then

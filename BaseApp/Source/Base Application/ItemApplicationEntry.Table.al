@@ -136,7 +136,7 @@ table 339 "Item Application Entry"
         Reset;
         SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.");
         SetRange("Inbound Item Entry No.", InbndItemLedgEntryNo);
-        if IsEmpty then
+        if IsEmpty() then
             exit(false);
 
         Reset;
@@ -192,7 +192,7 @@ table 339 "Item Application Entry"
                       Text001,
                       ObjTransl.TranslateObject(ObjTransl."Object Type"::Report, REPORT::"Adjust Cost - Item Entries"),
                       OutbndItemLedgEntry.TableCaption, InbndItemLedgEntryNo);
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure CostReceiver(): Integer
@@ -311,7 +311,7 @@ table 339 "Item Application Entry"
                 if ItemLedgEntry.Positive then
                     if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgEntry, ItemLedgEntry."Entry No.") then
                         exit(true);
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
         exit(false);
     end;
 
@@ -349,7 +349,7 @@ table 339 "Item Application Entry"
                 if ItemLedgEntry.Positive then
                     if CheckCyclicFwdToAppliedOutbnds(CheckItemLedgEntry, ItemLedgEntry."Entry No.") then
                         exit(true);
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
         exit(false);
     end;
 
@@ -429,7 +429,7 @@ table 339 "Item Application Entry"
                 if CheckCyclicFwdToAsmOutput(CheckItemLedgEntry, ToEntryNo) then
                     exit(true);
             end;
-        until ItemApplnEntry.Next = 0;
+        until ItemApplnEntry.Next() = 0;
         exit(CheckCyclicFwdToInbndTransfers(CheckItemLedgEntry, FromEntryNo));
     end;
 
@@ -492,7 +492,7 @@ table 339 "Item Application Entry"
                 ToItemLedgEntry.Get(ItemLedgEntryInChainNo.Number);
                 ItemLedgEntryInChain := ToItemLedgEntry;
                 ItemLedgEntryInChain.Insert();
-            until ItemLedgEntryInChainNo.Next = 0;
+            until ItemLedgEntryInChainNo.Next() = 0;
     end;
 
     procedure OutboundApplied(EntryNo: Integer; SameType: Boolean): Decimal
@@ -549,7 +549,7 @@ table 339 "Item Application Entry"
                             Quantity := Quantity + Applications.Quantity
                     end else
                         Quantity := Quantity + Applications.Quantity;
-            until Applications.Next = 0;
+            until Applications.Next() = 0;
         exit(Quantity);
     end;
 
@@ -564,7 +564,7 @@ table 339 "Item Application Entry"
     begin
         Applications.SetRange("Inbound Item Entry No.", ILE1);
         Applications.SetRange("Outbound Item Entry No.", ILE2);
-        if not Applications.IsEmpty then
+        if not Applications.IsEmpty() then
             exit(true);
         Applications.SetRange("Inbound Item Entry No.", ILE2);
         Applications.SetRange("Outbound Item Entry No.", ILE1);

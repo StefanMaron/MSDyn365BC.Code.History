@@ -28,7 +28,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
                     Insert();
                 end else
                     AvgCostAdjmtEntryPoint.Delete();
-            until AvgCostAdjmtEntryPoint.Next = 0;
+            until AvgCostAdjmtEntryPoint.Next() = 0;
     end;
 
     var
@@ -77,7 +77,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
                     InsertAvgCostCalcOvervwFromILE(AvgCostCalcOverview, ValueEntry, AvgCostCalcOverview2."Valuation Date");
                     if FirstEntryNo = 0 then
                         FirstEntryNo := AvgCostCalcOverview."Entry No.";
-                until Next = 0;
+                until Next() = 0;
 
             if AvgCostCalcOverview.Get(FirstEntryNo) then;
         end;

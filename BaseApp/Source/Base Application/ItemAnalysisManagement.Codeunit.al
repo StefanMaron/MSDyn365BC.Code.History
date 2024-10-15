@@ -219,7 +219,7 @@ codeunit 7153 "Item Analysis Management"
             ItemAnalysisView.FilterGroup := 0;
             if not ItemAnalysisView.Find('-') then begin
                 ItemAnalysisView.Init();
-                ItemAnalysisView."Analysis Area" := CurrentAnalysisArea;
+                ItemAnalysisView."Analysis Area" := "Analysis Area Type".FromInteger(CurrentAnalysisArea);
                 ItemAnalysisView.Code := Text008;
                 ItemAnalysisView.Name := Text009;
                 ItemAnalysisView.Insert(true);

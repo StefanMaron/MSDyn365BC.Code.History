@@ -81,7 +81,7 @@ codeunit 10140 "Deposit-Post"
                 else
                     GenJnlLine."Bal. Account No." := '';
                 GenJnlCheckLine.RunCheck(GenJnlLine);
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
 
         CopyBankComments(Rec);
 
@@ -140,7 +140,7 @@ codeunit 10140 "Deposit-Post"
                 end;
                 OnBeforePostedDepositLineModify(PostedDepositLine, GenJnlLine);
                 PostedDepositLine.Modify();
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
 
         Window.Update(4, Text007);
         if not GenJnlTemplate."Force Doc. Balance" then begin
@@ -153,7 +153,7 @@ codeunit 10140 "Deposit-Post"
                 repeat
                     PostedDepositLine."Bank Account Ledger Entry No." := BankAccountLedgerEntry."Entry No.";
                     PostedDepositLine.Modify();
-                until PostedDepositLine.Next = 0;
+                until PostedDepositLine.Next() = 0;
         end;
 
         Window.Update(4, Text008);
@@ -220,7 +220,7 @@ codeunit 10140 "Deposit-Post"
                 BankCommentLine2 := BankCommentLine;
                 BankCommentLine2."Table Name" := BankCommentLine2."Table Name"::"Posted Deposit";
                 BankCommentLine2.Insert();
-            until BankCommentLine.Next = 0;
+            until BankCommentLine.Next() = 0;
     end;
 
     local procedure DeleteBankComments(DepositHeader: Record "Deposit Header")

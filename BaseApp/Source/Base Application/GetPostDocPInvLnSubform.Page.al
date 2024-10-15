@@ -48,6 +48,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -57,6 +58,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -391,7 +393,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                     TempPurchInvLine := PurchInvLine2;
                     TempPurchInvLine.Insert();
                 end;
-            until (PurchInvLine2.Next = 0) or ShowRec;
+            until (PurchInvLine2.Next() = 0) or ShowRec;
             PurchInvHeader := PurchInvHeader2;
             RemainingQty := RemainingQty2;
             RevUnitCostLCY := RevUnitCostLCY2;

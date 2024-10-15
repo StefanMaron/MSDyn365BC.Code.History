@@ -25,6 +25,12 @@
       "path": "./testframework/TestRunner/Test Runner"
     },
     {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests"
+    },
+    {
+      "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
@@ -137,6 +143,12 @@
     },
     {
       "path": "./BaseApp/Source/Base Application/Test Framework"
+    },
+    {
+      "path": "./CompanyHub/Test/Company Hub Tests"
+    },
+    {
+      "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
     },
     {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"

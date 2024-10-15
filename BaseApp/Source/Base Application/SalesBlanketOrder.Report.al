@@ -74,7 +74,7 @@ report 10069 "Sales Blanket Order"
                                             BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
                                     end;
                                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                                until Next = 0;
+                                until Next() = 0;
                         end;
                         if BrkIdx = 1 then begin
                             Clear(BreakdownLabel);

@@ -20,7 +20,7 @@ codeunit 1754 "Data Classif. Import/Export"
         ShouldUploadFile: Boolean;
     begin
         DataSensitivity.SetRange("Company Name", CompanyName);
-        if DataSensitivity.IsEmpty then
+        if DataSensitivity.IsEmpty() then
             DataClassificationMgt.PopulateDataSensitivityTable;
 
         ShouldUploadFile := true;
@@ -201,7 +201,7 @@ codeunit 1754 "Data Classif. Import/Export"
                     AddDataSensitivityColumn(TempExcelBuffer, DataSensitivity);
                     AddTextColumnToExcelSheet(TempExcelBuffer, Format(DataSensitivity."Data Classification", 0, '<Text>'));
                 end;
-            until DataSensitivity.Next = 0;
+            until DataSensitivity.Next() = 0;
     end;
 
     local procedure AddTextColumnToExcelSheet(var TempExcelBuffer: Record "Excel Buffer" temporary; Text: Text)

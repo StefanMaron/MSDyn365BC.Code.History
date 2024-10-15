@@ -2182,7 +2182,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             PurchaseLine.Validate("Prepayment %", PurchaseHeader."Prepayment %");
             PurchaseLine.Modify(true);

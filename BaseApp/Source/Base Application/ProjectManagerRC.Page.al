@@ -160,7 +160,7 @@ page 8904 "Project Manager Role Center"
                     // action("Item/Job1")
                     // {
                     //     Caption = 'Completed Jobs';
-                    //     RunObject = Report 10212;
+                    //     RunObject = Report "Completed Jobs";
                     // }
                     action("Jobs per Customer1")
                     {
@@ -213,7 +213,7 @@ page 8904 "Project Manager Role Center"
                         ApplicationArea = Jobs;
                         Caption = 'Jobs Setup';
                         RunObject = page "Jobs Setup";
-                        AccessByPermission = tabledata 167 = R;
+                        AccessByPermission = TableData "Job" = R;
                     }
                     action("Job Posting Groups")
                     {

@@ -708,7 +708,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // [THEN] Posted transaction, where are G/L Entries for sales tax and ACY amounts are proportional to LCY amounts
         GLEntry.FindLast;
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Assert.AreNearlyEqual(
               GLEntry."Additional-Currency Amount", CalcACYFromLCY(GLEntry, CurrencyCode), 0.01, 'Wrong Additional-Currency Amount');
@@ -778,7 +778,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         // [THEN] Posted transaction, where are G/L Entries for sales tax and ACY amounts are proportional to LCY amounts
         GLEntry.FindLast;
         GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Assert.AreNearlyEqual(
               GLEntry."Additional-Currency Amount", CalcACYFromLCY(GLEntry, CurrencyCode), 0.01, 'Wrong Additional-Currency Amount');

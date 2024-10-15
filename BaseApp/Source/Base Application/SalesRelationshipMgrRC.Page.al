@@ -547,11 +547,15 @@ page 9026 "Sales & Relationship Mgr. RC"
                     ToolTip = 'View or edit detailed information for the customers that you trade with. From each customer card, you can open related information, such as sales statistics and ongoing orders, and you can define special prices and line discounts that you grant if certain conditions are met.';
                 }
             }
+#if not CLEAN18
             group(SetupAndExtensions)
             {
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                ObsoleteTag = '18.0';
                 action("Assisted Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -559,6 +563,9 @@ page 9026 "Sales & Relationship Mgr. RC"
                     Image = QuestionaireSetup;
                     RunObject = Page "Assisted Setup";
                     ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action("Manual Setup")
                 {
@@ -566,6 +573,9 @@ page 9026 "Sales & Relationship Mgr. RC"
                     Caption = 'Manual Setup';
                     RunObject = Page "Manual Setup";
                     ToolTip = 'Define your company policies for business departments and for general activities by filling setup windows manually.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action("Service Connections")
                 {
@@ -574,6 +584,9 @@ page 9026 "Sales & Relationship Mgr. RC"
                     Image = ServiceTasks;
                     RunObject = Page "Service Connections";
                     ToolTip = 'Enable and configure external services, such as exchange rate updates, Microsoft Social Engagement, and electronic bank integration.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Extensions)
                 {
@@ -582,6 +595,9 @@ page 9026 "Sales & Relationship Mgr. RC"
                     Image = NonStockItemSetup;
                     RunObject = Page "Extension Management";
                     ToolTip = 'Install Extensions for greater functionality of the system.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
                 action(Workflows)
                 {
@@ -591,8 +607,12 @@ page 9026 "Sales & Relationship Mgr. RC"
                     PromotedCategory = Process;
                     RunObject = Page Workflows;
                     ToolTip = 'Set up or enable workflows that connect business-process tasks performed by different users. System tasks, such as automatic posting, can be included as steps in workflows, preceded or followed by user tasks. Requesting and granting approval to create new records are typical workflow steps.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
+                    ObsoleteTag = '18.0';
                 }
             }
+#endif
         }
         area(creation)
         {
@@ -721,11 +741,11 @@ page 9026 "Sales & Relationship Mgr. RC"
             }
             group(Flow)
             {
-                Caption = 'Microsoft Power Automate';
+                Caption = 'Power Automate';
                 action("Manage Flows")
                 {
                     ApplicationArea = RelationshipMgmt;
-                    Caption = 'Manage Flows';
+                    Caption = 'Manage flows';
                     Image = Flow;
                     RunObject = Page "Flow Selector";
                     ToolTip = 'View or edit automated flows created with Power Automate.';

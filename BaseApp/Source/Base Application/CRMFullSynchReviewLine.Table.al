@@ -183,7 +183,7 @@ table 5373 "CRM Full Synch. Review Line"
                 Validate("Job Queue Entry ID", JobQueueEntryID);
                 Modify(true);
                 Commit();
-            until TempCRMFullSynchReviewLine.Next = 0;
+            until TempCRMFullSynchReviewLine.Next() = 0;
     end;
 
 
@@ -216,7 +216,7 @@ table 5373 "CRM Full Synch. Review Line"
                     CRMAccount.Reset();
                     CRMAccount.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Account"));
                     CRMAccount.SetRange(CustomerTypeCode, CRMAccount.CustomerTypeCode::Vendor);
-                    if BCRecRef.IsEmpty and CRMAccount.IsEmpty then
+                    if BCRecRef.IsEmpty and CRMAccount.IsEmpty() then
                         exit("Initial Synch Recommendation"::"No Records Found");
                     if (not BCRecRef.IsEmpty()) and (not CRMAccount.IsEmpty()) then
                         exit("Initial Synch Recommendation"::"Couple Records");
@@ -226,7 +226,7 @@ table 5373 "CRM Full Synch. Review Line"
                     CRMAccount.Reset();
                     CRMAccount.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Account"));
                     CRMAccount.SetRange(CustomerTypeCode, CRMAccount.CustomerTypeCode::Customer);
-                    if BCRecRef.IsEmpty and CRMAccount.IsEmpty then
+                    if BCRecRef.IsEmpty and CRMAccount.IsEmpty() then
                         exit("Initial Synch Recommendation"::"No Records Found");
                     if (not BCRecRef.IsEmpty()) and (not CRMAccount.IsEmpty()) then
                         exit("Initial Synch Recommendation"::"Couple Records");
@@ -235,13 +235,13 @@ table 5373 "CRM Full Synch. Review Line"
                 begin
                     CRMContact.Reset();
                     CRMContact.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Contact"));
-                    if BCRecRef.IsEmpty and CRMContact.IsEmpty then
+                    if BCRecRef.IsEmpty and CRMContact.IsEmpty() then
                         exit("Initial Synch Recommendation"::"No Records Found");
                     if (not BCRecRef.IsEmpty()) and (not CRMContact.IsEmpty()) then
                         exit("Initial Synch Recommendation"::"Couple Records");
                 end;
             else begin
-                    if BCRecRef.IsEmpty and CDSRecRef.IsEmpty then
+                    if BCRecRef.IsEmpty and CDSRecRef.IsEmpty() then
                         exit("Initial Synch Recommendation"::"No Records Found");
                     if (not BCRecRef.IsEmpty()) and (not CDSRecRef.IsEmpty()) then
                         exit("Initial Synch Recommendation"::"Couple Records");
@@ -324,7 +324,7 @@ table 5373 "CRM Full Synch. Review Line"
         if IntegrationSynchJob."Finish Date/Time" = 0DT then
             exit("To Int. Table Job Status"::"In Process");
 
-        if IntegrationSynchJob.AreAllRecordsFailed then
+        if IntegrationSynchJob.AreSomeRecordsFailed then
             exit("To Int. Table Job Status"::Error);
 
         exit("To Int. Table Job Status"::Success);
@@ -345,7 +345,7 @@ table 5373 "CRM Full Synch. Review Line"
                     TempCRMFullSynchReviewLine := CRMFullSynchReviewLine;
                     TempCRMFullSynchReviewLine.Insert();
                 end;
-            until CRMFullSynchReviewLine.Next = 0;
+            until CRMFullSynchReviewLine.Next() = 0;
         exit(TempCRMFullSynchReviewLine.FindSet);
     end;
 
@@ -435,7 +435,7 @@ table 5373 "CRM Full Synch. Review Line"
             repeat
                 if CRMFullSynchReviewLine.IsActiveSession then
                     exit(true);
-            until CRMFullSynchReviewLine.Next = 0;
+            until CRMFullSynchReviewLine.Next() = 0;
         exit(false);
     end;
 

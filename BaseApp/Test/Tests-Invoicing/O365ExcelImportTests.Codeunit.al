@@ -566,7 +566,6 @@ codeunit 138912 "O365 Excel Import Tests"
             exit;
 
         CreateO365InitialSetup;
-        EnableInvoicingAppArea;
         IsInitialized := true;
     end;
 
@@ -775,15 +774,6 @@ codeunit 138912 "O365 Excel Import Tests"
         ConfigTemplateHeader.DeleteAll();
     end;
 
-    local procedure EnableInvoicingAppArea()
-    var
-        ApplicationAreaSetup: Record "Application Area Setup";
-    begin
-        ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup.Invoicing := true;
-        ApplicationAreaSetup.Insert();
-    end;
-
     local procedure GetMaxExcelBufferColumnNo(var ExcelBuffer: Record "Excel Buffer"): Integer
     begin
         ExcelBuffer.SetRange("Row No.", 1);
@@ -870,7 +860,7 @@ codeunit 138912 "O365 Excel Import Tests"
         RecRef.GetTable(Customer);
 
         ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Customer Template");
-        ConfigTemplateLine.FindSet;
+        ConfigTemplateLine.FindSet();
         repeat
             FieldRef := RecRef.Field(ConfigTemplateLine."Field ID");
             Assert.AreEqual(
@@ -892,7 +882,7 @@ codeunit 138912 "O365 Excel Import Tests"
         RecRef.GetTable(Item);
 
         ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Item Template");
-        ConfigTemplateLine.FindSet;
+        ConfigTemplateLine.FindSet();
         repeat
             FieldRef := RecRef.Field(ConfigTemplateLine."Field ID");
             Assert.AreEqual(

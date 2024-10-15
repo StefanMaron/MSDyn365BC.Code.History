@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5157 "Customer Template Card"
 {
     Caption = 'Customer Template Card';
@@ -195,4 +196,5 @@ page 5157 "Customer Template Card"
         }
     }
 }
+#endif
 

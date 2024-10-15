@@ -208,7 +208,7 @@ codeunit 1106 CostJnlManagement
                 Balance := CostJnlLine2.Balance;
                 CostJnlLine2.CopyFilters(CostJnlLine);
                 CostJnlLine2 := LastCostJnlLine;
-                if CostJnlLine2.Next = 0 then
+                if CostJnlLine2.Next() = 0 then
                     Balance := Balance + LastCostJnlLine.Balance;
             end;
         end;
