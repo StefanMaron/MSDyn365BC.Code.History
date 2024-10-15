@@ -8,7 +8,7 @@ codeunit 11023 "Elster Management"
     var
         SubmissionMessageNotCreatedErr: Label 'No submission message has been created. Press the Create action to generate it.';
         CannotIdentifyAmountsErr: Label 'Cannot identify XML nodes related to amounts in the submission message.';
-
+        
     procedure GetElsterUpgradeTag(): Code[250];
     begin
         exit('MS-332065-ElsterUpgrade-20191029');
@@ -41,11 +41,22 @@ codeunit 11023 "Elster Management"
             Evaluate(RowNo, DelChr(TempXMLBuffer.Name, '=', DelChr(TempXMLBuffer.Name, '=', '1234567890')));
             if not (RowNo in [9, 10, 22, 23, 26, 29]) then begin
                 TempElecVATDeclBuffer.Code := '#' + Format(RowNo);
-                Evaluate(TempElecVATDeclBuffer.Amount, TempXMLBuffer.Value);
+                TempElecVATDeclBuffer.Amount := FormatDecimal(TempXMLBuffer.Value);
                 TempElecVATDeclBuffer.Insert();
             end;
         until TempXMLBuffer.Next() = 0;
         Page.Run(0, TempElecVATDeclBuffer);
+    end;
+
+    local procedure FormatDecimal(DecimalStr: Text) : Decimal
+    var 
+        Value: Decimal;
+    begin
+        case CopyStr(FORMAT(1 / 2),2,1) of
+            '.': Evaluate(Value, ConvertStr(DecimalStr, ',', '.'));
+            ',': Evaluate(Value, ConvertStr(DecimalStr, '.', ','));
+        end;
+        exit(Value);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
