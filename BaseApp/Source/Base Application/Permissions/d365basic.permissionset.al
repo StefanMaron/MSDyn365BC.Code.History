@@ -164,6 +164,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Column Layout Name" = RIMD,
                   tabledata "Comment Line" = RIMD,
                   tabledata "Company Information" = R,
+                  tabledata "Company Size" = R,
                   tabledata "Config. Field Map" = R,
                   tabledata "Config. Line" = R,
                   tabledata "Config. Media Buffer" = RIMD,
