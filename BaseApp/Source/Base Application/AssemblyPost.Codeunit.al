@@ -432,6 +432,7 @@ codeunit 900 "Assembly-Post"
                         Window.Update(2, LineCounter);
 
                     GetLineQtys(QtyToConsume, QtyToConsumeBase, AssemblyLine);
+                    OnPostLinesOnAfterGetLineQtys(QtyToConsume, QtyToConsumeBase, AssemblyLine);
 
                     ItemLedgEntryNo := 0;
                     if QtyToConsumeBase <> 0 then begin
@@ -815,6 +816,19 @@ codeunit 900 "Assembly-Post"
                   WhseJnlLine.Cubage, WhseJnlLine.Weight);
         end;
         OnAfterCreateWhseJnlLineFromItemJnlLine(WhseJnlLine, ItemJnlLine);
+        CheckWhseJnlLine(WhseJnlLine, ItemJnlLine);
+    end;
+
+    local procedure CheckWhseJnlLine(var WhseJnlLine: Record "Warehouse Journal Line"; ItemJnlLine: Record "Item Journal Line")
+    var
+        WMSManagement: Codeunit "WMS Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWhseJnlLine(WhseJnlLine, ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         WMSManagement.CheckWhseJnlLine(WhseJnlLine, 0, 0, false);
     end;
 
@@ -1536,6 +1550,11 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWhseJnlLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteAssemblyDocument(AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
@@ -1607,6 +1626,11 @@ codeunit 900 "Assembly-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOnBeforePostedAssemblyHeaderInsert(AssemblyHeader: Record "Assembly Header"; var PostedAssemblyHeader: Record "Posted Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnAfterGetLineQtys(var LineQty: Decimal; var LineQtyBase: Decimal; var AssemblyLine: Record "Assembly Line")
     begin
     end;
 

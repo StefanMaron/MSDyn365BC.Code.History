@@ -6007,6 +6007,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               </Style>
             </Textbox>
             <Textbox Name="CompInfoBankBranchNoCptn">
+              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -6499,7 +6500,6 @@ Cstr(Fields!DocumentDateCaption.Value)
               </Style>
             </Textbox>
             <Textbox Name="CompanyInfoHomePage">
-              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -6561,7 +6561,6 @@ Cstr(Fields!DocumentDateCaption.Value)
               </Style>
             </Textbox>
             <Textbox Name="CompanyInfoEmail">
-              <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>

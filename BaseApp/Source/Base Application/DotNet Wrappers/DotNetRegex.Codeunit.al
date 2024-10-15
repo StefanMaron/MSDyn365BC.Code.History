@@ -1,5 +1,9 @@
 codeunit 3001 DotNet_Regex
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. Use the Regex codeunit in the Regex Module instead.';
+    ObsoleteTag = '18.0';
+
 
     trigger OnRun()
     begin

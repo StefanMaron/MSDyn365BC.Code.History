@@ -611,6 +611,8 @@ table 254 "VAT Entry"
         "Realized Base" := Sign * "Realized Base";
         "Add.-Curr. Realized Amount" := Sign * "Add.-Curr. Realized Amount";
         "Add.-Curr. Realized Base" := Sign * "Add.-Curr. Realized Base";
+
+        OnAfterCopyAmountsFromVATEntry(VATEntry, WithOppositeSign);
     end;
 
     procedure SetUnrealAmountsToZero()
@@ -632,6 +634,11 @@ table 254 "VAT Entry"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnAfterCopyFromGenJnlLine(var VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnAfterCopyAmountsFromVATEntry(var VATEntry: Record "VAT Entry"; WithOppositeSign: Boolean)
     begin
     end;
 }

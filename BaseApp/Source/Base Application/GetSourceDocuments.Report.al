@@ -160,6 +160,7 @@ report 5753 "Get Source Documents"
                                         if not WhseActivityCreate.PurchLine2ReceiptLine(WhseReceiptHeader, "Purchase Line") then
                                             ErrorOccured := true;
                                         LineCreated := true;
+                                        OnPurchaseLineOnAfterGetRecordOnAfterCreateRcptHeader("Purchase Line", "Warehouse Request", WhseReceiptHeader, WhseHeaderCreated, OneHeaderCreated, ErrorOccured, LineCreated);
                                     end;
                                 RequestType::Ship:
                                     if WhseActivityCreate.CheckIfFromPurchLine2ShptLine("Purchase Line") then begin
@@ -978,6 +979,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnPurchaseLineOnAfterGetRecordOnBeforeCreateShptHeader(PurchaseLine: Record "Purchase Line"; var WarehouseRequest: Record "Warehouse Request"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var OneHeaderCreated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchaseLineOnAfterGetRecordOnAfterCreateRcptHeader(var PurchaseLine: Record "Purchase Line"; var WarehouseRequest: Record "Warehouse Request"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WhseHeaderCreated: Boolean; var OneHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean)
     begin
     end;
 

@@ -20,7 +20,6 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         StartDate: Date;
         EndDate: Date;
         LastClosedDate: Date;
-        UpdateFromDate: Date;
         Date: Date;
         UpdatingMsg: Label 'Updating buffer table @1@@@@@@@@@@@@@@@@@@@', Comment = '@1 is a number';
 
@@ -56,24 +55,14 @@ codeunit 197 "Update Acc. Sched. KPI Data"
             GLEntry.SetFilter("Entry No.", '>%1', AccSchedKPIWebSrvSetup."Last G/L Entry Included");
             GLEntry.SetCurrentKey("Posting Date");
         end;
-        if not GLEntry.FindFirst then
+        if GLEntry.IsEmpty() then
             exit; // nothing to update
 
         Window.Open(UpdatingMsg);
         if not GuiAllowed then
             WorkDate := LogInManagement.GetDefaultWorkDate;
 
-        if AccSchedKPIWebSrvSetup."Last G/L Entry Included" = 0 then begin
-            AccSchedKPIBuffer.DeleteAll();
-            UpdateFromDate := 0D;
-        end else begin
-            UpdateFromDate := GLEntry."Posting Date";
-            AccSchedKPIBuffer.SetFilter(Date, '>=%1', UpdateFromDate);
-            AccSchedKPIBuffer.DeleteAll();
-            AccSchedKPIBuffer.Reset();
-            if AccSchedKPIBuffer.FindLast then
-                LastLineNo := AccSchedKPIBuffer."No.";
-        end;
+        AccSchedKPIBuffer.DeleteAll();
 
         if not AccSchedKPIWebSrvLine.FindSet then
             exit;
@@ -150,8 +139,6 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         CalculatedValue: Decimal;
     begin
         Date := AccSchedKPIWebSrvSetup.CalcNextStartDate(StartDate, Number div NoOfActiveAccSchedLines);
-        if Date < UpdateFromDate then
-            exit;
 
         ToDate := AccSchedKPIWebSrvSetup.CalcNextStartDate(Date, 1) - 1;
         TempAccScheduleLine.FindSet;

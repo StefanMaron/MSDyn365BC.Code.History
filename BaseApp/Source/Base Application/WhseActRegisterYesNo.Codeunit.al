@@ -1,4 +1,4 @@
-codeunit 7306 "Whse.-Act.-Register (Yes/No)"
+﻿codeunit 7306 "Whse.-Act.-Register (Yes/No)"
 {
     TableNo = "Warehouse Activity Line";
 
@@ -26,12 +26,7 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
             exit;
 
         with WhseActivLine do begin
-            if ("Activity Type" = "Activity Type"::"Invt. Movement") and
-               not ("Source Document" in ["Source Document"::" ",
-                                          "Source Document"::"Prod. Consumption",
-                                          "Source Document"::"Assembly Consumption"])
-            then
-                Error(Text002, "Source Document");
+            CheckSourceDocument();
 
             WMSMgt.CheckBalanceQtyToHandle(WhseActivLine);
 
@@ -48,6 +43,24 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
         OnAfterCode(WhseActivLine);
     end;
 
+    local procedure CheckSourceDocument()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSourceDocument(WhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseActivLine do
+            if ("Activity Type" = "Activity Type"::"Invt. Movement") and
+               not ("Source Document" in ["Source Document"::" ",
+                                          "Source Document"::"Prod. Consumption",
+                                          "Source Document"::"Assembly Consumption"])
+            then
+                Error(Text002, "Source Document");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
@@ -55,6 +68,11 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSourceDocument(WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 

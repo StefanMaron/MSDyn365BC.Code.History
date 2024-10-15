@@ -209,6 +209,23 @@ codeunit 144038 "ERM Sales Purch Documents"
         GLBudgetWithColumnValues;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemAdviceActionIsNotVisibleInVendorLedgerEntries()
+    var
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+    begin
+        // [SCENARIO 379444] Open page "Vendor Ledger Entries" and check visibility of the action "&Rem. Advice"
+        Initialize();
+
+        // [WHEN] Opened page 29 "Vendor Ledger Entries"
+        VendorLedgerEntries.OpenEdit();
+
+        // [THEN] Action "&Rem. Advice" is not visible
+        Assert.IsFalse(VendorLedgerEntries."&Rem. Advice".Visible(), '');
+        VendorLedgerEntries.Close();
+    end;
+
     local procedure GLBudgetWithColumnValues()
     var
         GLBudgetName: Record "G/L Budget Name";

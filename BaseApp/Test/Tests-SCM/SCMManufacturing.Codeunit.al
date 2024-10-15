@@ -3300,6 +3300,62 @@ codeunit 137404 "SCM Manufacturing"
         Assert.AreEqual(StrSubstNo('%1 %2', MachineCenterNo, MachineCenterName), CaptionText, '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BinCodeClearedWhenSelectingLocationOnCompDifferentFromRouting()
+    var
+        LocationYellow: Record Location;
+        LocationRed: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [FEATURE] [Work Center] [Bin] [Location] [Prod. Order Component] [Routing]
+        // [SCENARIO 376698] Change location code on prod. order component to a value different from location code on routing line.
+        Initialize();
+
+        // [GIVEN] Production item with BOM and routing.
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
+
+        // [GIVEN] Location "Yellow" with bins, location "Red" without bins.
+        LibraryWarehouse.CreateLocationWMS(LocationYellow, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, LocationYellow.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateLocation(LocationRed);
+
+        // [GIVEN] Production order on location "Yellow", refresh.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 1);
+        ProductionOrder.Validate("Location Code", LocationYellow.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, true);
+
+        // [GIVEN] Set bin code on prod. order routing line.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item."No.");
+        FindProductionOrderRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
+        ProdOrderRoutingLine.Validate("To-Production Bin Code", Bin.Code);
+        ProdOrderRoutingLine.Modify(true);
+
+        // [GIVEN] Set bin code on prod. order component.
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderComponent.Validate("Bin Code", Bin.Code);
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Change location code on the prod. order line to "Red".
+        ProdOrderLine.Validate("Location Code", LocationRed.Code);
+        ProdOrderLine.Modify(true);
+
+        // [WHEN] Change location code on prod. order component to "Red".
+        ProdOrderComponent.Validate("Location Code", LocationRed.Code);
+
+        // [THEN] The location code has been changed with no error.
+        // [THEN] Bin Code on the prod. order component is reset to blank.
+        ProdOrderComponent.TestField("Location Code", LocationRed.Code);
+        ProdOrderComponent.TestField("Bin Code", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

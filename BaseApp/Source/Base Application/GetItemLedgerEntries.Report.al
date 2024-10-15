@@ -300,7 +300,7 @@ report 594 "Get Item Ledger Entries"
             SetCountryRegionCode(IntrastatJnlLine, "Item Ledger Entry");
 
             Validate("Item No.");
-            "Source Type" := "Source Type"::"Item Entry";
+            Validate("Source Type", "Source Type"::"Item Entry");
             Validate(Quantity, Round(Abs(Quantity), UOMMgt.QtyRndPrecision));
             if TotalIndirectCost <> 0 then
                 Validate("Indirect Cost", Round(Abs(TotalIndirectCost), 1))
@@ -541,7 +541,7 @@ report 594 "Get Item Ledger Entries"
                 end;
 
             Validate("Item No.");
-            "Source Type" := "Source Type"::"Item Entry";
+            Validate("Source Type", "Source Type"::"Item Entry");
             Validate(Quantity, Round(Abs(Quantity), 0.00001));
             Validate("Cost Regulation %", IndirectCostPctReq);
 

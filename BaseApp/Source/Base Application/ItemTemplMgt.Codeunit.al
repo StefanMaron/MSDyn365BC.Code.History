@@ -1,8 +1,11 @@
-codeunit 1336 "Item Templ. Mgt."
+﻿codeunit 1336 "Item Templ. Mgt."
 {
     trigger OnRun()
     begin
     end;
+
+    var
+        VATPostingSetupErr: Label 'VAT Posting Setup does not exist. "VAT Bus. Posting Group" = %1, "VAT Prod. Posting Group" = %2.', Comment = '%1 - vat bus. posting group code; %2 - vat prod. posting group code';
 
     procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean): Boolean
     var
@@ -31,6 +34,9 @@ codeunit 1336 "Item Templ. Mgt."
     end;
 
     local procedure ApplyTemplate(var Item: Record Item; ItemTempl: Record "Item Templ.")
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         Item.Type := ItemTempl.Type;
         Item."Inventory Posting Group" := ItemTempl."Inventory Posting Group";
@@ -40,7 +46,6 @@ codeunit 1336 "Item Templ. Mgt."
         Item."Profit %" := ItemTempl."Profit %";
         Item."Costing Method" := ItemTempl."Costing Method";
         Item."Indirect Cost %" := ItemTempl."Indirect Cost %";
-        Item."Price Includes VAT" := ItemTempl."Price Includes VAT";
         Item."Gen. Prod. Posting Group" := ItemTempl."Gen. Prod. Posting Group";
         Item."Automatic Ext. Texts" := ItemTempl."Automatic Ext. Texts";
         Item."Tax Group Code" := ItemTempl."Tax Group Code";
@@ -52,6 +57,13 @@ codeunit 1336 "Item Templ. Mgt."
         Item."Sales Blocked" := ItemTempl."Sales Blocked";
         Item."Purchasing Blocked" := ItemTempl."Purchasing Blocked";
         Item.Validate("Base Unit of Measure", ItemTempl."Base Unit of Measure");
+        if ItemTempl."Price Includes VAT" then begin
+            SalesReceivablesSetup.Get();
+            if not VATPostingSetup.Get(SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)", ItemTempl."VAT Prod. Posting Group") then
+                Error(VATPostingSetupErr, SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)", ItemTempl."VAT Prod. Posting Group");
+            Item.Validate("Price Includes VAT", ItemTempl."Price Includes VAT");
+        end;
+        OnApplyTemplateOnBeforeItemModify(Item, ItemTempl);
         Item.Modify(true);
     end;
 
@@ -183,6 +195,11 @@ codeunit 1336 "Item Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyTemplateOnBeforeItemModify(var Item: Record Item; ItemTempl: Record "Item Templ.")
     begin
     end;
 

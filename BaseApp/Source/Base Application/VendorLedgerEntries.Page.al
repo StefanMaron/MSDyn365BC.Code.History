@@ -469,6 +469,10 @@ page 29 "Vendor Ledger Entries"
                     Caption = '&Rem. Advice';
                     Image = Attachments;
                     ToolTip = 'View which documents have been included in the payment.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This action does nog get report from the Report Selection. Correct action is "Send Remittance Advice"';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     begin

@@ -21,7 +21,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         WrongAmountErr: Label '%1 must be %2.', Locked = true;
-        HasBankEntriesMsg: Label 'One or more bank account ledger entries in bank account';
+        HasBankEntriesMsg: Label 'When you use action Delete the bank statement will be deleted';
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -34,6 +34,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         StatementNoEditableErr: Label '%1 should not be editable.', Comment = '%1 - "Statement No." field caption';
         TransactionAmountReducedMsg: Label 'The value in the Transaction Amount field has been reduced';
         ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
+        StatementAlreadyExistsErr: Label 'A bank account reconciliation with statement number %1 already exists.', Comment = '%1 - statement number';
 
     [Test]
     [HandlerFunctions('GenJnlPageHandler')]
@@ -1633,6 +1634,404 @@ codeunit 134141 "ERM Bank Reconciliation"
         VerifyGenJournalLineDocNosSequential(GenJournalTemplate.Name, GenJournalBatch.Name);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UndoBankAccStatementSunShine()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountStatement: Record "Bank Account Statement";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        UndoBankStatementYesNo: Codeunit "Undo Bank Statement (Yes/No)";
+        StatementNo: Code[20];
+    begin
+        // [FEATURE] [Undo Bank Accoount Statement]
+        // [SCENARIO 277781] Bank Account statement undo makes bank account reconciliation and restore bank ledger entry fields
+        Initialize();
+
+        // [GIVEN] Posted vendor payment Amount = 100
+        LibraryERM.CreateBankAccount(BankAccount);
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate, LibraryPurchase.CreateVendorNo(), BankAccount."No.");
+
+        // [GIVEN] Create and post bank reconciliation "Statement No." = 1
+        CreateSuggestedBankReconc(BankAccReconciliation, BankAccount."No.", false);
+
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+        BankAccountStatement.Get(BankAccount."No.", BankAccReconciliation."Statement No.");
+
+        // [WHEN] Undo bank statement
+        StatementNo := UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement);
+
+        // [THEN] Bank statetment "Statement No." = 1 deleted
+        Assert.IsFalse(BankAccountStatement.Find(), 'Bank account statement must be deleted.');
+
+        // [THEN] Bank reconciliation "Statement No." = 2 created
+        BankAccReconciliation.Get(BankAccReconciliation."Statement Type"::"Bank Reconciliation", BankAccount."No.", StatementNo);
+        BankAccReconciliation.TestField("Balance Last Statement", 0);
+        BankAccReconciliation.TestField("Statement Ending Balance", -GenJournalLine.Amount);
+        // [THEN] Bank reconciliation line created with Statement Amount = -100 and Applied Amount = -100
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.FindFirst();
+        BankAccReconciliationLine.TestField("Statement Amount", -GenJournalLine.Amount);
+        BankAccReconciliationLine.TestField("Applied Amount", -GenJournalLine.Amount);
+        // [THEN] Bank ledger entry has Statement Status = Bank Acc. Entry Applied, Statement No.
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccountLedgerEntry.FindFirst();
+        BankAccountLedgerEntry.TestField("Statement Status", BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
+        BankAccountLedgerEntry.TestField("Statement No.", BankAccReconciliation."Statement No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UndoBankAccountStatementBalanceLastStatement()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountStatement: array[2] of Record "Bank Account Statement";
+        UndoBankStatementYesNo: Codeunit "Undo Bank Statement (Yes/No)";
+    begin
+        // [FEATURE] [Undo Bank Accoount Statement]
+        // [SCENARIO 277781] Undo bank account statement updates bank "Balance Last Statement"
+        Initialize();
+
+        // [GIVEN] Bank account "B"
+        LibraryERM.CreateBankAccount(BankAccount);
+        // [GIVEN] Create an post bank reconciliation "Statement No." = 1 with Statement Amount = 100
+        BankAccountStatement[1].Get(BankAccount."No.", CreatePostBankReconciliation(BankAccount));
+        // [GIVEN] Create an post bank reconciliation "Statement No." = 2 with Statement Amount = 200
+        BankAccountStatement[2].Get(BankAccount."No.", CreatePostBankReconciliation(BankAccount));
+        BankAccount.Find();
+        // [WHEN] Undo bank statement 2
+        UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement[2]);
+
+        // [THEN] Bank "Balance Last Statement" = 100
+        BankAccount.Find();
+        BankAccount.TestField("Balance Last Statement", BankAccountStatement[2]."Balance Last Statement");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UndoBankStatementWithPartlyAppliedEntries()
+    var
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountStatement: Record "Bank Account Statement";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        UndoBankStatementYesNo: Codeunit "Undo Bank Statement (Yes/No)";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+    begin
+        // [FEATURE] [Undo Bank Accoount Statement]
+        // [SCENARIO 277781] Bank Account statement undo for partly applied bank ledger entries
+        Initialize();
+
+        // [GIVEN] Bank account "B"
+        LibraryERM.CreateBankAccount(BankAccount);
+        // [GIVEN] Vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Create and post payment 1 with Amount = 100
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine[1], WorkDate, Vendor."No.", BankAccount."No.");
+        // [GIVEN] Create and post payment 2 with Amount = 200
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine[2], WorkDate, Vendor."No.", BankAccount."No.");
+
+        // [GIVEN] Create and post bank reconciliation with 1 line applied to 2 payments
+        CreateBankReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        CreateBankAccReconciliationLine(BankAccReconciliation, BankAccReconciliationLine, Vendor."No.", -(GenJournalLine[1].Amount + GenJournalLine[2].Amount), WorkDate());
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccReconciliationLine.SetRecFilter();
+        MatchBankRecLines.MatchManually(BankAccReconciliationLine, BankAccountLedgerEntry);
+        BankAccReconciliation."Statement Ending Balance" := BankAccReconciliationLine."Statement Amount";
+        BankAccReconciliation.Modify();
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+        BankAccountStatement.Get(BankAccount."No.", BankAccReconciliation."Statement No.");
+
+        // [WHEN] Undo bank statement
+        UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement);
+
+        // [THEN] Bank account entry 1 has Remaning Amount = 100
+        VerifyBankLedgerEntryRemainingAmount(BankAccount."No.", GenJournalLine[1]."Document No.", -GenJournalLine[1].Amount);
+        // [THEN] Bank account entry 2 has Remaning Amount = 200
+        VerifyBankLedgerEntryRemainingAmount(BankAccount."No.", GenJournalLine[2]."Document No.", -GenJournalLine[2].Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoBankAccountStatementOpenCreatedReconciliation()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountStatement: Record "Bank Account Statement";
+        BankAccountStatementPage: TestPage "Bank Account Statement";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+    begin
+        // [FEATURE] [Undo Bank Accoount Statement] [UI]
+        // [SCENARIO 277781] Created bank reconciliation opened after statement undone
+        Initialize();
+
+        // [GIVEN] Bank account "B"
+        LibraryERM.CreateBankAccount(BankAccount);
+        // [GIVEN] Create an post bank reconciliation 
+        BankAccountStatement.Get(BankAccount."No.", CreatePostBankReconciliation(BankAccount));
+        // [GIVEN] Open bank statement page
+        BankAccountStatementPage.OpenEdit();
+        BankAccountStatementPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
+
+        // [WHEN] Undo bank statement 
+        BankAccReconciliationPage.Trap();
+        BankAccountStatementPage.Undo.Invoke();
+
+        // [THEN] Bank Acc. Reconciliation page opened
+        BankAccReconciliationPage.BankAccountNo.AssertEquals(BankAccount."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure UndoBankAccountStatementNotConfirm()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountStatement: Record "Bank Account Statement";
+        BankAccountStatementPage: TestPage "Bank Account Statement";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+    begin
+        // [FEATURE] [Undo Bank Accoount Statement] [UI]
+        // [SCENARIO 277781] User is able to not confirm undo bank statement
+        Initialize();
+
+        // [GIVEN] Bank account "B"
+        LibraryERM.CreateBankAccount(BankAccount);
+        // [GIVEN] Create an post bank reconciliation 
+        BankAccountStatement.Get(BankAccount."No.", CreatePostBankReconciliation(BankAccount));
+        // [GIVEN] Open bank statement page
+        BankAccountStatementPage.OpenEdit();
+        BankAccountStatementPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
+
+        // [WHEN] Run Undo bank statement action and answer "No" 
+        BankAccReconciliationPage.Trap();
+        BankAccountStatementPage.Undo.Invoke();
+
+        // [THEN] Bank Account Statement is not deleted
+        Assert.IsTrue(BankAccountStatement.Find(), 'Bank statement must not be deleted.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UndoBankStatementWithDifferences()
+    var
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountStatement: Record "Bank Account Statement";
+        UndoBankStatementYesNo: Codeunit "Undo Bank Statement (Yes/No)";
+        DifferenceAmount: Decimal;
+        StatementNo: Code[20];
+    begin
+        // [FEATURE] [Undo Bank Accoount Statement]
+        // [SCENARIO 277781] Bank Account statement with differences undo 
+        Initialize();
+
+        // [GIVEN] Bank account "B"
+        LibraryERM.CreateBankAccount(BankAccount);
+        // [GIVEN] Vendor "V"
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Create and post payment 1 with Amount = 100
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine[1], WorkDate, Vendor."No.", BankAccount."No.");
+        // [GIVEN] Create and post payment 2 with Amount = 200
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine[2], WorkDate, Vendor."No.", BankAccount."No.");
+
+        // [GIVEN] Create bank reconciliation 
+        CreateSuggestedBankReconc(BankAccReconciliation, BankAccount."No.", false);
+        // [GIVEN] Set for first reconciliation Difference = 50
+        DifferenceAmount := LibraryRandom.RandDec(50, 2);
+        BankAccReconciliationLine.Get(BankAccReconciliationLine."Statement Type"::"Bank Reconciliation", BankAccount."No.", BankAccReconciliation."Statement No.", 10000);
+        BankAccReconciliationLine.Validate(Difference, DifferenceAmount);
+        BankAccReconciliationLine.Modify();
+        // [GIVEN] Set for first reconciliation Difference = -50
+        BankAccReconciliationLine.Get(BankAccReconciliationLine."Statement Type"::"Bank Reconciliation", BankAccount."No.", BankAccReconciliation."Statement No.", 20000);
+        BankAccReconciliationLine.Validate(Difference, -DifferenceAmount);
+        BankAccReconciliationLine.Modify();
+        // [GIVEN] Post bank reconciliation
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [WHEN] Undo bank statement
+        BankAccountStatement.Get(BankAccount."No.", BankAccReconciliation."Statement No.");
+        StatementNo := UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement);
+
+        // [THEN] New first bank reconciliation line has Difference = 50
+        BankAccReconciliationLine.Get(BankAccReconciliationLine."Statement Type"::"Bank Reconciliation", BankAccount."No.", StatementNo, 10000);
+        BankAccReconciliationLine.TestField(Difference, DifferenceAmount);
+        // [THEN] New second bank reconciliation line has Difference = -50
+        BankAccReconciliationLine.Get(BankAccReconciliationLine."Statement Type"::"Bank Reconciliation", BankAccount."No.", StatementNo, 20000);
+        BankAccReconciliationLine.TestField(Difference, -DifferenceAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UndoBankStatementWithCheckLedgerEntry()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountStatement: Record "Bank Account Statement";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        UndoBankStatementYesNo: Codeunit "Undo Bank Statement (Yes/No)";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Undo Bank Accoount Statement]
+        // [SCENARIO 277781] Undo Bank Account statement with check ledger entry 
+        Initialize();
+
+        // [GIVEN] Create and post check payment
+        DocumentNo := PostCheck(BankAccount, CreateBankAccount(), LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] Create and post bank reconciliation 
+        CreateSuggestedBankReconc(BankAccReconciliation, BankAccount."No.", true);
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [WHEN] Undo bank statement
+        BankAccountStatement.Get(BankAccount."No.", BankAccReconciliation."Statement No.");
+        UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement);
+
+        // [THEN] Check account entry has "Statement Status" = "Check Entry Applied" and "Open" = "true"
+        VerifyUndoneCheckLedgerEntry(BankAccount."No.", DocumentNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoBankAccountStatementFromList()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountStatement: Record "Bank Account Statement";
+        BankAccountStatementListPage: TestPage "Bank Account Statement List";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+    begin
+        // [FEATURE] [Undo Bank Accoount Statement] [UI]
+        // [SCENARIO 372511] User is able to undo statement from statements list page
+        Initialize();
+
+        // [GIVEN] Bank account "B"
+        LibraryERM.CreateBankAccount(BankAccount);
+        // [GIVEN] Create an post bank reconciliation 
+        BankAccountStatement.Get(BankAccount."No.", CreatePostBankReconciliation(BankAccount));
+        // [GIVEN] Open bank statement page
+        BankAccountStatementListPage.OpenEdit();
+        BankAccountStatementListPage.Filter.SetFilter("Bank Account No.", BankAccount."No.");
+
+        // [WHEN] Undo bank statement 
+        BankAccReconciliationPage.Trap();
+        BankAccountStatementListPage.Undo.Invoke();
+
+        // [THEN] Bank Acc. Reconciliation page opened
+        BankAccReconciliationPage.BankAccountNo.AssertEquals(BankAccount."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeStatementNoModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ChangeBankReconciliationStatementNo()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        NewStatementNo: Code[20];
+    begin
+        // [SCENARIO 376737] User is able to change bank account reconciliation Statement No. 
+        Initialize();
+
+        // [GIVEN] Create bank reconciliation with "Statement No." = 1
+        PrepareBankAccReconciliation(BankAccReconciliation, LibraryERM.CreateBankAccountNo());
+
+        // [WHEN] Run change Statement No. and set "New Statement No." = 2
+        NewStatementNo := IncStr(BankAccReconciliation."Statement No.");
+        RunChangeStatementNo(BankAccReconciliation, NewStatementNo);
+
+        // [THEN] Bank Acc. Reconciliation has "Statement No." = 2
+        BankAccReconciliation.TestField("Statement No.", NewStatementNo);
+        // [THEN] Bank Acc. Reconciliation Line has "Statement No." = 2
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", NewStatementNo);
+        BankAccReconciliationLine.FindFirst();
+
+        // [THEN] Applied Bank Account Ledger Entry has "Statement No." = 2
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
+        BankAccountLedgerEntry.FindFirst();
+        BankAccountLedgerEntry.TestField("Statement No.", NewStatementNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeStatementNoModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ChangeBankReconciliationStatementNoWithCheckLE()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        NewStatementNo: Code[20];
+    begin
+        // [SCENARIO 376737] User is able to change bank account reconciliation Statement No. with applied check ledger entry
+        Initialize();
+
+        // [GIVEN] Create and post check payment
+        PostCheck(BankAccount, CreateBankAccount(), LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] Create bank reconciliation with "Statement No." = 1
+        CreateSuggestedBankReconc(BankAccReconciliation, BankAccount."No.", true);
+
+        // [WHEN] Run change Statement No. and set "New Statement No." = 2
+        NewStatementNo := IncStr(BankAccReconciliation."Statement No.");
+        RunChangeStatementNo(BankAccReconciliation, NewStatementNo);
+
+        // [THEN] Bank Acc. Reconciliation has "Statement No." = 2
+        BankAccReconciliation.TestField("Statement No.", NewStatementNo);
+        // [THEN] Bank Acc. Reconciliation Line has "Statement No." = 2
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", NewStatementNo);
+        BankAccReconciliationLine.FindFirst();
+
+        // [THEN] Applied Check Ledger Entry has "Statement No." = 2
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        CheckLedgerEntry.SetRange("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
+        CheckLedgerEntry.FindFirst();
+        CheckLedgerEntry.TestField("Statement No.", NewStatementNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeStatementNoModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ChangeBankReconciliationStatementNoExistingStatementNo()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: array[2] of Record "Bank Acc. Reconciliation";
+    begin
+        // [SCENARIO 376737] Change bank account reconciliation Statement No. with existing Statement No. leads to error "Statement No. XXX already exists."
+        Initialize();
+
+        // [GIVEN] Create bank account "B"
+        LibraryERM.CreateBankAccount(BankAccount);
+        // [GIVEN] Create bank reconciliation with "Statement No." = 1
+        PrepareBankAccReconciliation(BankAccReconciliation[1], BankAccount."No.");
+        // [GIVEN] Create bank reconciliation with "Statement No." = 2
+        PrepareBankAccReconciliation(BankAccReconciliation[2], BankAccount."No.");
+
+        // [WHEN] Run change Statement No. for 2 and try to set "New Statement No." = 1
+        asserterror RunChangeStatementNo(BankAccReconciliation[2], BankAccReconciliation[1]."Statement No.");
+
+        // [THEN] Error "Statement No. 1 already exists."
+        Assert.ExpectedError(StrSubstNo(StatementAlreadyExistsErr, BankAccReconciliation[1]."Statement No."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Reconciliation");
@@ -1690,6 +2089,16 @@ codeunit 134141 "ERM Bank Reconciliation"
         exit(GenJournalLine."Document No.");
     end;
 
+    local procedure PrepareBankAccReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate, LibraryPurchase.CreateVendorNo(), BankAccountNo);
+
+        // [GIVEN] Create bank reconciliation with "Statement No." = 1
+        CreateSuggestedBankReconc(BankAccReconciliation, BankAccountNo, false);
+    end;
+
     local procedure PrepareBankAccReconciliationWithPostPaymentsOnly(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; PostPaymentsOnly: Boolean)
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
@@ -1740,6 +2149,12 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
         BankAccountLedgerEntry.FindFirst;
         LibraryERM.ReverseTransaction(BankAccountLedgerEntry."Transaction No.");
+    end;
+
+    local procedure RunChangeStatementNo(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; NewStatementNo: Code[20])
+    begin
+        LibraryVariableStorage.Enqueue(NewStatementNo);
+        Codeunit.Run(Codeunit::"Change Bank Rec. Statement No.", BankAccReconciliation);
     end;
 
     local procedure CreatePaymentJournalLineWithVendorAndBank(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; BankAccountNo: Code[20]): Code[20]
@@ -1952,7 +2367,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine.Modify(true);
     end;
 
-    local procedure CreateApplyBankAccReconcilationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; StatementAmount: Decimal; BankAccountNo: Code[20])
+    local procedure CreateApplyBankAccReconcilationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20]; StatementAmount: Decimal; BankAccountNo: Code[20])
     begin
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
@@ -2093,6 +2508,19 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliation.Validate("Statement Ending Balance",
           BankAccReconciliation."Balance Last Statement" + BankAccRecSum(BankAccReconciliation));
         BankAccReconciliation.Modify(true);
+    end;
+
+    local procedure CreatePostBankReconciliation(BankAccount: Record "Bank Account"): Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+    begin
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate, LibraryPurchase.CreateVendorNo(), BankAccount."No.");
+
+        CreateSuggestedBankReconc(BankAccReconciliation, BankAccount."No.", false);
+
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+        exit(BankAccReconciliation."Statement No.");
     end;
 
     local procedure UpdateGeneralShortcutDimensionSetup()
@@ -2241,7 +2669,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         with BankAccountLedgerEntry do begin
             SetRange("Bank Account No.", AccountNo);
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
 
             repeat
                 Assert.IsFalse(Open, 'Bank ledger entry did not close:');
@@ -2269,6 +2697,27 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccount.TestField("Last Payment Statement No.", LastPaymentStatementNo);
         BankAccount.TestField("Last Statement No.", LastStatementNo);
         BankAccount.TestField("Balance Last Statement", BalanceLastStatement);
+    end;
+
+    local procedure VerifyBankLedgerEntryRemainingAmount(BankAccountNo: Code[20]; DocumentNo: Code[20]; ExpectedRemainingAmount: Decimal)
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+    begin
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
+        BankAccountLedgerEntry.FindFirst();
+        BankAccountLedgerEntry.TestField("Remaining Amount", ExpectedRemainingAmount);
+    end;
+
+    local procedure VerifyUndoneCheckLedgerEntry(BankAccountNo: Code[20]; DocumentNo: Code[20])
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+    begin
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        CheckLedgerEntry.SetRange("Document No.", DocumentNo);
+        CheckLedgerEntry.FindFirst();
+        CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
+        CheckLedgerEntry.TestField(Open, true);
     end;
 
     local procedure VerifyCustLedgerEntry(CustomerNo: Code[20]; DocumentNo: Code[20]; DimSetID: Integer)
@@ -2368,6 +2817,13 @@ codeunit 134141 "ERM Bank Reconciliation"
 
     [ConfirmHandler]
     [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
     procedure ConfirmEnqueueQuestionHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         LibraryVariableStorage.Enqueue(Question);
@@ -2449,4 +2905,11 @@ codeunit 134141 "ERM Bank Reconciliation"
           'A notification should have been shown with the expected text');
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ChangeStatementNoModalPageHandler(var ChangeBankRecStatementNo: TestPage "Change Bank Rec. Statement No.")
+    begin
+        ChangeBankRecStatementNo.NewStatementNumber.SetValue(LibraryVariableStorage.DequeueText());
+        ChangeBankRecStatementNo.OK().Invoke;
+    end;
 }
