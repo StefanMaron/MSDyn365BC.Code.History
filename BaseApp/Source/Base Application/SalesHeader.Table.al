@@ -2149,7 +2149,15 @@
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
-        }        
+            ObsoleteReason = 'Use new field on range 181';
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+        }
+        field(181; "Rcvd.-from Count./Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -4958,9 +4966,9 @@
     begin
         if not IsCreditDocType() then
             exit;
-        Rec."Rcvd-from Country/Region Code" := RcvdFromCountryRegionCode;
+        Rec."Rcvd.-from Count./Region Code" := RcvdFromCountryRegionCode;
     end;
-    
+
     local procedure UpdateShipToCodeFromCust()
     var
         IsHandled: Boolean;
@@ -6987,8 +6995,8 @@
         MyNotifications: Record "My Notifications";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         PageMyNotifications: Page "My Notifications";
-                                 ModifyCustomerAddressNotification: Notification;
-                                 IsHandled: Boolean;
+        ModifyCustomerAddressNotification: Notification;
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeShowModifyAddressNotification(IsHandled, Rec, CustomerNumber);
@@ -7329,7 +7337,7 @@
     procedure CopyDocument()
     var
         CopySalesDocument: Report "Copy Sales Document";
-                               IsHandled: Boolean;
+        IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeCopyDocument(Rec, IsHandled);
@@ -7615,7 +7623,7 @@
         MyNotifications.InsertDefault(GetWarnWhenZeroQuantitySalesLinePosting(),
          WarnZeroQuantitySalesPostingTxt, WarnZeroQuantitySalesPostingDescriptionTxt, true);
     end;
-    
+
     internal procedure SetTrackInfoForCancellation()
     var
         CancelledDocument: Record "Cancelled Document";
