@@ -286,6 +286,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Comment Line" = RIMD,
                   tabledata "Communication Method" = RIMD,
                   tabledata "Company Information" = RIMD,
+                  tabledata "Company Size" = RIMD,
                   tabledata Confidential = RIMD,
                   tabledata "Confidential Information" = RIMD,
                   tabledata "Config. Field Map" = RIMD,
