@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LCX SchemaVersion="6.0" Name="Payroll Data Import Definitions (DK).g" PsrId="63" SrcCul="en-US" TgtCul="en-US" xmlns="http://schemas.microsoft.com/locstudio/2006/6/lcx">
+  <OwnedComments>
+    <Cmt Name="Dev" />
+    <Cmt Name="LcxAdmin" />
+    <Cmt Name="Rccx" />
+  </OwnedComments>
+  <Item ItemId=";Codeunit 359599811 - NamedType 3324224118" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?><root>  <DataExchDef Code="DANLOEN" Name="DANLOEN" Type="2" ReadingWritingXMLport="1220" ExternalDataHandlingCodeunit="1240" HeaderLines="1" ColumnSeparator="2" FileType="1">    <DataExchLineDef Code="DANLOEN" Name="DANLOEN" ColumnCount="0">      <DataExchColumnDef ColumnNo="1" Name="CVR-Nr." Show="false" DataType="0" />      <DataExchColumnDef ColumnNo="2" Name="Transaktions Dato" Show="true" DataType="1" DataFormat="yyyy-MM-dd" DataFormattingCulture="da-dk" />      <DataExchColumnDef ColumnNo="3" Name="UKENDT" Show="false" DataType="0" />      <DataExchColumnDef ColumnNo="4" Name="Konto Nr." Show="true" DataType="2" DataFormattingCulture="da-DK" />      <DataExchColumnDef ColumnNo="5" Name="CPR-Nr." Show="false" DataType="2" DataFormattingCulture="da-DK" />      <DataExchColumnDef ColumnNo="6" Name="Beløb" Show="true" DataType="2" DataFormattingCulture="da-DK" />      <DataExchColumnDef ColumnNo="7" Name="Lønart" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="8" Name="Periode" Show="true" DataType="0" />      <DataExchMapping TableId="81" Name="Danløn Til Finanskladdelinje" MappingCodeunit="1247" DataExchNoFieldID="1220" DataExchLineFieldID="1223">        <DataExchFieldMapping ColumnNo="2" FieldID="5" />        <DataExchFieldMapping ColumnNo="4" FieldID="4" />        <DataExchFieldMapping ColumnNo="5" FieldID="1222" Optional="true" />        <DataExchFieldMapping ColumnNo="6" FieldID="13" />        <DataExchFieldMapping ColumnNo="7" FieldID="8" />        <DataExchFieldMapping ColumnNo="8" FieldID="1222" Optional="true" />      </DataExchMapping>    </DataExchLineDef>  </DataExchDef></root>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ImportPayrollDataExchDef - NamedType DanloenExchDefTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 359599811 - NamedType 1591002675" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?><root>  <DataExchDef Code="DATALOEN" Name="DATALOEN" Type="2" ReadingWritingXMLport="1220" ExternalDataHandlingCodeunit="1240" ColumnSeparator="1" FileType="1">    <DataExchLineDef Code="DATALOEN" Name="DATALOEN" ColumnCount="0">      <DataExchColumnDef ColumnNo="1" Name="Dato" Show="true" DataType="1" DataFormat="dd.MM.yyyy" DataFormattingCulture="da-DK" />      <DataExchColumnDef ColumnNo="2" Name="KontoNr." Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="3" Name="Beløb" Show="true" DataType="2" DataFormattingCulture="da-DK" />      <DataExchColumnDef ColumnNo="4" Name="Tekst" Show="true" DataType="0" />      <DataExchMapping TableId="81" Name="Dataløn Til Finanskladdelinje" MappingCodeunit="1247" DataExchNoFieldID="1220" DataExchLineFieldID="1223">        <DataExchFieldMapping ColumnNo="1" FieldID="5" />        <DataExchFieldMapping ColumnNo="2" FieldID="4" />        <DataExchFieldMapping ColumnNo="3" FieldID="13" />        <DataExchFieldMapping ColumnNo="4" FieldID="8" />      </DataExchMapping>    </DataExchLineDef>  </DataExchDef></root>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ImportPayrollDataExchDef - NamedType DataloenExchDefTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 359599811 - NamedType 2466805352" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?><root>  <DataExchDef Code="LOENSERVICE" Name="LOENSERVICE" Type="2" ReadingWritingXMLport="1220" ExternalDataHandlingCodeunit="1240" ColumnSeparator="2" FileType="1">    <DataExchLineDef Code="LOENSERVICE" Name="LOENSERVICE" ColumnCount="0">      <DataExchColumnDef ColumnNo="1" Name="Dato" Show="true" DataType="1" DataFormat="dd.MM.yyyy" DataFormattingCulture="da-DK" />      <DataExchColumnDef ColumnNo="2" Name="KontoNr." Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="3" Name="Beløb" Show="true" DataType="2" DataFormattingCulture="da-DK" />      <DataExchColumnDef ColumnNo="4" Name="Tekst" Show="true" DataType="0" />      <DataExchMapping TableId="81" Name="Lønservice Til Finanskladdelinje" MappingCodeunit="1247" DataExchNoFieldID="1220" DataExchLineFieldID="1223">        <DataExchFieldMapping ColumnNo="1" FieldID="5" />        <DataExchFieldMapping ColumnNo="2" FieldID="4" />        <DataExchFieldMapping ColumnNo="3" FieldID="13" />        <DataExchFieldMapping ColumnNo="4" FieldID="8" />      </DataExchMapping>    </DataExchLineDef>  </DataExchDef></root>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ImportPayrollDataExchDef - NamedType LoenserviceExchDefTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 359599811 - NamedType 182792644" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?><root>  <DataExchDef Code="MULTILOEN" Name="MULTILOEN" Type="2" ReadingWritingXMLport="1220" ExternalDataHandlingCodeunit="1240" HeaderLines="1" ColumnSeparator="2" FileType="1">    <DataExchLineDef Code="MULTILOEN" Name="MULTILOEN" ColumnCount="0">      <DataExchColumnDef ColumnNo="1" Name="Arbejdsgiver" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="2" Name="Kørselsnummer" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="3" Name="Kørselstext" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="4" Name="Kontotekst" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="5" Name="Afdeling" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="6" Name="Kontonr" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="7" Name="Debet" Show="true" DataType="2" DataFormattingCulture="da-DK" />      <DataExchColumnDef ColumnNo="8" Name="Kredit" Show="true" DataType="2" DataFormattingCulture="da-DK" />      <DataExchMapping TableId="81" Name="Multiløn Til Finanskladdelinje" MappingCodeunit="1247" DataExchNoFieldID="1220" DataExchLineFieldID="1223">        <DataExchFieldMapping ColumnNo="2" FieldID="1222" />        <DataExchFieldMapping ColumnNo="3" FieldID="1222" />        <DataExchFieldMapping ColumnNo="4" FieldID="8" />        <DataExchFieldMapping ColumnNo="6" FieldID="4" />        <DataExchFieldMapping ColumnNo="7" FieldID="14" Optional="true" />        <DataExchFieldMapping ColumnNo="8" FieldID="15" Optional="true" />      </DataExchMapping>    </DataExchLineDef>  </DataExchDef></root>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ImportPayrollDataExchDef - NamedType MultiloenExchDefTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 359599811 - NamedType 1480378696" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?><root>  <DataExchDef Code="PROLOEN" Name="PROLOEN" Type="2" ReadingWritingXMLport="13600" ExternalDataHandlingCodeunit="1240" HeaderLines="1" ColumnSeparator="2" FileType="1">    <DataExchLineDef Code="PROLOEN" Name="PROLOEN" ColumnCount="0">      <DataExchColumnDef ColumnNo="1" Name="LINJENR-1" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="2" Name="LINJENR-2" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="3" Name="AFDELING" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="4" Name="LØNART" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="5" Name="BELØB" Show="true" DataType="2" DataFormattingCulture="da-DK" />      <DataExchColumnDef ColumnNo="6" Name="D/K" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="7" Name="PERIODE" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="8" Name="LINJETEKST" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="9" Name="AFDELINGSSTEKST" Show="true" DataType="0" />      <DataExchColumnDef ColumnNo="10" Name="LØNARTSTEKST" Show="true" DataType="0" />      <DataExchMapping TableId="81" Name="Proløn Til Finanskladdelinje" MappingCodeunit="1247" DataExchNoFieldID="1220" DataExchLineFieldID="1223">        <DataExchFieldMapping ColumnNo="2" FieldID="4" />        <DataExchFieldMapping ColumnNo="5" FieldID="13" />        <DataExchFieldMapping ColumnNo="7" FieldID="1222" />        <DataExchFieldMapping ColumnNo="8" FieldID="8" />        <DataExchFieldMapping ColumnNo="9" FieldID="1222" Optional="true" />        <DataExchFieldMapping ColumnNo="10" FieldID="1222" Optional="true" />      </DataExchMapping>    </DataExchLineDef>  </DataExchDef></root>]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ImportPayrollDataExchDef - NamedType ProloenExchDefTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 868071540 - Property 2019332006" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New,Process,Report,General,Posting,VAT,Bank,Journal Templates]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Setup DK Payroll Service - Property PromotedActionCategories)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 868071540 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Setup Payroll Data Import Definitions (DK)]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Setup DK Payroll Service - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 868071540 - Control 2488944089 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the format of the payroll transaction file that can be imported into the General Journal window.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Setup DK Payroll Service - Control Payroll Trans. Import Format - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";XmlPort 1985359964 - NamedType 3403918908" ItemType=";XmlPort - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The imported file does not match the expected format.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=XmlPort Data Exch. Imp.- Proløn - NamedType WrongFileErr)]]></Cmt>
+    </Cmts>
+  </Item>
+</LCX>

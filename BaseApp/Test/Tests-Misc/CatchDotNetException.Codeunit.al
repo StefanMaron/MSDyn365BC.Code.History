@@ -1,0 +1,112 @@
+codeunit 132567 "Catch DotNet Exception"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Base64] [UT]
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        LibraryUtility: Codeunit "Library - Utility";
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReadDataFromCache()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        ReadMasterDataFromCache: Codeunit "Read Master Data from Cache";
+        InputStream: InStream;
+        Content: Text;
+        ServerFileName: Text;
+    begin
+        // Setup
+        ServerFileName := CreateServerFile;
+        ConfigureMasterDataSetup(ServerFileName);
+
+        // Pre-Exercise
+        Commit;
+
+        // Exercise
+        ReadMasterDataFromCache.Run;
+        ReadMasterDataFromCache.GetTempBlob(TempBlob);
+
+        // Pre-Verify
+        TempBlob.CreateInStream(InputStream);
+        InputStream.Read(Content);
+
+        // Verify
+        Assert.AreEqual(ReadFileContentAsBase64(ServerFileName), Content, '');
+    end;
+
+    local procedure CreateServerFile() ServerFileName: Text
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FileMgt: Codeunit "File Management";
+        OutputStream: OutStream;
+    begin
+        ServerFileName := FileMgt.ServerTempFileName('txt');
+
+        TempBlob.CreateOutStream(OutputStream);
+        OutputStream.Write(LibraryUtility.GenerateRandomText(1024));
+
+        FileMgt.BLOBExportToServerFile(TempBlob, ServerFileName);
+    end;
+
+    local procedure ConfigureMasterDataSetup(FileName: Text)
+    var
+        MasterDataSetupSample: Record "Master Data Setup Sample";
+        FileMgt: Codeunit "File Management";
+    begin
+        MasterDataSetupSample.DeleteAll;
+
+        with MasterDataSetupSample do begin
+            Name := CopyStr(FileMgt.GetFileName(FileName), 1, MaxStrLen(Name));
+            Path := CopyStr(FileMgt.GetDirectoryName(FileName), 1, MaxStrLen(Path));
+            Insert;
+        end;
+    end;
+
+    local procedure ReadFileContentAsBase64(FileName: Text): Text
+    var
+        Convert: DotNet Convert;
+        File: DotNet File;
+    begin
+        exit(Convert.ToBase64String(File.ReadAllBytes(FileName)));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReadDataNoCachce()
+    var
+        FileMgt: Codeunit "File Management";
+        ClientFileName: Text;
+        ServerFileName: Text;
+    begin
+        // Setup
+        ClientFileName := CreateClientFile(ServerFileName);
+        ConfigureMasterDataSetup(ClientFileName);
+
+        // Pre-Exercise
+        Commit;
+
+        // Exercise
+        asserterror CODEUNIT.Run(CODEUNIT::"Read Master Data from Cache");
+
+        // Verify
+        Assert.ExpectedError(FileMgt.GetFileName(ClientFileName));
+        Assert.ExpectedError(' is denied.');
+    end;
+
+    local procedure CreateClientFile(var ServerFileName: Text) ClientFileName: Text
+    var
+        FileMgt: Codeunit "File Management";
+    begin
+        ServerFileName := CreateServerFile;
+        ClientFileName := FileMgt.ClientTempFileName('txt');
+        FileMgt.AppendAllTextToClientFile(ServerFileName, ClientFileName);
+    end;
+}
+
