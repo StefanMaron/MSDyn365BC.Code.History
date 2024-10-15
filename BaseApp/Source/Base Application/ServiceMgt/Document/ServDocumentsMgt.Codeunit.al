@@ -1328,6 +1328,13 @@
         ServITRMgt.InsertValueEntryRelation(TempValueEntryRelation);
     end;
 
+    procedure UpdateIncomingDocument(IncomingDocNo: Integer; PostingDate: Date; PostedDocNo: Code[20])
+    var
+        IncomingDocument: Record "Incoming Document";
+    begin
+        IncomingDocument.UpdateIncomingDocumentFromPosting(IncomingDocNo, PostingDate, PostedDocNo);
+    end;
+
     local procedure CheckIfServDuplicateLine(var CurrentServLine: Record "Service Line")
     var
         ServLine2: Record "Service Line";
