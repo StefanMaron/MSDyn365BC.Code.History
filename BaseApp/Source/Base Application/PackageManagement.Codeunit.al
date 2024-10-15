@@ -635,6 +635,14 @@ codeunit 6516 "Package Management"
         JobPlanningLine."Package No." := '';
     end;
 
+    // "Job Link Usage" codeunit subscribers
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Link Usage", 'HandleMatchUsageSpecifiedJobPlanningLineOnAfterCalcPartialJobPlanningLineQuantityPosting', '', false, false)]
+    local procedure HandleMatchUsageSpecifiedJobPlanningLineOnAfterCalcPartialJobPlanningLineQuantityPosting(JobPlanningLine: Record "Job Planning Line"; JobJournalLine: Record "Job Journal Line"; JobLedgerEntry: Record "Job Ledger Entry"; var PartialJobPlanningLineQuantityPosting: Boolean)
+    begin
+        PartialJobPlanningLineQuantityPosting := PartialJobPlanningLineQuantityPosting or (JobLedgerEntry."Package No." <> '');
+    end;
+
     // Entry Summary subscribers
 
     [EventSubscriber(ObjectType::Table, Database::"Entry Summary", 'OnAfterHasSameTracking', '', false, false)]
