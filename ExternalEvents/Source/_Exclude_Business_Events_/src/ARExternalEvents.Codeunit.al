@@ -12,6 +12,7 @@ Codeunit 38502 "AR External Events"
         CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     var
         Url: Text[250];
+        APIId: Guid;
         SalesInvoiceApiUrlTok: Label 'v2.0/companies(%1)/salesInvoices(%2)', Locked = true;
         SalesCreditMemoApiUrlTok: Label 'v2.0/companies(%1)/salesCreditMemos(%2)', Locked = true;
         SalesShipmentApiUrlTok: Label 'v2.0/companies(%1)/salesShipments(%2)', Locked = true;
@@ -19,12 +20,20 @@ Codeunit 38502 "AR External Events"
         if PreviewMode then
             exit;
         if SalesInvoiceHeader."No." <> '' then begin
-            Url := ExternalEventsHelper.CreateLink(CopyStr(SalesInvoiceApiUrlTok, 1, 250), SalesInvoiceHeader."Draft Invoice SystemId");
-            SalesInvoicePosted(SalesInvoiceHeader."Draft Invoice SystemId", Url);
+            if not IsNullGuid(SalesInvoiceHeader."Draft Invoice SystemId") then
+                APIId := SalesInvoiceHeader."Draft Invoice SystemId"
+            else
+                APIId := SalesInvoiceHeader.SystemId;
+            Url := ExternalEventsHelper.CreateLink(CopyStr(SalesInvoiceApiUrlTok, 1, 250), APIId);
+            SalesInvoicePosted(APIId, Url);
         end;
         if SalesCrMemoHeader."No." <> '' then begin
-            Url := ExternalEventsHelper.CreateLink(CopyStr(SalesCreditMemoApiUrlTok, 1, 250), SalesCrMemoHeader."Draft Cr. Memo SystemId");
-            SalesCreditMemoPosted(SalesCrMemoHeader."Draft Cr. Memo SystemId", Url);
+            if not IsNullGuid(SalesCrMemoHeader."Draft Cr. Memo SystemId") then
+                APIId := SalesCrMemoHeader."Draft Cr. Memo SystemId"
+            else
+                APIId := SalesCrMemoHeader.SystemId;
+            Url := ExternalEventsHelper.CreateLink(CopyStr(SalesCreditMemoApiUrlTok, 1, 250), APIId);
+            SalesCreditMemoPosted(APIId, Url);
         end;
         if SalesShipmentHeader."No." <> '' then begin
             Url := ExternalEventsHelper.CreateLink(CopyStr(SalesShipmentApiUrlTok, 1, 250), SalesShipmentHeader.SystemId);

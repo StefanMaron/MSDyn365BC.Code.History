@@ -218,7 +218,13 @@
     local procedure CreateItemReference(ItemVend: Record "Item Vendor")
     var
         ItemReference2: Record "Item Reference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateItemReference(ItemVend, IsHandled);
+        if IsHandled then
+            exit;
+
         FillItemReferenceFromItemVendor(ItemReference2, ItemVend);
 
         OnCreateItemReferenceOnBeforeInsert(ItemReference2, ItemVend);
@@ -963,6 +969,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnEnterSalesItemReferenceOnAfterFillDescriptionFromItemVariant(var SalesLine: Record "Sales Line"; var ItemVariant: Record "Item Variant");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateItemReference(ItemVendor: Record "Item Vendor"; var IsHandled: Boolean);
     begin
     end;
 }

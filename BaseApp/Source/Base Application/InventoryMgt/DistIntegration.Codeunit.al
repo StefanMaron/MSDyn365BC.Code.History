@@ -119,8 +119,7 @@ codeunit 5702 "Dist. Integration"
 
         if PurchHeader.SpecialOrderExists(SalesHeader) then begin
             PurchHeader.Validate("Location Code", SalesHeader."Location Code");
-            if (SalesHeader."Location Code" = '') or PurchHeader.PurchLinesExist() then
-                PurchHeader.AddSpecialOrderToAddress(SalesHeader, true);
+            PurchHeader.AddSpecialOrderToAddress(SalesHeader, true);
         end;
     end;
 

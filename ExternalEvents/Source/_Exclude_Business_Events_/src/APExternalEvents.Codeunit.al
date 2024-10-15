@@ -33,6 +33,7 @@ Codeunit 38503 "AP External Events"
 
     var
         Url: Text[250];
+        APIId: Guid;
         PurchaseInvoiceApiUrlTok: Label 'v2.0/companies(%1)/purchaseInvoices(%2)', Locked = true;
         PurchaseMemoApiUrlTok: Label 'v2.0/companies(%1)/purchaseCreditMemos(%2)', Locked = true;
         PurchaseReceiptsApiUrlTok: Label 'v2.0/companies(%1)/purchaseReceipts(%2)', Locked = true;
@@ -40,12 +41,20 @@ Codeunit 38503 "AP External Events"
         if PreviewMode then
             exit;
         if PurchInvHeader."No." <> '' then begin
-            Url := ExternalEventsHelper.CreateLink(CopyStr(PurchaseInvoiceApiUrlTok, 1, 250), PurchInvHeader."Draft Invoice SystemId");
-            MyBusinessEventPurchaseInvoicePosted(PurchInvHeader."Draft Invoice SystemId", Url);
+            if not IsNullGuid(PurchInvHeader."Draft Invoice SystemId") then
+                APIId := PurchInvHeader."Draft Invoice SystemId"
+            else
+                APIId := PurchInvHeader.SystemId;
+            Url := ExternalEventsHelper.CreateLink(CopyStr(PurchaseInvoiceApiUrlTok, 1, 250), APIId);
+            MyBusinessEventPurchaseInvoicePosted(APIId, Url);
         end;
         if PurchCrMemoHdr."No." <> '' then begin
-            Url := ExternalEventsHelper.CreateLink(CopyStr(PurchaseMemoApiUrlTok, 1, 250), PurchCrMemoHdr."Draft Cr. Memo SystemId");
-            EventCreditMemoInvoicePosted(PurchCrMemoHdr."Draft Cr. Memo SystemId", Url);
+            if not IsNullGuid(PurchCrMemoHdr."Draft Cr. Memo SystemId") then
+                APIId := PurchCrMemoHdr."Draft Cr. Memo SystemId"
+            else
+                APIId := PurchCrMemoHdr.SystemId;
+            Url := ExternalEventsHelper.CreateLink(CopyStr(PurchaseMemoApiUrlTok, 1, 250), APIId);
+            EventCreditMemoInvoicePosted(APIId, Url);
         end;
         if PurchRcptHeader."No." <> '' then begin
             Url := ExternalEventsHelper.CreateLink(CopyStr(PurchaseReceiptsApiUrlTok, 1, 250), PurchRcptHeader.SystemId);

@@ -15,6 +15,8 @@ codeunit 391 "Shipment Header - Edit"
         SalesShptHeader.TestField("No.", "No.");
         SalesShptHeader.Modify();
         Rec := SalesShptHeader;
+
+        OnRunOnAfterSalesShptHeaderEdit(Rec);
     end;
 
     var
@@ -22,6 +24,11 @@ codeunit 391 "Shipment Header - Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesShptHeaderModify(var SalesShptHeader: Record "Sales Shipment Header"; FromSalesShptHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSalesShptHeaderEdit(var SalesShptHeader: Record "Sales Shipment Header")
     begin
     end;
 }

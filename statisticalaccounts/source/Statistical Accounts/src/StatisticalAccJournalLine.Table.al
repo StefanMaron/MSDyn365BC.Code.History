@@ -261,6 +261,13 @@ table 2631 "Statistical Acc. Journal Line"
         end;
     end;
 
+    internal procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+    begin
+        DimensionManagement.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
+    end;
+
     var
         DimensionSetLabelTxt: Label '%1 %2 %3', Locked = true;
         StatisticalAccountIsBlockedErr: Label 'Statistical account %1 is blocked. Journal line %2.', Comment = '%1 number of statistical account. %2 number of journal line';

@@ -1435,7 +1435,14 @@ page 49 "Purchase Quote"
     end;
 
     trigger OnOpenPage()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenPage(IsHandled);
+        if IsHandled then
+            exit;
+
         Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
@@ -1626,6 +1633,11 @@ page 49 "Purchase Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenPage(var IsHandled: Boolean)
     begin
     end;
 }
