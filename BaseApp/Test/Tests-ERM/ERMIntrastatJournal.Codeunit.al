@@ -1119,9 +1119,11 @@ codeunit 134150 "ERM Intrastat Journal"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
     procedure GetPartnerIDFromVATRegNoOfSalesInvoice()
     var
-        Customer: Record Customer;
+        SellToCustomer: Record Customer;
+        BillToCustomer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -1130,35 +1132,46 @@ codeunit 134150 "ERM Intrastat Journal"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 373278] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Sales Invoice
-        Initialize;
+        // [SCENARIO 422720] Partner VAT ID is taken as VAT Registration No from Sell-to Customer No. of Sales Invoice
+        Initialize();
 
+        // [GIVEN] G/L Setup "Bill-to/Sell-to VAT Calc." = "Bill-to/Pay-to No."
         // [GIVEN] Shipment on Sales Invoice = false
         UpdateShipmentOnInvoiceSalesSetup(false);
 
-        // [GIVEN] Bill-to Customer with VAT Registration No = 'AT0123456'
-        Customer.Get(CreateCustomerWithVATRegNo(true));
+        // [GIVEN] Sell-to Customer with VAT Registration No = 'AT0123456'
+        // [GIVEN] Bill-to Customer with VAT Registration No = 'DE1234567'
+        // [GIVEN] Sales Invoice with different Sell-to and Bill-To customers
+        SellToCustomer.Get(CreateCustomerWithVATRegNo(true));
+        BillToCustomer.Get(CreateCustomerWithVATRegNo(true));
         CreateSalesDocument(
-            SalesHeader, SalesLine, Customer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
+            SalesHeader, SalesLine, SellToCustomer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
             SalesLine.Type::Item, CreateItem, 1);
+        SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Post the invoice
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // [WHEN] Intrastat Journal Line is created
+        // [WHEN] Suggest Intrastat Journal Lines
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
+        // [THEN] Posted Sales Invoice has VAT Registration No. = 'DE1234567'
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         SalesInvoiceHeader.Get(DocumentNo);
-        SalesInvoiceHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
-        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", Customer."VAT Registration No.");
+        SalesInvoiceHeader.TestField("VAT Registration No.", BillToCustomer."VAT Registration No.");
+        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", SellToCustomer."VAT Registration No.");
     end;
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
     procedure GetPartnerIDFromVATRegNoOfSalesShipment()
     var
-        Customer: Record Customer;
+        SellToCustomer: Record Customer;
+        BillToCustomer: Record Customer;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -1166,29 +1179,38 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         // [FEATURE] [Sales] [Shipment]
-        // [SCENARIO 373278] Partner VAT ID is taken as VAT Registration No from Bill-to Customer No. of Sales Shipment
-        Initialize;
+        // [SCENARIO 422720] Partner VAT ID is taken as VAT Registration No from Sell-to Customer No. of Sales Shipment
+        Initialize();
 
+        // [GIVEN] G/L Setup "Bill-to/Sell-to VAT Calc." = "Bill-to/Pay-to No."
         // [GIVEN] Shipment on Sales Invoice = true
         UpdateShipmentOnInvoiceSalesSetup(true);
 
-        // [GIVEN] Bill-to Customer with VAT Registration No = 'AT0123456'
-        Customer.Get(CreateCustomerWithVATRegNo(true));
+        // [GIVEN] Sell-to Customer with VAT Registration No = 'AT0123456'
+        // [GIVEN] Bill-to Customer with VAT Registration No = 'DE1234567'
+        // [GIVEN] Sales Invoice with different Sell-to and Bill-To customers
+        SellToCustomer.Get(CreateCustomerWithVATRegNo(true));
+        BillToCustomer.Get(CreateCustomerWithVATRegNo(true));
         CreateSalesDocument(
-            SalesHeader, SalesLine, Customer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
-            SalesLine.Type::Item, CreateItem, 1);
+             SalesHeader, SalesLine, SellToCustomer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
+             SalesLine.Type::Item, CreateItem, 1);
+        SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Post the invoice
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // [WHEN] Intrastat Journal Line is created
+        // [WHEN] Suggest Intrastat Journal Lines
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
 
+        // [THEN] Posted Sales Shipment has VAT Registration No. = 'DE1234567'
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
-        SalesShipmentHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        SalesShipmentHeader.FindFirst;
-        SalesShipmentHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
-        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", Customer."VAT Registration No.");
+        SalesShipmentHeader.SetRange("Bill-to Customer No.", BillToCustomer."No.");
+        SalesShipmentHeader.FindFirst();
+        SalesShipmentHeader.TestField("VAT Registration No.", BillToCustomer."VAT Registration No.");
+        VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", SellToCustomer."VAT Registration No.");
     end;
 
     [Test]
@@ -1977,6 +1999,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [THEN] Basic fields are exported in format of 2021
         // [THEN] Total Weight value is rounded up to integer
+        // [THEN] Tariff No value is exported w\o spaces (TFS 423720)
         VerifyIntrastatExportedFile2021(FileTempBlob, IntrastatJnlLine);
     end;
 
@@ -1999,6 +2022,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [THEN] Basic fields are exported in format of 2022
         // [THEN] Total Weight value is rounded up to integer
+        // [THEN] Tariff No value is exported w\o spaces (TFS 423720)
         VerifyIntrastatExportedFile2022(FileTempBlob, IntrastatJnlLine);
     end;
 
@@ -2197,6 +2221,7 @@ codeunit 134150 "ERM Intrastat Journal"
     var
         IntrastatSetup: Record "Intrastat Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        GLSetupVATCalculation: Enum "G/L Setup VAT Calculation";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Intrastat Journal");
         LibraryVariableStorage.Clear;
@@ -2211,6 +2236,7 @@ codeunit 134150 "ERM Intrastat Journal"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERM.SetBillToSellToVATCalc(GLSetupVATCalculation::"Bill-to/Pay-to No.");
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Intrastat Journal");
@@ -2244,7 +2270,7 @@ codeunit 134150 "ERM Intrastat Journal"
     local procedure PrepareIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
         CreateIntrastatJnlLine(IntrastatJnlLine);
-        IntrastatJnlLine."Tariff No." := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(9, 0), 1, 9);
+        IntrastatJnlLine."Tariff No." := '0123 45 67 89';
         IntrastatJnlLine."Country/Region Code" := CreateCountryRegionWithIntrastatCode(false);
         IntrastatJnlLine."Country/Region of Origin Code" := CreateCountryRegionWithIntrastatCode(false);
         IntrastatJnlLine."Partner VAT ID" := LibraryUtility.GenerateGUID();
@@ -3063,7 +3089,7 @@ codeunit 134150 "ERM Intrastat Journal"
         Assert.AreEqual(CountryRegion."Intrastat Code", CopyStr(Line, 16, 3), '');
         Assert.AreEqual(IntrastatJnlLine."Transaction Type", CopyStr(Line, 19, 2), '');
         Assert.AreEqual(IntrastatJnlLine."Transport Method", CopyStr(Line, 22, 1), '');
-        Assert.AreEqual(IntrastatJnlLine."Tariff No.", CopyStr(Line, 23, 9), '');
+        Assert.AreEqual(PadStr(DelChr(IntrastatJnlLine."Tariff No."), 9, '0'), CopyStr(Line, 23, 9), '');
         Assert.AreEqual(
             Format(Round(IntrastatJnlLine."Total Weight", 1, '>'), 0, '<Integer,15><Filler Character,0>'), CopyStr(Line, 32, 15), '');
         Assert.AreEqual(Format(Round(IntrastatJnlLine.Quantity, 1, '<'), 0, '<Integer,10><Filler Character,0>'), CopyStr(Line, 47, 10), '');
@@ -3085,7 +3111,7 @@ codeunit 134150 "ERM Intrastat Journal"
         FileTempBlob.CreateInStream(FileInStream);
 
         FileInStream.ReadText(Line);
-        Assert.AreEqual(Format(IntrastatJnlLine."Tariff No.", 8), CopyStr(Line, 1, 8), '');
+        Assert.AreEqual(PadStr(DelChr(IntrastatJnlLine."Tariff No."), 8, '0'), CopyStr(Line, 1, 8), '');
         CountryRegion.Get(IntrastatJnlLine."Country/Region Code");
         Assert.AreEqual(CountryRegion."Intrastat Code", CopyStr(Line, 10, 3), '');
         Assert.AreEqual(IntrastatJnlLine."Transaction Type", CopyStr(Line, 14, 2), '');
