@@ -1784,6 +1784,13 @@ table 5077 "Segment Line"
         ODataFieldsExport.RunModal();
     end;
 
+    procedure ProcessInterLogEntryComments(InterLogEntryNo: Integer)
+    var
+        SegManagement: Codeunit SegManagement;
+    begin
+        SegManagement.InterLogEntryCommentLineInsert(TempInterLogEntryCommentLine, InterLogEntryNo);
+    end;
+
     local procedure SetDefaultSalesperson()
     var
         UserSetup: Record "User Setup";
