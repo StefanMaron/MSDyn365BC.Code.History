@@ -209,6 +209,7 @@ codeunit 99000809 "Planning Line Management"
                                             end else begin
                                                 PlanningComponent.Reset();
                                                 PlanningComponent.BlockDynamicTracking(Blocked);
+                                                PlanningComponent.SetRequisitionLine(ReqLine);
                                                 PlanningComponent.Validate(
                                                   "Quantity per",
                                                   PlanningComponent."Quantity per" + ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM);
@@ -285,6 +286,7 @@ codeunit 99000809 "Planning Line Management"
                                 PlanningComponent.Reset();
                                 PlanningComponent.Init();
                                 PlanningComponent.BlockDynamicTracking(Blocked);
+                                PlanningComponent.SetRequisitionLine(ReqLine);
                                 PlanningComponent."Worksheet Template Name" := ReqLine."Worksheet Template Name";
                                 PlanningComponent."Worksheet Batch Name" := ReqLine."Journal Batch Name";
                                 PlanningComponent."Worksheet Line No." := ReqLine."Line No.";
@@ -324,6 +326,7 @@ codeunit 99000809 "Planning Line Management"
                             end else begin
                                 PlanningComponent.Reset();
                                 PlanningComponent.BlockDynamicTracking(Blocked);
+                                PlanningComponent.SetRequisitionLine(ReqLine);
                                 PlanningComponent.Validate(
                                   "Quantity per",
                                   PlanningComponent."Quantity per" +
@@ -580,6 +583,7 @@ codeunit 99000809 "Planning Line Management"
             Reset();
             Init();
             BlockDynamicTracking(Blocked);
+            SetRequisitionLine(ReqLine);
             "Worksheet Template Name" := ReqLine."Worksheet Template Name";
             "Worksheet Batch Name" := ReqLine."Journal Batch Name";
             "Worksheet Line No." := ReqLine."Line No.";
@@ -593,7 +597,7 @@ codeunit 99000809 "Planning Line Management"
             Validate("Unit of Measure Code", ProdBOMLine."Unit of Measure Code");
             "Quantity per" := ProdBOMLine."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM;
             Validate("Routing Link Code", ProdBOMLine."Routing Link Code");
-            OnTransferBOMOnBeforeGetDefaultBin(PlanningComponent, ProdBOMLine, ReqLine);
+            OnTransferBOMOnBeforeGetDefaultBin(PlanningComponent, ProdBOMLine, ReqLine, SKU);
             GetDefaultBin();
             Length := ProdBOMLine.Length;
             Width := ProdBOMLine.Width;
@@ -1028,7 +1032,7 @@ codeunit 99000809 "Planning Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferBOMOnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var ProductionBOMLine: Record "Production BOM Line"; RequisitionLine: Record "Requisition Line")
+    local procedure OnTransferBOMOnBeforeGetDefaultBin(var PlanningComponent: Record "Planning Component"; var ProductionBOMLine: Record "Production BOM Line"; RequisitionLine: Record "Requisition Line"; var StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 

@@ -220,7 +220,7 @@ codeunit 30189 "Shpfy Variant API"
     /// Description for RetrieveShopifyProductVaraintImages.
     /// </summary>
     /// <param name="ProductVariantImages">Parameter of type Dictionary of [BigInteger, Dictionary of [BigInteger, Text]].</param>
-    internal procedure RetrieveShopifyProductVaraintImages(var ProductVariantImages: Dictionary of [BigInteger, Dictionary of [BigInteger, Text]])
+    internal procedure RetrieveShopifyProductVariantImages(var ProductVariantImages: Dictionary of [BigInteger, Dictionary of [BigInteger, Text]])
     var
         Id: BigInteger;
         ImageData: Dictionary of [BigInteger, Text];
@@ -242,10 +242,11 @@ codeunit 30189 "Shpfy Variant API"
                     Cursor := JsonHelper.GetValueAsText(JItem.AsObject(), 'cursor');
                     if JsonHelper.GetJsonObject(JItem.AsObject(), JNode, 'node') then begin
                         Id := JsonHelper.GetValueAsBigInteger(JNode, 'legacyResourceId');
-                        if JsonHelper.GetJsonObject(JNode, JImage, 'image') then begin
-                            GetImageData(JImage, ImageData);
-                            ProductVariantImages.Add(Id, ImageData);
-                        end;
+                        if JsonHelper.GetJsonObject(JNode, JImage, 'image') then
+                            GetImageData(JImage, ImageData)
+                        else
+                            Clear(ImageData);
+                        ProductVariantImages.Add(Id, ImageData);
                     end;
                 end;
                 if Parameters.ContainsKey('After') then

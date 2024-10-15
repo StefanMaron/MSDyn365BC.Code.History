@@ -218,10 +218,16 @@ codeunit 76 "Purch.-Get Drop Shpt."
         GetDescriptionFromItem(PurchaseLine, Item);
     end;
 
-    local procedure GetDescriptionFromItemReference(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line"; Item: Record Item): Boolean
+    local procedure GetDescriptionFromItemReference(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line"; Item: Record Item) Result: Boolean
     var
         ItemReference: Record "Item Reference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDescriptionFromItemReference(PurchHeader, PurchaseLine, SalesLine, Item, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if PurchHeader."Buy-from Vendor No." = '' then
             exit(false);
 
@@ -363,6 +369,11 @@ codeunit 76 "Purch.-Get Drop Shpt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeProcessPurchaseLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean; PurchHeader: Record "Purchase Header"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDescriptionFromItemReference(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line"; Item: Record Item; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }

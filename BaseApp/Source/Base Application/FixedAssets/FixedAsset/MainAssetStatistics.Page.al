@@ -6,7 +6,7 @@ using Microsoft.FixedAssets.Journal;
 page 5603 "Main Asset Statistics"
 {
     Caption = 'Main Asset Statistics';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     Editable = false;
     LinksAllowed = false;
     PageType = Card;

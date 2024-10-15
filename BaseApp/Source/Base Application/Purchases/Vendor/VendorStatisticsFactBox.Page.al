@@ -47,7 +47,7 @@ page 9094 "Vendor Statistics FactBox"
                 Caption = 'Balance (LCY) As Customer';
                 Editable = false;
                 Enabled = BalanceAsCustomerEnabled;
-                ToolTip = 'Specifies the amount that this customer owes you. This is relevant when the customer is also a vendor. The amount is the result of netting their payable and receivable balances.';
+                ToolTip = 'Specifies the amount that this company owes you. This is relevant when your vendor is also your customer. Vendor and customer are linked together through their contact record. Using vendor''s contact record you can create linked customer or link contact with existing customer to enable calculation of Balance As Customer amount.';
 
                 trigger OnDrillDown()
                 var
