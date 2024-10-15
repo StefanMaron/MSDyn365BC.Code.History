@@ -3972,7 +3972,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
         VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
-	    VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::Amount);
+        VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::Amount);
         VATStatementLine.Modify(true);
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
 
@@ -4179,6 +4179,56 @@ codeunit 134341 "UT Page Actions & Controls"
         MockThreeRecordsAndOpenSecondOnFilteredPage(ItemLedgerEntry, PAGE::"Item Ledger Entries");
     end;
 
+    [Test]
+    [HandlerFunctions('SetSpecialPricesEnabledSalesPriceAndLineDiscountsModalPageHandler')]
+    procedure SetSpecialPricesIsEnabledWhenSalesLineDiscountLineIsSelected()
+    var
+        SalesLineDiscount: Record "Sales Line Discount";
+        ItemCard: TestPage "Item Card";
+        SetSpecialPricesEnabled: Boolean;
+    begin
+        // [SCENARIO 392447] "Set Special Prices" enabled state when Line with Type "Sales Line Discount" is selected on page "Sales Price and Line Discount".
+
+        // [GIVEN] Item with Sales Line Discount for Customer.
+        CreateSalesLineDiscount(SalesLineDiscount, LibraryInventory.CreateItemNo(), LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Item card is opened and drill down action for field "Sales Prices & Discounts" is performed.
+        ItemCard.OpenEdit();
+        ItemCard.Filter.SetFilter("No.", SalesLineDiscount.Code);
+        ItemCard.SpecialPricesAndDiscountsTxt.Drilldown();
+
+        // [WHEN] Page "Sales Price and Line Discount" is opened and Line with Type "Sales Line Discount" is selected.
+        // [THEN] "Set Special Prices" action is enabled on page "Sales Price and Line Discount".
+        SetSpecialPricesEnabled := LibraryVariableStorage.DequeueBoolean();
+        Assert.IsTrue(SetSpecialPricesEnabled, 'Set Special Prices action is not enabled');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SetSpecialPricesEnabledSalesPriceAndLineDiscountsModalPageHandler')]
+    procedure SetSpecialPricesIsEnabledWhenSalesPriceLineIsSelected()
+    var
+        SalesPrice: Record "Sales Price";
+        ItemCard: TestPage "Item Card";
+        SetSpecialPricesEnabled: Boolean;
+    begin
+        // [SCENARIO 392447] "Set Special Prices" enabled state when Line with Type "Sales Price" is selected on page "Sales Price and Line Discount".
+
+        // [GIVEN] Item with Sales Price for Customer.
+        CreateSalesPrice(SalesPrice, LibraryInventory.CreateItemNo(), LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Item card is opened and drill down action for field "Sales Prices & Discounts" is performed.
+        ItemCard.OpenEdit();
+        ItemCard.Filter.SetFilter("No.", SalesPrice."Item No.");
+        ItemCard.SpecialPricesAndDiscountsTxt.Drilldown();
+
+        // [WHEN] Page "Sales Price and Line Discount" is opened and Line with Type "Sales Price" is selected.
+        // [THEN] "Set Special Prices" action is enabled on page "Sales Price and Line Discount".
+        SetSpecialPricesEnabled := LibraryVariableStorage.DequeueBoolean();
+        Assert.IsTrue(SetSpecialPricesEnabled, 'Set Special Prices action is not enabled');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
     var
         PostCode: Record "Post Code";
@@ -4342,6 +4392,23 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesLineDiscount."Sales Type" := SalesLineDiscount."Sales Type"::"All Customers";
         SalesLineDiscount."Minimum Quantity" := LibraryRandom.RandIntInRange(10, 100);
         SalesLineDiscount.Insert(true);
+    end;
+
+    local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; CustomerNo: Code[20])
+    begin
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, ItemNo, SalesPrice."Sales Type"::Customer, CustomerNo, WorkDate(), '', '', '', 1, LibraryRandom.RandDecInRange(100, 200, 2));
+    end;
+
+    local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; ItemNo: Code[20]; CustomerNo: Code[20])
+    var
+        SalesLineDiscountType: Enum "Sales Line Discount Type";
+    begin
+        LibraryERM.CreateLineDiscForCustomer(
+            SalesLineDiscount, SalesLineDiscountType::Item, ItemNo, SalesLineDiscount."Sales Type"::Customer, CustomerNo,
+            WorkDate(), '', '', '', 1);
+        SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDecInRange(2, 7, 2));
+        SalesLineDiscount.Modify(true);
     end;
 
     local procedure CreateGLAccountInventoryPostingSetup(var GLAccount: Record "G/L Account")
@@ -5050,6 +5117,12 @@ codeunit 134341 "UT Page Actions & Controls"
         SalesPrLineDisc.Filter.SetFilter(Code, DiscountCode);
         SalesPrLineDisc."Minimum Quantity".AssertEquals(MinimumQuantity);
         SalesPrLineDisc.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SetSpecialPricesEnabledSalesPriceAndLineDiscountsModalPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")
+    begin
+        LibraryVariableStorage.Enqueue(SalesPrLineDisc."Set Special Prices".Enabled());
     end;
 
     [MessageHandler]

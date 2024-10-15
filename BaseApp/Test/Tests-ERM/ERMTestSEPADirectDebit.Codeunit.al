@@ -26,6 +26,7 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         StringConversionMgt: Codeunit StringConversionManagement;
         Initialized: Boolean;
         DefaultLineAmount: Decimal;
@@ -1600,6 +1601,32 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         VerifyExportError(DirectDebitCollectionEntry, EuroCurrErr);
     end;
 
+    [Test]
+    procedure RmtInfUstrd_DirectDebitEntryWithMessageToReceipt()
+    var
+        DirectDebitCollection: Record "Direct Debit Collection";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        // [SCENARIO 392505] SEPA DD "RmtInf/Ustrd" in case of specified DirectDebitCollectionEntry."Message to Recipient"
+        Init();
+
+        // [GIVEN] Direct Debit Collection Entry with "Message to Recipient" = "Message"
+        CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgerEntry, SEPADirectDebitMandate);
+        DirectDebitCollectionEntry."Message to Recipient" := LibraryUtility.GenerateGUID();
+        DirectDebitCollectionEntry.Modify(true);
+
+        // [WHEN] Export Direct Debit Collection Entry via SEPA DD
+        SEPADDExportToTempBlob(TempBlob, DirectDebitCollectionEntry);
+
+        // [THEN] Exported XML node "../RmtInf/Ustrd" = "Message"
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '/Document/CstmrDrctDbtInitn/PmtInf/DrctDbtTxInf/RmtInf/Ustrd', DirectDebitCollectionEntry."Message to Recipient");
+    end;
+
     local procedure Init()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -1882,6 +1909,15 @@ codeunit 134404 "ERM Test SEPA Direct Debit"
         XMLDocNode := XMLDoc.DocumentElement;
         if not XMLDocNode.HasChildNodes then
             Error(XMLNoChildrenErr);
+    end;
+
+    local procedure SEPADDExportToTempBlob(TempBlob: Codeunit "Temp Blob"; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    var
+        OutStream: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutStream);
+        DirectDebitCollectionEntry.SetRecFilter();
+        Xmlport.Export(Xmlport::"SEPA DD pain.008.001.02", OutStream, DirectDebitCollectionEntry);
     end;
 
     local procedure PrepareDirectDebitCollectionAndBatch(var NoSeriesLine: Record "No. Series Line"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var GenJournalBatch: Record "Gen. Journal Batch")

@@ -109,7 +109,12 @@ table 5621 "FA Journal Line"
             Caption = 'Amount';
 
             trigger OnValidate()
+            var
+                Currency: Record Currency;
             begin
+                Clear(Currency);
+                Currency.InitRoundingPrecision();
+                Amount := Round(Amount, Currency."Amount Rounding Precision");
                 if ((Amount > 0) and (not Correction)) or
                    ((Amount < 0) and Correction)
                 then begin
