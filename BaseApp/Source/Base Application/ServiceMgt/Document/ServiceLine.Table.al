@@ -1569,6 +1569,7 @@
                         "Qty. per Unit of Measure" := 1;
                 end;
 
+                OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(Rec, Item);
                 Validate(Quantity);
                 UpdateUnitPriceByField(FieldNo("Unit of Measure Code"), true);
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
@@ -6544,6 +6545,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateNoOnAfterCopyFields(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(var ServiceLine: Record "Service Line"; Item: Record Item)
     begin
     end;
 

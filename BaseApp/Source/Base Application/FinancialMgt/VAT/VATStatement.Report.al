@@ -255,6 +255,8 @@ report 12 "VAT Statement"
         UseAmtsInAddCurr: Boolean;
 
     procedure CalcLineTotal(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
+    var
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         if Level = 0 then
             TotalAmount := 0;
@@ -332,6 +334,26 @@ report 12 "VAT Statement"
                                 Amount := ConditionalAdd(0, VATEntry.Base + VATEntry."Nondeductible Base",
                                     VATEntry."Additional-Currency Base" + VATEntry."Add. Curr. Nondeductible Base");
                             end;
+                        VATStmtLine2."Amount Type"::"Full Amount":
+                            if NonDeductibleVAT.IsNonDeductibleVATEnabled() then begin
+                                VATEntry.CalcSums(
+                                    Amount, "Additional-Currency Amount", "Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                                Amount :=
+                                    ConditionalAdd(0, VATEntry.Amount + VATEntry."Non-Deductible VAT Amount", VATEntry."Additional-Currency Amount" + VATEntry."Non-Deductible VAT Amount ACY");
+                            end else begin
+                                VATEntry.CalcSums(
+                                    Amount, "Additional-Currency Amount", "Nondeductible Amount", "Add. Curr. Nondeductible Amt.");
+                                Amount :=
+                                    ConditionalAdd(0, VATEntry.Amount + VATEntry."Nondeductible Amount", VATEntry."Additional-Currency Amount" + VATEntry."Add. Curr. Nondeductible Amt.");
+                            end;
+                        VATStmtLine2."Amount Type"::"Full Base":
+                            if NonDeductibleVAT.IsNonDeductibleVATEnabled() then begin
+                                VATEntry.CalcSums(Base, "Additional-Currency Base", "Non-Deductible VAT Base", "Non-Deductible VAT Base ACY");
+                                Amount := ConditionalAdd(0, VATEntry.Base + VATEntry."Non-Deductible VAT Base", VATEntry."Additional-Currency Base" + VATEntry."Non-Deductible VAT Base ACY");
+                            end else begin
+                                VATEntry.CalcSums(Base, "Additional-Currency Base", "Nondeductible Base", "Add. Curr. Nondeductible Base");
+                                Amount := ConditionalAdd(0, VATEntry.Base + VATEntry."Nondeductible Base", VATEntry."Additional-Currency Base" + VATEntry."Add. Curr. Nondeductible Base");
+                            end;
                         VATStmtLine2."Amount Type"::"Unrealized Amount":
                             begin
                                 VATEntry.CalcSums("Remaining Unrealized Amount", "Add.-Curr. Rem. Unreal. Amount");
@@ -343,12 +365,18 @@ report 12 "VAT Statement"
                                 Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Base", VATEntry."Add.-Curr. Rem. Unreal. Base");
                             end;
                         VATStmtLine2."Amount Type"::"Non-Deductible Amount":
-                            begin
+                            if NonDeductibleVAT.IsNonDeductibleVATEnabled() then begin
+                                VATEntry.CalcSums("Non-Deductible VAT Amount", "Non-Deductible VAT Amount ACY");
+                                Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Amount", VATEntry."Non-Deductible VAT Amount ACY");
+                            end else begin
                                 VATEntry.CalcSums("Nondeductible Amount", "Add. Curr. Nondeductible Amt.");
                                 Amount := ConditionalAdd(0, VATEntry."Nondeductible Amount", VATEntry."Add. Curr. Nondeductible Amt.");
                             end;
                         VATStmtLine2."Amount Type"::"Non-Deductible Base":
-                            begin
+                            if NonDeductibleVAT.IsNonDeductibleVATEnabled() then begin
+                                VATEntry.CalcSums("Non-Deductible VAT Base", "Non-Deductible VAT Base ACY");
+                                Amount := ConditionalAdd(0, VATEntry."Non-Deductible VAT Base", VATEntry."Non-Deductible VAT Base ACY");
+                            end else begin
                                 VATEntry.CalcSums("Nondeductible Base", "Add. Curr. Nondeductible Base");
                                 Amount := ConditionalAdd(0, VATEntry."Nondeductible Base", VATEntry."Add. Curr. Nondeductible Base");
                             end;

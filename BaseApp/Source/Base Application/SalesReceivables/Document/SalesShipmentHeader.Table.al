@@ -618,12 +618,12 @@
         field(12182; "Fattura Project Code"; Code[15])
         {
             Caption = 'Fattura Project Code';
-            TableRelation = "Fattura Project Info".Code WHERE (Type = FILTER (Project));
+            TableRelation = "Fattura Project Info".Code WHERE(Type = FILTER(Project));
         }
         field(12183; "Fattura Tender Code"; Code[15])
         {
             Caption = 'Fattura Tender Code';
-            TableRelation = "Fattura Project Info".Code WHERE (Type = FILTER (Tender));
+            TableRelation = "Fattura Project Info".Code WHERE(Type = FILTER(Tender));
         }
         field(12184; "Customer Purchase Order No."; Text[35])
         {
@@ -668,6 +668,7 @@
     var
         CertificateOfSupply: Record "Certificate of Supply";
     begin
+        PostSalesLinesDelete.IsDocumentDeletionAllowed("Posting Date");
         TestField("No. Printed");
         LockTable();
         PostSalesLinesDelete.DeleteSalesShptLines(Rec);

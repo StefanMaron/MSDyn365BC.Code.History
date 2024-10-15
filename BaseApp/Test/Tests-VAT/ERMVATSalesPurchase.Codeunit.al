@@ -2359,7 +2359,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [THEN] Verify Purchase Credit Memos is updated with Posting Date and VAT Date of report.
         VerifyPurchCreditMemoHeader(VendorNo, PostingDate, VATDate);
     end;
-
+    
     [Test]
     [HandlerFunctions('BatchPostSalesOrderRequestPageHandler')]
     procedure VerifyVATDateandReplaceVATDateIsNotVisibleOnBatchPostSalesOrderRequestPage()

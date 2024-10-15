@@ -1661,6 +1661,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job - NamedType RollingBackChangesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3438364934 - NamedType 2955634792" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2 in Job table.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Ship-to City field caption, %2 = Expected city value]D;]A;(LookupHint=Codeunit UT T Job - NamedType ShipToCityNotMatchedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3438364934 - NamedType 4176961998" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot delete job %1 because it has open or submitted time sheet lines.]]></Val>

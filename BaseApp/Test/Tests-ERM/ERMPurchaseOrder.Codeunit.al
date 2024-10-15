@@ -86,7 +86,7 @@
         RemitToCodeShouldNotBeEditableErr: Label 'Remit-to code should not be editable when vendor is not selected.';
         RemitToCodeShouldBeEditableErr: Label 'Remit-to code should be editable when vendor is selected.';
         UpdateLinesOrderDateAutomaticallyQst: Label 'You have changed the Order Date on the purchase order, which might affect the prices and discounts on the purchase order lines.\Do you want to update the order date for existing lines?';
-        OrderDateErr: Label 'The purchase order date (%1) should be the same as the purchase line order date (%2).', Comment = '%1 - Purchase Header Order Date; %2 - Purchase Line Order Date';
+        OrderDateErr: Label 'The purchase line order date is (%1), but it should be (%2).', Comment = '%1 - Actual Purchase Line Order Date; %2 - Expected Purchase Line Order Date';
         DescriptionErr: Label 'The purchase line description (%1) should be the same as the random generated description (%2).', Comment = '%1 - Purchase Line Description; %2 - Random Generated Description';
 
     [Test]
@@ -7201,23 +7201,29 @@
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
     begin
         Initialize();
 
+        LibraryWarehouse.CreateLocation(Location);
+
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        PurchaseHeader.Validate("Order Date", today());
+        PurchaseHeader.Validate("Order Date", Today());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
         Commit();
         LibraryVariableStorage.Enqueue(UpdateLinesOrderDateAutomaticallyQst);
         LibraryVariableStorage.Enqueue(true);
-        PurchaseHeader.Validate("Order Date", today() + 1);
+        PurchaseHeader.Validate("Order Date", Today() + 1);
         PurchaseHeader.Modify(true);
         LibraryVariableStorage.AssertEmpty();
         PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
 
-        Assert.AreEqual(PurchaseHeader."Order Date", today() + 1, StrSubstNo('The purchase order date should be %1. Instead, it is %2', (today() + 1), PurchaseHeader."Order Date"));
+        Assert.AreEqual(PurchaseHeader."Order Date", Today() + 1, StrSubstNo('The purchase order date should be %1. Instead, it is %2', (Today() + 1), PurchaseHeader."Order Date"));
         Assert.AreEqual(PurchaseHeader."Order Date", PurchaseLine."Order Date", StrSubstNo('The purchase order date (%1) should be the same as the purchase line order date (%2)', PurchaseHeader."Order Date", PurchaseLine."Order Date"));
+        PurchaseLine.TestField("Location Code", Location.Code);
     end;
 
     [Test]
@@ -7387,11 +7393,15 @@
         PurchaseHeader.Validate("Order Date", Today());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
+        // [VERIFY] Verify Purchase Line has the same Order Date as Purchase Header
+        PurchaseLine.TestField("Order Date", PurchaseHeader."Order Date");
         Clear(PurchaseLine);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::" ", '', 0);
         Description := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(PurchaseLine.Description), 1), 1, MAXSTRLEN(PurchaseLine.Description));
         PurchaseLine.Validate(Description, Description);
         PurchaseLine.Modify(true);
+        // [VERIFY] Verify Purchase Line has blank Order Date
+        PurchaseLine.TestField("Order Date", 0D);
         Commit();
 
         // [WHEN] Update Order Date on Purchase Order
@@ -7402,10 +7412,10 @@
         LibraryVariableStorage.AssertEmpty();
         PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
 
-        // [VERIFY] Verify Purchase Line with Order Date and Description Text on Purchase Order Line.
+        // [VERIFY] Verify Purchase Line with blank Order Date and Description Text on Purchase Order Line.
         Assert.AreEqual(
-            PurchaseHeader."Order Date", PurchaseLine."Order Date",
-            StrSubstNo(OrderDateErr, PurchaseHeader."Order Date", PurchaseLine."Order Date"));
+            0D, PurchaseLine."Order Date",
+            StrSubstNo(OrderDateErr, 0D, PurchaseLine."Order Date"));
 
         Assert.AreEqual(
             PurchaseLine.Description, Description,

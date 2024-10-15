@@ -11,4 +11,6 @@
     value(5; "Blacklist Amount") { Caption = 'Blacklist Amount'; }
     value(6; "Non-Deductible Amount") { Caption = 'Non-Deductible Amount'; }
     value(7; "Non-Deductible Base") { Caption = 'Non-Deductible Base'; }
+    value(8; "Full Amount") { Caption = 'Full Amount'; }
+    value(9; "Full Base") { Caption = 'Full Base'; }
 }

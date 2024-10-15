@@ -601,6 +601,24 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Item Reference Type No.';
         }
+        field(6200; "Non-Deductible VAT %"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT %"';
+            DecimalPlaces = 0 : 5;
+        }
+        field(6201; "Non-Deductible VAT Base"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Base';
+        }
+        field(6202; "Non-Deductible VAT Amount"; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Amount';
+        }
+        field(6203; "Non-Deductible VAT Diff."; Decimal)
+        {
+            Caption = 'Non-Deductible VAT Difference';
+            Editable = false;
+        }
         field(6600; "Return Shipment No."; Code[20])
         {
             Caption = 'Return Shipment No.';
@@ -701,18 +719,15 @@ table 125 "Purch. Cr. Memo Line"
     end;
 
     var
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        Currency: Record Currency;
         DimMgt: Codeunit DimensionManagement;
         DeferralUtilities: Codeunit "Deferral Utilities";
 
     procedure GetCurrencyCode(): Code[10]
-    var
-        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
     begin
-        if "Document No." = PurchCrMemoHeader."No." then
-            exit(PurchCrMemoHeader."Currency Code");
-        if PurchCrMemoHeader.Get("Document No.") then
-            exit(PurchCrMemoHeader."Currency Code");
-        exit('');
+        GetHeader();
+        exit(PurchCrMemoHeader."Currency Code");
     end;
 
     procedure ShowDimensions()
@@ -748,11 +763,8 @@ table 125 "Purch. Cr. Memo Line"
     end;
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
-    var
-        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
     begin
-        if not PurchCrMemoHeader.Get("Document No.") then
-            PurchCrMemoHeader.Init();
+        GetHeader();
         case FieldNumber of
             FieldNo("No."):
                 exit(StrSubstNo('3,%1', GetFieldCaption(FieldNumber)));
@@ -923,6 +935,38 @@ table 125 "Purch. Cr. Memo Line"
             SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
+    end;
+
+    procedure GetLineAmountExclVAT(): Decimal
+    begin
+        GetHeader();
+        if not PurchCrMemoHeader."Prices Including VAT" then
+            exit("Line Amount");
+
+        exit(Round("Line Amount" / (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
+    end;
+
+    procedure GetLineAmountInclVAT(): Decimal
+    begin
+        GetHeader();
+        if PurchCrMemoHeader."Prices Including VAT" then
+            exit("Line Amount");
+
+        exit(Round("Line Amount" * (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
+    end;
+
+    local procedure GetHeader()
+    begin
+        if PurchCrMemoHeader."No." = "Document No." then
+            exit;
+        if not PurchCrMemoHeader.Get("Document No.") then
+            PurchCrMemoHeader.Init();
+
+        if PurchCrMemoHeader."Currency Code" = '' then
+            Currency.InitRoundingPrecision()
+        else
+            if not Currency.Get(PurchCrMemoHeader."Currency Code") then
+                Currency.InitRoundingPrecision();
     end;
 
     [IntegrationEvent(false, false)]

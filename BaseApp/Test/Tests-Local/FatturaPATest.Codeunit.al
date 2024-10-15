@@ -1696,6 +1696,121 @@ codeunit 144200 "FatturaPA Test"
           CopyStr(CompanyName, 1, 80));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDocWithNegativeLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 460038] The xml file of the document with negative line is correct
+
+        Initialize();
+
+        // [GIVEN] Posted sales invoice with two lines
+        // [GIVEN] Quantity = 2, Unit Price = 20, Amount = 40
+        // [GIVEN] Quantity = -1, Unit Price = 15, Amount = -15
+        CustomerNo := CreateCustomer();
+        CreateSalesDocument(SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        UnitPrice := SalesLine."Unit Price";
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type, SalesLine."No.", -SalesLine.Quantity / 3);
+        SalesLine.Validate("Unit Price", UnitPrice / 3);
+        SalesLine.Modify(true);
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] The document is exported to FatturaPA
+        // [WHEN] The document is exported to FatturaPA.
+        ElectronicDocumentFormat.SendElectronically(
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] The exported XML file is valid according to XSD Schema
+        // [THEN] ImponibileImporto xml node has 25
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.CalcSums(Amount);
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo/ImponibileImporto',
+          Format(SalesInvoiceLine.Amount, 0, '<Precision,2:5><Standard Format,9>'));
+        // [THEN] PrezzoTotale xml node has correct values for both lines
+        // [THEN] For the first line it is 40
+        // [THEN] For the second line it is -15
+        TempXMLBuffer.FindNodesByXPath(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale');
+        Assert.RecordCount(TempXMLBuffer, 2);
+        SalesInvoiceLine.FindSet();
+        repeat
+            TempXMLBuffer.TestField(
+              Value, Format(Round(SalesInvoiceLine.Quantity * SalesInvoiceLine."Unit Price"), 0, '<Precision,2:5><Standard Format,9>'));
+            TempXMLBuffer.Next();
+        until SalesInvoiceLine.Next() = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDocWithZeroLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 467883] The xml file of the document with zero line is correct
+
+        Initialize();
+
+        // [GIVEN] Posted sales invoice with two lines
+        // [GIVEN] Quantity = 2, Unit Price = 20, Amount = 40
+        // [GIVEN] Quantity = 0, Unit Price = 0, Amount = 0
+        CustomerNo := CreateCustomer();
+        CreateSalesDocument(SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CustomerNo, SalesHeader."Document Type"::Invoice);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        UnitPrice := SalesLine."Unit Price";
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type, SalesLine."No.", 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] The document is exported to FatturaPA
+        // [WHEN] The document is exported to FatturaPA.
+        ElectronicDocumentFormat.SendElectronically(
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] The exported XML file is valid according to XSD Schema
+        // [THEN] ImponibileImporto xml node has 25
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.CalcSums(Amount);
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo/ImponibileImporto',
+          Format(SalesInvoiceLine.Amount, 0, '<Precision,2:5><Standard Format,9>'));
+        // [THEN] PrezzoTotale xml node has correct values for both lines
+        // [THEN] For the first line it is 40
+        // [THEN] For the second line it is 0
+        TempXMLBuffer.FindNodesByXPath(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale');
+        Assert.RecordCount(TempXMLBuffer, 2);
+        SalesInvoiceLine.FindSet();
+        repeat
+            TempXMLBuffer.TestField(
+              Value, Format(Round(SalesInvoiceLine.Quantity * SalesInvoiceLine."Unit Price"), 0, '<Precision,2:5><Standard Format,9>'));
+            TempXMLBuffer.Next();
+        until SalesInvoiceLine.Next() = 0;
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

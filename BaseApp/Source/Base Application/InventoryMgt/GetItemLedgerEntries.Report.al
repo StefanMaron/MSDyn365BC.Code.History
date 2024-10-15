@@ -675,25 +675,40 @@ report 594 "Get Item Ledger Entries"
                     end;
                 "Entry Type" = "Entry Type"::Transfer:
                     begin
-                        if ("Country/Region Code" = CompanyInfo."Country/Region Code") or
-                           ("Country/Region Code" = '')
-                        then
+                        if ("Country/Region Code" = CompanyInfo."Country/Region Code") or ("Country/Region Code" = '') then
                             exit(false);
-                        if ("Order Type" <> "Order Type"::Transfer) or ("Order No." = '') then begin
-                            Location.Get("Location Code");
-                            if (Location."Country/Region Code" <> '') and
-                               (Location."Country/Region Code" <> CompanyInfo."Country/Region Code")
-                            then
-                                exit(false);
-                        end else begin
-                            ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
-                            ItemLedgEntry2.SetRange("Order Type", "Order Type"::Transfer);
-                            ItemLedgEntry2.SetRange("Order No.", "Order No.");
-                            ItemLedgEntry2.SetRange("Document Type", ItemLedgEntry2."Document Type"::"Transfer Shipment");
-                            ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
-                            ItemLedgEntry2.SetRange(Positive, true);
-                            if ItemLedgEntry2.IsEmpty() then
-                                exit(false);
+                        case true of
+                            (("Order Type" <> "Order Type"::Transfer) or ("Order No." = '')),
+                            "Document Type" = "Document Type"::"Direct Transfer":
+                                begin
+                                    Location.Get("Location Code");
+                                    if (Location."Country/Region Code" <> '') and (Location."Country/Region Code" <> CompanyInfo."Country/Region Code") then
+                                        exit(false);
+                                end;
+                            "Document Type" = "Document Type"::"Transfer Receipt":
+                                begin
+                                    ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
+                                    ItemLedgEntry2.SetRange("Order Type", "Order Type"::Transfer);
+                                    ItemLedgEntry2.SetRange("Order No.", "Order No.");
+                                    ItemLedgEntry2.SetRange("Document Type", ItemLedgEntry2."Document Type"::"Transfer Shipment");
+                                    ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
+                                    ItemLedgEntry2.SetRange(Positive, true);
+                                    if ItemLedgEntry2.IsEmpty() then
+                                        exit(false);
+                                end;
+                            "Document Type" = "Document Type"::"Transfer Shipment":
+                                begin
+                                    if not ItemLedgEntry.Positive then
+                                        exit;
+                                    ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
+                                    ItemLedgEntry2.SetRange("Order Type", "Order Type"::Transfer);
+                                    ItemLedgEntry2.SetRange("Order No.", "Order No.");
+                                    ItemLedgEntry2.SetRange("Document Type", ItemLedgEntry2."Document Type"::"Transfer Receipt");
+                                    ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
+                                    ItemLedgEntry2.SetRange(Positive, false);
+                                    if ItemLedgEntry2.IsEmpty() then
+                                        exit(false);
+                                end;
                         end;
                     end;
                 "Location Code" <> '':

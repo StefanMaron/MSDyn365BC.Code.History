@@ -327,7 +327,7 @@ table 12182 "Vendor Bill Line"
             OnCreateVendBillWithhTaxOnAfterVendBillWithhTaxInsert(VendBillWithhTax);
         end;
 
-        if "Vendor Entry No." <> 0 then begin
+        if ("Vendor Entry No." <> 0) and (VendBillWithhTax."Withholding Tax Amount" = 0) then begin
             VendorLedgerEntry.Get("Vendor Entry No.");
             WithholdCodeLine.SetRange("Withhold Code", VendBillWithhTax."Withholding Tax Code");
             if WithholdCodeLine.FindFirst() then

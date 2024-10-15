@@ -944,6 +944,7 @@ page 5740 "Transfer Order"
     trigger OnAfterGetRecord()
     begin
         EnableTransferFields := not IsPartiallyShipped();
+        ActivateFields();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -954,8 +955,10 @@ page 5740 "Transfer Order"
     trigger OnOpenPage()
     begin
         SetDocNoVisible();
+#if not CLEAN23
         EnableTransferFields := not IsPartiallyShipped();
         ActivateFields();
+#endif
     end;
 
     var

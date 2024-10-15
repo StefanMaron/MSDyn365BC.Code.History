@@ -553,6 +553,8 @@ codeunit 137154 "SCM Warehouse Management II"
             CreateAndReleaseSalesOrder(
               SalesHeader, SalesLine, Item."No.", LocationYellow.Code, '', PurchaseLine.Quantity + PurchaseLine.Quantity / 2, WorkDate(), true,
               false);  // Value required for test. Reserve as True and Tracking as False.
+            SalesHeader.Validate("Posting Date", WorkDate() + 7);
+            SalesHeader.Modify();
             CreatePickFromWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
             UpdateQuantityToHandleAndLotNoOnPickLines(
               WarehouseActivityLine."Activity Type"::Pick, SalesHeader."No.", PurchaseLine.Quantity, '');
@@ -574,7 +576,7 @@ codeunit 137154 "SCM Warehouse Management II"
             LibraryVariableStorage.Enqueue(ReservationMode::"Verify Reserve Line");  // Enqueue for ReservationPageHandler.
             LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);  // Enqueue for ReservationPageHandler.
             LibraryVariableStorage.Enqueue(PurchaseLine.Quantity / 2);
-            LibraryVariableStorage.Enqueue(PurchaseLine.Quantity / 2);
+            LibraryVariableStorage.Enqueue(0);
             SalesLine.ShowReservation();
         end;
     end;

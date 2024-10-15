@@ -757,6 +757,7 @@
         SetRange(Positive, NewPositive);
         SetRange("Location Code", ReservationEntry."Location Code");
         SetRange("Drop Shipment", false);
+        OnAfterFilterLinesForReservation(Rec, ReservationEntry, NewPositive);
     end;
 
     procedure FilterLinesForTracking(CalcReservEntry: Record "Reservation Entry"; Positive: Boolean)
@@ -971,6 +972,7 @@
             ReservEntry."Expected Receipt Date" := 0D;
             ReservEntry."Shipment Date" := 0D;
         end;
+        OnAfterSetReservationEntry(ReservEntry, Rec);
     end;
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
@@ -1063,6 +1065,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterBlank(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -1079,6 +1086,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var ItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item; NetChange: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesForReservation(var ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry: Record "Reservation Entry"; NewPositive: Boolean)
     begin
     end;
 

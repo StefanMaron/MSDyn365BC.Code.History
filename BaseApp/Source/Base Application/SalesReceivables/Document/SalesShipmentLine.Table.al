@@ -657,7 +657,7 @@ table 111 "Sales Shipment Line"
         CurrencyRead: Boolean;
         PostedPaymentLines: Record "Posted Payment Lines";
 
-        Text000: Label 'Shipment No. %1:';
+        Text000: Label 'Shipment No. %1 from %2:';
         Text001: Label 'The program cannot find this Sales line.';
 
     procedure GetCurrencyCode(): Code[10]
@@ -721,7 +721,7 @@ table 111 "Sales Shipment Line"
             SalesLine."Document Type" := TempSalesLine."Document Type";
             SalesLine."Document No." := TempSalesLine."Document No.";
             TranslationHelper.SetGlobalLanguageByCode(SalesInvHeader."Language Code");
-            SalesLine.Description := StrSubstNo(Text000, "Document No.");
+            SalesLine.Description := StrSubstNo(Text000, "Document No.", Format("Shipment Date"));
             TranslationHelper.RestoreGlobalLanguage();
             IsHandled := false;
             OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled, TempSalesLine, SalesInvHeader);

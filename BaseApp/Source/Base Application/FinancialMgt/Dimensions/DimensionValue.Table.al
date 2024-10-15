@@ -185,6 +185,8 @@ table 349 "Dimension Value"
         DimValuePerAccount.SetRange("Dimension Value Code", Code);
         DimValuePerAccount.DeleteAll(true);
 
+        RemoveICDimensionValueMappings();
+
         DimMgt.UpdateDefaultDimensionAllowedDimensionValues(Rec);
     end;
 
@@ -639,6 +641,15 @@ table 349 "Dimension Value"
         Dimension.Get("Dimension Code");
         Validate("Map-to IC Dimension Code", Dimension."Map-to IC Dimension Code");
         "Dimension Id" := Dimension.SystemId;
+    end;
+
+    local procedure RemoveICDimensionValueMappings()
+    var
+        ICDimensionValue: Record "IC Dimension Value";
+    begin
+        ICDimensionValue.SetRange("Map-to Dimension Value Code", Rec."Code");
+        if not ICDimensionValue.IsEmpty() then
+            ICDimensionValue.ModifyAll("Map-to Dimension Value Code", '');
     end;
 
     [IntegrationEvent(false, false)]

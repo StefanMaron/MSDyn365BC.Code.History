@@ -110,7 +110,7 @@ table 4 Currency
             DecimalPlaces = 2 : 5;
             Caption = 'Invoice Rounding Precision';
             InitValue = 0.01;
-            
+
             trigger OnValidate()
             begin
                 if "Amount Rounding Precision" <> 0 then
@@ -464,6 +464,21 @@ table 4 Currency
         {
             Caption = 'Coupled to Dataverse';
             Editable = false;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+        }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::Currency)));
         }
         field(8000; Id; Guid)
         {
@@ -483,9 +498,14 @@ table 4 Currency
         key(Key2; SystemModifiedAt)
         {
         }
+#if not CLEAN23
         key(Key3; "Coupled to CRM")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+            ObsoleteTag = '23.0';
         }
+#endif
     }
 
     fieldgroups

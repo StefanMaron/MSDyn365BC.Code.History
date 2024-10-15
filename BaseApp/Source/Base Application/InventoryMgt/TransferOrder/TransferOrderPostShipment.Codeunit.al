@@ -260,7 +260,7 @@
         with ItemJnlLine do begin
             Init();
             CopyDocumentFields(
-              "Document Type"::"Transfer Shipment", TransShptHeader2."No.", "External Document No.", SourceCode, '');
+              "Document Type"::"Transfer Shipment", TransShptHeader2."No.", TransShptHeader2."External Document No.", SourceCode, '');
             "Posting Date" := TransShptHeader2."Posting Date";
             "Document Date" := TransShptHeader2."Posting Date";
             "Document Line No." := TransShptLine2."Line No.";

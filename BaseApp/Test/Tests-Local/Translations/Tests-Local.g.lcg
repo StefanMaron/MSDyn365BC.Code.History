@@ -1868,6 +1868,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment IT - NamedType WrongAmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1344699536 - NamedType 2090400196" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[BalanceDue]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Registration No. - NamedType BalanceDueCap)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1344699536 - NamedType 1090853419" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[CustLedgEntry1__Amount__LCY__]]></Val>
@@ -3729,6 +3738,42 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Miscellaneous Bugs IT - NamedType NameCap)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 592684932 - NamedType 3370715141" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Incorect amount in G/L Entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non Ded. VAT Misc. IT - NamedType IncorrectGLEntryAmtErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3944581285 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Ded. VAT Post. Basic IT - NamedType AmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3944581285 - NamedType 1695721094" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 with filters %2 does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Ded. VAT Post. Basic IT - NamedType EntryDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3944581285 - NamedType 3353806735" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Wrong value of field %2 in table %1.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Ded. VAT Post. Basic IT - NamedType WrongValueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4160388544 - NamedType 2427345370" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

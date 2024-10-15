@@ -18,11 +18,10 @@ table 12210 "Withholding Tax Line"
             Caption = 'Base - Excluded Amount';
             NotBlank = true;
         }
-        field(4; "Non-Taxable Income Type"; Option)
+        field(4; "Non-Taxable Income Type"; Enum "Non-Taxable Income Type")
         {
             Caption = 'Non-Taxable Income Type';
             NotBlank = true;
-            OptionMembers = " ","1","2","5","6","7","8","9","10","11","12","13","4","14","21","22","23","24";
         }
     }
 
@@ -46,5 +45,11 @@ table 12210 "Withholding Tax Line"
         SetRange("Non-Taxable Income Type");
         exit("Base - Excluded Amount");
     end;
+
+    procedure GetNonTaxableIncomeTypeNumber(): Text
+    begin
+        exit(Rec."Non-Taxable Income Type".Names.Get(Rec."Non-Taxable Income Type".AsInteger() + 1));
+    end;
+
 }
 

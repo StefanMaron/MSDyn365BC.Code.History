@@ -59,6 +59,8 @@ permissionset 2909 "D365 PURCH DOC, POST"
                   tabledata "Sent Notification Entry" = RIMD,
                   tabledata "VAT Entry" = Rimd,
                   tabledata "VAT Registration No. Format" = R,
+                  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R,
                   tabledata "Vendor Ledger Entry" = iMd,
                   tabledata "Warehouse Request" = RIMD,
                   tabledata "Whse. Put-away Request" = RIMD;

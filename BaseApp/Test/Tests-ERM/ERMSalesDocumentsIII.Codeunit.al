@@ -558,6 +558,9 @@
         DocumentNo := CreatePostSalesDocWithGL(SalesHeader, SalesHeader."Document Type"::"Return Order", false);
         ReturnReceiptHeader.Get(DocumentNo);
 
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before"
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(ReturnReceiptHeader."Posting Date" + 1);
+
         // Exercise.
         asserterror ReturnReceiptHeader.Delete(true);
 
@@ -5554,6 +5557,268 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+
+    [Test]
+    procedure CreateSalesLineFromSalesShipmentLineExtendedTextLineContainsShipmentDate()
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 460309] When generating invoice lines from shipment lines, Shipment Date is added to the comment line
+        Initialize();
+
+        // [GIVEN] Create sales order with a line
+        CreateSalesOrderWithSingleLine(SalesHeader);
+
+        // [GIVEN] Ship Sales Order at Date = "X"
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentLine.FindFirst();
+
+        // [GIVEN] Create Sales Invoice for same Customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, SalesShipmentLine."Bill-to Customer No.");
+        LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
+
+        // [WHEN] Run InsertInvLineFromShptLine on Invoice for the Shipment
+        SalesShipmentLine.InsertInvLineFromShptLine(SalesLine);
+
+        // [THEN] Created Sales Line in Invoice has Date "X" in the comment
+        VerifyCommentLineDescriptionHasDate(SalesHeader."Document Type", SalesHeader."No.", SalesShipmentLine."Shipment Date")
+    end;
+
+    [Test]
+    procedure UpdateDirectDebitMandateIdFromPaymentDueDateOnSalesInvoice()
+    var
+        Customer: Record Customer;
+        CustomerBankAccount: Record "Customer Bank Account";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        PaymentMethod: Record "Payment Method";
+        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [SCENARIO 464910] Direct Debit Mandate ID must be set even if Due Date is unkknown on Sales Invoice
+        // [GIVEN]
+        Initialize();
+
+        // [GIVEN] Customer with bank account and payment terms
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
+
+        // [GIVEN] SEPA Recurring Direct Debit Mandate with epxected number of debits
+        CreateRecurrentDirectDebitMandate(SEPADirectDebitMandate, CustomerBankAccount."Customer No.", CustomerBankAccount.Code);
+
+        // [GIVEN] Direct Debit Payment Method
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod."Direct Debit" := true;
+        PaymentMethod.Modify();
+
+        // [GIVEN] Update Customer
+        Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
+        Customer."Payment Method Code" := PaymentMethod.Code;
+        Customer.Modify();
+
+        // [GIVEN] Payment Line Terms
+        PaymentTerms.Get(Customer."Payment Terms Code");
+        LibraryERM.CreatePaymentLines(PaymentLines, PaymentLines."Sales/Purchase"::" ", PaymentLines.Type::"Payment Terms", PaymentTerms.Code, '', 0);
+
+        // [GIVEN] Sales Invoice with unknown Due Date 
+        SalesInvoice.OpenNew();
+        SalesInvoice."Due Date".SetValue('');
+
+        // [WHEN] Assign customer to sales invoice
+        SalesInvoice."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Direct Debit Mandate ID is set
+        Assert.AreNotEqual('', SalesInvoice."Direct Debit Mandate ID".Value, 'Direct Debit ID should be set');
+        Assert.AreEqual(SEPADirectDebitMandate.ID, SalesInvoice."Direct Debit Mandate ID".Value, 'Wrong Direct Debit ID assigned to Sales Invoice');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsSetOnSalesCreditMemo()
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is assigned from Sell-to Customer on Sales Credit memo
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Credit Memo
+        SalesCreditMemo.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesCreditMemo."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        Assert.AreEqual(Customer."Country/Region Code", SalesCreditMemo."Rcvd-from Country/Region Code".Value, 'Received-from Country Code is not set');
+        SalesCreditMemo.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsSetOnSalesReturnOrder()
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        SalesReturnOrder: TestPage "Sales Return Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is assigned from Sell-to Customer on Sales Return Order
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Return Order
+        SalesReturnOrder.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesReturnOrder."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        Assert.AreEqual(Customer."Country/Region Code", SalesReturnOrder."Rcvd-from Country/Region Code".Value, 'Received-from Country Code is not set');
+        SalesReturnOrder.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsNotSetOnSalesQuote()
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        SalesHeader: Record "Sales Header";
+        SalesQuote: TestPage "Sales Quote";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is not assigned from Sell-to Customer on Sales Quote
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Quote
+        SalesQuote.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesQuote."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        SalesHeader.Get(SalesHeader."Document TYpe"::Quote, SalesQuote."No.".Value);
+        SalesQuote.Close();
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsNotSetOnSalesOrder()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales header";
+        CountryRegion: Record "Country/Region";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is not assigned from Sell-to Customer on Sales Order
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Order
+        SalesOrder.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        SalesHeader.Get(SalesHeader."Document TYpe"::Order, SalesOrder."No.".Value);
+        SalesOrder.Close();
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsNotSetOnSalesInvoice()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is not assigned from Sell-to Customer on Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Invoice
+        SalesInvoice.OpenNew();
+
+        // [WHEN] Customer is entered
+        SalesInvoice."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        SalesHeader.Get(SalesHeader."Document TYpe"::Invoice, SalesInvoice."No.".Value);
+        SalesInvoice.Close();
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyReceivedFromCountryIsNotSetOnSalesBlanketOrder()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 469244] Verify Received-from Country Code is not assigned from Sell-to Customer on Sales Blanket Order
+        Initialize();
+
+        // [GIVEN] Create customer with country/region
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Customer."Country/Region Code" := CountryRegion.Code;
+        Customer.Modify();
+
+        // [GIVEN] New Sales Blanket Order
+        BlanketSalesOrder.OpenNew();
+
+        // [WHEN] Customer is entered
+        BlanketSalesOrder."Sell-to Customer No.".SetValue(Customer."No.");
+
+        // [THEN] Verify Received-from Country/Region Code is set
+        SalesHeader.Get(SalesHeader."Document TYpe"::"Blanket Order", BlanketSalesOrder."No.".Value);
+        BlanketSalesOrder.Close();
+        Assert.AreNotEqual(Customer."Country/Region Code", SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set just as it is on customer');
+    end;
+    
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -5945,6 +6210,14 @@
     begin
         LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode);
         exit(Item."No.");
+    end;
+
+    local procedure CreateSalesOrderWithSingleLine(var SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2));
     end;
 
     local procedure CreateVATPostingSetupWithCertificateOfSupply(var VATPostingSetup: Record "VAT Posting Setup")
@@ -6466,6 +6739,18 @@
         ItemLedgerEntry.TestField("Return Reason Code", ReturnReasonCode);
     end;
 
+    local procedure VerifyCommentLineDescriptionHasDate(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ExpectedDate: Date)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document No.", DocNo);
+        SalesLine.SetRange("Document Type", DocType);
+        SalesLine.SetRange(Type, SalesLine.Type::" ");
+        SalesLine.SetRange("No.", '');
+        SalesLine.FindFirst();
+        Assert.IsSubstring(SalesLine.Description, Format(ExpectedDate));
+    end;
+
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -6769,6 +7054,19 @@
         SalesReceivablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
         SalesReceivablesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
         SalesReceivablesSetup.Modify();
+    end;
+
+    local procedure CreateRecurrentDirectDebitMandate(var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustomerNo: Code[20]; CustomerBankAccountCode: Code[20])
+    begin
+        SEPADirectDebitMandate.Init();
+        SEPADirectDebitMandate."Customer No." := CustomerNo;
+        SEPADirectDebitMandate."Customer Bank Account Code" := CustomerBankAccountCode;
+        SEPADirectDebitMandate."Valid From" := WorkDate();
+        SEPADirectDebitMandate."Valid To" := WorkDate + LibraryRandom.RandIntInRange(300, 600);
+        SEPADirectDebitMandate."Date of Signature" := WorkDate();
+        SEPADirectDebitMandate."Type of Payment" := SEPADirectDebitMandate."Type of Payment"::Recurrent;
+        SEPADirectDebitMandate."Expected Number of Debits" := LibraryRandom.RandIntInRange(10, 20);
+        SEPADirectDebitMandate.Insert(true);
     end;
 
     [ConfirmHandler]

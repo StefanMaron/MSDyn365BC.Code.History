@@ -1024,21 +1024,21 @@
 
     trigger OnDelete()
     var
-        SalesCommentLinearch: Record "Sales Comment Line Archive";
+        SalesCommentLineArchive: Record "Sales Comment Line Archive";
         DeferralHeaderArchive: Record "Deferral Header Archive";
     begin
-        SalesCommentLinearch.SetRange("Document Type", "Document Type");
-        SalesCommentLinearch.SetRange("No.", "Document No.");
-        SalesCommentLinearch.SetRange("Document Line No.", "Line No.");
-        SalesCommentLinearch.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-        SalesCommentLinearch.SetRange("Version No.", "Version No.");
-        if not SalesCommentLinearch.IsEmpty() then
-            SalesCommentLinearch.DeleteAll();
+        SalesCommentLineArchive.SetRange("Document Type", Rec."Document Type");
+        SalesCommentLineArchive.SetRange("No.", Rec."Document No.");
+        SalesCommentLineArchive.SetRange("Document Line No.", Rec."Line No.");
+        SalesCommentLineArchive.SetRange("Doc. No. Occurrence", Rec."Doc. No. Occurrence");
+        SalesCommentLineArchive.SetRange("Version No.", Rec."Version No.");
+        if not SalesCommentLineArchive.IsEmpty() then
+            SalesCommentLineArchive.DeleteAll();
 
-        if "Deferral Code" <> '' then
+        if Rec."Deferral Code" <> '' then
             DeferralHeaderArchive.DeleteHeader(
-                "Deferral Document Type"::Sales.AsInteger(), "Document Type".AsInteger(),
-                "Document No.", "Doc. No. Occurrence", "Version No.", "Line No.");
+                "Deferral Document Type"::Sales.AsInteger(), Rec."Document Type".AsInteger(),
+                Rec."Document No.", Rec."Doc. No. Occurrence", Rec."Version No.", Rec."Line No.");
     end;
 
     var
@@ -1054,9 +1054,9 @@
             SalesHeaderArchive.Init();
         end;
         if SalesHeaderArchive."Prices Including VAT" then
-            exit('2,1,' + GetFieldCaption(FieldNumber));
+            exit(CopyStr('2,1,' + GetFieldCaption(FieldNumber), 1, 80));
 
-        exit('2,0,' + GetFieldCaption(FieldNumber));
+        exit(CopyStr('2,0,' + GetFieldCaption(FieldNumber), 1, 80));
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]

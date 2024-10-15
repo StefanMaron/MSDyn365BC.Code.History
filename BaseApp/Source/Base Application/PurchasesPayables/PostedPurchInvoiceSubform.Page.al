@@ -200,6 +200,18 @@
                     ToolTip = 'Specifies whether the invoice line could have been included in an invoice discount calculation.';
                     Visible = false;
                 }
+                field(NonDeductibleVATBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
+                }
+                field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied, due to the type of goods or services purchased.';
+                    Visible = ShowNonDedVATInLines;
+                }
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
@@ -533,8 +545,11 @@
     end;
 
     trigger OnOpenPage()
+    var
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         SetDimensionsVisibility();
+        ShowNonDedVATInLines := NonDeductibleVAT.ShowNonDeductibleVATInLines();
     end;
 
     var
@@ -553,6 +568,7 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        ShowNonDedVATInLines: Boolean;
 
     procedure ShowDocumentLineTracking()
     var

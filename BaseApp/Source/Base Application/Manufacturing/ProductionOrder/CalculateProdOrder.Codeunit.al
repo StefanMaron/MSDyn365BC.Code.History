@@ -264,6 +264,7 @@
         Item2: Record Item;
         ComponentSKU: Record "Stockkeeping Unit";
         IsHandled: Boolean;
+        QtyRoundPrecision: Decimal;
     begin
         ProdOrderComp.Reset();
         ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Item No.");
@@ -297,7 +298,12 @@
             ProdOrderComp."Bin Code" := GetDefaultBin();
             ProdOrderComp.Description := ProdBOMLine[Level].Description;
             ProdOrderComp.Validate("Unit of Measure Code", ProdBOMLine[Level]."Unit of Measure Code");
-            ProdOrderComp."Quantity per" := ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM;
+            if ProdOrderComp."Item No." <> '' then
+                QtyRoundPrecision := UOMMgt.GetQtyRoundingPrecision(Item2, ProdBOMLine[Level]."Unit of Measure Code");
+            if QtyRoundPrecision <> 0 then
+                ProdOrderComp."Quantity per" := Round(ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM, QtyRoundPrecision)
+            else
+                ProdOrderComp."Quantity per" := ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM;
             ProdOrderComp.Length := ProdBOMLine[Level].Length;
             ProdOrderComp.Width := ProdBOMLine[Level].Width;
             ProdOrderComp.Weight := ProdBOMLine[Level].Weight;

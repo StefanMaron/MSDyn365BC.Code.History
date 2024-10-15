@@ -202,7 +202,13 @@
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"
     },
     {
+      "path": "./IntrastatIT/Test/Intrastat IT Tests"
+    },
+    {
       "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"
+    },
+    {
+      "path": "./ServiceDeclarationIT/Test/Service Declaration IT Tests"
     },
     {
       "path": "./Email - Microsoft 365 Connector/Test/Email - Microsoft 365 Connector Tests"

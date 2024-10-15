@@ -117,6 +117,7 @@
         GenJnlLine.Init();
         GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
         GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
+        GenJnlLine."VAT Reporting Date" := GenJnlLine."Posting Date";
         GenJnlLine."Document Date" := GenJnlLine."Posting Date";
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
         GenJnlLine."Account No." := EmplLedgEntry."Employee No.";
@@ -316,6 +317,7 @@
         EmplLedgEntry.Get(DtldEmplLedgEntry2."Employee Ledger Entry No.");
         GenJnlLine."Document No." := ApplyUnapplyParameters."Document No.";
         GenJnlLine."Posting Date" := ApplyUnapplyParameters."Posting Date";
+        GenJnlLine."VAT Reporting Date" := GenJnlLine."Posting Date";
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
         GenJnlLine."Account No." := DtldEmplLedgEntry2."Employee No.";
         GenJnlLine.Correction := true;

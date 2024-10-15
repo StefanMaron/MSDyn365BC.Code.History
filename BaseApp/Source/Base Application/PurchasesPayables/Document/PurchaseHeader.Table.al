@@ -3760,7 +3760,6 @@
 
     procedure PriceMessageIfPurchLinesExist(ChangedFieldName: Text[100])
     var
-        PurchaseLine: Record "Purchase Line";
         ConfirmManagement: Codeunit "Confirm Management";
         MessageText: Text;
     begin
@@ -3771,20 +3770,9 @@
 
             if (ChangedFieldName.Contains(FieldCaption("Order Date"))) then begin
                 Confirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(SplitMessageTxt, MessageText, UpdateLinesOrderDateAutomaticallyQst), false);
-                if Confirmed then begin
-                    Rec.Modify();
-                    PurchaseLine.SetRange("Document Type", Rec."Document Type");
-                    PurchaseLine.SetRange("Document No.", Rec."No.");
-                    if PurchaseLine.FindSet() then
-                        repeat
-                            PurchaseLine.Validate("Order Date", Rec."Order Date");
-                            if PurchaseLine."No." <> '' then
-                                PurchaseLine.Validate("No.");
-                            PurchaseLine.Modify();
-                        until PurchaseLine.Next() = 0;
-                end;
-            end
-            else
+                if Confirmed then
+                    UpdatePurchLinesByFieldNo(FieldNo("Order Date"), false);
+            end else
                 Message(StrSubstNo(SplitMessageTxt, MessageText, ReviewLinesManuallyMsg));
         end;
     end;
@@ -3990,6 +3978,11 @@
                         FieldNo("Buy-from Vendor No."):
                             if PurchLine."No." <> '' then
                                 PurchLine.Validate("Buy-from Vendor No.");
+                        FieldNo("Order Date"):
+                            if PurchLine."No." <> '' then begin
+                                PurchLine.Validate("Order Date", "Order Date");
+                                PurchLine.UpdateDirectUnitCost(0);
+                            end;
                         else
                             OnUpdatePurchLinesByChangedFieldName(Rec, PurchLine, Field.FieldName, ChangedFieldNo, xRec);
                     end;
@@ -4132,7 +4125,8 @@
                 exit(false);
             if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
                 exit(true);
-            if (xRec."location Code" <> Rec."Location Code") then
+            if (xRec."location Code" <> Rec."Location Code") and ((CurrFieldNo = Rec.FieldNo("Location Code"))
+                or ((Rec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No."))) then
                 exit(true);
             if (xRec."Purchaser Code" <> '') and (xRec."Purchaser Code" <> Rec."Purchaser Code") then
                 exit(true);
@@ -6736,16 +6730,20 @@
         PostingGroupChangeInterface: Interface "Posting Group Change Method";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeCheckVendorPostingGroupChange(Rec, xRec, IsHandled);
         if IsHandled then
             exit;
+
         if ("Vendor Posting Group" <> xRec."Vendor Posting Group") and (xRec."Vendor Posting Group" <> '') then begin
             TestField("Pay-to Vendor No.");
             PayToVendor.Get("Pay-to Vendor No.");
-            PayToVendor.TestField("Allow Multiple Posting Groups");
             GetPurchSetup();
-            PostingGroupChangeInterface := PurchSetup."Check Multiple Posting Groups";
-            PostingGroupChangeInterface.ChangePostingGroup("Vendor Posting Group", xRec."Vendor Posting Group", Rec);
+            if PurchSetup."Allow Multiple Posting Groups" then begin
+                PayToVendor.TestField("Allow Multiple Posting Groups");
+                PostingGroupChangeInterface := PurchSetup."Check Multiple Posting Groups";
+                PostingGroupChangeInterface.ChangePostingGroup("Vendor Posting Group", xRec."Vendor Posting Group", Rec);
+            end;
         end;
     end;
 

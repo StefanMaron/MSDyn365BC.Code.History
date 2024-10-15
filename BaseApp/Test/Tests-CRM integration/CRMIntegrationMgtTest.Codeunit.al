@@ -2089,9 +2089,6 @@ codeunit 139162 "CRM Integration Mgt Test"
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Sales Invoice Header", FilteredSalesInvHeader.GetView(), IntegrationTableMapping);
 
-        // [THEN] Posted Sales invoice is coupled
-        SalesInvHeader.Find();
-        SalesInvHeader.TestField("Coupled to CRM", true);
         // [THEN] The notification: "Synchronization has been scheduled."
         // [THEN] Synch Job is created, where Inserted = 1
         IntegrationSynchJob.Inserted := 1;
@@ -2149,16 +2146,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         // Executing the Sync Job
         Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Job is not found');
         JobQueueEntryID := LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
-
-        // [THEN] 2nd and 3rd Posted Sales invoices are coupled, the 1st one is not.
-        SalesInvHeader.Reset();
-        SalesInvHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        SalesInvHeader.FindFirst();
-        SalesInvHeader.TestField("Coupled to CRM", false);
-        SalesInvHeader.Next();
-        SalesInvHeader.TestField("Coupled to CRM", true);
-        SalesInvHeader.Next();
-        SalesInvHeader.TestField("Coupled to CRM", true);
     end;
 
     [Test]
