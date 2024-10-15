@@ -155,7 +155,6 @@ report 5706 "Create Stockkeeping Unit"
 
         trigger OnOpenPage()
         begin
-            ReplacePreviousSKUs := false;
             OnlyIfTemplateExists := true; // NAVCZ
         end;
     }

@@ -487,6 +487,7 @@ table 843 "Cash Flow Setup"
             "Tax Bal. Account No." := '';
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SaveUserDefinedAPIKey(APIKeyValue: Text[250])
     begin
@@ -537,6 +538,7 @@ table 843 "Cash Flow Setup"
             CryptographyManagement.EnableEncryption(false);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetUserDefinedAPIKey(): Text[200]
     var

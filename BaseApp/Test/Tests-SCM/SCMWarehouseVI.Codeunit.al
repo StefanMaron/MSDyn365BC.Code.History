@@ -2768,6 +2768,146 @@ codeunit 137408 "SCM Warehouse VI"
         ProdOrderComponent.TestField("Qty. Picked", 3 * Qty);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    procedure PickingByFEFOWithNonSpecificSerialNoTrackingDPnPLocation()
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        ReservationEntry: Record "Reservation Entry";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[20];
+        SerialNo: Code[20];
+    begin
+        // [FEATURE] [FEFO] [Pick] [Sales] [Item Tracking] [Directed Put-away and Pick]
+        // [SCENARIO 404181] Picking by FEFO with lot warehouse tracking and non-specific serial no. tracking at location set up for directed put-away and pick.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Directed put-away and pick location with enabled FEFO.
+        CreateFullWarehouseSetup(Location);
+        UpdateParametersOnLocation(Location, true, false);
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+
+        // [GIVEN] Lot-tracked item with mandatory expiration date.
+        CreateItemWithItemTrackingCodeWithExpirateDate(Item);
+
+        // [GIVEN] Post 10 pcs to the location via warehouse journal, assign lot no. "L", set up expiration date.
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(
+          Bin, Item."No.", LotNo, LibraryRandom.RandDate(10), LibraryRandom.RandIntInRange(10, 20));
+        CalculateAndPostWarehouseAdjustment(Item);
+
+        // [GIVEN] Sales order for 1 pc, select lot no. "L" and assign new serial no. "S1".
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", 1, Location.Code);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, SerialNo, LotNo, 1);
+
+        // [GIVEN] Release the sales order, create warehouse shipment.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+
+        // [WHEN] Create warehouse pick.
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [THEN] A pick line has been created. Lot no. = "L".
+        FindWarehouseActivityLine2(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, Item."No.");
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+
+        // [THEN] The warehouse pick can be registered.
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] The warehouse shipment can be posted.
+        WarehouseShipmentHeader.Find();
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", 1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure PickingByFEFOWithNonSpecificSerialNoTrackingNonDPnPLocation()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        ReservationEntry: Record "Reservation Entry";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[20];
+        SerialNo: Code[20];
+    begin
+        // [FEATURE] [FEFO] [Pick] [Sales] [Item Tracking]
+        // [SCENARIO 404181] Picking by FEFO with lot warehouse tracking and non-specific serial no. tracking at location set up for basic warehousing.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with mandatory bin, shipment, pick, and enabled FEFO.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        CreateWarehouseEmployee(Location.Code);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", Bin.Code);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Lot-tracked item with mandatory expiration date.
+        CreateItemWithItemTrackingCodeWithExpirateDate(Item);
+
+        // [GIVEN] Post 10 pcs to the location via item journal, assign lot no. and expiration date.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, Bin.Code, LibraryRandom.RandIntInRange(10, 20));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine.Quantity);
+        ReservationEntry.Validate("Expiration Date", LibraryRandom.RandDate(10));
+        ReservationEntry.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for 1 pc, select lot no. "L" and assign new serial no. "S1".
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", 1, Location.Code);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, SerialNo, LotNo, 1);
+
+        // [GIVEN] Release the sales order, create warehouse shipment.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+
+        // [WHEN] Create warehouse pick.
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [THEN] A pick line has been created. Lot no. = "L".
+        FindWarehouseActivityLine2(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take, Item."No.");
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+
+        // [THEN] The warehouse pick can be registered.
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] The warehouse shipment can be posted.
+        WarehouseShipmentHeader.Find();
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", 1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

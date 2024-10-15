@@ -2315,6 +2315,7 @@
             CallNotificationCheck := false;
         end;
         StatusStyleTxt := GetStatusStyleText();
+        SetControlVisibility();
     end;
 
     trigger OnAfterGetRecord()
@@ -2530,6 +2531,7 @@
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 

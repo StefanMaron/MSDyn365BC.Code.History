@@ -969,6 +969,11 @@
             SendLineInvoiceDiscountResetNotification;
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
     local procedure UpdateEditableOnRow()
     begin
         IsCommentLine := not HasTypeToFillMandatoryFields();

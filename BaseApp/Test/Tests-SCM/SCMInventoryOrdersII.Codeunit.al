@@ -2017,6 +2017,34 @@ codeunit 137068 "SCM Inventory Orders-II"
     end;
 
     [Test]
+    procedure PurchasingCodeDoesNotCopyFromItemToSalesReturnOrderLine()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Purchasing: Record Purchasing;
+    begin
+        // [FEATURE] [Sales] [Return Order] [Purchasing Code] [UT]
+        // [SCENARIO 406324] Purchasing code is not copied to sales return order line from item card.
+        Initialize();
+
+        // [GIVEN] Item "I" with Purchasing Code.
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purchasing Code", Purchasing.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Sales return order.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", '');
+
+        // [WHEN] Select item "I" on the sales line.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [THEN] Sales line has Purchasing Code = <blank>.
+        SalesLine.TestField("Purchasing Code", '');
+    end;
+
+    [Test]
     [HandlerFunctions('PostOrderStrMenuHandler')]
     [Scope('OnPrem')]
     procedure DropShipmentErrorHandling()
