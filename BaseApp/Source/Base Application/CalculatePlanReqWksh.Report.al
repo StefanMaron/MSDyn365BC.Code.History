@@ -1,4 +1,4 @@
-report 699 "Calculate Plan - Req. Wksh."
+﻿report 699 "Calculate Plan - Req. Wksh."
 {
     Caption = 'Calculate Plan - Req. Wksh.';
     ProcessingOnly = true;
@@ -12,6 +12,7 @@ report 699 "Calculate Plan - Req. Wksh."
 
             trigger OnAfterGetRecord()
             var
+                SkipPlanning: Boolean;
                 IsHandled: Boolean;
             begin
                 if Counter mod 5 = 0 then
@@ -40,6 +41,10 @@ report 699 "Calculate Plan - Req. Wksh."
                             ReqLineExtern.Delete(true);
                         until ReqLineExtern.Next() = 0;
                 end;
+                SkipPlanning := false;
+                OnItemOnAfterDeleteReqLines(Item, SkipPlanning);
+                if SkipPlanning then
+                    CurrReport.Skip();
 
                 InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType);
                 InvtProfileOffsetting.CalculatePlanFromWorksheet(
@@ -238,7 +243,7 @@ report 699 "Calculate Plan - Req. Wksh."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitializeFromMfgSetup(UseForecast, IsHandled);
+        OnBeforeInitializeFromMfgSetup(UseForecast, IsHandled, MfgSetup);
         if IsHandled then
             exit;
 
@@ -314,7 +319,7 @@ report 699 "Calculate Plan - Req. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitializeFromMfgSetup(var UseForecast: Code[10]; var IsHandled: Boolean)
+    local procedure OnBeforeInitializeFromMfgSetup(var UseForecast: Code[10]; var IsHandled: Boolean; var MfgSetup: Record "Manufacturing Setup")
     begin
     end;
 
@@ -325,6 +330,11 @@ report 699 "Calculate Plan - Req. Wksh."
 
     [IntegrationEvent(false, false)]
     local procedure OnItemOnAfterGetRecordOnBeforeCommit(var ReqLine: Record "Requisition Line"; Item: Record Item; CurrTemplateName: Code[10]; CurrWorksheetName: Code[10]; FromDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemOnAfterDeleteReqLines(Item: Record Item; var SkipPlanning: Boolean)
     begin
     end;
 }

@@ -417,14 +417,7 @@ codeunit 5051 SegManagement
                 Campaign.Get("Campaign No.");
             case "Correspondence Type" of
                 "Correspondence Type"::Email:
-                    begin
-                        if Cont."E-Mail" = '' then
-                            "Correspondence Type" := "Correspondence Type"::" ";
-
-                        if ContAltAddr.Get("Contact No.", "Contact Alt. Address Code") then
-                            if ContAltAddr."E-Mail" <> '' then
-                                "Correspondence Type" := "Correspondence Type"::Email;
-                    end;
+                    AssignCorrespondenceTypeForEmail(SegmentLine, Cont, ContAltAddr);
                 "Correspondence Type"::Fax:
                     begin
                         if Cont."Fax No." = '' then
@@ -438,6 +431,23 @@ codeunit 5051 SegManagement
                     OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(SegmentLine, Cont);
             end;
         end;
+    end;
+
+    local procedure AssignCorrespondenceTypeForEmail(var SegmentLine: Record "Segment Line"; var Contact: Record Contact; var ContactAltAddr: Record "Contact Alt. Address")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAssignCorrespondenceTypeForEmail(SegmentLine, Contact, ContactAltAddr, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Contact."E-Mail" = '' then
+            SegmentLine."Correspondence Type" := "Correspondence Type"::" ";
+
+        if ContactAltAddr.Get(SegmentLine."Contact No.", SegmentLine."Contact Alt. Address Code") then
+            if ContactAltAddr."E-Mail" <> '' then
+                SegmentLine."Correspondence Type" := "Correspondence Type"::Email;
     end;
 
     local procedure CopyFieldsToCampaignEntry(var CampaignEntry: Record "Campaign Entry"; var SegmentLine: Record "Segment Line")
@@ -667,6 +677,11 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAttachmentInsert(SegmentLine: Record "Segment Line"; var AttachmentTemp: Record Attachment; var Attachment: Record Attachment)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignCorrespondenceTypeForEmail(var SegmentLine: Record "Segment Line"; Contact: Record Contact; ContactAltAddr: Record "Contact Alt. Address"; var IsHandled: Boolean)
     begin
     end;
 
