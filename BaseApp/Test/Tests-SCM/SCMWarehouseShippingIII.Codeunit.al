@@ -1533,6 +1533,123 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         WarehouseEntry.TestField("Qty. (Base)", 2 * Qty);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandlerSimple,CreatePickFromWhseShptReqHandler')]
+    procedure ServiceOrderWarehouseShipmentWithNonInventoryServiceLines()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        NonInventoryItem: Record Item;
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine1: Record "Service Line";
+        ServiceLine2: Record "Service Line";
+        WhseShptHeader: Record "Warehouse Shipment Header";
+        WhseShptLine: Record "Warehouse Shipment Line";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ReleaseWhseShipment: Codeunit "Whse.-Shipment Release";
+        GetSourceDocOutbound: Codeunit "Get Source Doc. Outbound";
+        WMSMgt: Codeunit "WMS Management";
+        WhseActivityRegister: Codeunit "Whse.-Activity-Register";
+        WhsePostShipment: Codeunit "Whse.-Post Shipment";
+    begin
+        // [SCENARIO] A service order containing inventory and non-inventory item both with a location can be processed
+        // when warehouse pick and shipment is required.
+        Initialize();
+
+        // [GIVEN] A location requiring pick and shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
+
+        // [GIVEN] An inventory item in stock at location.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine,
+          ItemJournalTemplate.Name,
+          ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          Item."No.",
+          1
+        );
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Modify(true);
+        Codeunit.Run(Codeunit::"Item Jnl.-Post Batch", ItemJournalLine);
+
+        // [GIVEN] A non-inventory item.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A service order with a service item line.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+
+        // [GIVEN] A service line with inventory item and location.
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine1, ServiceHeader, ServiceLine1.Type::Item, Item."No.", 1);
+        ServiceLine1.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine1.Validate("Location Code", Location.Code);
+        ServiceLine1.Modify(true);
+
+        // [GIVEN] A service line with non-inventory item and location.
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine2, ServiceHeader, ServiceLine2.Type::Item, NonInventoryItem."No.", 1);
+        ServiceLine2.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine2.Validate("Location Code", Location.Code);
+        ServiceLine2.Modify(true);
+
+        // [WHEN] Creating a warehouse shipment for the service order.
+        LibraryService.ReleaseServiceDocument(ServiceHeader);
+        GetSourceDocOutbound.CreateFromServiceOrderHideDialog(ServiceHeader);
+
+        // [THEN] Only the inventory item is added to the shipment lines.
+        WhseShptLine.SetRange("Location Code", Location.Code);
+        Assert.AreEqual(1, WhseShptLine.Count(), 'Expected only one shipping line.');
+        WhseShptLine.FindFirst();
+        Assert.AreEqual(Item."No.", WhseShptLine."Item No.", 'Expected shipping line for inventory item.');
+
+        // [WHEN] Creating pick for the warehouse shipment.
+        WhseShptHeader.Get(WhseShptLine."No.");
+        ReleaseWhseShipment.Release(WhseShptHeader);
+
+        WhseShptLine.CreatePickDoc(WhseShptLine, WhseShptHeader);
+
+        // [THEN] Only the inventory item is added to the pick lines.
+        WhseActivityLine.SetRange("Whse. Document Type", WhseActivityLine."Whse. Document Type"::Shipment);
+        WhseActivityLine.SetRange("Whse. Document No.", WhseShptHeader."No.");
+        Assert.AreEqual(1, WhseActivityLine.Count(), 'Expected only one pick line.');
+        WhseActivityLine.FindFirst();
+        Assert.AreEqual(Item."No.", WhseActivityLine."Item No.", 'Expected pick line for inventory item.');
+
+        // [WHEN] Registering pick, posting shipment and service order.
+        WhseActivityLine.AutofillQtyToHandle(WhseActivityLine);
+        WMSMgt.CheckBalanceQtyToHandle(WhseActivityLine);
+        WhseActivityRegister.ShowHideDialog(true);
+        WhseActivityRegister.Run(WhseActivityLine);
+
+        WhseShptLine.Reset();
+        WhseShptLine.SetRange("Location Code", Location.Code);
+        WhseShptLine.AutofillQtyToHandle(WhseShptLine);
+        WhsePostShipment.SetPostingSettings(false);
+        WhsePostShipment.SetPrint(false);
+        WhsePostShipment.Run(WhseShptLine);
+
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Only an shipment service ILE exists for the non-inventory item. 
+        ItemLedgerEntry.SetRange("Item No.", NonInventoryItem."No.");
+        Assert.AreEqual(1, ItemLedgerEntry.Count(), 'Expected only one ILE');
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(
+            ItemLedgerEntry."Document Type"::"Service Shipment",
+            ItemLedgerEntry."Document Type",
+            'Expected ILE for service shipment'
+        );
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3282,6 +3399,19 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     procedure ConfirmHandlerAsTrue(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerSimple(Message: Text)
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePickFromWhseShptReqHandler(var CreatePickFromWhseShptReqPage: TestRequestPage "Whse.-Shipment - Create Pick")
+    begin
+        CreatePickFromWhseShptReqPage.OK.Invoke;
     end;
 }
 
