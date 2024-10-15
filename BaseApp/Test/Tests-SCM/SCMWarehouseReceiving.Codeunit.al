@@ -3896,6 +3896,155 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Assert.RecordCount(PurchaseLineNonInvtItem, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('SimpleMessageHandler,ItemTrackingPageHandler,EnterQuantityToCreatePageHandler')]
+    [Scope('OnPrem')]
+    procedure PostInventoryPutAwayFromReleasedProductionOrderWithDifferentSerialNo()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        WarehouseRequest: Record "Warehouse Request";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        OldSerialNo, NewSerialNo : Code[50];
+        SerialNo: array[10] of Code[50];
+        i: Integer;
+    begin
+        // [SCENARIO 488048] Verify the serial number in the item ledger entry when changing the serial number in the warehouse activity line.
+        Initialize();
+
+        // [GIVEN] Create a warehouse location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, false, false, false);
+
+        // [GIVEN] Create an item with the Item Tracking Code.
+        CreateItemWithItemTrackingCode(Item, true, false, LibraryUtility.GetGlobalNoSeriesCode(), '');
+
+        // [GIVEN] Create a bin and bin content.
+        CreateBinAndBinContent(Bin, Item, Location.Code);
+
+        // [GIVEN] Create and refresh the production order.
+        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandIntInRange(5, 10), Location.Code);
+
+        // [GIVEN] Update the bin code in the production order.
+        ProductionOrder.Validate("Bin Code", Bin.Code);
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Assign a serial number in production order.
+        UpdateItemTrackingInProductionOrder(ProductionOrder);
+
+        // [GIVEN] Create an inbound warehouse request from the production order.
+        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+
+        // [GIVEN] Get the serial number from reservation entry.
+        GetSerialNoFromReservationEntry(SerialNo, ProductionOrder);
+
+        // [GIVEN] Create an inventory activity document.
+        CreateInventoryActivity(
+            WarehouseRequest."Source Document"::"Prod. Output",
+            ProductionOrder."No.",
+            Location.Code,
+            true,
+            false);
+
+        // [GIVEN] Generate a new serial number.
+        NewSerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Modify serial number at a random position.
+        i := LibraryRandom.RandIntInRange(2, 4);
+        OldSerialNo := SerialNo[i];
+        SerialNo[i] := NewSerialNo;
+
+        // [GIVEN] Update the new serial number in the warehouse activity line.
+        UpdateSerialNoAndQuantityToHandleInInventoryPutAwayLine(
+            WarehouseActivityHeader,
+            ProductionOrder."No.",
+            OldSerialNo,
+            NewSerialNo);
+
+        // [GIVEN] Post an inventory activity document.
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
+
+        // [VERIFY] Verify the serial number in the item ledger entry when changing the serial number in the warehouse activity line.
+        VerifySerialNoInItemLedgerEntry(SerialNo, ProductionOrder);
+    end;
+
+    [Test]
+    [HandlerFunctions('SimpleMessageHandler,ItemTrackingLinesPageHandlerTrackingOptionWithLot')]
+    [Scope('OnPrem')]
+    procedure VerifyPostingOfInventoryPutAwayAfterDeletingFirstLineWithLotShouldPostILEWithOtherLots()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        Bin: Record Bin;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseRequest: Record "Warehouse Request";
+        ItemTrackingOption: Option AssignLotNoManual,AssignLotNos;
+        LotNos: array[3] of Code[50];
+        LotQty: array[3] of Decimal;
+        TotalQty: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 491615] Inventory Put-Away with Lot Number - Verify Item Ledger Entry created with Lot Numbers that assigned on other lines on warehouse activity line when first line with lot is deleted
+        Initialize();
+
+        // [GIVEN] Create a warehouse location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, false, false, false);
+
+        // [GIVEN] Create an item with the Item Tracking Code.
+        CreateItemWithItemTrackingCode(Item, false, true, '', LibraryUtility.GetGlobalNoSeriesCode());  // Taking True for Lot.
+
+        // [GIVEN] Create a bin and bin content.
+        CreateBinAndBinContent(Bin, Item, Location.Code);
+
+        // [GIVEN] Create Lot Nos and Quantity to assign on item tracking lines
+        for i := 1 to ArrayLen(LotNos) do begin
+            LotNos[i] := LibraryUtility.GenerateGUID();
+            LotQty[i] := LibraryRandom.RandInt(10);
+            TotalQty += LotQty[i];
+        end;
+
+        // [THEN] Create and refresh the production order with total quantity and update bin
+        CreateAndRefreshProductionOrder(ProductionOrder, Item."No.", TotalQty, Location.Code);
+        ProductionOrder.Validate("Bin Code", Bin.Code);
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Enqueue Lot Nos and quantity to Prepare item tracking lines
+        LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNos);
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNos));
+        for i := 1 to ArrayLen(LotNos) do begin
+            LibraryVariableStorage.Enqueue(LotNos[i]);
+            LibraryVariableStorage.Enqueue(LotQty[i]);
+        end;
+
+        // [THEN] Find production order line and assign lot numbers "L1" - "X" pcs, "L2" - "Y" pcs, "L3" - "Z" pcs respectively
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderLine.OpenItemTrackingLines();
+
+        // [GIVEN] Create an inbound warehouse request from the production order.
+        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+
+        // [GIVEN] Create an inventory activity document.
+        CreateInventoryActivity(
+            WarehouseRequest."Source Document"::"Prod. Output",
+            ProductionOrder."No.",
+            Location.Code,
+            true,
+            false);
+
+        // [THEN] Delete the first line form inventory activity document and Update Quantity to Handle on other lines
+        DeleteFirstInventoryPutAwayLine(ProductionOrder."No.", LotNos[1]);
+        UpdateQuantityToHandleInInventoryPutAwayLine(WarehouseActivityHeader, ProductionOrder."No.");
+
+        // [GIVEN] Post an inventory activity document.
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
+
+        // [VERIFY] Verify: Item Ledger Entry created with Lot Numbers "L2", and "L3"
+        VerifyLotNoInItemLedgerEntry(LotNos);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4339,8 +4488,8 @@ codeunit 137152 "SCM Warehouse - Receiving"
     end;
 
     local procedure CreatePurchaseDocumentWithVariousLines(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type";
-                                                           Item: array[2] of Record Item; NonInvtItem: array[2] of Record Item;
-                                                           ItemCharge: array[2] of Record "Item Charge"; LocationCode: Code[10])
+                                                                                                                           Item: array[2] of Record Item; NonInvtItem: array[2] of Record Item;
+                                                                                                                           ItemCharge: array[2] of Record "Item Charge"; LocationCode: Code[10])
     var
         PurchaseLineItem: array[2] of Record "Purchase Line";
         PurchaseLineNonInvtItem: array[2] of Record "Purchase Line";
@@ -6012,6 +6161,121 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Assert.AreEqual(BinCode, WarehouseReceiptLine."Bin Code", ReceiptBinCodeErr);
     end;
 
+    local procedure GetSerialNoFromReservationEntry(
+        var SerialNo: array[10] of Code[50];
+        ProductionOrder: Record "Production Order")
+    var
+        ReservationEntry: Record "Reservation Entry";
+        i: Integer;
+    begin
+        ReservationEntry.SetRange("Source ID", ProductionOrder."No.");
+        if ReservationEntry.FindSet() then
+            repeat
+                i += 1;
+                SerialNo[i] := ReservationEntry."Serial No.";
+            until ReservationEntry.Next() = 0;
+    end;
+
+    local procedure UpdateSerialNoAndQuantityToHandleInInventoryPutAwayLine(
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        SourceNo: Code[20];
+        OldSerialNo: Code[50];
+        NewSerialNo: Code[50])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Prod. Output");
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        WarehouseActivityLine.SetRange("Serial No.", OldSerialNo);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Serial No.", NewSerialNo);
+        WarehouseActivityLine.Modify(true);
+
+        WarehouseActivityLine.SetRange("Serial No.");
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+    end;
+
+    local procedure UpdateItemTrackingInProductionOrder(ProductionOrder: Record "Production Order")
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemTrackingMode: Option "Assign Lot No.","Assign Lot And Serial","Assign Serial No.","Select Entries","Assign Multiple Lot No";
+    begin
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Serial No.");
+        LibraryVariableStorage.Enqueue(false);
+        ProdOrderLine.OpenItemTrackingLines();
+    end;
+
+    local procedure FindProductionOrderLine(
+        var ProdOrderLine: Record "Prod. Order Line";
+        Status: Enum "Production Order Status";
+        ProdOrderNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.FindFirst();
+    end;
+
+    local procedure CreateBinAndBinContent(var Bin: Record Bin; Item: Record Item; LocationCode: Code[10])
+    var
+        BinContent: Record "Bin Content";
+    begin
+        LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+    end;
+
+    local procedure VerifySerialNoInItemLedgerEntry(SerialNo: array[10] of Code[50]; ProductionOrder: Record "Production Order")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        i: Integer;
+    begin
+        for i := 1 to ProductionOrder.Quantity do begin
+            ItemLedgerEntry.SetRange("Serial No.", SerialNo[i]);
+            Assert.RecordIsNotEmpty(ItemLedgerEntry);
+        end;
+    end;
+
+    local procedure DeleteFirstInventoryPutAwayLine(SourceNo: Code[20]; LotNo: Code[50])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Prod. Output");
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        WarehouseActivityLine.SetRange("Lot No.", LotNo);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Delete();
+    end;
+
+    local procedure UpdateQuantityToHandleInInventoryPutAwayLine(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(
+            WarehouseActivityLine,
+            WarehouseActivityLine."Source Document"::"Prod. Output",
+            SourceNo,
+            WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+    end;
+
+    local procedure VerifyLotNoInItemLedgerEntry(LotNos: array[3] of Code[50])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        i: Integer;
+    begin
+        for i := 2 to ArrayLen(LotNos) do begin
+            ItemLedgerEntry.SetRange("Lot No.", LotNos[i]);
+            Assert.RecordIsNotEmpty(ItemLedgerEntry);
+        end;
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculateInventoryPageHandler(var CalculateInventory: TestRequestPage "Calculate Inventory")
@@ -6165,6 +6429,35 @@ codeunit 137152 "SCM Warehouse - Receiving"
                 Reservation.CancelReservationCurrentLine.Invoke;
         end;
         Reservation.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandlerTrackingOptionWithLot(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ItemTrackingOption: Option AssignLotNoManual,AssignLotNos;
+        NoOfLines: Integer;
+        i: Integer;
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            ItemTrackingOption::AssignLotNoManual:
+                begin
+                    ItemTrackingLines.New();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+            ItemTrackingOption::AssignLotNos:
+                begin
+                    NoOfLines := LibraryVariableStorage.DequeueInteger();
+                    for i := 1 to NoOfLines do begin
+                        ItemTrackingLines.New();
+                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    end;
+                end;
+        end;
+
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
