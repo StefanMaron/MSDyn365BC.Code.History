@@ -92,6 +92,7 @@ table 20101 "AMC Banking Setup"
         DemoUserNameTxt: Label 'demouser', Locked = true;
         DemoPasswordTxt: Label 'DemoPassword', Locked = true;
 
+    [NonDebuggable]
     internal procedure SavePassword(PasswordText: Text)
     begin
         if IsNullGuid("Password Key") then
@@ -121,6 +122,7 @@ table 20101 "AMC Banking Setup"
         exit(ServiceUserName);
     end;
 
+    [NonDebuggable]
     internal procedure GetPassword(): Text
     var
         Value: Text;
