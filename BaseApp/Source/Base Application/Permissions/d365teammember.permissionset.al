@@ -1,4 +1,4 @@
-namespace System.Security.AccessControl;
+﻿namespace System.Security.AccessControl;
 
 using Microsoft;
 using Microsoft.AccountantPortal;

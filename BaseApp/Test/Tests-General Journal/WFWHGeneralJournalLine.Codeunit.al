@@ -20,6 +20,7 @@ codeunit 134220 "WFWH General Journal Line"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryJournals: Codeunit "Library - Journals";
         MockOnFindTaskSchedulerAllowed: Codeunit MockOnFindTaskSchedulerAllowed;
         IsInitialized: Boolean;
         BogusUserIdTxt: Label 'CONTOSO';
@@ -514,6 +515,216 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
+    procedure EnsurePurchaseJournalLineApprovalWorkflowFunctionsCorrectlyWhenContinued()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // [SCENARIO] Ensure that a webhook  journal line approval workflow 'approval' path works correctly for purchase journal.
+        // [GIVEN] A webhook general journal line approval workflow for a purchase journal line is enabled.
+        // [GIVEN] Purchase journal batch with one line
+        // [GIVEN] A purchase journal line is pending approval.
+        // [WHEN] The webhook purchase journal line workflow receives an 'approval' response for the purchase journal line.
+        // [THEN] The purchase journal line is approved.
+
+        Initialize();
+
+        // Setup
+        CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
+        CreatePurchaseJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        MakeCurrentUserAnApprover();
+        SendApprovalRequestForPurchaseJournal(GenJournalBatch.Name);
+
+        Commit();
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // Exercise
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalLine.SystemId));
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
+    end;
+
+    [Test]
+    procedure EnsurePurchaseJournalLineApprovalWorkflowFunctionsCorrectlyWhenRejected()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // [SCENARIO] Ensure that a webhook  journal line approval workflow 'rejection' path works correctly for purchase journal.
+        // [GIVEN] A webhook general journal line approval workflow for a purchase journal line is enabled.
+        // [GIVEN] Purchase journal batch with one line
+        // [GIVEN] A purchase journal line is pending approval.
+        // [WHEN] The webhook purchase journal line workflow receives a 'rejection' response for the purchase journal line.
+        // [THEN] The purchase journal line is rejected.
+
+        Initialize();
+
+        // Setup
+        CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
+        CreatePurchaseJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        MakeCurrentUserAnApprover();
+        SendApprovalRequestForPurchaseJournal(GenJournalBatch.Name);
+
+        Commit();
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // Exercise
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalLine.SystemId));
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
+    end;
+
+    [Test]
+    procedure EnsurePurchaseJournalLineApprovalWorkflowFunctionsCorrectlyWhenCancelled()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // [SCENARIO] Ensure that a webhook  journal line approval workflow 'cancellation' path works correctly for purchase journal.
+        // [GIVEN] A webhook general journal line approval workflow for a purchase journal line is enabled.
+        // [GIVEN] Purchase journal batch with one line
+        // [GIVEN] A purchase journal line is pending approval.
+        // [WHEN] The webhook purchase journal line workflow receives a 'cancellation' response for the purchase journal line.
+        // [THEN] The purchase journal line is cancelled.
+
+        Initialize();
+
+        // Setup
+        CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
+        CreatePurchaseJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        MakeCurrentUserAnApprover();
+        SendApprovalRequestForPurchaseJournal(GenJournalBatch.Name);
+
+        Commit();
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // Exercise
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalLine.SystemId));
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
+    end;
+
+    [Test]
+    procedure EnsureSalesJournalLineApprovalWorkflowFunctionsCorrectlyWhenContinued()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // [SCENARIO] Ensure that a webhook  journal line approval workflow 'approval' path works correctly for sales journal.
+        // [GIVEN] A webhook general journal line approval workflow for a sales journal line is enabled.
+        // [GIVEN] Sales journal batch with one line
+        // [GIVEN] A sales journal line is pending approval.
+        // [WHEN] The webhook sales journal line workflow receives an 'approval' response for the sales journal line.
+        // [THEN] The sales journal line is approved.
+
+        Initialize();
+
+        // Setup
+        CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
+        CreateSalesJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        MakeCurrentUserAnApprover();
+        SendApprovalRequestForSalesJournal(GenJournalBatch.Name);
+
+        Commit();
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // Exercise
+        WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalLine.SystemId));
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
+    end;
+
+    [Test]
+    procedure EnsureSalesJournalLineApprovalWorkflowFunctionsCorrectlyWhenRejected()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // [SCENARIO] Ensure that a webhook  journal line approval workflow 'rejection' path works correctly for sales journal.
+        // [GIVEN] A webhook general journal line approval workflow for a sales journal line is enabled.
+        // [GIVEN] Sales journal batch with one line
+        // [GIVEN] A sales journal line is pending approval.
+        // [WHEN] The webhook sales journal line workflow receives a 'rejection' response for the sales journal line.
+        // [THEN] The sales journal line is rejected.
+
+        Initialize();
+
+        // Setup
+        CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
+        CreateSalesJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        MakeCurrentUserAnApprover();
+        SendApprovalRequestForSalesJournal(GenJournalBatch.Name);
+
+        Commit();
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // Exercise
+        WorkflowWebhookManagement.RejectByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalLine.SystemId));
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Reject);
+    end;
+
+    [Test]
+    procedure EnsureSalesJournalLineApprovalWorkflowFunctionsCorrectlyWhenCancelled()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        // [SCENARIO] Ensure that a webhook  journal line approval workflow 'cancellation' path works correctly for sales journal.
+        // [GIVEN] A webhook general journal line approval workflow for a sales journal line is enabled.
+        // [GIVEN] Sales journal batch with one line
+        // [GIVEN] A sales journal line is pending approval.
+        // [WHEN] The webhook sales journal line workflow receives a 'cancellation' response for the sales journal line.
+        // [THEN] The sales journal line is cancelled.
+
+        Initialize();
+
+        // Setup
+        CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
+        CreateSalesJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        MakeCurrentUserAnApprover();
+        SendApprovalRequestForSalesJournal(GenJournalBatch.Name);
+
+        Commit();
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
+
+        // Exercise
+        WorkflowWebhookManagement.CancelByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(GenJournalLine.SystemId));
+
+        // Verify
+        VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Cancel);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure EnsureFilteredGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWhenContinued()
     var
@@ -874,6 +1085,70 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
+    procedure ButtonStatusForPendingPurchaseJournalLine()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        WebhookHelper: Codeunit "Webhook Helper";
+        PurchaseJournal: TestPage "Purchase Journal";
+    begin
+        // [SCENARIO] Approval actions are correctly enabled/disabled on Purchase Journal page while approval is pending for journal line
+        Initialize();
+
+        // [GIVEN] Journal batch with one or more lines
+        CreatePurchaseJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] Workflow webhook entry exists for line
+        WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
+
+        // [WHEN] User opens the journal batch
+        Commit();
+        PurchaseJournal.OpenEdit();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Approval actions are correctly enabled/disabled
+        Assert.IsFalse(PurchaseJournal.SendApprovalRequestJournalBatch.Enabled(), 'Send Batch should be disabled');
+        Assert.IsFalse(PurchaseJournal.CancelApprovalRequestJournalBatch.Enabled(), 'Cancel Batch should be disabled');
+        Assert.IsFalse(PurchaseJournal.SendApprovalRequestJournalLine.Enabled(), 'Send Line should be disabled');
+        Assert.IsTrue(PurchaseJournal.CancelApprovalRequestJournalLine.Enabled(), 'Cancel Line should be enabled');
+
+        // [THEN] Close the journal
+        PurchaseJournal.Close();
+    end;
+
+    [Test]
+    procedure ButtonStatusForPendingSalesJournalLine()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        WebhookHelper: Codeunit "Webhook Helper";
+        SalesJournal: TestPage "Sales Journal";
+    begin
+        // [SCENARIO] Approval actions are correctly enabled/disabled on Sales Journal page while approval is pending for journal line
+        Initialize();
+
+        // [GIVEN] Journal batch with one or more lines
+        CreateSalesJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] Workflow webhook entry exists for line
+        WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
+
+        // [WHEN] User opens the journal batch
+        Commit();
+        SalesJournal.OpenEdit();
+        SalesJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [THEN] Approval actions are correctly enabled/disabled
+        Assert.IsFalse(SalesJournal.SendApprovalRequestJournalBatch.Enabled(), 'Send Batch should be disabled');
+        Assert.IsFalse(SalesJournal.CancelApprovalRequestJournalBatch.Enabled(), 'Cancel Batch should be disabled');
+        Assert.IsFalse(SalesJournal.SendApprovalRequestJournalLine.Enabled(), 'Send Line should be disabled');
+        Assert.IsTrue(SalesJournal.CancelApprovalRequestJournalLine.Enabled(), 'Cancel Line should be enabled');
+
+        // [THEN] Close the journal
+        SalesJournal.Close();
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ButtonStatusForPendingCashReceiptJournalLine()
     var
@@ -976,6 +1251,72 @@ codeunit 134220 "WFWH General Journal Line"
 
     [Test]
     [HandlerFunctions('MessageHandler')]
+    procedure CancelButtonWorksOnPurchaseJournalLine()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WebhookHelper: Codeunit "Webhook Helper";
+        PurchaseJournal: TestPage "Purchase Journal";
+    begin
+        // [SCENARIO] Clicking cancel action to cancel pending journal line approval on Purchase Journal page
+        Initialize();
+
+        // [GIVEN] Journal batch with one or more lines
+        CreatePurchaseJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] Workflow webhook entry exists for batch
+        WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
+
+        // [WHEN] User opens the journal batch and clicks Cancel
+        Commit();
+        PurchaseJournal.OpenEdit();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        PurchaseJournal.CancelApprovalRequestJournalLine.Invoke();
+
+        // [THEN] Flow approval is cancelled
+        WorkflowWebhookEntry.FindFirst();
+        Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
+
+        // [THEN] Close the journal
+        PurchaseJournal.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CancelButtonWorksOnSalesJournalLine()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        WebhookHelper: Codeunit "Webhook Helper";
+        SalesJournal: TestPage "Sales Journal";
+    begin
+        // [SCENARIO] Clicking cancel action to cancel pending journal line approval on Sales Journal page
+        Initialize();
+
+        // [GIVEN] Journal batch with one or more lines
+        CreateSalesJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] Workflow webhook entry exists for batch
+        WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
+
+        // [WHEN] User opens the journal batch and clicks Cancel
+        Commit();
+        SalesJournal.OpenEdit();
+        SalesJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        SalesJournal.CancelApprovalRequestJournalLine.Invoke();
+
+        // [THEN] Flow approval is cancelled
+        WorkflowWebhookEntry.FindFirst();
+        Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
+
+        // [THEN] Close the journal
+        SalesJournal.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CancelButtonWorksOnCashReceiptJournalLine()
     var
@@ -1068,6 +1409,30 @@ codeunit 134220 "WFWH General Journal Line"
           LibraryRandom.RandDecInRange(10000, 50000, 2));
     end;
 
+    local procedure CreatePurchaseJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+        CreateJournalBatch(GenJournalBatch, LibraryJournals.SelectGenJournalTemplate(GenJournalTemplate.Type::Purchases, Page::"Purchase Journal"));
+
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          LibraryRandom.RandDecInRange(10000, 50000, 2));
+    end;
+
+    local procedure CreateSalesJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+        CreateJournalBatch(GenJournalBatch, LibraryJournals.SelectGenJournalTemplate(GenJournalTemplate.Type::Sales, Page::"Sales Journal"));
+
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          LibraryRandom.RandDecInRange(10000, 50000, 2));
+    end;
+
     local procedure CreateJournalBatchWithMultipleJournalLines(var GenJournalLine2: Record "Gen. Journal Line")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1112,6 +1477,24 @@ codeunit 134220 "WFWH General Journal Line"
         PaymentJournal.OpenView;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
         PaymentJournal.SendApprovalRequestJournalLine.Invoke;
+    end;
+
+    local procedure SendApprovalRequestForPurchaseJournal(GenJournalBatchName: Code[20])
+    var
+        PurchaseJournal: TestPage "Purchase Journal";
+    begin
+        PurchaseJournal.OpenView();
+        PurchaseJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
+        PurchaseJournal.SendApprovalRequestJournalLine.Invoke();
+    end;
+
+    local procedure SendApprovalRequestForSalesJournal(GenJournalBatchName: Code[20])
+    var
+        SalesJournal: TestPage "Sales Journal";
+    begin
+        SalesJournal.OpenView();
+        SalesJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
+        SalesJournal.SendApprovalRequestJournalLine.Invoke();
     end;
 
     local procedure SendFilteredApprovalRequest(GenJournalBatchName: Code[20]; LineNo: Integer)

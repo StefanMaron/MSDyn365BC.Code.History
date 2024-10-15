@@ -172,6 +172,34 @@ codeunit 136320 "Job Consump. Whse. Handling"
         CreateAndPostJobUsage(Enum::"Job Consump. Whse. Handling"::"No Warehouse Handling");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SimpleMessageHandler')]
+    procedure EnablingDisablingJobConsumpWhseHandlingOnLocation()
+    var
+        CompItem1: Record Item;
+        CompItem2: Record Item;
+        Location: Record Location;
+        Job: Record Job;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        // [SCENARIO] Cannot disable job consump. whse. handling on location if an inventory activity for job usage exists.
+        Initialize();
+
+        CreateJobWithLocationBinsAndTwoComponents(Job, Location, "Job Consump. Whse. Handling"::"Inventory Pick", CompItem1, CompItem2);
+
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Job Usage", Job."No.", false, true, false);
+
+        Commit();
+        asserterror Location.Validate("Job Consump. Whse. Handling", "Job Consump. Whse. Handling"::"No Warehouse Handling");
+
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+        WarehouseActivityHeader.Delete(true);
+
+        Location.Validate("Job Consump. Whse. Handling", "Job Consump. Whse. Handling"::"No Warehouse Handling");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

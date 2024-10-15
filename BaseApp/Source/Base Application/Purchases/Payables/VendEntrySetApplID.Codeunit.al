@@ -77,6 +77,20 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
         OnAfterUpdateVendLedgerEntry(VendorLedgerEntry, TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID);
     end;
 
+    procedure RemoveApplId(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliestoID: Code[50])
+    begin
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                if VendorLedgerEntry."Applies-to ID" = AppliestoID then begin
+                    VendorLedgerEntry."Applies-to ID" := '';
+                    VendorLedgerEntry."Accepted Pmt. Disc. Tolerance" := false;
+                    VendorLedgerEntry."Accepted Payment Tolerance" := 0;
+                    VendorLedgerEntry."Amount to Apply" := 0;
+                    VendorLedgerEntry.Modify();
+                end;
+            until VendorLedgerEntry.Next() = 0;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendEntryApplID: Code[50]; var IsHandled: Boolean)
     begin

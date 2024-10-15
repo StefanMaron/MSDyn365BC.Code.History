@@ -365,17 +365,9 @@ report 121 "Customer - Balance to Date"
         TempCurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
         TempCurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
         AutoFormat: Codeunit "Auto Format";
-        PrintOnePrPage: Boolean;
-        ShowEntriesWithZeroBalance: Boolean;
-        CustFilter: Text;
-        OriginalAmt: Decimal;
-        Amt: Decimal;
-        RemainingAmt: Decimal;
         Counter1: Integer;
         DtldCustLedgEntryNum: Integer;
         OK: Boolean;
-        CurrencyCode: Code[10];
-        PrintUnappliedEntries: Boolean;
         DateFilterTxt: Text;
 
         Text000: Label 'Balance on %1';
@@ -388,8 +380,16 @@ report 121 "Customer - Balance to Date"
         BlankMaxDateErr: Label 'Ending Date must have a value.';
 
     protected var
+        CurrencyCode: Code[10];
         MaxDate: Date;
         PrintAmountInLCY: Boolean;
+        PrintOnePrPage: Boolean;
+        ShowEntriesWithZeroBalance: Boolean;
+        PrintUnappliedEntries: Boolean;
+        CustFilter: Text;
+        OriginalAmt: Decimal;
+        Amt: Decimal;
+        RemainingAmt: Decimal;
 
     procedure InitializeRequest(NewPrintAmountInLCY: Boolean; NewPrintOnePrPage: Boolean; NewPrintUnappliedEntries: Boolean; NewEndingDate: Date)
     begin

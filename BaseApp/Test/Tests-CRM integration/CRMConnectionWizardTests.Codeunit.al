@@ -19,16 +19,11 @@ codeunit 139314 "CRM Connection Wizard Tests"
         WrongConnectionStringErr: Label 'Wrong connection string generated';
         EmailAndServerAddressEmptyErr: Label 'The Integration User Email and Server Address fields must not be empty.';
         EnabledTxt: Label 'Enabled';
-        CheckedTxt: Label 'Checked';
         VisibleTxt: Label 'Visible';
         ShouldBeErr: Label '%1 should be %2';
         ShouldNotBeErr: Label '%1 should not be %2';
         DynamicsCRMURLEmptyErr: Label 'You must specify the URL of your %1 solution.';
-        ConfirmCredentialsDomainQst: Label 'The administrator user account and the integration user account appear to be from different domains. Are you sure that the credentials are correct?';
-        WrongConfirmationErr: Label 'Wrong confirmation dialog text';
-        WizardShouldNotBeClosedErr: Label 'Wizard should not be closed';
         EmptySynchUserCredentialsErr: Label 'You must specify the credentials for the user account for synchronization with %1.';
-        WrongAdminCredentialsErr: Label 'Enter valid %1 administrator credentials.';
         ButtonTxt: Label 'Button';
         AllCredentialsRequiredErr: Label 'A %1 URL and user name are required to enable a connection.';
         TheRowDoesNotExistErr: Label 'The row does not exist';
