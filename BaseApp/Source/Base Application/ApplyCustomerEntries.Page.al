@@ -1,4 +1,4 @@
-page 232 "Apply Customer Entries"
+﻿page 232 "Apply Customer Entries"
 {
     Caption = 'Apply Customer Entries';
     DataCaptionFields = "Customer No.";
@@ -637,6 +637,8 @@ page 232 "Apply Customer Entries"
         if ApplnType = ApplnType::"Applies-to Doc. No." then
             CalcApplnAmount();
         PostingDone := false;
+
+        OnAfterOnOpenPage(GenJnlLine);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -672,7 +674,6 @@ page 232 "Apply Customer Entries"
     end;
 
     var
-        ApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         GenJnlLine: Record "Gen. Journal Line";
@@ -709,6 +710,7 @@ page 232 "Apply Customer Entries"
         CustNameVisible: Boolean;
 
     protected var
+        ApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
         GenJnlLine2: Record "Gen. Journal Line";
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -825,7 +827,7 @@ page 232 "Apply Customer Entries"
     var
         Customer: Record Customer;
     begin
-        OnBeforeSetApplyingCustLedgEntry(AppliedCustLedgEntry, GenJnlLine, SalesHeader, CalcType);
+        OnBeforeSetApplyingCustLedgEntry(AppliedCustLedgEntry, GenJnlLine, SalesHeader, CalcType, ServHeader);
 
         case CalcType of
             CalcType::"Sales Header":
@@ -920,6 +922,21 @@ page 232 "Apply Customer Entries"
         CheckCustLedgEntry(CustLedgEntry);
 
         OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine, SalesHeader, ServHeader, ApplyingCustLedgEntry);
+
+        SetCustEntryApplID(CurrentRec);
+
+        CalcApplnAmount();
+    end;
+
+    local procedure SetCustEntryApplID(CurrentRec: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetCustEntryApplID(Rec, CurrentRec, ApplyingAmount, ApplyingCustLedgEntry, GetAppliesToID(), IsHandled);
+        if IsHandled then
+            exit;
+
         CustLedgEntry.Copy(Rec);
         if CurrentRec then begin
             CustLedgEntry.SetRecFilter();
@@ -928,8 +945,6 @@ page 232 "Apply Customer Entries"
             CurrPage.SetSelectionFilter(CustLedgEntry);
             CustEntrySetApplID.SetApplId(CustLedgEntry, ApplyingCustLedgEntry, GetAppliesToID)
         end;
-
-        CalcApplnAmount();
     end;
 
     procedure CheckCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -1484,6 +1499,11 @@ page 232 "Apply Customer Entries"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcApplnAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; CalculationType: Option; ApplicationType: Option)
     begin
@@ -1510,7 +1530,12 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeSetApplyingCustLedgEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var CalcType: Enum "Customer Apply Calculation Type")
+    local procedure OnBeforeSetApplyingCustLedgEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var CalcType: Enum "Customer Apply Calculation Type"; ServHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCustEntryApplID(CustLedgerEntry: Record "Cust. Ledger Entry"; CurrentRec: Boolean; var ApplyingAmount: Decimal; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]; var IsHandled: Boolean)
     begin
     end;
 
@@ -1535,7 +1560,7 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Option; GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; ServHeader: Record "Service Header"; ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Option; var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; ServHeader: Record "Service Header"; ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

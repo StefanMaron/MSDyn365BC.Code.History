@@ -745,8 +745,7 @@ page 6640 "Purchase Return Order"
 
                     trigger OnAction()
                     begin
-                        OpenPurchaseOrderStatistics;
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        OpenPurchaseOrderStatistics();
                     end;
                 }
                 action(Vendor)
@@ -1010,6 +1009,7 @@ page 6640 "Purchase Return Order"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -1028,6 +1028,7 @@ page 6640 "Purchase Return Order"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 separator(Action690)

@@ -32,6 +32,7 @@ report 11404 "Create Elec. ICP Declaration"
                             "Elec. Tax Declaration Header".InsertLine(0, 1, CurrentType, '');
                             if CountryRegion.Get("Country/Region Code") then
                                 CountryRegionCode := CountryRegion."EU Country/Region Code";
+                            OnVATEntryOnAfterGetRecordOnGetCountryCode("VAT Entry");
 
                             if CountryRegionCode <> '' then begin
                                 InsertDataLine("Elec. Tax Declaration Header", 2, 'bd-i:CountryCodeISO-EC',
@@ -279,6 +280,11 @@ report 11404 "Create Elec. ICP Declaration"
     local procedure ExtractSurname(FullName: Text[35]) Surname: Text[35]
     begin
         Surname := CopyStr(FullName, StrPos(FullName, ' ') + 1);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVATEntryOnAfterGetRecordOnGetCountryCode(var VATEntry: Record "VAT Entry")
+    begin
     end;
 }
 

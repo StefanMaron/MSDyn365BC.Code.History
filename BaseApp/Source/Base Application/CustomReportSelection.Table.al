@@ -181,6 +181,8 @@ table 9657 "Custom Report Selection"
     begin
         FilterReportUsage(NewSourceType, NewSourceNo, NewUsage);
         SetRange("Use for Email Body", true);
+
+        OnAfterFilterEmailBodyUsage(Rec, NewSourceType, NewSourceNo, NewUsage);
     end;
 
     local procedure CheckEmailBodyUsage()
@@ -476,6 +478,11 @@ table 9657 "Custom Report Selection"
 
         Contact.Reset();
         Contact.SetFilter("No.", ContactNoFilter);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterEmailBodyUsage(var CustomReportSelection: Record "Custom Report Selection"; NewSourceType: Integer; NewSourceNo: Code[20]; NewUsage: Option)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

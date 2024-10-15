@@ -1,4 +1,4 @@
-table 5740 "Transfer Header"
+﻿table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -52,15 +52,7 @@ table 5740 "Transfer Header"
                         Confirmed := Confirm(Text002, false, FieldCaption("Transfer-from Code"));
                     if Confirmed then begin
                         if Location.Get("Transfer-from Code") then begin
-                            "Transfer-from Name" := Location.Name;
-                            "Transfer-from Name 2" := Location."Name 2";
-                            "Transfer-from Address" := Location.Address;
-                            "Transfer-from Address 2" := Location."Address 2";
-                            "Transfer-from Post Code" := Location."Post Code";
-                            "Transfer-from City" := Location.City;
-                            "Transfer-from County" := Location.County;
-                            "Trsf.-from Country/Region Code" := Location."Country/Region Code";
-                            "Transfer-from Contact" := Location.Contact;
+                            InitFromTransferFromLocation(Location);
                             if not "Direct Transfer" then begin
                                 "Outbound Whse. Handling Time" := Location."Outbound Whse. Handling Time";
                                 TransferRoute.GetTransferRoute(
@@ -740,6 +732,21 @@ table 5740 "Transfer Header"
         OnAfterInitFromTransferToLocation(Rec, Location);
     end;
 
+    local procedure InitFromTransferFromLocation(Location: Record Location)
+    begin
+        "Transfer-from Name" := Location.Name;
+        "Transfer-from Name 2" := Location."Name 2";
+        "Transfer-from Address" := Location.Address;
+        "Transfer-from Address 2" := Location."Address 2";
+        "Transfer-from Post Code" := Location."Post Code";
+        "Transfer-from City" := Location.City;
+        "Transfer-from County" := Location.County;
+        "Trsf.-from Country/Region Code" := Location."Country/Region Code";
+        "Transfer-from Contact" := Location.Contact;
+
+        OnAfterInitFromTransferFromLocation(Rec, Location);
+    end;
+
     procedure AssistEdit(OldTransHeader: Record "Transfer Header"): Boolean
     begin
         with TransHeader do begin
@@ -1058,6 +1065,7 @@ table 5740 "Transfer Header"
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        OnShowDocDimOnAfterAssignDimensionSetID(Rec);
 
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify;
@@ -1101,6 +1109,7 @@ table 5740 "Transfer Header"
 
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       TransLine."Dimension Set ID", TransLine."Shortcut Dimension 1 Code", TransLine."Shortcut Dimension 2 Code");
+                    OnUpdateAllLineDimOnBeforeTransLineModify(TransLine);
                     TransLine.Modify();
                 end;
             until TransLine.Next() = 0;
@@ -1252,14 +1261,14 @@ table 5740 "Transfer Header"
         TransferLine."Shortcut Dimension 1 Code" := PurchRcptLine."Shortcut Dimension 1 Code";
         TransferLine."Shortcut Dimension 2 Code" := PurchRcptLine."Shortcut Dimension 2 Code";
         TransferLine."Dimension Set ID" := PurchRcptLine."Dimension Set ID";
-        OnAddTransferLineFromReceiptLineOnBeforeTransferLineInsert(TransferLine, PurchRcptLine);
+        OnAddTransferLineFromReceiptLineOnBeforeTransferLineInsert(TransferLine, PurchRcptLine, Rec);
         TransferLine.Insert(true);
 
         PurchRcptLine.FilterPstdDocLnItemLedgEntries(ItemLedgerEntry);
         ItemTrackingDocMgt.CopyItemLedgerEntriesToTemp(TempItemLedgerEntry, ItemLedgerEntry);
         ItemTrackingMgt.CopyItemLedgEntryTrkgToTransferLine(TempItemLedgerEntry, TransferLine);
 
-        OnAfterAddTransferLineFromReceiptLine(TransferLine, PurchRcptLine, TempItemLedgerEntry);
+        OnAfterAddTransferLineFromReceiptLine(TransferLine, PurchRcptLine, TempItemLedgerEntry, Rec);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1314,12 +1323,12 @@ table 5740 "Transfer Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAddTransferLineFromReceiptLineOnBeforeTransferLineInsert(var TransferLine: Record "Transfer Line"; PurchRcptLine: Record "Purch. Rcpt. Line")
+    local procedure OnAddTransferLineFromReceiptLineOnBeforeTransferLineInsert(var TransferLine: Record "Transfer Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; var TransferHeader: Record "Transfer Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAddTransferLineFromReceiptLine(var TransferLine: Record "Transfer Line"; var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnAfterAddTransferLineFromReceiptLine(var TransferLine: Record "Transfer Line"; var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempItemLedgerEntry: Record "Item Ledger Entry"; var TransferHeader: Record "Transfer Header")
     begin
     end;
 
@@ -1345,6 +1354,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromTransferToLocation(var TransferHeader: Record "Transfer Header"; Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromTransferFromLocation(var TransferHeader: Record "Transfer Header"; Location: Record Location)
     begin
     end;
 
@@ -1410,6 +1424,16 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOneTransferOrderOnBeforeTransHeaderDelete(var TransferHeader: Record "Transfer Header"; var HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowDocDimOnAfterAssignDimensionSetID(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeTransLineModify(var TransLine: Record "Transfer Line")
     begin
     end;
 

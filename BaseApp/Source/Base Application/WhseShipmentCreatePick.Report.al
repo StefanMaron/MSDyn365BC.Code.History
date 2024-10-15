@@ -251,6 +251,7 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     trigger OnPreReport()
     begin
+        OnBeforeOnPreReport();
         Clear(CreatePick);
         EverythingHandled := true;
     end;
@@ -371,6 +372,11 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostReport(var FirstActivityNo: Code[20]; var LastActivityNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnPreReport()
     begin
     end;
 

@@ -406,6 +406,7 @@ report 11000000 "Get Proposal Entries"
                 then
                     Error(Text1000005);
 
+        OnPreReportOnAfterConfirm(TransactionmodeTable);
         BatchStatus.Open(Text1000006 + Text1000007);
 
         CustEntries.SetCurrentKey(Open, "On Hold", "Transaction Mode Code");
@@ -540,6 +541,11 @@ report 11000000 "Get Proposal Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProposalLineInsert(var ProposalLine: Record "Proposal Line"; DetailLine: Record "Detail Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnAfterConfirm(var TransactionMode: Record "Transaction Mode")
     begin
     end;
 }

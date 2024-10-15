@@ -13,6 +13,14 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Description';
         }
+        field(5; Address; Text[100])
+        {
+            Caption = 'Address';
+        }
+        field(6; "Address 2"; Text[50])
+        {
+            Caption = 'Address 2';
+        }
         field(7; City; Text[30])
         {
             Caption = 'City';
@@ -34,6 +42,24 @@ table 1383 "Vendor Templ."
             begin
                 PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
+        }
+        field(9; "Phone No."; Text[30])
+        {
+            Caption = 'Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
+        field(10; "Telex No."; Text[20])
+        {
+            Caption = 'Telex No.';
+        }
+        field(14; "Our Account No."; Text[20])
+        {
+            Caption = 'Our Account No.';
+        }
+        field(15; "Territory Code"; Code[10])
+        {
+            Caption = 'Territory Code';
+            TableRelation = Territory;
         }
         field(16; "Global Dimension 1 Code"; Code[20])
         {
@@ -59,6 +85,12 @@ table 1383 "Vendor Templ."
                 ValidateShortcutDimCode(2, "Global Dimension 2 Code");
             end;
         }
+        field(19; "Budgeted Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Budgeted Amount';
+        }
         field(21; "Vendor Posting Group"; Code[20])
         {
             Caption = 'Vendor Posting Group';
@@ -74,6 +106,10 @@ table 1383 "Vendor Templ."
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(26; "Statistics Group"; Integer)
+        {
+            Caption = 'Statistics Group';
+        }
         field(27; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
@@ -84,10 +120,20 @@ table 1383 "Vendor Templ."
             Caption = 'Fin. Charge Terms Code';
             TableRelation = "Finance Charge Terms";
         }
+        field(29; "Purchaser Code"; Code[20])
+        {
+            Caption = 'Purchaser Code';
+            TableRelation = "Salesperson/Purchaser";
+        }
         field(30; "Shipment Method Code"; Code[10])
         {
             Caption = 'Shipment Method Code';
             TableRelation = "Shipment Method";
+        }
+        field(31; "Shipping Agent Code"; Code[10])
+        {
+            Caption = 'Shipping Agent Code';
+            TableRelation = "Shipping Agent";
         }
         field(33; "Invoice Disc. Code"; Code[20])
         {
@@ -119,6 +165,10 @@ table 1383 "Vendor Templ."
             Caption = 'Pay-to Vendor No.';
             TableRelation = Vendor;
         }
+        field(46; Priority; Integer)
+        {
+            Caption = 'Priority';
+        }
         field(47; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
@@ -132,10 +182,27 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Prices Including VAT';
         }
+        field(84; "Fax No."; Text[30])
+        {
+            Caption = 'Fax No.';
+        }
+        field(85; "Telex Answer Back"; Text[20])
+        {
+            Caption = 'Telex Answer Back';
+        }
+        field(86; "VAT Registration No."; Text[20])
+        {
+            Caption = 'VAT Registration No.';
+        }
         field(88; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
+        }
+        field(90; GLN; Code[13])
+        {
+            Caption = 'GLN';
+            Numeric = true;
         }
         field(91; "Post Code"; Code[20])
         {
@@ -164,10 +231,33 @@ table 1383 "Vendor Templ."
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
         }
+        field(93; "EORI Number"; Text[40])
+        {
+            Caption = 'EORI Number';
+        }
+        field(102; "E-Mail"; Text[80])
+        {
+            Caption = 'Email';
+            ExtendedDatatype = EMail;
+        }
+        field(103; "Home Page"; Text[80])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
             TableRelation = "No. Series";
+        }
+        field(108; "Tax Area Code"; Code[20])
+        {
+            Caption = 'Tax Area Code';
+            TableRelation = "Tax Area";
+        }
+        field(109; "Tax Liable"; Boolean)
+        {
+            Caption = 'Tax Liable';
         }
         field(110; "VAT Bus. Posting Group"; Code[20])
         {
@@ -178,6 +268,39 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Block Payment Tolerance';
         }
+        field(124; "Prepayment %"; Decimal)
+        {
+            Caption = 'Prepayment %';
+            DecimalPlaces = 0 : 5;
+            MaxValue = 100;
+            MinValue = 0;
+        }
+        field(150; "Privacy Blocked"; Boolean)
+        {
+            Caption = 'Privacy Blocked';
+
+            trigger OnValidate()
+            begin
+                if "Privacy Blocked" then
+                    Blocked := Blocked::All
+                else
+                    Blocked := Blocked::" ";
+            end;
+        }
+        field(160; "Disable Search by Name"; Boolean)
+        {
+            Caption = 'Disable Search by Name';
+            DataClassification = SystemMetadata;
+        }
+        field(170; "Creditor No."; Code[20])
+        {
+            Caption = 'Creditor No.';
+        }
+        field(840; "Cash Flow Payment Terms Code"; Code[10])
+        {
+            Caption = 'Cash Flow Payment Terms Code';
+            TableRelation = "Payment Terms";
+        }
         field(132; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
@@ -186,10 +309,39 @@ table 1383 "Vendor Templ."
         {
             Caption = 'Contact Type';
         }
+        field(5061; "Mobile Phone No."; Text[30])
+        {
+            Caption = 'Mobile Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
+
+        field(5700; "Responsibility Center"; Code[10])
+        {
+            Caption = 'Responsibility Center';
+            TableRelation = "Responsibility Center";
+        }
         field(5701; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                if "Price Calculation Method" <> "Price Calculation Method"::" " then
+                    PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Purchase);
+            end;
+        }
+        field(7600; "Base Calendar Code"; Code[10])
+        {
+            Caption = 'Base Calendar Code';
+            TableRelation = "Base Calendar";
         }
         field(7601; "Document Sending Profile"; Code[20])
         {
@@ -199,6 +351,16 @@ table 1383 "Vendor Templ."
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
             Caption = 'Validate EU Vat Reg. No.';
+        }
+        field(8510; "Over-Receipt Code"; Code[20])
+        {
+            Caption = 'Over-Receipt Code';
+            TableRelation = "Over-Receipt Code";
+        }
+        field(11000000; "Transaction Mode Code"; Code[20])
+        {
+            Caption = 'Transaction Mode Code';
+            TableRelation = "Transaction Mode".Code WHERE("Account Type" = CONST(Vendor));
         }
     }
 

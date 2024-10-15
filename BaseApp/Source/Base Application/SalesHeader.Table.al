@@ -200,12 +200,7 @@
                       DATABASE::"Customer Template", "Bill-to Customer Template Code")
                 else
 #endif
-                    CreateDim(
-                      DATABASE::Customer, "Bill-to Customer No.",
-                      DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                      DATABASE::Campaign, "Campaign No.",
-                      DATABASE::"Responsibility Center", "Responsibility Center",
-                      DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
+                    CreateDimensionsFromValidateBillToCustomerNo();
 
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
@@ -548,6 +543,11 @@
             var
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePaymentTermsCode(Rec, xRec, CurrFieldNo, UpdateDocumentDate, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Payment Terms Code" <> '') and ("Document Date" <> 0D) then begin
                     PaymentTerms.Get("Payment Terms Code");
                     if IsCreditDocType and not PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" then begin
@@ -1309,6 +1309,8 @@
 
             trigger OnValidate()
             begin
+                if "Sell-to Contact" = '' then
+                    Validate("Sell-to Contact No.", '');
                 ModifyCustomerAddress;
             end;
         }
@@ -3117,6 +3119,7 @@
         BilltoCustomerNoChanged: Boolean;
         SelectNoSeriesAllowed: Boolean;
         PrepaymentInvoicesNotPaidErr: Label 'You cannot post the document of type %1 with the number %2 before all related prepayment invoices are posted.', Comment = 'You cannot post the document of type Order with the number 1001 before all related prepayment invoices are posted.';
+        StatisticsInsuffucientPermissionsErr: Label 'You don''t have permission to view statistics.';
         Text072: Label 'There are unpaid prepayment invoices related to the document of type %1 with the number %2.';
         PostCodeMgt: Codeunit "Post Code Management";
         DeferralLineQst: Label 'Do you want to update the deferral schedules for the lines?';
@@ -3174,44 +3177,7 @@
         IsHandled := false;
         OnBeforeInitRecord(Rec, IsHandled, xRec);
         if not IsHandled then
-            case "Document Type" of
-                "Document Type"::Quote, "Document Type"::Order:
-                    begin
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Invoice Nos.");
-                        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
-                        if "Document Type" = "Document Type"::Order then begin
-                            NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", SalesSetup."Posted Prepmt. Inv. Nos.");
-                            NoSeriesMgt.SetDefaultSeries("Prepmt. Cr. Memo No. Series", SalesSetup."Posted Prepmt. Cr. Memo Nos.");
-                        end;
-                    end;
-                "Document Type"::Invoice:
-                    begin
-                        if ("No. Series" <> '') and
-                           (SalesSetup."Invoice Nos." = SalesSetup."Posted Invoice Nos.")
-                        then
-                            "Posting No. Series" := "No. Series"
-                        else
-                            NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Invoice Nos.");
-                        if SalesSetup."Shipment on Invoice" then
-                            NoSeriesMgt.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
-                    end;
-                "Document Type"::"Return Order":
-                    begin
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Credit Memo Nos.");
-                        NoSeriesMgt.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
-                    end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        if ("No. Series" <> '') and
-                           (SalesSetup."Credit Memo Nos." = SalesSetup."Posted Credit Memo Nos.")
-                        then
-                            "Posting No. Series" := "No. Series"
-                        else
-                            NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Credit Memo Nos.");
-                        if SalesSetup."Return Receipt on Credit Memo" then
-                            NoSeriesMgt.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
-                    end;
-            end;
+            InitPostingNoSeries();
 
         InitShipmentDate();
 
@@ -3368,7 +3334,7 @@
                     SalesSetup.TestField("Blanket Order Nos.");
             end;
 
-        OnAfterTestNoSeries(Rec);
+        OnAfterTestNoSeries(Rec, SalesSetup);
     end;
 
     procedure GetNoSeriesCode(): Code[20]
@@ -4173,6 +4139,23 @@
         else
 #endif
             Cont.CreateCustomerFromTemplate("Bill-to Customer Templ. Code");
+    end;
+
+    local procedure CreateDimensionsFromValidateBillToCustomerNo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDimensionsFromValidateBillToCustomerNo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        CreateDim(
+            DATABASE::Customer, "Bill-to Customer No.",
+            DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+            DATABASE::Campaign, "Campaign No.",
+            DATABASE::"Responsibility Center", "Responsibility Center",
+            DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
     end;
 
     local procedure CheckShipmentInfo(var SalesLine: Record "Sales Line"; BillTo: Boolean)
@@ -5554,10 +5537,74 @@
         if IsHandled then
             exit;
 
-        CalcInvDiscForHeader;
-        CreateDimSetForPrepmtAccDefaultDim;
+        OpenDocumentStatisticsInternal();
+    end;
+
+    procedure OpenDocumentStatistics()
+    begin
+        OpenDocumentStatisticsInternal();
+    end;
+
+    procedure PrepareOpeningDocumentStatistics()
+    begin
+        if not WritePermission() or not SalesLine.WritePermission() then
+            Error(StatisticsInsuffucientPermissionsErr);
+
+        CalcInvDiscForHeader();
+
+        if IsOrderDocument() then
+            CreateDimSetForPrepmtAccDefaultDim();
+
+        OnAfterPrepareOpeningDocumentStatistics(Rec);
+
         Commit();
-        PAGE.RunModal(PAGE::"Sales Order Statistics", Rec);
+    end;
+
+    procedure ShowDocumentStatisticsPage()
+    var
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+        StatisticsPageId: Integer;
+    begin
+        StatisticsPageId := GetStatisticsPageID();
+
+        OnGetStatisticsPageID(StatisticsPageId, Rec);
+
+        PAGE.RunModal(StatisticsPageId, Rec);
+
+        SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
+    end;
+
+    local procedure OpenDocumentStatisticsInternal()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenDocumentStatistics(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        PrepareOpeningDocumentStatistics();
+        ShowDocumentStatisticsPage();
+    end;
+
+    local procedure IsOrderDocument(): Boolean
+    begin
+        case "Document Type" of
+            "Document Type"::Order,
+            "Document Type"::"Blanket Order",
+            "Document Type"::"Return Order":
+                exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    local procedure GetStatisticsPageID(): Integer
+    begin
+        if IsOrderDocument() then
+            exit(PAGE::"Sales Order Statistics");
+
+        exit(PAGE::"Sales Statistics");
     end;
 
     procedure GetCardpageID(): Integer
@@ -5730,7 +5777,7 @@
                         ItemChargeAssgntSales.Init();
                         ItemChargeAssgntSales := TempItemChargeAssgntSales;
                         ItemChargeAssgntSales."Document Line No." := TempInteger.Number;
-                        ItemChargeAssgntSales.Validate("Unit Cost", 0);
+                        ItemChargeAssgntSales.Validate("Qty. to Assign", 0);
                         ItemChargeAssgntSales.Insert();
                     until TempItemChargeAssgntSales.Next() = 0;
                     TempInteger.Delete();
@@ -7128,6 +7175,50 @@
         end;
     end;
 
+    local procedure InitPostingNoSeries()
+    begin
+        case "Document Type" of
+            "Document Type"::Quote, "Document Type"::Order:
+                begin
+                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Invoice Nos.");
+                    NoSeriesMgt.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
+                    if "Document Type" = "Document Type"::Order then begin
+                        NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", SalesSetup."Posted Prepmt. Inv. Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Prepmt. Cr. Memo No. Series", SalesSetup."Posted Prepmt. Cr. Memo Nos.");
+                    end;
+                end;
+            "Document Type"::Invoice:
+                begin
+                    if ("No. Series" <> '') and
+                       (SalesSetup."Invoice Nos." = SalesSetup."Posted Invoice Nos.")
+                    then
+                        "Posting No. Series" := "No. Series"
+                    else
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Invoice Nos.");
+                    if SalesSetup."Shipment on Invoice" then
+                        NoSeriesMgt.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
+                end;
+            "Document Type"::"Return Order":
+                begin
+                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Credit Memo Nos.");
+                    NoSeriesMgt.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
+                end;
+            "Document Type"::"Credit Memo":
+                begin
+                    if ("No. Series" <> '') and
+                       (SalesSetup."Credit Memo Nos." = SalesSetup."Posted Credit Memo Nos.")
+                    then
+                        "Posting No. Series" := "No. Series"
+                    else
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Credit Memo Nos.");
+                    if SalesSetup."Return Receipt on Credit Memo" then
+                        NoSeriesMgt.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
+                end;
+        end;
+
+        OnAfterInitPostingNoSeries(Rec, xRec);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var SalesHeader: Record "Sales Header")
     begin
@@ -7239,7 +7330,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTestNoSeries(var SalesHeader: Record "Sales Header")
+    local procedure OnAfterTestNoSeries(var SalesHeader: Record "Sales Header"; var SalesReceivablesSetup: Record "Sales & Receivables Setup")
     begin
     end;
 
@@ -7423,6 +7514,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckShippingAdvice(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimensionsFromValidateBillToCustomerNo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7653,6 +7749,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDocumentDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePaymentTermsCode(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header"; CallingFieldNo: Integer; UpdateDocumentDate: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -7906,6 +8007,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestQuantityShippedField(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenDocumentStatistics(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareOpeningDocumentStatistics(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetStatisticsPageID(var PageID: Integer; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8311,6 +8427,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRecreateSalesLinesHandleSupplementTypes(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPostingNoSeries(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
     end;
 }

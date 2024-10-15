@@ -39,9 +39,11 @@ report 188 "Create Reminders"
                 Window.Close;
                 MarkedOnly := true;
                 Commit();
-                if FindFirst then
+                if FindFirst then begin
+                    FinishDateTime := CurrentDateTime();
                     if ConfirmManagement.GetResponse(Text003, true) then
                         PAGE.RunModal(0, Customer);
+                end;
             end;
 
             trigger OnPreDataItem()
@@ -157,17 +159,28 @@ report 188 "Create Reminders"
     end;
 
     trigger OnPostReport()
+    var
+        ReminderLine: Record "Reminder Line";
     begin
         OnBeforeOnPostReport;
+        if FinishDateTime = 0DT then
+            FinishDateTime := CurrentDateTime();
+        NumberOfReminderLines := ReminderLine.Count() - NumberOfReminderLines;
+        LogReportTelemetry(StartDateTime, FinishDateTime, NumberOfReminderLines);
     end;
 
     trigger OnPreReport()
+    var
+        ReminderLine: Record "Reminder Line";
     begin
+        StartDateTime := CurrentDateTime();
         OnBeforeOnPreReport;
 
         CustLedgEntry.Copy(CustLedgEntry2);
         if CustLedgEntryLineFeeOnFilters.GetFilters <> '' then
             CustLedgEntryLineFeeOn.CopyFilters(CustLedgEntryLineFeeOnFilters);
+
+        NumberOfReminderLines := ReminderLine.Count();
     end;
 
     var
@@ -189,6 +202,13 @@ report 188 "Create Reminders"
         OverdueEntriesOnly: Boolean;
         UseHeaderLevel: Boolean;
         IncludeEntriesOnHold: Boolean;
+        TelemetryCategoryTxt: Label 'Report', Locked = true;
+        CreateRemindersReportGeneratedTxt: Label 'Create Reminders report generated.', Locked = true;
+
+    protected var
+        NumberOfReminderLines: Integer;
+        StartDateTime: DateTime;
+        FinishDateTime: DateTime;
 
     procedure InitializeRequest(DocumentDate: Date; PostingDate: Date; OverdueEntries: Boolean; NewUseHeaderLevel: Boolean; IncludeEntries: Boolean)
     begin
@@ -202,6 +222,20 @@ report 188 "Create Reminders"
     procedure SetApplyLineFeeOnFilters(var CustLedgEntryLineFeeOn2: Record "Cust. Ledger Entry")
     begin
         CustLedgEntryLineFeeOnFilters.CopyFilters(CustLedgEntryLineFeeOn2);
+    end;
+
+    local procedure LogReportTelemetry(StartDateTime: DateTime; FinishDateTime: DateTime; NumberOfLines: Integer)
+    var
+        Dimensions: Dictionary of [Text, Text];
+        ReportDuration: BigInteger;
+    begin
+        ReportDuration := FinishDateTime - StartDateTime;
+        Dimensions.Add('Category', TelemetryCategoryTxt);
+        Dimensions.Add('ReportStartTime', Format(StartDateTime, 0, 9));
+        Dimensions.Add('ReportFinishTime', Format(FinishDateTime, 0, 9));
+        Dimensions.Add('ReportDuration', Format(ReportDuration));
+        Dimensions.Add('NumberOfLines', Format(NumberOfLines));
+        Session.LogMessage('0000FJP', CreateRemindersReportGeneratedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 
     [IntegrationEvent(false, false)]

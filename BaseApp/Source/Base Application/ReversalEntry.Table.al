@@ -568,7 +568,13 @@ table 179 "Reversal Entry"
     local procedure CheckDtldCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry")
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDtldCustLedgEntry(CustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
         DtldCustLedgEntry.SetFilter("Entry Type", '<>%1', DtldCustLedgEntry."Entry Type"::"Initial Entry");
@@ -591,7 +597,13 @@ table 179 "Reversal Entry"
     local procedure CheckDtldVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry")
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCCheckDtldVendLedgEntry(VendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
         DtldVendLedgEntry.SetFilter("Entry Type", '<>%1', DtldVendLedgEntry."Entry Type"::"Initial Entry");
@@ -1598,6 +1610,16 @@ table 179 "Reversal Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckGLAccOnBeforeTestFields(GLAcc: Record "G/L Account"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDtldCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCCheckDtldVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -268,6 +268,7 @@ report 7390 "Whse. Calculate Inventory"
             WhseEntry.SetRange("Location Code", BinContent."Location Code");
             WhseEntry.SetRange("Variant Code", BinContent."Variant Code");
             WhseEntry.SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
+            OnInsertWhseJnlLineOnAfterWhseEntrySetFilters(WhseEntry, "Bin Content");
             if WhseEntry.Find('-') then
                 repeat
                     WhseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
@@ -321,7 +322,7 @@ report 7390 "Whse. Calculate Inventory"
 
                         OnBeforeWhseJnlLineInsert(WhseJnlLine, WhseEntry, NextLineNo);
                         Insert(true);
-                        OnAfterWhseJnlLineInsert(WhseJnlLine);
+                        OnAfterWhseJnlLineInsert(WhseJnlLine, NextLineNo, "Bin Content");
                     end;
                     if WhseEntry.Find('+') then;
                     WhseEntry.ClearTrackingFilter;
@@ -384,7 +385,7 @@ report 7390 "Whse. Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterWhseJnlLineInsert(var WarehouseJournalLine: Record "Warehouse Journal Line")
+    local procedure OnAfterWhseJnlLineInsert(var WarehouseJournalLine: Record "Warehouse Journal Line"; var NextLineNo: Integer; var BinContent: Record "Bin Content")
     begin
     end;
 
@@ -395,6 +396,11 @@ report 7390 "Whse. Calculate Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnBinContentOnBeforePreDataItem(var BinContent: Record "Bin Content"; var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertWhseJnlLineOnAfterWhseEntrySetFilters(var WhseEntry: Record "Warehouse Entry"; var BinContent: Record "Bin Content")
     begin
     end;
 }
