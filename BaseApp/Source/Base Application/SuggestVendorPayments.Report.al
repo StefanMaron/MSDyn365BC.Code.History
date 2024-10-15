@@ -705,7 +705,13 @@ report 393 "Suggest Vendor Payments"
     var
         CurrencyBalance: Decimal;
         PrevCurrency: Code[10];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAmounts(PayableVendLedgEntry, OriginalAmtAvailable, AmountAvailable, StopPayments, Future, Vendor, IsHandled);
+        if IsHandled then
+            exit;
+
         PayableVendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         PayableVendLedgEntry.SetRange(Future, Future);
 
@@ -773,7 +779,8 @@ report 393 "Suggest Vendor Payments"
 
                         VendLedgEntry.CalcFields("Remaining Amount");
 
-                        if IsNotAppliedEntry(GenJnlLine, VendLedgEntry) then
+                        if IsNotAppliedEntry(GenJnlLine, VendLedgEntry) then begin
+                            OnMakeGenJnlLinesOnBeforeUpdateTempPaymentBufferAmounts(TempPaymentBuffer, VendLedgEntry, SummarizePerVend);
                             if SummarizePerVend then begin
                                 TempPaymentBuffer."Vendor Ledg. Entry No." := 0;
                                 TempPaymentBuffer."Applies-to Ext. Doc. No." := '';
@@ -797,9 +804,10 @@ report 393 "Suggest Vendor Payments"
                                 TempPaymentBuffer."Vendor Ledg. Entry No." := VendLedgEntry."Entry No.";
                                 TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
                                 Window2.Update(1, VendLedgEntry."Vendor No.");
+                                OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsertNonSummarize(TempPaymentBuffer, VendLedgEntry, SummarizePerVend, NextDocNo);
                                 TempPaymentBuffer.Insert();
                             end;
-
+                        end;
                         VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
                         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
                     end else begin
@@ -1121,6 +1129,7 @@ report 393 "Suggest Vendor Payments"
         GLSetup: Record "General Ledger Setup";
         EntryNo: Integer;
     begin
+        OnBeforeSetTempPaymentBufferDims(VendLedgEntry, SummarizePerDim);
         if SummarizePerDim then begin
             DimBuf.Reset();
             DimBuf.DeleteAll();
@@ -1262,7 +1271,17 @@ report 393 "Suggest Vendor Payments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAmounts(var PayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry"; var OriginalAmtAvailable: Decimal; var AmountAvailable: Decimal; var StopPayments: Boolean; Future: Boolean; Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeHandledVendLedgEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var HandledEntry: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetTempPaymentBufferDims(VendorLedgerEntry: Record "Vendor Ledger Entry"; var SummarizePerDim: Boolean)
     begin
     end;
 
@@ -1276,5 +1295,14 @@ report 393 "Suggest Vendor Payments"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeGenJnlLinesOnBeforeUpdateTempPaymentBufferAmounts(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry"; var SummarizePerVend: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsertNonSummarize(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry"; var SummarizePerVend: Boolean; var NextDocNo: Code[20])
+    begin
+    end;
 }
 

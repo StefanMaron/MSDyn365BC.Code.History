@@ -20,6 +20,7 @@
             trigger OnValidate()
             var
                 StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+                LocationCode: Code[10];
                 IsHandled: Boolean;
             begin
                 CheckCreditLimitIfLineNotInsertedYet;
@@ -103,8 +104,11 @@
                 "Send IC Document" := ("Sell-to IC Partner Code" <> '') and ("IC Direction" = "IC Direction"::Outgoing);
 
                 UpdateShipToCodeFromCust();
+                LocationCode := "Location Code";
+
                 SetBillToCustomerNo(Cust);
 
+                Validate("Location Code", LocationCode);
                 GetShippingTime(FieldNo("Sell-to Customer No."));
 
                 if (xRec."Sell-to Customer No." <> "Sell-to Customer No.") or
@@ -156,12 +160,8 @@
                 if BilltoCustomerNoChanged then
                     if xRec."Bill-to Customer No." = '' then
                         InitRecord
-                    else begin
-                        if GetHideValidationDialog or not GuiAllowed then
-                            Confirmed := true
-                        else
-                            Confirmed := Confirm(ConfirmChangeQst, false, BillToCustomerTxt);
-                        if Confirmed then begin
+                    else
+                        if ConfirmBillToCustomerChange() then begin
                             OnValidateBillToCustomerNoOnAfterConfirmed(Rec);
 
                             SalesLine.SetRange("Document Type", "Document Type");
@@ -174,7 +174,6 @@
                             SalesLine.Reset();
                         end else
                             "Bill-to Customer No." := xRec."Bill-to Customer No.";
-                    end;
 
                 GetCust("Bill-to Customer No.");
                 IsHandled := false;
@@ -1164,8 +1163,10 @@
             begin
                 TestStatusOpen;
                 if xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group" then begin
-                    if GenBusPostingGrp.ValidateVatBusPostingGroup(GenBusPostingGrp, "Gen. Bus. Posting Group") then
+                    if GenBusPostingGrp.ValidateVatBusPostingGroup(GenBusPostingGrp, "Gen. Bus. Posting Group") then begin
                         "VAT Bus. Posting Group" := GenBusPostingGrp."Def. VAT Bus. Posting Group";
+                        OnAfterAssignDefaultVATBusPostingGroup(Rec, xRec, GenBusPostingGrp);
+                    end;
                     RecreateSalesLines(FieldCaption("Gen. Bus. Posting Group"));
                 end;
             end;
@@ -1559,18 +1560,9 @@
             TableRelation = "Payment Method";
 
             trigger OnValidate()
-            var
-                SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
             begin
-                PaymentMethod.Init();
-                if "Payment Method Code" <> '' then
-                    PaymentMethod.Get("Payment Method Code");
-                if PaymentMethod."Direct Debit" then begin
-                    "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Due Date");
-                    if "Payment Terms Code" = '' then
-                        "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
-                end else
-                    "Direct Debit Mandate ID" := '';
+                UpdateDirectDebitPmtTermsCode();
+
                 "Bal. Account Type" := PaymentMethod."Bal. Account Type";
                 "Bal. Account No." := PaymentMethod."Bal. Account No.";
                 if "Bal. Account No." <> '' then begin
@@ -2678,7 +2670,14 @@
             Caption = 'Requested Delivery Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateRequestedDeliveryDate(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen;
                 CheckPromisedDeliveryDate();
 
@@ -2984,6 +2983,7 @@
               Text022,
               RespCenter.TableCaption, UserSetupMgt.GetSalesFilter);
 
+        OnDeleteOnBeforeArchiveSalesDocument(Rec, xRec);
         ArchiveManagement.AutoArchiveSalesDocument(Rec);
         PostSalesDelete.DeleteHeader(
           Rec, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader,
@@ -3640,13 +3640,16 @@
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
         IsHandled: Boolean;
+        ShouldCreateSalsesLine: Boolean;
     begin
         IsHandled := false;
         OnBeforeRecreateSalesLinesHandleSupplementTypes(TempSalesLine, IsHandled);
         if IsHandled then
             exit;
 
-        if TempSalesLine."Attached to Line No." = 0 then begin
+        ShouldCreateSalsesLine := TempSalesLine."Attached to Line No." = 0;
+        OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(TempSalesLine, ShouldCreateSalsesLine);
+        if ShouldCreateSalsesLine then begin
             CreateSalesLine(TempSalesLine);
             ExtendedTextAdded := false;
             OnAfterRecreateSalesLine(SalesLine, TempSalesLine);
@@ -3809,6 +3812,27 @@
     procedure GetHideValidationDialog(): Boolean
     begin
         exit(HideValidationDialog);
+    end;
+
+    local procedure UpdateDirectDebitPmtTermsCode()
+    var
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateDirectDebitPmtTermsCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        PaymentMethod.Init();
+        if "Payment Method Code" <> '' then
+            PaymentMethod.Get("Payment Method Code");
+        if PaymentMethod."Direct Debit" then begin
+            "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Due Date");
+            if "Payment Terms Code" = '' then
+                "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
+        end else
+            "Direct Debit Mandate ID" := '';
     end;
 
     procedure UpdateLocationCode(LocationCode: Code[10])
@@ -4120,6 +4144,7 @@
             ReservMgt.DeleteDocumentReservation(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.", GetHideValidationDialog);
             repeat
                 SalesLine.SuspendStatusCheck(true);
+                OnDeleteSalesLinesOnBeforeDeleteLine(SalesLine);
                 SalesLine.Delete(true);
             until SalesLine.Next() = 0;
         end;
@@ -6049,6 +6074,21 @@
         end;
     end;
 
+    local procedure ConfirmBillToCustomerChange() Confirmed: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmBillToCustomerChange(Rec, xRec, CurrFieldNo, Confirmed, IsHandled);
+        if IsHandled then
+            exit(Confirmed);
+
+        if GetHideValidationDialog or not GuiAllowed then
+            Confirmed := true
+        else
+            Confirmed := Confirm(ConfirmChangeQst, false, BillToCustomerTxt);
+    end;
+
     local procedure ConfirmUpdateDeferralDate()
     begin
         if GetHideValidationDialog or not GuiAllowed then
@@ -6308,7 +6348,7 @@
             "Tax Area Code" := ShipToAddr."Tax Area Code";
         "Tax Liable" := ShipToAddr."Tax Liable";
 
-        OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(Rec, ShipToAddr);
+        OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(Rec, ShipToAddr, xRec);
     end;
 
     procedure SetBillToCustomerAddressFieldsFromCustomer(var BillToCustomer: Record Customer)
@@ -7366,6 +7406,11 @@
     end;
     
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignDefaultVATBusPostingGroup(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; GenBusinessPostingGroup: Record "Gen. Business Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -7619,7 +7664,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(var SalesHeader: Record "Sales Header"; ShipToAddress: Record "Ship-to Address")
+    local procedure OnAfterCopyShipToCustomerAddressFieldsFromShipToAddr(var SalesHeader: Record "Sales Header"; ShipToAddress: Record "Ship-to Address"; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -7964,6 +8009,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateRequestedDeliveryDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeMessageIfSalesLinesExist(SalesHeader: Record "Sales Header"; ChangedFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
@@ -8035,6 +8085,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBillToCustContact(var SalesHeader: Record "Sales Header"; Conact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDirectDebitPmtTermsCode(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8125,6 +8180,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesLineOnBeforeTransferFieldsFromTempSalesLine(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteSalesLinesOnBeforeDeleteLine(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeArchiveSalesDocument(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -8311,6 +8376,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreateReservEntryReqLineOnAfterCalcShouldValidateLocationCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var ShouldValidateLocationCode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateSalesLinesHandleSupplementTypesOnAfterCalcShouldCreateSalsesLine(var TempSalesLine: Record "Sales Line"; var ShouldCreateSalsesLine: Boolean)
     begin
     end;
 
@@ -8606,6 +8676,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcInvDiscForHeader(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmBillToCustomerChange(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var Confirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -54,6 +54,8 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
             GenJnlLine."Account Type"::Customer:
                 SetExportFlagOnAppliedCustLedgerEntry(GenJnlLine, Flag);
         end;
+
+        OnAfterSetExportFlagOnAppliedCustVendLedgerEntry(GenJnlLine, Flag);
     end;
 
     local procedure SetExportFlagOnAppliedVendorLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
@@ -121,6 +123,11 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
                 CustLedgerEntry.Validate("Exported to Payment File", Flag);
                 CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
             until CustLedgerEntry.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetExportFlagOnAppliedCustVendLedgerEntry(var GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
+    begin
     end;
 }
 

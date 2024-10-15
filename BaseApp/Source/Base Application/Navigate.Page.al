@@ -1104,6 +1104,7 @@
             SalesInvHeader.Reset();
             SalesInvHeader.SetFilter("No.", DocNoFilter);
             SalesInvHeader.SetFilter("Posting Date", PostingDateFilter);
+            OnFindSalesInvoiceHeaderOnAfterSetFilters(SalesInvHeader);
             InsertIntoDocEntry(Rec, DATABASE::"Sales Invoice Header", PostedSalesInvoiceTxt, SalesInvHeader.Count);
         end;
     end;
@@ -1114,6 +1115,7 @@
             SalesCrMemoHeader.Reset();
             SalesCrMemoHeader.SetFilter("No.", DocNoFilter);
             SalesCrMemoHeader.SetFilter("Posting Date", PostingDateFilter);
+            OnFindSalesCrMemoHeaderOnAfterSetFilters(SalesCrMemoHeader);
             InsertIntoDocEntry(Rec, DATABASE::"Sales Cr.Memo Header", PostedSalesCreditMemoTxt, SalesCrMemoHeader.Count);
         end;
     end;
@@ -1213,6 +1215,7 @@
             PurchInvHeader.Reset();
             PurchInvHeader.SetFilter("No.", DocNoFilter);
             PurchInvHeader.SetFilter("Posting Date", PostingDateFilter);
+            OnFindPurchInvoiceHeaderOnAfterSetFilters(PurchInvHeader);
             InsertIntoDocEntry(Rec, DATABASE::"Purch. Inv. Header", PostedPurchaseInvoiceTxt, PurchInvHeader.Count);
         end;
     end;
@@ -1223,6 +1226,7 @@
             PurchCrMemoHeader.Reset();
             PurchCrMemoHeader.SetFilter("No.", DocNoFilter);
             PurchCrMemoHeader.SetFilter("Posting Date", PostingDateFilter);
+            OnFindPurchCrMemoHeaderOnAfterSetFilters(PurchCrMemoHeader);
             InsertIntoDocEntry(Rec, DATABASE::"Purch. Cr. Memo Hdr.", PostedPurchaseCreditMemoTxt, PurchCrMemoHeader.Count);
         end;
     end;
@@ -2230,6 +2234,26 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnFindExtRecordsOnBeforeFormUpdate(var Rec: Record "Document Entry"; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindPurchCrMemoHeaderOnAfterSetFilters(var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindPurchInvoiceHeaderOnAfterSetFilters(var PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindSalesCrMemoHeaderOnAfterSetFilters(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindSalesInvoiceHeaderOnAfterSetFilters(var SalesInvHeader: Record "Sales Invoice Header")
     begin
     end;
 

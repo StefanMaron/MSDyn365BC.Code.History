@@ -211,8 +211,7 @@ page 6781 "Posted Direct Transfer"
                     Caption = 'Dimensions';
                     Image = Dimensions;
                     Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
+                    PromotedCategory = Process;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
