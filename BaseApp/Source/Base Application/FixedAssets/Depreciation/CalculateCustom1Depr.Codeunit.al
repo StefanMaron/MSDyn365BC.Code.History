@@ -219,6 +219,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
                   DepreciationCalc.DeprDays(
                     DeprStartingDate, DepreciationCalc.Yesterday(FirstDeprDate, false, DeprBook."Use Accounting Period"),
                     false, DeprBook."Use Accounting Period");
+                OnCalcSLAmountOnAfterSetRemainingLife(RemainingLife, Custom1PropertyClass, Custom1DeprStartingDate, Custom1DeprUntil);		    
                 if RemainingLife < 1 then
                     exit(-BookValue);
 
@@ -461,6 +462,11 @@ codeunit 5612 "Calculate Custom 1 Depr."
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateOnBeforeCalcCustom1DeprAmount(var FADepreciationMethod: Enum "FA Depreciation Method"; var DeprAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcSLAmountOnAfterSetRemainingLife(var RemainingLife: Decimal; Custom1PropertyClass: Option " ","Personal Property","Real Property"; Custom1DeprStartingDate: Date; Custom1DeprUntil: Date)
     begin
     end;
 }

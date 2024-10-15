@@ -151,7 +151,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateShptChargeAssgnt(FromSalesShptLine, ItemChargeAssgntSales);
+        OnBeforeCreateShptChargeAssgnt(FromSalesShptLine, ItemChargeAssgntSales, IsHandled);
         if IsHandled then
             exit;
 
@@ -820,7 +820,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateShptChargeAssgnt(var FromSalesShptLine: Record "Sales Shipment Line"; var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
+    local procedure OnBeforeCreateShptChargeAssgnt(var FromSalesShptLine: Record "Sales Shipment Line"; var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var IsHandled: Boolean)
     begin
     end;
 

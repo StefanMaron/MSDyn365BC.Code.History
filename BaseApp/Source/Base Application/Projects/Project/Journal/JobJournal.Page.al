@@ -97,6 +97,11 @@ page 201 "Job Journal"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the related job task.';
+
+                    trigger OnValidate()
+                    begin
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
+                    end;
                 }
                 field(Type; Rec.Type)
                 {

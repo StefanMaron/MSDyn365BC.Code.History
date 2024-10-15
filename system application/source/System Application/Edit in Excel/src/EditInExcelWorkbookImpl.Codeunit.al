@@ -40,9 +40,7 @@ codeunit 1489 "Edit in Excel Workbook Impl."
         EditInExcelImpl: Codeunit "Edit in Excel Impl.";
     begin
         // Ensure web service exist and is published
-        if (not TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName)) and
-            (not TenantWebService.Get(TenantWebService."Object Type"::Query, ServiceName)) and
-            (not TenantWebService.Get(TenantWebService."Object Type"::Codeunit, ServiceName)) then
+        if (not TenantWebService.Get(TenantWebService."Object Type"::Page, ServiceName)) then
             Error(WebServiceDoesNotExistErr, ServiceName);
 
         if not TenantWebService.Published then
@@ -71,8 +69,8 @@ codeunit 1489 "Edit in Excel Workbook Impl."
         FieldFilters: DotNet GenericDictionary2;
     begin
         EntityFilterCollectionNode := EntityFilterCollectionNode.FilterCollectionNode();  // One filter collection node for entire entity
-        EntityFilterCollectionNode.Operator := format("Excel Filter Node Type"::"and");
-        EditinExcelFilters.GetFilters(FieldFilters);
+        EntityFilterCollectionNode.Operator := Format("Excel Filter Node Type"::"and");
+        EditInExcelFilters.GetFilters(FieldFilters);
 
         if not IsNull(FieldFilters) then
             foreach ChildFilterCollectionNode in FieldFilters.Values do
@@ -169,9 +167,9 @@ codeunit 1489 "Edit in Excel Workbook Impl."
         DataEntityExportInfo.EnableDesign := true;
         DataEntityExportInfo.RefreshOnOpen := true;
         DataEntityExportInfo.DateCreated := CurrentDateTime();
-        DataEntityExportInfo.GenerationActivityId := format(SessionId());
+        DataEntityExportInfo.GenerationActivityId := Format(SessionId());
 
-        DocumentId := format(CreateGuid(), 0, 4);
+        DocumentId := Format(CreateGuid(), 0, 4);
         DataEntityExportInfo.DocumentId := DocumentId;
         Session.LogMessage('0000GYB', StrSubstNo(CreatingExcelDocumentWithIdTxt, DocumentId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EditInExcelTelemetryCategoryTxt);
 
@@ -185,7 +183,7 @@ codeunit 1489 "Edit in Excel Workbook Impl."
 
     local procedure CreateOfficeAppInfo(var OfficeAppInfo: DotNet OfficeAppInfo)  // Note: Keep this in sync with BaseApp - ODataUtility
     var
-        EditinExcelSettings: record "Edit in Excel Settings";
+        EditinExcelSettings: Record "Edit in Excel Settings";
     begin
         OfficeAppInfo := OfficeAppInfo.OfficeAppInfo();
         if EditinExcelSettings.Get() and EditinExcelSettings."Use Centralized deployments" then begin

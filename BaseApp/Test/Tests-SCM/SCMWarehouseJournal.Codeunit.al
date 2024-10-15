@@ -3943,7 +3943,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     [Test]
     [HandlerFunctions('WhseItemTrackingLinesPageHandlerWithLotsAndExpirationDate,DummyConfirmHandler,DummyMessageHandler,WhseJournalBatchesListHandler,WhseCalculateInventoryRequestPageHandler')]
-    procedure VerifyWarehousePhysicalJournalLinesForWarehouseEntriesWithLotAndExpirationDateTracking()
+    procedure WarehousePhysicalJournalLinesForWarehouseEntriesWithLotAndExpirationDateTracking()
     var
         Bin: Record Bin;
         Item: Record Item;
@@ -3980,6 +3980,51 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [THEN] Verify Warehouse Physical Journal Line
         VerifyExpirationDateOnWarehousePhysicalJournalLine(Bin."Zone Code", Bin.Code, Item."No.", Format(1), ExpirationDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesPageHandlerWithLotsAndExpirationDate,DummyConfirmHandler,DummyMessageHandler')]
+    procedure ManualWarehousePhysicalJournalLinesForWarehouseEntriesWithLotAndExpirationDateTracking()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ExpirationDate: Date;
+    begin
+        // [SCENARIO 489308] There is no validation for Lot Number with Expiration on Warehouse Physical Journal when manually entered with quantity, which leads to a Lot Number with multiple Expiration Dates in the warehouse.
+        Initialize();
+
+        // [GIVEN] Set Direct Put-away and Pick to false, except Location White
+        SetDirectPutAwayOnLocation();
+
+        // [GIVEN] Create Item Tracking Item
+        CreateItemTrackingCode(ItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+
+        // [GIVEN] Enter Tracking Information (Lot No., Package No., Qty., Expiration Date)
+        ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
+        EnterTrackingInfoWithExpirationDate(1, 1, 1, ExpirationDate);
+
+        // [GIVEN] Create Bin for PICK Zone
+        CreateBinForPickZone(Bin, LocationWhite.Code);
+
+        // [GIVEN] Create and Register Warehouse Journal Line
+        CreateAndRegisterWarehouseJournalLineWithExpirationDate(WarehouseJournalLine, Bin."Location Code", Bin."Zone Code", Bin.Code, Item."No.", 1);
+
+        // [GIVEN] Calculate and Post Warehouse Adjustment
+        CalculateAndPostWhseAdjustment(Item);
+
+        // [WHEN] Manually Mock the Warehouse Journal Line
+        MockWarehouseJournalLine(WarehouseJournalLine, Bin."Location Code", WarehouseJournalLine."Entry Type"::"Positive Adjmt.");
+
+        // [VERIFY] Verify: Expiration Date Populated on Warehouse Physical Journal Line when correct Lot No. validated
+        WarehouseJournalLine.Validate("Lot No.", Format(1));
+        Assert.IsTrue((WarehouseJournalLine."Expiration Date" = ExpirationDate), '');
+
+        // [VERIFY] Verify: Expiration Date set to 0D on Warehouse Physical Journal Line when incorrect Lot No. validated
+        WarehouseJournalLine.Validate("Lot No.", Format(LibraryRandom.RandInt(10)));
+        Assert.IsTrue((WarehouseJournalLine."Expiration Date" = 0D), '');
     end;
 
     local procedure Initialize()
@@ -6697,9 +6742,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseJournalLine.SetRange("Lot No.", LotNo);
         WarehouseJournalLine.FindFirst();
 
-        WarehouseJournalLine.Validate("Lot No.", '');
-        Assert.IsTrue((WarehouseJournalLine."Expiration Date" = 0D), '');
-        WarehouseJournalLine.Validate("Lot No.", LotNo);
+        asserterror WarehouseJournalLine.Validate("Expiration Date", 0D);
         Assert.IsTrue((WarehouseJournalLine."Expiration Date" = ExpDate), '');
     end;
 

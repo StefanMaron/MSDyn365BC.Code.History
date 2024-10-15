@@ -102,7 +102,7 @@ table 1173 "Document Attachment"
         }
         field(10; User; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("Attached By"),
+            CalcFormula = lookup(User."User Name" where("User Security ID" = field("Attached By"),
                                                          "License Type" = const("Full User")));
             Caption = 'User';
             Editable = false;
@@ -337,6 +337,7 @@ table 1173 "Document Attachment"
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         FieldNo: Integer;
         LineNo: Integer;
+        VATRepConfigType: Enum "VAT Report Configuration";
     begin
         Validate("Table ID", RecRef.Number);
 
@@ -356,6 +357,12 @@ table 1173 "Document Attachment"
             FieldRef := RecRef.Field(FieldNo);
             LineNo := FieldRef.Value();
             Validate("Line No.", LineNo);
+        end;
+
+        if DocumentAttachmentMgmt.TableHasVATReportConfigCodePrimaryKey(RecRef.Number(), FieldNo) then begin
+            FieldRef := RecRef.Field(FieldNo);
+            VATRepConfigType := FieldRef.Value();
+            Validate("VAT Report Config. Code", VATRepConfigType);
         end;
 
         OnAfterInitFieldsFromRecRef(Rec, RecRef);
@@ -439,7 +446,7 @@ table 1173 "Document Attachment"
         DataCompression.CreateZipArchive();
         repeat
             if HasContent() then begin
-                clear(TempBlob);
+                Clear(TempBlob);
                 TempBlob.CreateOutStream(DocumentStream);
                 ExportToStream(DocumentStream);
                 TempBlob.CreateInStream(ServerFileInStream);

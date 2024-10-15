@@ -85,6 +85,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     begin
                         Item.Get("No.");
                         SalesLinePriceExists(SalesHeader, SalesLine, false);
+                        OnFindSalesLinePriceOnCalcBestUnitPrice(SalesLine, TempSalesPrice);
                         CalcBestUnitPrice(TempSalesPrice);
                         OnAfterFindSalesLineItemPrice(SalesLine, TempSalesPrice, FoundSalesPrice, CalledByFieldNo);
                         if FoundSalesPrice or
@@ -105,9 +106,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         OnFindSalesLinePriceOnAfterSetResPrice(SalesLine, ResPrice);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
                         OnAfterFindSalesLineResPrice(SalesLine, ResPrice);
-                        ConvertPriceToVAT(false, '', '', ResPrice."Unit Price");
-                        ConvertPriceLCYToFCY(ResPrice."Currency Code", ResPrice."Unit Price");
-                        "Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
+                        if not (CalledByFieldNo = FieldNo(Quantity)) then begin
+                            ConvertPriceToVAT(false, '', '', ResPrice."Unit Price");
+                            ConvertPriceLCYToFCY(ResPrice."Currency Code", ResPrice."Unit Price");
+                            "Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
+                        end;
                     end;
             end;
             OnAfterFindSalesLinePrice(SalesLine, SalesHeader, TempSalesPrice, ResPrice, CalledByFieldNo, FoundSalesPrice);
@@ -618,6 +621,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     begin
         with ResPrice do begin
             Init();
+            OnSetResPriceOnAfterInit(ResPrice);
             Code := Code2;
             "Work Type Code" := WorkTypeCode;
             "Currency Code" := CurrencyCode;
@@ -2106,6 +2110,16 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcBestUnitPriceOnBeforeCalcBestUnitPriceConvertPrice(var SalesPrice: Record "Sales Price"; Qty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetResPriceOnAfterInit(var ResourcePrice: Record "Resource Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindSalesLinePriceOnCalcBestUnitPrice(SalesLine: Record "Sales Line"; var TempSalesPrice: Record "Sales Price" temporary)
     begin
     end;
 }

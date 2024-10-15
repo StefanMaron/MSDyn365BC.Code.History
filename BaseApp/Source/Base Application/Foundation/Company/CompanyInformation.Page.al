@@ -829,8 +829,10 @@ page 1 "Company Information"
         LookupAddressLbl: Label 'Lookup address from postocde';
         AddressTok: Label 'ADDRESS', Locked = true;
         ShipToTok: Label 'SHIP-TO', Locked = true;
-        SystemIndicatorChanged: Boolean;
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
+
+    protected var
+        SystemIndicatorChanged: Boolean;
 
     local procedure UpdateSystemIndicator()
     var

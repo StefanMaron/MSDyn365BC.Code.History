@@ -294,22 +294,22 @@ page 6076 "Serv. Item List (Contract)"
                     action(Action41)
                     {
                         ApplicationArea = Service;
-                        Caption = '&Item Lines';
+                        Caption = 'Shipped &Item Lines';
                         Image = ItemLines;
                         RunObject = Page "Posted Shpt. Item Line List";
                         RunPageLink = "Service Item No." = field("Service Item No.");
                         RunPageView = sorting("Service Item No.");
-                        ToolTip = 'View ongoing service item lines for the item. ';
+                        ToolTip = 'View shipped service item lines for the item. ';
                     }
                     action(Action42)
                     {
                         ApplicationArea = Service;
-                        Caption = '&Service Lines';
+                        Caption = 'Shipped &Service Lines';
                         Image = ServiceLines;
                         RunObject = Page "Posted Serv. Shpt. Line List";
                         RunPageLink = "Service Item No." = field("Service Item No.");
                         RunPageView = sorting("Service Item No.");
-                        ToolTip = 'View ongoing service lines for the item.';
+                        ToolTip = 'View shipped service lines for the item.';
                     }
                 }
             }

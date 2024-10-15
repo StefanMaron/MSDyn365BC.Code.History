@@ -247,7 +247,10 @@ table 39 "Purchase Line"
                     "Recalculate Invoice Disc." := xRec."Allow Invoice Disc.";
                 Type := TempPurchLine.Type;
                 "No." := TempPurchLine."No.";
-                OnValidateNoOnCopyFromTempPurchLine(Rec, TempPurchLine, xRec);
+                IsHandled := false;
+                OnValidateNoOnCopyFromTempPurchLine(Rec, TempPurchLine, xRec, IsHandled);
+                if IsHandled then
+                    exit;
                 if "No." = '' then
                     exit;
 
@@ -566,7 +569,7 @@ table 39 "Purchase Line"
                         then
                             FieldError(Quantity, StrSubstNo(Text004, FieldCaption("Quantity Received")));
                         if ("Quantity (Base)" * "Qty. Received (Base)" < 0) or
-                        ((Abs("Quantity (Base)") < Abs(CalcQtyReceivedBaseFromPostedReceipt())) and ("Receipt No." = ''))
+                        ((Abs("Quantity (Base)") < Abs("Qty. Received (Base)")) and ("Receipt No." = ''))
                         then
                             FieldError("Quantity (Base)", StrSubstNo(Text004, FieldCaption("Qty. Received (Base)")));
                     end;
@@ -4551,6 +4554,8 @@ table 39 "Purchase Line"
         if PurchHeader."Language Code" <> '' then
             GetItemTranslation();
 
+        OnCopyFromItemOnAfterGetItemTranslation(Rec, Item);
+
         if Item."Purch. Unit of Measure" <> '' then
             "Unit of Measure Code" := Item."Purch. Unit of Measure"
         else
@@ -4687,16 +4692,17 @@ table 39 "Purchase Line"
             exit;
 
         TestField("Document No.");
-        if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then begin
-            PurchHeader.Get(Rec."Document Type", Rec."Document No.");
-            if PurchHeader."Currency Code" = '' then
-                Currency.InitRoundingPrecision()
-            else begin
-                PurchHeader.TestField("Currency Factor");
-                Currency.Get(PurchHeader."Currency Code");
-                Currency.TestField("Amount Rounding Precision");
-            end;
-        end;
+        if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then
+            if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then
+                if PurchHeader."Currency Code" = '' then
+                    Currency.InitRoundingPrecision()
+                else begin
+                    PurchHeader.TestField("Currency Factor");
+                    Currency.Get(PurchHeader."Currency Code");
+                    Currency.TestField("Amount Rounding Precision");
+                end
+            else
+                Clear(PurchHeader);
 
         OnAfterGetPurchHeader(Rec, PurchHeader, Currency);
         OutPurchHeader := PurchHeader;
@@ -5753,6 +5759,7 @@ table 39 "Purchase Line"
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."));
+        OnShowDimensionsOnAfterEditDimensionSet(Rec, OldDimSetID);
         VerifyItemLineDim();
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         IsChanged := OldDimSetID <> "Dimension Set ID";
@@ -7765,7 +7772,7 @@ table 39 "Purchase Line"
         if IsHandled then
             exit;
 
-        if Type = Type::Item then begin
+        if (Type = Type::Item) and IsInventoriableItem() then begin
             DialogText := Text033;
             if "Quantity (Base)" <> 0 then
                 case "Document Type" of
@@ -8877,28 +8884,6 @@ table 39 "Purchase Line"
             "Unit Cost", "Amount Including VAT", Amount, "Line Amount", "Inv. Discount Amount", "Inv. Disc. Amount to Invoice", "VAT Difference", "VAT Base Amount",
             "Outstanding Amount", "Outstanding Amount (LCY)", "Amt. Rcd. Not Invoiced", "Amt. Rcd. Not Invoiced (LCY)", "Return Shpd. Not Invd.", "Return Shpd. Not Invd. (LCY)",
             "System-Created Entry", "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "VAT %", "Allow Invoice Disc.", "Prepayment Line", "Completely Received");
-    end;
-
-    local procedure CalcQtyReceivedBaseFromPostedReceipt(): Decimal
-    var
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-        QtyReceived: Decimal;
-    begin
-        if Rec."Qty. Received (Base)" = 0 then
-            exit(0);
-
-        PurchRcptLine.SetRange("Order No.", Rec."Document No.");
-        PurchRcptLine.SetRange("Order Line No.", Rec."Line No.");
-        if PurchRcptLine.IsEmpty() then
-            exit(Rec."Qty. Received (Base)");
-
-        PurchRcptLine.FindSet();
-        repeat
-            QtyReceived += PurchRcptLine."Quantity";
-        until PurchRcptLine.Next() = 0;
-
-        Rec."Qty. Received (Base)" := CalcBaseQty(QtyReceived, FieldCaption("Quantity Received"), FieldCaption("Qty. Received (Base)"));
-        exit(Rec."Qty. Received (Base)");
     end;
 
     procedure CheckIfPurchaseLineMeetsReservedFromStockSetting(QtyToPost: Decimal; ReservedFromStock: Enum "Reservation From Stock") Result: Boolean
@@ -10053,7 +10038,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateNoOnCopyFromTempPurchLine(var PurchLine: Record "Purchase Line"; TempPurchaseLine: Record "Purchase Line" temporary; xPurchLine: Record "Purchase Line")
+    local procedure OnValidateNoOnCopyFromTempPurchLine(var PurchLine: Record "Purchase Line"; TempPurchaseLine: Record "Purchase Line" temporary; xPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -10793,6 +10778,16 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetVendorItemNo(var PurchaseLine: Record "Purchase Line"; ItemVendor: Record "Item Vendor"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowDimensionsOnAfterEditDimensionSet(var PurchaseLine: Record "Purchase Line"; OldDimensionSetId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromItemOnAfterGetItemTranslation(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)
     begin
     end;
 }

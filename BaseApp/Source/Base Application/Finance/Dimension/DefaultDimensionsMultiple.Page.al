@@ -176,6 +176,7 @@ page 542 "Default Dimensions-Multiple"
                             OnBeforeSetCommonDefaultCopyFields(DefaultDim, Rec);
                             DefaultDim.Insert(true);
                         end;
+                        OnSetCommonDefaultDimOnBeforeNextTempDefaultDim3(Rec, TempDefaultDim3)
                     until TempDefaultDim3.Next() = 0;
             until Rec.Next() = 0;
     end;
@@ -309,6 +310,7 @@ page 542 "Default Dimensions-Multiple"
                                       Rec."Multi Selection Action" + 11;
                                     Rec."Value Posting" := Rec."Value Posting"::" ";
                                 end;
+                            OnGetDefaultDimOnBeforeModify(Rec, TempDefaultDim2);
                             Rec.Modify();
                             RecNo := RecNo + 1;
                         end else begin
@@ -472,6 +474,16 @@ page 542 "Default Dimensions-Multiple"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetMultiRecord(var MasterRecord: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultDimOnBeforeModify(var DefaultDimension: Record "Default Dimension"; var TempDefaultDimension2: Record "Default Dimension" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetCommonDefaultDimOnBeforeNextTempDefaultDim3(var DefaultDimension: Record "Default Dimension"; var TempDefaultDimension3: Record "Default Dimension" temporary)
     begin
     end;
 }

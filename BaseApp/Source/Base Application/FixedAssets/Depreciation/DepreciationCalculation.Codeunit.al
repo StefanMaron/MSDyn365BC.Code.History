@@ -127,6 +127,7 @@ codeunit 5616 "Depreciation Calculation"
                     4:
                         SetRange("FA Posting Type", "FA Posting Type"::"Custom 2");
                 end;
+                OnCalcEntryAmountsOnAfterSetFALedgEntryFilters(FALedgEntry, I);
                 CalcSums(Amount);
                 EntryAmounts[I] := Amount;
             end;
@@ -673,6 +674,11 @@ codeunit 5616 "Depreciation Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetFAPostingTypeSetup(var FAPostingTypeSetup: Record "FA Posting Type Setup"; Type: Option IncludeInDeprCalc,IncludeInGainLoss,DepreciationType,ReverseType)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcEntryAmountsOnAfterSetFALedgEntryFilters(var FALedgerEntry: Record "FA Ledger Entry"; I: Integer)
     begin
     end;
 }

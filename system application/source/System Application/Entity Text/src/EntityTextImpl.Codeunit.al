@@ -272,7 +272,7 @@ codeunit 2012 "Entity Text Impl."
     end;
 
     [NonDebuggable]
-    local procedure GenerateAndReviewCompletion(SystemPrompt: Text; UserPrompt: Text; TextFormat: enum "Entity Text Format"; Facts: Dictionary of [Text, Text]; CallerModuleInfo: ModuleInfo): Text
+    local procedure GenerateAndReviewCompletion(SystemPrompt: Text; UserPrompt: Text; TextFormat: Enum "Entity Text Format"; Facts: Dictionary of [Text, Text]; CallerModuleInfo: ModuleInfo): Text
     var
         Completion: Text;
         MaxAttempts: Integer;
@@ -309,7 +309,7 @@ codeunit 2012 "Entity Text Impl."
 
             if PromptSentence <> '' then
                 if Completion.Contains(PromptSentence) then begin
-                    Session.LogMessage('0000JZG', TelemetryCompletionHasPromptTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
+                    Session.LogMessage('0000JZG', StrSubstNo(TelemetryCompletionHasPromptTxt, PromptSentence), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
                     exit(true);
                 end;
         end;
@@ -318,7 +318,7 @@ codeunit 2012 "Entity Text Impl."
     end;
 
     [NonDebuggable]
-    local procedure IsGoodCompletion(var Completion: Text; TextFormat: enum "Entity Text Format"; Facts: Dictionary of [Text, Text]): Boolean
+    local procedure IsGoodCompletion(var Completion: Text; TextFormat: Enum "Entity Text Format"; Facts: Dictionary of [Text, Text]): Boolean
     var
         TempMatches: Record Matches temporary;
         Regex: Codeunit Regex;
@@ -472,7 +472,7 @@ codeunit 2012 "Entity Text Impl."
         TelemetryCompletionEmptyTxt: Label 'The returned completion was empty.', Locked = true;
         TelemetryLowQualityCompletionTxt: Label 'Failed to generate a good quality completion, returning a low quality one.', Locked = true;
         TelemetryCompletionInvalidFormatTxt: Label 'The format %1 was requested, but the completion format did not pass validation.', Locked = true;
-        TelemetryCompletionHasPromptTxt: Label 'The completion contains a sentence from the prompt', Locked = true;
+        TelemetryCompletionHasPromptTxt: Label 'The completion contains this sentence from the prompt: %1', Locked = true;
         TelemetryTaglineCleanedTxt: Label 'Trimmed a completion', Locked = true;
         TelemetryCompletionInvalidNumberTxt: Label 'A number was found in the completion (%1) that did not exist in the facts.', Locked = true;
         TelemetryCompletionExtraTextTxt: Label 'The completion contains a Translation or Note section.', Locked = true;
