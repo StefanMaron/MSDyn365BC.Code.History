@@ -51,7 +51,7 @@
         PrepmtInvErr: Label 'Prepayment Invoice must be equal to ''No''';
         PrepmtCrMemoErr: Label 'Prepayment Credit Memo must be equal to ''No''';
         CannotChangePrepmtAccErr: Label 'You cannot change %2 while %1 is pending prepayment.', Comment = '%2- field caption, %1 - "sales order 1001".';
-       CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - "sales order 1001".';
+        CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - "sales order 1001".';
         CustomerNo: Code[20];
 
     [Test]
@@ -505,6 +505,7 @@
         SalesHeader: Record "Sales Header";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LineGLAccount: Record "G/L Account";
+        VATClauseCode: Code[20];
     begin
         // [FEATURE] [Sales] [Series No] [Credit Memo]
         // [SCENARIO] Setting up the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos in Sales Setup with Posted Invoice Nos and Posted Credit Memo Nos.
@@ -518,6 +519,7 @@
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
         CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
+        VATClauseCode := UpdateVATClauseCode(LineGLAccount);
         LibraryLowerPermissions.SetOutsideO365Scope;
         SalesOrderPrepaymentDueDate(SalesHeader, PaymentTerms.Code, LineGLAccount);
 
@@ -526,8 +528,9 @@
         LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
 
         // [THEN] Verify the Posted Prepmt Sales Invoice No and Posted Prepmt Cr Memo Nos with No Series.
-        VerifyPrepaymentInvoice(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Inv. Nos.");
-        VerifyPrepaymentCreditMemo(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.");
+        // [THEN] VAT Clause Code is updated in posted document line from VAT Posting Setup (TFS 443665)        
+        VerifyPrepaymentInvoice(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Inv. Nos.", VATClauseCode);
+        VerifyPrepaymentCreditMemo(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.", VATClauseCode);
 
         // Tear down
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
@@ -562,8 +565,8 @@
         LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
 
         // [THEN] Verify the Posted Prepmt Inv Nos and Posted Prepmt Cr Memo Nos with No Series.
-        VerifyPrepaymentInvoice(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Inv. Nos.");
-        VerifyPrepaymentCreditMemo(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.");
+        VerifyPrepaymentInvoice(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Inv. Nos.", '');
+        VerifyPrepaymentCreditMemo(SalesHeader."No.", SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.", '');
 
         // Tear down
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
@@ -5345,6 +5348,18 @@
         PurchaseHeader.Modify(true);
     end;
 
+    local procedure UpdateVATClauseCode(LineGLAccount: Record "G/L Account"): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClause: Record "VAT Clause";
+    begin
+        VATPostingSetup.GET(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
+        LibraryERM.CreateVATClause(VATClause);
+        VATPostingSetup.VALIDATE("VAT Clause Code", VATClause.Code);
+        VATPostingSetup.modify(true);
+        exit(VATClause.Code);
+    end;
+
     local procedure ApplyCustomerLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -5637,21 +5652,30 @@
         until SalesLine.Next = 0;
     end;
 
-    local procedure VerifyPrepaymentCreditMemo(PrepaymentOrderNo: Code[20]; PostedPrepmtCrMemoNos: Code[20])
+    local procedure VerifyPrepaymentCreditMemo(PrepaymentOrderNo: Code[20]; PostedPrepmtCrMemoNos: Code[20]; VATClauseCode: Code[20])
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         SalesCrMemoHeader.SetRange("Prepayment Order No.", PrepaymentOrderNo);
         SalesCrMemoHeader.FindFirst;
         SalesCrMemoHeader.TestField("No.", GetLastNoUsed(PostedPrepmtCrMemoNos));
+        SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
+        SalesCrMemoLine.FindFirst();
+        SalesCrMemoLine.TestField("VAT Clause Code", VATClauseCode);
     end;
 
-    local procedure VerifyPrepaymentInvoice(PrepaymentOrderNo: Code[20]; PostedPrepmtInvNos: Code[20])
+    local procedure VerifyPrepaymentInvoice(PrepaymentOrderNo: Code[20]; PostedPrepmtInvNos: Code[20]; VATClauseCode: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+
     begin
         FindSalesPrepmtInvoice(SalesInvoiceHeader, PrepaymentOrderNo);
         SalesInvoiceHeader.TestField("No.", GetLastNoUsed(PostedPrepmtInvNos));
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.FindFirst();
+        SalesInvoiceLine.TestField("VAT Clause Code", VATClauseCode);
     end;
 
     local procedure GetLastNoUsed(NoSeriesCode: Code[20]): Code[20]

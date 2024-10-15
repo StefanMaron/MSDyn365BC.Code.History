@@ -942,5 +942,10 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-426799-GetUseCustomLookupUpgradeTag-20220406');
     end;
+
+    procedure GetPurchaserOnRequisitionLineUpdateTag(): Code[250]
+    begin
+        exit('MS-449640-GetPurchaserOnRequisitionLineUpdateTag-20221117');
+    end;
 }
 
