@@ -1,4 +1,4 @@
-table 7332 "Whse. Internal Put-away Line"
+﻿table 7332 "Whse. Internal Put-away Line"
 {
     Caption = 'Whse. Internal Put-away Line';
     LookupPageID = "Whse. Internal Put-away Lines";
@@ -95,19 +95,7 @@ table 7332 "Whse. Internal Put-away Line"
                 if "Item No." <> xRec."Item No." then
                     "Variant Code" := '';
 
-                if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
-                    Description := Item.Description;
-                    "Description 2" := Item."Description 2";
-                    "Shelf No." := Item."Shelf No.";
-                    Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
-                end else begin
-                    Description := '';
-                    "Description 2" := '';
-                    "Variant Code" := '';
-                    "Shelf No." := '';
-                    Validate("Unit of Measure Code", '');
-                end;
+                SetItemFields();
 
                 if WhseInternalPutAwayHeader.Get("No.") then begin
                     if "Location Code" = '' then
@@ -196,7 +184,7 @@ table 7332 "Whse. Internal Put-away Line"
         }
         field(25; "Put-away Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = CONST("Put-away"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = CONST("Put-away"),
                                                                                   "Whse. Document Type" = CONST("Internal Put-away"),
                                                                                   "Whse. Document No." = FIELD("No."),
                                                                                   "Whse. Document Line No." = FIELD("Line No."),
@@ -210,7 +198,7 @@ table 7332 "Whse. Internal Put-away Line"
         }
         field(26; "Put-away Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = CONST("Put-away"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = CONST("Put-away"),
                                                                                          "Whse. Document Type" = CONST("Internal Put-away"),
                                                                                          "Whse. Document No." = FIELD("No."),
                                                                                          "Whse. Document Line No." = FIELD("Line No."),
@@ -433,6 +421,30 @@ table 7332 "Whse. Internal Put-away Line"
         WhseInternalPutAwayHeader.TestField(Status, 0);
     end;
 
+    local procedure SetItemFields()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetItemFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Item No." <> '' then begin
+            GetItemUnitOfMeasure;
+            Description := Item.Description;
+            "Description 2" := Item."Description 2";
+            "Shelf No." := Item."Shelf No.";
+            Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        end else begin
+            Description := '';
+            "Description 2" := '';
+            "Variant Code" := '';
+            "Shelf No." := '';
+            Validate("Unit of Measure Code", '');
+        end;
+    end;
+
     procedure CalcStatusPutAwayLine(): Integer
     begin
         if (Quantity <> 0) and (Quantity = "Qty. Put Away") then
@@ -503,6 +515,8 @@ table 7332 "Whse. Internal Put-away Line"
                 Bin.FieldError("Block Movement");
             "From Zone Code" := Bin."Zone Code";
         end;
+
+        OnAfterCheckBlocking(Rec);
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -573,11 +587,12 @@ table 7332 "Whse. Internal Put-away Line"
             Validate("Variant Code", BinContent."Variant Code");
             Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
         end;
+
+        OnAfterLookUpBinContent(Rec, BinContent);
     end;
 
     procedure CreatePutAwayDoc(var WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line")
-    var
-        CreatePutAwayFromWhseSource: Report "Whse.-Source - Create Document";
+
     begin
         GetInternalPutAwayHeader("No.");
         WhseInternalPutAwayHeader.CheckPutawayRequired(WhseInternalPutAwayLine."Location Code");
@@ -586,16 +601,28 @@ table 7332 "Whse. Internal Put-away Line"
         WhseInternalPutAwayLine.SetFilter(Quantity, '>0');
         WhseInternalPutAwayLine.SetFilter(
           Status, '<>%1', WhseInternalPutAwayLine.Status::"Completely Put Away");
-        if WhseInternalPutAwayLine.Find('-') then begin
-            CreatePutAwayFromWhseSource.SetWhseInternalPutAway(WhseInternalPutAwayHeader);
-            CreatePutAwayFromWhseSource.SetHideValidationDialog(HideValidationDialog);
-            CreatePutAwayFromWhseSource.UseRequestPage(not HideValidationDialog);
-            CreatePutAwayFromWhseSource.RunModal;
-            CreatePutAwayFromWhseSource.GetResultMessage(1);
-            Clear(CreatePutAwayFromWhseSource);
-        end else
+        if WhseInternalPutAwayLine.Find('-') then
+            RunCreatePutAwayFromWhseSource()
+        else
             if not HideValidationDialog then
                 Message(Text006);
+    end;
+
+    local procedure RunCreatePutAwayFromWhseSource()
+    var
+        CreatePutAwayFromWhseSource: Report "Whse.-Source - Create Document";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunCreatePutAwayFromWhseSource(WhseInternalPutAwayHeader, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
+        CreatePutAwayFromWhseSource.SetWhseInternalPutAway(WhseInternalPutAwayHeader);
+        CreatePutAwayFromWhseSource.SetHideValidationDialog(HideValidationDialog);
+        CreatePutAwayFromWhseSource.UseRequestPage(not HideValidationDialog);
+        CreatePutAwayFromWhseSource.RunModal;
+        CreatePutAwayFromWhseSource.GetResultMessage(1);
     end;
 
     local procedure SelectLookUp(CurrentFieldNo: Integer)
@@ -757,7 +784,7 @@ table 7332 "Whse. Internal Put-away Line"
         exit(0);
     end;
 
-    procedure SetItemTrackingLines(WhseEntry: Record 7312; QtyToEmpty: Decimal)
+    procedure SetItemTrackingLines(WhseEntry: Record "Warehouse Entry"; QtyToEmpty: Decimal)
     var
         TempWhseWorksheetLine: Record "Whse. Worksheet Line" temporary;
         WhseItemTrackingLines: Page "Whse. Item Tracking Lines";
@@ -806,6 +833,26 @@ table 7332 "Whse. Internal Put-away Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetItemTrackingLinesOnBeforeSetSource(var WhseInternalPutawayLine: Record "Whse. Internal Put-away Line"; var TempWhseWorksheetLine: Record "Whse. Worksheet Line" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckBlocking(var WhseInternalPutawayLine: Record "Whse. Internal Put-away Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookUpBinContent(var WhseInternalPutawayLine: Record "Whse. Internal Put-away Line"; BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetItemFields(var WhseInternalPutawayLine: Record "Whse. Internal Put-away Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCreatePutAwayFromWhseSource(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; HideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

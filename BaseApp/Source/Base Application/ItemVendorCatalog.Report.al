@@ -68,10 +68,10 @@ report 10164 "Item/Vendor Catalog"
             column(Item_Vendor__Vendor_Item_No__; "Vendor Item No.")
             {
             }
-            column(PurchPrice__Starting_Date_; PurchPrice."Starting Date")
+            column(PurchPrice__Starting_Date_; StartingDate)
             {
             }
-            column(PurchPrice__Direct_Unit_Cost_; PurchPrice."Direct Unit Cost")
+            column(PurchPrice__Direct_Unit_Cost_; DirectUnitCost)
             {
             }
             column(Item_Vendor__Vendor_No___Control23; "Vendor No.")
@@ -89,10 +89,10 @@ report 10164 "Item/Vendor Catalog"
             column(Item_Vendor__Vendor_Item_No___Control35; "Vendor Item No.")
             {
             }
-            column(PurchPrice__Starting_Date__Control1020004; PurchPrice."Starting Date")
+            column(PurchPrice__Starting_Date__Control1020004; StartingDate)
             {
             }
-            column(PurchPrice__Direct_Unit_Cost__Control1020006; PurchPrice."Direct Unit Cost")
+            column(PurchPrice__Direct_Unit_Cost__Control1020006; DirectUnitCost)
             {
             }
             column(Item_Vendor_Variant_Code; "Variant Code")
@@ -152,7 +152,6 @@ report 10164 "Item/Vendor Catalog"
 
             trigger OnAfterGetRecord()
             begin
-                PurchPrice.Init();
                 case SortOrder of
                     SortOrder::"By Vendor":
                         if not Item.Get("Item No.") then begin
@@ -177,10 +176,7 @@ report 10164 "Item/Vendor Catalog"
                         Item.Description := Text003;
                     end;
 
-                PurchPrice.SetRange("Item No.", "Item No.");
-                PurchPrice.SetRange("Vendor No.", "Vendor No.");
-                PurchPrice.SetFilter("Starting Date", '%1..%2', 0D, WorkDate);
-                if PurchPrice.FindLast then;
+                GetPriceData();
             end;
 
             trigger OnPreDataItem()
@@ -220,7 +216,10 @@ report 10164 "Item/Vendor Catalog"
     }
 
     trigger OnPreReport()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         CompanyInformation.Get();
         SortOrder := WhichOrder;
         case SortOrder of
@@ -243,7 +242,9 @@ report 10164 "Item/Vendor Catalog"
         Vendor: Record Vendor;
         Item: Record Item;
         CompanyInformation: Record "Company Information";
-        PurchPrice: Record "Purchase Price";
+        ExtendedPriceEnabled: Boolean;
+        StartingDate: Date;
+        DirectUnitCost: Decimal;
         SortOrder: Option "By Vendor","By Item";
         SubTitle: Text[132];
         ItemVendorFilter: Text;
@@ -266,6 +267,41 @@ report 10164 "Item/Vendor Catalog"
         PurchPrice__Direct_Unit_Cost__Control1020006CaptionLbl: Label 'Direct Unit Cost';
         Vendor__Phone_No__CaptionLbl: Label 'Phone No.';
         Vendor_ContactCaptionLbl: Label 'Contact';
+
+    local procedure GetPriceData();
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        StartingDate := 0D;
+        DirectUnitCost := 0.0;
+        if ExtendedPriceEnabled then begin
+            PriceListLine.SetRange(Status, "Price Status"::Active);
+            PriceListLine.SetRange("Price Type", "Price Type"::Purchase);
+            PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
+            PriceListLine.SetRange("Asset No.", "Item Vendor"."Item No.");
+            PriceListLine.SetRange("Source Type", "Price Source Type"::Vendor);
+            PriceListLine.SetRange("Source No.", "Item Vendor"."Vendor No.");
+            PriceListLine.SetFilter("Starting Date", '%1..%2', 0D, WorkDate());
+            if PriceListLine.FindLast() then begin
+                StartingDate := PriceListLine."Starting Date";
+                DirectUnitCost := PriceListLine."Direct Unit Cost";
+            end;
+        end else
+            GetPriceDataV15();
+    end;
+
+    local procedure GetPriceDataV15();
+    var
+        PurchPrice: Record "Purchase Price";
+    begin
+        PurchPrice.SetRange("Item No.", "Item Vendor"."Item No.");
+        PurchPrice.SetRange("Vendor No.", "Item Vendor"."Vendor No.");
+        PurchPrice.SetFilter("Starting Date", '%1..%2', 0D, WorkDate());
+        if PurchPrice.FindLast() then begin
+            StartingDate := PurchPrice."Starting Date";
+            DirectUnitCost := PurchPrice."Direct Unit Cost";
+        end;
+    end;
 
     procedure WhichOrder() "Order": Integer
     var

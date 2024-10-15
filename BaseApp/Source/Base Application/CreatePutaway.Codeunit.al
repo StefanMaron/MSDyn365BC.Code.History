@@ -511,8 +511,12 @@ codeunit 7313 "Create Put-away"
 
         with Bin do begin
             if ("Maximum Cubage" <> 0) or ("Maximum Weight" <> 0) then begin
-                if (PutAwayItemUOM.Cubage <> 0) or (PutAwayItemUOM.Weight <> 0) then
-                    CalcCubageAndWeight(AvailPerCubageBase, AvailPerWeightBase, false);
+                if (PutAwayItemUOM.Cubage <> 0) or (PutAwayItemUOM.Weight <> 0) then begin
+                    IsHandled := false;
+                    OnCalcAvailCubageAndWeightOnBeforeCalcCubageAndWeight(Bin, AvailPerCubageBase, AvailPerWeightBase, IsHandled);
+                    if not IsHandled then
+                        CalcCubageAndWeight(AvailPerCubageBase, AvailPerWeightBase, false);
+                end;
                 if ("Maximum Cubage" <> 0) and (PutAwayItemUOM.Cubage <> 0) then begin
                     AvailPerCubageBase := AvailPerCubageBase div PutAwayItemUOM.Cubage * PutAwayItemUOM."Qty. per Unit of Measure";
                     if AvailPerCubageBase < 0 then
@@ -550,7 +554,7 @@ codeunit 7313 "Create Put-away"
             NewBinContent."Qty. per Unit of Measure" := PutAwayItemUOM."Qty. per Unit of Measure";
             NewBinContent."Bin Ranking" := Bin."Bin Ranking";
             NewBinContent."Cross-Dock Bin" := Bin."Cross-Dock Bin";
-            OnCreateBinContentOnBeforeNewBinContentInsert(NewBinContent, PostedWhseRcptLine);
+            OnCreateBinContentOnBeforeNewBinContentInsert(NewBinContent, PostedWhseRcptLine, Bin, BinContent);
             NewBinContent.Insert();
         end;
     end;
@@ -984,7 +988,7 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateBinContentOnBeforeNewBinContentInsert(var BinContent: Record "Bin Content"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    local procedure OnCreateBinContentOnBeforeNewBinContentInsert(var BinContent: Record "Bin Content"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var Bin: Record Bin; var OldBinContent: Record "Bin Content")
     begin
     end;
 
@@ -1015,6 +1019,11 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateTempWhseItemTrkgLines(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailCubageAndWeightOnBeforeCalcCubageAndWeight(var Bin: Record Bin; var AvailPerCubageBase: Decimal; var AvailPerWeightBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1159,8 +1159,8 @@ codeunit 139004 "Test ApplicationArea Setup"
         ItemList.OpenEdit;
 
         // [THEN] Links to Special Prices, Discounts and Overview pages are present
-        Assert.IsTrue(ItemList.Sales_Prices.Visible, '');
-        Assert.IsTrue(ItemList.Sales_LineDiscounts.Visible, '');
+        Assert.IsTrue(ItemList.Prices_Prices.Visible, '');
+        Assert.IsTrue(ItemList.Prices_LineDiscounts.Visible, '');
         Assert.IsTrue(ItemList.PricesDiscountsOverview.Visible, '');
     end;
 
@@ -1340,19 +1340,19 @@ codeunit 139004 "Test ApplicationArea Setup"
         ExperienceTiers.OK.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetBasicExperienceAppAreas', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetBasicExperienceAppAreas', '', false, false)]
     local procedure ClearAppAreaSetupOnGetBasicExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         TempApplicationAreaSetup.Init
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetEssentialExperienceAppAreas', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetEssentialExperienceAppAreas', '', false, false)]
     local procedure ClearAppAreaSetupOnGetEssentialExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         TempApplicationAreaSetup.Init
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetPremiumExperienceAppAreas', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetPremiumExperienceAppAreas', '', false, false)]
     local procedure ClearAppAreaSetupOnGetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         TempApplicationAreaSetup.Init

@@ -16,19 +16,22 @@
       "path": "./AMCBanking365Fundamentals/Test/AMC Banking 365 Fundamentals Test Automations"
     },
     {
-      "path": "./TestFramework/TestLibraries"
-    },
-    {
-      "path": "./TestFramework/TestRunner/Test Runner"
-    },
-    {
       "path": "./MX_DIOT/Test/Tests for MX DIOT Extension"
+    },
+    {
+      "path": "./testframework/TestLibraries"
+    },
+    {
+      "path": "./testframework/TestRunner/Test Runner"
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
       "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
+    },
+    {
+      "path": "./Email - Outlook REST API/Test"
     },
     {
       "path": "./APIV2/Test/_Exclude_APIV2_ Tests"
@@ -82,6 +85,9 @@
       "path": "./BaseApp/Test/Tests-Misc"
     },
     {
+      "path": "./BaseApp/Test/Tests-Monitor Sensitive Fields"
+    },
+    {
       "path": "./BaseApp/Test/Tests-Permissions"
     },
     {
@@ -130,6 +136,12 @@
       "path": "./BaseApp/Test/Tests-Workflow"
     },
     {
+      "path": "./BaseApp/Source/Base Application/Test Framework"
+    },
+    {
+      "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
+    },
+    {
       "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
     },
     {
@@ -137,6 +149,12 @@
     },
     {
       "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"
+    },
+    {
+      "path": "./Email - Microsoft 365 Connector/Test/Email - Microsoft 365 Connector Tests"
+    },
+    {
+      "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
     }
   ],
   "settings": {

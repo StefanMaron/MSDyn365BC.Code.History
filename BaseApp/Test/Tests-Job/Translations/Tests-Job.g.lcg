@@ -869,24 +869,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Posting - NamedType UsageWillNotBeLinkedQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1220605422 - NamedType 2489473796" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[GLAcc__No__]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Job Reports - NamedType GLAccountCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1220605422 - NamedType 3953665652" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[JobBuffer__Amount_1_]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Job Reports - NamedType WIPAmountCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2478735241 - NamedType 395560276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must not be changed when a quantity is reserved in %2 %3='%4',%5='%6',%7='%8'.]]></Val>
@@ -1488,15 +1470,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT T Job WIP Entry - NamedType IncorrectWIPEntryAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 215642372 - NamedType 2802426225" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[D365 ADMINISTRATOR]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit UT T Job WIP Entry - NamedType D365UserGroupCodeTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1301911645 - NamedType 4230064890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

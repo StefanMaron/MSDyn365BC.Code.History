@@ -49,20 +49,22 @@ table 5374 "CRM Synch. Conflict Buffer"
                         "Error Message" := IntegrationSynchJobErrors.Message;
                         "Failed On" := IntegrationSynchJobErrors."Date/Time";
                     end;
-                    TableID := FindTableID(CRMIntegrationRecord);
-                    "Int. Table ID" := CRMSetupDefaults.GetCRMTableNo(TableID);
-                    if CRMIntegrationRecord.GetCRMRecordRef("Int. Table ID", RecRef) then begin
-                        FieldRef := RecRef.Field(CRMSetupDefaults.GetNameFieldNo(RecRef.Number));
-                        "Int. Record ID" := RecRef.RecordId;
-                        "Int. Description" := FieldRef.Value;
-                        "Int. Record Exists" := true;
+                    TableID := CRMIntegrationRecord.GetTableID();
+                    if TableID <> 0 then begin
+                        "Int. Table ID" := CRMSetupDefaults.GetCRMTableNo(TableID);
+                        if CRMIntegrationRecord.GetCRMRecordRef("Int. Table ID", RecRef) then begin
+                            FieldRef := RecRef.Field(CRMSetupDefaults.GetNameFieldNo(RecRef.Number));
+                            "Int. Record ID" := RecRef.RecordId;
+                            "Int. Description" := FieldRef.Value;
+                            "Int. Record Exists" := true;
 
-                        IntegrationTableMapping.SetRange("Table ID", "Table ID");
-                        if IntegrationTableMapping.FindFirst then begin
-                            FieldRef := RecRef.Field(IntegrationTableMapping."Int. Tbl. Modified On Fld. No.");
-                            "Int. Modified On" := FieldRef.Value;
+                            IntegrationTableMapping.SetRange("Table ID", "Table ID");
+                            if IntegrationTableMapping.FindFirst then begin
+                                FieldRef := RecRef.Field(IntegrationTableMapping."Int. Tbl. Modified On Fld. No.");
+                                "Int. Modified On" := FieldRef.Value;
+                            end;
+                            RecRef.Close;
                         end;
-                        RecRef.Close;
                     end;
                 end;
             end;
@@ -219,6 +221,7 @@ table 5374 "CRM Synch. Conflict Buffer"
         LocalTableID: Integer;
         PrevLocalTableID: Integer;
         IntegrationTableID: Integer;
+        PrevIntegrationTableID: Integer;
         LocalId: Guid;
         IntegrationId: Guid;
     begin
@@ -228,16 +231,21 @@ table 5374 "CRM Synch. Conflict Buffer"
             exit;
 
         PrevLocalTableID := 0;
+        PrevIntegrationTableID := 0;
         repeat
             LocalTableID := TempCRMSynchConflictBuffer."Table ID";
             IntegrationTableID := TempCRMSynchConflictBuffer."Int. Table ID";
             if LocalTableID <> PrevLocalTableID then begin
-                UncoupleLocalRecords(PrevLocalTableID, LocalIdList);
-                UncoupleIntegrationRecords(PrevLocalTableID, IntegrationTableID, IntegrationIdList);
-                if PrevLocalTableID <> 0 then
+                if PrevLocalTableID <> 0 then begin
+                    UncoupleLocalRecords(PrevLocalTableID, LocalIdList);
+                    UncoupleIntegrationRecords(PrevLocalTableID, PrevIntegrationTableID, IntegrationIdList);
+                    LocalIdList.RemoveRange(1, LocalIdList.Count());
+                    IntegrationIdList.RemoveRange(1, IntegrationIdList.Count());
                     LocalRecordRef.Close();
+                end;
                 LocalRecordRef.Open(TempCRMSynchConflictBuffer."Table ID");
                 PrevLocalTableID := TempCRMSynchConflictBuffer."Table ID";
+                PrevIntegrationTableID := TempCRMSynchConflictBuffer."Int. Table ID";
             end;
             if TempCRMSynchConflictBuffer."Record Exists" then begin
                 if LocalRecordRef.Get(TempCRMSynchConflictBuffer."Record ID") then begin
@@ -303,10 +311,13 @@ table 5374 "CRM Synch. Conflict Buffer"
 
     procedure Fill(var CRMIntegrationRecord: Record "CRM Integration Record"): Integer
     var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         cnt: Integer;
     begin
         DeleteAll();
+        CRMIntegrationManagement.RepairBrokenCouplings(true);
         CRMIntegrationRecord.SetCurrentKey(Skipped, "Table ID");
+        CRMIntegrationRecord.SetFilter("Table ID", '<>0');
         if CRMIntegrationRecord.FindSet then
             repeat
                 cnt += 1;
@@ -351,114 +362,12 @@ table 5374 "CRM Synch. Conflict Buffer"
     end;
 
     procedure InitFromCRMIntegrationRecord(CRMIntegrationRecord: Record "CRM Integration Record")
-    var
-        TableID: Integer;
     begin
-        Init;
+        Init();
 
-        TableID := FindTableID(CRMIntegrationRecord);
-        Validate("Table ID", TableID);
+        Validate("Table ID", CRMIntegrationRecord."Table ID");
         Validate("Integration ID", CRMIntegrationRecord."Integration ID");
         Validate("CRM ID", CRMIntegrationRecord."CRM ID");
-    end;
-
-    local procedure FindTableID(CRMIntegrationRecord: Record "CRM Integration Record"): Integer
-    var
-        SalesPersonPurchaser: Record "Salesperson/Purchaser";
-        Customer: Record Customer;
-        Contact: Record Contact;
-        Currency: Record Currency;
-        UnitOfMeasure: Record "Unit of Measure";
-        Item: Record Item;
-        Resource: Record Resource;
-        CustomerPriceGroup: Record "Customer Price Group";
-        SalesPrice: Record "Sales Price";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        SalesInvoiceLine: Record "Sales Invoice Line";
-        ShipmentMethod: Record "Shipment Method";
-        ShippingAgent: Record "Shipping Agent";
-        PaymentTerms: Record "Payment Terms";
-        Opportunity: Record Opportunity;
-        TableId: Integer;
-    begin
-        if CRMIntegrationRecord."Table ID" <> 0 then
-            exit(CRMIntegrationRecord."Table ID");
-
-        if SalesPersonPurchaser.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-            TableId := Database::"Salesperson/Purchaser";
-
-        if TableId = 0 then
-            if PaymentTerms.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Payment Terms";
-
-        if TableId = 0 then
-            if Currency.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::Currency;
-
-        if TableId = 0 then
-            if UnitOfMeasure.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Unit of Measure";
-
-        if TableId = 0 then
-            if CustomerPriceGroup.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Customer Price Group";
-
-        if TableId = 0 then
-            if SalesPrice.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Sales Price";
-
-        if TableId = 0 then
-            if ShipmentMethod.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Shipment Method";
-
-        if TableId = 0 then
-            if ShippingAgent.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Shipping Agent";
-
-        if TableId = 0 then
-            if Customer.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::Customer;
-
-        if TableId = 0 then
-            if Item.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::Item;
-
-        if TableId = 0 then
-            if Resource.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::Resource;
-
-        if TableId = 0 then
-            if Contact.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::Contact;
-
-        if TableId = 0 then
-            if Opportunity.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::Opportunity;
-
-        if TableId = 0 then
-            if SalesHeader.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Sales Header";
-
-        if TableId = 0 then
-            if SalesInvoiceHeader.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Sales Invoice Header";
-
-        if TableId = 0 then
-            if SalesInvoiceLine.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Sales Invoice Line";
-
-        if TableId = 0 then
-            if SalesLine.GetBySystemId(CRMIntegrationRecord."Integration ID") then
-                TableId := Database::"Sales Line";
-
-        if TableId <> 0 then begin
-            CRMIntegrationRecord."Table ID" := TableId;
-            CRMIntegrationRecord.Modify();
-        end;
-
-        exit(TableId);
     end;
 
     procedure IsOneRecordDeleted(): Boolean

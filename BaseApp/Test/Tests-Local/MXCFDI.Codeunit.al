@@ -862,6 +862,7 @@ codeunit 144001 "MX CFDI"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        Customer: Record Customer;
         InStream: InStream;
         OriginalStr: Text;
         FileName: Text;
@@ -876,12 +877,16 @@ codeunit 144001 "MX CFDI"
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         UpdateCustomerSATPaymentFields(SalesInvoiceHeader."Sell-to Customer No.");
 
-        // [GIVEN] Payment with amount of 1000 is applied to the invoice, Payment Terms set to "PT".
+        // [GIVEN] Payment with amount of 1000 is applied to the invoice, Payment Terms set to "PT", Payment Method with '03' SAT Code
         PaymentNo :=
           CreatePostPayment(
             SalesInvoiceHeader."Sell-to Customer No.", SalesInvoiceHeader."No.", -SalesInvoiceHeader."Amount Including VAT", '');
         SalesInvoiceHeader."Payment Terms Code" := CreatePaymentTermsForSAT;
         SalesInvoiceHeader.Modify;
+        // [GIVEN] Customer has Payment Method with '99' SAT Code
+        Customer.Get(SalesInvoiceHeader."Sell-to Customer No.");
+        Customer.Validate("Payment Method Code", CreatePaymentMethodForSAT());
+        Customer.Modify(true);
 
         // [WHEN] Request stamp for the payment
         RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
@@ -905,10 +910,16 @@ codeunit 144001 "MX CFDI"
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'MetodoDePagoDR',
     	  SATUtilities.GetSATPaymentTerm(SalesInvoiceHeader."Payment Terms Code"));
-	  		
+
+        // [THEN] 'Complemento' node has attribute 'FormaDePagoP' = '03' (TFS 375439)          
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'FormaDePagoP',
+          SATUtilities.GetSATPaymentMethod(CustLedgerEntry."Payment Method Code"));
+
         // [THEN] String for digital stamp has 'ValorUnitario' = 0, 'Importe' = 0  (TFS 329513)
         // [THEN] Original stamp string has NumParcialidad (partial payment number) = '1' (TFS 363806)
         // [THEN] String for digital stamp has 'MetodoDePagoDR' = "PT" (TFS 362812)	
+        // [THEN] String for digital stamp has 'FormaDePagoP' = '03' (TFS 375439)          
         CustLedgerEntry.CalcFields("Original String");
         CustLedgerEntry."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
@@ -919,6 +930,9 @@ codeunit 144001 "MX CFDI"
         Assert.AreEqual(
           SATUtilities.GetSATPaymentTerm(SalesInvoiceHeader."Payment Terms Code"),
           SelectStr(30, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MetodoDePagoDR', OriginalStr));
+        Assert.AreEqual(
+          SATUtilities.GetSATPaymentMethod(CustLedgerEntry."Payment Method Code"),
+          SelectStr(24, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FormaDePagoP', OriginalStr));
 
         // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341)
         VerifyIsNearlyEqualDateTime(
@@ -1373,6 +1387,67 @@ codeunit 144001 "MX CFDI"
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
+    procedure SalesCreditMemoAppliedToAnotherInvoiceRequestStamp()
+    var
+        SalesInvoiceHeader1: Record "Sales Invoice Header";
+        SalesInvoiceHeader2: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 372201] Request Stamp for Sales Credit Memo applied to Sales Invoice not equal to Applied-to Doc No.
+        Initialize();
+
+        // [GIVEN] Posted and stamped two Sales Invoices with Fiscal Invoice Number = "UUID-Inv1", "UUID-Inv2"
+        SalesInvoiceHeader1.Get(
+          CreateAndPostSalesDoc(SalesHeader."Document Type"::Invoice, CreatePaymentMethodForSAT()));
+        SalesHeader.Get(
+          SalesHeader."Document Type"::Invoice,
+          CreateSalesDocForCustomer(
+            SalesHeader."Document Type"::Invoice, SalesInvoiceHeader1."Bill-to Customer No.", CreatePaymentMethodForSAT()));
+        SalesInvoiceHeader2.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader2."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader2.Find();
+
+        // [GIVEN] Posted Sales Credit Memo applied to the Sales Invoice 1, unapplied and applied to Sales Invoice 2
+        SalesCrMemoHeader.Get(CreatePostApplySalesCrMemo(SalesInvoiceHeader1."Bill-to Customer No.", SalesInvoiceHeader1."No."));
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
+        LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::"Credit Memo", CustLedgerEntry."Document Type"::Invoice,
+          SalesCrMemoHeader."No.", SalesInvoiceHeader2."No.");
+
+        // [WHEN] Request Stamp for the Credit Memo
+        RequestStamp(
+          DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesCrMemoHeader.Find();
+        SalesCrMemoHeader.CalcFields("Original String", "Original Document XML");
+
+        // [THEN] XML Document has node 'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado' with attribute 'UUID' of "UUID-Inv2"
+        TempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', SalesInvoiceHeader2."Fiscal Invoice Number PAC");
+
+        // [THEN] String for digital stamp has Fiscal Invoice Numbers "UUID-Inv2" of Sales Invoice 2
+        SalesCrMemoHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+        Assert.AreEqual(
+          SalesInvoiceHeader2."Fiscal Invoice Number PAC", SelectStr(15, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, SalesInvoiceHeader2."Fiscal Invoice Number PAC", OriginalStr));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
     procedure SalesCreditMemoWithRelationsAppliedToInvoiceInRelationsRequestStamp()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -1575,6 +1650,68 @@ codeunit 144001 "MX CFDI"
         Assert.AreEqual(
           ServiceInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(15 + i, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, ServiceInvoiceHeader."Fiscal Invoice Number PAC", OriginalStr));
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceCreditMemoAppliedToAnotherInvoiceRequestStamp()
+    var
+        ServiceInvoiceHeader1: Record "Service Invoice Header";
+        ServiceInvoiceHeader2: Record "Service Invoice Header";
+        ServiceHeader: Record "Service Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 372201] Request Stamp for Service Credit Memo applied to Service Invoice not equal to Applied-to Doc No.
+        Initialize();
+
+        // [GIVEN] Posted and stamped two Service Invoices with Fiscal Invoice Numbers = "UUID-Inv1", "UUID-Inv2"
+        ServiceInvoiceHeader1.Get(
+          CreateAndPostServiceDoc(ServiceHeader."Document Type"::Invoice, CreatePaymentMethodForSAT()));
+        ServiceHeader.Get(
+          ServiceHeader."Document Type"::Invoice,
+          CreateServiceDocForCustomer(
+            ServiceHeader."Document Type"::Invoice, ServiceInvoiceHeader1."Customer No.", CreatePaymentMethodForSAT()));
+        ServiceInvoiceHeader2.Get(PostServiceDocument(ServiceHeader));
+        RequestStamp(
+          DATABASE::"Service Invoice Header", ServiceInvoiceHeader2."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        ServiceInvoiceHeader2.Find();
+
+        // [GIVEN] Posted Service Credit Memo applied to the Service Invoice
+        ServiceCrMemoHeader.Get(
+          CreatePostApplyServiceCrMemo(ServiceInvoiceHeader2."Bill-to Customer No.", ServiceInvoiceHeader2."No."));
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", ServiceCrMemoHeader."No.");
+        LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::"Credit Memo", CustLedgerEntry."Document Type"::Invoice,
+          ServiceCrMemoHeader."No.", ServiceInvoiceHeader2."No.");
+
+        // [WHEN] Request Stamp for the Credit Memo
+        RequestStamp(
+          DATABASE::"Service Cr.Memo Header", ServiceCrMemoHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        ServiceCrMemoHeader.Find();
+        ServiceCrMemoHeader.CalcFields("Original String", "Original Document XML", "Signed Document XML");
+
+        // [THEN] XML Document has node 'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado' with 'UUID' = "UUID-Inv2"
+        TempBlob.FromRecord(ServiceCrMemoHeader, ServiceCrMemoHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', ServiceInvoiceHeader2."Fiscal Invoice Number PAC");
+
+        // [THEN] String for digital stamp has Fiscal Invoices Number = "UUID-Inv2" of Sales Invoice 2
+        ServiceCrMemoHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+        Assert.AreEqual(
+          ServiceInvoiceHeader2."Fiscal Invoice Number PAC", SelectStr(15, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, ServiceInvoiceHeader2."Fiscal Invoice Number PAC", OriginalStr));
     end;
 
     [Test]
@@ -3093,6 +3230,7 @@ codeunit 144001 "MX CFDI"
             exit;
 
         SetupCompanyInformation;
+        LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         SATUtilities.PopulateSATInformation;

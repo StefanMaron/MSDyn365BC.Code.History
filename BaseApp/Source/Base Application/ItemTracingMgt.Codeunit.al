@@ -139,7 +139,13 @@ codeunit 6520 "Item Tracing Mgt."
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemApplnEntry: Record "Item Application Entry";
         TrackNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNextLevel(TempTrackEntry, TempTrackEntry2, Direction, ShowComponents, ParentID, CurrentLevel, TempLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with TempTrackEntry2 do begin
             if ExitLevel(TempTrackEntry) then
                 exit;
@@ -938,12 +944,17 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindComponents(var ItemLedgEntry2: Record "Item Ledger Entry"; var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All; ParentID: Integer; CurrentLevel: Integer; TempLineNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeFindComponents(var ItemLedgEntry2: Record "Item Ledger Entry"; var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All; ParentID: Integer; var CurrentLevel: Integer; var TempLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeItemTracingHistoryBufferInsert(var ItemTracingHistoryBuffer: Record "Item Tracing History Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNextLevel(var TempTrackEntry: Record "Item Tracing Buffer" temporary; var TempTrackEntry2: Record "Item Tracing Buffer" temporary; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All; ParentID: Integer; var CurrentLevel: Integer; var TempLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

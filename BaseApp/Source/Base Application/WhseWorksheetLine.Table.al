@@ -1,4 +1,4 @@
-table 7326 "Whse. Worksheet Line"
+﻿table 7326 "Whse. Worksheet Line"
 {
     Caption = 'Whse. Worksheet Line';
 
@@ -358,7 +358,7 @@ table 7326 "Whse. Worksheet Line"
 
                 "From Unit of Measure Code" := "Unit of Measure Code";
                 "Qty. per From Unit of Measure" := "Qty. per Unit of Measure";
-                Validate(Quantity);
+                ValidateQty();
             end;
         }
         field(30; "Qty. per Unit of Measure"; Decimal)
@@ -799,6 +799,8 @@ table 7326 "Whse. Worksheet Line"
             SortingMethod::"Ship-To":
                 WhseWkshLine.SetCurrentKey(
                   "Worksheet Template Name", Name, "Location Code", "Destination Type", "Destination No.");
+            else
+                OnSortWhseWkshLinesOnCaseElse(WhseWkshLine, SortingMethod);
         end;
 
         if WhseWkshLine.Find('-') then begin
@@ -832,6 +834,8 @@ table 7326 "Whse. Worksheet Line"
                     ItemDescription := Item.Description;
             end else
                 ItemDescription := Item.Description;
+
+        OnAfterGetItem(Rec, Item);
     end;
 
     local procedure GetItemUnitOfMeasure()
@@ -888,13 +892,7 @@ table 7326 "Whse. Worksheet Line"
             if Inbound then begin
                 WMSMgt.CalcCubageAndWeight(
                   "Item No.", "From Unit of Measure Code", "Qty. to Handle", Cubage, Weight);
-                if BinContent.Get(
-                     "Location Code", BinCode, "Item No.", "Variant Code", "Unit of Measure Code")
-                then
-                    BinContent.CheckIncreaseBinContent(
-                      "Qty. to Handle (Base)", 0, 0, 0, Cubage, Weight, false, false)
-                else
-                    Bin.CheckIncreaseBin(BinCode, "Item No.", "Qty. to Handle", 0, 0, Cubage, Weight, false, false);
+                CheckIncreaseBin(BinCode, Cubage, Weight);
             end else begin
                 BinContent.Get(
                   "Location Code", BinCode, "Item No.", "Variant Code", "From Unit of Measure Code");
@@ -904,6 +902,25 @@ table 7326 "Whse. Worksheet Line"
                     BinContent.FieldError("Block Movement");
             end;
         end;
+    end;
+
+    local procedure CheckIncreaseBin(BinCode: Code[20]; Cubage: Decimal; Weight: Decimal)
+    var
+        BinContent: Record "Bin Content";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIncreaseBin(Rec, Bin, BinCode, Cubage, Weight, IsHandled);
+        if IsHandled then
+            exit;
+
+        if BinContent.Get(
+             "Location Code", BinCode, "Item No.", "Variant Code", "Unit of Measure Code")
+        then
+            BinContent.CheckIncreaseBinContent(
+              "Qty. to Handle (Base)", 0, 0, 0, Cubage, Weight, false, false)
+        else
+            Bin.CheckIncreaseBin(BinCode, "Item No.", "Qty. to Handle", 0, 0, Cubage, Weight, false, false);
     end;
 
     local procedure GetBinType(BinTypeCode: Code[10])
@@ -921,7 +938,7 @@ table 7326 "Whse. Worksheet Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePutAwayCreate(WhsePutAwayWkshLine, IsHandled);
+        OnBeforePutAwayCreate(WhsePutAwayWkshLine, IsHandled, HideValidationDialog);
         if IsHandled then
             exit;
 
@@ -934,11 +951,29 @@ table 7326 "Whse. Worksheet Line"
     procedure MovementCreate(var WhseWkshLine: Record "Whse. Worksheet Line")
     var
         CreateMovFromWhseSource: Report "Whse.-Source - Create Document";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMovementCreate(WhseWkshLine, IsHandled);
+        if IsHandled then
+            exit;
+
         CreateMovFromWhseSource.SetWhseWkshLine(WhseWkshLine);
         CreateMovFromWhseSource.RunModal;
         CreateMovFromWhseSource.GetResultMessage(3);
         Clear(CreateMovFromWhseSource);
+    end;
+
+    local procedure ValidateQty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate(Quantity);
     end;
 
     procedure TemplateSelection(PageID: Integer; PageTemplate: Option "Put-away",Pick,Movement; var WhseWkshLine: Record "Whse. Worksheet Line"; var WhseWkshSelected: Boolean)
@@ -1163,6 +1198,7 @@ table 7326 "Whse. Worksheet Line"
         WhseWkshName.FilterGroup(2);
         WhseWkshName.SetRange("Worksheet Template Name", WhseWkshName."Worksheet Template Name");
         WhseWkshName.FilterGroup(0);
+        OnLookupWhseWkshNameOnBeforeRunModal(WhseWkshName);
         if PAGE.RunModal(0, WhseWkshName) = ACTION::LookupOK then begin
             CurrentWkshName := WhseWkshName.Name;
             CurrentLocationCode := WhseWkshName."Location Code";
@@ -1379,6 +1415,8 @@ table 7326 "Whse. Worksheet Line"
             SortMethod::"Ship-To":
                 WhseWorksheetLine2.SetCurrentKey(
                   "Worksheet Template Name", Name, "Location Code", "Destination Type", "Destination No.")
+            else
+                OnGetSortSeqNoOnCaseElse(WhseWorksheetLine2, SortMethod);
         end;
 
         LastSeqNo := GetLastSeqNo(WhseWorksheetLine2);
@@ -1411,7 +1449,7 @@ table 7326 "Whse. Worksheet Line"
         exit(0);
     end;
 
-    procedure SetItemTrackingLines(WhseEntry: Record 7312; QtyToEmpty: Decimal)
+    procedure SetItemTrackingLines(WhseEntry: Record "Warehouse Entry"; QtyToEmpty: Decimal)
     var
         WhseItemTrackingLines: Page "Whse. Item Tracking Lines";
     begin
@@ -1506,6 +1544,11 @@ table 7326 "Whse. Worksheet Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItem(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var Item: Record Item)
+    begin
+    end;
+
     [Obsolete('Replaced by OnAutofillQtyToHandleOnBeforeModify.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnbeforeModift(var WhseWorksheetLine: Record "Whse. Worksheet Line")
@@ -1519,6 +1562,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBin(WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIncreaseBin(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var Bin: Record Bin; BinCode: Code[20]; Cubage: Decimal; Weight: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -1538,7 +1586,17 @@ table 7326 "Whse. Worksheet Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePutAwayCreate(var PutAwayWhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
+    local procedure OnBeforeMovementCreate(var WhseWkshLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePutAwayCreate(var PutAwayWhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean; HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQty(var PutAwayWhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1559,6 +1617,21 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     procedure OnDeleteQtyToHandleOnBeforeModify(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupWhseWkshNameOnBeforeRunModal(var WhseWkshName: Record "Whse. Worksheet Name")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSortSeqNoOnCaseElse(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SortMethod: Enum "Whse. Activity Sorting Method")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSortWhseWkshLinesOnCaseElse(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SortingMethod: Enum "Whse. Activity Sorting Method")
     begin
     end;
 }

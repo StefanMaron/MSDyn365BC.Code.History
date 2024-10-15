@@ -107,7 +107,13 @@ codeunit 5403 AddOnIntegrManagement
         MfgSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferFromReqLineToPurchLine(PurchOrderLine, ReqLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReqLine do begin
             PurchOrderLine."Routing No." := "Routing No.";
             PurchOrderLine."Routing Reference No." := "Routing Reference No.";
@@ -146,6 +152,11 @@ codeunit 5403 AddOnIntegrManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReceiptOrderStatus(SalesLine: Record "Sales Line"; var Checked: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferFromReqLineToPurchLine(var PurchOrderLine: Record "Purchase Line"; var ReqLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 

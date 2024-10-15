@@ -2,7 +2,7 @@ page 88 "Job Card"
 {
     Caption = 'Job Card';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Prices,WIP,Navigate,Job,Print/Send';
+    PromotedActionCategories = 'New,Process,Report,Prices & Discounts,WIP,Navigate,Job,Print/Send';
     RefreshOnActivate = true;
     SourceTable = Job;
 
@@ -671,6 +671,7 @@ page 88 "Job Card"
                     Image = Resource;
                     Promoted = true;
                     PromotedCategory = Category4;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Job Resource Prices";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'View this job''s resource prices.';
@@ -685,6 +686,7 @@ page 88 "Job Card"
                     Image = Item;
                     Promoted = true;
                     PromotedCategory = Category4;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Job Item Prices";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'View this job''s item prices.';
@@ -699,7 +701,7 @@ page 88 "Job Card"
                     Image = JobPrice;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    PromotedIsBig = true;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Job G/L Account Prices";
                     RunPageLink = "Job No." = FIELD("No.");
                     ToolTip = 'View this job''s G/L account prices.';
@@ -710,24 +712,23 @@ page 88 "Job Card"
             }
             group(Prices)
             {
+                Caption = 'Prices & Discounts';
                 Visible = ExtendedPriceEnabled;
                 action(SalesPriceLists)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Sales Price Lists (Prices)';
+                    Caption = 'Sales Price Lists';
                     Image = Price;
                     Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
                     trigger OnAction()
                     var
                         PriceUXManagement: Codeunit "Price UX Management";
-                        AmountType: Enum "Price Amount Type";
-                        PriceType: Enum "Price Type";
                     begin
-                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Price);
+                        PriceUXManagement.ShowPriceLists(Rec, "Price Type"::Sale, "Price Amount Type"::Any);
                     end;
                 }
                 action(SalesPriceListsDiscounts)
@@ -737,8 +738,11 @@ page 88 "Job Card"
                     Image = LineDiscount;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    PromotedIsBig = true;
+                    Visible = false;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SalesPriceLists shows all sales price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -752,20 +756,18 @@ page 88 "Job Card"
                 action(PurchasePriceLists)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Purchase Price Lists (Prices)';
-                    Image = Price;
+                    Caption = 'Purchase Price Lists';
+                    Image = ResourceCosts;
                     Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    ToolTip = 'View or set up different prices for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up purchase price lists for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
                     trigger OnAction()
                     var
                         PriceUXManagement: Codeunit "Price UX Management";
-                        AmountType: Enum "Price Amount Type";
-                        PriceType: Enum "Price Type";
                     begin
-                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Purchase, AmountType::Price);
+                        PriceUXManagement.ShowPriceLists(Rec, "Price Type"::Purchase, "Price Amount Type"::Any);
                     end;
                 }
                 action(PurchasePriceListsDiscounts)
@@ -775,8 +777,11 @@ page 88 "Job Card"
                     Image = LineDiscount;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    PromotedIsBig = true;
+                    Visible = false;
                     ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action PurchasePriceLists shows all purchase price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var

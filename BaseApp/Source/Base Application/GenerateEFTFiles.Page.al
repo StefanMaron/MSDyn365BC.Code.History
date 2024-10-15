@@ -164,6 +164,8 @@ page 10810 "Generate EFT Files"
                 BankAccountDescription := BankAccount.Name;
         end;
 
+        OnOpenPageOnBeforeUpdateSubForm(SettlementDate, BankAccountNo);
+
         UpdateSubForm;
     end;
 
@@ -195,5 +197,9 @@ page 10810 "Generate EFT Files"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeUpdateSubForm(var SettlementDate: date; var BankAccountNo: Code[20])
+    begin
+    end;
 }
 

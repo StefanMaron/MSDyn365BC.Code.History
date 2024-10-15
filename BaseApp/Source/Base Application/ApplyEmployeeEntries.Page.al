@@ -499,12 +499,7 @@ page 234 "Apply Employee Entries"
         if CloseAction = ACTION::LookupOK then
             LookupOKOnPush;
         if ApplnType = ApplnType::"Applies-to Doc. No." then begin
-            if OK and (TempApplyingEmplLedgEntry."Posting Date" < "Posting Date") then begin
-                OK := false;
-                Error(
-                  EarlierPostingDateErr, TempApplyingEmplLedgEntry."Document Type", TempApplyingEmplLedgEntry."Document No.",
-                  "Document Type", "Document No.");
-            end;
+            CheckEarlierPostingDate();
             if OK then begin
                 if "Amount to Apply" = 0 then
                     "Amount to Apply" := "Remaining Amount";
@@ -568,6 +563,23 @@ page 234 "Apply Employee Entries"
         ApplnCurrencyCode: Code[10];
         DifferentCurrenciesInAppln: Boolean;
 
+    local procedure CheckEarlierPostingDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckEarlierPostingDate(TempApplyingEmplLedgEntry, Rec, CalcType, IsHandled);
+        if IsHandled then
+            exit;
+
+        if OK and (TempApplyingEmplLedgEntry."Posting Date" < "Posting Date") then begin
+            OK := false;
+            Error(
+              EarlierPostingDateErr, TempApplyingEmplLedgEntry."Document Type", TempApplyingEmplLedgEntry."Document No.",
+              "Document Type", "Document No.");
+        end;
+    end;
+
     procedure SetGenJnlLine(NewGenJnlLine: Record "Gen. Journal Line"; ApplnTypeSelect: Integer)
     begin
         GenJnlLine := NewGenJnlLine;
@@ -600,6 +612,7 @@ page 234 "Apply Employee Entries"
     var
         Employee: Record Employee;
     begin
+        OnBeforeSetApplyingEmplLedgEntry(AppliedEmplLedgEntry, GenJnlLine);
         case CalcType of
             CalcType::Direct:
                 begin
@@ -654,6 +667,7 @@ page 234 "Apply Employee Entries"
         if TempApplyingEmplLedgEntry."Entry No." <> 0 then
             GenJnlApply.CheckAgainstApplnCurrency(
               ApplnCurrencyCode, "Currency Code", GenJnlLine."Account Type"::Employee, true);
+        OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType, GenJnlLine);
 
         EmplLedgEntry.Copy(Rec);
         CurrPage.SetSelectionFilter(EmplLedgEntry);
@@ -669,6 +683,7 @@ page 234 "Apply Employee Entries"
 
     local procedure CalcApplnAmount()
     begin
+        OnBeforeCalcApplnAmount(Rec, GenJnlLine, AppliedEmplLedgEntry, CalcType, ApplnType);
         AppliedAmount := 0;
         PmtDiscAmount := 0;
         DifferentCurrenciesInAppln := false;
@@ -742,11 +757,11 @@ page 234 "Apply Employee Entries"
                     end;
                 end;
         end;
+
+        OnAfterCalcApplnAmount(Rec, AppliedAmount, ApplyingAmount);
     end;
 
-    local procedure CalcApplnRemainingAmount(Amt: Decimal): Decimal
-    var
-        ApplnRemainingAmount: Decimal;
+    local procedure CalcApplnRemainingAmount(Amt: Decimal) ApplnRemainingAmount: Decimal
     begin
         ValidExchRate := true;
         if ApplnCurrencyCode = "Currency Code" then
@@ -757,12 +772,11 @@ page 234 "Apply Employee Entries"
         ApplnRemainingAmount :=
           CurrExchRate.ApplnExchangeAmtFCYToFCY(
             ApplnDate, "Currency Code", ApplnCurrencyCode, Amt, ValidExchRate);
-        exit(ApplnRemainingAmount);
+
+        OnAfterCalcApplnRemainingAmount(Rec, ApplnRemainingAmount);
     end;
 
-    local procedure CalcApplnAmounttoApply(AmounttoApply: Decimal): Decimal
-    var
-        ApplnAmountToApply: Decimal;
+    local procedure CalcApplnAmounttoApply(AmounttoApply: Decimal) ApplnAmountToApply: Decimal
     begin
         ValidExchRate := true;
 
@@ -774,7 +788,8 @@ page 234 "Apply Employee Entries"
         ApplnAmountToApply :=
           CurrExchRate.ApplnExchangeAmtFCYToFCY(
             ApplnDate, "Currency Code", ApplnCurrencyCode, AmounttoApply, ValidExchRate);
-        exit(ApplnAmountToApply);
+
+        OnAfterCalcApplnAmountToApply(Rec, ApplnAmountToApply);
     end;
 
     local procedure FindAmountRounding()
@@ -836,6 +851,7 @@ page 234 "Apply Employee Entries"
                 EmplLedgEntry.SetRange("Applies-to ID", AppliesToID);
             EmplLedgEntry.SetRange(Open, true);
             EmplLedgEntry.SetRange("Applying Entry", true);
+            OnFindFindApplyingEntryOnAfterEmplLedgEntrySetFilters(Rec, EmplLedgEntry);
             if EmplLedgEntry.FindFirst then begin
                 EmplLedgEntry.CalcFields(Amount, "Remaining Amount");
                 TempApplyingEmplLedgEntry := EmplLedgEntry;
@@ -868,7 +884,14 @@ page 234 "Apply Employee Entries"
         ApplicationDate: Date;
         NewApplicationDate: Date;
         NewDocumentNo: Code[20];
+        IsHandled: Boolean;
+
     begin
+        IsHandled := false;
+        OnBeforePostDirectApplication(Rec, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
         if CalcType = CalcType::Direct then begin
             if TempApplyingEmplLedgEntry."Entry No." <> 0 then begin
                 Rec := TempApplyingEmplLedgEntry;
@@ -921,7 +944,13 @@ page 234 "Apply Employee Entries"
         TempAppliedEmplLedgEntry: Record "Employee Ledger Entry" temporary;
         CorrectionAmount: Decimal;
         FromZeroGenJnl: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandledChosenEntries(Type, CurrentAmount, AppliedEmplLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         CorrectionAmount := 0;
         if AppliedEmplLedgEntry.FindSet(false, false) then begin
             repeat
@@ -955,12 +984,62 @@ page 234 "Apply Employee Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcApplnAmount(EmplLedgerEntry: Record "Employee Ledger Entry"; var AppliedAmount: Decimal; var ApplyingAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcApplnAmountToApply(EmplLedgerEntry: Record "Employee Ledger Entry"; var ApplnAmountToApply: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcApplnRemainingAmount(EmplLedgerEntry: Record "Employee Ledger Entry"; var ApplnRemainingAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostDirectApplicationBeforeSetValues(var ApplicationDate: Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDirectApplicationBeforeApply()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcApplnAmount(var EmplLedgerEntry: Record "Employee Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; var AppliedEmplLedgerEntry: Record "Employee Ledger Entry"; CalculationType: Option; ApplicationType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEarlierPostingDate(var TempApplyingEmplLedgEntry: Record "Employee Ledger Entry" temporary; EmplLedgerEntry: Record "Employee Ledger Entry"; CalcType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine; CurrentAmount: Decimal; var AppliedEmplLedgerEntry: Record "Employee Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDirectApplication(var EmplLedgerEntry: Record "Employee Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetApplyingEmplLedgEntry(var ApplyingEmplLedgEntry: Record "Employee Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindFindApplyingEntryOnAfterEmplLedgEntrySetFilters(ApplyingEmplLedgerEntry: Record "Employee Ledger Entry"; var EmplLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var EmplLedgerEntry: Record "Employee Ledger Entry"; CalcType: Option; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

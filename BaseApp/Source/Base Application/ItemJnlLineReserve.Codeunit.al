@@ -197,7 +197,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
             if PointerChanged or
                (not TempReservEntry.IsEmpty)
-            then begin
+            then
                 if PointerChanged then begin
                     ReservMgt.SetReservSource(OldItemJnlLine);
                     ReservMgt.DeleteReservEntries(true, 0);
@@ -206,8 +206,6 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                     ReservMgt.SetReservSource(NewItemJnlLine);
                     ReservMgt.DeleteReservEntries(true, 0);
                 end;
-                ReservMgt.AutoTrack(NewItemJnlLine."Quantity (Base)");
-            end;
         end;
     end;
 

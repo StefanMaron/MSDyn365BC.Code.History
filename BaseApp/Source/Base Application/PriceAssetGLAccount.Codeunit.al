@@ -6,6 +6,7 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
 
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Table Id" := Database::"G/L Account";
         if GLAccount.GetBySystemId(PriceAsset."Asset ID") then begin
             PriceAsset."Asset No." := GLAccount."No.";
             FillAdditionalFields(PriceAsset);
@@ -15,6 +16,7 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
 
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Table Id" := Database::"G/L Account";
         if GLAccount.Get(PriceAsset."Asset No.") then begin
             PriceAsset."Asset ID" := GLAccount.SystemId;
             FillAdditionalFields(PriceAsset);
@@ -23,10 +25,14 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
     end;
 
     procedure IsLookupOK(var PriceAsset: Record "Price Asset"): Boolean
+    var
+        xPriceAsset: Record "Price Asset";
     begin
-        if GLAccount.Get(PriceAsset."Asset No.") then;
+        xPriceAsset := PriceAsset;
+        if GLAccount.Get(xPriceAsset."Asset No.") then;
         if Page.RunModal(Page::"G/L Account List", GLAccount) = ACTION::LookupOK then begin
-            PriceAsset.Validate("Asset No.", GLAccount."No.");
+            xPriceAsset.Validate("Asset No.", GLAccount."No.");
+            PriceAsset := xPriceAsset;
             exit(true);
         end;
     end;

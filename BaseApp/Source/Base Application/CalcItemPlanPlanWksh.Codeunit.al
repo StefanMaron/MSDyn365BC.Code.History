@@ -1,4 +1,4 @@
-codeunit 5431 "Calc. Item Plan - Plan Wksh."
+﻿codeunit 5431 "Calc. Item Plan - Plan Wksh."
 {
     TableNo = Item;
 
@@ -73,6 +73,8 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
             Commit();
 
+            OnCodeOnBeforeInvtProfileOffsettingSetParm(Item);
+
             InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType::Planning);
             InvtProfileOffsetting.CalculatePlanFromWorksheet(
               Item, MfgSetup, CurrTemplateName, CurrWorksheetName, FromDate, ToDate, MRP, RespectPlanningParm);
@@ -92,6 +94,8 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
                         PlanningAssignment.Modify();
                     end;
                 until PlanningAssignment.Next = 0;
+
+            OnCodeOnAfterGetPlanningComponents(Item);
 
             Commit();
 
@@ -302,7 +306,17 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterGetPlanningComponents(Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterSetReqLineFilters(var ReqLineExtern: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeInvtProfileOffsettingSetParm(Item: Record Item)
     begin
     end;
 }

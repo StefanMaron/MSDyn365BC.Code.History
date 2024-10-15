@@ -2616,6 +2616,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         IsInitialized := true;
 
+        SetGLSetupInvoiceRounding();
         CustomerPostingGroup.FindFirst;
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Reminder - Add. Line fee");
@@ -3132,6 +3133,15 @@ codeunit 134997 "Reminder - Add. Line fee"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::Customer, CustNo, LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure SetGLSetupInvoiceRounding()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := GeneralLedgerSetup."Amount Rounding Precision";
+        GeneralLedgerSetup.Modify();
     end;
 
     [RequestPageHandler]
