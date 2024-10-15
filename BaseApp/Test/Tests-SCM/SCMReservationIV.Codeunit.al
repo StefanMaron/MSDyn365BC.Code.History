@@ -2684,6 +2684,103 @@ codeunit 137271 "SCM Reservation IV"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure PostingWhseShipmentAfterPartialPickWithZeroQtyToHandleLines()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[20];
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Sales] [Shipment] [Pick] [Item Tracking]
+        // [SCENARIO 402334] Posting warehouse shipment after the pick is partially registered leaving some lots with "Qty. to Handle" = 0.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Make sure warehouse shipment posting will be interrupted at the first error.
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate(
+          "Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
+        WarehouseSetup.Modify(true);
+
+        // [GIVEN] Location with directed put-away and pick.
+        CreateWarehouseLocation(Location);
+
+        // [GIVEN] Lot-tracked item.
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(false, true));
+
+        // [GIVEN] Purchase order with two items lines, each for 1 pc.
+        // [GIVEN] Assign lots "L1" and "L2".
+        // [GIVEN] Create and post warehouse receipt, register put-away.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLineWithAlternateUOMAndLotTracking(
+          PurchaseLine, LotNos[1], PurchaseHeader, Item."No.", Item."Base Unit of Measure", Qty);
+        CreatePurchaseLineWithAlternateUOMAndLotTracking(
+          PurchaseLine, LotNos[2], PurchaseHeader, Item."No.", Item."Base Unit of Measure", Qty);
+        CreateWarehouseReceipt(PurchaseLine);
+        PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+        RegisterWarehouseActivity(
+          PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Put-away", PurchaseHeader."Location Code",
+          WarehouseActivityLine."Action Type"::Place);
+
+        // [GIVEN] Sales order for 2 pcs.
+        // [GIVEN] Select lots "L1" and "L2".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 2 * Qty, Location.Code, WorkDate);
+        LibraryVariableStorage.Enqueue(TrackingOption::ManualSetMultipleLots);
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNos));
+        for i := 1 to ArrayLen(LotNos) do begin
+            LibraryVariableStorage.Enqueue(LotNos[i]);
+            LibraryVariableStorage.Enqueue(Qty);
+        end;
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Release the sales order, create warehouse shipment and pick.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          CreatePick(Location.Code, SalesHeader."No."));
+
+        // [GIVEN] Set "Qty. to Handle" = 0 for lot "L1".
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.SetRange("Lot No.", LotNos[1]);
+        WarehouseActivityLine.ModifyAll("Qty. to Handle", 0);
+        WarehouseActivityLine.ModifyAll("Qty. to Handle (Base)", 0);
+
+        // [WHEN] Partially register the pick (1 of 2 pcs).
+        RegisterWarehouseActivity(
+          SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick, SalesHeader."Location Code",
+          WarehouseActivityLine."Action Type"::Place);
+
+        // [THEN] The warehouse shipment for 1 pc can be successfully posted.
+        WarehouseShipmentHeader.Find();
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", Qty);
+
+        // [THEN] The remaining 1 pc (lot "L1") can be picked and shipped.
+        RegisterWarehouseActivity(
+          SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick, SalesHeader."Location Code",
+          WarehouseActivityLine."Action Type"::Place);
+        WarehouseShipmentHeader.Find();
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";

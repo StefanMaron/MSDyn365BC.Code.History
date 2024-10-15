@@ -674,6 +674,13 @@ table 11021 "Sales VAT Advance Notif."
         "Amounts in Add. Rep. Currency" := UseAmtsInAddCurr2;
     end;
 
+    procedure GetDateFilter() ResultedDateFilter: Text[30]
+    begin
+        if "Starting Date" = 0D then
+            exit('');
+        exit(Format("Starting Date") + '..' + Format(CalcEndDate("Starting Date")));
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal)
     begin
