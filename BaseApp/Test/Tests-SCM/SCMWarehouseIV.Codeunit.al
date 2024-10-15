@@ -45,6 +45,7 @@ codeunit 137407 "SCM Warehouse IV"
         EnabledTxt: Label 'enabled';
         DisabledTxt: Label 'disabled';
         BinMandatoryTxt: Label 'Bin Mandatory must be equal to ''No''  in Location';
+        DateError: Label '%1 must be equal to %2 in Service Item Table.', Comment = '%1 = Warranty Date fields caption, %2 = Expected Date values';
         ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignLotAndQty;
 
     [Test]
@@ -2017,6 +2018,82 @@ codeunit 137407 "SCM Warehouse IV"
         VerifyWhseActivityLinesSortedByActionType(WarehouseActivityHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure ValidateServiceItemHavingCorrectWarrantyDateAfterUndoShipment()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        ServiceItemGroup: Record "Service Item Group";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        WarrantyDateFormula: DateFormula;
+        DefaultWarrantyDuration: DateFormula;
+        LotNo: Code[50];
+        Qty: Integer;
+        WarrantyStartDate: Date;
+    begin
+        // [SCENARIO 464877]: Warranty date is recalculated on new Shipment which was previously reversed via Undo shipment.
+
+        // [GIVEN] Initialize initials
+        Initialize();
+        Evaluate(WarrantyDateFormula, '<10Y>');
+        Evaluate(DefaultWarrantyDuration, '<3Y>');
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+        WarrantyStartDate := CalcDate('<1M>', WorkDate());
+
+        // [GIVEN] Service Mgt. Setup had Default Warranty Duration = 3Y
+        SetServiceSetupDefaultWarrantyDuration(DefaultWarrantyDuration);
+
+        // [GIVEN] Item Tracking Code with Lot Sales Tracking and Man. Warranty Date Entry Reqd. enabled, Warranty Date Formula = 10Y
+        CreateItemTrackingCode(ItemTrackingCode, true, false, false);
+        ItemTrackingCode.Validate("Warranty Date Formula", WarrantyDateFormula);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Service Item Group with Create Service Item enabled
+        LibraryService.CreateServiceItemGroup(ServiceItemGroup);
+        ServiceItemGroup.Validate("Create Service Item", true);
+        ServiceItemGroup.Modify(true);
+
+        // [GIVEN] Item with Item Tracking Code and Service Item Group had stock of 10 PCS
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Validate("Service Item Group", ServiceItemGroup.Code);
+        Item.Modify(true);
+        PostItemJournalLineWithLotTracking(Item."No.", LotNo, Qty);
+
+        // [GIVEN] New Sales Order with Item Tracking
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Posting Date", WorkDate());
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        EnqueueTrackingLotAndQty(ItemTrackingMode::AssignLotAndQty, LotNo, Qty);
+        SalesLine.OpenItemTrackingLines();
+        ModifyReservationEntryWarrantyDate(Item."No.", WarrantyStartDate);
+
+        // [WHEN] Post Sales Order
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [VERIFY] Verify: Warranty date fields in Service Item table
+        VerifyWarrantyDatesOnServiceItem(Item."No.", WarrantyStartDate, WarrantyDateFormula, DefaultWarrantyDuration);
+
+        // [THEN] Find Shipment Line
+        FindSalesShipmentLine(SalesShipmentLine, SalesLine."Document No.");
+
+        // [WHEN] Undo sales shipment.
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+        ModifyReservationEntryWarrantyDate(Item."No.", WarrantyStartDate);
+
+        // [THEN] Post Sales Order
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [VERIFY] Verify: Warranty date fields in Service Item table
+        VerifyWarrantyDatesOnServiceItem(Item."No.", WarrantyStartDate, WarrantyDateFormula, DefaultWarrantyDuration);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3204,6 +3281,28 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseRegister.SetRange("Journal Batch Name", JournalBatchName);
         WarehouseRegister.FindFirst();
         WarehouseRegister.TestField("Source Code", SourceCode);
+    end;
+
+    local procedure FindSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; OrderNo: Code[20])
+    begin
+        SalesShipmentLine.SetRange("Order No.", OrderNo);
+        SalesShipmentLine.FindFirst();
+    end;
+
+    local procedure VerifyWarrantyDatesOnServiceItem(
+        ItemNo: Code[20];
+        WarrantyStartDate: Date;
+        WarrantyDateFormula: DateFormula;
+        DefaultWarrantyDuration: DateFormula)
+    var
+        ServiceItem: Record "Service Item";
+    begin
+        ServiceItem.SetRange("Item No.", ItemNo);
+        ServiceItem.FindFirst();
+        Assert.IsTrue((ServiceItem."Warranty Starting Date (Parts)" = WarrantyStartDate), StrSubstNo(DateError, ServiceItem.FieldCaption("Warranty Starting Date (Parts)"), WarrantyStartDate));
+        Assert.IsTrue((ServiceItem."Warranty Starting Date (Labor)" = ServiceItem."Warranty Starting Date (Parts)"), StrSubstNo(DateError, ServiceItem."Warranty Starting Date (Labor)", ServiceItem."Warranty Starting Date (Parts)"));
+        Assert.IsTrue((ServiceItem."Warranty Ending Date (Parts)" = CalcDate(WarrantyDateFormula, WarrantyStartDate)), StrSubstNo(DateError, ServiceItem."Warranty Ending Date (Parts)", CalcDate(WarrantyDateFormula, WarrantyStartDate)));
+        Assert.IsTrue((ServiceItem."Warranty Ending Date (Labor)" = CalcDate(DefaultWarrantyDuration, WarrantyStartDate)), StrSubstNo(DateError, ServiceItem."Warranty Ending Date (Parts)", CalcDate(DefaultWarrantyDuration, WarrantyStartDate)));
     end;
 
     [ConfirmHandler]

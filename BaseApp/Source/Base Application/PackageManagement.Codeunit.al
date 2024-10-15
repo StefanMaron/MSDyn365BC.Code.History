@@ -2071,14 +2071,19 @@ codeunit 6516 "Package Management"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnInsertItemLedgEntryOnCheckItemTracking', '', false, false)]
     local procedure ItemJnlPostLineOnInsertItemLedgEntryOnCheckItemTracking(ItemJnlLine: Record "Item Journal Line"; ItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean)
     begin
+        if not ItemTrackingCode."Package Specific Tracking" then
+            exit;
+
         if not ((ItemJnlLine."Document Type" in [ItemJnlLine."Document Type"::"Purchase Return Shipment", ItemJnlLine."Document Type"::"Purchase Receipt"]) and
                 (ItemJnlLine."Job No." <> ''))
-        then
+        then begin
+            IsHandled := true;
             if (ItemLedgEntry.Quantity < 0) and ItemTrackingCode.IsSpecific() then
                 Error(
                     CannotBeFullyAppliedErr,
                     ItemJnlLine."Serial No.", ItemJnlLine."Lot No.", ItemJnlLine."Package No.",
                     ItemJnlLine."Item No.", ItemJnlLine."Variant Code");
+        end;
     end;
 
     // ItemTrackingManagement

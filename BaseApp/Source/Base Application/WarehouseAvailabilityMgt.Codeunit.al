@@ -537,6 +537,22 @@ codeunit 7314 "Warehouse Availability Mgt."
             end;
         end;
 
+        if Location."To-Production Bin Code" <> '' then begin
+            TempBinContentBuffer.SetRange("Bin Code", Location."To-Production Bin Code");
+            if TempBinContentBuffer.IsEmpty() then begin
+                QtyInBin := CalcQtyOnBin(LocationCode, Location."To-Production Bin Code", ItemNo, VariantCode, WhseItemTrackingSetup);
+                if QtyInBin > 0 then begin
+                    TempBinContentBuffer.Init();
+                    TempBinContentBuffer."Location Code" := LocationCode;
+                    TempBinContentBuffer."Bin Code" := Location."To-Production Bin Code";
+                    TempBinContentBuffer."Item No." := ItemNo;
+                    TempBinContentBuffer."Variant Code" := VariantCode;
+                    TempBinContentBuffer."Qty. Outstanding (Base)" := QtyInBin;
+                    TempBinContentBuffer.Insert();
+                end;
+            end;
+        end;
+
         TempBinContentBuffer.Reset();
     end;
 
