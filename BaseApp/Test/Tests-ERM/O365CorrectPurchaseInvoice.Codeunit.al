@@ -16,6 +16,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -28,6 +29,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         AmountPurchInvErr: Label 'Amount must have a value in Purch. Inv. Header';
         ShippedQtyReturnedCorrectErr: Label 'You cannot correct this posted purchase invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
         ShippedQtyReturnedCancelErr: Label 'You cannot cancel this posted purchase invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
+        CorrectPostedInvoiceFromSingleOrderQst: Label 'The invoice was posted from an order. The invoice will be cancelled, and the order will open so that you can make the correction.\ \Do you want to continue?';
+        CorrectPostedInvoiceFromDeletedOrderQst: Label 'The invoice was posted from an order. The order has been deleted, and the invoice will be cancelled. You can create a new invoice or order by using the Copy Document action.\ \Do you want to continue?';
+        CorrectPostedInvoiceFromMultipleOrderQst: Label 'The invoice was posted from multiple orders. It will now be cancelled, and you can make a correction manually in the original orders.\ \Do you want to continue?';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -295,9 +299,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         // EXERCISE
         CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchaseHeaderCorrection);
 
-        // VERIFY: New Sales Credit Memo must match Posted Sales Invoice
+        // VERIFY: New Purchase Credit Memo must match Posted Purchase Invoice
 
-        // Created customer match Sales Header
+        // Created customer match Purchase Header
         Assert.AreEqual(Vendor."No.", PurchaseHeaderCorrection."Pay-to Vendor No.", 'Wrong Vendor for Credit Memo');
 
         // 1. Purchase Line expect to be a Document description
@@ -309,14 +313,14 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         StrPosition := StrPos(PurchaseLine.Description, PurchInvHeader."No.");
 
         Assert.AreNotEqual(0, StrPosition, 'Wrong invoice number in Description line');
-        Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Sales Line');
+        Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Purchase Line');
 
         // Last Purchase Line expect to be the Item created.
         PurchaseLine.FindLast;
         ExpectedAmount := 1;
         DescText := Item.Description;
-        Assert.AreEqual(DescText, PurchaseLine.Description, 'Wrong description text for Credit Memo Sales Line');
-        Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Sales Line');
+        Assert.AreEqual(DescText, PurchaseLine.Description, 'Wrong description text for Credit Memo Purchase Line');
+        Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Purchase Line');
     end;
 
     [Test]
@@ -357,7 +361,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchaseHeaderCorrection.SetRange("Applies-to Doc. Type", PurchaseHeaderCorrection."Applies-to Doc. Type"::Invoice);
         PurchaseHeaderCorrection.FindFirst;
 
-        // Created customer match Sales Header
+        // Created customer match Purchase Header
         Assert.AreEqual(Vendor."No.", PurchaseHeaderCorrection."Pay-to Vendor No.", 'Wrong Vendor for Credit Memo');
 
         // 1. Purchase Line expect to be a Document description
@@ -369,14 +373,14 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         StrPosition := StrPos(PurchaseLine.Description, PurchInvHeader."No.");
 
         Assert.AreNotEqual(0, StrPosition, 'Wrong invoice number in Description line');
-        Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Sales Line');
+        Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Purchase Line');
 
         // Last Purchase Line expect to be the Item created.
         PurchaseLine.FindLast;
         ExpectedAmount := 1;
         DescText := Item.Description;
-        Assert.AreEqual(DescText, PurchaseLine.Description, 'Wrong description text for Credit Memo Sales Line');
-        Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Sales Line');
+        Assert.AreEqual(DescText, PurchaseLine.Description, 'Wrong description text for Credit Memo Purchase Line');
+        Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Purchase Line');
     end;
 
     [Test]
@@ -1348,26 +1352,23 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchInvHeader: Record "Purch. Inv. Header";
         GLEntry: Record "G/L Entry";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
-        PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // [FEATURE] [UI] [Order] [Correct Invoice]
         // [SCENARIO 213632] Stan can correct posted purchase invoice created from purchase order.
-        Initialize;
-        if GLEntry.FindLast then;
+        Initialize();
+        if GLEntry.FindLast() then;
         LibraryVariableStorage.Enqueue(true); // Confirm to correct invoice
 
         CreateAndPostPurchaseOrderForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
 
-        PurchaseInvoice.Trap;
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoice.CorrectInvoice.Invoke;
+        PostedPurchaseInvoice.CorrectInvoice.Invoke();
 
         CheckEverythingIsReverted(Item, Vendor, GLEntry);
-        PurchaseInvoice.Close;
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1435,6 +1436,230 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchLine.SetRange("No.", Item2."No.");
         PurchLine.FindFirst();
         PurchLine.TestField("Unit Cost", 10);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerify')]
+    procedure CorrectPartialInvoicePostedFromOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PostedPurchaseInvoicePage: TestPage "Posted Purchase Invoice";
+        PurchaseOrderPage: TestPage "Purchase Order";
+        InvoiceNo: Code[20];
+        ShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Correct] [Credit Memo] [Receipt] [UI]
+        // [SCENARIO 365667] System opens purchase order when Stan corrects invoice posted from that purchase order
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        CreatePurchaseLineWithPartialQtyToReceive(PurchaseLine, PurchaseHeader);
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifyPurchaseReceiptLine(PurchaseLine, PurchaseLine."Qty. to Receive", PurchaseLine."Qty. to Receive", 0);
+
+        GetPurchaseInvoiceHeaderAndCheckCancelled(PurchInvHeader, InvoiceNo, false);
+
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromSingleOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PostedPurchaseInvoicePage.Trap();
+        Page.Run(Page::"Posted Purchase Invoice", PurchInvHeader);
+
+        PurchaseOrderPage.Trap();
+        PostedPurchaseInvoicePage.CorrectInvoice.Invoke();
+
+        PurchaseOrderPage.PurchLines."Qty. to Receive".AssertEquals(PurchaseLine.Quantity);
+        PurchaseOrderPage.PurchLines."Quantity Received".AssertEquals(0);
+
+        GetPurchaseInvoiceHeaderAndCheckCancelled(PurchInvHeader, InvoiceNo, true);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerify')]
+    procedure CorrectInvoicePostedFromTwoShipmentsOfSingleOrder()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: array[2] of Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PostedPurchaseInvoicePage: TestPage "Posted Purchase Invoice";
+        PurchaseOrderPage: TestPage "Purchase Order";
+        InvoiceNo: Code[20];
+        ShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
+        // [SCENARIO 365667] System opens purchase order when Stan corrects invoice posted via "get shipment lines" and all shipments relate to that single order
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        CreatePurchaseLineWithPartialQtyToReceive(PurchaseLineOrder[1], PurchaseHeaderOrder);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+        PurchaseLineOrder[1].Find();
+        PurchaseLineOrder[1].TestField("Quantity Invoiced", 0);
+
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeaderOrder);
+        PurchaseLineOrder[1].Find();
+        PurchaseLineOrder[1].Validate("Qty. to Receive", 0);
+        PurchaseLineOrder[1].Modify();
+
+        CreatePurchaseLineWithPartialQtyToReceive(PurchaseLineOrder[2], PurchaseHeaderOrder);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+        PurchaseLineOrder[2].Find();
+        PurchaseLineOrder[2].TestField("Quantity Invoiced", 0);
+
+        VerifyPurchaseReceiptLine(
+            PurchaseLineOrder[1],
+            PurchaseLineOrder[1]."Quantity Received", PurchaseLineOrder[1]."Quantity Invoiced", PurchaseLineOrder[1]."Quantity Received");
+        VerifyPurchaseReceiptLine(
+            PurchaseLineOrder[2],
+             PurchaseLineOrder[2]."Quantity Received", PurchaseLineOrder[2]."Quantity Invoiced", PurchaseLineOrder[1]."Quantity Received");
+
+        CreatePurchaseInvoiceFromReceipt(PurchaseHeaderInvoice, PurchaseLineInvoice, PurchaseHeaderOrder."Buy-from Vendor No.", PurchaseLineOrder);
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        GetPurchaseInvoiceHeaderAndCheckCancelled(PurchInvHeader, InvoiceNo, false);
+
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromSingleOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PostedPurchaseInvoicePage.Trap();
+        Page.Run(Page::"Posted Purchase Invoice", PurchInvHeader);
+
+        PurchaseOrderPage.Trap();
+        PostedPurchaseInvoicePage.CorrectInvoice.Invoke();
+
+        VerifyPurchaseOrderLineReverted(PurchaseOrderPage, PurchaseLineOrder[1]);
+        PurchaseOrderPage.PurchLines.Next();
+        VerifyPurchaseOrderLineReverted(PurchaseOrderPage, PurchaseLineOrder[2]);
+
+        GetPurchaseInvoiceHeaderAndCheckCancelled(PurchInvHeader, InvoiceNo, true);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerify')]
+    procedure CorrectInvoicePostedFromTwoShipmentsOfTwoOrders()
+    var
+        PurchaseHeaderOrder: array[2] of Record "Purchase Header";
+        PurchaseLineOrder: array[2] of Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PostedPurchaseInvoicePage: TestPage "Posted Purchase Invoice";
+        PurchaseOrderPage: TestPage "Purchase Order";
+        InvoiceNo: Code[20];
+        ShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
+        // [SCENARIO 365667] System warns that it can't open a particular purchase order when Stan corrects invoice posted via "get shipment lines" and shipments relate to different single orders
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder[1], PurchaseHeaderOrder[1]."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        CreatePurchaseLineWithPartialQtyToReceive(PurchaseLineOrder[1], PurchaseHeaderOrder[1]);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder[1], true, false);
+        PurchaseLineOrder[1].Find();
+        PurchaseLineOrder[1].TestField("Quantity Invoiced", 0);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder[2], PurchaseHeaderOrder[2]."Document Type"::Order, PurchaseHeaderOrder[1]."Buy-from Vendor No.");
+        CreatePurchaseLineWithPartialQtyToReceive(PurchaseLineOrder[2], PurchaseHeaderOrder[2]);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder[2], true, false);
+        PurchaseLineOrder[2].Find();
+        PurchaseLineOrder[2].TestField("Quantity Invoiced", 0);
+
+        VerifyPurchaseReceiptLine(
+            PurchaseLineOrder[1],
+            PurchaseLineOrder[1]."Quantity Received", PurchaseLineOrder[1]."Quantity Invoiced", PurchaseLineOrder[1]."Quantity Received");
+        VerifyPurchaseReceiptLine(
+            PurchaseLineOrder[2],
+             PurchaseLineOrder[2]."Quantity Received", PurchaseLineOrder[2]."Quantity Invoiced", PurchaseLineOrder[1]."Quantity Received");
+
+        CreatePurchaseInvoiceFromReceipt(PurchaseHeaderInvoice, PurchaseLineInvoice, PurchaseHeaderOrder[1]."Buy-from Vendor No.", PurchaseLineOrder);
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        GetPurchaseInvoiceHeaderAndCheckCancelled(PurchInvHeader, InvoiceNo, false);
+
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromMultipleOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PostedPurchaseInvoicePage.Trap();
+        Page.Run(Page::"Posted Purchase Invoice", PurchInvHeader);
+
+        PostedPurchaseInvoicePage.CorrectInvoice.Invoke();
+
+        PurchaseOrderPage.Trap();
+        PurchaseHeaderOrder[1].Find();
+        Page.Run(Page::"Purchase Order", PurchaseHeaderOrder[1]);
+
+        VerifyPurchaseOrderLineReverted(PurchaseOrderPage, PurchaseLineOrder[1]);
+
+        PurchaseOrderPage.Close();
+
+        PurchaseOrderPage.Trap();
+        PurchaseHeaderOrder[2].Find();
+        Page.Run(Page::"Purchase Order", PurchaseHeaderOrder[2]);
+
+        VerifyPurchaseOrderLineReverted(PurchaseOrderPage, PurchaseLineOrder[2]);
+
+        PurchaseOrderPage.Close();
+
+        GetPurchaseInvoiceHeaderAndCheckCancelled(PurchInvHeader, InvoiceNo, true);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerify')]
+    procedure CorrectFullInvoicePostedFromOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        InvoiceNo: Code[20];
+        ShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
+        // [SCENARIO 365667] System warns that purchase order deleted when Stan corrects invoice posted from that fully invoices and deleted purchase order. Invoice is cancelled only.
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(5, 10) * 3);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Modify(true);
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        PurchaseHeader.SetRecFilter();
+        Assert.RecordIsEmpty(PurchaseHeader);
+
+        VerifyPurchaseReceiptLine(PurchaseLine, PurchaseLine.Quantity, PurchaseLine.Quantity, 0);
+
+        GetPurchaseInvoiceHeaderAndCheckCancelled(PurchInvHeader, InvoiceNo, false);
+
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromDeletedOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PostedPurchaseInvoice.Trap();
+        Page.Run(Page::"Posted Purchase Invoice", PurchInvHeader);
+        PostedPurchaseInvoice.CorrectInvoice.Invoke();
+
+        PurchaseHeader.SetRecFilter();
+        Assert.RecordIsEmpty(PurchaseHeader);
+
+        GetPurchaseInvoiceHeaderAndCheckCancelled(PurchInvHeader, InvoiceNo, true);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1613,6 +1838,34 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
+    local procedure CreatePurchaseLineWithPartialQtyToReceive(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
+    begin
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 10) * 3);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 100));
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity / 3);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseInvoiceFromReceipt(var PurchaseHeaderInvoice: Record "Purchase Header"; var PurchaseLineInvoice: Record "Purchase Line"; VendorNo: code[20]; PurchaseLineOrder: array[2] of Record "Purchase Line")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, VendorNo);
+        PurchRcptLine.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        PurchaseLineInvoice.SetRange("Document Type", PurchaseHeaderInvoice."Document Type");
+        PurchaseLineInvoice.SetRange("Document No.", PurchaseHeaderInvoice."No.");
+        PurchaseLineInvoice.SetRange(Type, PurchaseLineInvoice.Type::Item);
+        PurchaseLineInvoice.SetRange("No.", PurchaseLineOrder[1]."No.");
+        Assert.RecordCount(PurchaseLineInvoice, 1);
+        PurchaseLineInvoice.SetRange("No.", PurchaseLineOrder[2]."No.");
+        Assert.RecordCount(PurchaseLineInvoice, 1);
+    end;
+
     local procedure CorrectAndCancelWithFailureAndVerificaltion(PurchInvHeader: Record "Purch. Inv. Header")
     var
         PurchaseHeaderCorrection: Record "Purchase Header";
@@ -1752,6 +2005,34 @@ codeunit 138025 "O365 Correct Purchase Invoice"
                 until Next = 0;
     end;
 
+    local procedure GetPurchaseInvoiceHeaderAndCheckCancelled(var PurchInvHeader: Record "Purch. Inv. Header"; InvoiceNo: Code[20]; ExpectedCancelled: Boolean)
+    begin
+        PurchInvHeader.Get(InvoiceNo);
+        PurchInvHeader.CalcFields(Cancelled);
+        PurchInvHeader.TestField(Cancelled, ExpectedCancelled);
+    end;
+
+    local procedure VerifyPurchaseReceiptLine(PurchaseLineOrder: Record "Purchase Line"; ExpectedQuantity: Decimal; ExpectedQtyInvoiced: Decimal; ExpectedQtyNotInvoiced: Decimal)
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.Reset();
+        PurchRcptLine.SetRange("Order No.", PurchaseLineOrder."Document No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLineOrder."Line No.");
+        PurchRcptLine.FindFirst();
+
+        PurchRcptLine.TestField("Qty. Rcd. Not Invoiced", ExpectedQtyNotInvoiced);
+        PurchRcptLine.TestField("Quantity Invoiced", ExpectedQtyInvoiced);
+        PurchRcptLine.TestField(Quantity, ExpectedQuantity);
+    end;
+
+    local procedure VerifyPurchaseOrderLineReverted(var PurchaseOrderPage: TestPage "Purchase Order"; PurchaseLineOrder: Record "Purchase Line")
+    begin
+        PurchaseOrderPage.PurchLines."No.".AssertEquals(PurchaseLineOrder."No.");
+        PurchaseOrderPage.PurchLines."Qty. to Receive".AssertEquals(PurchaseLineOrder.Quantity);
+        PurchaseOrderPage.PurchLines."Quantity Received".AssertEquals(0);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -1762,22 +2043,22 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Reply := VarReply;
     end;
 
+    [ConfirmHandler]
+    procedure ConfirmHandlerVerify(Question: Text; var Reply: Boolean)
+    begin
+        Assert.ExpectedConfirm(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
     local procedure ClearTable(TableID: Integer)
     var
-        CostType: Record "Cost Type";
-        ProductionBOMLine: Record "Production BOM Line";
-        Resource: Record Resource;
+        RecRef: RecordRef;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        case TableID of
-            DATABASE::"Cost Type":
-                CostType.DeleteAll();
-            DATABASE::"Production BOM Line":
-                ProductionBOMLine.DeleteAll();
-            DATABASE::Resource:
-                Resource.DeleteAll();
-        end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        RecRef.Open(TableID);
+        RecRef.DeleteAll();
+        RecRef.Close();
+        LibraryLowerPermissions.SetO365Full();
     end;
 }
 

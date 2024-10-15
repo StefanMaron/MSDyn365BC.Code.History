@@ -9593,7 +9593,9 @@ Cstr(Fields!DocDateCaption.Value) + Chr(177) +
 Cstr(Fields!HomePageCaption.Value) + Chr(177) + 
 Cstr(Fields!EMailCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoHomePage.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoEMail.Value)
+Cstr(Fields!CompanyInfoEMail.Value) + Chr(177) +
+Cstr(Fields!BankBranchNoCaption.Value) + Chr(177) +
+Cstr(Fields!CompanyInfoBankBranchNo.Value)
 , 1)</Hidden>
                                             </Visibility>
                                             <Style>
@@ -11845,6 +11847,70 @@ Cstr(Fields!CompanyInfoEMail.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
+            <Textbox Name="CompanyInfoBankBranchNoCapt">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=(Code.GetData(45,1))</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <FontFamily>Segoe UI</FontFamily>
+                    <FontSize>8pt</FontSize>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>233.60016pt</Top>
+              <Left>11.01182cm</Left>
+              <Height>11pt</Height>
+              <Width>2.90319cm</Width>
+              <ZIndex>56</ZIndex>
+              <Style>
+                <Border />
+                <FontFamily>Segoe UI</FontFamily>
+                <FontSize>8pt</FontSize>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+            <Textbox Name="CompanyInfoBankBranchNo">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Code.GetData(46,1)</Value>
+                      <Style>
+                        <FontFamily>Segoe UI</FontFamily>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <FontFamily>Segoe UI</FontFamily>
+                    <FontSize>8pt</FontSize>
+                    <TextAlign>Right</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>233.60016pt</Top>
+              <Left>14.17959cm</Left>
+              <Height>11pt</Height>
+              <Width>3.77765cm</Width>
+              <ZIndex>57</ZIndex>
+              <Style>
+                <Border />
+                <FontFamily>Segoe UI</FontFamily>
+                <FontSize>8pt</FontSize>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
             <Image Name="ImageLeft">
               <Source>Database</Source>
               <Value>=Convert.ToBase64String(Fields!CompanyInfo1Picture.Value)</Value>
@@ -12112,6 +12178,9 @@ End Function
         <Field Name="CompanyInfoGiroNo">
           <DataField>CompanyInfoGiroNo</DataField>
         </Field>
+        <Field Name="CompanyInfoBankBranchNo">
+          <DataField>CompanyInfoBankBranchNo</DataField>
+        </Field>
         <Field Name="CompanyInfoVATRegNo">
           <DataField>CompanyInfoVATRegNo</DataField>
         </Field>
@@ -12183,6 +12252,9 @@ End Function
         </Field>
         <Field Name="GiroNoCaption">
           <DataField>GiroNoCaption</DataField>
+        </Field>
+        <Field Name="BankBranchNoCaption">
+          <DataField>BankBranchNoCaption</DataField>
         </Field>
         <Field Name="VATRegNoCaption">
           <DataField>VATRegNoCaption</DataField>

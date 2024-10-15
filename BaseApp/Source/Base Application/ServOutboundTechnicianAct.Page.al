@@ -80,7 +80,7 @@ page 9066 "Serv Outbound Technician Act."
 
         SetRespCenterFilter;
         SetRange("Date Filter", WorkDate, WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

@@ -157,6 +157,8 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
                 end;
         end;
         PriceCalculationBuffer."Document Date" := JobJournalLine."Posting Date";
+        if PriceCalculationBuffer."Document Date" = 0D then
+            PriceCalculationBuffer."Document Date" := WorkDate();
         PriceCalculationBuffer.Validate("Currency Code", JobJournalLine."Currency Code");
         PriceCalculationBuffer."Currency Factor" := JobJournalLine."Currency Factor";
 
