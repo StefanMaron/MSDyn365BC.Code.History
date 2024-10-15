@@ -319,8 +319,11 @@ page 88 "Job Card"
 
                         trigger OnValidate()
                         begin
-                            if BillToOptions = BillToOptions::"Default (Customer)" then
+                            if BillToOptions = BillToOptions::"Default (Customer)" then begin
                                 Rec.Validate("Bill-to Customer No.", Rec."Sell-to Customer No.");
+                                Rec.Validate("Bill-to Contact No.", Rec."Sell-to Contact No.");
+                            end;
+
                             UpdateBillToInformationEditable();
                         end;
                     }

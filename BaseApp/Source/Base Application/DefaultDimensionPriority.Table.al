@@ -38,7 +38,7 @@ table 354 "Default Dimension Priority"
         }
         field(3; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table ID")));
             Caption = 'Table Caption';
             Editable = false;
@@ -79,6 +79,59 @@ table 354 "Default Dimension Priority"
     begin
         DimMgt.DefaultDimObjectNoList(TempAllObjWithCaption);
         DimMgt.InsertObject(TempAllObjWithCaption, DATABASE::"Service Contract Header");
+    end;
+
+    procedure InitializeDefaultDimPrioritiesForSourceCode()
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        IsHandled: Boolean;
+    begin
+        OnBeforeInitializeDefaultDimPriorities(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        SourceCodeSetup.Get();
+        case Rec."Source Code" of
+            SourceCodeSetup.Sales:
+                begin
+                    InsertDefaultDimensionPriority(SourceCodeSetup.Sales, 18, 1);
+                    InsertDefaultDimensionPriority(SourceCodeSetup.Sales, 27, 2);
+                end;
+            SourceCodeSetup."Sales Journal":
+                begin
+                    InsertDefaultDimensionPriority(SourceCodeSetup."Sales Journal", 18, 1);
+                    InsertDefaultDimensionPriority(SourceCodeSetup."Sales Journal", 27, 2);
+                end;
+            SourceCodeSetup.Purchases:
+                begin
+                    InsertDefaultDimensionPriority(SourceCodeSetup.Purchases, 23, 1);
+                    InsertDefaultDimensionPriority(SourceCodeSetup.Purchases, 27, 2);
+                end;
+            SourceCodeSetup."Purchase Journal":
+                begin
+                    InsertDefaultDimensionPriority(SourceCodeSetup."Purchase Journal", 23, 1);
+                    InsertDefaultDimensionPriority(SourceCodeSetup."Purchase Journal", 27, 2);
+                end;
+        end;
+    end;
+
+    local procedure InsertDefaultDimensionPriority(SourceCode: Code[20]; TableID: Integer; Priority: Integer)
+    var
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+    begin
+        if DefaultDimensionPriority.Get(SourceCode, TableID) then
+            exit;
+
+        DefaultDimensionPriority.Init();
+        DefaultDimensionPriority.Validate("Source Code", SourceCode);
+        DefaultDimensionPriority.Validate("Table ID", TableID);
+        DefaultDimensionPriority.Validate(Priority, Priority);
+        DefaultDimensionPriority.Insert(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitializeDefaultDimPriorities(var DefaultDimPriority: Record "Default Dimension Priority"; var IsHandled: Boolean);
+    begin
     end;
 }
 

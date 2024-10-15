@@ -761,13 +761,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Recv. Basic Scenarios - NamedType CustomerNoElementNameTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 566879035 - NamedType 873896575" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 566879035 - NamedType 1648455990" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more currency exchange rates have been adjusted.]]></Val>
+      <Val><![CDATA[This will change the dimension specified on the document. Do you want to keep the existing dimensions?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Recv. Basic Scenarios - NamedType ExchRateWasAdjustedTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cartera Recv. Basic Scenarios - NamedType DoYouWantToKeepExistingDimensionsQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 566879035 - NamedType 3489919711" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

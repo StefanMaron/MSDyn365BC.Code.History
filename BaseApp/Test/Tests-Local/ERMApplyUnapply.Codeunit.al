@@ -43,6 +43,7 @@ codeunit 147310 "ERM Apply Unapply"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryHR: Codeunit "Library - Human Resource";
         LibraryRandom: Codeunit "Library - Random";
         LibraryJournals: Codeunit "Library - Journals";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -1440,6 +1441,55 @@ codeunit 147310 "ERM Apply Unapply"
         Assert.ExpectedError(UnapplyBlankedDocTypeErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostGenJournalLinesAppliedToBillAndEmployee()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PurchaseHeader: Record "Purchase Header";
+        EmployeeNo: Code[20];
+        VendorNo: Code[20];
+        BillNo: Code[20];
+        DocNo: Code[20];
+        AmountBill: Decimal;
+    begin
+        // [FEATURE] [Sales] [Apply]
+        // [SCENARIO 449080] When posting an Employee Gen. Journal Line after a line applied to a bill, everything is posted correctly
+        Initialize();
+
+        // [GIVEN] Prepare Vendor and Employee with posting setups
+        VendorNo := CreateVendor(true, '');
+        EmployeeNo := LibraryHR.CreateEmployeeNoWithBankAccount();
+
+        // [WHEN] Prepare General Journal Template and Batch
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        // [GIVEN] Posted Invoice to Bill for Vendor with Amount = "X"
+        AmountBill := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        BillNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo, AmountBill);
+
+        // [WHEN] Create Vendor Gen. Journal Line and apply it to the bill, for full amount X
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, VendorNo, AmountBill);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Bill);
+        GenJournalLine.Validate("Applies-to Bill No.", BillNo);
+        GenJournalLine.Modify(true);
+        DocNo := GenJournalLine."Document No.";
+
+        // [WHEN] Create Employee Gen Journal Line with same Document No and Amount -X to balance
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Employee, EmployeeNo, -AmountBill);
+        GenJournalLine.Validate("Document No.", DocNo);
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Post lines
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] No inconsistency error. The created entry for employee has the correct amount -X
+        VerifyEmployeeLedgerEntry(EmployeeNo, -AmountBill);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2027,6 +2077,16 @@ codeunit 147310 "ERM Apply Unapply"
         GLEntry.Next(-1);
         GLEntry.TestField("G/L Account No.", VendPostingGr."Payables Account");
         GLEntry.TestField(Amount, AmountPayables);
+    end;
+
+    local procedure VerifyEmployeeLedgerEntry(EmployeeNo: Code[20]; ExpectedAmount: Decimal)
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
+        EmployeeLedgerEntry.FindFirst();
+        EmployeeLedgerEntry.CalcFields(Amount);
+        EmployeeLedgerEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyCustomerApplnGLEntries(CustomerNo: Code[20]; DocumentNo: Code[20]; LastTransactionNo: Integer; AmountBill: Decimal; AmountReceivables: Decimal)

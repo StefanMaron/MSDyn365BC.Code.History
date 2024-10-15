@@ -2149,7 +2149,14 @@
         if IsHandled then
             exit;
 
-        TrackingSpecification.CheckItemTrackingQuantity(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", SalesLine."Qty. to Ship (Base)", SalesLine."Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice:
+                TrackingSpecification.CheckItemTrackingQuantity(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", SalesLine."Qty. to Ship (Base)", SalesLine."Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
+            SalesHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order":
+                TrackingSpecification.CheckItemTrackingQuantity(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", SalesLine."Return Qty. to Receive (Base)", SalesLine."Qty. to Invoice (Base)", SalesHeader.Receive, SalesHeader.Invoice);
+            else
+                OnCheckItemTrackingQuantityOnDocumentTypeCaseElse(SalesHeader, SalesLine);
+        end;
     end;
 
     local procedure TestSalesLineItemCharge(SalesLine: Record "Sales Line")
@@ -2388,12 +2395,16 @@
         with SalesHeader do
             if Invoice and ("Posting No." = '') then begin
                 if ("No. Series" <> '') or
-                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order", "Document Type"::"Credit Memo"])
+                   ("Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"])
                 then begin
-                    if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then
+                    if "Document Type" in ["Document Type"::"Return Order"] then
                         ResetPostingNoSeriesFromSetup("Posting No. Series", SalesSetup."Posted Credit Memo Nos.")
                     else
-                        ResetPostingNoSeriesFromSetup("Posting No. Series", SalesSetup."Posted Invoice Nos.");
+                        if ("Document Type" <> "Document Type"::"Credit Memo") then
+                            ResetPostingNoSeriesFromSetup("Posting No. Series", SalesSetup."Posted Invoice Nos.");
+                    if "Document Type" = "Document Type"::"Credit Memo" then
+                        if (SalesSetup."Posted Credit Memo Nos." <> '') and ("Posting No. Series" = '') then
+                            CheckDefaultNoSeries(SalesSetup."Posted Credit Memo Nos.");
                     TestField("Posting No. Series");
                 end;
                 if ("No. Series" <> "Posting No. Series") or
@@ -2660,12 +2671,18 @@
             if not IsHandled then
                 if (Type = Type::Item) and ("No." <> '') then begin
                     GetItem(Item);
-                    if (Item."Costing Method" = Item."Costing Method"::Standard) and not IsShipment() then
+                    if (Item."Costing Method" = Item."Costing Method"::Standard) and not IsShipment() and not IsCreatedFromJob(SalesLine) then
                         GetUnitCost();
                 end;
         end;
 
         OnAfterUpdateSalesLineBeforePost(SalesLine, SalesHeader, WhseShip, WhseReceive, SuppressCommit);
+    end;
+
+    local procedure IsCreatedFromJob(var SalesLine: Record "Sales Line"): Boolean
+    begin
+        if (SalesLine."Job No." <> '') and (SalesLine."Job Task No." <> '') and (SalesLine."Job Contract Entry No." <> 0) then
+            exit(true);
     end;
 
     local procedure InitSalesLineQtyToInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -2811,13 +2828,22 @@
                                     TempSalesLine, TempSalesLine."Prepmt. Amount Inv. (LCY)", TempSalesLine."Prepmt. VAT Amount Inv. (LCY)");
                                 TempSalesLine.Modify();
                             until TempSalesLine.Next() = 0;
+                        if ("Document Type" = "Document Type"::Order) and SalesSetup."Archive Orders" then begin
+                            PostUpdateOrderLine(SalesHeader);
+                            if not OrderArchived then begin
+                                ArchiveManagement.AutoArchiveSalesDocument(SalesHeader);
+                                OrderArchived := true;
+                            end;
+                        end;
                     end;
                 end;
                 UpdateAfterPosting(SalesHeader);
                 UpdateEmailParameters(SalesHeader);
                 UpdateWhseDocuments(SalesHeader, EverythingInvoiced);
-                if not OrderArchived then
+                if not OrderArchived then begin
                     ArchiveManagement.AutoArchiveSalesDocument(SalesHeader);
+                    OrderArchived := true;
+                end;
 
                 OnFinalizePostingOnBeforeDeleteApprovalEntries(SalesHeader, EverythingInvoiced);
                 DeleteApprovalEntries(SalesHeader);
@@ -8640,6 +8666,14 @@
         exit(true);
     end;
 
+    local procedure CheckDefaultNoSeries(NoSeriesCode: Code[20])
+    var
+        NoSeries: Record "No. Series";
+    begin
+        if NoSeries.Get(NoSeriesCode) then
+            NoSeries.TestField("Default Nos.", true);
+    end;
+
 #if not CLEAN20
     local procedure UseLegacyInvoicePosting(): Boolean
     var
@@ -11528,6 +11562,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostInvoiceOnBeforeBalAccountNoWindowUpdate(HideProgressWindow: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckItemTrackingQuantityOnDocumentTypeCaseElse(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 }

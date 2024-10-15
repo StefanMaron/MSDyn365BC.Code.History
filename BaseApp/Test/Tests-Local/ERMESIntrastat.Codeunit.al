@@ -897,6 +897,7 @@
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandDec(10, 2));
+        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
         SalesHeader.Modify(true);
         exit(SalesHeader."No.")
     end;
@@ -915,6 +916,8 @@
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
+        SalesHeader.Modify();
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;

@@ -29,10 +29,12 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         CustomerNoElementNameTxt: Label 'Cust__Ledger_Entry__Customer_No__';
         RemainingAmountElementNameTxt: Label 'Cust__Ledger_Entry__Remaining_Amount_';
         PaymentMethodCodeModifyErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         CheckBillSituationGroupErr: Label '%1 cannot be applied because it is included in a bill group. To apply the document, remove it from the bill group and try again.', Comment = '%1 - document type and number';
         CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted bill group.', Comment = '%1 - document type and number';
         PostDocumentAppliedToBillInGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/1 from Group/Pmt. Order %2 and try again.';
+        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryInventory: Codeunit "Library - Inventory";
 
     [Test]
     [Scope('OnPrem')]
@@ -1613,6 +1615,68 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         Assert.ExpectedError(PaymentMethodCodeModifyErr);
     end;
 
+    [Test]
+    [HandlerFunctions('InsertDocModelHandler,ConfirmHandlerYes,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SettleDocInPostBillGroupWithOtherSalespersonThanOneInCustCardWithDim()
+    var
+        Customer: Record Customer;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        BillGroup: Record "Bill Group";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedBillGroup: Record "Posted Bill Group";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Dimension] [Sales]
+        // [SCENARIO 453011] Settle document in posted bill group with salesperson assigned from document that has different dimension setup
+
+        Initialize();
+
+        // [GIVEN] Salesperson "X" with default dimension of code "DIM" that has "Same Code" value posting
+        // [GIVEN] Customer has salesperson "X"
+        LibraryCarteraReceivables.CreateCarteraCustomer(Customer, '');
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+          DefaultDimension, DATABASE::"Salesperson/Purchaser", SalespersonPurchaser.Code, DefaultDimension."Value Posting"::"Same Code");
+        Customer.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Posted Sales invoice with this customer
+        // [GIVEN] Posted sales invoice has salesperson "Y" with default dimension of code "DIM" that has no value posting setup
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        LibraryDimension.CreateDimensionValue(DimensionValue, DefaultDimension."Dimension Code");
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, DATABASE::"Salesperson/Purchaser",
+          SalespersonPurchaser.Code, DefaultDimension."Dimension Code", DimensionValue.Code);
+        LibraryVariableStorage.Enqueue(DoYouWantToKeepExistingDimensionsQst);
+        SalesHeader.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader,
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(1000, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Posted bill group with sales invoice
+        CreateBillGroupLCY(BillGroup);
+        LibraryVariableStorage.Enqueue(DocumentNo);
+        AddCarteraDocumentToBillGroup(BillGroup."No.");
+        LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
+
+        // [WHEN] Settle sales invoice in posted bill group
+        SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
+
+        // [THEN] Sales invoice is settled
+        VerifyClosedCarteraDocStatusHonored(BillGroup."No.", DocumentNo);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1799,14 +1863,12 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 #if not CLEAN20
     local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; PostingDate: Date)
     begin
-        LibraryVariableStorage.Enqueue(ExchRateWasAdjustedTxt);
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate, PostingDate);
     end;
 #endif
 
     local procedure RunExchRateAdjustment(CurrencyCode: Code[10]; PostingDate: Date)
     begin
-        LibraryVariableStorage.Enqueue(ExchRateWasAdjustedTxt);
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, PostingDate, PostingDate);
     end;
 
@@ -1832,7 +1894,6 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         PostedBillGroupsPage.GotoRecord(PostedBillGroup);
 
         Evaluate(RemainingAmount, PostedBillGroupsPage.Docs."Remaining Amount".Value);
-        LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, RemainingAmount));
 
         PostedBillGroupsPage.Docs."Total Settlement".Invoke;
     end;
@@ -2032,6 +2093,20 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
     local procedure VerifyClosedCarteraDocStatus(BillGroupNo: Code[20]; DocumentNo: Code[20])
     var
+        ClosedCarteraDoc: Record "Closed Cartera Doc.";
+    begin
+        VerifyClosedCarteraDocWithStatus(BillGroupNo, DocumentNo, ClosedCarteraDoc.Status::Rejected);
+    end;
+
+    local procedure VerifyClosedCarteraDocStatusHonored(BillGroupNo: Code[20]; DocumentNo: Code[20])
+    var
+        ClosedCarteraDoc: Record "Closed Cartera Doc.";
+    begin
+        VerifyClosedCarteraDocWithStatus(BillGroupNo, DocumentNo, ClosedCarteraDoc.Status::Honored);
+    end;
+
+    local procedure VerifyClosedCarteraDocWithStatus(BillGroupNo: Code[20]; DocumentNo: Code[20]; Status: Option)
+    var
         DummyClosedBillGroup: Record "Closed Bill Group";
         ClosedCarteraDoc: Record "Closed Cartera Doc.";
     begin
@@ -2040,7 +2115,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
 
         ClosedCarteraDoc.SetRange("Document No.", DocumentNo);
         ClosedCarteraDoc.FindFirst();
-        Assert.AreEqual(ClosedCarteraDoc.Status::Rejected, ClosedCarteraDoc.Status, '');
+        ClosedCarteraDoc.TestField(Status, Status);
     end;
 
     local procedure VerifyPostedUnrealizedLossOnPayment(DocumentNo: Code[20]; CurrencyCode: Code[10]; GainLossAmt: Decimal)
@@ -2113,11 +2188,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
-    var
-        ExpectedMessageText: Variant;
     begin
-        LibraryVariableStorage.Dequeue(ExpectedMessageText);
-        Assert.ExpectedMessage(ExpectedMessageText, Message);
     end;
 
     [ModalPageHandler]

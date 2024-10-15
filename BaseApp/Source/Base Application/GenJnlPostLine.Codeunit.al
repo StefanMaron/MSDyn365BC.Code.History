@@ -1220,6 +1220,9 @@
         DtldLedgEntryInserted: Boolean;
     begin
         with GenJnlLine do begin
+            DocAmountLCY := 0;
+            CollDocAmountLCY := 0;
+
             Employee.Get("Account No.");
             Employee.CheckBlockedEmployeeOnJnls(true);
 
@@ -6431,7 +6434,13 @@
         DimMgt: Codeunit DimensionManagement;
         TableID: array[10] of Integer;
         AccNo: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDimValueForDisposal(GenJnlLine, AccountNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ((GenJnlLine.Amount = 0) or (GenJnlLine."Amount (LCY)" = 0)) and
            (GenJnlLine."FA Posting Type" = GenJnlLine."FA Posting Type"::Disposal)
         then begin
@@ -10050,6 +10059,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostEmployeeOnBeforeEmployeeLedgerEntryInsert(var GenJnlLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValueForDisposal(var GenJnlLine: Record "Gen. Journal Line"; AccountNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -459,7 +459,7 @@ report 118 "Finance Charge Memo"
                     column(VATClauseCode; VATAmountLine."VAT Clause Code")
                     {
                     }
-                    column(VATClauseDescription; VATClause.Description)
+                    column(VATClauseDescription; VATClauseText)
                     {
                     }
                     column(VATClauseDescription2; VATClause."Description 2")
@@ -485,7 +485,7 @@ report 118 "Finance Charge Memo"
                         VATAmountLine.GetLine(Number);
                         if not VATClause.Get(VATAmountLine."VAT Clause Code") then
                             CurrReport.Skip();
-                        VATClause.GetDescription("Issued Fin. Charge Memo Header");
+                        VATClauseText := VATClause.GetDescriptionText("Issued Fin. Charge Memo Header");
                     end;
 
                     trigger OnPreDataItem()
@@ -745,6 +745,7 @@ report 118 "Finance Charge Memo"
         CustEntry: Record "Cust. Ledger Entry";
         VALVATBase: Decimal;
         VALVATAmount: Decimal;
+        VATClauseText: Text;
         VATPostingSetup: Record "VAT Posting Setup";
         Cust: Record Customer;
         Text1100000: Label 'Total %1 Incl. VAT+EC';
