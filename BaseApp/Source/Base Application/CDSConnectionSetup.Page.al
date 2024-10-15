@@ -348,7 +348,7 @@ page 7200 "CDS Connection Setup"
                 Promoted = true;
                 Enabled = Rec."Is Enabled";
                 PromotedCategory = Process;
-                ToolTip = 'Upgrades the connection to Dataverse to use certificate-based OAuth2 service-to-service authentication.';
+                ToolTip = 'Upgrades the connection to Dataverse to use certificate-based OAuth 2.0 service-to-service authentication.';
 
                 trigger OnAction()
                 var
@@ -772,7 +772,7 @@ page 7200 "CDS Connection Setup"
         SuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has been successfully redeployed', Locked = true;
         UnsuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has failed to be redeployed', Locked = true;
         CertificateConnectionSetupTelemetryMsg: Label 'User has successfully set up the certificate connection to Dataverse.', Locked = true;
-        CertificateConnectionSetupMsg: Label 'You have successfully upgraded the connection to Dataverse to use certificate-based OAuth2 service-to-service authentication. Business Central has auto-generated a new integration user with user name %1 in your Dataverse environment. This user does not require a license.', Comment = '%1 - user name';
+        CertificateConnectionSetupMsg: Label 'You have successfully upgraded the connection to Dataverse to use certificate-based OAuth 2.0 service-to-service authentication. Business Central has auto-generated a new integration user with user name %1 in your Dataverse environment. This user does not require a license.', Comment = '%1 - user name';
         IsEditable: Boolean;
         IsUserNamePasswordVisible: Boolean;
         IsClientIdClientSecretVisible: Boolean;

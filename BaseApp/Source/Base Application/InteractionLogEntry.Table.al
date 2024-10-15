@@ -329,6 +329,7 @@ table 5065 "Interaction Log Entry"
         Text011: Label 'Very Positive,Positive,Neutral,Negative,Very Negative';
         TitleFromLbl: Label '%1 - from %2', Comment = '%1 - document description, %2 - name';
         TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
+        OpenMessageQst: Label 'You are about to open an email message in Outlook Online. Email messages might contain harmful content. Use caution when interacting with the message. Do you want to continue?';
 
     procedure AssignNewOpportunity()
     var
@@ -460,7 +461,8 @@ table 5065 "Interaction Log Entry"
                 Attachment."Email Message Url".CreateInStream(IStream);
                 IStream.Read(EmailMessageUrl);
                 if WebRequestHelper.IsHttpUrl(EmailMessageUrl) then begin
-                    HyperLink(EmailMessageUrl);
+                    if Confirm(OpenMessageQst, true) then
+                        HyperLink(EmailMessageUrl);
                     exit;
                 end;
             end;

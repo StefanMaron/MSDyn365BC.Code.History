@@ -117,7 +117,7 @@ table 7200 "CDS Connection Setup"
         field(135; "Authentication Type"; Option)
         {
             Caption = 'Authentication Type';
-            OptionCaption = 'Office365,AD,IFD,OAuth';
+            OptionCaption = 'OAuth 2.0,AD,IFD,OAuth';
             OptionMembers = Office365,AD,IFD,OAuth;
             DataClassification = SystemMetadata;
 
