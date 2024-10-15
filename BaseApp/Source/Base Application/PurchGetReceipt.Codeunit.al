@@ -1,4 +1,4 @@
-codeunit 74 "Purch.-Get Receipt"
+﻿codeunit 74 "Purch.-Get Receipt"
 {
     TableNo = "Purchase Line";
 
@@ -35,8 +35,13 @@ codeunit 74 "Purch.-Get Receipt"
     var
         TransferLine: Boolean;
         PrepmtAmtToDeductRounding: Decimal;
+        IsHandled: Boolean;
+        ShowDifferentPayToVendMsg: Boolean;
     begin
-        OnBeforeCreateInvLines(PurchRcptLine2, TransferLine);
+        IsHandled := false;
+        OnBeforeCreateInvLines(PurchRcptLine2, TransferLine, IsHandled);
+        if IsHandled then
+            exit;
 
         with PurchRcptLine2 do begin
             SetFilter("Qty. Rcd. Not Invoiced", '<>0');
@@ -62,7 +67,9 @@ codeunit 74 "Purch.-Get Receipt"
                               PurchRcptHeader.TableCaption, PurchRcptHeader."No.");
                             TransferLine := false;
                         end;
-                        if PurchRcptHeader."Pay-to Vendor No." <> PurchHeader."Pay-to Vendor No." then begin
+                        ShowDifferentPayToVendMsg := PurchRcptHeader."Pay-to Vendor No." <> PurchHeader."Pay-to Vendor No.";
+                        OnCreateInvLinesOnAfterCalcShowNotSameVendorsMessage(PurchHeader, PurchRcptHeader, TransferLine, ShowDifferentPayToVendMsg);
+                        if ShowDifferentPayToVendMsg then begin
                             Message(
                               Text000,
                               PurchHeader.FieldCaption("Pay-to Vendor No."),
@@ -241,7 +248,7 @@ codeunit 74 "Purch.-Get Receipt"
         then begin
             PurchOrderLine.Get(PurchOrderLine."Document Type"::Order, PurchRcptLine."Order No.", PurchRcptLine."Order Line No.");
             Fraction := PurchRcptLine."Qty. Rcd. Not Invoiced" / PurchOrderLine.Quantity;
-            FractionAmount := Fraction * (PurchOrderLine."Prepmt Amt to Deduct" + PurchOrderLine."Prepmt Amt Deducted");
+            FractionAmount := Fraction * PurchOrderLine."Prepmt. Amt. Inv.";
             RoundingAmount += PurchaseLine."Prepmt Amt to Deduct" - FractionAmount;
         end;
     end;
@@ -275,7 +282,7 @@ codeunit 74 "Purch.-Get Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateInvLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TransferLine: Boolean)
+    local procedure OnBeforeCreateInvLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TransferLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -296,6 +303,11 @@ codeunit 74 "Purch.-Get Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInvLinesOnBeforeFind(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnAfterCalcShowNotSameVendorsMessage(PurchHeader: Record "Purchase Header"; PurchRcptHeader: Record "Purch. Rcpt. Header"; var TransferLine: Boolean; var ShowDifferentPayToVendMsg: Boolean)
     begin
     end;
 }

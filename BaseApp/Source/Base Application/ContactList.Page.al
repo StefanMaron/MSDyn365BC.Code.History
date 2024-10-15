@@ -6,7 +6,7 @@ page 5052 "Contact List"
     DataCaptionFields = "Company No.";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Contact';
+    PromotedActionCategories = 'New,Process,Report,Contact,Navigate';
     SourceTable = Contact;
     SourceTableView = SORTING("Company Name", "Company No.", Type, Name);
     UsageCategory = Lists;
@@ -457,18 +457,18 @@ page 5052 "Contact List"
                 action(PriceLists)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Price Lists (Prices)';
+                    Caption = 'Sales Price Lists';
                     Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category5;
                     Visible = ExtendedPriceEnabled;
-                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
                     trigger OnAction()
                     var
                         PriceUXManagement: Codeunit "Price UX Management";
-                        AmountType: Enum "Price Amount Type";
-                        PriceType: Enum "Price Type";
                     begin
-                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Price);
+                        PriceUXManagement.ShowPriceLists(Rec, "Price Type"::Sale, "Price Amount Type"::Any);
                     end;
                 }
                 action(PriceListsDiscounts)
@@ -476,8 +476,11 @@ page 5052 "Contact List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Price Lists (Discounts)';
                     Image = LineDiscount;
-                    Visible = ExtendedPriceEnabled;
+                    Visible = false;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action PriceLists shows all sales price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var

@@ -17,6 +17,7 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -32,6 +33,7 @@ codeunit 137287 "SCM Inventory Costing II"
         ItemJnlLineCountErr: Label 'There should be %1 Item Journal Line(s) for Item %2.';
         CostAmountNonInvtblErr: Label 'Function NonInvtblCostAmt returned wrong value.';
         ActualCostErr: Label 'Incorrect Actual Cost LCY';
+        ItemTrackingMode: Option AssignSerialNos,SelectEntries;
 
     [Test]
     [Scope('OnPrem')]
@@ -1743,6 +1745,303 @@ codeunit 137287 "SCM Inventory Costing II"
         ValueEntry.TestField("Sales Amount (Actual)", 6.67);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeDistributionBySerialNosPurchaseOrder()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineCharge: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ValueEntry: Record "Value Entry";
+        CurrencyCode: Code[10];
+        Qty: Decimal;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Item Charge] [Item Tracking] [Purchase] [Order]
+        // [SCENARIO 374436] When item charge is distributed to multiple item entries by serial nos., the total distributed amount is precisely equal to the item charge amount.
+        // [SCENARIO 374436] Item charge is distributed to item line in purchase order.
+        Initialize();
+        Qty := 7;
+        Amount := 9.0;
+
+        // [GIVEN] Set additional reporting currency "ACY". The exchange rate is 1 "ACY" = 1 LCY.
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
+        LibraryERM.SetAddReportingCurrency(CurrencyCode);
+
+        // [GIVEN] Serial no.-tracked item "I".
+        // [GIVEN] Item charge "C".
+        LibraryItemTracking.CreateSerialItem(Item);
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Purchase order with 2 lines -
+        // [GIVEN] 1st line: Type = Item, No. = "I", Quantity = 7. Assign 7 serial nos.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        CreatePurchaseLine(PurchaseLineItem, PurchaseHeader, PurchaseLineItem.Type::Item, Item."No.", Qty, LibraryRandom.RandDec(100, 2));
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNos);
+        PurchaseLineItem.OpenItemTrackingLines();
+
+        // [GIVEN] 2nd line: Type = Item Charge, No. = "C", Quantity = 1, Line Amount = 9.0.
+        // [GIVEN] Assign the item charge to the item line.
+        CreatePurchaseLine(PurchaseLineCharge, PurchaseHeader, PurchaseLineCharge.Type::"Charge (Item)", ItemCharge."No.", 1, Amount);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLineCharge, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Order,
+          PurchaseLineItem."Document No.", PurchaseLineItem."Line No.", Item."No.");
+
+        // [WHEN] Ship and invoice the purchase order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] The sum of cost amount for item charge in both LCY and ACY currencies is equal to 9.0.
+        ValueEntry.SetRange("Item Charge No.", ItemCharge."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+        ValueEntry.TestField("Cost Amount (Actual)", Amount);
+        ValueEntry.TestField("Cost Amount (Actual) (ACY)", Amount);
+
+        // [THEN] For each value entry, the difference between actual cost and the precise cost [9/7 = 1.285714...] is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange(
+          "Cost Amount (Actual)",
+          Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        ValueEntry.SetRange(
+          "Cost Amount (Actual) (ACY)",
+          Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeDistributionBySerialNosPurchaseInvoice()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineCharge: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ValueEntry: Record "Value Entry";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        VendorNo: Code[20];
+        CurrencyCode: Code[10];
+        ReceiptNo: Code[20];
+        Qty: Decimal;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Item Charge] [Item Tracking] [Purchase] [Invoice] [Get Receipt Lines]
+        // [SCENARIO 374436] When item charge is distributed to multiple item entries by serial nos., the total distributed amount is precisely equal to the item charge amount.
+        // [SCENARIO 374436] Item charge is distributed to purchase invoice line created via "Get Receipt Lines".
+        Initialize();
+        Qty := 7;
+        Amount := 9.0;
+
+        // [GIVEN] Set additional reporting currency "ACY". The exchange rate is 1 "ACY" = 1 LCY.
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
+        LibraryERM.SetAddReportingCurrency(CurrencyCode);
+
+        // [GIVEN] Serial no.-tracked item "I".
+        // [GIVEN] Item charge "C".
+        LibraryItemTracking.CreateSerialItem(Item);
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Purchase order for item "I", quantity = 7. Assign 7 serial nos.
+        // [GIVEN] Post receipt.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        CreatePurchaseLine(PurchaseLineItem, PurchaseHeader, PurchaseLineItem.Type::Item, Item."No.", Qty, LibraryRandom.RandDec(100, 2));
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNos);
+        PurchaseLineItem.OpenItemTrackingLines();
+        ReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create purchase invoice using "Get Receipt Lines".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchRcptLine.SetRange("Document No.", ReceiptNo);
+        PurchGetReceipt.SetPurchHeader(PurchaseHeader);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        // [GIVEN] Add a line for item charge "C". Quantity = 1, Line Amount = 9.0.
+        // [GIVEN] Assign the item charge to the item line in the invoice.
+        Clear(PurchaseLineItem);
+        PurchaseLineItem.SetRange("No.", Item."No.");
+        LibraryPurchase.FindFirstPurchLine(PurchaseLineItem, PurchaseHeader);
+        CreatePurchaseLine(PurchaseLineCharge, PurchaseHeader, PurchaseLineCharge.Type::"Charge (Item)", ItemCharge."No.", 1, Amount);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLineCharge, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Invoice,
+          PurchaseLineItem."Document No.", PurchaseLineItem."Line No.", Item."No.");
+
+        // [WHEN] Post the purchase invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] The sum of cost amount for item charge in both LCY and ACY currencies is equal to 9.0.
+        ValueEntry.SetRange("Item Charge No.", ItemCharge."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+        ValueEntry.TestField("Cost Amount (Actual)", Amount);
+        ValueEntry.TestField("Cost Amount (Actual) (ACY)", Amount);
+
+        // [THEN] For each value entry, the difference between actual cost and the precise cost [9/7 = 1.285714...] is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange(
+          "Cost Amount (Actual)",
+          Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        ValueEntry.SetRange(
+          "Cost Amount (Actual) (ACY)",
+          Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler,ItemTrackingSummaryModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeDistributionBySerialNosSalesOrder()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineCharge: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        ValueEntry: Record "Value Entry";
+        Qty: Decimal;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Item Charge] [Item Tracking] [Sales] [Order]
+        // [SCENARIO 374436] When item charge is distributed to multiple item entries by serial nos., the total distributed amount is precisely equal to the item charge amount.
+        // [SCENARIO 374436] Item charge is distributed to item line in sales order.
+        Initialize();
+        LibrarySales.SetInvoiceRounding(false);
+        Qty := 7;
+        Amount := 9.0;
+
+        // [GIVEN] Serial no.-tracked item "I".
+        // [GIVEN] Item charge "C".
+        LibraryItemTracking.CreateSerialItem(Item);
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Post 7 pcs of item "I" to inventory. Assign 7 serial nos.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', Qty);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNos);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order with 2 lines -
+        // [GIVEN] 1st line: Type = Item, No. = "I", Quantity = 7.
+        // [GIVEN] Open item tracking lines and select 7 serial nos.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        CreateSalesLine(SalesLineItem, SalesHeader, SalesLineItem.Type::Item, Item."No.", Qty, LibraryRandom.RandDec(100, 2));
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        SalesLineItem.OpenItemTrackingLines();
+
+        // [GIVEN] 2nd line: Type = Item Charge, No. = "C", Quantity = 1, Line Amount = 9.0.
+        // [GIVEN] Assign the item charge to the item line.
+        CreateSalesLine(SalesLineCharge, SalesHeader, SalesLineCharge.Type::"Charge (Item)", ItemCharge."No.", 1, Amount);
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLineCharge, ItemChargeAssignmentSales."Applies-to Doc. Type"::Order,
+          SalesLineItem."Document No.", SalesLineItem."Line No.", Item."No.");
+
+        // [WHEN] Ship and invoice the sales order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] The sum of sales amount for item charge is equal to 9.0.
+        ValueEntry.SetRange("Item Charge No.", ItemCharge."No.");
+        ValueEntry.CalcSums("Sales Amount (Actual)");
+        ValueEntry.TestField("Sales Amount (Actual)", Amount);
+
+        // [THEN] For each value entry, the difference between actual sales amount and the precise amount [9/7 = 1.285714...] is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange(
+          "Sales Amount (Actual)",
+          Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQuantityToCreateModalPageHandler,ItemTrackingSummaryModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemChargeDistributionBySerialNosSalesInvoice()
+    var
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineCharge: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        ValueEntry: Record "Value Entry";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+        CustomerNo: Code[20];
+        ShipmentNo: Code[20];
+        Qty: Decimal;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Item Charge] [Item Tracking] [Sales] [Invoice] [Get Shipment Lines]
+        // [SCENARIO 374436] When item charge is distributed to multiple item entries by serial nos., the total distributed amount is precisely equal to the item charge amount.
+        // [SCENARIO 374436] Item charge is distributed to sales invoice line created via "Get Shipment Lines".
+        Initialize();
+        LibrarySales.SetInvoiceRounding(false);
+        Qty := 7;
+        Amount := 9.0;
+
+        // [GIVEN] Serial no.-tracked item "I".
+        // [GIVEN] Item charge "C".
+        LibraryItemTracking.CreateSerialItem(Item);
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Post 7 pcs of item "I" to inventory. Assign 7 serial nos.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', Qty);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignSerialNos);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for item "I", quantity = 7. Select 7 serial nos.
+        // [GIVEN] Post shipment.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        CreateSalesLine(SalesLineItem, SalesHeader, SalesLineItem.Type::Item, Item."No.", Qty, LibraryRandom.RandDec(100, 2));
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        SalesLineItem.OpenItemTrackingLines();
+        ShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Create sales invoice using "Get Shipment Lines".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesShipmentLine.SetRange("Document No.", ShipmentNo);
+        SalesGetShipment.SetSalesHeader(SalesHeader);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+
+        // [GIVEN] Add a line for item charge "C". Quantity = 1, Line Amount = 9.0.
+        // [GIVEN] Assign the item charge to the item line in the invoice.
+        Clear(SalesLineItem);
+        SalesLineItem.SetRange("No.", Item."No.");
+        LibrarySales.FindFirstSalesLine(SalesLineItem, SalesHeader);
+        CreateSalesLine(SalesLineCharge, SalesHeader, SalesLineCharge.Type::"Charge (Item)", ItemCharge."No.", 1, Amount);
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLineCharge, ItemChargeAssignmentSales."Applies-to Doc. Type"::Invoice,
+          SalesLineItem."Document No.", SalesLineItem."Line No.", Item."No.");
+
+        // [WHEN] Post the sales invoice.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] The sum of sales amount for item charge is equal to 9.0.
+        ValueEntry.SetRange("Item Charge No.", ItemCharge."No.");
+        ValueEntry.CalcSums("Sales Amount (Actual)");
+        ValueEntry.TestField("Sales Amount (Actual)", Amount);
+
+        // [THEN] For each value entry, the difference between sales amount and the precise amount [9/7 = 1.285714...] is not greater than the rounding precision 0.01.
+        ValueEntry.SetRange(
+          "Sales Amount (Actual)",
+          Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '<'), Round(Amount / Qty, LibraryERM.GetAmountRoundingPrecision(), '>'));
+        Assert.RecordCount(ValueEntry, Qty);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2775,6 +3074,35 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryVariableStorage.Dequeue(No);  // Dequeue variable.
         ReturnShipmentLines.FILTER.SetFilter("No.", No);
         ReturnShipmentLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            ItemTrackingMode::AssignSerialNos:
+                begin
+                    ItemTrackingLines."Assign Serial No.".Invoke();
+                    ItemTrackingLines.OK.Invoke();
+                end;
+            ItemTrackingMode::SelectEntries:
+                ItemTrackingLines."Select Entries".Invoke();
+        end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EnterQuantityToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK.Invoke();
     end;
 
     [ConfirmHandler]

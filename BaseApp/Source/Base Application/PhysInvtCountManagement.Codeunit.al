@@ -1,11 +1,14 @@
-codeunit 7380 "Phys. Invt. Count.-Management"
+﻿codeunit 7380 "Phys. Invt. Count.-Management"
 {
 
     trigger OnRun()
     var
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
+        IsHandled: Boolean;
     begin
+        OnBeforeRun(WhseJnlLine, SourceJnl);
+
         with Item do begin
             SetFilter("Phys Invt Counting Period Code", '<>''''');
             SetFilter("Next Counting Start Date", '<>%1', 0D);
@@ -33,19 +36,25 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                 repeat
                     if ("Last Counting Period Update" < "Next Counting Start Date") and
                        (WorkDate >= "Next Counting Start Date")
-                    then
-                        InsertTempPhysCountBuffer(
-                          "Item No.", "Variant Code", "Location Code",
-                          "Shelf No.", "Phys Invt Counting Period Code", Description,
-                          "Next Counting Start Date", "Next Counting End Date", "Last Counting Period Update", 2);
-
+                    then begin
+                        IsHandled := false;
+                        OnRunOnSKUOnBeforeInsertTempPhysCountBuffer(Item, SKU, IsHandled);
+                        if not IsHandled then
+                            InsertTempPhysCountBuffer(
+                              "Item No.", "Variant Code", "Location Code",
+                              "Shelf No.", "Phys Invt Counting Period Code", Description,
+                              "Next Counting Start Date", "Next Counting End Date", "Last Counting Period Update", 2);
+                    end;
                 until Next = 0;
         end;
 
-        if PAGE.RunModal(
-             PAGE::"Phys. Invt. Item Selection", TempPhysInvtItemSelection) <> ACTION::LookupOK
-        then
-            exit;
+        IsHandled := false;
+        OnRunOnBeforeRunModalPhysInvtItemSelection(TempPhysInvtItemSelection, IsHandled);
+        if not IsHandled then
+            if PAGE.RunModal(
+                 PAGE::"Phys. Invt. Item Selection", TempPhysInvtItemSelection) <> ACTION::LookupOK
+            then
+                exit;
 
         TempPhysInvtItemSelection.SetRange(Selected, true);
         if TempPhysInvtItemSelection.Find('-') then
@@ -94,6 +103,8 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         TempPhysInvtItemSelection."Count Frequency per Year" := PhysInvtCount."Count Frequency per Year";
         TempPhysInvtItemSelection.Description := Description;
         if TempPhysInvtItemSelection.Insert() then;
+
+        OnAfterInsertTempPhysCountBuffer(TempPhysInvtItemSelection, PhysInvtCountCode);
     end;
 
     local procedure CreatePhysInvtItemJnl()
@@ -155,8 +166,12 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     begin
         WhseJnlBatch.Get(
           WhseJnlLine."Journal Template Name", WhseJnlLine."Journal Batch Name", WhseJnlLine."Location Code");
-        CalculatePhysInvtCounting.SetWhseJnlLine(WhseJnlBatch);
-        CalculatePhysInvtCounting.RunModal;
+        IsHandled := false;
+        OnCreatePhysInvtWhseJnlOnBeforeCalculatePhysInvtCountingRunModal(CalculatePhysInvtCounting, SortingMethod, IsHandled);
+        if not IsHandled then begin
+            CalculatePhysInvtCounting.SetWhseJnlLine(WhseJnlBatch);
+            CalculatePhysInvtCounting.RunModal;
+        end;
 
         if CalculatePhysInvtCounting.GetRequest(
              PostingDate, DocNo, SortingMethod, PrintDoc, PrintDocPerItem, ZeroQty, PrintQtyCalculated)
@@ -425,6 +440,8 @@ codeunit 7380 "Phys. Invt. Count.-Management"
 
     procedure UpdateSKUPhysInvtCount(var SKU: Record "Stockkeeping Unit")
     begin
+        OnBeforeUpdateSKUPhysInvtCount(SKU);
+
         with SKU do begin
             if (not MarkedOnly) and (GetFilters = '') then
                 SetRecFilter;
@@ -449,6 +466,8 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                 Modify;
             until Next = 0;
         end;
+
+        OnAfterUpdateSKUPhysInvtCount(SKU);
     end;
 
     procedure UpdateItemPhysInvtCount(var Item: Record Item)
@@ -656,6 +675,41 @@ codeunit 7380 "Phys. Invt. Count.-Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterSetSKUFilters(var StockkeepingUnit: Record "Stockkeeping Unit"; SourceJnl: Option ItemJnl,WhseJnl,PhysInvtOrder,Custom)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRun(var WhseJnlLine: Record "Warehouse Journal Line"; var SourceJnl: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnSKUOnBeforeInsertTempPhysCountBuffer(var Item: Record Item; SKU: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeRunModalPhysInvtItemSelection(var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertTempPhysCountBuffer(var TempPhysInvtItemSelection: Record "Phys. Invt. Item Selection"; PhysInvtCountCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePhysInvtWhseJnlOnBeforeCalculatePhysInvtCountingRunModal(var CalculatePhysInvtCounting: Report "Calculate Phys. Invt. Counting"; SortingMethod: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSKUPhysInvtCount(var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateSKUPhysInvtCount(var SKU: Record "Stockkeeping Unit")
     begin
     end;
 }

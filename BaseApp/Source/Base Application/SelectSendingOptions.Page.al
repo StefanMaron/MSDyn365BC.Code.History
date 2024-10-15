@@ -73,6 +73,12 @@ page 364 "Select Sending Options"
                                 end;
                             }
                         }
+                        field("Combine Email Documents"; Rec."Combine Email Documents")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Combine Email Documents';
+                            ToolTip = 'Combine email documents into one document when sending/printing.';
+                        }
                     }
                     field(Disk; Disk)
                     {

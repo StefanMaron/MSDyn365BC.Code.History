@@ -1,4 +1,4 @@
-codeunit 260 "Document-Mailing"
+﻿codeunit 260 "Document-Mailing"
 {
     TableNo = "Job Queue Entry";
 
@@ -367,7 +367,7 @@ codeunit 260 "Document-Mailing"
             end;
 
             IsHandled := false;
-            OnBeforeSendEmail(TempEmailItem, IsFromPostedDoc, PostedDocNo, HideDialog, ReportUsage, EmailSentSuccesfully, IsHandled);
+            OnBeforeSendEmail(TempEmailItem, IsFromPostedDoc, PostedDocNo, HideDialog, ReportUsage, EmailSentSuccesfully, IsHandled, EmailDocName, SenderUserID, EmailScenario);
             if IsHandled then
                 exit(EmailSentSuccesfully);
 
@@ -388,7 +388,7 @@ codeunit 260 "Document-Mailing"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; var IsFromPostedDoc: Boolean; var PostedDocNo: Code[20]; var HideDialog: Boolean; var ReportUsage: Integer; var EmailSentSuccesfully: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; var IsFromPostedDoc: Boolean; var PostedDocNo: Code[20]; var HideDialog: Boolean; var ReportUsage: Integer; var EmailSentSuccesfully: Boolean; var IsHandled: Boolean; EmailDocName: Text[250]; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario")
     begin
     end;
 

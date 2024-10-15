@@ -48,7 +48,7 @@ page 26 "Vendor Card"
                 field(Blocked; Blocked)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a vendor that is declared insolvent or an item that is placed in quarantine.';
+                    ToolTip = 'Specifies which transactions with the vendor that cannot be processed, for example a vendor that is declared insolvent.';
                 }
                 field("Privacy Blocked"; "Privacy Blocked")
                 {
@@ -721,17 +721,18 @@ page 26 "Vendor Card"
                 action(PriceLists)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Price Lists (Prices)';
+                    Caption = 'Purchase Price Lists';
                     Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category7;
                     Visible = ExtendedPriceEnabled;
-                    ToolTip = 'View or set up different prices for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ToolTip = 'View or set up purchase price lists for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
 
                     trigger OnAction()
                     var
                         PriceUXManagement: Codeunit "Price UX Management";
-                        AmountType: Enum "Price Amount Type";
                     begin
-                        PriceUXManagement.ShowPriceLists(Rec, AmountType::Price);
+                        PriceUXManagement.ShowPriceLists(Rec, "Price Amount Type"::Any);
                     end;
                 }
                 action(PriceListsDiscounts)
@@ -739,8 +740,11 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Price Lists (Discounts)';
                     Image = LineDiscount;
-                    Visible = ExtendedPriceEnabled;
+                    Visible = false;
                     ToolTip = 'View or set up different discounts for products that you buy from the vendor. An product discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action PriceLists shows all purchase price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAction()
                     var
@@ -755,6 +759,8 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Prices';
                     Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category7;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Prices";
                     RunPageLink = "Vendor No." = FIELD("No.");
@@ -769,6 +775,8 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category7;
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Line Discounts";
                     RunPageLink = "Vendor No." = FIELD("No.");
@@ -949,6 +957,7 @@ page 26 "Vendor Card"
                 Caption = 'Common Data Service';
                 Image = Administration;
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
+                Enabled = (BlockedFilterApplied and (Blocked = Blocked::" ")) or not BlockedFilterApplied;
                 action(CDSGotoAccount)
                 {
                     ApplicationArea = Suite;
@@ -1344,9 +1353,9 @@ page 26 "Vendor Card"
 
                     trigger OnAction()
                     var
-                        MiniVendorTemplate: Record "Mini Vendor Template";
+                        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
                     begin
-                        MiniVendorTemplate.UpdateVendorFromTemplate(Rec);
+                        VendorTemplMgt.UpdateVendorFromTemplate(Rec);
                     end;
                 }
                 action(SaveAsTemplate)
@@ -1569,6 +1578,7 @@ page 26 "Vendor Card"
 
     trigger OnOpenPage()
     var
+        IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ItemReferenceMgt: Codeunit "Item Reference Management";
@@ -1580,6 +1590,9 @@ page 26 "Vendor Card"
         IsSaaS := EnvironmentInfo.IsSaaS();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        if CRMIntegrationEnabled or CDSIntegrationEnabled then
+            if IntegrationTableMapping.Get('VENDOR') then
+                BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         SetOverReceiptControlsVisibility();
         ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
@@ -1620,6 +1633,7 @@ page 26 "Vendor Card"
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
         OverReceiptAllowed: Boolean;
         [InDataSet]

@@ -136,10 +136,14 @@ table 270 "Bank Account"
             TableRelation = Currency;
 
             trigger OnValidate()
+            var
+                GeneralLedgerSetup: Record "General Ledger Setup";
             begin
                 if "Currency Code" = xRec."Currency Code" then
                     exit;
-
+                GeneralLedgerSetup.Get();
+                if (("Currency Code" in ['', GeneralLedgerSetup."LCY Code"]) and (xRec."Currency Code" in ['', GeneralLedgerSetup."LCY Code"])) then
+                    exit;
                 BankAcc.Reset();
                 BankAcc := Rec;
                 BankAcc.CalcFields(Balance, "Balance (LCY)");
@@ -685,6 +689,7 @@ table 270 "Bank Account"
     trigger OnRename()
     begin
         DimMgt.RenameDefaultDim(DATABASE::"Bank Account", xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::"Bank Account", xRec."No.", "No.");
         "Last Date Modified" := Today;
     end;
 

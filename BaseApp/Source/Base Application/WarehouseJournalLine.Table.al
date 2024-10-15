@@ -1,4 +1,4 @@
-table 7311 "Warehouse Journal Line"
+﻿table 7311 "Warehouse Journal Line"
 {
     Caption = 'Warehouse Journal Line';
     DrillDownPageID = "Warehouse Journal Lines";
@@ -117,17 +117,7 @@ table 7311 "Warehouse Journal Line"
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
 
-                if "Item No." <> '' then begin
-                    if "Item No." <> xRec."Item No." then
-                        "Variant Code" := '';
-                    GetItemUnitOfMeasure;
-                    Description := Item.Description;
-                    Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
-                end else begin
-                    Description := '';
-                    "Variant Code" := '';
-                    Validate("Unit of Measure Code", '');
-                end;
+                SetItemFields();
             end;
         }
         field(10; Quantity; Decimal)
@@ -528,6 +518,8 @@ table 7311 "Warehouse Journal Line"
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
@@ -540,7 +532,11 @@ table 7311 "Warehouse Journal Line"
                     CheckBin("Location Code", "To Bin Code", true);
                 end else
                     "Qty. per Unit of Measure" := 1;
-                Validate(Quantity);
+
+                IsHandled := false;
+                OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(Rec, IsHandled);
+                if not IsHandled then
+                    Validate(Quantity);
             end;
         }
         field(6500; "Serial No."; Code[50])
@@ -717,6 +713,7 @@ table 7311 "Warehouse Journal Line"
         WhseJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         WhseJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
         WhseJnlLine.SetRange("Location Code", "Location Code");
+        OnSetUpNewLineOnAfterWhseJnlLineSetFilters(Rec, WhseJnlLine, LastWhseJnlLine);
         if WhseJnlLine.FindFirst then begin
             WhseJnlBatch.Get(
               "Journal Template Name", "Journal Batch Name", LastWhseJnlLine."Location Code");
@@ -791,6 +788,28 @@ table 7311 "Warehouse Journal Line"
         then
             if not ItemUnitOfMeasure.Get(Item."No.", "Unit of Measure Code") then
                 ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+    end;
+
+    local procedure SetItemFields()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetItemFields(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Item No." <> '' then begin
+            if "Item No." <> xRec."Item No." then
+                "Variant Code" := '';
+            GetItemUnitOfMeasure;
+            Description := Item.Description;
+            Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        end else begin
+            Description := '';
+            "Variant Code" := '';
+            Validate("Unit of Measure Code", '');
+        end;
     end;
 
     procedure EmptyLine(): Boolean
@@ -885,18 +904,7 @@ table 7311 "Warehouse Journal Line"
                     WhseJnlLine.SetRange("Line No.", "Line No.");
                     WhseJnlLine.CalcSums("Qty. (Absolute)", Cubage, Weight);
                 end;
-                if BinContent.Get(
-                     "Location Code", BinCode, "Item No.", "Variant Code", "Unit of Measure Code")
-                then
-                    BinContent.CheckIncreaseBinContent(
-                      "Qty. (Absolute, Base)", WhseJnlLine."Qty. (Absolute, Base)",
-                      WhseJnlLine.Cubage, WhseJnlLine.Weight, Cubage, Weight, false, false)
-                else begin
-                    GetBin(LocationCode, BinCode);
-                    Bin.CheckIncreaseBin(
-                      BinCode, "Item No.", "Qty. (Absolute)",
-                      WhseJnlLine.Cubage, WhseJnlLine.Weight, Cubage, Weight, false, false);
-                end;
+                CheckIncreaseBin(BinContent, LocationCode, BinCode);
             end else begin
                 IsHandled := false;
                 OnCheckBinOnBeforeCheckOutboundBin(Rec, IsHandled);
@@ -910,6 +918,29 @@ table 7311 "Warehouse Journal Line"
                 end;
             end;
             BinContent.SetProposalMode(false);
+        end;
+    end;
+
+    local procedure CheckIncreaseBin(BinContent: Record "Bin Content"; LocationCode: Code[10]; BinCode: Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIncreaseBin(Rec, BinCode, StockProposal, IsHandled);
+        if IsHandled then
+            exit;
+
+        if BinContent.Get(
+             "Location Code", BinCode, "Item No.", "Variant Code", "Unit of Measure Code")
+        then
+            BinContent.CheckIncreaseBinContent(
+              "Qty. (Absolute, Base)", WhseJnlLine."Qty. (Absolute, Base)",
+              WhseJnlLine.Cubage, WhseJnlLine.Weight, Cubage, Weight, false, false)
+        else begin
+            GetBin(LocationCode, BinCode);
+            Bin.CheckIncreaseBin(
+              BinCode, "Item No.", "Qty. (Absolute)",
+              WhseJnlLine.Cubage, WhseJnlLine.Weight, Cubage, Weight, false, false);
         end;
     end;
 
@@ -937,6 +968,7 @@ table 7311 "Warehouse Journal Line"
         if not OpenFromBatch then
             WhseJnlTemplate.SetRange("Page ID", PageID);
         WhseJnlTemplate.SetRange(Type, PageTemplate);
+        OnTemplateSelectionOnAfterSetFilters(Rec, WhseJnlTemplate, OpenFromBatch);
 
         case WhseJnlTemplate.Count of
             0:
@@ -970,6 +1002,8 @@ table 7311 "Warehouse Journal Line"
         WhseJnlLine: Record "Warehouse Journal Line";
         JnlSelected: Boolean;
     begin
+        OnBeforeTemplateSelectionFromBatch(WhseJnlLine, WhseJnlBatch);
+
         OpenFromBatch := true;
         WhseJnlBatch.CalcFields("Template Type");
         WhseJnlLine."Journal Batch Name" := WhseJnlBatch.Name;
@@ -987,6 +1021,8 @@ table 7311 "Warehouse Journal Line"
         if CurrentLocationCode <> '' then
             WhseJnlLine.SetRange("Location Code", CurrentLocationCode);
         WhseJnlLine.FilterGroup := 0;
+
+        OnAfterOpenJnl(WhseJnlLine, CurrentJnlBatchName, CurrentLocationCode);
     end;
 
     procedure CheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentLocationCode: Code[10]; var CurrentJnlBatchName: Code[10])
@@ -1037,6 +1073,8 @@ table 7311 "Warehouse Journal Line"
         WhseJnlLine.SetRange("Location Code", CurrentLocationCode);
         WhseJnlLine.FilterGroup := 0;
         if WhseJnlLine.Find('-') then;
+
+        OnAfterSetName(Rec, WhseJnlLine);
     end;
 
     procedure LookupName(var CurrentJnlBatchName: Code[10]; var CurrentLocationCode: Code[10]; var WhseJnlLine: Record "Warehouse Journal Line")
@@ -1050,6 +1088,7 @@ table 7311 "Warehouse Journal Line"
         if PAGE.RunModal(PAGE::"Whse. Journal Batches List", WhseJnlBatch) = ACTION::LookupOK then begin
             CurrentJnlBatchName := WhseJnlBatch.Name;
             CurrentLocationCode := WhseJnlBatch."Location Code";
+            OnLookupNameOnBeforeSetName(WhseJnlLine, WhseJnlBatch);
             SetName(CurrentJnlBatchName, CurrentLocationCode, WhseJnlLine);
         end;
     end;
@@ -1078,6 +1117,8 @@ table 7311 "Warehouse Journal Line"
         WhseItemTrackingLines.SetSource(WhseWkshLine, DATABASE::"Warehouse Journal Line");
         WhseItemTrackingLines.RunModal;
         Clear(WhseItemTrackingLines);
+
+        OnAfterOpenItemTrackingLines(Rec, WhseItemTrackingLines);
     end;
 
     procedure ItemTrackingReclass(TemplateName: Code[10]; BatchName: Code[10]; LocationCode: Code[10]; LineNo: Integer): Boolean
@@ -1118,7 +1159,13 @@ table 7311 "Warehouse Journal Line"
     var
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         BinCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupBinCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Line No." <> 0) and (Quantity < 0) then begin
             LookupItemTracking(WhseItemTrackingSetup);
             BinCode := WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "Zone Code", WhseItemTrackingSetup, "Bin Code");
@@ -1339,7 +1386,22 @@ table 7311 "Warehouse Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenItemTrackingLines(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseItemTrackingLines: Page "Whse. Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenJnl(var WarehouseJournalLine: Record "Warehouse Journal Line"; CurrentJnlBatchName: Code[10]; CurrentLocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; var LastWhseJnlLine: Record "Warehouse Journal Line"; WarehouseJournalTemplate: Record "Warehouse Journal Template");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetName(var RecWarehouseJournalLine: Record "Warehouse Journal Line"; var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 
@@ -1349,7 +1411,12 @@ table 7311 "Warehouse Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckBin(WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckBin(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIncreaseBin(WarehouseJournalLine: Record "Warehouse Journal Line"; BinCode: Code[20]; StockProposal: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1369,7 +1436,22 @@ table 7311 "Warehouse Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupBinCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetItemFields(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTemplateSelectionFromBatch(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalBatch: Record "Warehouse Journal Batch")
     begin
     end;
 
@@ -1379,7 +1461,27 @@ table 7311 "Warehouse Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLookupNameOnBeforeSetName(var WarehouseJournalLine: Record "Warehouse Journal Line"; WhseJnlBatch: Record "Warehouse Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnOpenItemTrackingLinesOnBeforeSetSource(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUpNewLineOnAfterWhseJnlLineSetFilters(var RecWarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalLine: Record "Warehouse Journal Line"; LastWarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTemplateSelectionOnAfterSetFilters(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseJnlTemplate: Record "Warehouse Journal Template"; OpenFromBatch: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

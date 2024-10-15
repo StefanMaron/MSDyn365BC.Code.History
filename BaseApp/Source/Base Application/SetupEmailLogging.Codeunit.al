@@ -422,14 +422,16 @@ codeunit 1641 "Setup Email Logging"
     procedure PromptClientCredentials(var ClientId: Text[250]; var ClientSecret: Text[250]; var RedirectURL: Text[2048]): Boolean
     var
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
-        AzureADMgt: Codeunit "Azure AD Mgt.";
+        OAuth2: Codeunit "OAuth2";
+        DefaultRedirectURL: Text;
     begin
         TempNameValueBuffer.ID := 1;
         TempNameValueBuffer.Name := ClientId;
         TempNameValueBuffer.Value := ClientSecret;
-        if RedirectURL = '' then
-            TempNameValueBuffer."Value Long" := AzureADMgt.GetDefaultRedirectUrl()
-        else
+        if RedirectURL = '' then begin
+            OAuth2.GetDefaultRedirectUrl(DefaultRedirectURL);
+            TempNameValueBuffer."Value Long" := CopyStr(DefaultRedirectURL, 1, MaxStrLen(TempNameValueBuffer."Value Long"));
+        end else
             TempNameValueBuffer."Value Long" := RedirectURL;
         TempNameValueBuffer.Insert();
         Commit();
@@ -573,7 +575,7 @@ codeunit 1641 "Setup Email Logging"
             exit(ClientId);
         end;
 
-        if EnvironmentInformation.IsSaaS() then
+        if EnvironmentInformation.IsSaaSInfrastructure() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(EmailLoggingClientIdAKVSecretNameLbl, ClientId) then
                 Session.LogMessage('0000CFD', MissingClientIdTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
             else begin
@@ -608,7 +610,7 @@ codeunit 1641 "Setup Email Logging"
             exit(ClientSecret);
         end;
 
-        if EnvironmentInformation.IsSaaS() then
+        if EnvironmentInformation.IsSaaSInfrastructure() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(EmailLoggingClientSecretAKVSecretNameLbl, ClientSecret) then
                 Session.LogMessage('0000CFE', MissingClientSecretTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
             else begin

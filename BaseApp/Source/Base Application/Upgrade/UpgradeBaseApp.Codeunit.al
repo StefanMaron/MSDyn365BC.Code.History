@@ -15,7 +15,6 @@ codeunit 104000 "Upgrade - BaseApp"
         ExcelTemplateAgedAccountsReceivableTxt: Label 'ExcelTemplateAgedAccountsReceivable', Locked = true;
         ExcelTemplateAgedAccountsPayableTxt: Label 'ExcelTemplateAgedAccountsPayable', Locked = true;
         ExcelTemplateCompanyInformationTxt: Label 'ExcelTemplateViewCompanyInformation', Locked = true;
-        InvoicingShouldNotBeUpgradedErr: Label 'Invoicing tenant should not be upgraded.', Locked = true;
 
     trigger OnUpgradePerDatabase()
     begin
@@ -28,7 +27,6 @@ codeunit 104000 "Upgrade - BaseApp"
 
     trigger OnUpgradePerCompany()
     begin
-        DoNotUpgradeIfInvoicing();
         UpdateDefaultDimensionsReferencedIds();
         UpdateGenJournalBatchReferencedIds();
         UpdateItems();
@@ -51,14 +49,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTemplates();
         UpgradePurchaseRcptLineOverReceiptCode();
         UpgradeContactMobilePhoneNo();
-    end;
-
-    local procedure DoNotUpgradeIfInvoicing()
-    var
-        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-    begin
-        IF (O365SalesInitialSetup.GET AND O365SalesInitialSetup."Is initialized") THEN
-            Error(InvoicingShouldNotBeUpgradedErr);
+        UpgradePostCodeServiceKey();
     end;
 
     local procedure SetReviewRequiredOnBankPmtApplRules()
@@ -1566,6 +1557,33 @@ codeunit 104000 "Upgrade - BaseApp"
                             BankAccount.Modify();
                         end;
             until BankAccount.Next() = 0;
+    end;
+
+    local procedure UpgradePostCodeServiceKey()
+    var
+        PostCodeServiceConfig: Record "Postcode Service Config";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        IsolatedStorageValue: Text;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPostCodeServiceKeyUpgradeTag()) then
+            exit;
+
+        if not PostCodeServiceConfig.Get() then
+            exit;
+
+        if not IsolatedStorageManagement.Get(PostCodeServiceConfig.ServiceKey, DataScope::Company, IsolatedStorageValue) then
+            exit;
+
+        if not IsolatedStorageManagement.Delete(PostCodeServiceConfig.ServiceKey, DataScope::Company) then;
+
+        if IsolatedStorageValue = '' then
+            IsolatedStorageValue := 'Disabled';
+
+        PostCodeServiceConfig.SaveServiceKey(IsolatedStorageValue);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPostCodeServiceKeyUpgradeTag());
     end;
 }
 
