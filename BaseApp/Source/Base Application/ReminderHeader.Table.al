@@ -927,9 +927,32 @@ table 295 "Reminder Header"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    local procedure ReminderRounding(ReminderHeader: Record "Reminder Header")
+    procedure GetInvoiceRoundingAmount(): Decimal
     var
         TotalAmountInclVAT: Decimal;
+    begin
+        GetCurrency(ReminderHeader);
+        if Currency."Invoice Rounding Precision" = 0 then
+            exit(0);
+
+        CalcFields(
+            "Remaining Amount","Interest Amount","Additional Fee","VAT Amount","Add. Fee per Line");
+        TotalAmountInclVAT :=
+            "Remaining Amount" + "Interest Amount" + "Additional Fee" +
+            "Add. Fee per Line" + "VAT Amount";
+
+        exit(
+            -Round(
+                TotalAmountInclVAT -
+                Round(
+                    TotalAmountInclVAT,
+                    Currency."Invoice Rounding Precision",
+                    Currency.InvoiceRoundingDirection),
+                Currency."Amount Rounding Precision"));
+    end;
+
+    local procedure ReminderRounding(ReminderHeader: Record "Reminder Header")
+    var
         ReminderRoundingAmount: Decimal;
         Handled: Boolean;
     begin
@@ -937,26 +960,8 @@ table 295 "Reminder Header"
         if Handled then
             exit;
 
-        GetCurrency(ReminderHeader);
-        if Currency."Invoice Rounding Precision" = 0 then
-            exit;
+        ReminderRoundingAmount := ReminderHeader.GetInvoiceRoundingAmount();
 
-        ReminderHeader.CalcFields(
-          "Remaining Amount", "Interest Amount", "Additional Fee", "VAT Amount", "Add. Fee per Line");
-
-        TotalAmountInclVAT := ReminderHeader."Remaining Amount" +
-          ReminderHeader."Interest Amount" +
-          ReminderHeader."Additional Fee" +
-          ReminderHeader."Add. Fee per Line" +
-          ReminderHeader."VAT Amount";
-        ReminderRoundingAmount :=
-          -Round(
-            TotalAmountInclVAT -
-            Round(
-              TotalAmountInclVAT,
-              Currency."Invoice Rounding Precision",
-              Currency.InvoiceRoundingDirection),
-            Currency."Amount Rounding Precision");
         if ReminderRoundingAmount <> 0 then begin
             CustPostingGr.Get(ReminderHeader."Customer Posting Group");
             with ReminderLine do begin

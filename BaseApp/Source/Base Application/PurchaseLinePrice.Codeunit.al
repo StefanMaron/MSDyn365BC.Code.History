@@ -186,12 +186,15 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
 
     local procedure GetDocumentDate() DocumentDate: Date;
     begin
-        if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type"::"Credit Memo"] then
+        if PurchaseHeader."Document Type" in
+            [PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type"::"Credit Memo"]
+        then
             DocumentDate := PurchaseHeader."Posting Date"
         else
             DocumentDate := PurchaseHeader."Order Date";
         if DocumentDate = 0D then
             DocumentDate := WorkDate();
+        OnAfterGetDocumentDate(DocumentDate, PurchaseHeader, PurchaseLine);
     end;
 
     procedure SetPrice(AmountType: enum "Price Amount Type"; PriceListLine: Record "Price List Line")
@@ -230,6 +233,11 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBuffer(
         var PriceCalculationBuffer: Record "Price Calculation Buffer"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDocumentDate(var DocumentDate: Date; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 

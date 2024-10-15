@@ -119,6 +119,16 @@
         ExpectedInventory := AvailableMgt.ExpectedQtyOnHand(Item, true, 0, QtyAvailable, DMY2Date(31, 12, 9999));
     end;
 
+    procedure CalcAvailQuantities(var Item: Record Item; IsBalanceAtDate: Boolean; var GrossRequirement: Decimal; var PlannedOrderRcpt: Decimal; var ScheduledRcpt: Decimal; var PlannedOrderReleases: Decimal; var ProjAvailableBalance: Decimal; var ExpectedInventory: Decimal; var QtyAvailable: Decimal; var AvailableInventory: Decimal)
+    var
+        AvailableToPromise: Codeunit "Available to Promise";
+    begin
+        CalcAvailQuantities(
+            Item, isBalanceAtDate, GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,
+            PlannedOrderReleases, ProjAvailableBalance, ExpectedInventory, QtyAvailable);
+        AvailableInventory := AvailableToPromise.CalcAvailableInventory(Item);
+    end;
+
     procedure ShowItemLedgerEntries(var Item: Record Item; NetChange: Boolean)
     var
         ItemLedgEntry: Record "Item Ledger Entry";

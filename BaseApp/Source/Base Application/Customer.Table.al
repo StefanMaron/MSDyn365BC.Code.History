@@ -313,7 +313,7 @@ table 18 Customer
         }
         field(38; Comment; Boolean)
         {
-            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST(Customer),
+            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST(Customer),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -410,7 +410,7 @@ table 18 Customer
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                          "Currency Code" = FIELD("Currency Filter")));
@@ -421,7 +421,7 @@ table 18 Customer
         field(59; "Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                                  "Currency Code" = FIELD("Currency Filter")));
@@ -433,7 +433,7 @@ table 18 Customer
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                          "Posting Date" = FIELD("Date Filter"),
@@ -445,7 +445,7 @@ table 18 Customer
         field(61; "Net Change (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                                  "Posting Date" = FIELD("Date Filter"),
@@ -457,7 +457,7 @@ table 18 Customer
         field(62; "Sales (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Cust. Ledger Entry"."Sales (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Cust. Ledger Entry"."Sales (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                         "Posting Date" = FIELD("Date Filter"),
@@ -469,7 +469,7 @@ table 18 Customer
         field(63; "Profit (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Cust. Ledger Entry"."Profit (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Cust. Ledger Entry"."Profit (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                          "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                          "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                          "Posting Date" = FIELD("Date Filter"),
@@ -481,7 +481,7 @@ table 18 Customer
         field(64; "Inv. Discounts (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Cust. Ledger Entry"."Inv. Discount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Cust. Ledger Entry"."Inv. Discount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                 "Posting Date" = FIELD("Date Filter"),
@@ -493,7 +493,7 @@ table 18 Customer
         field(65; "Pmt. Discounts (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = - Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                   "Entry Type" = FILTER("Payment Discount" .. "Payment Discount (VAT Adjustment)"),
                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -507,7 +507,7 @@ table 18 Customer
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
                                                                          "Initial Entry Due Date" = FIELD(UPPERLIMIT("Date Filter")),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -519,7 +519,7 @@ table 18 Customer
         field(67; "Balance Due (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                  "Initial Entry Due Date" = FIELD(UPPERLIMIT("Date Filter")),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -532,7 +532,7 @@ table 18 Customer
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(Payment),
+            CalcFormula = - Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(Payment),
                                                                           "Entry Type" = CONST("Initial Entry"),
                                                                           "Customer No." = FIELD("No."),
                                                                           "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -547,7 +547,7 @@ table 18 Customer
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(Invoice),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(Invoice),
                                                                          "Entry Type" = CONST("Initial Entry"),
                                                                          "Customer No." = FIELD("No."),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -562,7 +562,7 @@ table 18 Customer
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST("Credit Memo"),
+            CalcFormula = - Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST("Credit Memo"),
                                                                           "Entry Type" = CONST("Initial Entry"),
                                                                           "Customer No." = FIELD("No."),
                                                                           "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -577,7 +577,7 @@ table 18 Customer
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST("Finance Charge Memo"),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST("Finance Charge Memo"),
                                                                          "Entry Type" = CONST("Initial Entry"),
                                                                          "Customer No." = FIELD("No."),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -591,7 +591,7 @@ table 18 Customer
         field(74; "Payments (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(Payment),
+            CalcFormula = - Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(Payment),
                                                                                   "Entry Type" = CONST("Initial Entry"),
                                                                                   "Customer No." = FIELD("No."),
                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -605,7 +605,7 @@ table 18 Customer
         field(75; "Inv. Amounts (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(Invoice),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(Invoice),
                                                                                  "Entry Type" = CONST("Initial Entry"),
                                                                                  "Customer No." = FIELD("No."),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -619,7 +619,7 @@ table 18 Customer
         field(76; "Cr. Memo Amounts (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST("Credit Memo"),
+            CalcFormula = - Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST("Credit Memo"),
                                                                                   "Entry Type" = CONST("Initial Entry"),
                                                                                   "Customer No." = FIELD("No."),
                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -633,7 +633,7 @@ table 18 Customer
         field(77; "Fin. Charge Memo Amounts (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST("Finance Charge Memo"),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST("Finance Charge Memo"),
                                                                                  "Entry Type" = CONST("Initial Entry"),
                                                                                  "Customer No." = FIELD("No."),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -649,7 +649,7 @@ table 18 Customer
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Outstanding Amount" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum ("Sales Line"."Outstanding Amount" WHERE("Document Type" = CONST(Order),
                                                                        "Bill-to Customer No." = FIELD("No."),
                                                                        "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                        "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -663,7 +663,7 @@ table 18 Customer
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Shipped Not Invoiced" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum ("Sales Line"."Shipped Not Invoiced" WHERE("Document Type" = CONST(Order),
                                                                          "Bill-to Customer No." = FIELD("No."),
                                                                          "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                          "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -787,7 +787,7 @@ table 18 Customer
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Debit Amount" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Debit Amount" WHERE("Customer No." = FIELD("No."),
                                                                                  "Entry Type" = FILTER(<> Application),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -802,7 +802,7 @@ table 18 Customer
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Credit Amount" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Credit Amount" WHERE("Customer No." = FIELD("No."),
                                                                                   "Entry Type" = FILTER(<> Application),
                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -816,7 +816,7 @@ table 18 Customer
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Debit Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Debit Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                        "Entry Type" = FILTER(<> Application),
                                                                                        "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -830,7 +830,7 @@ table 18 Customer
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Credit Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Credit Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                         "Entry Type" = FILTER(<> Application),
                                                                                         "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                         "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -868,7 +868,7 @@ table 18 Customer
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(Reminder),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(Reminder),
                                                                          "Entry Type" = CONST("Initial Entry"),
                                                                          "Customer No." = FIELD("No."),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -882,7 +882,7 @@ table 18 Customer
         field(106; "Reminder Amounts (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(Reminder),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(Reminder),
                                                                                  "Entry Type" = CONST("Initial Entry"),
                                                                                  "Customer No." = FIELD("No."),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -933,7 +933,7 @@ table 18 Customer
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Outstanding Amount (LCY)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum ("Sales Line"."Outstanding Amount (LCY)" WHERE("Document Type" = CONST(Order),
                                                                              "Bill-to Customer No." = FIELD("No."),
                                                                              "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                              "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -946,7 +946,7 @@ table 18 Customer
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum ("Sales Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = CONST(Order),
                                                                                "Bill-to Customer No." = FIELD("No."),
                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -973,7 +973,7 @@ table 18 Customer
         field(117; "Pmt. Disc. Tolerance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = - Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                   "Entry Type" = FILTER("Payment Discount Tolerance" | "Payment Discount Tolerance (VAT Adjustment)" | "Payment Discount Tolerance (VAT Excl.)"),
                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -986,7 +986,7 @@ table 18 Customer
         field(118; "Pmt. Tolerance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = - Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                   "Entry Type" = FILTER("Payment Tolerance" | "Payment Tolerance (VAT Adjustment)" | "Payment Tolerance (VAT Excl.)"),
                                                                                   "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -1044,7 +1044,7 @@ table 18 Customer
         }
         field(120; Refunds; Decimal)
         {
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(Refund),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(Refund),
                                                                          "Entry Type" = CONST("Initial Entry"),
                                                                          "Customer No." = FIELD("No."),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -1056,7 +1056,7 @@ table 18 Customer
         }
         field(121; "Refunds (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(Refund),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(Refund),
                                                                                  "Entry Type" = CONST("Initial Entry"),
                                                                                  "Customer No." = FIELD("No."),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -1068,7 +1068,7 @@ table 18 Customer
         }
         field(122; "Other Amounts"; Decimal)
         {
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(" "),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Initial Document Type" = CONST(" "),
                                                                          "Entry Type" = CONST("Initial Entry"),
                                                                          "Customer No." = FIELD("No."),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -1080,7 +1080,7 @@ table 18 Customer
         }
         field(123; "Other Amounts (LCY)"; Decimal)
         {
-            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(" "),
+            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Initial Document Type" = CONST(" "),
                                                                                  "Entry Type" = CONST("Initial Entry"),
                                                                                  "Customer No." = FIELD("No."),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
@@ -1101,7 +1101,7 @@ table 18 Customer
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Outstanding Amount (LCY)" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Sum ("Sales Line"."Outstanding Amount (LCY)" WHERE("Document Type" = CONST(Invoice),
                                                                              "Bill-to Customer No." = FIELD("No."),
                                                                              "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                              "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -1115,7 +1115,7 @@ table 18 Customer
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Sales Line"."Outstanding Amount" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Sum ("Sales Line"."Outstanding Amount" WHERE("Document Type" = CONST(Invoice),
                                                                        "Bill-to Customer No." = FIELD("No."),
                                                                        "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                        "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -1126,14 +1126,14 @@ table 18 Customer
         }
         field(130; "Bill-to No. Of Archived Doc."; Integer)
         {
-            CalcFormula = Count("Sales Header Archive" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count ("Sales Header Archive" WHERE("Document Type" = CONST(Order),
                                                               "Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-to No. Of Archived Doc.';
             FieldClass = FlowField;
         }
         field(131; "Sell-to No. Of Archived Doc."; Integer)
         {
-            CalcFormula = Count("Sales Header Archive" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count ("Sales Header Archive" WHERE("Document Type" = CONST(Order),
                                                               "Sell-to Customer No." = FIELD("No.")));
             Caption = 'Sell-to No. Of Archived Doc.';
             FieldClass = FlowField;
@@ -1282,7 +1282,7 @@ table 18 Customer
         field(5902; "Contract Gain/Loss Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Contract Gain/Loss Entry".Amount WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum ("Contract Gain/Loss Entry".Amount WHERE("Customer No." = FIELD("No."),
                                                                        "Ship-to Code" = FIELD("Ship-to Filter"),
                                                                        "Change Date" = FIELD("Date Filter")));
             Caption = 'Contract Gain/Loss Amount';
@@ -1298,7 +1298,7 @@ table 18 Customer
         field(5910; "Outstanding Serv. Orders (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Service Line"."Outstanding Amount (LCY)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum ("Service Line"."Outstanding Amount (LCY)" WHERE("Document Type" = CONST(Order),
                                                                                "Bill-to Customer No." = FIELD("No."),
                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -1310,7 +1310,7 @@ table 18 Customer
         field(5911; "Serv Shipped Not Invoiced(LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Service Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum ("Service Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = CONST(Order),
                                                                                  "Bill-to Customer No." = FIELD("No."),
                                                                                  "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -1322,7 +1322,7 @@ table 18 Customer
         field(5912; "Outstanding Serv.Invoices(LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Service Line"."Outstanding Amount (LCY)" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Sum ("Service Line"."Outstanding Amount (LCY)" WHERE("Document Type" = CONST(Invoice),
                                                                                "Bill-to Customer No." = FIELD("No."),
                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
@@ -1351,7 +1351,7 @@ table 18 Customer
         }
         field(7171; "No. of Quotes"; Integer)
         {
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST(Quote),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST(Quote),
                                                       "Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Quotes';
             Editable = false;
@@ -1360,7 +1360,7 @@ table 18 Customer
         field(7172; "No. of Blanket Orders"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST("Blanket Order"),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST("Blanket Order"),
                                                       "Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Blanket Orders';
             Editable = false;
@@ -1369,7 +1369,7 @@ table 18 Customer
         field(7173; "No. of Orders"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST(Order),
                                                       "Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Orders';
             Editable = false;
@@ -1377,7 +1377,7 @@ table 18 Customer
         }
         field(7174; "No. of Invoices"; Integer)
         {
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST(Invoice),
                                                       "Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Invoices';
             Editable = false;
@@ -1386,7 +1386,7 @@ table 18 Customer
         field(7175; "No. of Return Orders"; Integer)
         {
             AccessByPermission = TableData "Return Receipt Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST("Return Order"),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST("Return Order"),
                                                       "Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Return Orders';
             Editable = false;
@@ -1394,7 +1394,7 @@ table 18 Customer
         }
         field(7176; "No. of Credit Memos"; Integer)
         {
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST("Credit Memo"),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST("Credit Memo"),
                                                       "Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Credit Memos';
             Editable = false;
@@ -1402,42 +1402,42 @@ table 18 Customer
         }
         field(7177; "No. of Pstd. Shipments"; Integer)
         {
-            CalcFormula = Count("Sales Shipment Header" WHERE("Sell-to Customer No." = FIELD("No.")));
+            CalcFormula = Count ("Sales Shipment Header" WHERE("Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Pstd. Shipments';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7178; "No. of Pstd. Invoices"; Integer)
         {
-            CalcFormula = Count("Sales Invoice Header" WHERE("Sell-to Customer No." = FIELD("No.")));
+            CalcFormula = Count ("Sales Invoice Header" WHERE("Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Pstd. Invoices';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7179; "No. of Pstd. Return Receipts"; Integer)
         {
-            CalcFormula = Count("Return Receipt Header" WHERE("Sell-to Customer No." = FIELD("No.")));
+            CalcFormula = Count ("Return Receipt Header" WHERE("Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Pstd. Return Receipts';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7180; "No. of Pstd. Credit Memos"; Integer)
         {
-            CalcFormula = Count("Sales Cr.Memo Header" WHERE("Sell-to Customer No." = FIELD("No.")));
+            CalcFormula = Count ("Sales Cr.Memo Header" WHERE("Sell-to Customer No." = FIELD("No.")));
             Caption = 'No. of Pstd. Credit Memos';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7181; "No. of Ship-to Addresses"; Integer)
         {
-            CalcFormula = Count("Ship-to Address" WHERE("Customer No." = FIELD("No.")));
+            CalcFormula = Count ("Ship-to Address" WHERE("Customer No." = FIELD("No.")));
             Caption = 'No. of Ship-to Addresses';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7182; "Bill-To No. of Quotes"; Integer)
         {
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST(Quote),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST(Quote),
                                                       "Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Quotes';
             Editable = false;
@@ -1446,7 +1446,7 @@ table 18 Customer
         field(7183; "Bill-To No. of Blanket Orders"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST("Blanket Order"),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST("Blanket Order"),
                                                       "Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Blanket Orders';
             Editable = false;
@@ -1455,7 +1455,7 @@ table 18 Customer
         field(7184; "Bill-To No. of Orders"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST(Order),
                                                       "Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Orders';
             Editable = false;
@@ -1463,7 +1463,7 @@ table 18 Customer
         }
         field(7185; "Bill-To No. of Invoices"; Integer)
         {
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST(Invoice),
                                                       "Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Invoices';
             Editable = false;
@@ -1472,7 +1472,7 @@ table 18 Customer
         field(7186; "Bill-To No. of Return Orders"; Integer)
         {
             AccessByPermission = TableData "Return Receipt Header" = R;
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST("Return Order"),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST("Return Order"),
                                                       "Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Return Orders';
             Editable = false;
@@ -1480,7 +1480,7 @@ table 18 Customer
         }
         field(7187; "Bill-To No. of Credit Memos"; Integer)
         {
-            CalcFormula = Count("Sales Header" WHERE("Document Type" = CONST("Credit Memo"),
+            CalcFormula = Count ("Sales Header" WHERE("Document Type" = CONST("Credit Memo"),
                                                       "Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Credit Memos';
             Editable = false;
@@ -1488,28 +1488,28 @@ table 18 Customer
         }
         field(7188; "Bill-To No. of Pstd. Shipments"; Integer)
         {
-            CalcFormula = Count("Sales Shipment Header" WHERE("Bill-to Customer No." = FIELD("No.")));
+            CalcFormula = Count ("Sales Shipment Header" WHERE("Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Pstd. Shipments';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7189; "Bill-To No. of Pstd. Invoices"; Integer)
         {
-            CalcFormula = Count("Sales Invoice Header" WHERE("Bill-to Customer No." = FIELD("No.")));
+            CalcFormula = Count ("Sales Invoice Header" WHERE("Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Pstd. Invoices';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7190; "Bill-To No. of Pstd. Return R."; Integer)
         {
-            CalcFormula = Count("Return Receipt Header" WHERE("Bill-to Customer No." = FIELD("No.")));
+            CalcFormula = Count ("Return Receipt Header" WHERE("Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Pstd. Return R.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7191; "Bill-To No. of Pstd. Cr. Memos"; Integer)
         {
-            CalcFormula = Count("Sales Cr.Memo Header" WHERE("Bill-to Customer No." = FIELD("No.")));
+            CalcFormula = Count ("Sales Cr.Memo Header" WHERE("Bill-to Customer No." = FIELD("No.")));
             Caption = 'Bill-To No. of Pstd. Cr. Memos';
             Editable = false;
             FieldClass = FlowField;
@@ -1588,7 +1588,7 @@ table 18 Customer
         }
         field(9004; "Tax Area Display Name"; Text[100])
         {
-            CalcFormula = Lookup("Tax Area".Description WHERE(Code = FIELD("Tax Area Code")));
+            CalcFormula = Lookup ("Tax Area".Description WHERE(Code = FIELD("Tax Area Code")));
             Caption = 'Tax Area Display Name';
             FieldClass = FlowField;
             ObsoleteReason = 'This field is not needed and it should not be used.';
@@ -2851,6 +2851,7 @@ table 18 Customer
         ResultRecordRef: RecordRef;
         ApplicableCountryCode: Code[10];
         IsHandled: Boolean;
+        LogNotVerified: Boolean;
     begin
         IsHandled := false;
         OnBeforeVATRegistrationValidation(Rec, IsHandled);
@@ -2859,17 +2860,22 @@ table 18 Customer
 
         if not VATRegistrationNoFormat.Test("VAT Registration No.", "Country/Region Code", "No.", DATABASE::Customer) then
             exit;
-        VATRegistrationLogMgt.LogCustomer(Rec);
-        if ("Country/Region Code" = '') and (VATRegistrationNoFormat."Country/Region Code" = '') then
-            exit;
-        ApplicableCountryCode := "Country/Region Code";
-        if ApplicableCountryCode = '' then
-            ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
-        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(ResultRecordRef, Rec, "No.",
-              VATRegistrationLog."Account Type"::Customer, ApplicableCountryCode);
-            ResultRecordRef.SetTable(Rec);
+
+        LogNotVerified := true;
+        if ("Country/Region Code" <> '') or (VATRegistrationNoFormat."Country/Region Code" <> '') then begin
+            ApplicableCountryCode := "Country/Region Code";
+            if ApplicableCountryCode = '' then
+                ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
+            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+                LogNotVerified := false;
+                VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                    ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Customer, ApplicableCountryCode);
+                ResultRecordRef.SetTable(Rec);
+            end;
         end;
+
+        if LogNotVerified then
+            VATRegistrationLogMgt.LogCustomer(Rec);
     end;
 
     procedure SetAddress(CustomerAddress: Text[100]; CustomerAddress2: Text[50]; CustomerPostCode: Code[20]; CustomerCity: Text[30]; CustomerCounty: Text[30]; CustomerCountryCode: Code[10]; CustomerContact: Text[100])
