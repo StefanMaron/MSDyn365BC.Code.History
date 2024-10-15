@@ -24,7 +24,7 @@ page 9853 "Effective Permissions By Set"
                     var
                         TenantPermission: Record "Tenant Permission";
                     begin
-                        if Rec.Source = Rec.Source::Entitlement then
+                        if Rec.Source in [Rec.Source::Entitlement, Rec.Source::Inherent] then
                             exit;
                         OpenPermissionsPage(true);
                         if Rec.Type = Rec.Type::"User-Defined" then begin
@@ -46,7 +46,6 @@ page 9853 "Effective Permissions By Set"
                     Style = Strong;
                     StyleExpr = Rec.Source = Rec.Source::Entitlement;
                     ToolTip = 'Specifies the origin of the permission set that gives the user permissions for the object chosen in the Permissions section. Note that rows with the type Entitlement originate from the subscription plan. The permission values of the entitlement overrule values that give increased permissions in other permission sets. In those cases, the permission level is Conflict.';
-                    Visible = IsSaaS;
                 }
                 field(Type; Rec.Type)
                 {
@@ -115,6 +114,13 @@ page 9853 "Effective Permissions By Set"
                         EffectivePermissionsMgt.ShowPermissionConflict(ExecutePermissions, ExecuteEntitlementPermissions, Rec.Source = Rec.Source::Entitlement);
                     end;
                 }
+                field("Security Filter"; Rec."Security Filter")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Security Filter';
+                    Editable = false;
+                    ToolTip = 'Specifies a security filter that applies to this permission set to limit the access that this permission set has to the data contained in this table.';
+                }
             }
         }
     }
@@ -131,18 +137,9 @@ page 9853 "Effective Permissions By Set"
         RefreshDisplayTexts();
     end;
 
-    trigger OnInit()
-    var
-        UserPermissions: Codeunit "User Permissions";
-        EnvironmentInfo: Codeunit "Environment Information";
-    begin
-        CurrentUserCanManageUser := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
-        IsSaaS := EnvironmentInfo.IsSaaS();
-    end;
-
     trigger OnOpenPage()
     begin
-        Rec.SetCurrentKey(Source, Type);
+        Rec.SetCurrentKey(Order, Type);
     end;
 
     var
@@ -153,8 +150,6 @@ page 9853 "Effective Permissions By Set"
         ModifyPermissionsTxt: Text;
         DeletePermissionsTxt: Text;
         ExecutePermissionsTxt: Text;
-        CurrentUserCanManageUser: Boolean;
-        IsSaaS: Boolean;
         IsTableData: Boolean;
         CurrObjectType: Option;
         CurrObjectID: Integer;

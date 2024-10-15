@@ -46,10 +46,11 @@ codeunit 5361 "Int. Rec. Couple Invoke"
         CheckContext();
         IntegrationTableMapping := IntegrationTableMappingContext;
         LocalRecordRef := LocalRecordRefContext;
-        IntegrationRecordRef := IntegrationRecordRefContext;
         SynchAction := SynchActionContext;
         LocalRecordModified := LocalRecordModifiedContext;
         IntegrationRecordModified := IntegrationRecordModifiedContext;
+        if IntegrationRecordModified then
+            IntegrationRecordRef := IntegrationRecordRefContext;
     end;
 
     local procedure CheckContext()
@@ -72,9 +73,9 @@ codeunit 5361 "Int. Rec. Couple Invoke"
         end;
 
         if LocalRecordRef.Number() <> 0 then
-            RecordState := IntegrationRecSynchInvoke.FindRecord(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, IntegrationRecordDeleted, IntegrationTableConnectionType)
+            RecordState := IntegrationRecSynchInvoke.FindCoupledRecord(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, IntegrationRecordDeleted, IntegrationTableConnectionType)
         else
-            RecordState := IntegrationRecSynchInvoke.FindRecord(IntegrationTableMapping, IntegrationRecordRef, LocalRecordRef, LocalRecordDeleted, IntegrationTableConnectionType);
+            RecordState := IntegrationRecSynchInvoke.FindCoupledRecord(IntegrationTableMapping, IntegrationRecordRef, LocalRecordRef, LocalRecordDeleted, IntegrationTableConnectionType);
         if RecordState = RecordState::Coupled then begin
             SynchAction := SynchActionType::Skip;
             Session.LogMessage('0000EZR', StrSubstNo(UnexpectedRecordStateTxt, IntegrationRecordRef.Caption(), RecordState, RecordState::Uncoupled), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -85,9 +86,9 @@ codeunit 5361 "Int. Rec. Couple Invoke"
 
         AddIntegrationRecordCoupling(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, IntegrationTableConnectionType);
         if LocalRecordRef.Number() <> 0 then
-            RecordState := IntegrationRecSynchInvoke.FindRecord(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, IntegrationRecordDeleted, IntegrationTableConnectionType)
+            RecordState := IntegrationRecSynchInvoke.FindCoupledRecord(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, IntegrationRecordDeleted, IntegrationTableConnectionType)
         else
-            RecordState := IntegrationRecSynchInvoke.FindRecord(IntegrationTableMapping, IntegrationRecordRef, LocalRecordRef, LocalRecordDeleted, IntegrationTableConnectionType);
+            RecordState := IntegrationRecSynchInvoke.FindCoupledRecord(IntegrationTableMapping, IntegrationRecordRef, LocalRecordRef, LocalRecordDeleted, IntegrationTableConnectionType);
         if RecordState <> RecordState::Coupled then begin
             SynchAction := SynchActionType::Fail;
             Session.LogMessage('0000EZS', StrSubstNo(UnexpectedRecordStateTxt, IntegrationRecordRef.Caption(), RecordState, RecordState::Coupled), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);

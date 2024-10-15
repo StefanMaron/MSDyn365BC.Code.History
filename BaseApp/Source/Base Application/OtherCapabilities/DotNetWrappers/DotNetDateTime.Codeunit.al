@@ -103,11 +103,16 @@ codeunit 3003 DotNet_DateTime
     end;
 
     procedure ToString(DotNet_DateTimeFormatInfo: Codeunit DotNet_DateTimeFormatInfo): Text
+    begin
+        exit(ToString('d', DotNet_DateTimeFormatInfo))
+    end;
+
+    procedure ToString(Format: Text; DotNet_DateTimeFormatInfo: Codeunit DotNet_DateTimeFormatInfo): Text
     var
         DotNetDateTimeFormatInfo: DotNet DateTimeFormatInfo;
     begin
         DotNet_DateTimeFormatInfo.GetDateTimeFormatInfo(DotNetDateTimeFormatInfo);
-        exit(DotNetDateTime.ToString('d', DotNetDateTimeFormatInfo))
+        exit(DotNetDateTime.ToString(Format, DotNetDateTimeFormatInfo))
     end;
 
     procedure ToDateTime(): DateTime

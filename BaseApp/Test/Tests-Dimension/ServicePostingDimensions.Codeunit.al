@@ -34,10 +34,9 @@ codeunit 136118 "Service Posting - Dimensions"
         LimitedDimensionItemLine: Label 'The combination of dimensions used in %1 %2, line no. %3 is blocked. Dimension combinations %4 - %5 and %6 - %7 can''t be used concurrently.';
         MandatoryDimensionOnHeader: Label 'The dimensions used in %1 %2 are invalid. Select a %3 for the %4 %5 for Customer %6.';
         MandatoryDimensionServiceLine: Label 'The dimensions used in %1 %2, line no. %3 are invalid. Select a %4 for the %5 %6 for %7 %8.';
-        SameCodeDimensionHeader: Label 'The dimensions used in %1 %2 are invalid. Select %3 %4 for the %5 %6 for Customer %7.';
-        SameCodeDimensionLine: Label 'The dimensions used in %1 %2, line no. %3 are invalid. Select %4 %5 for the %6 %7 for %8 %9.';
-        NoCodeDimensionHeader: Label 'The dimensions used in %1 %2 are invalid. %3 %4 must not be mentioned for Customer %5.';
-        NoCodeDimensionLine: Label 'The dimensions used in %1 %2, line no. %3 are invalid. %4 %5 must not be mentioned for %6 %7.';
+        SameCodeOrNoCodeDimHeader: Label 'The dimensions used in %1 %2 are invalid. The %3 must be %4 for %5 %6 for %7 %8. Currently it''s %9.', Comment = '%3 = "Dimension value code" caption, %4 = expected "Dimension value code" value, %5 = "Dimension code" caption, %6 = "Dimension Code" value, %7 = Table caption (Vendor), %8 = Table value (XYZ), %9 = current "Dimension value code" value';
+        SameCodeOrNoCodeDimLine: Label 'The dimensions used in %1 %2, line no. %3 are invalid. The %4 must be %5 for %6 %7 for %8 %9. Currently it''s %10.', Comment = '%4 = "Dimension value code" caption, %5 = expected "Dimension value code" value, %6 = "Dimension code" caption, %7 = "Dimension Code" value, %8 = Table caption (Vendor), %9 = Table value (XYZ), %10 = current "Dimension value code" value';
+        BlankLbl: Label 'blank';
         DimensionSetIDErr: Label 'Dimension Set ID is incorrect on Posted Service Shipment Line';
         IncorrectShortcutDimensionValueErr: Label 'Incorrect Shortcut Dimension value for %1';
         DimensionValueCodeError: Label '%1 must be %2.';
@@ -1720,6 +1719,8 @@ codeunit 136118 "Service Posting - Dimensions"
     var
         ServiceHeader: Record "Service Header";
         DefaultDimension: Record "Default Dimension";
+        DimSetEntry: Record "Dimension Set Entry";
+        Customer: Record Customer;
     begin
         // Test error occurs on Posting Service Order with different Dimension value code marked as Same Code on Service Header.
 
@@ -1733,15 +1734,18 @@ codeunit 136118 "Service Posting - Dimensions"
           LibraryDimension.EditDimSet(
             ServiceHeader."Dimension Set ID", DefaultDimension."Dimension Code",
             FindDifferentDimensionValue(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code")));
+        LibraryDimension.FindDimensionSetEntry(DimSetEntry, ServiceHeader."Dimension Set ID");
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // 3. Verify: Verify error occurs "Dimension Invalid" on Posting Service Order as Ship and Invoice.
         Assert.AreEqual(
           StrSubstNo(
-            SameCodeDimensionHeader, ServiceHeader."Document Type", ServiceHeader."No.",
+            SameCodeOrNoCodeDimHeader, ServiceHeader."Document Type", ServiceHeader."No.",
             DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code",
-            DefaultDimension.FieldCaption("Dimension Code"),
-            DefaultDimension."Dimension Code", ServiceHeader."Customer No."), GetLastErrorText, UnknownError);
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            Customer.TableCaption(), ServiceHeader."Customer No.",
+            DimSetEntry."Dimension Value Code"),
+            GetLastErrorText, UnknownError);
 
         // 4. Cleanup: Change Value Posting to Blank.
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::" ");
@@ -1755,6 +1759,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         DefaultDimension: Record "Default Dimension";
+        DimSetEntry: Record "Dimension Set Entry";
     begin
         // Test error occurs on Posting Service Order with different Dimension value code marked as Same Code on Service Line of Type Item.
 
@@ -1771,15 +1776,18 @@ codeunit 136118 "Service Posting - Dimensions"
             ServiceLine."Dimension Set ID", DefaultDimension."Dimension Code",
             FindDifferentDimensionValue(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code")));
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+        LibraryDimension.FindDimensionSetEntry(DimSetEntry, ServiceLine."Dimension Set ID");
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // 3. Verify: Verify error occurs "Dimension Invalid" on Posting Service Order as Ship and Invoice.
         Assert.AreEqual(
           StrSubstNo(
-            SameCodeDimensionLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
+            SameCodeOrNoCodeDimLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
             DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code",
-            DefaultDimension.FieldCaption("Dimension Code"),
-            Dimension.Code, ServiceLine.Type, ServiceLine."No."), GetLastErrorText, UnknownError);
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            ServiceLine.Type, ServiceLine."No.",
+            DimSetEntry."Dimension Value Code"),
+            GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1790,6 +1798,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         DefaultDimension: Record "Default Dimension";
+        DimSetEntry: Record "Dimension Set Entry";
     begin
         // Test error occurs on Posting Service Order with different Dimension value code marked as Same Code on Service Line of Type
         // Resource.
@@ -1807,15 +1816,18 @@ codeunit 136118 "Service Posting - Dimensions"
             ServiceLine."Dimension Set ID", DefaultDimension."Dimension Code",
             FindDifferentDimensionValue(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code")));
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+        LibraryDimension.FindDimensionSetEntry(DimSetEntry, ServiceLine."Dimension Set ID");
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // 3. Verify: Verify error occurs "Dimension Invalid" on Posting Service Order as Ship and Invoice.
         Assert.AreEqual(
           StrSubstNo(
-            SameCodeDimensionLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
+            SameCodeOrNoCodeDimLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
             DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code",
-            DefaultDimension.FieldCaption("Dimension Code"),
-            Dimension.Code, ServiceLine.Type, ServiceLine."No."), GetLastErrorText, UnknownError);
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            ServiceLine.Type, ServiceLine."No.",
+            DimSetEntry."Dimension Value Code"),
+            GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1826,6 +1838,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         DefaultDimension: Record "Default Dimension";
+        DimSetEntry: Record "Dimension Set Entry";
     begin
         // Test error occurs on Posting Service Order with different Dimension value code marked as Same Code on Service Line of Type
         // G/L Account.
@@ -1843,15 +1856,18 @@ codeunit 136118 "Service Posting - Dimensions"
             ServiceLine."Dimension Set ID", DefaultDimension."Dimension Code",
             FindDifferentDimensionValue(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code")));
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+        LibraryDimension.FindDimensionSetEntry(DimSetEntry, ServiceLine."Dimension Set ID");
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // 3. Verify: Verify error occurs "Dimension Invalid" on Posting Service Order as Ship and Invoice.
         Assert.AreEqual(
-          StrSubstNo(
-            SameCodeDimensionLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
-            DefaultDimension.FieldCaption("Dimension Value Code"),
-            DefaultDimension."Dimension Value Code", DefaultDimension.FieldCaption("Dimension Code"),
-            Dimension.Code, ServiceLine.Type, ServiceLine."No."), GetLastErrorText, UnknownError);
+            StrSubstNo(
+            SameCodeOrNoCodeDimLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
+            DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code",
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            ServiceLine.Type, ServiceLine."No.",
+            DimSetEntry."Dimension Value Code"),
+            GetLastErrorText, UnknownError);
     end;
 
     [Test]
@@ -1860,6 +1876,8 @@ codeunit 136118 "Service Posting - Dimensions"
     var
         ServiceHeader: Record "Service Header";
         DefaultDimension: Record "Default Dimension";
+        Customer: Record Customer;
+        DimensionValueCode: Code[20];
     begin
         // Test error occurs on Posting Service Order with Dimension marked as No Code on Service Header.
 
@@ -1867,19 +1885,23 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateServiceHeaderWithDim(ServiceHeader, DefaultDimension, DefaultDimension."Value Posting"::"No Code");
         Commit();
         // 2. Exercise: Change the Dimension Value on Document Dimension for Service Header and Post Service Order as Ship and Invoice.
+        DimensionValueCode := FindDifferentDimensionValue(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
         UpdateDimSetIdOnHeader(
           ServiceHeader,
           LibraryDimension.CreateDimSet(
-            ServiceHeader."Dimension Set ID", DefaultDimension."Dimension Code",
-            FindDifferentDimensionValue(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code")));
+            ServiceHeader."Dimension Set ID", DefaultDimension."Dimension Code", DimensionValueCode));
 
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // 3. Verify: Verify error occurs "Dimension Invalid" on Posting Service Order as Ship and Invoice.
         Assert.AreEqual(
           StrSubstNo(
-            NoCodeDimensionHeader, ServiceHeader."Document Type", ServiceHeader."No.", DefaultDimension.FieldCaption("Dimension Code"),
-            DefaultDimension."Dimension Code", ServiceHeader."Customer No."), GetLastErrorText, UnknownError);
+            SameCodeOrNoCodeDimHeader, ServiceHeader."Document Type", ServiceHeader."No.",
+            DefaultDimension.FieldCaption("Dimension Value Code"), BlankLbl,
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            Customer.TableCaption(), ServiceHeader."Customer No.",
+            DimensionValueCode),
+            GetLastErrorText, UnknownError);
 
         // 4. Teardown: Change Value Posting to Blank.
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::" ");
@@ -1893,12 +1915,14 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         DefaultDimension: Record "Default Dimension";
+        DimensionValueCode: Code[20];
     begin
         // Test error occurs on Posting Service Order with Dimension Value marked as No Code on Service Line of Type G/L Account.
 
         // 1. Setup: Create Customer, Create G/L Account, Create Default Dimension for G/L Account, Create Service Header, Service Item
         // Line, Service Line of Type G/L Account and Change Value Posting to "No Code" for G/L Account.
         CreateLineBlockDimGLAccount(ServiceLine, Dimension);
+        DimensionValueCode := FindDimensionValue(Dimension.Code);
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::"G/L Account", ServiceLine."No.");
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::"No Code");
         Commit();
@@ -1910,9 +1934,12 @@ codeunit 136118 "Service Posting - Dimensions"
         // 3. Verify: Verify error occurs "Dimension Invalid" on Posting Service Order as Ship and Invoice.
         Assert.AreEqual(
           StrSubstNo(
-            NoCodeDimensionLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
-            DefaultDimension.FieldCaption("Dimension Code"),
-            Dimension.Code, ServiceLine.Type, ServiceLine."No."), GetLastErrorText, UnknownError);
+            SameCodeOrNoCodeDimLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
+            DefaultDimension.FieldCaption("Dimension Value Code"), BlankLbl,
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            ServiceLine.Type, ServiceLine."No.",
+            DimensionValueCode),
+            GetLastErrorText, UnknownError);
 
         // 4. Teardown: Change Value Posting to Blank.
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::" ");
@@ -1926,12 +1953,14 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         DefaultDimension: Record "Default Dimension";
+        DimensionValueCode: Code[20];
     begin
         // Test error occurs on Posting Service Order with Dimension Value marked as No Code on Service Line of Type Item.
 
         // 1. Setup: Create Customer, Create Item, Create Default Dimension for Item, Create Service Header, Service Item
         // Line, Service Line of Type Item and Change Value Posting to "No Code" for Item.
         CreateLineBlockDimItem(ServiceLine, Dimension, false);
+        DimensionValueCode := FindDimensionValue(Dimension.Code);
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Item, ServiceLine."No.");
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::"No Code");
         Commit();
@@ -1943,9 +1972,12 @@ codeunit 136118 "Service Posting - Dimensions"
         // 3. Verify: Verify error occurs "Dimension Invalid" on Posting Service Order as Ship and Invoice.
         Assert.AreEqual(
           StrSubstNo(
-            NoCodeDimensionLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
-            DefaultDimension.FieldCaption("Dimension Code"),
-            Dimension.Code, ServiceLine.Type, ServiceLine."No."), GetLastErrorText, UnknownError);
+            SameCodeOrNoCodeDimLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
+            DefaultDimension.FieldCaption("Dimension Value Code"), BlankLbl,
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            ServiceLine.Type, ServiceLine."No.",
+            DimensionValueCode),
+            GetLastErrorText, UnknownError);
 
         // 4. Teardown: Change Value Posting to Blank.
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::" ");
@@ -1959,12 +1991,14 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
         DefaultDimension: Record "Default Dimension";
+        DimensionValueCode: Code[20];
     begin
         // Test error occurs on Posting Service Order with Dimension Value marked as No Code on Service Line of Type Resource.
 
         // 1. Setup: Create Customer, Create Resource, Create Default Dimension for Resource, Create Service Header, Service Item
         // Line, Service Line of Type Resource and Change Value Posting to "No Code" for Resource.
         CreateLineBlockDimResource(ServiceLine, Dimension, false);
+        DimensionValueCode := FindDimensionValue(Dimension.Code);
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Resource, ServiceLine."No.");
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::"No Code");
         Commit();
@@ -1976,9 +2010,12 @@ codeunit 136118 "Service Posting - Dimensions"
         // 3. Verify: Verify error occurs "Dimension Invalid" on Posting Service Order as Ship and Invoice.
         Assert.AreEqual(
           StrSubstNo(
-            NoCodeDimensionLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
-            DefaultDimension.FieldCaption("Dimension Code"),
-            Dimension.Code, ServiceLine.Type, ServiceLine."No."), GetLastErrorText, UnknownError);
+            SameCodeOrNoCodeDimLine, ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.",
+            DefaultDimension.FieldCaption("Dimension Value Code"), BlankLbl,
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            ServiceLine.Type, ServiceLine."No.",
+            DimensionValueCode),
+            GetLastErrorText, UnknownError);
 
         // 4. Teardown: Change Value Posting to Blank.
         ModifyDefaultDimension(DefaultDimension, DefaultDimension."Value Posting"::" ");

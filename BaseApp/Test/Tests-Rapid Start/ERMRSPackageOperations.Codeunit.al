@@ -1386,6 +1386,47 @@ codeunit 136603 "ERM RS Package Operations"
     end;
 
     [Test]
+    procedure EvaluateValue_Date_DifferentFormats()
+    var
+        GLSetup: Record "General Ledger Setup";
+        OADateValue: Text;
+        CurrentWorkDate: Date;
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+    begin
+        RecRef.Open(DATABASE::"General Ledger Setup");
+        FieldRef := RecRef.Field(GLSetup.FieldNo("Allow Posting From"));
+
+        CurrentWorkDate := WorkDate();
+
+        // [WHEN] Work date is evaluated to date
+        // [THEN] No error is returned
+        Assert.AreEqual('', ConfigValidateMgt.EvaluateValue(FieldRef, Format(CurrentWorkDate), false), StrSubstNo(ErrorOnEvaluatingErr, 'Date'));
+
+        // [THEN] The date is as expected
+        Assert.AreEqual(FieldRef.Value, CurrentWorkDate, 'Incorrect date has been evaluated.');
+
+        // [WHEN] A text 'WrongDate' is evaluated to a Date
+        // [THEN] The expected error text is returned
+        Assert.AreEqual('WrongDate is not a valid Date.', ConfigValidateMgt.EvaluateValue(FieldRef, 'WrongDate', false), StrSubstNo(NoErrorOnEvaluatingErr, 'Date'));
+
+        OADateValue := '45012'; // the OADate value for  2023-03-27
+        // [WHEN] The date 2023-03-27 in the OADate format is evaluated to date
+        // [THEN] No error is returned
+        Assert.AreEqual('', ConfigValidateMgt.EvaluateValue(FieldRef, '45012', false), StrSubstNo(ErrorOnEvaluatingErr, 'Date'));
+
+        // [THEN] The date is as expected
+        Assert.AreEqual(DMY2DATE(27, 3, 2023), FieldRef.Value, 'Incorrect date has been evaluated.');
+
+        // [WHEN] The date 01.01.2022 is evaluated to date
+        // [THEN] No error is returned
+        Assert.AreEqual('', ConfigValidateMgt.EvaluateValue(FieldRef, '01.01.2022', false), StrSubstNo(ErrorOnEvaluatingErr, 'Date'));
+
+        // [THEN] The date is as expected
+        Assert.AreEqual(DMY2DATE(1, 1, 2022), FieldRef.Value, 'Incorrect date has been evaluated.');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure EvaluateValue_Time()
     var

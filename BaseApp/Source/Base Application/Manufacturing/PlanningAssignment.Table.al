@@ -244,7 +244,14 @@ table 99000850 "Planning Assignment"
     end;
 
     procedure AssignOne(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; UpdateDate: Date)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssignOne(IsHandled);
+        if IsHandled then
+            exit;
+
         LockTable();
         "Item No." := ItemNo;
         "Variant Code" := VariantCode;
@@ -314,6 +321,11 @@ table 99000850 "Planning Assignment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeChkAssignOne(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; UpdateDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignOne(var IsHandled: Boolean)
     begin
     end;
 }

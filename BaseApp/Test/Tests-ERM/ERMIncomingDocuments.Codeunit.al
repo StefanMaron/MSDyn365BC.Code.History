@@ -16,9 +16,9 @@ codeunit 134400 "ERM Incoming Documents"
         LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         OnlyOneDefaultAttachmentErr: Label 'There can only be one default attachment.';
         MainAttachErr: Label 'There can only be one main attachment.';
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ReplaceMainAttachmentQst: Label 'Are you sure you want to replace the attached file?';
         DoYouWantToRemoveReferenceQst: Label 'Do you want to remove the reference?';
         DetachQst: Label 'Do you want to remove the reference from this incoming document to posted document %1, posting date %2?', Comment = '%1 Posted Document No. %2 Posting Date';
@@ -38,20 +38,20 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         with IncomingDoc do begin
             Init();
-            Assert.AreEqual('', GetURL, 'Expected empty url.');
+            Assert.AreEqual('', GetURL(), 'Expected empty url.');
             LocalURL := 'abcdefghijklmnopqrstuvxyz1234.txt';
             SetURL(LocalURL);
-            Assert.AreEqual(LocalURL, GetURL, 'Wrong URL');
+            Assert.AreEqual(LocalURL, GetURL(), 'Wrong URL');
             // verify that it works for strings > 250
             while StrLen(LocalURL) <= 250 do
                 LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
             SetURL(LocalURL);
-            Assert.AreEqual(LocalURL, GetURL, 'Wrong URL');
+            Assert.AreEqual(LocalURL, GetURL(), 'Wrong URL');
             // verify that it works for strings > 750
             while StrLen(LocalURL) <= 750 do
                 LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
             SetURL(LocalURL);
-            Assert.AreEqual(LocalURL, GetURL, 'Wrong URL');
+            Assert.AreEqual(LocalURL, GetURL(), 'Wrong URL');
             // verify that it fails for strings > length of URL field
             while StrLen(LocalURL) <= MaxStrLen(URL) do
                 LocalURL += 'abcdefghijklmnopqrstuvxyz1234.txt';
@@ -122,11 +122,11 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.TestField(Released, false);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.TestField(Released, true);
         IncomingDocument.TestField(Status, IncomingDocument.Status::Released);
         IncomingDocument.TestField("Released Date-Time");
-        IncomingDocument.TestField("Released By User ID", UserSecurityId);
+        IncomingDocument.TestField("Released By User ID", UserSecurityId());
     end;
 
     [Test]
@@ -137,9 +137,9 @@ codeunit 134400 "ERM Incoming Documents"
     begin
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.TestField(Released, false);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.TestField(Released, true);
-        IncomingDocument.Reject;
+        IncomingDocument.Reject();
         IncomingDocument.TestField(Released, false);
         IncomingDocument.TestField(Status, IncomingDocument.Status::Rejected);
         IncomingDocument.TestField("Released Date-Time", 0DT);
@@ -157,7 +157,7 @@ codeunit 134400 "ERM Incoming Documents"
         GenJnlLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         GenJnlLine.DeleteAll();
 
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
         CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
         IncomingDocument.Modify();
@@ -165,13 +165,13 @@ codeunit 134400 "ERM Incoming Documents"
 
         GenJnlLine.FindFirst();
         Assert.IsTrue(GenJnlLine.HasLinks, 'Gen. Jnl. Line is missing a link.');
-        Assert.AreEqual(GenJnlLine.GetIncomingDocumentURL, IncomingDocument.GetURL, 'Gen. Jnl. Line has a wrong URL.');
+        Assert.AreEqual(GenJnlLine.GetIncomingDocumentURL(), IncomingDocument.GetURL(), 'Gen. Jnl. Line has a wrong URL.');
         GenJnlLine."Document No." := LibraryUtility.GenerateGUID();
         GenJnlLine."Posting Date" := WorkDate();
         GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
-        GenJnlLine.Validate("Account No.", GetIncomeStatementAcc);
+        GenJnlLine.Validate("Account No.", GetIncomeStatementAcc());
         GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
-        GenJnlLine.Validate("Bal. Account No.", GetBalanceSheetAcc);
+        GenJnlLine.Validate("Bal. Account No.", GetBalanceSheetAcc());
         GenJnlLine.Validate(Amount, 1);
         GenJnlLine.Modify();
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
@@ -192,9 +192,9 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
-        IncomingDocument.CreatePurchInvoice;  // Opens page 51 "Purchase Invoice"
+        IncomingDocument.CreatePurchInvoice();  // Opens page 51 "Purchase Invoice"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
 
@@ -209,7 +209,7 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader.Modify();
 
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GetIncomeStatementAcc, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GetIncomeStatementAcc(), 1);
 
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
         ValidatePostedIncomingDocument(IncomingDocument);
@@ -230,7 +230,7 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader.DeleteAll();
         PurchaseHeader.Reset();
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
 
         LibraryPurchase.CreateVendor(Vendor);
@@ -239,25 +239,25 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader.Modify();
 
         // Execute
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        Assert.IsFalse(PurchaseInvoice.IncomingDocCard.Enabled, '');
-        Assert.IsFalse(PurchaseInvoice.RemoveIncomingDoc.Enabled, '');
-        Assert.IsTrue(PurchaseInvoice.SelectIncomingDoc.Enabled, '');
-        Assert.IsTrue(PurchaseInvoice.IncomingDocAttachFile.Enabled, '');
+        Assert.IsFalse(PurchaseInvoice.IncomingDocCard.Enabled(), '');
+        Assert.IsFalse(PurchaseInvoice.RemoveIncomingDoc.Enabled(), '');
+        Assert.IsTrue(PurchaseInvoice.SelectIncomingDoc.Enabled(), '');
+        Assert.IsTrue(PurchaseInvoice.IncomingDocAttachFile.Enabled(), '');
 
-        PurchaseInvoice.SelectIncomingDoc.Invoke; // Opens page 190
+        PurchaseInvoice.SelectIncomingDoc.Invoke(); // Opens page 190
 
         // Verify
-        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled, '');
-        Assert.IsTrue(PurchaseInvoice.RemoveIncomingDoc.Enabled, '');
-        Assert.IsTrue(PurchaseInvoice.SelectIncomingDoc.Enabled, '');
-        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFile.Enabled, '');
+        Assert.IsTrue(PurchaseInvoice.IncomingDocCard.Enabled(), '');
+        Assert.IsTrue(PurchaseInvoice.RemoveIncomingDoc.Enabled(), '');
+        Assert.IsTrue(PurchaseInvoice.SelectIncomingDoc.Enabled(), '');
+        Assert.IsFalse(PurchaseInvoice.IncomingDocAttachFile.Enabled(), '');
 
         PurchaseHeader.Find();
         Assert.AreEqual(IncomingDocument."Entry No.", PurchaseHeader."Incoming Document Entry No.", '');
 
-        PurchaseInvoice.RemoveIncomingDoc.Invoke;
+        PurchaseInvoice.RemoveIncomingDoc.Invoke();
         PurchaseHeader.Find();
         Assert.AreEqual(0, PurchaseHeader."Incoming Document Entry No.", '');
 
@@ -280,7 +280,7 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader.DeleteAll();
         PurchaseHeader.Reset();
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
 
         LibraryPurchase.CreateVendor(Vendor);
@@ -289,10 +289,10 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader.Modify();
 
         // Execute
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
-        PurchaseInvoice.SelectIncomingDoc.Invoke; // Opens page 190
+        PurchaseInvoice.SelectIncomingDoc.Invoke(); // Opens page 190
         PurchaseInvoice.Close();
         PurchaseHeader.Find();
         Assert.AreEqual(IncomingDocument."Entry No.", PurchaseHeader."Incoming Document Entry No.", '');
@@ -320,9 +320,9 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         Commit();
-        IncomingDocument.CreatePurchCreditMemo;  // Opens page 52 "Purchase Credit Memo"
+        IncomingDocument.CreatePurchCreditMemo();  // Opens page 52 "Purchase Credit Memo"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Credit Memo");
 
@@ -345,9 +345,9 @@ codeunit 134400 "ERM Incoming Documents"
         SalesHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
-        IncomingDocument.CreateSalesInvoice;  // Opens page 43 "Sales Invoice"
+        IncomingDocument.CreateSalesInvoice();  // Opens page 43 "Sales Invoice"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
 
@@ -356,11 +356,11 @@ codeunit 134400 "ERM Incoming Documents"
         SalesHeader.TestField("Incoming Document Entry No.", IncomingDocument."Entry No.");
         Assert.IsTrue(SalesHeader.HasLinks, 'Sales Invoice is missing a link.');
 
-        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.Modify();
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GetIncomeStatementAcc, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GetIncomeStatementAcc(), 1);
 
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
         ValidatePostedIncomingDocument(IncomingDocument);
@@ -381,7 +381,7 @@ codeunit 134400 "ERM Incoming Documents"
         SalesHeader.DeleteAll();
         SalesHeader.Reset();
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
 
         LibrarySales.CreateCustomer(Customer);
@@ -389,25 +389,25 @@ codeunit 134400 "ERM Incoming Documents"
         SalesHeader.Modify();
 
         // Execute
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        Assert.IsFalse(SalesInvoice.IncomingDocCard.Enabled, '');
-        Assert.IsFalse(SalesInvoice.RemoveIncomingDoc.Enabled, '');
-        Assert.IsTrue(SalesInvoice.SelectIncomingDoc.Enabled, '');
-        Assert.IsTrue(SalesInvoice.IncomingDocAttachFile.Enabled, '');
+        Assert.IsFalse(SalesInvoice.IncomingDocCard.Enabled(), '');
+        Assert.IsFalse(SalesInvoice.RemoveIncomingDoc.Enabled(), '');
+        Assert.IsTrue(SalesInvoice.SelectIncomingDoc.Enabled(), '');
+        Assert.IsTrue(SalesInvoice.IncomingDocAttachFile.Enabled(), '');
 
-        SalesInvoice.SelectIncomingDoc.Invoke; // Opens page 190
+        SalesInvoice.SelectIncomingDoc.Invoke(); // Opens page 190
 
         // Verify
-        Assert.IsTrue(SalesInvoice.IncomingDocCard.Enabled, '');
-        Assert.IsTrue(SalesInvoice.RemoveIncomingDoc.Enabled, '');
-        Assert.IsTrue(SalesInvoice.SelectIncomingDoc.Enabled, '');
-        Assert.IsFalse(SalesInvoice.IncomingDocAttachFile.Enabled, '');
+        Assert.IsTrue(SalesInvoice.IncomingDocCard.Enabled(), '');
+        Assert.IsTrue(SalesInvoice.RemoveIncomingDoc.Enabled(), '');
+        Assert.IsTrue(SalesInvoice.SelectIncomingDoc.Enabled(), '');
+        Assert.IsFalse(SalesInvoice.IncomingDocAttachFile.Enabled(), '');
 
         SalesHeader.Find();
         Assert.AreEqual(IncomingDocument."Entry No.", SalesHeader."Incoming Document Entry No.", '');
 
-        SalesInvoice.RemoveIncomingDoc.Invoke;
+        SalesInvoice.RemoveIncomingDoc.Invoke();
         SalesHeader.Find();
         Assert.AreEqual(0, SalesHeader."Incoming Document Entry No.", '');
 
@@ -426,9 +426,9 @@ codeunit 134400 "ERM Incoming Documents"
         SalesHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         Commit();
-        IncomingDocument.CreateSalesCreditMemo;  // Opens page 44 "Sales Credit Memo"
+        IncomingDocument.CreateSalesCreditMemo();  // Opens page 44 "Sales Credit Memo"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Credit Memo");
 
@@ -445,9 +445,9 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
     begin
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
-        IncomingDocument.TestReadyForProcessing;
+        IncomingDocument.TestReadyForProcessing();
     end;
 
     [Test]
@@ -478,10 +478,10 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
     begin
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
         CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
-        asserterror IncomingDocument.CreatePurchInvoice;
+        asserterror IncomingDocument.CreatePurchInvoice();
     end;
 
     [Test]
@@ -492,13 +492,13 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
     begin
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
-        IncomingDocument.CreatePurchInvoice;
-        asserterror IncomingDocument.CreateGenJnlLine;
-        asserterror IncomingDocument.CreatePurchCreditMemo;
-        asserterror IncomingDocument.CreateSalesInvoice;
-        asserterror IncomingDocument.CreateSalesCreditMemo;
+        IncomingDocument.CreatePurchInvoice();
+        asserterror IncomingDocument.CreateGenJnlLine();
+        asserterror IncomingDocument.CreatePurchCreditMemo();
+        asserterror IncomingDocument.CreateSalesInvoice();
+        asserterror IncomingDocument.CreateSalesCreditMemo();
     end;
 
     [Test]
@@ -509,7 +509,7 @@ codeunit 134400 "ERM Incoming Documents"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
         GenJnlLine.Init();
         GenJnlLine."Incoming Document Entry No." := IncomingDocument."Entry No.";
@@ -526,7 +526,7 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader: Record "Purchase Header";
     begin
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
         PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
@@ -544,7 +544,7 @@ codeunit 134400 "ERM Incoming Documents"
         SalesHeader: Record "Sales Header";
     begin
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
@@ -614,8 +614,8 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        LibraryIncomingDocuments.InitIncomingDocuments;
-        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.InitIncomingDocuments();
+        UpdateIncomingDocumentsSetup();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         GenJnlLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
@@ -638,14 +638,14 @@ codeunit 134400 "ERM Incoming Documents"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup.
-        LibraryIncomingDocuments.InitIncomingDocuments;
-        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.InitIncomingDocuments();
+        UpdateIncomingDocumentsSetup();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
         CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
 
         // Pre-Exercise Verify.
         GenJournalLine.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        Assert.IsTrue(GenJournalLine.FindFirst, 'There should be a new record connected to the incoming document.');
+        Assert.IsTrue(GenJournalLine.FindFirst(), 'There should be a new record connected to the incoming document.');
 
         // Exercise.
         IncomingDocument.Delete(true);
@@ -664,16 +664,16 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup.
-        LibraryIncomingDocuments.InitIncomingDocuments;
-        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.InitIncomingDocuments();
+        UpdateIncomingDocumentsSetup();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.CreatePurchInvoice;
+        IncomingDocument.CreatePurchInvoice();
         IncomingDocument.Modify();
 
         // Pre-Exercise Verify.
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
-        Assert.IsTrue(PurchaseHeader.FindFirst, 'There should be a new record connected to the incoming document.');
+        Assert.IsTrue(PurchaseHeader.FindFirst(), 'There should be a new record connected to the incoming document.');
 
         // Exercise.
         IncomingDocument.Delete(true);
@@ -693,16 +693,16 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup.
-        LibraryIncomingDocuments.InitIncomingDocuments;
-        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.InitIncomingDocuments();
+        UpdateIncomingDocumentsSetup();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.CreatePurchCreditMemo;
+        IncomingDocument.CreatePurchCreditMemo();
         IncomingDocument.Modify();
 
         // Pre-Exercise Verify.
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
-        Assert.IsTrue(PurchaseHeader.FindFirst, 'There should be a new record connected to the incoming document.');
+        Assert.IsTrue(PurchaseHeader.FindFirst(), 'There should be a new record connected to the incoming document.');
 
         // Exercise.
         IncomingDocument.Delete(true);
@@ -722,16 +722,16 @@ codeunit 134400 "ERM Incoming Documents"
         SalesHeader: Record "Sales Header";
     begin
         // Setup.
-        LibraryIncomingDocuments.InitIncomingDocuments;
-        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.InitIncomingDocuments();
+        UpdateIncomingDocumentsSetup();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.CreateSalesInvoice;
+        IncomingDocument.CreateSalesInvoice();
         IncomingDocument.Modify();
 
         // Pre-Exercise Verify.
         SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        Assert.IsTrue(SalesHeader.FindFirst, 'There should be a new record connected to the incoming document.');
+        Assert.IsTrue(SalesHeader.FindFirst(), 'There should be a new record connected to the incoming document.');
 
         // Exercise.
         IncomingDocument.Delete(true);
@@ -751,16 +751,16 @@ codeunit 134400 "ERM Incoming Documents"
         SalesHeader: Record "Sales Header";
     begin
         // Setup.
-        LibraryIncomingDocuments.InitIncomingDocuments;
-        UpdateIncomingDocumentsSetup;
+        LibraryIncomingDocuments.InitIncomingDocuments();
+        UpdateIncomingDocumentsSetup();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.CreateSalesCreditMemo;
+        IncomingDocument.CreateSalesCreditMemo();
         IncomingDocument.Modify();
 
         // Pre-Exercise Verify.
         SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-        Assert.IsTrue(SalesHeader.FindFirst, 'There should be a new record connected to the incoming document.');
+        Assert.IsTrue(SalesHeader.FindFirst(), 'There should be a new record connected to the incoming document.');
 
         // Exercise.
         IncomingDocument.Delete(true);
@@ -908,7 +908,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.TestField("Posting Date", GLEntry."Posting Date");
         IncomingDocument.TestField("Related Record ID");
 
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
     end;
@@ -920,8 +920,8 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         SalesHeader: Record "Sales Header";
-        IncomingDocumentCard: TestPage "Incoming Document";
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
+        IncomingDocumentCard: TestPage "Incoming Document";
         FileName: Text;
     begin
         // Init
@@ -952,10 +952,10 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.TestField("Posting Date", 0D);
         IncomingDocument.TestField("Related Record ID", SalesHeader.RecordId);
 
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
-        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText);
+        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText());
     end;
 
     [Test]
@@ -965,8 +965,8 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         PurchaseHeader: Record "Purchase Header";
-        IncomingDocumentCard: TestPage "Incoming Document";
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
+        IncomingDocumentCard: TestPage "Incoming Document";
         FileName: Text;
     begin
         // Init
@@ -997,10 +997,10 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.TestField("Posting Date", 0D);
         IncomingDocument.TestField("Related Record ID", PurchaseHeader.RecordId);
 
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
-        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText);
+        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText());
     end;
 
     [Test]
@@ -1050,10 +1050,10 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.TestField("Posting Date", 0D);
         IncomingDocument.TestField("Related Record ID", GenJournalLine.RecordId);
 
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
         Assert.AreNotEqual(IncomingDocumentCard.Record.Value, '', EmptyLinkToRelatedRecordErr);
-        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText);
+        IncomingDocumentCard.Record.AssertEquals(IncomingDocument.GetRecordLinkText());
     end;
 
     [Test]
@@ -1217,7 +1217,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.ReplaceMainAttachment(FileName3);
 
         // Verify
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         IncomingDocument.GetMainAttachment(MainIncomingDocumentAttachment);
         IncomingDocumentAttachment2.Get(
           IncomingDocumentAttachment2."Incoming Document Entry No.", IncomingDocumentAttachment2."Line No.");
@@ -1239,12 +1239,12 @@ codeunit 134400 "ERM Incoming Documents"
         PostedDocsWithNoIncDoc: TestPage "Posted Docs. With No Inc. Doc.";
     begin
         // init
-        CreateTestGLEntries;
+        CreateTestGLEntries();
 
         // Execution
-        PostedDocsWithNoIncDoc.OpenView;
+        PostedDocsWithNoIncDoc.OpenView();
         PostedDocsWithNoIncDoc.DocNoFilter.SetValue(Format(2));
-        PostedDocsWithNoIncDoc.First;
+        PostedDocsWithNoIncDoc.First();
 
         // Verification
         Assert.AreEqual('Test', PostedDocsWithNoIncDoc."First Posting Description".Value, '');
@@ -1262,16 +1262,16 @@ codeunit 134400 "ERM Incoming Documents"
         // [SCENARIO 124640] Annie can get a list of document numbers without an incoming document from the Incoming Documents page.
 
         // [GIVEN] We have some G/LEntries without an incoming document and we have a new incoming document.
-        CreateTestGLEntries;
+        CreateTestGLEntries();
         IncomingDocument.DeleteAll();
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.TestField("Entry No.");
 
         // [WHEN] We open the "Posted Documents without Incoming Document" and select the first and click "Select Inc..."
-        PostedDocsWithNoIncDoc.OpenView;
+        PostedDocsWithNoIncDoc.OpenView();
         PostedDocsWithNoIncDoc.DocNoFilter.SetValue(Format(2));
-        PostedDocsWithNoIncDoc.First;
-        PostedDocsWithNoIncDoc.SelectIncomingDoc.Invoke; // Opens page 190 - see pagehandler
+        PostedDocsWithNoIncDoc.First();
+        PostedDocsWithNoIncDoc.SelectIncomingDoc.Invoke(); // Opens page 190 - see pagehandler
 
         // [THEN] PAge 190 opens and the user can select an IC to attach to the posted document.
         IncomingDocument.Find();
@@ -1380,7 +1380,7 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.ExpectedError(OnlyOneDefaultAttachmentErr);
 
         // Verify - 2
-        asserterror IncomingDocumentAttachment.DeleteAttachment;
+        asserterror IncomingDocumentAttachment.DeleteAttachment();
         Assert.ExpectedError(OnlyOneDefaultAttachmentErr);
     end;
 
@@ -1397,7 +1397,7 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.DeleteAll();
         CreateNewIncomingDocument(IncomingDocument);
         IncomingDocument.TestField("Entry No.");
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.SetPostedDocFields(DMY2Date(1, 1, 2000), 'TEST');
 
         // [WHEN] We call the ShowCard method
@@ -1549,7 +1549,7 @@ codeunit 134400 "ERM Incoming Documents"
         MessageText: Text;
     begin
         CreateNewIncomingDocument(IncomingDocument);
-        CreateTestGLEntries;
+        CreateTestGLEntries();
 
         GLEntry.FindFirst();
 
@@ -1562,7 +1562,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         IncomingDocument.SelectIncomingDocumentForPostedDocument(DocumentNo, PostingDate, GLEntry.RecordId);
 
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(DetachQst, DocumentNo, Format(PostingDate)));
@@ -1570,14 +1570,14 @@ codeunit 134400 "ERM Incoming Documents"
 
         MessageText := RemovePostedRecordManuallyMsg;
         LibraryVariableStorage.Enqueue(MessageText);
-        IncomingDocumentCard.RemoveReferencedRecord.Invoke;
+        IncomingDocumentCard.RemoveReferencedRecord.Invoke();
 
         IncomingDocument.Get(IncomingDocument."Entry No.");
         Assert.AreEqual(false, IncomingDocument.Posted, 'Posted should be set to false for the incoming document');
         Assert.AreEqual(0D, IncomingDocument."Posting Date", 'Posting date is not set correctly');
         Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
         Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure UnlinkNotPostedDocumentFromIncomingDocumentPurchaseHeader(DoDelete: Boolean)
@@ -1590,13 +1590,13 @@ codeunit 134400 "ERM Incoming Documents"
         PurchaseHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
-        IncomingDocument.CreatePurchInvoice;  // Opens page 51 "Purchase Invoice"
+        IncomingDocument.CreatePurchInvoice();  // Opens page 51 "Purchase Invoice"
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
 
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
 
         LibraryVariableStorage.Enqueue(DoYouWantToRemoveReferenceQst);
@@ -1604,7 +1604,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         LibraryVariableStorage.Enqueue(DeleteRecordQst);
         LibraryVariableStorage.Enqueue(DoDelete);
-        IncomingDocumentCard.RemoveReferencedRecord.Invoke;
+        IncomingDocumentCard.RemoveReferencedRecord.Invoke();
 
         IncomingDocument.Get(IncomingDocument."Entry No.");
         Assert.AreEqual(false, IncomingDocument.Posted, 'Posted should be set to false for the incoming document');
@@ -1612,14 +1612,14 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
         Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
         if DoDelete then
-            Assert.IsFalse(PurchaseHeader.FindFirst, 'Purchase document should not be deleted')
+            Assert.IsFalse(PurchaseHeader.FindFirst(), 'Purchase document should not be deleted')
         else begin
             Clear(PurchaseHeader);
-            Assert.IsTrue(PurchaseHeader.FindFirst, 'Purchase document should not be deleted');
+            Assert.IsTrue(PurchaseHeader.FindFirst(), 'Purchase document should not be deleted');
             Assert.AreEqual(
               0, PurchaseHeader."Incoming Document Entry No.", 'Incoming Document Entry No. should be removed from Purchase header');
         end;
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1643,13 +1643,13 @@ codeunit 134400 "ERM Incoming Documents"
         SalesHeader.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
-        IncomingDocument.CreateSalesInvoice;
+        IncomingDocument.CreateSalesInvoice();
         IncomingDocument.Modify();
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
 
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
 
         LibraryVariableStorage.Enqueue(DoYouWantToRemoveReferenceQst);
@@ -1657,7 +1657,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         LibraryVariableStorage.Enqueue(DeleteRecordQst);
         LibraryVariableStorage.Enqueue(false);
-        IncomingDocumentCard.RemoveReferencedRecord.Invoke;
+        IncomingDocumentCard.RemoveReferencedRecord.Invoke();
 
         IncomingDocument.Get(IncomingDocument."Entry No.");
         Assert.AreEqual(false, IncomingDocument.Posted, 'Posted should be set to false for the incoming document');
@@ -1665,11 +1665,11 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.AreEqual(0DT, IncomingDocument."Posted Date-Time", 'Posting date time is not set correctly');
         Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
         Clear(SalesHeader);
-        Assert.IsTrue(SalesHeader.FindFirst, 'Sales document should not be deleted');
+        Assert.IsTrue(SalesHeader.FindFirst(), 'Sales document should not be deleted');
         Assert.AreEqual(
           0, SalesHeader."Incoming Document Entry No.", 'Incoming Document Entry No. should be removed from Purchase header');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1685,12 +1685,12 @@ codeunit 134400 "ERM Incoming Documents"
         GenJournalLine.DeleteAll();
 
         CreateNewIncomingDocument(IncomingDocument);
-        IncomingDocument.Release;
+        IncomingDocument.Release();
         IncomingDocument.Modify();
         CreateAndAssignGenJournalLineToIncomingDocument(IncomingDocument);
         IncomingDocument.TestField("Document Type", IncomingDocument."Document Type"::Journal);
 
-        IncomingDocumentCard.OpenEdit;
+        IncomingDocumentCard.OpenEdit();
         IncomingDocumentCard.GotoRecord(IncomingDocument);
 
         LibraryVariableStorage.Enqueue(DoYouWantToRemoveReferenceQst);
@@ -1698,7 +1698,7 @@ codeunit 134400 "ERM Incoming Documents"
 
         LibraryVariableStorage.Enqueue(DeleteRecordQst);
         LibraryVariableStorage.Enqueue(false);
-        IncomingDocumentCard.RemoveReferencedRecord.Invoke;
+        IncomingDocumentCard.RemoveReferencedRecord.Invoke();
 
         IncomingDocument.Get(IncomingDocument."Entry No.");
         Assert.AreEqual(false, IncomingDocument.Posted, 'Posted should be set to false for the incoming document');
@@ -1707,11 +1707,11 @@ codeunit 134400 "ERM Incoming Documents"
         Assert.AreEqual(IncomingDocument."Document Type"::" ", IncomingDocument."Document Type", 'Document Type should be removed');
 
         Clear(GenJournalLine);
-        Assert.IsTrue(GenJournalLine.FindFirst, 'Genearal Journal Line should not be deleted');
+        Assert.IsTrue(GenJournalLine.FindFirst(), 'Genearal Journal Line should not be deleted');
         Assert.AreEqual(
           0, GenJournalLine."Incoming Document Entry No.", 'Incoming Document Entry No. should be removed from Purchase header');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1779,16 +1779,16 @@ codeunit 134400 "ERM Incoming Documents"
         CreateIncomingDocument(ProcessedIncomingDocument, 'Processed Document', true);
         CreateIncomingDocument(UnprocessedIncomingDocument, 'Unprocessed Document', false);
 
-        IncomingDocumentsPage.OpenEdit;
-        IncomingDocumentsPage.ShowUnprocessed.Invoke;
+        IncomingDocumentsPage.OpenEdit();
+        IncomingDocumentsPage.ShowUnprocessed.Invoke();
 
-        IncomingDocumentsPage.First;
-        Assert.IsFalse(IncomingDocumentsPage.ShowUnprocessed.Enabled, 'Expected that ShowUnprocessed action is disabled');
-        Assert.IsTrue(IncomingDocumentsPage.ShowAll.Enabled, 'Expected that ShowUnprocessed action is disabled');
+        IncomingDocumentsPage.First();
+        Assert.IsFalse(IncomingDocumentsPage.ShowUnprocessed.Enabled(), 'Expected that ShowUnprocessed action is disabled');
+        Assert.IsTrue(IncomingDocumentsPage.ShowAll.Enabled(), 'Expected that ShowUnprocessed action is disabled');
         Assert.AreEqual(
           UnprocessedIncomingDocument.Description, IncomingDocumentsPage.Description.Value,
           'Expected that Description match the Processed Document');
-        Assert.IsFalse(IncomingDocumentsPage.Next, 'Expected that list contains only one record');
+        Assert.IsFalse(IncomingDocumentsPage.Next(), 'Expected that list contains only one record');
     end;
 
     [Test]
@@ -1803,12 +1803,12 @@ codeunit 134400 "ERM Incoming Documents"
         CreateIncomingDocument(ProcessedIncomingDocument, 'Processed Document', true);
         CreateIncomingDocument(UnprocessedIncomingDocument, 'Unprocessed Document', false);
 
-        IncomingDocumentsPage.OpenEdit;
+        IncomingDocumentsPage.OpenEdit();
         IncomingDocumentsPage.FILTER.SetFilter(Processed, Format(true));
-        IncomingDocumentsPage.ShowAll.Invoke;
+        IncomingDocumentsPage.ShowAll.Invoke();
 
-        Assert.IsTrue(IncomingDocumentsPage.First, 'Expected that list contains 2 records');
-        Assert.IsTrue(IncomingDocumentsPage.Next, 'Expected that list contains 2 records');
+        Assert.IsTrue(IncomingDocumentsPage.First(), 'Expected that list contains 2 records');
+        Assert.IsTrue(IncomingDocumentsPage.Next(), 'Expected that list contains 2 records');
     end;
 
     [Test]
@@ -1825,14 +1825,14 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.Processed := false;
         IncomingDocument.Modify();
 
-        IncomingDocumentPage.OpenEdit;
+        IncomingDocumentPage.OpenEdit();
         IncomingDocumentPage.GotoRecord(IncomingDocument);
-        IncomingDocumentPage.SetToProcessed.Invoke;
+        IncomingDocumentPage.SetToProcessed.Invoke();
 
         IncomingDocument.Get(IncomingDocument."Entry No.");
         Assert.IsTrue(IncomingDocument.Processed, 'Expected that record is set as processed');
 
-        IncomingDocumentPage.SetToUnprocessed.Invoke;
+        IncomingDocumentPage.SetToUnprocessed.Invoke();
         IncomingDocument.Get(IncomingDocument."Entry No.");
         Assert.IsFalse(IncomingDocument.Processed, 'Expected that record is set as processed');
     end;
@@ -1972,6 +1972,34 @@ codeunit 134400 "ERM Incoming Documents"
         IncomingDocument.TestField("Entry No.", IncomingDocumentEntryNo);
     end;
 
+    [Test]
+    procedure CreateNewIncomingDocInPageNoAttachedFiles()
+    var
+        IncomingDocuments: array[2] of Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IncomingDocumentsPage: TestPage "Incoming Documents";
+        NoAttachmentExpectedErr: Label 'Document attachment factbox must be empty.';
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] "Incoming Doc. Attachments" factbox does not show any attachments when a new incoming document is created after another doc. with attachments
+
+        // [GIVEN] Create incoming document "D1" with attachment
+        CreateIncomingDocumentWithMainAttachment(IncomingDocuments[1], IncomingDocumentAttachment);
+
+        // [GIVEN] Create incoming document "D2" without attachments
+        CreateIncomingDocumentWithoutAttachments(IncomingDocuments[2]);
+
+        // [GIVEN] Open the page "Incoming Documents" and navigate to the document "D1" to initialize the factobox with the document record
+        IncomingDocumentsPage.OpenView();
+        IncomingDocumentsPage.GoToRecord(IncomingDocuments[1]);
+
+        // [WHEN] Move to the document "D2"
+        IncomingDocumentsPage.GoToRecord(IncomingDocuments[2]);
+
+        // [THEN] List of attachments in the factbox is empty
+        Assert.IsFalse(IncomingDocumentsPage.IncomingDocAttachFactBox.First(), NoAttachmentExpectedErr);
+    end;
+
     local procedure TestAutomaticCreationActions(DataExchangeTypeHasValue: Boolean)
     var
         IncomingDocumentRec: Record "Incoming Document";
@@ -1985,15 +2013,15 @@ codeunit 134400 "ERM Incoming Documents"
             IncomingDocumentRec.Modify();
         end;
 
-        IncomingDocumentPage.OpenEdit;
+        IncomingDocumentPage.OpenEdit();
         IncomingDocumentPage.GotoRecord(IncomingDocumentRec);
-        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocumentPage.CreateGenJnlLine.Enabled, 'Editable value unexpected.');
-        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocumentPage.CreateDocument.Enabled, 'Editable value unexpected.');
+        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocumentPage.CreateGenJnlLine.Enabled(), 'Editable value unexpected.');
+        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocumentPage.CreateDocument.Enabled(), 'Editable value unexpected.');
 
-        IncomingDocuments.OpenView;
+        IncomingDocuments.OpenView();
         IncomingDocuments.GotoRecord(IncomingDocumentRec);
-        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocuments.CreateGenJnlLine.Enabled, 'Editable value unexpected.');
-        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocuments.CreateDocument.Enabled, 'Editable value unexpected.');
+        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocuments.CreateGenJnlLine.Enabled(), 'Editable value unexpected.');
+        Assert.AreEqual(DataExchangeTypeHasValue, IncomingDocuments.CreateDocument.Enabled(), 'Editable value unexpected.');
     end;
 
     local procedure GetIncomeStatementAcc(): Code[20]
@@ -2014,7 +2042,7 @@ codeunit 134400 "ERM Incoming Documents"
 
     local procedure CreateNewIncomingDocument(var IncomingDocument: Record "Incoming Document")
     begin
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
         Commit();
     end;
@@ -2041,7 +2069,7 @@ codeunit 134400 "ERM Incoming Documents"
         for i := 1 to 10 do begin
             GLEntry."Entry No." += 1;
             GLEntry."G/L Account No." := 'TEST';
-            GLEntry."Posting Date" := WorkDate - i mod 3;
+            GLEntry."Posting Date" := WorkDate() - i mod 3;
             GLEntry."Document No." := Format(i);
             GLEntry.Description := 'Test';
             GLEntry.Amount := 1;
@@ -2055,8 +2083,8 @@ codeunit 134400 "ERM Incoming Documents"
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.Trap;
-        IncomingDocument.CreateGenJnlLine;
+        GeneralJournal.Trap();
+        IncomingDocument.CreateGenJnlLine();
         GeneralJournal.Close();
         IncomingDocument.Modify();
     end;
@@ -2133,7 +2161,7 @@ codeunit 134400 "ERM Incoming Documents"
     var
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
     begin
-        IncomingDocumentsSetup.Fetch;
+        IncomingDocumentsSetup.Fetch();
         IncomingDocumentsSetup.Validate("Require Approval To Create", false);
         IncomingDocumentsSetup.Modify(true);
     end;
@@ -2202,31 +2230,31 @@ codeunit 134400 "ERM Incoming Documents"
     [Scope('OnPrem')]
     procedure IncomingDocumentsLookupHandler(var IncomingDocuments: TestPage "Incoming Documents")
     begin
-        IncomingDocuments.Last;
-        IncomingDocuments.OK.Invoke;
+        IncomingDocuments.Last();
+        IncomingDocuments.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure IncomingDocumentsLookupHandlerPrevRec(var IncomingDocuments: TestPage "Incoming Documents")
     begin
-        IncomingDocuments.Previous;
-        IncomingDocuments.OK.Invoke;
+        IncomingDocuments.Previous();
+        IncomingDocuments.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure IncomingDocumentCardHandler(var IncomingDocumentCard: TestPage "Incoming Document")
     begin
-        IncomingDocumentCard.OK.Invoke;
+        IncomingDocumentCard.OK().Invoke();
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, '');
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Question, '');
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]

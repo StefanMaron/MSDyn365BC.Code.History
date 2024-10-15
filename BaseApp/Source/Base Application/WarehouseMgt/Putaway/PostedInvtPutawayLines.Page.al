@@ -55,6 +55,12 @@ page 7396 "Posted Invt. Put-away Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the item that was put away.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;

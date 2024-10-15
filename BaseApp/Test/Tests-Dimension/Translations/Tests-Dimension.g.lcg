@@ -203,6 +203,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - a number.]D;]A;(LookupHint=Codeunit ERM Change Global Dimensions - NamedType UnexpectedTableErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2479698982 - NamedType 276437244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[blank]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension - NamedType BlankLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2479698982 - NamedType 3621259247" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[is blocked]]></Val>
@@ -214,11 +223,11 @@
   </Item>
   <Item ItemId=";Codeunit 2479698982 - NamedType 1214413531" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. Select Dimension Value Code %4 for the Dimension Code %5.]]></Val>
+      <Val><![CDATA[A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. The %4 must be %5 for %6 %7. Currently it's %8.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension - NamedType CombinationError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%4 = "Dimension value code" caption, %5 = expected "Dimension value code" value, %6 = "Dimension code" caption, %7 = "Dimension Code" value, %8 = current "Dimension value code" value]D;]A;(LookupHint=Codeunit ERM Dimension - NamedType CombinationError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2479698982 - NamedType 1298342865" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -257,22 +266,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension - NamedType MandatoryError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2479698982 - NamedType 35888856" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2479698982 - NamedType 2738988338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. Dimension Code %4 must not be mentioned for Customer %5.]]></Val>
+      <Val><![CDATA[A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. The %4 must be %5 for %6 %7 for %8 %9. Currently it's %10.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension - NamedType NoCodeError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2479698982 - NamedType 2983120545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A dimension used in Gen. Journal Line %1, %2, %3 has caused an error. Select Dimension Value Code %4 for the Dimension Code %5 for Customer %6.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension - NamedType SameCodeError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%4 = "Dimension value code" caption, %5 = expected "Dimension value code" value, %6 = "Dimension code" caption, %7 = "Dimension Code" value, %8 = Table caption (Vendor), %9 = Table value (XYZ), %10 = current "Dimension value code" value]D;]A;(LookupHint=Codeunit ERM Dimension - NamedType SameCodeOrNoCodeError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2479698982 - NamedType 3098962420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1157,6 +1157,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Cancel Sales Cr Memo Dim. - NamedType DimensionBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3227769053 - NamedType 276437244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[blank]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType BlankLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3227769053 - NamedType 3332340355" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimension %1 is blocked.]]></Val>
@@ -1247,40 +1256,22 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType MandatoryDimensionServiceLine)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 2466274173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3227769053 - NamedType 1739569211" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2 are invalid. %3 %4 must not be mentioned for Customer %5.]]></Val>
+      <Val><![CDATA[The dimensions used in %1 %2 are invalid. The %3 must be %4 for %5 %6 for %7 %8. Currently it's %9.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType NoCodeDimensionHeader)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%3 = "Dimension value code" caption, %4 = expected "Dimension value code" value, %5 = "Dimension code" caption, %6 = "Dimension Code" value, %7 = Table caption (Vendor), %8 = Table value (XYZ), %9 = current "Dimension value code" value]D;]A;(LookupHint=Codeunit Service Posting - Dimensions - NamedType SameCodeOrNoCodeDimHeader)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 2246885206" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3227769053 - NamedType 2097964596" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2, line no. %3 are invalid. %4 %5 must not be mentioned for %6 %7.]]></Val>
+      <Val><![CDATA[The dimensions used in %1 %2, line no. %3 are invalid. The %4 must be %5 for %6 %7 for %8 %9. Currently it's %10.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType NoCodeDimensionLine)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 4153778388" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2 are invalid. Select %3 %4 for the %5 %6 for Customer %7.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType SameCodeDimensionHeader)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3227769053 - NamedType 2754350043" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The dimensions used in %1 %2, line no. %3 are invalid. Select %4 %5 for the %6 %7 for %8 %9.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType SameCodeDimensionLine)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%4 = "Dimension value code" caption, %5 = expected "Dimension value code" value, %6 = "Dimension code" caption, %7 = "Dimension Code" value, %8 = Table caption (Vendor), %9 = Table value (XYZ), %10 = current "Dimension value code" value]D;]A;(LookupHint=Codeunit Service Posting - Dimensions - NamedType SameCodeOrNoCodeDimLine)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3227769053 - NamedType 2485937228" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
