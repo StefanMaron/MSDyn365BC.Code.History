@@ -56,7 +56,13 @@ table 1249 "Bank Stmt Multiple Match Line"
         "Entry No." := TempLedgerEntryMatchingBuffer."Entry No.";
         "Due Date" := TempLedgerEntryMatchingBuffer."Due Date";
         "Document No." := TempLedgerEntryMatchingBuffer."Document No.";
+        OnInsertLineOnBeforeInsert(Rec, TempLedgerEntryMatchingBuffer, LineNo, AccountType);
         Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLineOnBeforeInsert(var BankStmtMultipleMatchLine: Record "Bank Stmt Multiple Match Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; LineNo: Integer; AccountType: Enum "Gen. Journal Account Type")
+    begin
     end;
 }
 

@@ -1806,11 +1806,9 @@ table 18 Customer
         {
             Caption = 'State Inscription';
         }
-        field(14020; "Tax Identification Type"; Option)
+        field(14020; "Tax Identification Type"; Enum "Tax Identification Type")
         {
             Caption = 'Tax Identification Type';
-            OptionCaption = 'Legal Entity,Natural Person';
-            OptionMembers = "Legal Entity","Natural Person";
         }
         field(27000; "CFDI Purpose"; Code[10])
         {

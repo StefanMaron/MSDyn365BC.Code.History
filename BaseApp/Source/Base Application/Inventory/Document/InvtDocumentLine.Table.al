@@ -90,6 +90,9 @@ table 5851 "Invt. Document Line"
 
                 Validate("Unit of Measure Code", Item."Base Unit of Measure");
 
+                if "Source Code" = '' then
+                    Validate("Source Code", GetSourceCode());
+
                 CreateDimFromDefaultDim(Rec.FieldNo("Item No."));
             end;
         }

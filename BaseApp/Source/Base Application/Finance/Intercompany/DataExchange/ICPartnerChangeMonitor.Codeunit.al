@@ -63,7 +63,7 @@ codeunit 489 "IC Partner Change Monitor"
 
     var
         YouMustHaveICPartnerEditPermissionToChangeSensitiveFieldsErr: Label 'To modify sensitive Cross-Environment Setup values, you must be assigned the %1 or SUPER permission set.', Comment = '%1 - Name of permission set';
-        ICCompanySetupPermissionSetNameTxt: Label 'D365 IC Partner Edit', Comment = 'Translation needs to match with - permissionset 200 "D365 IC Partner Edit"';
+        ICCompanySetupPermissionSetNameTxt: Label 'D365 IC Partner Edit', Comment = 'Translation needs to match with - permissionset 200 "D365 IC Partner Edit"', Locked = true;
         InsertICPartnerContextTok: Label 'Insert new IC Partner', Locked = true;
         InsertICPartnerDescriptionTxt: Label 'A new IC Partner was inserted.';
         ModifyICPartnerContextTok: Label 'Modify IC Partner', Locked = true;

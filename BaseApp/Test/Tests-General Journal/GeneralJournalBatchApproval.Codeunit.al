@@ -936,6 +936,32 @@ codeunit 134321 "General Journal Batch Approval"
         Assert.ExpectedError(PreventModifyRecordWithOpenApprovalEntryMsg);
     end;
 
+    [Test]
+    procedure ModifyGenJournalLineIsNotAllowedForOpenApprovalEntryOnValidateDocumentNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        ApprovalStatus: Enum "Approval Status";
+    begin
+        // [SCENARIO 495485] Verify that modifying a Gen. Journal Line is not allowed for open approval entry on validate document no.
+        Initialize();
+
+        // [GIVEN] Create Gen. Journal Line
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Create Approval Entry for Gen. Journal Batch
+        GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
+        CreateApprovalEntryForCurrentUser(GenJournalBatch.RecordId, ApprovalStatus::Open);
+
+        // [WHEN] Enter Document No.
+        asserterror GenJournalLine.Validate("Document No.", LibraryRandom.RandText(20));
+
+        // [THEN] Verify error message
+        Assert.ExpectedError(PreventModifyRecordWithOpenApprovalEntryMsg);
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;

@@ -1618,11 +1618,9 @@ table 23 Vendor
         {
             Caption = 'FATCA filing requirement';
         }
-        field(14020; "Tax Identification Type"; Option)
+        field(14020; "Tax Identification Type"; Enum "Tax Identification Type")
         {
             Caption = 'Tax Identification Type';
-            OptionCaption = 'Legal Entity,Natural Person';
-            OptionMembers = "Legal Entity","Natural Person";
         }
         field(27040; "DIOT-Type of Operation"; Option)
         {

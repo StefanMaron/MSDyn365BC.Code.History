@@ -267,12 +267,6 @@ codeunit 136210 "Contact Employee"
         Contact.SetHideValidationDialog(true);
         Contact.CreateEmployee();
 
-        // tfs 400030: Contact List page fills missing "Contact Business Relation" data.
-        Contact.Find();
-        Contact."Contact Business Relation" := Contact."Contact Business Relation"::" ";
-        Contact.Modify();
-        Commit();
-
         // [WHEN] Invoke "Navigate->Employee"
         ContactList.OpenView();
         ContactList.Filter.SetFilter("No.", Contact."No.");
@@ -299,12 +293,6 @@ codeunit 136210 "Contact Employee"
         Contact.SetHideValidationDialog(true);
         Contact.CreateEmployee();
         ReplaceBusRelationCode(Contact."No.");
-
-        // tfs 400030: Contact List page fills missing "Contact Business Relation" data.
-        Contact.Find();
-        Contact."Contact Business Relation" := Contact."Contact Business Relation"::" ";
-        Contact.Modify();
-        Commit();
 
         // [WHEN] Open Contact List
         ContactList.OpenView();

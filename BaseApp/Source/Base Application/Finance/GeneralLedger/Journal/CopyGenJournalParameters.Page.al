@@ -48,7 +48,7 @@ page 184 "Copy Gen. Journal Parameters"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Replace Posting Date';
-                    ToolTip = 'Specifies if the posting date will be replaced with the value of current field while copy posted journal lines. If you leave this field blank original Posting Date will be used in Target Journal.';
+                    ToolTip = 'Specifies if the posting date will be validated with the value of current field while copy posted journal lines. If you leave this field blank original Posting Date will be used in Target Journal.';
                 }
                 field("Replace Document No."; Rec."Replace Document No.")
                 {

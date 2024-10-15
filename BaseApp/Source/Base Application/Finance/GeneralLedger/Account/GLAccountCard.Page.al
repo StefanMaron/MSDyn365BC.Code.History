@@ -182,6 +182,11 @@ page 17 "G/L Account Card"
                     TableRelation = "SAT Account Code";
                     ToolTip = 'Specifies the account for electronic documents to the tax authorities.';
                 }
+                field("SAT Classification Code"; Rec."SAT Classification Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the classification code required for reporting to the Mexican tax authorities (SAT)';
+                }
             }
             group(Posting)
             {
