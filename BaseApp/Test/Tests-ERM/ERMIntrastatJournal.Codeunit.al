@@ -44,6 +44,7 @@ codeunit 134150 "ERM Intrastat Journal"
         ShptMethodCodeErr: Label 'Wrong Shipment Method Code';
         StatPeriodFormatErr: Label '%1 must be 4 characters, for example, 9410 for October, 1994.', Comment = '%1 - field caption';
         StatPeriodMonthErr: Label 'Please check the month number.';
+        InCorrectLinesErr: Label 'The exported Intrastat file should contain only %1 lines', Comment = '%1 = No. of Lines';
 
     [Test]
     [Scope('OnPrem')]
@@ -3010,6 +3011,95 @@ codeunit 134150 "ERM Intrastat Journal"
         VerifyIntrastatLine(ItemLedgerEntry."Document No.", ItemNo, IntrastatJnlLine.Type::Receipt, FromCountryRegion.Code, 1, InTransitLocation.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatJnlTemplateListPageHandler,GetItemLedgerEntriesReportHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyTheExportFileContainsLinesWithTheTypeFilter()
+    var
+        IntrastatJournalLine: Record "Intrastat Jnl. Line";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatSetup: Record "Intrastat Setup";
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+        FileTempBlob: Codeunit "Temp Blob";
+        IntrastatJournalPage: TestPage "Intrastat Journal";
+        FileInStream: InStream;
+        Line: Text;
+        LineCount: Integer;
+        InvoiceDate: Date;
+    begin
+        // [SCENARIO 477943] Verify that the intrastat exported file contains lines with the Type filter.
+        Initialize();
+
+        // [GIVEN] Save an Invoice Date.
+        InvoiceDate := CalcDate('<-5Y>');
+
+        // [GIVEN] Create Intrastat Setup.
+        IntrastatSetup.Init();
+        IntrastatSetup.validate("Report Receipts", true);
+        IntrastatSetup.validate("Report Shipments", true);
+        IntrastatSetup.Insert();
+
+        // [GIVEN]  Create and Post Multiple Purchase orders.
+        CreateAndPostPurchaseOrder(PurchaseLine, InvoiceDate);
+        CreateAndPostPurchaseOrder(PurchaseLine, InvoiceDate);
+
+        // [GIVEN] Create and Post Multiple Sales Orders.
+        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
+        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
+
+        // [GIVEN] Create an intrastat journal template and Batch.
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [GIVEN] Get Posted Entries in the Intrastat Journal.
+        OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
+
+        // [GIVEN] Update the intrastat journal line.
+        UpdateIntrastatJournalLine(IntrastatJournalLine, IntrastatJnlBatch);
+
+        // [WHEN]  Run Intrastat with the type filter "Receipt".
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(IntrastatJournalLine.Type::Receipt);
+        RunIntrastatExportWithTypeFilter(FileTempBlob, IntrastatJournalLine);
+
+        // [GIVEN] count of Lines from the exported Intrastat file.
+        FileTempBlob.CreateInStream(FileInStream);
+        while FileInStream.ReadText(Line) <> 0 do
+            LineCount += 1;
+
+        // [VERIFY] Verify that the exported Intrastat file should contain only the lines with Type "Receipt".
+        IntrastatJournalLine.SetRange(Type, IntrastatJournalLine.Type::Receipt);
+        Assert.AreEqual(
+            IntrastatJournalLine.Count(),
+            LineCount,
+            StrSubstNo(InCorrectLinesErr, IntrastatJournalLine.Count()));
+
+        // [GIVEN] Update "Reported" to false in the Intrastat Journal Batch.
+        IntrastatJnlBatch.Reported := false;
+        IntrastatJnlBatch.Modify();
+
+        // [WHEN] Run Intrastat with the type filter "Shipment".
+        Clear(FileTempBlob);
+        Clear(LineCount);
+        LibraryVariableStorage.Enqueue(IntrastatJournalLine.Type::Shipment);
+        RunIntrastatExportWithTypeFilter(FileTempBlob, IntrastatJournalLine);
+
+        // [GIVEN] count of Lines from the exported Intrastat file.
+        FileTempBlob.CreateInStream(FileInStream);
+        while FileInStream.ReadText(Line) <> 0 do
+            LineCount += 1;
+
+        // [VERIFY] Verify that the exported Intrastat file should contain only the lines with Type "Shipment".
+        IntrastatJournalLine.SetRange(Type, IntrastatJournalLine.Type::Shipment);
+        Assert.AreEqual(
+            IntrastatJournalLine.Count(),
+            LineCount,
+            StrSubstNo(InCorrectLinesErr, IntrastatJournalLine.Count()));
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -4114,6 +4204,51 @@ codeunit 134150 "ERM Intrastat Journal"
         ErrorMessage.SetRange("Record ID", IntrastatJnlLine.RecordId);
         ErrorMessage.SetRange("Field Number", IntrastatJnlLine.FieldNo("Document No."));
         ErrorMessage.FindFirst();
+    end;
+
+    local procedure UpdateIntrastatJournalLine(
+        var IntrastatJournalLine: Record "Intrastat Jnl. Line";
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        CreateShipmentMethod(ShipmentMethod);
+
+        IntrastatJournalLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
+        IntrastatJournalLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
+        if IntrastatJournalLine.FindSet() then
+            repeat
+                IntrastatJournalLine."Transaction Type" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
+                IntrastatJournalLine."Shpt. Method Code" := ShipmentMethod.Code;
+                IntrastatJournalLine."Transport Method" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(1, 0), 1, 1);
+                IntrastatJournalLine."Total Weight" := LibraryRandom.RandInt(10);
+                IntrastatJournalLine."Country/Region of Origin Code" := GetCountryRegionCode();
+                IntrastatJournalLine.Modify();
+            until IntrastatJournalLine.Next() = 0;
+    end;
+
+    local procedure CreateShipmentMethod(var ShipmentMethod: Record "Shipment Method")
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), DATABASE::"Shipment Method");
+        ShipmentMethod.Description := LibraryUtility.GenerateGUID();
+        ShipmentMethod.Insert(true);
+    end;
+
+    local procedure RunIntrastatExportWithTypeFilter(var FileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
+        FileOutStream: OutStream;
+    begin
+        FileTempBlob.CreateOutStream(FileOutStream);
+
+        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
+        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
+        IntrastatJnlLine.SetRange(Type, LibraryVariableStorage.DequeueInteger());
+        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, "Intrastat Export Format"::"2022");
+        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
+        IntrastatMakeDiskTaxAuth.UseRequestPage(false);
+        IntrastatMakeDiskTaxAuth.Run();
     end;
 
     [ConfirmHandler]

@@ -11,7 +11,8 @@ codeunit 4881 "EU3 Party Trade Feature Mgt."
     var
         VATSetup: Record "VAT Setup";
     begin
-        VATSetup.Get();
+        if not VATSetup.Get() then
+            exit(false);
         exit(VATSetup."Enable EU 3-Party Purchase");
     end;
 #else
@@ -21,7 +22,8 @@ codeunit 4881 "EU3 Party Trade Feature Mgt."
         VATSetup: Record "VAT Setup";
         FeatureManagementFacade: Codeunit "Feature Management Facade";
     begin
-        VATSetup.Get();
+        if not VATSetup.Get() then
+            exit(false);
         exit(FeatureManagementFacade.IsEnabled(FeatureKeyIdTok) and VATSetup."Enable EU 3-Party Purchase");
     end;
 #endif

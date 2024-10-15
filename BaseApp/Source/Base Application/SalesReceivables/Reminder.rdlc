@@ -9663,14 +9663,14 @@ Cstr(Fields!CompanyInfoPhoneNo.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoVATRegNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoGiroNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankName.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoBankAccNo.Value) + Chr(177) + 
+Cstr(Fields!CompanyInfoIBAN.Value) + Chr(177) + 
 Cstr(Fields!ReminderCaption.Value) + Chr(177) + 
 Cstr(Fields!PageCaption.Value) + Chr(177) + 
 Cstr(Fields!PhoneNoCaption.Value) + Chr(177) + 
 Cstr(Fields!VATRegNoCaption.Value) + Chr(177) + 
 Cstr(Fields!GiroNoCaption.Value) + Chr(177) + 
 Cstr(Fields!BankNameCaption.Value) + Chr(177) + 
-Cstr(Fields!BankAccNoCaption.Value) + Chr(177) + 
+Cstr(Fields!IBANCaption.Value) + Chr(177) + 
 Cstr(Fields!ReminderNoCaption.Value) + Chr(177) + 
 Cstr(Fields!PostingDateCaption.Value) + Chr(177) + 
 Cstr(Fields!DueDateCaption.Value) + Chr(177) + 
@@ -10568,7 +10568,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
       <Width>18.55741cm</Width>
       <Page>
         <PageHeader>
-          <Height>9.41211cm</Height>
+          <Height>10cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -10653,7 +10653,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>79.39999pt</Top>
+              <Top>97.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>2</ZIndex>
@@ -10683,7 +10683,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>89.39999pt</Top>
+              <Top>107.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>3</ZIndex>
@@ -10713,7 +10713,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>99.39999pt</Top>
+              <Top>117.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>4</ZIndex>
@@ -10743,7 +10743,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>109.39999pt</Top>
+              <Top>127.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>5</ZIndex>
@@ -10773,7 +10773,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>119.39999pt</Top>
+              <Top>137.39999pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>6</ZIndex>
@@ -10803,7 +10803,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>129.40002pt</Top>
+              <Top>147.40002pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>7</ZIndex>
@@ -10833,7 +10833,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>139.40001pt</Top>
+              <Top>157.40001pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>8</ZIndex>
@@ -10863,7 +10863,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>149.40002pt</Top>
+              <Top>167.40002pt</Top>
               <Height>11pt</Height>
               <Width>11.01182cm</Width>
               <ZIndex>9</ZIndex>
@@ -11080,7 +11080,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>160.20006pt</Top>
+              <Top>187.20006pt</Top>
               <Left>11.01182cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
@@ -11112,10 +11112,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>160.20006pt</Top>
-              <Left>14.17959cm</Left>
+              <Top>187.20006pt</Top>
+              <Left>13.91501cm</Left>
               <Height>11pt</Height>
-              <Width>3.77765cm</Width>
+              <Width>4.04223cm</Width>
               <ZIndex>17</ZIndex>
               <Style>
                 <Border />
@@ -11144,7 +11144,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>193.60013pt</Top>
+              <Top>220.60013pt</Top>
               <Left>11.01182cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
@@ -11176,75 +11176,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>193.60013pt</Top>
-              <Left>14.17959cm</Left>
+              <Top>220.60013pt</Top>
+              <Left>13.91501cm</Left>
               <Height>11pt</Height>
-              <Width>3.77765cm</Width>
+              <Width>4.04223cm</Width>
               <ZIndex>19</ZIndex>
-              <Style>
-                <Border />
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoGiroNoCapt">
-              <CanGrow>true</CanGrow>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=(Code.GetData(31,1))</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>203.60016pt</Top>
-              <Left>11.01182cm</Left>
-              <Height>11pt</Height>
-              <Width>2.90319cm</Width>
-              <ZIndex>20</ZIndex>
-              <Style>
-                <Border />
-                <FontFamily>Segoe UI</FontFamily>
-                <FontSize>8pt</FontSize>
-                <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoGiroNo">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(24,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <FontFamily>Segoe UI</FontFamily>
-                    <FontSize>8pt</FontSize>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>203.60016pt</Top>
-              <Left>14.17959cm</Left>
-              <Height>11pt</Height>
-              <Width>3.77765cm</Width>
-              <ZIndex>21</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11272,11 +11208,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>213.60016pt</Top>
+              <Top>231.60016pt</Top>
               <Left>11.01182cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11304,11 +11240,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>213.60016pt</Top>
-              <Left>14.17959cm</Left>
+              <Top>231.60016pt</Top>
+              <Left>13.91501cm</Left>
               <Height>11pt</Height>
-              <Width>3.77765cm</Width>
-              <ZIndex>23</ZIndex>
+              <Width>4.04223cm</Width>
+              <ZIndex>21</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11316,7 +11252,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccNoCapt">
+            <Textbox Name="CompanyInfoIBANCapt">
               <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
@@ -11336,11 +11272,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>223.60016pt</Top>
+              <Top>241.60016pt</Top>
               <Left>11.01182cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11348,7 +11284,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
                 <VerticalAlign>Middle</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccNo">
+            <Textbox Name="CompanyInfoIBAN">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -11368,11 +11304,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>223.60016pt</Top>
-              <Left>14.17959cm</Left>
+              <Top>241.60016pt</Top>
+              <Left>13.91501cm</Left>
               <Height>11pt</Height>
-              <Width>3.77765cm</Width>
-              <ZIndex>25</ZIndex>
+              <Width>4.04223cm</Width>
+              <ZIndex>23</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11402,11 +11338,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>223.89999pt</Top>
+              <Top>241.89999pt</Top>
               <Left>2.85622cm</Left>
               <Height>11pt</Height>
               <Width>8.1556cm</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11433,10 +11369,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>203pt</Top>
+              <Top>221pt</Top>
               <Height>11pt</Height>
               <Width>2.67983cm</Width>
-              <ZIndex>27</ZIndex>
+              <ZIndex>25</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11464,11 +11400,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>203pt</Top>
+              <Top>221pt</Top>
               <Left>2.85622cm</Left>
               <Height>11pt</Height>
               <Width>8.1556cm</Width>
-              <ZIndex>28</ZIndex>
+              <ZIndex>26</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11495,10 +11431,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>213.89999pt</Top>
+              <Top>231.89999pt</Top>
               <Height>11pt</Height>
               <Width>2.67983cm</Width>
-              <ZIndex>29</ZIndex>
+              <ZIndex>27</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11528,11 +11464,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>213.89999pt</Top>
+              <Top>231.89999pt</Top>
               <Left>2.85622cm</Left>
               <Height>11pt</Height>
               <Width>8.1556cm</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11559,10 +11495,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>235.69998pt</Top>
+              <Top>253.69998pt</Top>
               <Height>11pt</Height>
               <Width>2.67983cm</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11592,11 +11528,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>234.79999pt</Top>
+              <Top>252.79999pt</Top>
               <Left>2.85622cm</Left>
               <Height>11pt</Height>
               <Width>15.08568cm</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11623,10 +11559,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>170.30003pt</Top>
+              <Top>188.30003pt</Top>
               <Height>11pt</Height>
               <Width>2.67983cm</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11653,11 +11589,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>170.30003pt</Top>
+              <Top>188.30003pt</Top>
               <Left>2.85622cm</Left>
               <Height>11pt</Height>
               <Width>8.1556cm</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11683,10 +11619,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>192.80002pt</Top>
+              <Top>210.80002pt</Top>
               <Height>11pt</Height>
               <Width>2.67983cm</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11712,11 +11648,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>192.80002pt</Top>
+              <Top>210.80002pt</Top>
               <Left>2.85622cm</Left>
               <Height>11pt</Height>
               <Width>8.1556cm</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11742,10 +11678,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>182.10002pt</Top>
+              <Top>200.10002pt</Top>
               <Height>11pt</Height>
               <Width>2.67983cm</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11771,11 +11707,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>182.10002pt</Top>
+              <Top>200.10002pt</Top>
               <Left>2.85622cm</Left>
               <Height>11pt</Height>
               <Width>8.1556cm</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
                 <FontSize>8pt</FontSize>
@@ -11800,10 +11736,10 @@ Cstr(Fields!CompanyInfoEMail.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox2</rd:DefaultName>
-              <Top>224.8pt</Top>
+              <Top>242.8pt</Top>
               <Height>11pt</Height>
               <Width>2.67983cm</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -11830,11 +11766,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>171.20007pt</Top>
+              <Top>198.20007pt</Top>
               <Left>11.01182cm</Left>
               <Height>11pt</Height>
               <Width>2.90319cm</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>38</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11862,11 +11798,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>171.20007pt</Top>
-              <Left>14.17944cm</Left>
+              <Top>198.20007pt</Top>
+              <Left>13.91501cm</Left>
               <Height>11pt</Height>
-              <Width>3.7778cm</Width>
-              <ZIndex>41</ZIndex>
+              <Width>4.04223cm</Width>
+              <ZIndex>39</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11894,11 +11830,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>182.60007pt</Top>
+              <Top>209.60007pt</Top>
               <Left>11.02946cm</Left>
               <Height>11pt</Height>
               <Width>2.88555cm</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>40</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11926,11 +11862,11 @@ Cstr(Fields!CompanyInfoEMail.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>182.60007pt</Top>
-              <Left>14.17944cm</Left>
+              <Top>209.60007pt</Top>
+              <Left>13.91501cm</Left>
               <Height>11pt</Height>
-              <Width>3.7778cm</Width>
-              <ZIndex>43</ZIndex>
+              <Width>4.04223cm</Width>
+              <ZIndex>41</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -11945,7 +11881,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
               <Sizing>FitProportional</Sizing>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>42</ZIndex>
               <Visibility>
                 <Hidden>=IIF(ISNOTHING(Fields!CompanyInfo1Picture.Value)= TRUE,TRUE,FALSE)</Hidden>
               </Visibility>
@@ -11963,7 +11899,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
               <Left>6cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>43</ZIndex>
               <Visibility>
                 <Hidden>=IIF(ISNOTHING(Fields!CompanyInfo2Picture.Value)= TRUE,TRUE,FALSE)</Hidden>
               </Visibility>
@@ -11981,7 +11917,7 @@ Cstr(Fields!CompanyInfoEMail.Value)
               <Left>12cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>46</ZIndex>
+              <ZIndex>44</ZIndex>
               <Visibility>
                 <Hidden>=IIF(ISNOTHING(Fields!CompanyInfo3Picture.Value)= TRUE,TRUE,FALSE)</Hidden>
               </Visibility>
@@ -12217,6 +12153,9 @@ End Function
         <Field Name="CompanyInfoBankAccNo">
           <DataField>CompanyInfoBankAccNo</DataField>
         </Field>
+        <Field Name="CompanyInfoIBAN">
+          <DataField>CompanyInfoIBAN</DataField>
+        </Field>
         <Field Name="CompanyInfoBankName">
           <DataField>CompanyInfoBankName</DataField>
         </Field>
@@ -12294,6 +12233,9 @@ End Function
         </Field>
         <Field Name="BankAccNoCaption">
           <DataField>BankAccNoCaption</DataField>
+        </Field>
+        <Field Name="IBANCaption">
+          <DataField>IBANCaption</DataField>
         </Field>
         <Field Name="BankNameCaption">
           <DataField>BankNameCaption</DataField>

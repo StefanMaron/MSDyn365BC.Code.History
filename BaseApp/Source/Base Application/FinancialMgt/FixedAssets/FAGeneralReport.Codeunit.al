@@ -112,11 +112,11 @@
                 FADeprBook.FieldNo("Depreciable Basis"):
                     SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Depreciable Basis");
                 else begin
-                        SetCurrentKey(
-                          "FA No.", "Depreciation Book Code",
-                          "FA Posting Category", "FA Posting Type", "FA Posting Date");
-                        SetRange("FA Posting Category", "FA Posting Category"::" ");
-                    end;
+                    SetCurrentKey(
+                      "FA No.", "Depreciation Book Code",
+                      "FA Posting Category", "FA Posting Type", "FA Posting Date");
+                    SetRange("FA Posting Category", "FA Posting Category"::" ");
+                end;
             end;
             SetRange("FA No.", FANo);
             SetRange("Depreciation Book Code", DeprBookCode);
@@ -230,6 +230,9 @@
             end;
             OnCalcGLPostedAmountOnBeforeCalcAmount(FALedgEntry, PostingType);
             CalcSums(Amount);
+
+            OnCalcGLPostedAmountOnAfterCalcAmount(FALedgEntry, PostingType, Amount);
+
             exit(Amount);
         end;
     end;
@@ -287,7 +290,13 @@
         FA: Record "Fixed Asset";
         FADeprBook: Record "FA Depreciation Book";
         Window: Dialog;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetFAPostingGroup(FA2, DeprBookCode, IsHandled);
+        if IsHandled then
+            exit;
+
         Window.Open(Text006);
         FA.LockTable();
         FA.Copy(FA2);
@@ -333,6 +342,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetLastDateOnAfterFALedgEntrySetFilters(var FALedgerEntry: Record "FA Ledger Entry"; var FADeprBook: Record "FA Depreciation Book"; PostingType: Integer; FirstLast: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFAPostingGroup(var FixedAsset: Record "Fixed Asset"; DeprBookCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcGLPostedAmountOnAfterCalcAmount(var FALedgerEntry: Record "FA Ledger Entry"; PostingType: Integer; var Amount: Decimal)
     begin
     end;
 }

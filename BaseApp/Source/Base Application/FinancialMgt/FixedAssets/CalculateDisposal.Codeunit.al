@@ -134,6 +134,7 @@ codeunit 5605 "Calculate Disposal"
         with FALedgEntry do begin
             DepreciationCalc.SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
             SetRange("FA Posting Type", "FA Posting Type"::"Proceeds on Disposal");
+            OnGetDisposalTypeSetOnAfterSetFilterFALedgEntry(FALedgEntry);
             if Find('-') then begin
                 repeat
                     DisposalMethod := GetDisposalMethod(FALedgEntry);
@@ -172,6 +173,7 @@ codeunit 5605 "Calculate Disposal"
         with FALedgEntry do begin
             DepreciationCalc.SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
             SetRange("FA Posting Type", "FA Posting Type"::"Gain/Loss");
+            OnGetErrorDisposalOnAfterSetFilterFALedgEntry(FALedgEntry);
             if Find('-') then
                 repeat
                     if "Disposal Entry No." = MaxDisposalNo then begin
@@ -229,6 +231,7 @@ codeunit 5605 "Calculate Disposal"
                 15:
                     "FA Posting Type" := "FA Posting Type"::Derogatory;
             end;
+            OnAfterSetFAPostingType(i, FALedgEntry);
             exit("FA Posting Type".AsInteger());
         end;
     end;
@@ -248,6 +251,7 @@ codeunit 5605 "Calculate Disposal"
                 15:
                     "FA Posting Category" := "FA Posting Category"::" ";
             end;
+            OnAfterSetFAPostingCategory(i, FALedgEntry);
             exit("FA Posting Category");
         end;
     end;
@@ -311,6 +315,26 @@ codeunit 5605 "Calculate Disposal"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcGainLoss(FANo: Code[20]; DeprBookCode: Code[10]; var EntryAmounts: array[14] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFAPostingType(i: Integer; var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFAPostingCategory(i: Integer; var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDisposalTypeSetOnAfterSetFilterFALedgEntry(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetErrorDisposalOnAfterSetFilterFALedgEntry(var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 }

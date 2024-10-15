@@ -876,6 +876,7 @@ codeunit 7307 "Whse.-Activity-Register"
         BinContent: Record "Bin Content";
         Bin: Record Bin;
         WhseItemTrackingSetup: Record "Item Tracking Setup";
+        WhseLocation: Record Location;
         BreakBulkQtyBaseToPlace: Decimal;
     begin
         with TempBinContentBuffer do begin
@@ -896,7 +897,9 @@ codeunit 7307 "Whse.-Activity-Register"
                         CheckBinContentQtyToHandle(TempBinContentBuffer, BinContent, BreakBulkQtyBaseToPlace);
                     end else begin
                         Bin.Get("Location Code", "Bin Code");
-                        Bin.CheckWhseClass("Item No.", false);
+                        WhseLocation.Get("Location Code");
+                        if WhseLocation."Check Whse. Class" then
+                            Bin.CheckWhseClass("Item No.", false);
                     end;
                     OnCheckBinContentOnAfterTempBinContentBufferLoop(TempBinContentBuffer, Bin);
                 until Next() = 0;

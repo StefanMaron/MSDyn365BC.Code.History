@@ -90,6 +90,7 @@
         FALedgEntry."Exclude Derogatory" := CalcExcludeDerogatory(FALedgEntry);
         FALedgEntry.Insert(true);
         FeatureTelemetry.LogUsage('0000H4F', 'Fixed Asset', 'Insert FA Ledger Entry');
+        OnInsertFAOnAfterInsertFALedgEntry(FALedgEntry, FALedgEntry3);
         if ErrorEntryNo > 0 then begin
             if not FALedgEntry2.Get(ErrorEntryNo) then
                 Error(
@@ -237,8 +238,16 @@
     end;
 
     local procedure CalcGLIntegration(var FALedgEntry: Record "FA Ledger Entry"): Boolean
+    var
+        IsHandled, Result : Boolean;
     begin
         with FALedgEntry do begin
+            IsHandled := false;
+            Result := false;
+            OnBeforeCalcGLIntegration(FALedgEntry, IsHandled, Result);
+            if IsHandled then
+                exit(Result);
+
             if "G/L Entry No." = 0 then
                 exit(false);
             case DeprBook."Disposal Calculation Method" of
@@ -404,17 +413,22 @@
         DimMgt: Codeunit DimensionManagement;
         TableID: array[10] of Integer;
         AccNo: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
         if FAEntryType = FAEntryType::"Fixed Asset" then begin
             FALedgEntry3.Get(FAEntryNo);
             FALedgEntry3.TestField("Reversed by Entry No.", 0);
-            FALedgEntry3.TestField("FA Posting Category", FALedgEntry3."FA Posting Category"::" ");
-            if FALedgEntry3."FA Posting Type" = FALedgEntry3."FA Posting Type"::"Proceeds on Disposal" then
-                Error(
-                  Text003,
-                  FALedgEntry3.FieldCaption("FA Posting Type"),
-                  FALedgEntry3."FA Posting Type",
-                  FALedgEntry.TableCaption(), FALedgEntry3."Entry No.");
+            IsHandled := false;
+            OnInsertReverseEntryOnBeforeCheckIfDisposalIsAllowed(FALedgEntry3, IsHandled);
+            if not IsHandled then begin
+                FALedgEntry3.TestField("FA Posting Category", FALedgEntry3."FA Posting Category"::" ");
+                if FALedgEntry3."FA Posting Type" = FALedgEntry3."FA Posting Type"::"Proceeds on Disposal" then
+                    Error(
+                      Text003,
+                      FALedgEntry3.FieldCaption("FA Posting Type"),
+                      FALedgEntry3."FA Posting Type",
+                      FALedgEntry.TableCaption(), FALedgEntry3."Entry No.");
+            end;
             if FALedgEntry3."FA Posting Type" <> FALedgEntry3."FA Posting Type"::"Salvage Value" then begin
                 if not DimMgt.CheckDimIDComb(FALedgEntry3."Dimension Set ID") then
                     Error(Text006, FALedgEntry3.TableCaption(), FALedgEntry3."Entry No.", DimMgt.GetDimCombErr());
@@ -434,10 +448,14 @@
                 end;
                 NextEntryNo := NextEntryNo + 1;
                 NewFAEntryNo := NextEntryNo;
-                DeprBook.Get(FALedgEntry3."Depreciation Book Code");
-                if DeprBook."Derogatory Calculation" = '' then begin
-                    TempFALedgEntry := FALedgEntry3;
-                    TempFALedgEntry.Insert();
+                IsHandled := false;
+                OnInsertReverseEntryOnBeforeInsertTempFALedgEntry(FALedgEntry3, IsHandled);
+                if not IsHandled then begin                
+                    DeprBook.Get(FALedgEntry3."Depreciation Book Code");
+                    if DeprBook."Derogatory Calculation" = '' then begin
+                        TempFALedgEntry := FALedgEntry3;
+                        TempFALedgEntry.Insert();
+                    end;
                 end;
                 SetFAReversalMark(FALedgEntry3, NextEntryNo);
                 FALedgEntry3."Entry No." := NextEntryNo;
@@ -721,7 +739,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckFADocNoOnAfterOldFALedgEntrySetFilters(OldFALedgEntry: Record "FA Ledger Entry"; FALedgEntry: Record "FA Ledger Entry")
+    local procedure OnCheckFADocNoOnAfterOldFALedgEntrySetFilters(var OldFALedgEntry: Record "FA Ledger Entry"; FALedgEntry: Record "FA Ledger Entry")
     begin
     end;
 
@@ -762,6 +780,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertMaintenanceOnAfterDeprBookGet(var DeprBook: Record "Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcGLIntegration(var FALedgerEntry: Record "FA Ledger Entry"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFAOnAfterInsertFALedgEntry(var FALedgerEntry: Record "FA Ledger Entry"; FALedgerEntry3: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReverseEntryOnBeforeInsertTempFALedgEntry(var FALedgerEntry3: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReverseEntryOnBeforeCheckIfDisposalIsAllowed(var FALedgerEntry3: Record "FA Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }
