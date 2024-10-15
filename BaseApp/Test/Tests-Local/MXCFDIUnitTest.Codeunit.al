@@ -27,6 +27,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EDocStatusError: Label 'You cannot choose the action %1 when the document status is %2.';
         ExpectedError: Label 'Error message was different than expected.';
         NoRelationDocumentsExistErr: Label 'No relation documents specified for the replacement of previous CFDIs.';
+        MustHaveValueErr: Label '%1 must have a value';
 
     [Test]
     [Scope('OnPrem')]
@@ -378,6 +379,366 @@ codeunit 144000 "MX CFDI Unit Test"
         // [SCENARIO] Check if error comes when EdocStatus = Cancel Error and EDocAction = Cancel
 
         EInvoiceMgt.EDocActionValidation(EDocAction::Cancel, EDocStatus::"Cancel Error");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelSalesInvoiceNoReason()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Sales Invoice without CFDI Cancellation Reason Code
+        Initialize();
+        UpdateGLSetupSAT();
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Stamp Received";
+        asserterror SalesInvoiceHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, SalesInvoiceHeader.FieldCaption("CFDI Cancellation Reason Code")));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelSalesCrMemoNoReason()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Sales Credit Memo without CFDI Cancellation Reason Code
+        Initialize();
+        UpdateGLSetupSAT();
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::"Stamp Received";
+        asserterror SalesCrMemoHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, SalesCrMemoHeader.FieldCaption("CFDI Cancellation Reason Code")));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelServiceInvoiceNoReason()
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Service Invoice without CFDI Cancellation Reason Code
+        Initialize();
+        UpdateGLSetupSAT();
+        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."Electronic Document Status" := ServiceInvoiceHeader."Electronic Document Status"::"Stamp Received";
+        asserterror ServiceInvoiceHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, ServiceInvoiceHeader.FieldCaption("CFDI Cancellation Reason Code")));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelServiceCrMemoNoReason()
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Service Credit Memo without CFDI Cancellation Reason Code
+        Initialize();
+        UpdateGLSetupSAT();
+        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceCrMemoHeader."Electronic Document Status" := ServiceCrMemoHeader."Electronic Document Status"::"Stamp Received";
+        asserterror ServiceCrMemoHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, ServiceCrMemoHeader."CFDI Cancellation Reason Code"));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelSalesShipmentNoReason()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Sales Shipment without CFDI Cancellation Reason Code
+        Initialize();
+        UpdateGLSetupSAT();
+        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::"Stamp Received";
+        asserterror SalesShipmentHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, SalesShipmentHeader."CFDI Cancellation Reason Code"));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelTransferShipmentNoReason()
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Transfer Shipment without CFDI Cancellation Reason Code
+        Initialize();
+        UpdateGLSetupSAT();
+        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::"Stamp Received";
+        asserterror TransferShipmentHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, TransferShipmentHeader."CFDI Cancellation Reason Code"));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelCustomerLedgerEntryNoReason()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // [SCENARIO 422335] Cannot cancel customer payment without CFDI Cancellation Reason Code
+        Initialize();
+        UpdateGLSetupSAT();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        CustLedgerEntry."Electronic Document Status" := CustLedgerEntry."Electronic Document Status"::"Stamp Received";
+        asserterror CustLedgerEntry.CancelEDocument;
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, CustLedgerEntry."CFDI Cancellation Reason Code"));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelSalesInvoiceNoSubstitution()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Sales Invoice without substitution document
+        Initialize();
+        UpdateGLSetupSAT();
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Stamp Received";
+        SalesInvoiceHeader."CFDI Cancellation Reason Code" := '01';
+        asserterror SalesInvoiceHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelSalesCrMemoNoSubstitution()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Sales Credit Memo without substitution document
+        Initialize();
+        UpdateGLSetupSAT();
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::"Stamp Received";
+        SalesCrMemoHeader."CFDI Cancellation Reason Code" := '01';
+        asserterror SalesCrMemoHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelServiceInvoiceNoSubstitution()
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Service Invoice without substitution document
+        Initialize();
+        UpdateGLSetupSAT();
+        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."Electronic Document Status" := ServiceInvoiceHeader."Electronic Document Status"::"Stamp Received";
+        ServiceInvoiceHeader."CFDI Cancellation Reason Code" := '01';
+        asserterror ServiceInvoiceHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelServiceCrMemoNoSubstitution()
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Service Credit Memo without substitution document
+        Initialize();
+        UpdateGLSetupSAT();
+        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        ServiceCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceCrMemoHeader."Electronic Document Status" := ServiceCrMemoHeader."Electronic Document Status"::"Stamp Received";
+        ServiceCrMemoHeader."CFDI Cancellation Reason Code" := '01';
+        asserterror ServiceCrMemoHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelSalesShipmentNoSubstitution()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Sales Shipment without substitution document
+        Initialize();
+        UpdateGLSetupSAT();
+        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::"Stamp Received";
+        SalesShipmentHeader."CFDI Cancellation Reason Code" := '01';
+        asserterror SalesShipmentHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelTransferShipmentNoSubstitution()
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        // [SCENARIO 422335] Cannot cancel Transfer Shipment without substitution document
+        Initialize();
+        UpdateGLSetupSAT();
+        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::"Stamp Received";
+        TransferShipmentHeader."CFDI Cancellation Reason Code" := '01';
+        asserterror TransferShipmentHeader.CancelEDocument;
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelCustomerLedgerEntryNoSubstitution()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // [SCENARIO 422335] Cannot cancel customer payment without substitution document
+        Initialize();
+        UpdateGLSetupSAT();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        CustLedgerEntry."Electronic Document Status" := CustLedgerEntry."Electronic Document Status"::"Stamp Received";
+        CustLedgerEntry."CFDI Cancellation Reason Code" := '01';
+        asserterror CustLedgerEntry.CancelEDocument;
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetCancellationForSalesInvoice()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 422335] Set fields for cancellation on Posted Sales Invoice page
+        Initialize;
+        MockSalesInvHeader(SalesInvoiceHeader, LibrarySales.CreateCustomerNo);
+        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
+        PostedSalesInvoice."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        PostedSalesInvoice."Substitution Document No.".SetValue(SalesInvoiceHeader."No.");
+        PostedSalesInvoice.Close;
+        SalesInvoiceHeader.Get(SalesInvoiceHeader."No.");
+        SalesInvoiceHeader.TestField("CFDI Cancellation Reason Code");
+        SalesInvoiceHeader.TestField("Substitution Document No.", SalesInvoiceHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetCancellationForSalesCrMemo()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 422335] Set fields for cancellation on Posted Sales Credit Memo page
+        Initialize;
+        MockSalesCrMemoHeader(SalesCrMemoHeader, LibrarySales.CreateCustomerNo, '');
+        PostedSalesCreditMemo.OpenEdit;
+        PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
+        PostedSalesCreditMemo."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        PostedSalesCreditMemo."Substitution Document No.".SetValue(SalesCrMemoHeader."No.");
+        PostedSalesCreditMemo.Close;
+        SalesCrMemoHeader.Get(SalesCrMemoHeader."No.");
+        SalesCrMemoHeader.TestField("CFDI Cancellation Reason Code");
+        SalesCrMemoHeader.TestField("Substitution Document No.", SalesCrMemoHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetCancellationForSalesShipment()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 422335] Set fields for cancellation on Posted Sales Shipment page
+        Initialize;
+        MockSalesShipmentHeader(SalesShipmentHeader, LibrarySales.CreateCustomerNo);
+        PostedSalesShipment.OpenEdit;
+        PostedSalesShipment.FILTER.SetFilter("No.", SalesShipmentHeader."No.");
+        PostedSalesShipment."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        PostedSalesShipment."Substitution Document No.".SetValue(SalesShipmentHeader."No.");
+        PostedSalesShipment.Close;
+        SalesShipmentHeader.Get(SalesShipmentHeader."No.");
+        SalesShipmentHeader.TestField("CFDI Cancellation Reason Code");
+        SalesShipmentHeader.TestField("Substitution Document No.", SalesShipmentHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetCancellationForTransferShipment()
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        PostedTransferShipment: TestPage "Posted Transfer Shipment";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 422335] Set fields for cancellation on Posted Transfer Shipment page
+        Initialize;
+        MockTransferShipmentHeader(TransferShipmentHeader);
+        PostedTransferShipment.OpenEdit;
+        PostedTransferShipment.FILTER.SetFilter("No.", TransferShipmentHeader."No.");
+        PostedTransferShipment."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        PostedTransferShipment."Substitution Document No.".SetValue(TransferShipmentHeader."No.");
+        PostedTransferShipment.Close;
+        TransferShipmentHeader.Get(TransferShipmentHeader."No.");
+        TransferShipmentHeader.TestField("CFDI Cancellation Reason Code");
+        TransferShipmentHeader.TestField("Substitution Document No.", TransferShipmentHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetCancellationForCustomerPayment()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        PaymentNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 422335] Set fields for cancellation on Posted Sales Invpoce page
+        Initialize;
+        PaymentNo := LibraryUtility.GenerateGUID;
+        MockCustomerLedgerEntry(LibrarySales.CreateCustomerNo, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+        CustomerLedgerEntries.OpenEdit;
+        CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
+        CustomerLedgerEntries."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        CustomerLedgerEntries."Substitution Entry No.".SetValue(CustLedgerEntry."Entry No.");
+        CustomerLedgerEntries.Close;
+        CustLedgerEntry.Get(CustLedgerEntry."Entry No.");
+        CustLedgerEntry.TestField("CFDI Cancellation Reason Code");
+        CustLedgerEntry.TestField("Substitution Entry No.", CustLedgerEntry."Entry No.");
     end;
 
     [Test]
@@ -1782,6 +2143,15 @@ codeunit 144000 "MX CFDI Unit Test"
         exit(DummyCFDIRelationDocument."Related Doc. Type"::"Credit Memo");
     end;
 
+    local procedure FindCancellationReasonCode(): Code[10]
+    var
+        CFDICancellationReason: Record "CFDI Cancellation Reason";
+    begin
+        CFDICancellationReason.Code := Format(LibraryRandom.RandIntInRange(1, 9));
+        if CFDICancellationReason.Insert() then;
+        exit(CFDICancellationReason.Code);
+    end;
+
     local procedure MockSalesInvHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; CustomerNo: Code[20])
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
@@ -1790,6 +2160,7 @@ codeunit 144000 "MX CFDI Unit Test"
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader."Bill-to Customer No." := CustomerNo;
         SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Stamp Received";
         SalesInvoiceHeader.Insert();
         MockCustomerLedgerEntry(CustomerNo, DummyCustLedgerEntry."Document Type"::Invoice, SalesInvoiceHeader."No.");
     end;
@@ -1802,6 +2173,7 @@ codeunit 144000 "MX CFDI Unit Test"
         SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
         SalesCrMemoHeader."Bill-to Customer No." := CustomerNo;
         SalesCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::"Stamp Received";
         SalesCrMemoHeader."Applies-to Doc. Type" := SalesCrMemoHeader."Applies-to Doc. Type"::Invoice;
         SalesCrMemoHeader."Applies-to Doc. No." := AppliesToDocNo;
         SalesCrMemoHeader.Insert();
@@ -1843,6 +2215,7 @@ codeunit 144000 "MX CFDI Unit Test"
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry."Document No." := DocumentNo;
+        CustLedgerEntry."Electronic Document Status" := CustLedgerEntry."Electronic Document Status"::"Stamp Received";
         CustLedgerEntry.Insert();
     end;
 
@@ -1896,6 +2269,25 @@ codeunit 144000 "MX CFDI Unit Test"
         ServiceCrMemoLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         ServiceCrMemoLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         ServiceCrMemoLine.Insert();
+    end;
+
+    local procedure MockSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; CustomerNo: Code[20])
+    begin
+        SalesShipmentHeader.Init;
+        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."Bill-to Customer No." := CustomerNo;
+        SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::"Stamp Received";
+        SalesShipmentHeader.Insert;
+    end;
+
+    local procedure MockTransferShipmentHeader(var TransferShipmentHeader: Record "Transfer Shipment Header")
+    begin
+        TransferShipmentHeader.Init;
+        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::"Stamp Received";
+        TransferShipmentHeader.Insert;
     end;
 
     local procedure RunCreateTempDocument(DocumentHeaderVariant: Variant; var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary)

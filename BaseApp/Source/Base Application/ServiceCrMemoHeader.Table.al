@@ -827,6 +827,16 @@ table 5994 "Service Cr.Memo Header"
             Caption = 'CFDI Relation';
             TableRelation = "SAT Relationship Type";
         }
+        field(27002; "CFDI Cancellation Reason Code"; Code[10])
+        {
+            Caption = 'CFDI Cancellation Reason';
+            TableRelation = "CFDI Cancellation Reason";
+        }
+        field(27003; "Substitution Document No."; Code[20])
+        {
+            Caption = 'Substitution Document No.';
+            TableRelation = "Service Cr.Memo Header" WHERE ("Electronic Document Status" = FILTER ("Stamp Received"));
+        }
     }
 
     keys
