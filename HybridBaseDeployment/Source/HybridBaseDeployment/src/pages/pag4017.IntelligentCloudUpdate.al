@@ -98,7 +98,7 @@ page 4017 "Intelligent Cloud Update"
     begin
         UpdateVisible := true;
         IsSuperAndSetupComplete := PermissionManager.IsIntelligentCloud() and UserPermissions.IsSuper(UserSecurityId());
-        IsOnPrem := NOT EnvironmentInfo.IsSaaS();
+        IsOnPrem := not EnvironmentInfo.IsSaaS();
 
         if not IsSuperAndSetupComplete then
             Error(RunUpdatePermissionErr);
@@ -131,7 +131,7 @@ page 4017 "Intelligent Cloud Update"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.GET('AssistedSetup-NoText-400px.png', FORMAT(ClientTypeManagement.GetCurrentClientType())) then
-            TopBannerVisible := MediaResourcesStandard.GET(MediaRepositoryStandard."Media Resources Ref");
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', FORMAT(ClientTypeManagement.GetCurrentClientType())) then
+            TopBannerVisible := MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref");
     end;
 }

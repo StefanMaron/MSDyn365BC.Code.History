@@ -178,6 +178,7 @@ report 11408 "Receive Response Messages"
         Window.Open(DialogTxt);
 
         ElecTaxDeclarationSetup.Get;
+        ElecTaxDeclarationSetup.TestField("Use Certificate Setup", false);
         ElecTaxDeclarationSetup.CheckDigipoortSetup;
     end;
 

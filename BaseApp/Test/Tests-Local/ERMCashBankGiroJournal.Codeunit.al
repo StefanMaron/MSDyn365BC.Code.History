@@ -1928,6 +1928,122 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
     end;
 
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerTrue,RequestPageHandlerExportSEPAISO20022')]
+    [Scope('OnPrem')]
+    procedure CBGStatementReconciliationWithCustomerLedgerEntryAndPost()
+    var
+        SalesLine: Record "Sales Line";
+        CustomerBankAccount: Record "Customer Bank Account";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
+        DetailLine: Record "Detail Line";
+        CBGStatementReconciliation: Codeunit "CBG Statement Reconciliation";
+        ExportProtocolCode: Code[20];
+        BalAccountNo: Code[20];
+    begin
+        // [FEATURE] [CBG Statement]
+        // [SCENARIO 333913] Posted Customer Invoice is applied to Payment and is closed during Posting of CBG Statement.
+        Initialize;
+        UpdateSEPAAllowedOnCountryRegion(true);
+
+        // [GIVEN] Customer with Bank Account, Posted Sales Invoice for this Customer.
+        InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, BalAccountNo);
+        CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WorkDate);
+        FindCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerBankAccount."Customer No.");
+
+        // [GIVEN] History Line, created from Posted Invoice on Bank Account.
+        ExportPaymentTelebank(
+          CustomerBankAccount."Customer No.", CustomerBankAccount."Bank Account No.",
+          WorkDate, CalcDate('<1M>', WorkDate), ExportProtocolCode);
+        FindPaymentHistoryLine(
+          PaymentHistoryLine, BalAccountNo, PaymentHistoryLine."Account Type"::Customer, CustomerBankAccount."Customer No.");
+
+        // [GIVEN] CBG Statement for Bank Account, CBG Statement Line with Credit = Amount of Posted Invoice.
+        CreateCBGStatementWithBankAccount(CBGStatement, BalAccountNo);
+        AddCBGStatementLine(
+          CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.", CBGStatement."Account Type",
+          CBGStatement."Account No.", 0, Abs(CustLedgerEntry."Original Amount" - CustLedgerEntry."Original Pmt. Disc. Possible"));
+        CreateCBGStatementLineAddInfo(
+          CBGStatementLineAddInfo, CBGStatement."Journal Template Name", CBGStatement."No.", CBGStatementLine."Line No.",
+          CBGStatementLineAddInfo."Information Type"::"Payment Identification", PaymentHistoryLine.Identification);
+
+        // [GIVEN] CBG Statement Line reconciliated with Posted Invoice.
+        CBGStatementReconciliation.MatchCBGStatementLine(CBGStatement, CBGStatementLine);
+        CBGStatementLine.TestField("Applies-to ID");
+        CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
+
+        // [WHEN] Post CBG Statement.
+        CBGStatement.ProcessStatementASGenJournal;
+
+        // [THEN] Payment was posted. Posted Invoice was applied to Payment and closed.
+        FindDetailLine(DetailLine, CustLedgerEntry."Entry No.");
+        DetailLine.TestField(Status, DetailLine.Status::Posted);
+        VerifyCustomerLedgerEntryClosed(CustLedgerEntry."Entry No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandler,MessageHandler,ConfirmHandlerTrue,RequestPageHandlerExportSEPAISO20022')]
+    [Scope('OnPrem')]
+    procedure CBGStatementReconciliationWithVendorLedgerEntryAndPost()
+    var
+        PurchaseLine: Record "Purchase Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PaymentHistoryLine: Record "Payment History Line";
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
+        DetailLine: Record "Detail Line";
+        CBGStatementReconciliation: Codeunit "CBG Statement Reconciliation";
+        ExportProtocolCode: Code[20];
+        BalAccountNo: Code[20];
+    begin
+        // [FEATURE] [CBG Statement]
+        // [SCENARIO 333913] Posted Vendor Invoice is applied to Payment and is closed during Posting of CBG Statement.
+        Initialize;
+        UpdateSEPAAllowedOnCountryRegion(true);
+
+        // [GIVEN] Vendor with Bank Account, Posted Purchase Invoice for this Vendor.
+        InitVendorForExport(VendorBankAccount, ExportProtocolCode, BalAccountNo);
+        CreateAndPostPurchaseDocument(
+          PurchaseLine, PurchaseLine."Document Type"::Invoice, 1, LibraryRandom.RandDecInRange(100, 200, 2),
+          VendorBankAccount."Vendor No.", WorkDate);
+        FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorBankAccount."Vendor No.");
+
+        // [GIVEN] History Line, created from Posted Invoice on Bank Account.
+        ExportPaymentTelebank(
+          VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.",
+          WorkDate, CalcDate('<1M>', WorkDate), ExportProtocolCode);
+        FindPaymentHistoryLine(
+          PaymentHistoryLine, BalAccountNo, PaymentHistoryLine."Account Type"::Vendor, VendorBankAccount."Vendor No.");
+
+        // [GIVEN] CBG Statement for Bank Account, CBG Statement Line with Debit = Amount of Posted Invoice.
+        CreateCBGStatementWithBankAccount(CBGStatement, BalAccountNo);
+        AddCBGStatementLine(
+          CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.", CBGStatement."Account Type",
+          CBGStatement."Account No.", Abs(VendorLedgerEntry."Original Amount" - VendorLedgerEntry."Original Pmt. Disc. Possible"), 0);
+        CreateCBGStatementLineAddInfo(
+          CBGStatementLineAddInfo, CBGStatement."Journal Template Name", CBGStatement."No.", CBGStatementLine."Line No.",
+          CBGStatementLineAddInfo."Information Type"::"Payment Identification", PaymentHistoryLine.Identification);
+
+        // [GIVEN] CBG Statement Line reconciliated with Posted Invoice.
+        CBGStatementReconciliation.MatchCBGStatementLine(CBGStatement, CBGStatementLine);
+        CBGStatementLine.TestField("Applies-to ID");
+        CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
+
+        // [WHEN] Post CBG Statement.
+        CBGStatement.ProcessStatementASGenJournal;
+
+        // [THEN] Payment was posted. Posted Invoice was applied to Payment and closed.
+        FindDetailLine(DetailLine, VendorLedgerEntry."Entry No.");
+        DetailLine.TestField(Status, DetailLine.Status::Posted);
+        VerifyVendorLedgerEntryClosed(VendorLedgerEntry."Entry No.");
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2132,6 +2248,43 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             CBGStatementLine.TableCaption))
     end;
 
+    local procedure AddCBGStatementLineAddInfo(CBGStatementLine: Record "CBG Statement Line"; var CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info."; Comment: Text; Type: Option)
+    begin
+        with CBGStatementLineAddInfo do begin
+            "Journal Template Name" := CBGStatementLine."Journal Template Name";
+            "CBG Statement No." := CBGStatementLine."No.";
+            "CBG Statement Line No." := CBGStatementLine."Line No.";
+            "Line No." := "Line No." + 10000;
+            Init;
+            Description := Comment;
+            "Information Type" := Type;
+            Insert(true);
+        end;
+
+        CBGStatementLine.Description := CopyStr(Comment, 1, MaxStrLen(CBGStatementLine.Description));
+        CBGStatementLine.Modify(true);
+    end;
+
+    local procedure AddCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; JournalTemplateName: Code[10]; No: Integer; StatementType: Option; StatementNo: Code[20]; CBGDebit: Decimal; CBGCredit: Decimal)
+    var
+        RecRef: RecordRef;
+    begin
+        // This function is used to simulate Import Statement of RABO MUT.ASC protocol file
+        with CBGStatementLine do begin
+            Init;
+            Validate("Journal Template Name", JournalTemplateName);
+            Validate("No.", No);
+            RecRef.GetTable(CBGStatementLine);
+            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
+            Insert(true);
+            Validate("Statement Type", StatementType);
+            Validate("Statement No.", StatementNo);
+            Validate(Date, WorkDate);
+            Validate(Amount, CBGDebit - CBGCredit);
+            Modify(true);
+        end;
+    end;
+
     local procedure AddCBGStatementLineAndCBGStatementLineAddInfo(var CBGStatement: Record "CBG Statement"; var CBGStatementLine: Record "CBG Statement Line"; CBGDebit: Decimal; CBGCredit: Decimal; Comment: Text)
     var
         CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info.";
@@ -2161,6 +2314,37 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Customer.Get(CustomerNo);
         PaymentTerms.Get(Customer."Payment Terms Code");
         exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+    end;
+
+    local procedure CreateCBGStatement(var CBGStatement: Record "CBG Statement")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        CreateJournalTemplate(
+          GenJournalTemplate, GenJournalTemplate.Type::Bank, GenJournalTemplate."Bal. Account Type"::"Bank Account", CreateBankAccount);
+        LibraryNLLocalization.CreateCBGStatement(CBGStatement, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateCBGStatementWithBankAccount(var CBGStatement: Record "CBG Statement"; BankAccountCode: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        CreateJournalTemplate(
+          GenJournalTemplate, GenJournalTemplate.Type::Bank, GenJournalTemplate."Bal. Account Type"::"Bank Account", BankAccountCode);
+        LibraryNLLocalization.CreateCBGStatement(CBGStatement, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateCBGLine(var CBGStatementLine: Record "CBG Statement Line"; var CBGStatement: Record "CBG Statement"; AppliesToDocNo: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; AmountIncludingVAT: Decimal)
+    begin
+        LibraryNLLocalization.CreateCBGStatementLine(
+          CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.",
+          CBGStatement."Account Type", CBGStatement."Account No.", AccountType, AccountNo, 0, 0);  // O for Debit and Credit Amount.
+        with CBGStatementLine do begin
+            Validate("Applies-to Doc. Type", DocumentType);
+            Validate("Applies-to Doc. No.", AppliesToDocNo);
+            Validate(Credit, AmountIncludingVAT);
+            Modify(true);
+        end;
     end;
 
     local procedure CreateCBGStatementLineAddInfo(var CBGStatementLineAddInfo: Record 11000006; GenJournalTemplateName: Code[10]; CBGStatementNo: Integer; CBGStatementLineNo: Integer; InformationType: Option; Description: Text[80]);
@@ -2229,6 +2413,20 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
               AccountType, AccountNo, Amount);
     end;
 
+    local procedure CreatePaymentHistoryLine(CBGStatementLine: Record "CBG Statement Line"; Identification: Code[80]; AccountType: Option; AccountNo: Code[20])
+    var
+        PaymentHistoryLine: Record "Payment History Line";
+    begin
+        PaymentHistoryLine.Init;
+        PaymentHistoryLine."Our Bank" := CBGStatementLine."Statement No.";
+        PaymentHistoryLine.Amount := CBGStatementLine.Amount;
+        PaymentHistoryLine."Account Type" := AccountType;
+        PaymentHistoryLine."Account No." := AccountNo;
+        PaymentHistoryLine.Status := PaymentHistoryLine.Status::Transmitted;
+        PaymentHistoryLine.Identification := Identification;
+        PaymentHistoryLine.Insert;
+    end;
+
     local procedure CreateAndPostPurchInvWithVendAndPurchaserDim(VendNo: Code[20]): Integer
     var
         Item: Record Item;
@@ -2270,8 +2468,8 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), Quantity); // Using random value for Quantity.
-        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);  // Using random value for Unit Cost.
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item), Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
@@ -2401,21 +2599,6 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryNLLocalization.CreateTransactionMode(TransactionMode, TransactionMode."Account Type"::Employee);
         TransactionMode.Validate(Order, TransactionMode.Order::Debit);
         UpdateTransactionMode(TransactionMode, OurBank, ExportProtocol);
-    end;
-
-    local procedure UpdateTransactionMode(var TransactionMode: Record "Transaction Mode"; OurBank: Code[20]; ExportProtocol: Code[20])
-    var
-        SourceCode: Record "Source Code";
-    begin
-        LibraryERM.CreateSourceCode(SourceCode);
-        TransactionMode.Validate("Our Bank", OurBank);
-        TransactionMode.Validate("Export Protocol", ExportProtocol);
-        TransactionMode.Validate("Identification No. Series", LibraryUtility.GetGlobalNoSeriesCode);
-        TransactionMode.Validate("Run No. Series", LibraryUtility.GetGlobalNoSeriesCode);
-        TransactionMode.Validate("Acc. No. Pmt./Rcpt. in Process", CreateGLAccountUsingDirectPostingFalse);
-        TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode);
-        TransactionMode.Validate("Source Code", SourceCode.Code);
-        TransactionMode.Modify(true);
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -2724,6 +2907,18 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         exit(Employee."No.");
     end;
 
+    local procedure EnableUpdateOnPosting()
+    var
+        AnalysisView: Record "Analysis View";
+    begin
+        with AnalysisView do begin
+            SetRange("Account Source", "Account Source"::"G/L Account");
+            FindFirst;
+            "Update on Posting" := true;
+            Modify;
+        end;
+    end;
+
     local procedure FillValuesOnCashJournalLine(var CashJournal: TestPage "Cash Journal"; AccountNo: Code[20])
     begin
         CashJournal.Subform."Account Type".SetValue(CashJournal.Subform."Account Type".GetOption(1));  // Using 1 for Option Value: G/L Account.
@@ -2757,6 +2952,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.FindFirst;
+        CustLedgerEntry.CalcFields("Original Amount");
     end;
 
     local procedure FindEmployeeLedgerEntry(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; DocumentType: Option; EmployeeNo: Code[20])
@@ -2764,6 +2960,20 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
         EmployeeLedgerEntry.SetRange("Document Type", DocumentType);
         EmployeeLedgerEntry.FindFirst;
+    end;
+
+    local procedure FindPaymentHistoryLine(var PaymentHistoryLine: Record "Payment History Line"; OurBank: Code[20]; AccountType: Option; AccountNo: Code[20])
+    begin
+        PaymentHistoryLine.SetRange("Our Bank", OurBank);
+        PaymentHistoryLine.SetRange("Account Type", AccountType);
+        PaymentHistoryLine.SetRange("Account No.", AccountNo);
+        PaymentHistoryLine.FindFirst;
+    end;
+
+    local procedure FindDetailLine(var DetailLine: Record "Detail Line"; SerialNo: Integer)
+    begin
+        DetailLine.SetRange("Serial No. (Entry)", SerialNo);
+        DetailLine.FindFirst;
     end;
 
     local procedure GetEntriesOnTelebankProposal(var TelebankProposal: TestPage "Telebank Proposal"; BankAccFilter: Code[30])
@@ -3081,6 +3291,17 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
           BankGiroJournal, BalAccountNo, CalcDate(GeneralLedgerSetup."Payment Discount Grace Period", GenJournalLine."Due Date"));
     end;
 
+    local procedure SetMaxPaymentToleranceAmt(NewMaxPaymentToleranceAmt: Decimal)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        with GeneralLedgerSetup do begin
+            Get;
+            Validate("Max. Payment Tolerance Amount", NewMaxPaymentToleranceAmt);
+            Modify(true);
+        end;
+    end;
+
     local procedure UpdateCustomerBankAccountIBAN(CustomerBankAccount: Record "Customer Bank Account"; IBANNumber: Code[50])
     var
         CompanyInformation: Record "Company Information";
@@ -3120,30 +3341,19 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CountryRegion.Modify(true);
     end;
 
-    local procedure EnableUpdateOnPosting()
+    local procedure UpdateTransactionMode(var TransactionMode: Record "Transaction Mode"; OurBank: Code[20]; ExportProtocol: Code[20])
     var
-        AnalysisView: Record "Analysis View";
+        SourceCode: Record "Source Code";
     begin
-        with AnalysisView do begin
-            SetRange("Account Source", "Account Source"::"G/L Account");
-            FindFirst;
-            "Update on Posting" := true;
-            Modify;
-        end;
-    end;
-
-    local procedure CreatePaymentHistoryLine(CBGStatementLine: Record "CBG Statement Line"; Identification: Code[80]; AccountType: Option; AccountNo: Code[20])
-    var
-        PaymentHistoryLine: Record "Payment History Line";
-    begin
-        PaymentHistoryLine.Init;
-        PaymentHistoryLine."Our Bank" := CBGStatementLine."Statement No.";
-        PaymentHistoryLine.Amount := CBGStatementLine.Amount;
-        PaymentHistoryLine."Account Type" := AccountType;
-        PaymentHistoryLine."Account No." := AccountNo;
-        PaymentHistoryLine.Status := PaymentHistoryLine.Status::Transmitted;
-        PaymentHistoryLine.Identification := Identification;
-        PaymentHistoryLine.Insert;
+        LibraryERM.CreateSourceCode(SourceCode);
+        TransactionMode.Validate("Our Bank", OurBank);
+        TransactionMode.Validate("Export Protocol", ExportProtocol);
+        TransactionMode.Validate("Identification No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        TransactionMode.Validate("Run No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        TransactionMode.Validate("Acc. No. Pmt./Rcpt. in Process", CreateGLAccountUsingDirectPostingFalse);
+        TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode);
+        TransactionMode.Validate("Source Code", SourceCode.Code);
+        TransactionMode.Modify(true);
     end;
 
     local procedure VerifyOriginalPaymentAmountAfterDiscount(VendorNo: Code[20])
@@ -3188,17 +3398,6 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         end;
     end;
 
-    local procedure SetMaxPaymentToleranceAmt(NewMaxPaymentToleranceAmt: Decimal)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        with GeneralLedgerSetup do begin
-            Get;
-            Validate("Max. Payment Tolerance Amount", NewMaxPaymentToleranceAmt);
-            Modify(true);
-        end;
-    end;
-
     local procedure VerifyVLEPaymentDisc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; VendLedgerEntryIsOpen: Boolean; RemPaymentDiscPossible: Decimal; RemainingAmount: Decimal)
     begin
         with VendorLedgerEntry do begin
@@ -3221,6 +3420,39 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             CalcFields("Remaining Amount");
             TestField("Remaining Amount", RemainingAmount);
         end;
+    end;
+
+    local procedure VerifyDimSetIDOnCBGStatementLine(AccountType: Option; AccountNo: Code[20]; DimSetID: Integer)
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+    begin
+        CBGStatementLine.SetRange("Account Type", AccountType);
+        CBGStatementLine.SetRange("Account No.", AccountNo);
+        CBGStatementLine.FindFirst;
+        Assert.AreEqual(
+          DimSetID, CBGStatementLine."Dimension Set ID", CBGStatementLine.FieldCaption("Dimension Set ID"));
+    end;
+
+    local procedure VerifyVendorLedgerEntryClosed(VendorLedgerEntryNo: Integer)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.Get(VendorLedgerEntryNo);
+        VendorLedgerEntry.TestField(Open, false);
+        VendorLedgerEntry.Get(VendorLedgerEntry."Closed by Entry No.");
+        VendorLedgerEntry.TestField("Document Type", VendorLedgerEntry."Document Type"::Payment);
+        VendorLedgerEntry.TestField(Open, false);
+    end;
+
+    local procedure VerifyCustomerLedgerEntryClosed(CustLedgerEntryNo: Integer)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.Get(CustLedgerEntryNo);
+        CustLedgerEntry.TestField(Open, false);
+        CustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.");
+        CustLedgerEntry.TestField("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.TestField(Open, false);
     end;
 
     [ModalPageHandler]
@@ -3406,76 +3638,6 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     procedure BankGiroPageHandler(var BankGiroPage: TestPage "Bank/Giro Journal")
     begin
         BankGiroPage.Post.Invoke;
-    end;
-
-    local procedure CreateCBGStatement(var CBGStatement: Record "CBG Statement")
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-    begin
-        CreateJournalTemplate(
-          GenJournalTemplate, GenJournalTemplate.Type::Bank, GenJournalTemplate."Bal. Account Type"::"Bank Account", CreateBankAccount);
-        LibraryNLLocalization.CreateCBGStatement(CBGStatement, GenJournalTemplate.Name);
-    end;
-
-    local procedure CreateCBGLine(var CBGStatementLine: Record "CBG Statement Line"; var CBGStatement: Record "CBG Statement"; AppliesToDocNo: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; AmountIncludingVAT: Decimal)
-    begin
-        LibraryNLLocalization.CreateCBGStatementLine(
-          CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.",
-          CBGStatement."Account Type", CBGStatement."Account No.", AccountType, AccountNo, 0, 0);  // O for Debit and Credit Amount.
-        with CBGStatementLine do begin
-            Validate("Applies-to Doc. Type", DocumentType);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Validate(Credit, AmountIncludingVAT);
-            Modify(true);
-        end;
-    end;
-
-    local procedure AddCBGStatementLineAddInfo(CBGStatementLine: Record "CBG Statement Line"; var CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info."; Comment: Text; Type: Option)
-    begin
-        with CBGStatementLineAddInfo do begin
-            "Journal Template Name" := CBGStatementLine."Journal Template Name";
-            "CBG Statement No." := CBGStatementLine."No.";
-            "CBG Statement Line No." := CBGStatementLine."Line No.";
-            "Line No." := "Line No." + 10000;
-            Init;
-            Description := Comment;
-            "Information Type" := Type;
-            Insert(true);
-        end;
-
-        CBGStatementLine.Description := CopyStr(Comment, 1, MaxStrLen(CBGStatementLine.Description));
-        CBGStatementLine.Modify(true);
-    end;
-
-    local procedure AddCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; JournalTemplateName: Code[10]; No: Integer; StatementType: Option; StatementNo: Code[20]; CBGDebit: Decimal; CBGCredit: Decimal)
-    var
-        RecRef: RecordRef;
-    begin
-        // This function is used to simulate Import Statement of RABO MUT.ASC protocol file
-        with CBGStatementLine do begin
-            Init;
-            Validate("Journal Template Name", JournalTemplateName);
-            Validate("No.", No);
-            RecRef.GetTable(CBGStatementLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Insert(true);
-            Validate("Statement Type", StatementType);
-            Validate("Statement No.", StatementNo);
-            Validate(Date, WorkDate);
-            Validate(Amount, CBGDebit - CBGCredit);
-            Modify(true);
-        end;
-    end;
-
-    local procedure VerifyDimSetIDOnCBGStatementLine(AccountType: Option; AccountNo: Code[20]; DimSetID: Integer)
-    var
-        CBGStatementLine: Record "CBG Statement Line";
-    begin
-        CBGStatementLine.SetRange("Account Type", AccountType);
-        CBGStatementLine.SetRange("Account No.", AccountNo);
-        CBGStatementLine.FindFirst;
-        Assert.AreEqual(
-          DimSetID, CBGStatementLine."Dimension Set ID", CBGStatementLine.FieldCaption("Dimension Set ID"));
     end;
 
     [RequestPageHandler]

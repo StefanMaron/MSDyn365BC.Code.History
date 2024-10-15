@@ -21,6 +21,7 @@ codeunit 134154 "ERM Intercompany III"
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -35,7 +36,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [SCENARIO ] When Intercompany Setup is missing, opening the Intercompany Partners page opens up a confirmation to setup intercompany information. Invoking Yes on the
         // confirmation opens up the Intercompany Setup page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information where IC Partner Code = ''
         CompanyInformation.Get;
@@ -58,7 +59,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [SCENARIO ] When Intercompany Setup is missing, opening the Intercompany Partners page opens up a confirmation to setup intercompany information. Invoking No on the
         // confirmation does not open up the Intercompany Setup page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information where IC Partner Code = ''
         CompanyInformation.Get;
@@ -80,7 +81,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [SCENARIO ] When Intercompany Setup exists, opening the Intercompany Partners page
         // does not open up a confirmation but opens Intercompany Partners page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information where IC Partner Code <> ''
         CompanyInformation.Get;
@@ -106,7 +107,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [FEATURE] [Sales] [Dimensions]
         // [SCENARIO 227855] Sales Order should contains merged Dimension Set from Customer and IC inbox
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions and Dimension Values:
         // [GIVEN] Dimension "D1" with Dimension Value "DV1"
@@ -153,7 +154,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [FEATURE] [Purchase] [Dimensions]
         // [SCENARIO 227855] Purchase Order should contains merged Dimension Set from Vendor and IC inbox
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimensions and Dimension Values:
         // [GIVEN] Dimension "D1" with Dimension Value "DV1"
@@ -199,7 +200,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [FEATURE] [Indentation] [Dimensions]
         // [SCENARIO 273581] Create IC Dimension Values from Dimension Values with Begin-Total/End-Total types and zero indentation.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Dimension Values of Begin-Total and End-Total types with nested Dimension Values. All records have zero Indentation.
         CreateDimValuesBeginEndTotalZeroIndentation(DimensionValue, ExpectedIndentation);
@@ -227,7 +228,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [FEATURE] [Journal] [Post]
         // [SCENARIO 279681] User can post a multi-line IC transaction with Auto-send enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] An IC journal batch, IC Partner Code, IC G/L Account, DocumentNo and an amount
         ICPartnerCode := CreateICPartnerWithInbox;
@@ -273,7 +274,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [FEATURE] [Journal] [Post]
         // [SCENARIO 290373] When posting non-InterCompany Gen. Journal Line - Codeunit "IC Outbox Export" is not called
-        Initialize;
+        Initialize();
         CodeCoverageMgt.StopApplicationCoverage;
 
         // [GIVEN] A non-InterCompany General Journal Batch
@@ -309,7 +310,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [FEATURE] [Sales Invoice] [Post]
         // [SCENARIO 305580] Posting Sales Invoice with non-default Bill-to Customer with IC Partner Code results in Ledger Entry having the same IC Partner Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "X" with IC Partner Code "Y".
         LibrarySales.CreateCustomer(Customer);
@@ -342,7 +343,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         // [FEATURE] [Purchase Invoice] [Post]
         // [SCENARIO 305580] Posting Purchase Invoice with non-default Pay-to Vendor with IC Partner Code results in Ledger Entry having the same IC Partner Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "X" with IC Partner Code "Y".
         LibraryPurchase.CreateVendor(Vendor);
@@ -367,10 +368,14 @@ codeunit 134154 "ERM Intercompany III"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Intercompany III");
+
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Intercompany III");
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -380,6 +385,8 @@ codeunit 134154 "ERM Intercompany III"
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Intercompany III");
     end;
 
     local procedure CreateSetOfDimValues(var DimensionValue: array[5] of Record "Dimension Value")

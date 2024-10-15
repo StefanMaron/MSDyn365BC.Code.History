@@ -305,7 +305,58 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [THEN] "Table Filter" is 'Blocked' is ' ', "Integration Table Filter" is 'Active Customer', "Synch. Only Coupled Records" is Yes
         VerifyTableMapping(
           DATABASE::Customer, DATABASE::"CRM Account", IntegrationTableMapping.Direction::Bidirectional,
-          'VERSION(1) SORTING(No.) WHERE(Blocked=FILTER('' ''))', 'VERSION(1) SORTING(Account) WHERE(Relationship Type=FILTER(Customer),Status=FILTER(Active))', true);
+          'VERSION(1) SORTING(Field1) WHERE(Field39=1(0))', 'VERSION(1) SORTING(Field1) WHERE(Field6=1(3),Field54=1(0))', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultTableMappingContact()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Table Mapping] [Contact] [Direction]
+        Initialize;
+        ResetDefaultCRMSetupConfiguration;
+        // [WHEN] Find Integration Table Mapping for "Contact"
+        // [THEN] Mapped to "CRM Contact", Direction is "Bidirectional",
+        // [THEN] "Table Filter" is 'Type' is 'Person', "Integration Table Filter" is 'Active Contact', "Synch. Only Coupled Records" is Yes
+        VerifyTableMapping(
+          DATABASE::Contact, DATABASE::"CRM Contact", IntegrationTableMapping.Direction::Bidirectional,
+          'VERSION(1) SORTING(Field1) WHERE(Field5050=1(1),Field5051=1(<>''''))', 'VERSION(1) SORTING(Field1) WHERE(Field134=1(<>{00000000-0000-0000-0000-000000000000}),Field140=1(1))', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultTableMappingItem()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Table Mapping] [Customer] [Direction]
+        Initialize;
+        ResetDefaultCRMSetupConfiguration;
+        // [WHEN] Find Integration Table Mapping for "Item"
+        // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
+        // [THEN] "Synch. Only Coupled Records" is Yes
+        VerifyTableMapping(
+          DATABASE::Item, DATABASE::"CRM Product", IntegrationTableMapping.Direction::Bidirectional,
+          '', 'VERSION(1) SORTING(Field1) WHERE(Field8=1(0))', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultTableMappingResource()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Table Mapping] [Customer] [Direction]
+        Initialize;
+        ResetDefaultCRMSetupConfiguration;
+        // [WHEN] Find Integration Table Mapping for "Item"
+        // [THEN] Mapped to "CRM Account", Direction is "Bidirectional",
+        // [THEN] "Synch. Only Coupled Records" is Yes
+        VerifyTableMapping(
+          DATABASE::Resource, DATABASE::"CRM Product", IntegrationTableMapping.Direction::Bidirectional,
+          '', 'VERSION(1) SORTING(Field1) WHERE(Field8=1(2))', true);
     end;
 
     [Test]
@@ -340,9 +391,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [THEN] no "Integration Table Filter", "Synch. Only Coupled Records" is 'No'
         VerifyTableMapping(
           DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel", IntegrationTableMapping.Direction::ToIntegrationTable,
-          'VERSION(1) SORTING(Item No.,Sales Type,Sales Code,Starting Date,Currency Code,' +
-          'Variant Code,Unit of Measure Code,Minimum Quantity)' +
-          ' WHERE(Sales Type=FILTER(Customer Price Group),Sales Code=FILTER(<>''''))', '', false);
+          'VERSION(1) SORTING(Field1,Field13,Field2,Field4,Field3,Field5700,Field5400,Field14) WHERE(Field13=1(1),Field2=1(<>''''))', '', false);
     end;
 
     [Test]
@@ -393,7 +442,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [THEN] no "Table Filter", no "Integration Table Filter", not "Integration user mode", is "Lisenced User", "Synch. Only Coupled Records" is Yes
         VerifyTableMapping(
           DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser", IntegrationTableMapping.Direction::FromIntegrationTable,
-          '', 'VERSION(1) SORTING(User) WHERE(Status=FILTER(false),Integration user mode=FILTER(false),User Licensed=FILTER(true))', true);
+          '', 'VERSION(1) SORTING(Field1) WHERE(Field31=1(0),Field96=1(0),Field107=1(1))', true);
     end;
 
     [Test]
@@ -1519,7 +1568,10 @@ codeunit 139162 "CRM Integration Mgt Test"
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Integration Mgt Test");
+
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;

@@ -238,7 +238,9 @@ report 81 "Import Budget from Excel"
         BudgetDim4Code := GLBudgetName."Budget Dimension 4 Code";
 
         ExcelBuf.OpenBook(ServerFileName, SheetName);
+        ExcelBuf.SetReadDateTimeInUtcDate(true);
         ExcelBuf.ReadSheet;
+        ExcelBuf.SetReadDateTimeInUtcDate(false);
 
         AnalyzeData;
     end;

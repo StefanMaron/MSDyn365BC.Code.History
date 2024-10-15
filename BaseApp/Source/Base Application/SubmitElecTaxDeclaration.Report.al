@@ -187,6 +187,7 @@ report 11405 "Submit Elec. Tax Declaration"
         CompanyInfo.TestField("VAT Registration No.");
 
         ElecTaxDeclarationSetup.Get;
+        ElecTaxDeclarationSetup.TestField("Use Certificate Setup", false);
         ElecTaxDeclarationSetup.CheckDigipoortSetup;
 
         Window.Open(WindowStatusMsg);

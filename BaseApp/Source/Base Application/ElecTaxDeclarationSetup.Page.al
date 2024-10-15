@@ -128,6 +128,28 @@ page 11410 "Elec. Tax Declaration Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the URL for the status information service.';
                 }
+                field("Use Certificate Setup"; "Use Certificate Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that certificates codes determined below must be considered to transfer data to the information service.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateControls();
+                    end;
+                }
+                field("Client Certificate Code"; "Client Certificate Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Enabled = UseCertificateSetup;
+                    ToolTip = 'Specifies the client certificate code.';
+                }
+                field("Service Certificate Code"; "Service Certificate Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Enabled = UseCertificateSetup;
+                    ToolTip = 'Specifies the service certificate code.';
+                }
             }
         }
     }
@@ -193,6 +215,7 @@ page 11410 "Elec. Tax Declaration Setup"
         [InDataSet]
         "Agent Contact Phone No.Enable": Boolean;
         IsSoftwareAsAService: Boolean;
+        UseCertificateSetup: Boolean;
 
     [Scope('OnPrem')]
     procedure UpdateControls()
@@ -206,6 +229,7 @@ page 11410 "Elec. Tax Declaration Setup"
         "Agent Contact Post CodeEnable" := AgentActive;
         "Agent Contact CityEnable" := AgentActive;
         "Agent Contact Phone No.Enable" := AgentActive;
+        UseCertificateSetup := "Use Certificate Setup";
     end;
 
     local procedure AgentActive(): Boolean

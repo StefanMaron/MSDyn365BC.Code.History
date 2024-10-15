@@ -361,7 +361,17 @@ codeunit 144005 "ERM Tax Authority"
     end;
 
     local procedure GetPostingDate(): Date
+    var
+        DateLimit: Date;
+        CurrentYear: Integer;
     begin
+        // the logic in this method prevent the test from failing in the first days of the year
+        CurrentYear := Date2DWY(Today, 3);
+        DateLimit := DMY2DATE(8, 1, CurrentYear);
+
+        if Today < DateLimit then
+            exit(LibraryRandom.RandDateFrom(DateLimit, -5) - 1);
+
         exit(LibraryRandom.RandDateFrom(Today, -5) - 1);
     end;
 

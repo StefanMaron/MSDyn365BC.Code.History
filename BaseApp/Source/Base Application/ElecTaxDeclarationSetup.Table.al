@@ -133,6 +133,20 @@ table 11408 "Elec. Tax Declaration Setup"
         {
             Caption = 'Digipoort Status URL';
         }
+        field(300; "Use Certificate Setup"; Boolean)
+        {
+            Caption = 'Use Certificate Setup';
+        }
+        field(301; "Client Certificate Code"; Code[20])
+        {
+            TableRelation = "Isolated Certificate";
+            Caption = 'Client Certificate Code';
+        }
+        field(302; "Service Certificate Code"; Code[20])
+        {
+            TableRelation = "Isolated Certificate";
+            Caption = 'Service Certificate Code';
+        }
     }
 
     keys
@@ -177,10 +191,14 @@ table 11408 "Elec. Tax Declaration Setup"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not EnvironmentInfo.IsSaaS then begin
-            TestField("Digipoort Client Cert. Name");
-            TestField("Digipoort Service Cert. Name");
-        end;
+        if "Use Certificate Setup" then begin
+            TestField("Client Certificate Code");
+            TestField("Service Certificate Code");
+        end else
+            if not EnvironmentInfo.IsSaaS() then begin
+                TestField("Digipoort Client Cert. Name");
+                TestField("Digipoort Service Cert. Name");
+            end;
         TestField("Digipoort Delivery URL");
         TestField("Digipoort Status URL");
     end;

@@ -7,6 +7,8 @@ codeunit 5058 "BankCont-Update"
 
     var
         RMSetup: Record "Marketing Setup";
+        BankContactUpdateCategoryTxt: Label 'Bank Contact Orphaned Links', Locked = true;
+        BankContactUpdateTelemetryMsg: Label 'Contact %1 does not exist. The contact business relation with code %2 which points to it has been deleted', Locked = true;
 
     procedure OnInsert(var BankAcc: Record "Bank Account")
     begin
@@ -32,7 +34,11 @@ codeunit 5058 "BankCont-Update"
             SetRange("No.", BankAcc."No.");
             if not FindFirst then
                 exit;
-            Cont.Get("Contact No.");
+            if not Cont.Get("Contact No.") then begin
+                Delete();
+                SendTraceTag('0000B38', BankContactUpdateCategoryTxt, Verbosity::Normal, StrSubstNo(BankContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), DataClassification::EndUserIdentifiableInformation);
+                exit;
+            end;
             OldCont := Cont;
         end;
 
@@ -93,6 +99,7 @@ codeunit 5058 "BankCont-Update"
             Type := Type::Company;
             TypeChange;
             SetSkipDefault;
+            OnBeforeContactInsert(Cont, BankAcc);
             Insert(true);
         end;
 
@@ -117,7 +124,8 @@ codeunit 5058 "BankCont-Update"
             SetRange("No.", BankAccountNo);
             if not FindFirst then
                 exit(false);
-            Contact.Get("Contact No.");
+            if not Contact.Get("Contact No.") then
+                exit(true);
             exit(Contact.Name = '');
         end;
     end;
@@ -129,6 +137,11 @@ codeunit 5058 "BankCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertNewContact(var BankAccount: Record "Bank Account"; LocalCall: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeContactInsert(var Contact: Record Contact; BankAccount: Record "Bank Account")
     begin
     end;
 }

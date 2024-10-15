@@ -124,6 +124,9 @@
       "path": "./BaseApp/Test/Tests-Workflow"
     },
     {
+      "path": "./NLDigitalTaxDeclaration/Test/NLDigitalTaxDeclarationTest"
+    },
+    {
       "path": "./WorldPayPaymentsStandard/Test/WorldPayPaymentsStandardTest"
     },
     {

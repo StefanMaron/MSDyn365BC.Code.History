@@ -315,8 +315,9 @@ page 9803 Permissions
         if Permission."Object ID" <> 0 then begin
             Permission.CalcFields("Object Name");
             ObjectCaption := Permission."Object Name";
-            AllObj.Get(Permission."Object Type", Permission."Object ID");
-            ObjectName := AllObj."Object Name";
+            ObjectName := '';
+            if AllObj.Get(Permission."Object Type", Permission."Object ID") then
+                ObjectName := AllObj."Object Name";
         end else begin
             ObjectName := CopyStr(StrSubstNo(AllObjTxt, Permission."Object Type"), 1, MaxStrLen(Permission."Object Name"));
             ObjectCaption := ObjectName;

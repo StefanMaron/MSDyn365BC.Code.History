@@ -7,6 +7,8 @@ codeunit 5056 "CustCont-Update"
 
     var
         RMSetup: Record "Marketing Setup";
+        CustContactUpdateCategoryTxt: Label 'Customer Contact Orphaned Links', Locked = true;
+        CustContactUpdateTelemetryMsg: Label 'Contact %1 does not exist. The contact business relation with code %2 which points to it has been deleted', Locked = true;
 
     procedure OnInsert(var Cust: Record Customer)
     begin
@@ -32,7 +34,11 @@ codeunit 5056 "CustCont-Update"
             SetRange("No.", Cust."No.");
             if not FindFirst then
                 exit;
-            Cont.Get("Contact No.");
+            if not Cont.Get("Contact No.") then begin
+                Delete();
+                SendTraceTag('0000B37', CustContactUpdateCategoryTxt, Verbosity::Normal, StrSubstNo(CustContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), DataClassification::EndUserIdentifiableInformation);
+                exit;
+            end;
             OldCont := Cont;
         end;
 
@@ -40,9 +46,10 @@ codeunit 5056 "CustCont-Update"
         NoSeries := Cont."No. Series";
         Cont.Validate("E-Mail", Cust."E-Mail");
         Cont.TransferFields(Cust);
-        OnAfterTransferFieldsFromCustToCont(Cont, Cust);
         Cont."No." := ContNo;
         Cont."No. Series" := NoSeries;
+        OnAfterTransferFieldsFromCustToCont(Cont, Cust);
+
         if not EnvInfoProxy.IsInvoicing then
             Cont.Type := OldCont.Type;
         Cont.Validate(Name);
@@ -55,7 +62,13 @@ codeunit 5056 "CustCont-Update"
     procedure OnDelete(var Cust: Record Customer)
     var
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Cust, ContBusRel, IsHandled);
+        if IsHandled then
+            exit;
+
         with ContBusRel do begin
             SetCurrentKey("Link to Table", "No.");
             SetRange("Link to Table", "Link to Table"::Customer);
@@ -173,7 +186,8 @@ codeunit 5056 "CustCont-Update"
             SetRange("No.", CustomerNo);
             if not FindFirst then
                 exit(false);
-            Contact.Get("Contact No.");
+            if not Contact.Get("Contact No.") then
+                exit(true);
             exit(Contact.Name = '');
         end;
     end;
@@ -190,6 +204,11 @@ codeunit 5056 "CustCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertNewContact(var Customer: Record Customer; LocalCall: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(Customer: Record Customer; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 

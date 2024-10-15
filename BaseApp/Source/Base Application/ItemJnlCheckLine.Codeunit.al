@@ -51,6 +51,11 @@ codeunit 21 "Item Jnl.-Check Line"
             if Item.Get("Item No.") then
                 Item.TestField("Base Unit of Measure");
 
+            IsHandled := false;
+            OnAfterGetItem(Item, ItemJnlLine, IsHandled);
+            if IsHandled then
+                exit;
+
             TestField("Document No.");
             TestField("Gen. Prod. Posting Group");
 
@@ -500,6 +505,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckFindProdOrderLine(ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetItem(Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

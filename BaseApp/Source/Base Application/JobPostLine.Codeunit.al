@@ -94,6 +94,7 @@ codeunit 1001 "Job Post-Line"
         EntryType: Option Usage,Sale;
         JobLedgEntryNo: Integer;
         JobLineChecked: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforePostInvoiceContractLine(SalesHeader, SalesLine);
 
@@ -112,7 +113,11 @@ codeunit 1001 "Job Post-Line"
             JobPlanningLine.TestField("Currency Code", '');
         end;
 
-        SalesHeader.TestField("Bill-to Customer No.", Job."Bill-to Customer No.");
+        IsHandled := false;
+        OnPostInvoiceContractLineOnBeforeCheckBillToCustomer(SalesHeader, SalesLine, JobPlanningLine, IsHandled);
+        if not IsHandled then
+            SalesHeader.TestField("Bill-to Customer No.", Job."Bill-to Customer No.");
+
         OnPostInvoiceContractLineBeforeCheckJobLine(SalesHeader, SalesLine, JobPlanningLine, JobLineChecked);
         if not JobLineChecked then begin
             JobPlanningLine.CalcFields("Qty. Transferred to Invoice");
@@ -178,6 +183,7 @@ codeunit 1001 "Job Post-Line"
     var
         JobTask: Record "Job Task";
         Txt: Text[500];
+        IsHandled: Boolean;
     begin
         OnBeforeValidateRelationship(SalesHeader, SalesLine, JobPlanningLine);
 
@@ -211,9 +217,13 @@ codeunit 1001 "Job Post-Line"
             SalesLine.FieldError("Variant Code", Txt);
         if SalesLine."Gen. Prod. Posting Group" <> JobPlanningLine."Gen. Prod. Posting Group" then
             SalesLine.FieldError("Gen. Prod. Posting Group", Txt);
-        if SalesLine."Line Discount %" <> JobPlanningLine."Line Discount %" then
-            SalesLine.FieldError("Line Discount %", Txt);
-        if JobPlanningLine."Unit Cost (LCY)" <> SalesLine."Unit Cost (LCY)" then
+
+        IsHandled := false;
+        OnValidateRelationshipOnBeforeCheckLineDiscount(SalesLine, JobPlanningLine, IsHandled);
+        if not IsHandled then
+            if SalesLine."Line Discount %" <> JobPlanningLine."Line Discount %" then
+                SalesLine.FieldError("Line Discount %", Txt);
+        if SalesLine."Unit Cost (LCY)" <> JobPlanningLine."Unit Cost (LCY)" then
             SalesLine.FieldError("Unit Cost (LCY)", Txt);
         if SalesLine.Type = SalesLine.Type::" " then begin
             if SalesLine."Line Amount" <> 0 then
@@ -440,6 +450,7 @@ codeunit 1001 "Job Post-Line"
         RelatedJobPlanningLineInvoice: Record "Job Planning Line Invoice";
         JobLedgEntry: Record "Job Ledger Entry";
     begin
+        RelatedJobPlanningLineInvoice.SetCurrentKey("Document Type", "Document No.", "Job Ledger Entry No.");
         RelatedJobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type");
         RelatedJobPlanningLineInvoice.SetRange("Document No.", JobPlanningLineInvoice."Document No.");
         if RelatedJobPlanningLineInvoice.FindLast then
@@ -495,12 +506,22 @@ codeunit 1001 "Job Post-Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostInvoiceContractLineOnBeforeCheckBillToCustomer(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostPurchaseGLAccountsOnBeforeJobJnlPostLine(var JobJournalLine: Record "Job Journal Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSalesGLAccountsOnBeforeJobJnlPostLine(var JobJournalLine: Record "Job Journal Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRelationshipOnBeforeCheckLineDiscount(var SalesLine: Record "Sales Line"; var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 }

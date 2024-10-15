@@ -28,15 +28,17 @@ codeunit 132522 "Sales-Calc. Discount Test"
         LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit price instead.';
 
     local procedure Initialize()
+    var
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
-        // PATTERN: Lazy setup
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Sales-Calc. Discount Test");
         if Initialized then
             exit;
 
-        // PATTERN: Shared Fixture
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Sales-Calc. Discount Test");
         Commit;
-
-        Initialized := true
+        Initialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Sales-Calc. Discount Test");
     end;
 
     [Test]

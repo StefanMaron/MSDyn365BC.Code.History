@@ -33,7 +33,7 @@ codeunit 139651 "HybridBC Wizard Tests"
         end;
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(IsSaas);
-        AssistedSetupTestLibrary.SetStatusToNotCompleted('58623bfa-0559-4bc2-ae1c-0979c29fd9e0', Page::"Hybrid Cloud Setup Wizard");
+        AssistedSetupTestLibrary.SetStatusToNotCompleted(Page::"Hybrid Cloud Setup Wizard");
         wizard.Trap();
 
         Page.Run(Page::"Hybrid Cloud Setup Wizard");

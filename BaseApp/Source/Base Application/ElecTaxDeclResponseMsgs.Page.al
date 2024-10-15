@@ -87,11 +87,14 @@ page 11416 "Elec. Tax Decl. Response Msgs."
                     var
                         ElecTaxDeclHeader: Record "Elec. Tax Declaration Header";
                         EnvironmentInfo: Codeunit "Environment Information";
+                        Handled: Boolean;
                     begin
+                        OnReceiveResponseMessages(Handled, Rec);
+                        if Handled then
+                            exit;
                         ElecTaxDeclHeader.SetFilter("Declaration Type", GetFilter("Declaration Type"));
                         ElecTaxDeclHeader.SetFilter("No.", GetFilter("Declaration No."));
-
-                        REPORT.RunModal(REPORT::"Receive Response Messages", EnvironmentInfo.IsSaaS, false, ElecTaxDeclHeader);
+                        REPORT.RunModal(REPORT::"Receive Response Messages", EnvironmentInfo.IsSaaS(), false, ElecTaxDeclHeader);
                     end;
                 }
                 action(ProcessResponseMessages)
@@ -107,10 +110,13 @@ page 11416 "Elec. Tax Decl. Response Msgs."
                     trigger OnAction()
                     var
                         ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.";
+                        Handled: Boolean;
                     begin
+                        OnProcessResponseMessages(Handled, Rec);
+                        if Handled then
+                            exit;
                         ElecTaxDeclResponseMsg.SetFilter("Declaration Type", GetFilter("Declaration Type"));
                         ElecTaxDeclResponseMsg.SetFilter("Declaration No.", GetFilter("Declaration No."));
-
                         REPORT.RunModal(REPORT::"Process Response Messages", false, false, ElecTaxDeclResponseMsg);
                     end;
                 }
@@ -141,5 +147,15 @@ page 11416 "Elec. Tax Decl. Response Msgs."
     var
         TempBlob: Codeunit "Temp Blob";
         RBAutoMgt: Codeunit "File Management";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReceiveResponseMessages(var Handled: Boolean; var ElecTaxDeclResponseMessages: Record "Elec. Tax Decl. Response Msg.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessResponseMessages(var Handled: Boolean; var ElecTaxDeclResponseMessages: Record "Elec. Tax Decl. Response Msg.")
+    begin
+    end;
 }
 

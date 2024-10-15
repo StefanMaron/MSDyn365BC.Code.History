@@ -196,7 +196,7 @@ codeunit 426 "Payment Tolerance Management"
         NewCustLedgEntry."Currency Code" := GenJnlLine."Currency Code";
         if GenJnlLine."Applies-to Doc. No." <> '' then
             NewCustLedgEntry."Applies-to Doc. No." := GenJnlLine."Applies-to Doc. No.";
-        if not GenJnlPostPreview.IsActive then
+        if not GenJnlPostPreview.IsActive() then
             DelCustPmtTolAcc(NewCustLedgEntry, GenJnlLineApplID);
         NewCustLedgEntry.Amount := GenJnlLine.Amount;
         NewCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
@@ -784,11 +784,13 @@ codeunit 426 "Payment Tolerance Management"
             ((OldCustLedgEntry."Document Type" in [OldCustLedgEntry."Document Type"::Invoice,
                                                    OldCustLedgEntry."Document Type"::"Credit Memo"]) and
              (NewPostingdate > OldCustLedgEntry."Pmt. Discount Date") and
-             (NewPostingdate <= OldCustLedgEntry."Pmt. Disc. Tolerance Date"))) or
+             (NewPostingdate <= OldCustLedgEntry."Pmt. Disc. Tolerance Date") and
+             (OldCustLedgEntry."Remaining Pmt. Disc. Possible" <> 0))) or
            ((NewDocType = NewDocType::Refund) and
             ((OldCustLedgEntry."Document Type" = OldCustLedgEntry."Document Type"::"Credit Memo") and
              (NewPostingdate > OldCustLedgEntry."Pmt. Discount Date") and
-             (NewPostingdate <= OldCustLedgEntry."Pmt. Disc. Tolerance Date")))
+             (NewPostingdate <= OldCustLedgEntry."Pmt. Disc. Tolerance Date") and
+             (OldCustLedgEntry."Remaining Pmt. Disc. Possible" <> 0)))
         then begin
             ToleranceAmount := (Abs(NewAmount) + ApplnRoundingPrecision) -
               Abs(OldCustLedgEntry."Remaining Amount" - OldCustLedgEntry."Remaining Pmt. Disc. Possible");
@@ -817,11 +819,13 @@ codeunit 426 "Payment Tolerance Management"
             ((OldVendLedgEntry."Document Type" in [OldVendLedgEntry."Document Type"::Invoice,
                                                    OldVendLedgEntry."Document Type"::"Credit Memo"]) and
              (NewPostingdate > OldVendLedgEntry."Pmt. Discount Date") and
-             (NewPostingdate <= OldVendLedgEntry."Pmt. Disc. Tolerance Date"))) or
+             (NewPostingdate <= OldVendLedgEntry."Pmt. Disc. Tolerance Date") and
+             (OldVendLedgEntry."Remaining Pmt. Disc. Possible" <> 0))) or
            ((NewDocType = NewDocType::Refund) and
             ((OldVendLedgEntry."Document Type" = OldVendLedgEntry."Document Type"::"Credit Memo") and
              (NewPostingdate > OldVendLedgEntry."Pmt. Discount Date") and
-             (NewPostingdate <= OldVendLedgEntry."Pmt. Disc. Tolerance Date")))
+             (NewPostingdate <= OldVendLedgEntry."Pmt. Disc. Tolerance Date") and
+             (OldVendLedgEntry."Remaining Pmt. Disc. Possible" <> 0)))
         then begin
             ToleranceAmount := (Abs(NewAmount) + ApplnRoundingPrecision) -
               Abs(OldVendLedgEntry."Remaining Amount" - OldVendLedgEntry."Remaining Pmt. Disc. Possible");
@@ -844,6 +848,7 @@ codeunit 426 "Payment Tolerance Management"
 
     local procedure CallPmtDiscTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; AppliedAmount: Decimal; PmtDiscAmount: Decimal; var RemainingAmountTest: Boolean; AccountType: Option Customer,Vendor): Boolean
     var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         PmtDiscTolWarning: Page "Payment Disc Tolerance Warning";
         ActionType: Integer;
     begin
@@ -851,6 +856,10 @@ codeunit 426 "Payment Tolerance Management"
             RemainingAmountTest := false;
             exit(true);
         end;
+
+        if GenJnlPostPreview.IsActive() then
+            exit(true);
+
         if SuppressCommit then
             exit(true);
 
@@ -870,9 +879,13 @@ codeunit 426 "Payment Tolerance Management"
 
     local procedure CallPmtTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; var Amount: Decimal; AppliedAmount: Decimal; AccountType: Option Customer,Vendor): Boolean
     var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         PmtTolWarning: Page "Payment Tolerance Warning";
         ActionType: Integer;
     begin
+        if GenJnlPostPreview.IsActive() then
+            exit(true);
+
         if SuppressCommit then
             exit(true);
 

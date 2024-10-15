@@ -6546,6 +6546,12 @@ End Function
         <Field Name="CustomerPostalBarCode">
           <DataField>CustomerPostalBarCode</DataField>
         </Field>
+        <Field Name="ExternalDocumentNo">
+          <DataField>ExternalDocumentNo</DataField>
+        </Field>
+        <Field Name="ExternalDocumentNoLbl">
+          <DataField>ExternalDocumentNoLbl</DataField>
+        </Field>
         <Field Name="YourReference">
           <DataField>YourReference</DataField>
         </Field>

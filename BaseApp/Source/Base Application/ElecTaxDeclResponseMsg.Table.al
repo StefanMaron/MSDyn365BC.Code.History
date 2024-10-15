@@ -48,6 +48,16 @@ table 11413 "Elec. Tax Decl. Response Msg."
         {
             Caption = 'Status Description';
         }
+        field(200; "VAT Report No."; Code[20])
+        {
+            Caption = 'VAT Report No.';
+        }
+        field(201; "VAT Report Config. Code"; Option)
+        {
+            OptionMembers = "EC Sales List","VAT Return";
+            TableRelation = "VAT Reports Configuration"."VAT Report Type";
+            Caption = 'VAT Report Config. Code';
+        }
     }
 
     keys

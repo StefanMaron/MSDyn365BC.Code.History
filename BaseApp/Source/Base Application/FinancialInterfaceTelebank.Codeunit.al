@@ -385,7 +385,7 @@ codeunit 11000001 "Financial Interface Telebank"
             repeat
                 PaymentHistLine.SetRange(Identification, CBGStatementLine.Identification);
                 if PaymentHistLine.FindFirst then
-                    SetApplyCVLedgerEntries(PaymentHistLine, '', true, true);
+                    SetApplyCVLedgerEntries(PaymentHistLine, '', false, true);
             until CBGStatementLine.Next = 0;
 
         if not TempErrorMessage.IsEmpty then begin

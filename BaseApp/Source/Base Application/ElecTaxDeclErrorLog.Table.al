@@ -32,6 +32,17 @@ table 11412 "Elec. Tax Decl. Error Log"
         {
             Caption = 'Error Description';
             Editable = false;
+            DataClassification = CustomerContent;
+        }
+        field(200; "VAT Report No."; Code[20])
+        {
+            Caption = 'VAT Report No.';
+        }
+        field(201; "VAT Report Config. Code"; Option)
+        {
+            OptionMembers = "EC Sales List","VAT Return";
+            TableRelation = "VAT Reports Configuration"."VAT Report Type";
+            Caption = 'VAT Report Config. Code';
         }
     }
 

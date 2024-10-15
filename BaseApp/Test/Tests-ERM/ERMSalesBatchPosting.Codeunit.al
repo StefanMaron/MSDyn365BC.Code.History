@@ -36,6 +36,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -61,6 +62,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -86,6 +88,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -112,6 +115,7 @@ codeunit 134391 "ERM Sales Batch Posting"
     begin
         // [SCENARIO 204056] Batch Posting of Sales Invoice with Replace Posting Date and Calc. Inv. Discount options for special Sales Setup
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -142,6 +146,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -170,6 +175,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -195,6 +201,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -220,6 +227,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -246,6 +254,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -277,6 +286,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -316,6 +326,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -355,6 +366,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -395,6 +407,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -438,6 +451,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         // [FEATURE] [Order] [Job  Queue] [Invoice Discount]
         // [SCENARIO 268223] Stan can post with job queue multiple orders in a batch when "Calc. Invoice Discount" is turned on
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
 
         // [GIVEN] Sales setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
         LibraryVariableStorageCounter.Clear;
@@ -487,6 +501,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         // [FEATURE] [Order] [Job  Queue]
         // [SCENARIO 275869] Stan can try post with job queue multiple time bad orders without error 'Batch Processing Parameter Map already exists.'
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
 
         // [GIVEN] Sales setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
         LibraryVariableStorageCounter.Clear;
@@ -542,6 +557,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         // [FEATURE] [Invoice]
         // [SCENARIO 306600] Stan can run "Batch Post Sales Invoices" report when concurrent batch is active having the same document
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -653,11 +669,39 @@ codeunit 134391 "ERM Sales Batch Posting"
     procedure PrintBatchPostSalesInvoices()
     var
         SalesHeader: array[2] of Record "Sales Header";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
     begin
         // [FEATURE] [Print]
         // [SCENARIO 267099] Print "Standard Sales - Invoice" when batch post sales invoices
         Initialize();
+        LibrarySales.SetPostWithJobQueue(false);
+        CreateInvoiceReportSelection();
+
+        // [GIVEN] Two sales invoices
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Invoice, false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, false);
+
+        // [WHEN] Batch post two sales invoices (set Print = TRUE in BatchPostSalesInvoicesPrintRequestPageHandler)
+        RunBatchPostSales(
+          SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+
+        // [THEN] 'Print' checkbox is not visible, so number "Sales - Invoice" report runs = 0 (calculated in StandardSalesInvoiceReportHandler)
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger, 'Number of printed invoice is not correct');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Print checkbox should not be invisible');
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesInvoicesPrintRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintBatchPostSalesInvoicesBackground()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [FEATURE] [Print]
+        // [SCENARIO 267099] Print "Standard Sales - Invoice" when batch post sales invoices in background
+        Initialize();
+        LibrarySales.SetPostWithJobQueue(true);
+        LibrarySales.SetPostAndPrintWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreateInvoiceReportSelection();
@@ -674,6 +718,7 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         // [THEN] There are two records in the "Job Queue Entry" with "PDF" output type
         VerifyPrintJobQueueEntries(SalesHeader);
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Print checkbox should be visible');
     end;
 
     [Test]
@@ -718,28 +763,29 @@ codeunit 134391 "ERM Sales Batch Posting"
         PostingDate[2] := SalesHeader[2]."Posting Date";
         LibrarySales.ReleaseSalesDocument(SalesHeader[2]);
         SalesHeader[2].SetRecFilter;
-        SalesBatchPostMgt.RunBatch(SalesHeader[2], true, PostingDate[2] + 2, true, true, false, true);
+        RunBatchPostSales(SalesHeader[2]."Document Type", SalesHeader[2]."No.", PostingDate[2] + 2, true);
 
-        // [WHEN] Job queue for Invoice "A" ran
+        // [GIVEN] Job Queue Entries created for Invoice 'A'. 
         SalesHeader[1].Find;
         JobQueueEntry.Get(SalesHeader[1]."Job Queue Entry ID");
+
+        // [WHEN] Run Job Queue Entries for Invoice "A"
         CODEUNIT.Run(JobQueueEntry."Object ID to Run", JobQueueEntry);
 
-        SalesHeader[2].Find;
-        JobQueueEntry.Get(SalesHeader[2]."Job Queue Entry ID");
-        CODEUNIT.Run(JobQueueEntry."Object ID to Run", JobQueueEntry);
+        // [THEN] Invoice 'B' is posted directly. 
+        Assert.IsFalse(SalesHeader[2].Find, 'Second Invoice should be posted');
 
         // [THEN] InvoiceDiscount is calculated and Posting Date is updated in Invoices "A"
         VerifyPostedSalesInvoice(SalesHeader[1]."No.", PostingDate[1] + 1, true);
         // [THEN] InvoiceDiscount is calculated and Posting Date is updated in Invoice "B"
         VerifyPostedSalesInvoice(SalesHeader[2]."No.", PostingDate[2] + 2, true);
 
-        // [THEN] Batch tables cleaned after job queue execution
+        // [THEN] Batch Processing Map Table cleaned after job queue execution
         BatchProcessingSessionMap.SetRange("Record ID", SalesHeader[1].RecordId);
         Assert.RecordIsEmpty(BatchProcessingSessionMap);
+
         BatchProcessingSessionMap.SetRange("Record ID", SalesHeader[2].RecordId);
         Assert.RecordIsEmpty(BatchProcessingSessionMap);
-        Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
 
     local procedure Initialize()
@@ -843,6 +889,7 @@ codeunit 134391 "ERM Sales Batch Posting"
     begin
         JobQueueEntry.Get(SalesHeader."Job Queue Entry ID");
         CODEUNIT.Run(JobQueueEntry."Object ID to Run", JobQueueEntry);
+        JobQueueEntry.SetStatus(JobQueueEntry.Status::Finished);
     end;
 
     local procedure UpdateCalcInvDiscSalesReceivablesSetup(CalcInvDisc: Boolean)
@@ -1100,6 +1147,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         SalesHeader: Record "Sales Header";
         PostingDate: Variant;
         DocumentNoFilter: Variant;
+        PrintVisible: Boolean;
     begin
         LibraryVariableStorage.Dequeue(DocumentNoFilter);
         LibraryVariableStorage.Dequeue(PostingDate);
@@ -1107,10 +1155,19 @@ codeunit 134391 "ERM Sales Batch Posting"
         BatchPostSalesInvoices."Sales Header".SetFilter("No.", DocumentNoFilter);
         BatchPostSalesInvoices."Sales Header".SetFilter("Document Type", Format(SalesHeader."Document Type"::Invoice));
 
-        BatchPostSalesInvoices.PrintDoc.SetValue(true);
+        PrintVisible := BatchPostSalesInvoices.PrintDoc.Visible();
+        if PrintVisible then
+            BatchPostSalesInvoices.PrintDoc.SetValue(true);
         BatchPostSalesInvoices.OK.Invoke;
 
+        LibraryVariableStorage.Enqueue(PrintVisible);
         LibraryVariableStorage.Enqueue(0); // initialize report run counter
+    end;
+
+    [ReportHandler]
+    procedure StandardSalesInvoiceReportHandler(var StandardSalesInvoice: Report "Standard Sales - Invoice")
+    begin
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger + 1);
     end;
 
     [MessageHandler]

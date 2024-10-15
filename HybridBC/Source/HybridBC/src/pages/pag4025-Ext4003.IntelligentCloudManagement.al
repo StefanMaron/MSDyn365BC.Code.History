@@ -6,8 +6,8 @@ pageextension 4025 "BC Checklist Action" extends "Intelligent Cloud Management"
         {
             action(SetupChecklist)
             {
-                Enabled = IsSuper and IsMigration;
-                Visible = not IsOnPrem and IsBC;
+                Enabled = IsSuper and IsMigratedCompany;
+                Visible = not IsOnPrem and ShowSetupChecklist;
                 ApplicationArea = Basic, Suite;
                 Caption = 'Setup Checklist';
                 ToolTip = 'Setup Checklist';
@@ -17,8 +17,8 @@ pageextension 4025 "BC Checklist Action" extends "Intelligent Cloud Management"
             }
             action(MapUsers)
             {
-                Enabled = IsSuper and IsMigration;
-                Visible = not IsOnPrem and IsBC;
+                Enabled = IsSuper and IsMigratedCompany;
+                Visible = not IsOnPrem and ShowMapUsers;
                 ApplicationArea = Basic, Suite;
                 Caption = 'Define User Mappings';
                 ToolTip = 'Define User Mappings';
@@ -35,26 +35,24 @@ pageextension 4025 "BC Checklist Action" extends "Intelligent Cloud Management"
     var
         IntelligentCloudStatus: Record "Intelligent Cloud Status";
         HybridCompany: Record "Hybrid Company";
-        IntelligentCloudSetup: Record "Intelligent Cloud Setup";
         PermissionManager: Codeunit "Permission Manager";
         UserPermissions: Codeunit "User Permissions";
         EnvironmentInfo: Codeunit "Environment Information";
-        HybridBCWizard: Codeunit "Hybrid BC Wizard";
     begin
-        if IntelligentCloudSetup.Get() then
-            IsBC := (IntelligentCloudSetup."Product ID" = HybridBCWizard.ProductId());
         IsSuper := UserPermissions.IsSuper(UserSecurityId());
-        IsOnPrem := NOT EnvironmentInfo.IsSaaS();
-        IsSetupComplete := PermissionManager.IsIntelligentCloud() OR (IsOnPrem AND NOT IntelligentCloudStatus.IsEmpty());
-        IsMigration := false;
-        if HybridCompany.Get(COMPANYNAME()) then
-            IsMigration := HybridCompany.Replicate;
+        IsOnPrem := not EnvironmentInfo.IsSaaS();
+        IsSetupComplete := PermissionManager.IsIntelligentCloud() OR (IsOnPrem AND not IntelligentCloudStatus.IsEmpty());
+        IsMigratedCompany := HybridCompany.Get(CompanyName()) and HybridCompany.Replicate;
+
+        CanShowSetupChecklist(ShowSetupChecklist);
+        CanShowMapUsers(ShowMapUsers);
     end;
 
     var
         IsSetupComplete: Boolean;
         IsSuper: Boolean;
         IsOnPrem: Boolean;
-        IsMigration: Boolean;
-        IsBC: Boolean;
+        IsMigratedCompany: Boolean;
+        ShowSetupChecklist: Boolean;
+        ShowMapUsers: Boolean;
 }
