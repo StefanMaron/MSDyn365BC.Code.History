@@ -1,4 +1,4 @@
-page 403 "Purchase Order Statistics"
+﻿page 403 "Purchase Order Statistics"
 {
     Caption = 'Purchase Order Statistics';
     DeleteAllowed = false;
@@ -699,7 +699,7 @@ page 403 "Purchase Order Statistics"
         end else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
 
-        OnUpdateHeaderInfoAfterCalcTotalAmount(Rec);
+        OnUpdateHeaderInfoAfterCalcTotalAmount(Rec, IndexNo);
 
         if "Prices Including VAT" then
             TotalPurchLineLCY[IndexNo].Amount := TotalAmount2[IndexNo]
@@ -937,7 +937,7 @@ page 403 "Purchase Order Statistics"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnUpdateHeaderInfoAfterCalcTotalAmount(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnUpdateHeaderInfoAfterCalcTotalAmount(var PurchaseHeader: Record "Purchase Header"; var IndexNo: Integer)
     begin
     end;
 }

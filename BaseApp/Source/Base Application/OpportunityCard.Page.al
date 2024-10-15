@@ -499,7 +499,7 @@ page 5124 "Opportunity Card"
         if CRMIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
 
-        if GlobalContact.Get("Contact No.") then;
+        GlobalContact.GetOrClear("Contact No.");
     end;
 
     trigger OnInit()

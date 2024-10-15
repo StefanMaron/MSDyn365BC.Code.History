@@ -957,8 +957,8 @@ page 5933 "Service Invoice"
 
     trigger OnAfterGetRecord()
     begin
-        if SellToContact.Get("Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
         UpdateDocHasRegimeCode();
     end;
 

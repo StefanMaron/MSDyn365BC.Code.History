@@ -536,7 +536,7 @@ table 334 "Column Layout"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetCaptionClass(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Record "Column Layout Name"; AnalysisViewDimType: Integer; Result: Text[250]; var IsHandled: Boolean)
+    local procedure OnBeforeGetCaptionClass(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Record "Column Layout Name"; AnalysisViewDimType: Integer; var Result: Text[250]; var IsHandled: Boolean)
     begin
     end;
 

@@ -105,7 +105,9 @@ page 499 "Available - Sales Lines"
                     begin
                         ReservEntry.LockTable();
                         UpdateReservMgt;
-                        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+                        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+                        QtyToReserve -= QtyReserved;
+                        QtyToReserveBase -= QtyReservedBase;
                         ReservMgt.CalculateRemainingQty(NewQtyReserved, NewQtyReservedBase);
                         ReservMgt.CopySign(NewQtyReservedBase, QtyToReserveBase);
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);

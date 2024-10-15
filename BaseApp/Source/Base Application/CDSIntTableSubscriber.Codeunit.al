@@ -322,7 +322,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
                         if IsClearValueOnFailedSync then begin
                             DestinationRecRef := DestinationFieldRef.Record();
-                            DestinationFieldRef.SetRange(NewValue);
+                            DestinationFieldRef.SetRange(OriginalDestinationFieldValue);
                             if DestinationRecRef.IsEmpty() then
                                 NewValue := OriginalDestinationFieldValue;
                         end;

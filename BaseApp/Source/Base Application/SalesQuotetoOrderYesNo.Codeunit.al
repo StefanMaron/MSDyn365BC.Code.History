@@ -57,7 +57,7 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
                 OpenPage := Confirm(StrSubstNo(OpenNewInvoiceQst, SalesHeader2."No."), true);
         if OpenPage then begin
             Clear(SalesOrder);
-            SalesOrder.CheckNotificationsOnce;
+            CheckNotifications(SalesOrder);
             SalesOrder.SetRecord(SalesHeader2);
             SalesOrder.Run();
         end;
@@ -79,6 +79,18 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
         exit(true);
     end;
 
+    local procedure CheckNotifications(var SalesOrder: Page "Sales Order")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNotifications(SalesOrder, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesOrder.CheckNotificationsOnce();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesQuoteToOrderRun(var SalesHeader2: Record "Sales Header"; var SalesHeader: Record "Sales Header")
     begin
@@ -91,6 +103,11 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNotifications(var SalesOrder: Page "Sales Order"; var IsHandled: Boolean)
     begin
     end;
 

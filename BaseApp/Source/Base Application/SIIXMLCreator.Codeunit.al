@@ -1447,6 +1447,7 @@
           XMLNode, Vendor."Country/Region Code", Vendor.Name, Vendor."VAT Registration No.", Vendor."No.", true,
           SIIManagement.VendorIsIntraCommunity(Vendor."No."), false, SIIDocUploadState.IDType);
         FillFechaRegContable(XMLNode, VendorLedgerEntry."Posting Date", GetRequestDateOfSIIHistoryByVendLedgEntry(VendorLedgerEntry));
+        OnHandleReplacementPurchCorrectiveInvoiceOnBeforeAddCuotaDeducibleElement(VendorLedgerEntry, CuotaDeducibleDecValue, BaseAmountDiff);
         if CuotaDeducibleDecValue = 0 then
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'CuotaDeducible', FormatNumber(0), 'sii', SiiTxt, TempXMLNode)
         else begin
@@ -1680,6 +1681,7 @@
     local procedure CalculateTotalVatAndBaseAmounts(LedgerEntryRecRef: RecordRef; var TotalBaseAmount: Decimal; var TotalNonExemptVATBaseAmount: Decimal; var TotalVATAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
+        NoTaxableEntry: Record "No Taxable Entry";
     begin
         TotalBaseAmount := 0;
         TotalVATAmount := 0;
@@ -1693,6 +1695,9 @@
                     TotalVATAmount += VATEntry.Amount + VATEntry."Unrealized Amount";
             until VATEntry.Next() = 0;
         end;
+        SIIManagement.FindNoTaxableEntriesFromLedger(LedgerEntryRecRef, NoTaxableEntry);
+        NoTaxableEntry.CalcSums(NoTaxableEntry."Base (LCY)");
+        TotalBaseAmount += NoTaxableEntry."Base (LCY)";
     end;
 
     local procedure GenerateFacturasRectificadasNode(var XMLNode: DotNet XmlNode; DocNo: Code[35]; PostingDate: Date)
@@ -2723,6 +2728,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleReplacementPurchCorrectiveInvoiceOnBeforeAddElementDetalleIVA(var XMLNode: DotNet XmlNode; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleReplacementPurchCorrectiveInvoiceOnBeforeAddCuotaDeducibleElement(VendorLedgerEntry: Record "Vendor Ledger Entry"; var CuotaDeducibleDecValue: Decimal; var BaseAmountDiff: Decimal)
     begin
     end;
 }

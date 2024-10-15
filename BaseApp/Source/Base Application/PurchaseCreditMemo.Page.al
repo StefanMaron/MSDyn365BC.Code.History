@@ -1497,14 +1497,14 @@ page 52 "Purchase Credit Memo"
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
         StatusStyleTxt := GetStatusStyleText();
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
         UpdateDocHasRegimeCode();
     end;
 
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingOption;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
         UpdateDocHasRegimeCode();
     end;
 

@@ -410,7 +410,7 @@
                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
 
-                    OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters("VAT Posting Setup", VATEntry);
+                    OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters("VAT Posting Setup", VATEntry, "VAT Entry");
 
                     case "VAT Posting Setup"."VAT Calculation Type" of
                         "VAT Posting Setup"."VAT Calculation Type"::"Normal VAT",
@@ -646,7 +646,7 @@
         VATDateFilter := VATEntry.GetFilter("Posting Date");
         Clear(GenJnlPostLine);
 
-        OnAfterPreReport;
+        OnAfterPreReport("VAT Entry");
     end;
 
     var
@@ -835,7 +835,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPreReport()
+    local procedure OnAfterPreReport(var VATEntry: Record "VAT Entry")
     begin
     end;
 
@@ -869,8 +869,8 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters(VATPostingSetup: Record "VAT Posting Setup"; var VATEntry: Record "VAT Entry")
+    [IntegrationEvent(true, false)]
+    local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters(VATPostingSetup: Record "VAT Posting Setup"; var VATEntry: Record "VAT Entry"; var VATEntry2: Record "VAT Entry")
     begin
     end;
 

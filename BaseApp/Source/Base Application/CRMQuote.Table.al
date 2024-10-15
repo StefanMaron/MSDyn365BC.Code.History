@@ -86,7 +86,7 @@ table 5351 "CRM Quote"
             ExternalType = 'Integer';
             MinValue = 0;
         }
-        field(10; Name; Text[250])
+        field(10; Name; Text[2048])
         {
             Caption = 'Name';
             Description = 'Type a descriptive name for the quote.';

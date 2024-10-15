@@ -103,7 +103,7 @@ table 5355 "CRM Invoice"
             ExternalName = 'invoicenumber';
             ExternalType = 'String';
         }
-        field(12; Name; Text[250])
+        field(12; Name; Text[2048])
         {
             Caption = 'Name';
             Description = 'Type a descriptive name for the invoice.';

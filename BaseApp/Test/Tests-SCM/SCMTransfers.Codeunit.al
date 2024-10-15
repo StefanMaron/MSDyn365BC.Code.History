@@ -2148,6 +2148,34 @@ codeunit 137038 "SCM Transfers"
         ItemLedgerEntry.TestField("Dimension Set ID", DimensionSetID);
     end;
 
+    [Test]
+    procedure CanChangePostingDateOnReleasedDirectTransferOrder()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        LocationFromCode: Code[10];
+        LocationToCode: Code[10];
+    begin
+        // [FEATURE] [Direct Transfer] [UT]
+        // [SCENARIO 413543] Stan can change posting date on released direct transfer order.
+        Initialize();
+
+        CreateLocations(LocationFromCode, LocationToCode);
+
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationFromCode, LocationToCode, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify(true);
+        LibraryWarehouse.CreateTransferLine(
+            TransferHeader, TransferLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        TransferHeader.Validate("Posting Date", WorkDate() + 30);
+
+        Assert.AreNotEqual(TransferHeader."Posting Date", TransferHeader."Shipment Date", '');
+        Assert.AreNotEqual(TransferHeader."Posting Date", TransferHeader."Receipt Date", '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

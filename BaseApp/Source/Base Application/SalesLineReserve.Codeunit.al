@@ -58,7 +58,10 @@
         OnCreateReservationOnBeforeTestVariantCode(SalesLine, FromTrackingSpecification, IsHandled);
         if not IsHandled then
             SalesLine.TestField("Variant Code", FromTrackingSpecification."Variant Code");
-        SalesLine.TestField("Location Code", FromTrackingSpecification."Location Code");
+        IsHandled := false;
+        OnCreateReservationOnBeforeTestLocationCode(SalesLine, FromTrackingSpecification, IsHandled);
+        if not IsHandled then
+            SalesLine.TestField("Location Code", FromTrackingSpecification."Location Code");
 
         if SalesLine."Document Type" = SalesLine."Document Type"::"Return Order" then
             SignFactor := 1
@@ -288,7 +291,7 @@
 
 
         IsHandled := false;
-        OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine, IsHandled, ItemJnlLine);
+        OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine, IsHandled, ItemJnlLine, TransferQty);
         if not IsHandled then
             ItemJnlLine.TestItemFields(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code");
 
@@ -387,6 +390,7 @@
                     then
                         OldReservEntry."Reservation Status" := OldReservEntry."Reservation Status"::Surplus;
 
+                    OnTransferSaleLineToSalesLineOnBeforeCalcTransferQty(NewSalesLine, OldReservEntry);
                     TransferQty :=
                         CreateReservEntry.TransferReservEntry(DATABASE::"Sales Line",
                             NewSalesLine."Document Type".AsInteger(), NewSalesLine."Document No.", '', 0,
@@ -1085,6 +1089,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeTestLocationCode(SalesLine: Record "Sales Line"; FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTestSalesLineModificationOnBeforeTestBinCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -1100,7 +1109,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line");
+    local procedure OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line"; var TransferQty: Decimal);
     begin
     end;
 
@@ -1111,6 +1120,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferSalesLineToItemJnlLineOnBeforeTransferReservationEntry(var ReservationEntry: Record "Reservation Entry"; SalesLine: Record "Sales Line"; ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferSaleLineToSalesLineOnBeforeCalcTransferQty(var NewSalesLine: Record "Sales Line"; var OldReservationEntry: Record "Reservation Entry")
     begin
     end;
 

@@ -58,6 +58,13 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         OnAfterCode(WhseJnlLine, WhseEntryNo);
     end;
 
+    procedure LockTables()
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        WarehouseEntry.Lock();
+    end;
+
     local procedure InitWhseEntry(var WhseEntry: Record "Warehouse Entry"; ZoneCode: Code[10]; BinCode: Code[20]; Sign: Integer)
     var
         ToBinContent: Record "Bin Content";

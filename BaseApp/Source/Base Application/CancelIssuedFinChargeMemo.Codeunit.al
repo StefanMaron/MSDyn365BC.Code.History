@@ -55,6 +55,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         SetIssuedFinChargeMemoCancelled(IssuedFinChargeMemoHeader, DocumentNo);
 
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoHeader."No.");
+        IssuedFinChargeMemoLine.SetRange("Detailed Interest Rates Entry", false);
         if IssuedFinChargeMemoLine.FindSet then
             repeat
                 case IssuedFinChargeMemoLine.Type of

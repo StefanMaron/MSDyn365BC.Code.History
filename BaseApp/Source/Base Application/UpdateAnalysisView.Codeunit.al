@@ -180,7 +180,13 @@
     var
         AnalysisViewGLQry: Query "Analysis View Source";
         EntryNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateEntriesForGLAccount(TempAnalysisViewEntry, AnalysisView, LastGLEntryNo, NoOfEntries, IsHandled);
+        if IsHandled then
+            exit;
+
         if AnalysisView."Date Compression" = AnalysisView."Date Compression"::None then begin
             UpdateEntriesForGLAccountDetailed;
             exit;
@@ -636,6 +642,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOne(var NewAnalysisView: Record "Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; ShowWindow: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateEntriesForGLAccount(var TempAnalysisViewEntry: Record "Analysis View Entry" temporary; AnalysisView: Record "Analysis View"; LastGLEntryNo: Integer; var NoOfEntries: Integer; var IsHandled: Boolean)
     begin
     end;
 

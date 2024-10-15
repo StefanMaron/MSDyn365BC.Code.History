@@ -1,4 +1,4 @@
-table 1208 "Direct Debit Collection Entry"
+﻿table 1208 "Direct Debit Collection Entry"
 {
     Caption = 'Direct Debit Collection Entry';
     DataCaptionFields = "Customer No.", "Transaction ID";
@@ -57,13 +57,13 @@ table 1208 "Direct Debit Collection Entry"
                         Error(DocTypeErr);
 
                     CustLedgerEntry.CalcFields("Remaining Amount");
-                    if CustLedgerEntry."Remaining Amount" <= 0 then
-                        Error(AmountMustBePositiveErr);
+                    CheckCustLedgerEntryAmountPositive(CustLedgerEntry);
 
                     "Transfer Date" := CustLedgerEntry."Due Date";
                     "Currency Code" := CustLedgerEntry."Currency Code";
                     "Transfer Amount" := CustLedgerEntry."Remaining Amount" - GetAmountInActiveCollections;
                     Validate("Mandate ID", CustLedgerEntry."Direct Debit Mandate ID");
+                    OnValidateAppliesToEntryNoOnAfterTransferCustLedgerEntryFields(Rec, xRec, CustLedgerEntry);
 
                     DirectDebitCollection.Get("Direct Debit Collection No.");
                     "Transaction ID" := StrSubstNo('%1/%2', DirectDebitCollection.Identifier, "Entry No.");
@@ -286,7 +286,9 @@ table 1208 "Direct Debit Collection Entry"
         Init;
         Validate("Customer No.", CustLedgerEntry."Customer No.");
         Validate("Applies-to Entry No.", CustLedgerEntry."Entry No.");
+        OnCreateNewOnBeforeInsert(CustLedgerEntry, Rec);
         Insert;
+        OnCreateNewOnAfterInsert(CustLedgerEntry, Rec);
 
         IsHandled := false;
         OnBeforeCheckSEPA(Rec, IsHandled);
@@ -351,6 +353,19 @@ table 1208 "Direct Debit Collection Entry"
         SEPADirectDebitMandate.RollBackSequenceType;
     end;
 
+    local procedure CheckCustLedgerEntryAmountPositive(var CustLedgEntry: Record "Cust. Ledger Entry")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCustLedgerEntryAmountPositive(CustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CustLedgEntry."Remaining Amount" <= 0 then
+            Error(AmountMustBePositiveErr);
+    end;
+
     local procedure TransferPKToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     var
         DirectDebitCollection: Record "Direct Debit Collection";
@@ -407,6 +422,11 @@ table 1208 "Direct Debit Collection Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustLedgerEntryAmountPositive(var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDocTypeErr(CustLedgerEntry: Record "Cust. Ledger Entry"; var AlllowedDocumentType: Boolean)
     begin
     end;
@@ -423,6 +443,21 @@ table 1208 "Direct Debit Collection Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateTransferAmount(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewOnBeforeInsert(CustLedgerEntry: Record "Cust. Ledger Entry"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewOnAfterInsert(CustLedgerEntry: Record "Cust. Ledger Entry"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAppliesToEntryNoOnAfterTransferCustLedgerEntryFields(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; xDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

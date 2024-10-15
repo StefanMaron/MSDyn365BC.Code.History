@@ -2996,6 +2996,67 @@ codeunit 139151 DocumentSendingPostTestsSMTP
     end;
 
     [Test]
+    procedure CustomerUseDefaultProfilePerDocAndSend40OrdersViaJobQueues()
+    var
+        EmailDocumentSendingProfile: Record "Document Sending Profile";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+        JobQueueEntry: Record "Job Queue Entry";
+        TempAccount: Record "Email Account" temporary;
+        EmailFeature: Codeunit "Library - Email Feature";
+        ConnectorMock: Codeunit "Connector Mock";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        DocumentNo: array[2] of Code[20];
+        ParameterStrings: Array[2] of Text[250];
+        i: integer;
+    begin
+        // [FEATURE] [UI] [Customer] [Sales] [Invoice]
+        // Send 40 invoices to a customer via Job Queue.
+        // It should create two job queues due to size limitation of Parameter String
+        Initialize();
+        JobQueueEntry.DeleteAll();
+        EmailFeature.SetEmailFeatureEnabled(true);
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(TempAccount);
+
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Document sending profile for emailing and 80 posted sales invoices
+        EmailDocumentSendingProfile.Init();
+        EmailDocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
+        EmailDocumentSendingProfile.Default := true;
+        EmailDocumentSendingProfile."Combine Email Documents" := true;
+        EmailDocumentSendingProfile."E-Mail" := EmailDocumentSendingProfile."E-Mail"::"Yes (Use Default Settings)";
+        EmailDocumentSendingProfile.Insert(true);
+        CreatePostXSalesInvoicesCustomer(80, SalesInvoiceHeader, Customer, EmailDocumentSendingProfile);
+
+        // Mark only every other invoice
+        // The filtering in DocumentSendingProfile will create a short range filter otherwise
+        SalesInvoiceHeader.FindSet();
+        i := 1;
+        repeat
+            SalesInvoiceHeader.Mark((i mod 2) = 0);
+            i += 1;
+        until SalesInvoiceHeader.Next() = 0;
+        SalesInvoiceHeader.MarkedOnly(true);
+
+        // [GIVEN] Invoke "Send" action
+        Commit();
+        SalesInvoiceHeader.SendProfile(EmailDocumentSendingProfile);
+
+        // [THEN] 2 Job Queue Entries queued to process with different parameter strings.
+        JobQueueEntry.SetRange("Object ID to Run", 260);
+        Assert.IsTrue(JobQueueEntry.FindSet(), 'No job queue entry queued.');
+        Assert.AreEqual(2, JobQueueEntry.Count(), 'Different number of job queues found.');
+
+        ParameterStrings[1] := JobQueueEntry."Parameter String";
+        JobQueueEntry.Next();
+        ParameterStrings[2] := JobQueueEntry."Parameter String";
+
+        Assert.AreNotEqual(ParameterStrings[1], ParameterStrings[2], 'The parameter strings are the same.');
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmPerDocProfileSelectionMethodStrMenuHandler,VerifyAndCancelSelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure VendorConfirmProfilePerDocAndCancelSending()
@@ -3127,6 +3188,66 @@ codeunit 139151 DocumentSendingPostTestsSMTP
         // [THEN] Send email dialog is shown for only "V2" vendor with document "D2" and "Sent To" = "gorbushka@microsoft.com"
         // Verify in EmailDialogHandlerNo
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    procedure VendorUseDefaultProfilePerDocAndSend40OrdersViaJobQueues()
+    var
+        PrintDocumentSendingProfile: Record "Document Sending Profile";
+        EmailDocumentSendingProfile: Record "Document Sending Profile";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        JobQueueEntry: Record "Job Queue Entry";
+        TempAccount: Record "Email Account" temporary;
+        EmailFeature: Codeunit "Library - Email Feature";
+        ConnectorMock: Codeunit "Connector Mock";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        ParameterStrings: Array[2] of Text[250];
+        i: Integer;
+    begin
+        // [FEATURE] [UI] [Vendor] [Purchase] [Order]
+        // Profile selection method "Use default profile per each document without confimation" for selected purchase orders for distinct vendors
+        Initialize();
+        JobQueueEntry.DeleteAll();
+        EmailFeature.SetEmailFeatureEnabled(true);
+        ConnectorMock.Initialize();
+        ConnectorMock.AddAccount(TempAccount);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Vendor "C2" with email "gorbushka@microsoft.com" and document seding profile "P2" (only email)
+        // [GIVEN] Create 80 purchase orders for the vendor with profile
+        EmailDocumentSendingProfile.Init();
+        EmailDocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
+        EmailDocumentSendingProfile.Default := true;
+        EmailDocumentSendingProfile."Combine Email Documents" := true;
+        EmailDocumentSendingProfile."E-Mail" := EmailDocumentSendingProfile."E-Mail"::"Yes (Use Default Settings)";
+        EmailDocumentSendingProfile.Insert(true);
+        CreateXPurchaseOrdersOneVendor(80, PurchaseHeader, Vendor, EmailDocumentSendingProfile);
+
+        // Mark only every other invoice
+        // The filtering in DocumentSendingProfile will create a short range filter otherwise
+        PurchaseHeader.FindSet();
+        i := 1;
+        repeat
+            PurchaseHeader.Mark((i mod 2) = 0);
+            i += 1;
+        until PurchaseHeader.Next() = 0;
+        PurchaseHeader.MarkedOnly(true);
+
+        // [GIVEN] Invoke "Send" action
+        Commit();
+        PurchaseHeader.SendProfile(EmailDocumentSendingProfile);
+
+        // [THEN] 2 Job Queue Entries queued to process with different parameter strings.
+        JobQueueEntry.SetRange("Object ID to Run", 260);
+        Assert.IsTrue(JobQueueEntry.FindSet(), 'No job queue entry queued.');
+        Assert.AreEqual(2, JobQueueEntry.Count(), 'Different number of job queues found.');
+
+        ParameterStrings[1] := JobQueueEntry."Parameter String";
+        JobQueueEntry.Next();
+        ParameterStrings[2] := JobQueueEntry."Parameter String";
+
+        Assert.AreNotEqual(ParameterStrings[1], ParameterStrings[2], 'The parameter strings are the same.');
     end;
 
     [Test]
@@ -3570,6 +3691,21 @@ codeunit 139151 DocumentSendingPostTestsSMTP
         SalesInvoiceHeader.MarkedOnly(true);
     end;
 
+    local procedure CreatePostXSalesInvoicesCustomer(NoOfInvoices: Integer; var SalesInvoiceHeader: Record "Sales Invoice Header"; var Customer: Record Customer; DocumentSendingProfile: Record "Document Sending Profile")
+    var
+        SalesHeader: Record "Sales Header";
+        i: Integer;
+        DocumentNo: Code[20];
+    begin
+        Customer.Get(CreateCustomerWithDocumentProfile(DocumentSendingProfile.Code));
+        for i := 1 to NoOfInvoices do begin
+            DocumentNo := CreatePostSalesDoc(SalesHeader."Document Type"::Invoice, true, true, Customer."No.");
+            SalesInvoiceHeader.Get(DocumentNo);
+            SalesInvoiceHeader.Mark(true);
+        end;
+        SalesInvoiceHeader.MarkedOnly(true);
+    end;
+
     local procedure CreatePostSevSalesCrMemos(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; "Count": Integer)
     var
         SalesHeader: Record "Sales Header";
@@ -3737,6 +3873,20 @@ codeunit 139151 DocumentSendingPostTestsSMTP
         for i := 1 to ArrayLen(Vendor) do begin
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor[i]."No.");
             DocumentNo[i] := PurchaseHeader."No.";
+            SelectedPurchaseHeader.Get(PurchaseHeader.RecordId);
+            SelectedPurchaseHeader.Mark(true);
+        end;
+        SelectedPurchaseHeader.MarkedOnly(true);
+    end;
+
+    local procedure CreateXPurchaseOrdersOneVendor(NoOfOrders: Integer; var SelectedPurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor; DocumentSendingProfile: Record "Document Sending Profile")
+    var
+        PurchaseHeader: Record "Purchase Header";
+        i: Integer;
+    begin
+        Vendor.Get(CreateVendorWithDocumentProfile(DocumentSendingProfile.Code));
+        for i := 1 to NoOfOrders do begin
+            LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
             SelectedPurchaseHeader.Get(PurchaseHeader.RecordId);
             SelectedPurchaseHeader.Mark(true);
         end;
@@ -3967,6 +4117,17 @@ codeunit 139151 DocumentSendingPostTestsSMTP
           StrPos(EmailDialog."Attachment Name".Value, DocumentNo) > 0,
           'Wrong attachment name - it doesnt contain the posted sales document number.');
 
+        EmailDialog.Cancel.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure EmailDialogHandlerNoMulti(var EmailDialog: TestPage "Email Dialog")
+    var
+        Email: Text;
+    begin
+        Email := LibraryVariableStorage.DequeueText();
+        EmailDialog.SendTo.AssertEquals(LibraryVariableStorage.DequeueText);
+        LibraryVariableStorage.Enqueue(Email);
         EmailDialog.Cancel.Invoke();
     end;
 

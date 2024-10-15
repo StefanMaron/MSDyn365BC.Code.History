@@ -1,4 +1,4 @@
-codeunit 130400 "CAL Test Runner"
+﻿codeunit 130400 "CAL Test Runner"
 {
     Subtype = TestRunner;
     TableNo = "CAL Test Line";
@@ -52,6 +52,7 @@ codeunit 130400 "CAL Test Runner"
         CALTestResult: Record "CAL Test Result";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
     begin
+        OnBeforeRunTests(CALTestLine);
         with CALTestLine do begin
             OpenWindow;
             ModifyAll(Result, Result::" ");
@@ -334,6 +335,11 @@ codeunit 130400 "CAL Test Runner"
             exit(true);
         end;
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunTests(var CALTestLine: Record "CAL Test Line")
+    begin
     end;
 }
 

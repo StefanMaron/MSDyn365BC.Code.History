@@ -201,7 +201,14 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     end;
 
     procedure SetPrice(AmountType: enum "Price Amount Type"; PriceListLine: Record "Price List Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPrice(PurchaseLine, PriceListLine, AmountType, IsHandled);
+        if IsHandled then
+            exit;
+
         case AmountType of
             AmountType::Price:
                 case CurrPriceType of
@@ -274,6 +281,11 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidatePrice(var PurchaseLine: Record "Purchase Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPrice(var PurchaseLine: Record "Purchase Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
     begin
     end;
 }
