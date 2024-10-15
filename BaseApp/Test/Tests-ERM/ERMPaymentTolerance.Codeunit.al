@@ -3139,9 +3139,9 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyCustEntriesOKPageHandler,ConfirmHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('ApplyCustEntriesOKPageHandler,ConfirmHandler,GeneralJournalTemplateListModalPageHandler,PaymentDiscToleranceWarningCheckNameHandler')]
     [Scope('OnPrem')]
-    procedure CheckNoPaymentToleranceWarningAfterLookUpApplToDocNoWhenZeroAmount()
+    procedure CheckPaymentToleranceWarningAfterLookUpApplToDocNoWhenZeroAmount()
     var
         GenJournalLine: array[2] of Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
@@ -3149,7 +3149,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         // [FEATURE] [Sales] [UI]
-        // [SCENARIO 269739] Payment Discount Tolerance Warning is not shown when Stan looks up "Applies-to Doc. No." for Customer when Amount of Gen. Journal Line is 0.
+        // [SCENARIO 400306] Payment Discount Tolerance Warning is shown when Stan looks up "Applies-to Doc. No." for Customer when Amount of Gen. Journal Line is 0.
         Initialize;
 
         // [GIVEN] Customer "C1" with Payment Tolerance Discount setup
@@ -3175,12 +3175,13 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Cash Receipt Page was open for Payment Gen. Journal Line
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal.GotoRecord(GenJournalLine[2]);
+        LibraryVariableStorage.Enqueue(GenJournalLine[2].Description);
 
         // [WHEN] Applies-to Doc. No. Lookup is used, selecting Invoice "SI1"
         CashReceiptJournal."Applies-to Doc. No.".Lookup;
-        // UI Handled by ApplyCustEntriesOKPageHandler
+        // UI Handled by ApplyCustEntriesOKPageHandler and PaymentDiscToleranceWarningCheckNameHandler
 
-        // [THEN] Payment Discount Tolerance Warning is not shown, Amount updates to -"A1".
+        // [THEN] Payment Discount Tolerance Warning is shown, Amount updates to -"A1".
         CashReceiptJournal.Amount.AssertEquals(-GenJournalLine[1].Amount);
 
         CashReceiptJournal.OK.Invoke;

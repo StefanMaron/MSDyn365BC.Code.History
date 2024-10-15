@@ -1185,20 +1185,44 @@
             ValidateTableRelation = false;
 
             trigger OnLookup()
+            var
+                CustomerName: Text;
             begin
-                LookupSellToCustomerName();
+                CustomerName := "Sell-to Customer Name";
+                LookupSellToCustomerName(CustomerName);
+                "Sell-to Customer Name" := CopyStr(CustomerName, 1, MaxStrLen("Sell-to Customer Name"));
             end;
 
             trigger OnValidate()
             var
                 Customer: Record Customer;
                 EnvInfoProxy: Codeunit "Env. Info Proxy";
+                LookupStateManager: Codeunit "Lookup State Manager";
+                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+                CustomerRecVariant: Variant;
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateSellToCustomerName(Rec, Customer, IsHandled);
-                if IsHandled then
+                if IsHandled then begin
+                    if LookupStateManager.IsRecordSaved() then
+                        LookupStateManager.ClearSavedRecord();
                     exit;
+                end;
+
+                if LookupStateManager.IsRecordSaved() then begin
+                    LookupStateManager.GetSavedRecord(CustomerRecVariant);
+                    Customer := CustomerRecVariant;
+                    if Customer."No." <> '' then begin
+                        LookupStateManager.ClearSavedRecord();
+                        Validate("Sell-to Customer No.", Customer."No.");
+
+                        GetShippingTime(FieldNo("Sell-to Customer Name"));
+                        if "No." <> '' then
+                            StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+                        exit;
+                    end;
+                end;
 
                 if not EnvInfoProxy.IsInvoicing and ShouldSearchForCustomerByName("Sell-to Customer No.") then
                     Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
@@ -3004,7 +3028,7 @@
         ModifyCustomerAddressNotificationLbl: Label 'Update the address';
         DontShowAgainActionLbl: Label 'Don''t show again';
         ModifyCustomerAddressNotificationMsg: Label 'The address you entered for %1 is different from the customer''s existing address.', Comment = '%1=customer name';
-        ValidVATNoMsg: Label 'The VAT registration number is valid.';
+        ValidVATNoMsg: Label 'The specified VAT registration number is valid.';
         InvalidVatRegNoMsg: Label 'The VAT registration number is not valid. Try entering the number again.';
         SellToCustomerTxt: Label 'Sell-to Customer';
         BillToCustomerTxt: Label 'Bill-to Customer';
@@ -6762,6 +6786,8 @@
                 StrSubstNo(Text024, FieldCaption("Prices Including VAT"), SalesLine.FieldCaption("Unit Price")), true);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced with LookupSellToCustomerName(var CustomerName: Text[100]): Boolean', '19.0')]
     procedure LookupSellToCustomerName(): Boolean
     var
         Customer: Record Customer;
@@ -6777,6 +6803,27 @@
             GetShippingTime(FieldNo("Sell-to Customer Name"));
             if "No." <> '' then
                 StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+            exit(true);
+        end;
+    end;
+#endif
+    procedure LookupSellToCustomerName(var CustomerName: Text): Boolean
+    var
+        Customer: Record Customer;
+        LookupStateManager: Codeunit "Lookup State Manager";
+        RecVariant: Variant;
+    begin
+        Customer.SetFilter("Date Filter", GetFilter("Date Filter"));
+        if "Sell-to Customer No." <> '' then
+            Customer.Get("Sell-to Customer No.");
+
+        if Customer.LookupCustomer(Customer) then begin
+            if Rec."Sell-to Customer Name" = Customer.Name then
+                CustomerName := ''
+            else
+                CustomerName := Customer.Name;
+            RecVariant := Customer;
+            LookupStateManager.SaveRecord(RecVariant);
             exit(true);
         end;
     end;

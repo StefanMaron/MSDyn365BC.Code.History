@@ -58,8 +58,7 @@ page 6640 "Purchase Return Order"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupBuyfromVendorName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupBuyFromVendorName(Text));
                     end;
                 }
                 group("Buy-from")
