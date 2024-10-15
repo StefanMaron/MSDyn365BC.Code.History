@@ -658,6 +658,7 @@
                 "Line No." := PrevLineNo + 10000;
                 "Invoice Rounding" := true;
                 "G/L Account No." := SalesLine."No.";
+                Description := SalesLine.Description;
 
                 CopyFromSalesLine(SalesLine);
                 "Gen. Bus. Posting Group" := SalesHeader."Gen. Bus. Posting Group";

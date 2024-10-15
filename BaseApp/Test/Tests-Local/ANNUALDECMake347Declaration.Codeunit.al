@@ -24,7 +24,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         IsInitialized: Boolean;
         ESTxt: Label 'ES';
         PTTxt: Label 'PT';
-        GBTxt: Label 'GB';
+        DETxt: Label 'DE';
         USTxt: Label 'US';
         IgnoreIn347ReportMessage: Label 'The account has entries and/or Balance. Changing the value of this field may cause inconsistencies report 347.';
         MissingTelephoneNumberError: Label 'Telephone Number must be 9 digits without spaces or special characters.';
@@ -192,8 +192,8 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // [SCENARIO] Invoice inside EU are not picked up in the 347 file
         Initialize;
 
-        // [GIVEN] An invoice has been posted for a vendor in GB
-        VendorNo := Library347Declaration.CreateVendorWithCountryCode(GBTxt);
+        // [GIVEN] An invoice has been posted for a vendor in DE
+        VendorNo := Library347Declaration.CreateVendorWithCountryCode(DETxt);
         AccountNo := Library347Declaration.CreateGLAccount;
 
         Amount := 3000 + LibraryRandom.RandDec(1000, 2);
@@ -1329,7 +1329,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     [Test]
     [HandlerFunctions('Make347DeclarationReportHandler')]
     [Scope('OnPrem')]
-    procedure TestWithShipToAddressPTCustomerGBShipToAddress()
+    procedure TestWithShipToAddressPTCustomerDEShipToAddress()
     var
         CustNo: Code[20];
         ShipToAddressCode: Code[10];
@@ -1337,7 +1337,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Initialize;
         CustNo :=
           Library347Declaration.CreateCustomerInPortugalWithPostCode(Library347Declaration.GetUniqueVATRegNo(PTTxt));
-        ShipToAddressCode := Library347Declaration.CreateShipToAddress(CustNo, GBTxt);
+        ShipToAddressCode := Library347Declaration.CreateShipToAddress(CustNo, DETxt);
         RunTestWithShipToAddress(CustNo, ShipToAddressCode, false);
     end;
 
@@ -1426,14 +1426,14 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     [Test]
     [HandlerFunctions('Make347DeclarationReportHandler')]
     [Scope('OnPrem')]
-    procedure TestWithOrderAddressPTVendorGBOrderAddress()
+    procedure TestWithOrderAddressPTVendorDEOrderAddress()
     var
         VendNo: Code[20];
         OrderAddressCode: Code[10];
     begin
         VendNo :=
           Library347Declaration.CreateVendorInPortugalWithPostCode(Library347Declaration.GetUniqueVATRegNo(PTTxt));
-        OrderAddressCode := Library347Declaration.CreateOrderAddress(VendNo, GBTxt);
+        OrderAddressCode := Library347Declaration.CreateOrderAddress(VendNo, DETxt);
         RunTestWithOrderAddress(VendNo, OrderAddressCode, false);
     end;
 

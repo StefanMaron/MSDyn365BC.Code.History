@@ -372,21 +372,7 @@
 
             trigger OnLookup()
             begin
-                if ("Bill-to Customer No." <> '') and Cont.Get("Bill-to Contact No.") then
-                    Cont.SetRange("Company No.", Cont."Company No.")
-                else
-                    if Cust.Get("Bill-to Customer No.") then begin
-                        if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Bill-to Customer No.") then
-                            Cont.SetRange("Company No.", ContBusinessRelation."Contact No.");
-                    end else
-                        Cont.SetFilter("Company No.", '<>%1', '''');
-
-                if "Bill-to Contact No." <> '' then
-                    if Cont.Get("Bill-to Contact No.") then;
-                if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
-                    xRec := Rec;
-                    Validate("Bill-to Contact No.", Cont."No.");
-                end;
+                BilltoContactLookup();
             end;
 
             trigger OnValidate()
@@ -1658,6 +1644,27 @@
         TimeSheetDetail.SetRange("Job No.", "No.");
         if not TimeSheetDetail.IsEmpty then
             TimeSheetDetail.ModifyAll("Job Id", SystemId);
+    end;
+
+    procedure BilltoContactLookup(): Boolean
+    begin
+        if ("Bill-to Customer No." <> '') and Cont.Get("Bill-to Contact No.") then
+            Cont.SetRange("Company No.", Cont."Company No.")
+        else
+            if Cust.Get("Bill-to Customer No.") then begin
+                if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Bill-to Customer No.") then
+                    Cont.SetRange("Company No.", ContBusinessRelation."Contact No.");
+            end else
+                Cont.SetFilter("Company No.", '<>%1', '''');
+
+        if "Bill-to Contact No." <> '' then
+            if Cont.Get("Bill-to Contact No.") then;
+        if Page.RunModal(0, Cont) = Action::LookupOK then begin
+            xRec := Rec;
+            Validate("Bill-to Contact No.", Cont."No.");
+            exit(true);
+        end;
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]

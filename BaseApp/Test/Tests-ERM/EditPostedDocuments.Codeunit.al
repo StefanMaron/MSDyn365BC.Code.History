@@ -5,6 +5,7 @@ codeunit 134658 "Edit Posted Documents"
 
     trigger OnRun()
     begin
+        // [FEATURE] [UI] [Update Document]
     end;
 
     var
@@ -14,6 +15,7 @@ codeunit 134658 "Edit Posted Documents"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
@@ -144,21 +146,24 @@ codeunit 134658 "Edit Posted Documents"
         // [FEATURE] [Purchase Invoice]
         // [SCENARIO 308913] Editable and non-editable fields on page "Posted Purch. Invoice - Update".
         Initialize();
+        LibraryLowerPermissions.SetO365Setup();
 
-        // [WHEN] Open "Posted Purch. Invoice - Update" page.
+        // [WHEN] Open "Posted Purch. Invoice - Update" page via PostedReturnShptUpdateGetEditablelModalPageHandler
         PostedPurchaseInvoice.OpenView;
         PostedPurchaseInvoice."Update Document".Invoke;
 
         // [THEN] Fields "No.", "Buy-from Vendor Name", "Posting Date" are not editable.
-        // [THEN] Fields "Payment Reference", "Creditor No.", "Ship-to Code" are editable.
+        // [THEN] Fields "Payment Reference", "Payment Method Code", "Creditor No.", "Ship-to Code" are editable.
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, '');
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
+        LibraryLowerPermissions.SetOutsideO365Scope();
     end;
 
     [Test]
@@ -167,12 +172,18 @@ codeunit 134658 "Edit Posted Documents"
     procedure PostedPurchInvoiceUpdateSetValuesCancel()
     var
         PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvHeaderNew: Record "Purch. Inv. Header";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
         // [FEATURE] [Purchase Invoice]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Purch. Invoice - Update" modal page.
         Initialize();
-        PrepareValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeader);
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
+
+        PurchInvHeader.Get(CreateAndPostPurchaseInvoiceWithSellToCustomer(LibrarySales.CreateCustomerNo));
+        PurchInvHeaderNew := PurchInvHeader;
+        PrepareValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeaderNew);
 
         // [GIVEN] Opened "Posted Purch. Invoice - Update" page.
         // [GIVEN] New values are set for editable fields.
@@ -181,45 +192,9 @@ codeunit 134658 "Edit Posted Documents"
         PostedPurchaseInvoice.FILTER.SetFilter("No.", PurchInvHeader."No.");
         PostedPurchaseInvoice."Update Document".Invoke;
 
-        // [WHEN] Press Cancel on the page.
+        // [WHEN] Press Cancel on the page via PostedPurchInvoiceUpdateCancelModalPageHandler
 
-        // [THEN] Values of these fields in Purch. Inv. Header were not changed.
-        Assert.AreNotEqual(PurchInvHeader."Payment Reference", PostedPurchaseInvoice."Payment Reference".Value, '');
-        Assert.AreNotEqual(PurchInvHeader."Creditor No.", PostedPurchaseInvoice."Creditor No.".Value, '');
-        Assert.AreNotEqual(PurchInvHeader."Ship-to Code", PostedPurchaseInvoice."Ship-to Code".Value, '');
-        Assert.AreNotEqual(Format(PurchInvHeader."Special Scheme Code"), PostedPurchaseInvoice."Special Scheme Code".Value, '');
-        Assert.AreNotEqual(Format(PurchInvHeader."Invoice Type"), PostedPurchaseInvoice."Invoice Type".Value, '');
-        Assert.AreNotEqual(Format(PurchInvHeader."ID Type"), PostedPurchaseInvoice."ID Type".Value, '');
-        Assert.AreNotEqual(PurchInvHeader."Succeeded Company Name", PostedPurchaseInvoice."Succeeded Company Name".Value, '');
-        Assert.AreNotEqual(
-          PurchInvHeader."Succeeded VAT Registration No.", PostedPurchaseInvoice."Succeeded VAT Registration No.".Value, '');
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedPurchInvoiceUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure PostedPurchInvoiceUpdateSetValuesOK()
-    var
-        PurchInvHeader: Record "Purch. Inv. Header";
-        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
-    begin
-        // [FEATURE] [Purchase Invoice]
-        // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Purch. Invoice - Update" modal page.
-        Initialize();
-        PrepareValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeader);
-
-        // [GIVEN] Opened "Posted Purch. Invoice - Update" page.
-        // [GIVEN] New values are set for editable fields.
-        EnqueValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeader);
-        PostedPurchaseInvoice.OpenView;
-        PostedPurchaseInvoice.FILTER.SetFilter("No.", PurchInvHeader."No.");
-        PostedPurchaseInvoice."Update Document".Invoke;
-
-        // [WHEN] Press OK on the page.
-
-        // [THEN] Values of these fields in Purch. Inv. Header were changed.
+        // [THEN] Values of these fields in Purch. Inv. Header were not changed to new values.
         Assert.AreEqual(PurchInvHeader."Payment Reference", PostedPurchaseInvoice."Payment Reference".Value, '');
         Assert.AreEqual(PurchInvHeader."Creditor No.", PostedPurchaseInvoice."Creditor No.".Value, '');
         Assert.AreEqual(PurchInvHeader."Ship-to Code", PostedPurchaseInvoice."Ship-to Code".Value, '');
@@ -230,7 +205,65 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(
           PurchInvHeader."Succeeded VAT Registration No.", PostedPurchaseInvoice."Succeeded VAT Registration No.".Value, '');
 
-        LibraryVariableStorage.AssertEmpty;
+        PostedPurchaseInvoice.Close;
+        PurchInvHeader.Get(PurchInvHeader."No.");
+        Assert.AreNotEqual(PurchInvHeaderNew."Payment Reference", PurchInvHeader."Payment Reference", '');
+        Assert.AreNotEqual(PurchInvHeaderNew."Payment Method Code", PurchInvHeader."Payment Method Code", '');
+        Assert.AreNotEqual(PurchInvHeaderNew."Creditor No.", PurchInvHeader."Creditor No.", '');
+        Assert.AreNotEqual(PurchInvHeaderNew."Ship-to Code", PurchInvHeader."Ship-to Code", '');
+
+        LibraryVariableStorage.AssertEmpty();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchInvoiceUpdateOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedPurchInvoiceUpdateSetValuesOK()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvHeaderNew: Record "Purch. Inv. Header";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [FEATURE] [Purchase Invoice]
+        // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Purch. Invoice - Update" modal page.
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
+
+        PurchInvHeader.Get(CreateAndPostPurchaseInvoiceWithSellToCustomer(LibrarySales.CreateCustomerNo));
+        PurchInvHeaderNew := PurchInvHeader;
+        PrepareValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeaderNew);
+
+        // [GIVEN] Opened "Posted Purch. Invoice - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        EnqueValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeaderNew);
+        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.FILTER.SetFilter("No.", PurchInvHeader."No.");
+        PostedPurchaseInvoice."Update Document".Invoke;
+
+        // [WHEN] Press OK on the page via PostedPurchInvoiceUpdateOKModalPageHandler
+
+        // [THEN] Values of these fields in Purch. Inv. Header were changed to new values.
+        Assert.AreEqual(PurchInvHeaderNew."Payment Reference", PostedPurchaseInvoice."Payment Reference".Value, '');
+        Assert.AreEqual(PurchInvHeaderNew."Creditor No.", PostedPurchaseInvoice."Creditor No.".Value, '');
+        Assert.AreEqual(PurchInvHeaderNew."Ship-to Code", PostedPurchaseInvoice."Ship-to Code".Value, '');
+        Assert.AreEqual(Format(PurchInvHeaderNew."Special Scheme Code"), PostedPurchaseInvoice."Special Scheme Code".Value, '');
+        Assert.AreEqual(Format(PurchInvHeaderNew."Invoice Type"), PostedPurchaseInvoice."Invoice Type".Value, '');
+        Assert.AreEqual(Format(PurchInvHeaderNew."ID Type"), PostedPurchaseInvoice."ID Type".Value, '');
+        Assert.AreEqual(PurchInvHeaderNew."Succeeded Company Name", PostedPurchaseInvoice."Succeeded Company Name".Value, '');
+        Assert.AreEqual(
+          PurchInvHeaderNew."Succeeded VAT Registration No.", PostedPurchaseInvoice."Succeeded VAT Registration No.".Value, '');
+
+        PostedPurchaseInvoice.Close;
+        PurchInvHeader.Get(PurchInvHeader."No.");
+        PurchInvHeader.TestField("Payment Reference", PurchInvHeaderNew."Payment Reference");
+        PurchInvHeader.TestField("Payment Method Code", PurchInvHeaderNew."Payment Method Code");
+        PurchInvHeader.TestField("Creditor No.", PurchInvHeaderNew."Creditor No.");
+        PurchInvHeader.TestField("Ship-to Code", PurchInvHeaderNew."Ship-to Code");
+
+        LibraryVariableStorage.AssertEmpty();
+        LibraryLowerPermissions.SetOutsideO365Scope();
     end;
 
     [Test]
@@ -564,6 +597,7 @@ codeunit 134658 "Edit Posted Documents"
     local procedure EnqueValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeader: Record "Purch. Inv. Header")
     begin
         LibraryVariableStorage.Enqueue(PurchInvHeader."Payment Reference");
+        LibraryVariableStorage.Enqueue(PurchInvHeader."Payment Method Code");
         LibraryVariableStorage.Enqueue(PurchInvHeader."Creditor No.");
         LibraryVariableStorage.Enqueue(PurchInvHeader."Ship-to Code");
         LibraryVariableStorage.Enqueue(PurchInvHeader."Special Scheme Code");
@@ -621,21 +655,17 @@ codeunit 134658 "Edit Posted Documents"
     local procedure PrepareValuesForEditableFieldsPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header")
     var
         ShipToAddress: Record "Ship-to Address";
-        Customer: Record Customer;
+        PaymentMethod: Record "Payment Method";
         PaymentReference: Code[50];
-        PostedPurchaseInvoiceNo: Code[20];
     begin
-        LibrarySales.CreateCustomer(Customer);
-        PostedPurchaseInvoiceNo := CreateAndPostPurchaseInvoiceWithSellToCustomer(Customer."No.");
         PaymentReference :=
           CopyStr(
             LibraryUtility.GenerateRandomNumericText(MaxStrLen(PurchInvHeader."Payment Reference")), 1,
             MaxStrLen(PurchInvHeader."Payment Reference"));
-        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
-
-        PurchInvHeader."No." := PostedPurchaseInvoiceNo;
-        PurchInvHeader."Sell-to Customer No." := Customer."No.";
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        LibrarySales.CreateShipToAddress(ShipToAddress, PurchInvHeader."Sell-to Customer No.");
         PurchInvHeader."Payment Reference" := PaymentReference;
+        PurchInvHeader."Payment Method Code" := PaymentMethod.Code;
         PurchInvHeader."Creditor No." := LibraryUtility.GenerateGUID;
         PurchInvHeader."Ship-to Code" := ShipToAddress.Code;
         PurchInvHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
@@ -749,6 +779,7 @@ codeunit 134658 "Edit Posted Documents"
     procedure PostedPurchInvoiceUpdateOKModalPageHandler(var PostedPurchInvoiceUpdate: TestPage "Posted Purch. Invoice - Update")
     begin
         PostedPurchInvoiceUpdate."Payment Reference".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Payment Method Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Creditor No.".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Ship-to Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
@@ -764,6 +795,7 @@ codeunit 134658 "Edit Posted Documents"
     procedure PostedPurchInvoiceUpdateCancelModalPageHandler(var PostedPurchInvoiceUpdate: TestPage "Posted Purch. Invoice - Update")
     begin
         PostedPurchInvoiceUpdate."Payment Reference".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchInvoiceUpdate."Payment Method Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Creditor No.".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Ship-to Code".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
@@ -782,6 +814,7 @@ codeunit 134658 "Edit Posted Documents"
         LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Buy-from Vendor Name".Editable);
         LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Posting Date".Editable);
         LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Payment Reference".Editable);
+        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Payment Method Code".Editable);
         LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Creditor No.".Editable);
         LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Ship-to Code".Editable);
         PostedPurchInvoiceUpdate.Cancel.Invoke;

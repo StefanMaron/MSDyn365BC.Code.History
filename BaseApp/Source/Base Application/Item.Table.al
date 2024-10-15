@@ -2683,6 +2683,7 @@
         InvtSetup.TestField("Item Nos.");
         if NoSeriesMgt.SelectSeries(InvtSetup."Item Nos.", xRec."No. Series", "No. Series") then begin
             NoSeriesMgt.SetSeries("No.");
+            Validate("No.");
             exit(true);
         end;
     end;
