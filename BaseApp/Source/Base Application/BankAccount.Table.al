@@ -943,6 +943,7 @@
         Name := CompanyInformation."Bank Name";
         IBAN := CompanyInformation.IBAN;
         "SWIFT Code" := CompanyInformation."SWIFT Code";
+        OnAfterCopyBankFieldsFromCompanyInfo(Rec, CompanyInformation);
     end;
 
     procedure GetPaymentExportCodeunitID(): Integer
@@ -1444,6 +1445,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsUpdateNeeded(BankAccount: Record "Bank Account"; xBankAccount: Record "Bank Account"; var UpdateNeeded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyBankFieldsFromCompanyInfo(var BankAccount: Record "Bank Account"; CompanyInformation: Record "Company Information")
     begin
     end;
 

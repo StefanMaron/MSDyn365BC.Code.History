@@ -327,6 +327,8 @@ page 379 "Bank Acc. Reconciliation"
                     var
                         BankAccRecTestRepVisible: Codeunit "Bank Acc.Rec.Test Rep. Visible";
                     begin
+                        // To configure the report and log troubleshooting telemetry we bind subscribers.
+                        // the report is not directly configurable since it uses ReportSelections
                         BindSubscription(BankAccRecTestRepVisible);
                         ReportPrint.PrintBankAccRecon(Rec);
                     end;
@@ -354,7 +356,10 @@ page 379 "Bank Acc. Reconciliation"
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
+                    var
+                        BankAccRecTestRepVisible: Codeunit "Bank Acc.Rec.Test Rep. Visible";
                     begin
+                        BindSubscription(BankAccRecTestRepVisible);
                         CODEUNIT.Run(CODEUNIT::"Bank Acc. Recon. Post+Print", Rec);
                         CurrPage.Update(false);
                         RefreshSharedTempTable();
@@ -454,7 +459,11 @@ page 379 "Bank Acc. Reconciliation"
     end;
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000JLL', Rec.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000JM9', Rec.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::"Set up");
         CreateEmptyListNotification();
         RemoveCurrentReconciliationOnClosed := false;
 
@@ -594,8 +603,11 @@ page 379 "Bank Acc. Reconciliation"
         TempBankAccountLedgerEntry.SetFilter("Statement No.", '<> %1 & <> ''''', Rec."Statement No.");
         if TempBankAccountLedgerEntry.IsEmpty() then
             ReturnValue := true
-        else
+        else begin
             ReturnValue := Confirm(ModifyBankAccLedgerEntriesForModificationQst, false);
+            if ReturnValue then
+                Session.LogMessage('0000JLM', '', Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', Rec.GetBankReconciliationTelemetryFeatureName());
+        end;
 
         TempBankAccountLedgerEntry.SetRange("Statement No.");
         TempBankAccountLedgerEntry.FindSet();

@@ -55,7 +55,13 @@
 
                     trigger OnValidate()
                     begin
+                        Rec.SelltoCustomerNoOnAfterValidate(Rec, xRec);
                         CurrPage.Update();
+                    end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 group("Sell-to")
@@ -353,13 +359,19 @@
                             ApplicationArea = Jobs;
                             Importance = Promoted;
                             ToolTip = 'Specifies the name of the customer who pays for the job.';
-                            Editable = BillToOptions = BillToOptions::"Another Customer";
-                            Enabled = BillToOptions = BillToOptions::"Another Customer";
+                            Editable = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
+                            Enabled = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
                             NotBlank = true;
 
                             trigger OnValidate()
                             begin
-                                CurrPage.Update();
+                                if not ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName) then begin
+                                    if Rec.GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
+                                        if Rec."Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                                            Rec.SetRange("Bill-to Customer No.");
+
+                                    CurrPage.Update();
+                                end;
                             end;
                         }
                         field("Bill-to Address"; Rec."Bill-to Address")
@@ -1749,8 +1761,16 @@
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        if GuiAllowed() then
+            SetControlVisibility();
+    end;
+
     trigger OnAfterGetRecord()
     begin
+        if GuiAllowed() then
+            SetControlVisibility();
         UpdateShipToBillToGroupVisibility();
         SellToContact.GetOrClear(Rec."Sell-to Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
@@ -1778,6 +1798,7 @@
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         BillToInformationEditable: Boolean;
+        ShouldSearchForCustByName: Boolean;
 
     protected var
         SellToContact: Record Contact;
@@ -1829,5 +1850,10 @@
         BillToInformationEditable :=
             (BillToOptions = BillToOptions::"Custom Address") OR
             (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
+    end;
+
+    local procedure SetControlVisibility()
+    begin
+        ShouldSearchForCustByName := Rec.ShouldSearchForCustomerByName(Rec."Sell-to Customer No.");
     end;
 }

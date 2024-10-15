@@ -1111,6 +1111,7 @@ table 1382 "Item Templ."
     begin
         CopyTemplate(SourceItemTempl);
         CopyDimensions(SourceItemTempl);
+        OnAfterCopyFromTemplate(SourceItemTempl, Rec);
     end;
 
     local procedure CopyTemplate(SourceItemTempl: Record "Item Templ.")
@@ -1121,6 +1122,7 @@ table 1382 "Item Templ."
         TransferFields(SourceItemTempl, false);
         Code := SavedItemTempl.Code;
         Description := SavedItemTempl.Description;
+        OnCopyTemplateOnBeforeModify(SourceItemTempl, SavedItemTempl, Rec);
         Modify();
     end;
 
@@ -1183,5 +1185,15 @@ table 1382 "Item Templ."
             else
                 SrcFieldRef.Value := DestFieldRef.Value;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromTemplate(SourceItemTempl: Record "Item Templ."; var ItemTempl: Record "Item Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyTemplateOnBeforeModify(SourceItemTempl: Record "Item Templ."; SavedItemTempl: Record "Item Templ."; var ItemTempl: Record "Item Templ.")
+    begin
     end;
 }

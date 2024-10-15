@@ -198,7 +198,13 @@ page 1702 "Deferral Schedule"
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitForm(Rec, DisplayDeferralDocType, DisplayGenJnlTemplateName, DisplayGenJnlBatchName, DisplayDocumentType, DisplayDocumentNo, DisplayLineNo, PostingDate, StartDateCalcMethod, IsHandled);
+        if IsHandled then
+            exit;
+
         Get(DisplayDeferralDocType, DisplayGenJnlTemplateName, DisplayGenJnlBatchName, DisplayDocumentType, DisplayDocumentNo, DisplayLineNo);
 
         DeferralTemplate.Get("Deferral Code");
@@ -220,6 +226,11 @@ page 1702 "Deferral Schedule"
                     PostingDate := PurchaseHeader."Posting Date";
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitForm(var DeferralHeader: Record "Deferral Header"; DisplayDeferralDocType: Enum "Deferral Document Type"; DisplayGenJnlTemplateName: Code[10]; DisplayGenJnlBatchName: Code[10]; DisplayDocumentType: Integer; DisplayDocumentNo: Code[20]; DisplayLineNo: Integer; var PostingDate: Date; var StartDateCalcMethod: Text; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

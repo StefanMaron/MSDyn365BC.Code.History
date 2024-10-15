@@ -869,7 +869,7 @@
                   "Unit Price",
                   Round(
                     InvoiceRoundingAmount /
-                    (1 + (1 - SalesHeader."VAT Base Discount %" / 100) * "VAT %" / 100),
+                    (1 + (1 - SalesLine.GetVatBaseDiscountPct(SalesHeader) / 100) * "VAT %" / 100),
                     Currency."Amount Rounding Precision"));
             "Prepayment Amount" := "Unit Price";
             Validate("Amount Including VAT", InvoiceRoundingAmount);
@@ -1035,7 +1035,7 @@
                                   Round(VATAmount, Currency."Amount Rounding Precision");
                                 NewVATBaseAmount :=
                                   Round(
-                                    NewAmount * (1 - SalesHeader."VAT Base Discount %" / 100),
+                                    NewAmount * (1 - SalesLine.GetVatBaseDiscountPct(SalesHeader) / 100),
                                     Currency."Amount Rounding Precision");
                             end else begin
                                 if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then begin
@@ -1046,7 +1046,7 @@
                                     NewAmount := PrepmtAmt;
                                     NewVATBaseAmount :=
                                       Round(
-                                        NewAmount * (1 - SalesHeader."VAT Base Discount %" / 100),
+                                        NewAmount * (1 - SalesLine.GetVatBaseDiscountPct(SalesHeader) / 100),
                                         Currency."Amount Rounding Precision");
                                     if VATAmountLine."VAT Base" = 0 then
                                         VATAmount := 0
@@ -1103,6 +1103,7 @@
         Currency: Record Currency;
         NewAmount: Decimal;
         NewPrepmtVATDiffAmt: Decimal;
+        IsHandled: Boolean;
     begin
         GLSetup.GetRecordOnce();
         Currency.Initialize(SalesHeader."Currency Code");
@@ -1140,9 +1141,12 @@
                 until Next() = 0;
         end;
 
-        VATAmountLine.UpdateLines(
-          NewAmount, Currency, SalesHeader."Currency Factor", SalesHeader."Prices Including VAT",
-          SalesHeader."VAT Base Discount %", SalesHeader."Tax Area Code", SalesHeader."Tax Liable", SalesHeader."Posting Date");
+        IsHandled := false;
+        OnCalcVATAmountLinesOnBeforeUpdateLines(NewAmount, Currency, SalesHeader, IsHandled);
+        if not IsHandled then
+            VATAmountLine.UpdateLines(
+              NewAmount, Currency, SalesHeader."Currency Factor", SalesHeader."Prices Including VAT",
+              SalesLine.GetVatBaseDiscountPct(SalesHeader), SalesHeader."Tax Area Code", SalesHeader."Tax Liable", SalesHeader."Posting Date");
 
         OnAfterCalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, DocumentType, Currency);
     end;
@@ -2023,6 +2027,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesTaxOnLines(var SalesLine: Record "Sales Line"; var ValidTaxAreaCode: Boolean; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeUpdateLines(var NewAmount: Decimal; Currency: Record Currency; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

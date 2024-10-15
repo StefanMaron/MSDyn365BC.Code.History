@@ -280,6 +280,8 @@ codeunit 10090 "Export Payments (ACH)"
                             Error(InvalidPaymentSpecErr,
                               FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), Vendor.TableCaption(), Customer.TableCaption());
 
+            OnExportElectronicPaymentOnAfterSetAccountTypeAndNo(GenJnlLine, AcctType, AcctNo);
+
             if AcctType = 'V' then begin
                 CheckVendorTransitNum(GenJnlLine, AcctNo, Vendor, VendorBankAcct, true);
                 AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
@@ -306,6 +308,8 @@ codeunit 10090 "Export Payments (ACH)"
                     TransitNo := CustBankAcct."Transit No.";
                     BankAcctNo := CustBankAcct."Bank Account No.";
                 end;
+
+            OnExportElectronicPaymentOnAfterSetTransitAndBankAccountNo(GenJnlLine, AcctType, TransitNo, BankAcctNo);
 
             TraceNo := TraceNo + 1;
             DetailRec := '';
@@ -487,7 +491,13 @@ codeunit 10090 "Export Payments (ACH)"
     var
         I: Integer;
         SubStrLen: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddToPrnString(PrnString, SubString, StartPos, Length, Justification, Filler, IsHandled);
+        if IsHandled then
+            exit;
+
         SubString := UpperCase(DelChr(SubString, '<>', ' '));
         SubStrLen := StrLen(SubString);
 
@@ -681,6 +691,11 @@ codeunit 10090 "Export Payments (ACH)"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddToPrnString(var PrnString: Text[251]; SubString: Text[250]; StartPos: Integer; Length: Integer; Justification: Option Left,Right; Filler: Text[1]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAddTransactionCodeToDetailRec(CustomerBankAccount: Record "Customer Bank Account"; VendorBankAccount: Record "Vendor Bank Account"; AcctType: Text[1]; DemandCredit: Boolean; var DetailRec: Text[250]; var IsHandled: Boolean)
     begin
     end;
@@ -702,6 +717,17 @@ codeunit 10090 "Export Payments (ACH)"
 
     [IntegrationEvent(false, false)]
     local procedure OnExportElectronicPaymentOnAfterExportPrnString(VendorBankAccount: Record "Vendor Bank Account"; var DetailRec: Text[250]; var ExportFile: File; var NoOfRec: Integer; RecordLength: Integer)
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportElectronicPaymentOnAfterSetAccountTypeAndNo(GenJournalLine: Record "Gen. Journal Line"; var AcctType: Text[1]; var AcctNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportElectronicPaymentOnAfterSetTransitAndBankAccountNo(GenJournalLine: Record "Gen. Journal Line"; AcctType: Text[1]; var TransitNo: Text[20]; var BankAcctNo: Text[30])
     begin
     end;
 

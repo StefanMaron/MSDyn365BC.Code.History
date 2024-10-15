@@ -514,7 +514,14 @@ page 10120 "Bank Rec. Worksheet"
         Text001: Label 'Do you want to recalculate the G/L Balance from the General Ledger?';
 
     procedure SetupRecord()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetupRecord(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SetRange("Date Filter", "Statement Date");
         CalcFields("Positive Adjustments",
           "Negative Adjustments",
@@ -570,6 +577,11 @@ page 10120 "Bank Rec. Worksheet"
     begin
         TempBankAccReconciliationDataset.DeleteAll();
         BankAccReconciliation.GetTempCopyFromBankRecHeader(TempBankAccReconciliationDataset);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetupRecord(var BankRecHeader: Record "Bank Rec. Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -319,6 +319,7 @@
         ForceCheckBalance: Boolean;
         IsProcessingKeySet: Boolean;
         IsHandled: Boolean;
+        ShouldCheckDocNoBasedOnNoSeries: Boolean;
     begin
         IsProcessingKeySet := false;
         OnBeforeProcessBalanceOfLines(GenJnlLine, GenJnlBatch, GenJnlTemplate, IsProcessingKeySet);
@@ -346,7 +347,9 @@
                 UpdateDialog(RefPostingState::"Checking balance", LineCount, NoOfRecords);
 
                 if not EmptyLine() then begin
-                    if not PreviewMode then
+                    ShouldCheckDocNoBasedOnNoSeries := not PreviewMode;
+                    OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(GenJnlLine, GenJnlBatch, ShouldCheckDocNoBasedOnNoSeries);
+                    if ShouldCheckDocNoBasedOnNoSeries then
                         CheckDocNoBasedOnNoSeries(LastDocNo, GenJnlBatch."No. Series", NoSeriesMgt);
                     if "Posting No. Series" <> '' then
                         TestField("Posting No. Series", GenJnlBatch."Posting No. Series");
@@ -1306,7 +1309,7 @@
                 OldVATAmount := GenJnlLine2."VAT Amount";
                 OldVATPct := GenJnlLine2."VAT %";
                 OnUpdateAndDeleteLinesOnBeforeUpdatePostingDate(GenJnlLine2);
-                if GenJnlLine2."Posting Date" <> 0D then
+                if ShouldUpdateRecurringGenJournalLinePostingDate(GenJnlLine2) then
                     GenJnlLine2.Validate(
                       "Posting Date", CalcDate(GenJnlLine2."Recurring Frequency", GenJnlLine2."Posting Date"));
                 if not
@@ -1359,6 +1362,20 @@
                 end;
             end;
         end;
+    end;
+
+    local procedure ShouldUpdateRecurringGenJournalLinePostingDate(var GenJournalLine: Record "Gen. Journal Line"): Boolean
+    begin
+        if GenJournalLine."Posting Date" = 0D then
+            exit(false);
+
+        if not IsNotExpired(GenJournalLine) then
+            exit(false);
+
+        if not IsPostingDateAllowed(GenJournalLine) then
+            exit(false);
+
+        exit(true);
     end;
 
     [Scope('OnPrem')]
@@ -1461,7 +1478,6 @@
         if IsHandled then
             exit;
 
-        GenJnlCheckLine.CheckVATDateAllowed(GenJnlLine."VAT Reporting Date");
         GenJournalLineToUpdate.Copy(GenJnlLine);
         CheckRecurringLine(GenJournalLineToUpdate);
         IsModified := UpdateRecurringAmt(GenJournalLineToUpdate);
@@ -1999,6 +2015,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostReversingLinesOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; var ShouldCheckDocNoBasedOnNoSeries: Boolean)
     begin
     end;
 

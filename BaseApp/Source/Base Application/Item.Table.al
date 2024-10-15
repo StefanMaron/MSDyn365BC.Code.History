@@ -3081,9 +3081,10 @@
         OnAfterIsMfgItem(Rec, Result);
     end;
 
-    procedure IsAssemblyItem(): Boolean
+    procedure IsAssemblyItem() Result: Boolean
     begin
-        exit("Replenishment System" = "Replenishment System"::Assembly);
+        Result := Rec."Replenishment System" = Rec."Replenishment System"::Assembly;
+        OnAfterIsAssemblyItem(Rec, Result);
     end;
 
     procedure HasBOM(): Boolean
@@ -3965,6 +3966,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsMfgItem(Item: Record Item; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAssemblyItem(Item: Record Item; var Result: Boolean)
     begin
     end;
 

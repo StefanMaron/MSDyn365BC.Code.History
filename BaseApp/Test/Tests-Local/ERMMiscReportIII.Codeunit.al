@@ -188,6 +188,7 @@ codeunit 142062 "ERM Misc. Report III"
         IsInitialized: Boolean;
         FieldMustBeVisibleInAreaErr: Label 'Field %1 must be visible in %2.';
         TestFieldNotFoundErr: Label 'TestFieldNotFound';
+        RemitAddressShouldExistErr: Label 'Remit Address Name should exist in the Positive Pay Export File.';
 
     [Test]
     [HandlerFunctions('PaymentJournalTestRequestPageHandler')]
@@ -1790,8 +1791,181 @@ codeunit 142062 "ERM Misc. Report III"
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         PaymentJournal.PrintCheck.Invoke();
 
-        // [VERIFY] ZIP Code On Report
-        VerifyZipCodeOnReport(RemitAddress."Post Code");
+        // [VERIFY] Verify: Remit Address including Zip Code on Check Report
+        VerifyZipCodeOnReport(RemitAddress);
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintCheckStubStubReqPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ValidateRemitAddressNameOnBankAccountPositivePayExport()
+    var
+        Vendor: Record Vendor;
+        RemitAddress: Record "Remit Address";
+        GenJournalLine: Record "Gen. Journal Line";
+        ReportSelections: Record "Report Selections";
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        PositivePayEntry: Record "Positive Pay Entry";
+        LibraryPaymentExport: Codeunit "Library - Payment Export";
+        ExpLauncherPosPay: Codeunit "Exp. Launcher Pos. Pay";
+        PaymentJournal: TestPage "Payment Journal";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO 461669] Positive Pay is not taking the Remit Address when exporting the file, it is still getting the vendor information instead of the Remit Address even if we indicate the remit to code (Remit Adress) on the payment journal.
+        Initialize();
+
+        // [GIVEN] Vendor Exist with Remit Address as Default
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, Vendor."No.");
+        RemitAddress.Validate(Name, LibraryUtility.GenerateRandomAlphabeticText(LibraryRandom.RandInt(20), 1));
+        RemitAddress.Validate(Default, true);
+        RemitAddress.Modify();
+
+        // [GIVEN] Bank Export/Import Setup used Data Exchange Definition of type "Positive Pay Export"
+        LibraryPaymentExport.CreateBankExportImportSetup(
+            BankExportImportSetup,
+            FindPositivePayExportDataExchDef(DataExchLineDef."Line Type"::Detail));
+        BankExportImportSetup.Validate(Direction, BankExportImportSetup.Direction::"Export-Positive Pay");
+        BankExportImportSetup.Modify(true);
+
+        // [GIVEN] Bank Account to use the Bank Export/Import Code
+        BankAccountNo := CreateBankAccount(BankExportImportSetup.Code);
+        CreateGenJournalLineWithWithExportImportBankAccount(
+            GenJournalLine, "Gen. Journal Document Type"::Payment,
+            "Gen. Journal Account Type"::Vendor,
+            Vendor."No.",
+            LibraryRandom.RandDec(500, 0),
+            "Bank Payment Type"::"Computer Check",
+            BankAccountNo);
+        GenJournalLine.Validate("Remit-to Code", RemitAddress.Code);
+        GenJournalLine.Modify();
+
+        // [GIVEN] Report 10412 is set as report for Check
+        ReportSelections.Get(ReportSelections.Usage::"B.Check", 1);
+        ReportSelections.Validate("Report ID", REPORT::"Check (Check/Stub/Stub)");
+        ReportSelections.Modify();
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(false);
+        Commit();
+
+        // [GIVEN] Check printed from Payment Journal page
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.PrintCheck.Invoke();
+        PaymentJournal.Post.Invoke();
+
+        // [WHEN] Export Positive Pay
+        FilterCheckLedgerEntry(CheckLedgerEntry, BankAccountNo);
+        ExpLauncherPosPay.PositivePayProcess(CheckLedgerEntry, false);
+        CheckLedgerEntry.FindFirst();
+
+        // [THEN] Exported file contain a line with the Remit Address Name as Description
+        GetPositivePayExportedFile(PositivePayEntry, BankAccountNo);
+
+        // [VERIFY] Verify: Description Exists in Exported Positive Payment File based on Remit Address Name
+        Assert.IsTrue(CheckRemitAddressNameExistsInFileDetailLine(PositivePayEntry, RemitAddress.Name), RemitAddressShouldExistErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintStubCheckStubReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyZIPCodeInRemitAddressOnPrintedVendorCheckWhenUsingReportStubCheckStub()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        ReportSelections: Record "Report Selections";
+        Vendor: Record Vendor;
+        RemitAddress: Record "Remit Address";
+        PaymentJournal: TestPage "Payment Journal";
+        FormatAddress: Codeunit "Format Address";
+        CheckToAddr: array[8] of Text[100];
+    begin
+        // [SCENARIO 464069] ZIP code on the "Remit to" address is not showing on the printed vendor's check when using NA check report layouts other than 10412
+        Initialize();
+
+        // [GIVEN] Vendor Exist with Remit Address as Default
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, Vendor."No.");
+        RemitAddress.Validate(Default, true);
+        RemitAddress.Modify();
+
+        // [GIVEN] Create Payment Journal With "Remit-to Code" for Vendor 
+        CreateGenJournalLineWithBankAccount(GenJournalLine, "Gen. Journal Document Type"::Payment, "Gen. Journal Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(500, 0), "Bank Payment Type"::"Computer Check");
+        GenJournalLine.Validate("Remit-to Code", RemitAddress.Code);
+        GenJournalLine.Modify();
+
+        // [GIVEN] Report 10412 is set as report for Check
+        ReportSelections.Get(ReportSelections.Usage::"B.Check", 1);
+        ReportSelections.Validate("Report ID", Report::"Check (Stub/Check/Stub)");
+        ReportSelections.Modify();
+
+        // [GIVEN] Select Bank Account and Last Check No On Report
+        BankAccount.Get(GenJournalLine."Bal. Account No.");
+        BankAccount.Validate("Last Check No.", Format(LibraryRandom.RandInt(10000)));
+        BankAccount.Modify();
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit();
+
+        // [WHEN] Check printed from Payment Journal page
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.PrintCheck.Invoke();
+
+        // [VERIFY] Verify: Remit Address including Zip Code on Check Report
+        VerifyZipCodeOnReport(RemitAddress);
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintStubStubCheckReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyZIPCodeInRemitAddressOnPrintedVendorCheckWhenUsingReportStubStubCheck()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        ReportSelections: Record "Report Selections";
+        Vendor: Record Vendor;
+        RemitAddress: Record "Remit Address";
+        PaymentJournal: TestPage "Payment Journal";
+        FormatAddress: Codeunit "Format Address";
+        CheckToAddr: array[8] of Text[100];
+    begin
+        // [SCENARIO 464069] ZIP code on the "Remit to" address is not showing on the printed vendor's check when using NA check report layouts other than 10412
+        Initialize();
+
+        // [GIVEN] Vendor Exist with Remit Address as Default
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, Vendor."No.");
+        RemitAddress.Validate(Default, true);
+        RemitAddress.Modify();
+
+        // [GIVEN] Create Payment Journal With "Remit-to Code" for Vendor 
+        CreateGenJournalLineWithBankAccount(GenJournalLine, "Gen. Journal Document Type"::Payment, "Gen. Journal Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(500, 0), "Bank Payment Type"::"Computer Check");
+        GenJournalLine.Validate("Remit-to Code", RemitAddress.Code);
+        GenJournalLine.Modify();
+
+        // [GIVEN] Report 10412 is set as report for Check
+        ReportSelections.Get(ReportSelections.Usage::"B.Check", 1);
+        ReportSelections.Validate("Report ID", Report::"Check (Stub/Stub/Check)");
+        ReportSelections.Modify();
+
+        // [GIVEN] Select Bank Account and Last Check No On Report
+        BankAccount.Get(GenJournalLine."Bal. Account No.");
+        BankAccount.Validate("Last Check No.", Format(LibraryRandom.RandInt(10000)));
+        BankAccount.Modify();
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit();
+
+        // [WHEN] Check printed from Payment Journal page
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.PrintCheck.Invoke();
+
+        // [VERIFY] Verify: Remit Address including Zip Code on Check Report
+        VerifyZipCodeOnReport(RemitAddress);
     end;
 
     local procedure Initialize()
@@ -2510,10 +2684,144 @@ codeunit 142062 "ERM Misc. Report III"
           PercentString4Cap, Format(Round(-Amount[4] / GrandTotal * 100), 0, FormatString) + '%');
     end;
 
-    local procedure VerifyZipCodeOnReport(ZipCode: Code[20])
+    local procedure VerifyZipCodeOnReport(RemitAddress: Record "Remit Address")
+    var
+        Country: Record "Country/Region";
     begin
+        Country.Get(RemitAddress."Country/Region Code");
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('CheckToAddr_6_', ZipCode);
+        LibraryReportDataset.AssertElementWithValueExists('CheckToAddr_01_', RemitAddress.Name);
+        LibraryReportDataset.AssertElementWithValueExists('CheckToAddr_2_', RemitAddress.Address);
+        LibraryReportDataset.AssertElementWithValueExists('CheckToAddr_3_', RemitAddress."Post Code" + ' ' + RemitAddress.City);
+        LibraryReportDataset.AssertElementWithValueExists('CheckToAddr_4_', Country.Name);
+    end;
+
+    local procedure CreateBankAccount(BankExportCode: Code[20]): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Last Statement No.", Format(LibraryRandom.RandInt(10)));  // Take Random Value.
+        BankAccount.Validate("Positive Pay Export Code", BankExportCode);
+        BankAccount.Validate("Bank Account No.", Format(LibraryRandom.RandInt(1000000000)));
+        BankAccount.Validate("Last Check No.", Format(LibraryRandom.RandInt(10000)));
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
+    end;
+
+    local procedure CreateGenJournalLineWithWithExportImportBankAccount(
+        var GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Option;
+        AccountType: Option;
+        AccountNo: Code[20];
+        Amount: Decimal;
+        BankPaymentType: Option;
+        BankAccountNo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreatePaymentGeneralBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            DocumentType,
+            AccountType,
+            AccountNo,
+            Amount);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccountNo);
+        GenJournalLine.Validate("Bank Payment Type", BankPaymentType);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure FindPositivePayExportDataExchDef(LineType: Option): Code[20]
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchLineDef: Record "Data Exch. Line Def";
+    begin
+        DataExchDef.SetRange(Type, DataExchDef.Type::"Positive Pay Export");
+        DataExchDef.FindSet();
+        repeat
+            DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
+            DataExchLineDef.SetRange("Line Type", LineType);
+            if not DataExchLineDef.IsEmpty() then
+                exit(DataExchDef.Code);
+        until DataExchDef.Next() = 0;
+        exit('');
+    end;
+
+    local procedure AddDetailColumnWithReplaceRule(DataExchDefCode: Code[20]; ReplaceValue: Text[1]; var ReplacePosition: Integer)
+    var
+        DataExchLineDef: Record "Data Exch. Line Def";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        DataExchMapping: Record "Data Exch. Mapping";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        TransformationRule: Record "Transformation Rule";
+    begin
+        DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
+        DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
+        DataExchLineDef.FindFirst();
+        DataExchLineDef.Validate("Column Count", DataExchLineDef."Column Count" + 1);
+        DataExchLineDef.Modify(true);
+
+        DataExchColumnDef.InsertRec(
+          DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, DataExchLineDef."Column Count", 'Record Type Code',
+          true, DataExchColumnDef."Data Type"::Text, '', '', '');
+        DataExchColumnDef.Validate(Length, 1);
+        DataExchColumnDef.Modify(true);
+
+        DataExchMapping.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
+        DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
+        DataExchMapping.FindFirst();
+        DataExchFieldMapping.InsertRec(
+          DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, DataExchMapping."Table ID",
+          DataExchColumnDef."Column No.", 4, false, 0);
+
+        TransformationRule.Init();
+        TransformationRule.Validate(Code, LibraryUtility.GenerateGUID());
+        TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Replace);
+        TransformationRule.Validate("Find Value", 'O');
+        TransformationRule.Validate("Replace Value", ReplaceValue);
+        TransformationRule.Insert();
+
+        DataExchFieldMapping.Validate("Transformation Rule", TransformationRule.Code);
+        DataExchFieldMapping.Modify(true);
+
+        ReplacePosition := 0;
+        DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
+        DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
+        DataExchColumnDef.FindSet();
+        repeat
+            ReplacePosition += DataExchColumnDef.Length;
+        until DataExchColumnDef.Next() = 0;
+    end;
+
+    local procedure FilterCheckLedgerEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20])
+    begin
+        CheckLedgerEntry.SetCurrentKey("Bank Account No.", "Check Date");
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        CheckLedgerEntry.SetRange("Check Date", 0D, WorkDate());
+    end;
+
+    local procedure GetPositivePayExportedFile(var PositivePayEntry: Record "Positive Pay Entry"; BankAccountNo: Code[20])
+    begin
+        PositivePayEntry.SetRange("Bank Account No.", BankAccountNo);
+        PositivePayEntry.FindFirst();
+        PositivePayEntry.CalcFields("Exported File");
+    end;
+
+    local procedure CheckRemitAddressNameExistsInFileDetailLine(var PositivePayEntry: Record "Positive Pay Entry"; RemitAddressName: Text[100]) Exists: Boolean;
+    var
+        Stream: InStream;
+        TextLine: Text;
+    begin
+        PositivePayEntry."Exported File".CreateInStream(Stream);
+        while (not Stream.EOS) and (not Exists) do begin
+            Stream.ReadText(TextLine);
+            Exists := TextLine.Contains(RemitAddressName)
+        end;
+        exit(Exists);
     end;
 
     [RequestPageHandler]

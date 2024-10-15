@@ -186,6 +186,7 @@ table 700 "Error Message"
 
         DevMsgNotTemporaryErr: Label 'This function can only be used when the record is temporary.';
         IfEmptyErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
+        IfNotEmptyErr: Label '''%1'' in ''%2'' must be blank.', Comment = '%1=caption of a field, %2=key of record';
         IfLengthExceededErr: Label 'The maximum length of ''%1'' in ''%2'' is %3 characters. The actual length is %4.', Comment = '%1=caption of a field, %2=key of record, %3=integer, %4=integer';
         IfInvalidCharactersErr: Label '''%1'' in ''%2'' contains characters that are not valid.', Comment = '%1=caption of a field, %2=key of record';
         IfOutsideRangeErr: Label '''%1'' in ''%2'' is outside of the permitted range from %3 to %4.', Comment = '%1=caption of a field, %2=key of record, %3=integer, %4=integer';
@@ -228,6 +229,34 @@ table 700 "Error Message"
             exit(0);
 
         NewDescription := StrSubstNo(IfEmptyErr, FieldRef.Caption, Format(RecordRef.RecordId));
+
+        exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
+    end;
+
+    procedure LogIfNotEmpty(RecRelatedVariant: Variant; FieldNumber: Integer; MessageType: Option): Integer
+    var
+        RecordRef: RecordRef;
+        TempRecordRef: RecordRef;
+        FieldRef: FieldRef;
+        EmptyFieldRef: FieldRef;
+        NewDescription: Text;
+        IsHandled: Boolean;
+    begin
+        if not DataTypeManagement.GetRecordRefAndFieldRef(RecRelatedVariant, FieldNumber, RecordRef, FieldRef) then
+            exit(0);
+
+        TempRecordRef.Open(RecordRef.Number, true);
+        EmptyFieldRef := TempRecordRef.Field(FieldNumber);
+
+        if FieldRef.Value = EmptyFieldRef.Value then
+            exit(0);
+
+        IsHandled := false;
+        OnLogIfNotEmptyOnAfterCheckEmptyValue(FieldRef, EmptyFieldRef, IsHandled);
+        if IsHandled then
+            exit(0);
+
+        NewDescription := StrSubstNo(IfNotEmptyErr, FieldRef.Caption, Format(RecordRef.RecordId));
 
         exit(LogMessage(RecRelatedVariant, FieldNumber, MessageType, NewDescription));
     end;
@@ -835,5 +864,9 @@ table 700 "Error Message"
     local procedure OnLogIfEmptyOnAfterCheckEmptyValue(FieldRef: FieldRef; EmptyFieldRef: FieldRef; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnLogIfNotEmptyOnAfterCheckEmptyValue(FieldRef: FieldRef; EmptyFieldRef: FieldRef; var IsHandled: Boolean)
+    begin
+    end;
+}

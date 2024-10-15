@@ -165,6 +165,12 @@ report 407 "Purchase - Credit Memo"
                     column(CompanyAddr6; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr7; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr8; CompanyAddr[8])
+                    {
+                    }
                     column(PostingDate_PurchCrMemoHeader; Format("Purch. Cr. Memo Hdr."."Posting Date"))
                     {
                     }

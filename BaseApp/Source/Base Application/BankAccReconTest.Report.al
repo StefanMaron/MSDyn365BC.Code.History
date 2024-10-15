@@ -204,6 +204,12 @@
                     column(Bank_Acc__Reconciliation_Line_Type; '')
                     {
                     }
+                    column(Bank_Acc__Reconciliation_Line_Statement_No; "Statement No.")
+                    {
+                    }
+                    column(Bank_Acc__Reconciliation_Line_Statement_Line_No; "Statement Line No.")
+                    {
+                    }
                     column(Bank_Acc__Reconciliation_Line_Difference; Difference)
                     {
                     }
@@ -302,7 +308,7 @@
                                     VerifyCheckLedgerEntry(BankAccLedgEntry);
                                 until BankAccLedgEntry.Next() = 0;
                             end;
-                       end else
+                        end else
                             AppliedAmount := GetPaymentReconciliationAppliedAmount("Bank Acc. Reconciliation Line");
 
                         OnBeforeCheckAppliedAmount("Bank Acc. Reconciliation Line", AppliedAmount);
