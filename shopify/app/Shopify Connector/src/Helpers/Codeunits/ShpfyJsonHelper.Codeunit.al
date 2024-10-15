@@ -132,6 +132,19 @@ codeunit 30157 "Shpfy Json Helper"
     #endregion GetArrayAsText
 
     #region GetJsonArray
+    internal procedure GetJsonArray(JToken: JsonToken; TokenPath: Text): JsonArray
+    var
+        JResult: JsonArray;
+    begin
+        if GetJsonArray(JToken, JResult, TokenPath) then
+            exit(JResult);
+    end;
+
+    internal procedure GetJsonArray(JObject: JsonObject; TokenPath: Text): JsonArray
+    begin
+        exit(GetJsonArray(JObject.AsToken(), TokenPath));
+    end;
+
     /// <summary> 
     /// Get Json Array.
     /// </summary>

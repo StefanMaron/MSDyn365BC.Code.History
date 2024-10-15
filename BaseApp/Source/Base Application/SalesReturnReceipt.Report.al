@@ -445,6 +445,7 @@ report 6646 "Sales - Return Receipt"
                 Language: Codeunit Language;
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Return Receipt Header");
                 FormatDocumentFields("Return Receipt Header");
