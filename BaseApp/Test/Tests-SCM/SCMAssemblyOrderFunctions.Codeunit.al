@@ -26,6 +26,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPlanning: Codeunit "Library - Planning";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         WorkDate2: Date;
         RefreshingBomCnfm: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
@@ -36,6 +37,7 @@ codeunit 137907 "SCM Assembly Order Functions"
         ShortcutDimErr: Label 'Incorrect Shortcut Dimension';
         Description2AssemblyLineResourceNotBlankErr: Label 'Description 2 field of Assembly Line table must be blank for Type Resource.';
         Description2AssemblyLineItemDoesntMatchErr: Label 'Description 2 field of Assembly Line table must match to related component item Description 2 for Type Item.';
+        UpdateDimOnSalesLinesMsg: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     [Test]
     [HandlerFunctions('AvailabilityWindowHandler')]
@@ -670,12 +672,69 @@ codeunit 137907 "SCM Assembly Order Functions"
         AssemblyLine.TestField(Description, BOMComponent.Description)
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure DoNotShowConfirmForATOLineAfterUserConfirmsSalesLineChange()
+    var
+        Dimension: Record Dimension;
+        DimensionValue: array[2] of Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        Customer: Record Customer;
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Assemble-to-Order] [Dimension]
+        // [SCENARIO 437447] Do not ask for dimension change confirmation for assemble-to-order line after the user confirms changes for the sales line.
+        Initialize();
+        LibraryAssembly.SetStockoutWarning(false);
+
+        // [GIVEN] Dimension "D" with two values - "D1" and "D2".
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], Dimension.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], Dimension.Code);
+
+        // [GIVEN] Customer with default dimension value "D1".
+        LibrarySales.CreateCustomer(Customer);
+        LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, Customer."No.", Dimension.Code, DimensionValue[1].Code);
+
+        // [GIVEN] Assemble-to-order item "A" with component "C".
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
+        AsmItem.Modify(true);
+        LibraryAssembly.CreateAssemblyListComponent(
+          BOMComponent.Type::Item, CompItem."No.", AsmItem."No.", '', BOMComponent."Resource Usage Type", 1, true);
+
+        // [GIVEN] Sales order for the customer.
+        // [GIVEN] Add two sales lines, each for item "A". The assembly order is created in the background.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Shipment Date", LibraryRandom.RandDate(30));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AsmItem."No.", 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AsmItem."No.", 1);
+
+        // [WHEN] Update dimension value from "D1" to "D2" on the sales header.
+        LibraryVariableStorage.Enqueue(UpdateDimOnSalesLinesMsg);
+        SalesHeader.UpdateAllLineDim(
+          LibraryDimension.EditDimSet(SalesHeader."Dimension Set ID", Dimension.Code, DimensionValue[2].Code),
+          SalesHeader."Dimension Set ID");
+
+        // [THEN] Ensure that only one confirmation message for sales lines is raised.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Assembly Order Functions");
         LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
 
         if Initialized then
             exit;
@@ -1011,6 +1070,13 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         Assert.IsTrue((StrPos(Question, RefreshingBomCnfm) > 0) or (StrPos(Question, UpdateDimCnfm) > 0),
           StrSubstNo('Wrong question: %1', Question));
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedConfirm(LibraryVariableStorage.DequeueText(), Question);
         Reply := true;
     end;
 }
