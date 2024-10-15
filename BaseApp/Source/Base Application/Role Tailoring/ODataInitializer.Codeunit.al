@@ -1,9 +1,6 @@
 codeunit 1738 "OData Initializer"
 {
     Access = Internal;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'This will become part of platform.';
-    ObsoleteTag = '17.2';
 
     var
         EnvironmentInfo: Codeunit "Environment Information";
@@ -48,15 +45,13 @@ codeunit 1738 "OData Initializer"
         HttpWebRequestMgt.SetMethod('GET');
         HttpWebRequestMgt.AddHeader('Authorization', StrSubstNo(BearerTxt, Token));
         HttpWebRequestMgt.AddHeader('x-ms-correlation-id', CorrelationId);
+        HttpWebRequestMgt.SetUserAgent('BusinessCentral-Warmup');
         if not HttpWebRequestMgt.GetResponseStream(ResponseInStream) then
             Session.LogMessage('0000E52', MetadataEndpointCallFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::LogInManagement, 'OnAfterLogInEnd', '', false, false)]
     local procedure OnAfterLogInEnd()
-    var
-        ODataInitializedStatus: Record "OData Initialized Status";
-        moduleInfo: ModuleInfo;
     begin
         if not EnvironmentInfo.IsSaaS() then
             exit;
@@ -64,22 +59,31 @@ codeunit 1738 "OData Initializer"
         if not TaskScheduler.CanCreateTask() then
             exit;
 
-        if not NavApp.GetCurrentModuleInfo(moduleInfo) then
+        if not UpdateODataInitializedStatus() then
             exit;
+
+        TaskScheduler.CreateTask(Codeunit::"OData Initializer", 0, true, CompanyName(), CurrentDateTime() + 60 * 1000); // Run codeunit in 1 minute
+    end;
+
+    local procedure UpdateODataInitializedStatus(): Boolean
+    var
+        ODataInitializedStatus: Record "OData Initialized Status";
+        moduleInfo: ModuleInfo;
+    begin
+        if not NavApp.GetCurrentModuleInfo(moduleInfo) then
+            exit(false);
 
         if not (ODataInitializedStatus.ReadPermission() and ODataInitializedStatus.WritePermission()) then
-            exit;
+            exit(false);
 
         if ODataInitializedStatus.FindFirst() and (ODataInitializedStatus."Initialized version" = Format(moduleInfo.AppVersion())) then
-            exit;
+            exit(false);
 
         // Make sure we only call this initialization once
         ODataInitializedStatus."Initialized version" := Format(moduleInfo.AppVersion());
         if ODataInitializedStatus.IsEmpty() then
-            ODataInitializedStatus.Insert()
+            exit(ODataInitializedStatus.Insert())
         else
-            ODataInitializedStatus.Modify();
-
-        TaskScheduler.CreateTask(Codeunit::"OData Initializer", 0, true, CompanyName(), CurrentDateTime() + 60 * 1000); // Run codeunit in 1 minute
+            exit(ODataInitializedStatus.Modify());
     end;
 }

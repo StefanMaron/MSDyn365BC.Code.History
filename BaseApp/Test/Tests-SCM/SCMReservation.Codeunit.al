@@ -129,7 +129,7 @@ codeunit 137049 "SCM Reservation"
         // Exercise: Reduce reservation quantity in Reservation Entry.
         ReducedInventory := InitialInventory - 10;
         ReservationEntry.SetRange("Item No.", Item."No.");
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             if ReservationEntry."Quantity (Base)" < 0 then
                 ReducedInventory := -ReducedInventory;
@@ -2122,7 +2122,7 @@ codeunit 137049 "SCM Reservation"
             ReservationEntry2.SetRange(Positive, true);
             ReservationEntry2.SetRange("Item No.", ItemNo);
             ReservationEntry2.SetRange("Reservation Status", ReservationEntry2."Reservation Status"::Reservation);
-            ReservationEntry2.FindSet;
+            ReservationEntry2.FindSet();
             repeat
                 // set correct values for supply side reservation
                 ReservationEntry2.Quantity := Round(ReservationEntry2."Quantity (Base)" / QtyPerUOM, 0.00001);
@@ -2476,7 +2476,7 @@ codeunit 137049 "SCM Reservation"
     begin
         // [FEATURE] [Permissions] [Sales] [Order]
         // [SCENARIO 293225] Sales Line re-creation with Reservation Entries set does not need direct permissions for table "Reservation Entry"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with Sales Line and Reservation Entries set
         Inventory := LibraryRandom.RandDec(10, 2) + 100;
@@ -2488,10 +2488,9 @@ codeunit 137049 "SCM Reservation"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, Item."VAT Prod. Posting Group");
 
-        // [GIVEN] Permission Sets "D365 Basic", "BASIC", "D365 Sales Doc, Edit"
-        LibraryLowerPermissions.SetO365Basic;
-        LibraryLowerPermissions.AddSalesDocsCreate;
-        LibraryLowerPermissions.AddPermissionSet('BASIC');
+        // [GIVEN] Permission Sets "D365 Basic", "D365 Sales Doc, Edit"
+        LibraryLowerPermissions.SetO365Basic();
+        LibraryLowerPermissions.AddSalesDocsCreate();
 
         // [WHEN] Validate "VAT Bus. Posting Group" = "VB01" causes Sales Lines re-creation
         SalesHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
@@ -3081,10 +3080,10 @@ codeunit 137049 "SCM Reservation"
     local procedure CreateProductionOrderFromSalesOrder(SalesHeader: Record "Sales Header")
     var
         ProductionOrder: Record "Production Order";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         LibraryVariableStorage.Enqueue(ProdOrderCreatedMsg); // Enqueue variable for created Production Order message in MessageHandler.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
     end;
 
     local procedure CreateItemUOMAndUpdateItem(var Item: Record Item; var QtyPerUnitOfMeasure: Decimal)
@@ -3282,7 +3281,7 @@ codeunit 137049 "SCM Reservation"
 
         GLEntry.SetRange("Document No.", ItemLedgerEntry."Document No.");
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."Inventory Account");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
     end;
 
     local procedure VerifyReservationQty(Reservation: TestPage Reservation)

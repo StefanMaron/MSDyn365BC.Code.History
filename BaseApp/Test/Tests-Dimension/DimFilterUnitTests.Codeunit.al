@@ -587,7 +587,7 @@ codeunit 134822 "DimFilter Unit Tests"
             repeat
                 DimSetEntry.SetRange("Dimension Set ID", ExpectedDimSetEntry."Dimension Set ID");
                 DimSetEntry.SetRange("Dimension Code", DimCode);
-                if not DimSetEntry.IsEmpty then
+                if not DimSetEntry.IsEmpty() then
                     DimSetEntry.SetRange("Dimension Value Code", DimValueFilter);
                 if DimSetEntry.FindFirst then
                     exit(true);

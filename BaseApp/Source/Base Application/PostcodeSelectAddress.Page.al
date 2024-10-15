@@ -35,7 +35,7 @@ page 9140 "Postcode Select Address"
             repeat
                 Rec := TempAddressListNameValueBuffer;
                 Insert;
-            until TempAddressListNameValueBuffer.Next = 0;
+            until TempAddressListNameValueBuffer.Next() = 0;
 
         FindFirst; // Move selection to the first one
     end;

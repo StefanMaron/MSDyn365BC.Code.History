@@ -1206,7 +1206,7 @@ codeunit 144000 "Proportional VAT Test"
     begin
         with VATEntry do begin
             SetRange("Document No.", DocNo);
-            FindSet;
+            FindSet();
             repeat
                 BaseAmountSalesVAT += Base;
                 SalesVAT += Amount;

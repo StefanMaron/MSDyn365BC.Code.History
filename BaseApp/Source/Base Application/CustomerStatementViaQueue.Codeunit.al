@@ -42,7 +42,7 @@ codeunit 8811 "Customer Statement via Queue"
         if  TempErrorMessage.FindSet then
             repeat
                 LogActivityFailed(JobQueueEntry.RecordID, JobQueueEntry."Object Caption to Run", TempErrorMessage.Description);
-            until TempErrorMessage.Next = 0;
+            until TempErrorMessage.Next() = 0;
     end;
 }
 

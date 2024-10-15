@@ -84,7 +84,7 @@ report 15000060 "Remittance - export (BBS)"
                         TransAmount := 0;
                         repeat
                             TransAmount := TransAmount + GenJournalLineRec."Amount (LCY)";
-                        until GenJournalLineRec.Next = 0;
+                        until GenJournalLineRec.Next() = 0;
                         GenJournalLineRec.Find('-');
 
                         // Init data related to the current account/agreement.

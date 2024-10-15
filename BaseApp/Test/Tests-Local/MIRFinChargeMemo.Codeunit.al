@@ -175,7 +175,7 @@ codeunit 144183 "MIR Fin. Charge Memo"
 
         with IssuedFinChargeMemoLine do begin
             SetRange("Finance Charge Memo No.", IssuedFinChargeMemoNo);
-            FindSet;
+            FindSet();
             repeat
                 if ShowMIRDetail or not "Detailed Interest Rates Entry" then
                     LibraryReportDataset.AssertElementWithValueExists('LineNo_IssuFinChrgMemoLine', "Line No.")

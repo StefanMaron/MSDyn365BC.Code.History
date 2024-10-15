@@ -213,7 +213,7 @@ report 208 "Sales - Shipment"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -248,6 +248,7 @@ report 208 "Sales - Shipment"
                         column(LinNo; LinNo)
                         {
                         }
+#if not CLEAN18
                         column(CrossReferenceNo_Line; "Cross-Reference No.")
                         {
                             ObsoleteState = Pending;
@@ -260,7 +261,8 @@ report 208 "Sales - Shipment"
                             ObsoleteReason = 'Replaced by Item Reference No.';
                             ObsoleteTag = '17.0';
                         }
-                        column(ItemReferenceNo_Line; "Cross-Reference No.")
+#endif
+                        column(ItemReferenceNo_Line; "Item Reference No.")
                         {
                         }
                         column(ItemReferenceNo_Line_Lbl; FieldCaption("Item Reference No."))
@@ -331,7 +333,7 @@ report 208 "Sales - Shipment"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -691,7 +693,7 @@ report 208 "Sales - Shipment"
                       5, "Sales Shipment Header"."No.", 0, 0, DATABASE::Customer, "Sales Shipment Header"."Sell-to Customer No.",
                       "Sales Shipment Header"."Salesperson Code", "Sales Shipment Header"."Campaign No.",
                       "Sales Shipment Header"."Posting Description", '');
-                until "Sales Shipment Header".Next = 0;
+                until "Sales Shipment Header".Next() = 0;
     end;
 
     trigger OnPreReport()

@@ -1,4 +1,4 @@
-﻿page 306 "Report Selection - Sales"
+page 306 "Report Selection - Sales"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Report Selection - Sales';
@@ -15,7 +15,6 @@
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Usage';
-                OptionCaption = 'Quote,Blanket Order,Order,Invoice,Work Order,Return Order,Credit Memo,Shipment,Return Receipt,Sales Document - Test,Prepayment Document - Test,Archived Quote,Archived Order,Archived Return Order,Pick Instruction,Customer Statement,Draft Invoice,Pro Forma Invoice,Archived Blanket Order,Sales Order Picking List';
                 ToolTip = 'Specifies which type of document the report is used for.';
 
                 trigger OnValidate()
@@ -27,41 +26,41 @@
             {
                 FreezeColumn = "Report Caption";
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the display name of the report.';
                 }
-                field("Use for Email Body"; "Use for Email Body")
+                field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
-                field("Use for Email Attachment"; "Use for Email Attachment")
+                field("Use for Email Attachment"; Rec."Use for Email Attachment")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related document will be attached to the email.';
                 }
-                field("Email Body Layout Code"; "Email Body Layout Code")
+                field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the email body layout that is used.';
                     Visible = false;
                 }
-                field("Email Body Layout Description"; "Email Body Layout Description")
+                field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the email body layout that is used.';
@@ -70,8 +69,8 @@
                     var
                         CustomReportLayout: Record "Custom Report Layout";
                     begin
-                        if CustomReportLayout.LookupLayoutOK("Report ID") then
-                            Validate("Email Body Layout Code", CustomReportLayout.Code);
+                        if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
+                            Rec.Validate("Email Body Layout Code", CustomReportLayout.Code);
                     end;
                 }
             }
@@ -97,7 +96,7 @@
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -107,114 +106,121 @@
     end;
 
     var
-        ReportUsage2: Option Quote,"Blanket Order","Order",Invoice,"Work Order","Return Order","Credit Memo",Shipment,"Return Receipt","Sales Document - Test","Prepayment Document - Test","Archived Quote","Archived Order","Archived Return Order","Pick Instruction","Customer Statement","Draft Invoice","Pro Forma Invoice","Archived Blanket Order","Sales Order Picking List";
+        ReportUsage2: Enum "Report Selection Usage Sales";
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
         if ModifyRec then
-            if Modify then;
-        FilterGroup(2);
+            if Rec.Modify() then;
+        Rec.FilterGroup(2);
         case ReportUsage2 of
-            ReportUsage2::Quote:
-                SetRange(Usage, Usage::"S.Quote");
-            ReportUsage2::"Blanket Order":
-                SetRange(Usage, Usage::"S.Blanket");
-            ReportUsage2::Order:
-                SetRange(Usage, Usage::"S.Order");
-            ReportUsage2::"Work Order":
-                SetRange(Usage, Usage::"S.Work Order");
-            ReportUsage2::"Pick Instruction":
-                SetRange(Usage, Usage::"S.Order Pick Instruction");
-            ReportUsage2::Invoice:
-                SetRange(Usage, Usage::"S.Invoice");
-            ReportUsage2::"Draft Invoice":
-                SetRange(Usage, Usage::"S.Invoice Draft");
-            ReportUsage2::"Return Order":
-                SetRange(Usage, Usage::"S.Return");
-            ReportUsage2::"Credit Memo":
-                SetRange(Usage, Usage::"S.Cr.Memo");
-            ReportUsage2::Shipment:
-                SetRange(Usage, Usage::"S.Shipment");
-            ReportUsage2::"Return Receipt":
-                SetRange(Usage, Usage::"S.Ret.Rcpt.");
-            ReportUsage2::"Sales Document - Test":
-                SetRange(Usage, Usage::"S.Test");
-            ReportUsage2::"Prepayment Document - Test":
-                SetRange(Usage, Usage::"S.Test Prepmt.");
-            ReportUsage2::"Archived Quote":
-                SetRange(Usage, Usage::"S.Arch.Quote");
-            ReportUsage2::"Archived Order":
-                SetRange(Usage, Usage::"S.Arch.Order");
-            ReportUsage2::"Archived Return Order":
-                SetRange(Usage, Usage::"S.Arch.Return");
-            ReportUsage2::"Customer Statement":
-                SetRange(Usage, Usage::"C.Statement");
-            ReportUsage2::"Pro Forma Invoice":
-                SetRange(Usage, Usage::"Pro Forma S. Invoice");
-            ReportUsage2::"Archived Blanket Order":
-                SetRange(Usage, Usage::"S.Arch.Blanket");
-            ReportUsage2::"Sales Order Picking List":
-                SetRange(Usage, Usage::"S.Sales Order Picking List");
+            "Report Selection Usage Sales"::Quote:
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Quote");
+            "Report Selection Usage Sales"::"Blanket Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Blanket");
+            "Report Selection Usage Sales"::Order:
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Order");
+            "Report Selection Usage Sales"::"Work Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Work Order");
+            "Report Selection Usage Sales"::"Pick Instruction":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Order Pick Instruction");
+            "Report Selection Usage Sales"::Invoice:
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Invoice");
+            "Report Selection Usage Sales"::"Draft Invoice":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Invoice Draft");
+            "Report Selection Usage Sales"::"Return Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Return");
+            "Report Selection Usage Sales"::"Credit Memo":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Cr.Memo");
+            "Report Selection Usage Sales"::Shipment:
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Shipment");
+            "Report Selection Usage Sales"::"Return Receipt":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Ret.Rcpt.");
+            "Report Selection Usage Sales"::"Sales Document - Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Test");
+            "Report Selection Usage Sales"::"Prepayment Document - Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Test Prepmt.");
+            "Report Selection Usage Sales"::"Archived Quote":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Arch.Quote");
+            "Report Selection Usage Sales"::"Archived Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Arch.Order");
+            "Report Selection Usage Sales"::"Archived Return Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Arch.Return");
+            "Report Selection Usage Sales"::"Customer Statement":
+                Rec.SetRange(Usage, "Report Selection Usage"::"C.Statement");
+            "Report Selection Usage Sales"::"Pro Forma Invoice":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Pro Forma S. Invoice");
+            "Report Selection Usage Sales"::"Archived Blanket Order":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Arch.Blanket");
+            "Report Selection Usage Sales"::"Sales Order Picking List":
+                Rec.SetRange(Usage, "Report Selection Usage"::"S.Sales Order Picking List");
         end;
-        OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
-        FilterGroup(0);
-        CurrPage.Update;
+        OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2.AsInteger());
+        Rec.FilterGroup(0);
+        CurrPage.Update();
     end;
 
     local procedure InitUsageFilter()
     var
-        DummyReportSelections: Record "Report Selections";
+        NewReportUsage: Enum "Report Selection Usage";
     begin
-        if GetFilter(Usage) <> '' then begin
-            if Evaluate(DummyReportSelections.Usage, GetFilter(Usage)) then
-                case DummyReportSelections.Usage of
-                    Usage::"S.Quote":
-                        ReportUsage2 := ReportUsage2::Quote;
-                    Usage::"S.Blanket":
-                        ReportUsage2 := ReportUsage2::"Blanket Order";
-                    Usage::"S.Order":
-                        ReportUsage2 := ReportUsage2::Order;
-                    Usage::"S.Work Order":
-                        ReportUsage2 := ReportUsage2::"Work Order";
-                    Usage::"S.Order Pick Instruction":
-                        ReportUsage2 := ReportUsage2::"Pick Instruction";
-                    Usage::"S.Invoice":
-                        ReportUsage2 := ReportUsage2::Invoice;
-                    Usage::"S.Invoice Draft":
-                        ReportUsage2 := ReportUsage2::"Draft Invoice";
-                    Usage::"S.Return":
-                        ReportUsage2 := ReportUsage2::"Return Order";
-                    Usage::"S.Cr.Memo":
-                        ReportUsage2 := ReportUsage2::"Credit Memo";
-                    Usage::"S.Shipment":
-                        ReportUsage2 := ReportUsage2::Shipment;
-                    Usage::"S.Ret.Rcpt.":
-                        ReportUsage2 := ReportUsage2::"Return Receipt";
-                    Usage::"S.Test":
-                        ReportUsage2 := ReportUsage2::"Sales Document - Test";
-                    Usage::"S.Test Prepmt.":
-                        ReportUsage2 := ReportUsage2::"Prepayment Document - Test";
-                    Usage::"S.Arch.Quote":
-                        ReportUsage2 := ReportUsage2::"Archived Quote";
-                    Usage::"S.Arch.Order":
-                        ReportUsage2 := ReportUsage2::"Archived Order";
-                    Usage::"S.Arch.Return":
-                        ReportUsage2 := ReportUsage2::"Archived Return Order";
-                    Usage::"C.Statement":
-                        ReportUsage2 := ReportUsage2::"Customer Statement";
-                    Usage::"Pro Forma S. Invoice":
-                        ReportUsage2 := ReportUsage2::"Pro Forma Invoice";
-                    Usage::"S.Arch.Blanket":
-                        ReportUsage2 := ReportUsage2::"Archived Blanket Order";
-                    Usage::"S.Sales Order Picking List":
-                        ReportUsage2 := ReportUsage2::"Sales Order Picking List";
+        if Rec.GetFilter(Usage) <> '' then begin
+            if Evaluate(NewReportUsage, Rec.GetFilter(Usage)) then
+                case NewReportUsage of
+                    "Report Selection Usage"::"S.Quote":
+                        ReportUsage2 := "Report Selection Usage Sales"::Quote;
+                    "Report Selection Usage"::"S.Blanket":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Blanket Order";
+                    "Report Selection Usage"::"S.Order":
+                        ReportUsage2 := "Report Selection Usage Sales"::Order;
+                    "Report Selection Usage"::"S.Work Order":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Work Order";
+                    "Report Selection Usage"::"S.Order Pick Instruction":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Pick Instruction";
+                    "Report Selection Usage"::"S.Invoice":
+                        ReportUsage2 := "Report Selection Usage Sales"::Invoice;
+                    "Report Selection Usage"::"S.Invoice Draft":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Draft Invoice";
+                    "Report Selection Usage"::"S.Return":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Return Order";
+                    "Report Selection Usage"::"S.Cr.Memo":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Credit Memo";
+                    "Report Selection Usage"::"S.Shipment":
+                        ReportUsage2 := "Report Selection Usage Sales"::Shipment;
+                    "Report Selection Usage"::"S.Ret.Rcpt.":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Return Receipt";
+                    "Report Selection Usage"::"S.Test":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Sales Document - Test";
+                    "Report Selection Usage"::"S.Test Prepmt.":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Prepayment Document - Test";
+                    "Report Selection Usage"::"S.Arch.Quote":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Archived Quote";
+                    "Report Selection Usage"::"S.Arch.Order":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Archived Order";
+                    "Report Selection Usage"::"S.Arch.Return":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Archived Return Order";
+                    "Report Selection Usage"::"C.Statement":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Customer Statement";
+                    "Report Selection Usage"::"Pro Forma S. Invoice":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Pro Forma Invoice";
+                    "Report Selection Usage"::"S.Arch.Blanket":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Archived Blanket Order";
+                    "Report Selection Usage"::"S.Sales Order Picking List":
+                        ReportUsage2 := "Report Selection Usage Sales"::"Sales Order Picking List";
+                    else
+                        OnInitUsageFilterOnElseCase(NewReportUsage, ReportUsage2);
                 end;
-            SetRange(Usage);
+            Rec.SetRange(Usage);
         end;
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitUsageFilterOnElseCase(ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Sales")
     begin
     end;
 }

@@ -563,7 +563,7 @@ report 10606 "Sales Order Picking List"
                     Continue := true;
                     exit;
                 end;
-            until Next = 0;
+            until Next() = 0;
             exit(DimText);
         end;
     end;

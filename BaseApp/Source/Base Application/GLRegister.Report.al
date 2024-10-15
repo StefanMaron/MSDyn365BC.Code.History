@@ -152,7 +152,7 @@ report 3 "G/L Register"
 
     trigger OnPreReport()
     begin
-        GLRegFilter := "G/L Register".GetFilters;
+        GLRegFilter := "G/L Register".GetFilters();
     end;
 
     var
@@ -170,4 +170,3 @@ report 3 "G/L Register"
         TotalCaptionLbl: Label 'Total';
         G_L_Entry_Amount_Control41CaptionLbl: Label 'Total';
 }
-

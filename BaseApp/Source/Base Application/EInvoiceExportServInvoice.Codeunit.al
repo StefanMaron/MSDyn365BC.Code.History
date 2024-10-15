@@ -37,7 +37,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         repeat
             if not IsRoundingLine(ServiceInvoiceLine) then
                 FillLineTableData(TempEInvoiceExportLine, ServiceInvoiceLine);
-        until ServiceInvoiceLine.Next = 0;
+        until ServiceInvoiceLine.Next() = 0;
 
         EInvoiceExportCommon.SetEInvoiceCommonTables(TempEInvoiceExportHeader, TempEInvoiceExportLine);
 
@@ -60,7 +60,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         EInvoiceExportCommon.AddHeaderLegalMonetaryTotal;
 
         // Add XML content for the invoice lines
-        TempEInvoiceExportLine.FindSet;
+        TempEInvoiceExportLine.FindSet();
 
         repeat
             EInvoiceExportCommon.CreateLineNode(TempEInvoiceExportLine);
@@ -71,7 +71,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
             EInvoiceExportCommon.AddLineTaxTotal;
             EInvoiceExportCommon.AddLineItem;
             EInvoiceExportCommon.AddLinePrice;
-        until TempEInvoiceExportLine.Next = 0;
+        until TempEInvoiceExportLine.Next() = 0;
 
         // Save file
         EInvoiceExportCommon.SaveToXML(TempEInvoiceTransferFile, ServiceMgtSetup."E-Invoice Service Invoice Path", "No.");
@@ -153,7 +153,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
                     TempEInvoiceExportHeader."Total Amount" += ServiceInvoiceLine."Amount Including VAT";
                     TempEInvoiceExportHeader."Tax Amount" += ServiceInvoiceLine."Amount Including VAT" - ServiceInvoiceLine.Amount;
                 end;
-            until ServiceInvoiceLine.Next = 0;
+            until ServiceInvoiceLine.Next() = 0;
         end;
     end;
 

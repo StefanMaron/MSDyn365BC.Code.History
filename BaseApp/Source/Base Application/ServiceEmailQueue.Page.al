@@ -94,7 +94,7 @@ page 5961 "Service Email Queue"
 
                     trigger OnAction()
                     begin
-                        if IsEmpty then
+                        if IsEmpty() then
                             Error(Text001);
 
                         if Status = Status::Processed then
@@ -106,7 +106,7 @@ page 5961 "Service Email Queue"
 
                         if ServMailMgt.Run(Rec) then begin
                             Status := Status::Processed;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end else
                             Error(GetLastErrorText);
                     end;

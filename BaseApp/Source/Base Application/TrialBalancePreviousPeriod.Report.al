@@ -224,7 +224,7 @@ report 10601 "Trial Balance/Previous Period"
                 begin
                     "G/L Account".SetRange("Income/Balance", IncomeOrBalance.Number);
 
-                    if IsEmpty then
+                    if IsEmpty() then
                         CurrReport.Skip();
 
                     PeriodStartThisYear := GetRangeMin("Date Filter");
@@ -258,10 +258,10 @@ report 10601 "Trial Balance/Previous Period"
                 BalanceHidden := false;
 
                 "G/L Account".SetRange("Income/Balance", "G/L Account"."Income/Balance"::"Income Statement");
-                if "G/L Account".IsEmpty then
+                if "G/L Account".IsEmpty() then
                     IncomeHidden := true;
                 "G/L Account".SetRange("Income/Balance", "G/L Account"."Income/Balance"::"Balance Sheet");
-                if "G/L Account".IsEmpty then
+                if "G/L Account".IsEmpty() then
                     BalanceHidden := true;
             end;
         }

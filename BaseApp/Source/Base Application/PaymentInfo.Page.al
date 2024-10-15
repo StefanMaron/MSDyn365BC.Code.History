@@ -135,7 +135,7 @@ page 15000001 "Payment Info"
                     begin
                         InitVendEntry;
                         RemTools.CreateJournalData(Rec, VendEntry);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 separator(Action39)
@@ -157,7 +157,7 @@ page 15000001 "Payment Info"
                         // Delete KID in the copy of the vendor entry used for initializing
                         VendEntry.KID := '';
                         RemTools.CreateJournalData(Rec, VendEntry);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Insert &KID")
@@ -172,7 +172,7 @@ page 15000001 "Payment Info"
                         InitVendEntry;
                         VendEntry.TestField(KID);
                         RemTools.CreateJournalData(Rec, VendEntry);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

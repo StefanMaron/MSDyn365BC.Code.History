@@ -1,4 +1,4 @@
-﻿codeunit 97 "Blanket Purch. Order to Order"
+codeunit 97 "Blanket Purch. Order to Order"
 {
     TableNo = "Purchase Header";
 
@@ -64,7 +64,7 @@
                             PurchOrderLine.Validate("Inv. Discount Amount", PurchBlanketOrderLine."Inv. Discount Amount");
                         PurchBlanketOrderLine.CalcFields("Reserved Qty. (Base)");
                         if PurchBlanketOrderLine."Reserved Qty. (Base)" <> 0 then
-                            ReservePurchLine.TransferPurchLineToPurchLine(
+                            PurchLineReserve.TransferPurchLineToPurchLine(
                               PurchBlanketOrderLine, PurchOrderLine, -PurchBlanketOrderLine."Qty. to Receive (Base)");
                     end;
 
@@ -91,7 +91,7 @@
 
                     OnRunOnAfterPurchBlanketOrderLineLoop(PurchOrderLine, PurchLine);
                 end;
-            until PurchBlanketOrderLine.Next = 0;
+            until PurchBlanketOrderLine.Next() = 0;
 
         OnAfterInsertAllPurchOrderLines(Rec, PurchOrderHeader);
 
@@ -123,7 +123,7 @@
         PurchOrderLine: Record "Purchase Line";
         PurchSetup: Record "Purchases & Payables Setup";
         PurchLine: Record "Purchase Line";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
         QuantityOnOrders: Decimal;
         Text002: Label 'There is nothing to create.';
 

@@ -419,11 +419,19 @@ table 111 "Sales Shipment Line"
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
+
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
@@ -622,12 +630,12 @@ table 111 "Sales Shipment Line"
                 ServItem.Validate("Sales/Serv. Shpt. Document No.", '');
                 ServItem.Validate("Sales/Serv. Shpt. Line No.", 0);
                 ServItem.Modify(true);
-            until ServItem.Next = 0;
+            until ServItem.Next() = 0;
 
         SalesDocLineComments.SetRange("Document Type", SalesDocLineComments."Document Type"::Shipment);
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
-        if not SalesDocLineComments.IsEmpty then
+        if not SalesDocLineComments.IsEmpty() then
             SalesDocLineComments.DeleteAll();
 
         PostedATOLink.DeleteAsmFromSalesShptLine(Rec);
@@ -826,7 +834,7 @@ table 111 "Sales Shipment Line"
             NextLineNo := NextLineNo + 10000;
             if "Attached to Line No." = 0 then
                 SetRange("Attached to Line No.", "Line No.");
-        until (Next = 0) or ("Attached to Line No." = 0);
+        until (Next() = 0) or ("Attached to Line No." = 0);
 
         if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Order No.") then begin
             SalesOrderHeader."Get Shipment Used" := true;
@@ -862,8 +870,8 @@ table 111 "Sales Shipment Line"
                                 TempSalesInvLine := SalesInvLine;
                                 if TempSalesInvLine.Insert() then;
                             end;
-                    until ValueEntry.Next = 0;
-            until ItemLedgEntry.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
         end;
     end;
 
@@ -896,7 +904,7 @@ table 111 "Sales Shipment Line"
                       TotalCostLCY + ItemLedgEntry."Cost Amount (Expected)" + ItemLedgEntry."Cost Amount (Actual)";
                     TotalQtyBase := TotalQtyBase + ItemLedgEntry.Quantity;
                 end;
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
 
         if ExactCostReverse and (ShippedQtyNotReturned <> 0) and (TotalQtyBase <> 0) then
             RevUnitCostLCY := Abs(TotalCostLCY / TotalQtyBase) * "Qty. per Unit of Measure"

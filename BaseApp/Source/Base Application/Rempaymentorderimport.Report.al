@@ -173,7 +173,7 @@ report 15000003 "Rem. payment order - Import"
         // Make sure the journal is empty:
         GenJnlLine.SetRange("Journal Template Name", CurrentGenJournalLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", CurrentGenJournalLine."Journal Batch Name");
-        if not GenJnlLine.IsEmpty then
+        if not GenJnlLine.IsEmpty() then
             Error(Text000, CurrentGenJournalLine."Journal Batch Name");
     end;
 
@@ -284,7 +284,7 @@ report 15000003 "Rem. payment order - Import"
                         Error(Text007);
                 end;
                 ReturnFile.Insert();
-            until FileCopy.Next = 0;
+            until FileCopy.Next() = 0;
 
         // Note: file name must not end with .tmp and '~'. Delete all such names :
         ReturnFile.Reset();
@@ -385,7 +385,7 @@ report 15000003 "Rem. payment order - Import"
                 RemAgreement.Get(ReturnFile."Agreement Code");
                 if RemAgreement."Save Return File" then
                     RemTools.NewFilename(ReturnFile."File Name");
-            until ReturnFile.Next = 0;
+            until ReturnFile.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

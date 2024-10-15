@@ -26,7 +26,7 @@ page 15000012 "Payment Order - Settl. Status"
                         RemPaymOrder.Get(RemPaymOrder.ID);
                         CheckPaymOrderStatus(RemPaymOrder);
                         UpdateInfo;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("RemPaymOrder.Comment"; RemPaymOrder.Comment)
@@ -148,7 +148,7 @@ page 15000012 "Payment Order - Settl. Status"
                         ReturnNumber[NumberOfLines] := 1;
                     end;
                 end;
-            until WaitingJournalLine.Next = 0;
+            until WaitingJournalLine.Next() = 0;
         end;
 
         // Select lines to be shown

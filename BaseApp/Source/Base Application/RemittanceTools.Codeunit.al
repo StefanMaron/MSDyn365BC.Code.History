@@ -655,7 +655,7 @@ codeunit 15000002 "Remittance Tools"
 
                 GenJnlLine.Validate("Bal. Account No.", RemAccount."Account No.");
                 SettlePaymentWithoutReturnFile(WaitingJournal, GenJnlLine);
-            until WaitingJournal.Next = 0;
+            until WaitingJournal.Next() = 0;
     end;
 
     procedure SettlePaymentWithoutReturnFile(WaitingJournal: Record "Waiting Journal"; GenJnlLine: Record "Gen. Journal Line")

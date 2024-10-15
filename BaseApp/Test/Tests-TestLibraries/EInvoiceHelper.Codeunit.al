@@ -28,7 +28,7 @@ codeunit 143003 "E-Invoice Helper"
             GLN := TestValueTxt;
             "Account Code" := TestValueTxt;
 
-            if not TempPredefinedCustomer.IsEmpty then begin
+            if not TempPredefinedCustomer.IsEmpty() then begin
                 Address := TempPredefinedCustomer.Address;
                 "Address 2" := TempPredefinedCustomer."Address 2";
                 Validate("Country/Region Code", TempPredefinedCustomer."Country/Region Code");

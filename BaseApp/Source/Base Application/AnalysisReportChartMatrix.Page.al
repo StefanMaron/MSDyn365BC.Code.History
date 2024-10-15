@@ -265,7 +265,7 @@ page 776 "Analysis Report Chart Matrix"
                 ColumnNo := ColumnNo + 1;
                 ColumnCaptions[ColumnNo] := AnalysisColumn."Column Header";
                 ColumnLineNos[ColumnNo] := AnalysisColumn."Line No.";
-            until (AnalysisColumn.Next = 0) or (ColumnNo = ArrayLen(ColumnCaptions));
+            until (AnalysisColumn.Next() = 0) or (ColumnNo = ArrayLen(ColumnCaptions));
         MaxColumns := ColumnNo;
         // Set unused columns to blank to prevent RTC to display control ID as caption
         for i := MaxColumns + 1 to ArrayLen(ColumnCaptions) do
@@ -333,7 +333,7 @@ page 776 "Analysis Report Chart Matrix"
         end;
         AnalysisReportChartLine.Validate("Chart Type", ChartType[ColumnNo]);
         AnalysisReportChartLine.Modify();
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

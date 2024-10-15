@@ -110,7 +110,7 @@ report 5977 "Service Contract - Customer"
                             (ServContractLine."Contract Expiration Date" <= WorkDate))
                         then
                             AmountOnExpiredLines := AmountOnExpiredLines + ServContractLine."Line Amount";
-                    until ServContractLine.Next = 0;
+                    until ServContractLine.Next() = 0;
             end;
 
             trigger OnPreDataItem()

@@ -68,7 +68,7 @@ table 204 "Unit of Measure"
     begin
         Item.SetCurrentKey("Base Unit of Measure");
         Item.SetRange("Base Unit of Measure", Code);
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Error(UoMIsStillUsedError);
 
         UnitOfMeasureTranslation.SetRange(Code, Code);
@@ -99,7 +99,7 @@ table 204 "Unit of Measure"
     begin
         Item.SetCurrentKey("Base Unit of Measure");
         Item.SetRange("Base Unit of Measure", xRec.Code);
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Item.ModifyAll("Base Unit of Measure", Code, true);
     end;
 
@@ -122,7 +122,7 @@ table 204 "Unit of Measure"
                 TempUnitOfMeasure := UnitOfMeasure;
                 TempUnitOfMeasure.Description := UnitOfMeasure.GetDescriptionInCurrentLanguage;
                 TempUnitOfMeasure.Insert();
-            until UnitOfMeasure.Next = 0;
+            until UnitOfMeasure.Next() = 0;
     end;
 
     local procedure SetLastDateTimeModified()

@@ -48,13 +48,13 @@ codeunit 346 "Purch. Line CaptionClass Mgmt"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterChangePricesIncludingVAT', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterChangePricesIncludingVAT', '', true, true)]
     local procedure PurchaseHeaderChangedPricesIncludingVAT(var PurchaseHeader: Record "Purchase Header")
     begin
         GlobalPurchaseHeader := PurchaseHeader;
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnValidatePurchaseHeaderPayToVendorNo', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnValidatePurchaseHeaderPayToVendorNo', '', true, true)]
     local procedure UpdatePurchLineFieldsCaptionOnValidatePurchaseHeaderPayToVendorNo(var Sender: Record "Purchase Header"; Vendor: Record Vendor)
     begin
         GlobalPurchaseHeader := Sender;

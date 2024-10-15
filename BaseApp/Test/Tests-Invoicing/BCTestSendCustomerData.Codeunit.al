@@ -267,13 +267,13 @@ codeunit 138963 "BC Test Send Customer Data"
         Assert.IsTrue(StrPos(Question, 'Warning:') > 0, 'unexpected message');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9520, 'OnBeforeDoSending', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeDoSending', '', false, false)]
     local procedure OnBeforeSendEmail(var CancelSending: Boolean)
     begin
         CancelSending := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]
     local procedure OnBeforeStartBackgroundTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true;

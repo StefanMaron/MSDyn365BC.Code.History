@@ -85,7 +85,7 @@ codeunit 64 "Sales-Get Shipment"
                             GetItemChargeAssgnt(SalesShptLine2, SalesLine."Qty. to Invoice");
                     end;
                     OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine);
-                until Next = 0;
+                until Next() = 0;
 
                 OnAfterInsertLines(SalesHeader, SalesLine);
                 CalcInvoiceDiscount(SalesLine);
@@ -154,7 +154,7 @@ codeunit 64 "Sales-Get Shipment"
                             repeat
                                 SalesLine2.CalcFields("Qty. to Assign");
                                 InsertChargeAssgnt := SalesLine2."Qty. to Assign" <> SalesLine2.Quantity;
-                            until (SalesLine2.Next = 0) or InsertChargeAssgnt;
+                            until (SalesLine2.Next() = 0) or InsertChargeAssgnt;
 
                         if InsertChargeAssgnt then begin
                             ItemChargeAssgntSales2."Document Type" := SalesLine2."Document Type";
@@ -201,7 +201,7 @@ codeunit 64 "Sales-Get Shipment"
                             QtyToAssign := QtyToAssign - ItemChargeAssgntSales2."Qty. to Assign";
                         end;
                     end;
-                until ItemChargeAssgntSales.Next = 0;
+                until ItemChargeAssgntSales.Next() = 0;
         end;
     end;
 

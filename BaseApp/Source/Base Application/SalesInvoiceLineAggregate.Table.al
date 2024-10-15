@@ -18,7 +18,7 @@ table 5476 "Sales Invoice Line Aggregate"
 
             trigger OnValidate()
             begin
-                "API Type" := Type.AsInteger();
+                "API Type" := Type;
             end;
         }
         field(6; "No."; Code[20])
@@ -201,7 +201,7 @@ table 5476 "Sales Invoice Line Aggregate"
 
             trigger OnValidate()
             begin
-                Type := "Sales Line Type".FromInteger("API Type");
+                Type := "API Type";
             end;
         }
         field(9030; "Item Id"; Guid)
@@ -378,7 +378,7 @@ table 5476 "Sales Invoice Line Aggregate"
     local procedure UpdateCalculatedFields()
     begin
         UpdateReferencedRecordIds();
-        "API Type" := Type.AsInteger();
+        "API Type" := Type;
     end;
 
     procedure UpdateReferencedRecordIds()

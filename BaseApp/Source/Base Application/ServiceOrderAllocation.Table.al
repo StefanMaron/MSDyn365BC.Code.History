@@ -520,6 +520,11 @@ table 5950 "Service Order Allocation"
         end;
     end;
 
+    procedure GetHideDialog(): Boolean
+    begin
+        exit(HideDialog);
+    end;
+
     procedure SetHideDialog(HideDialog1: Boolean)
     begin
         HideDialog := HideDialog1;
@@ -555,7 +560,7 @@ table 5950 "Service Order Allocation"
                        (ServOrderAlloc."Resource Group No." <> "Resource Group No.")
                     then
                         Error(Text000, ResGr.TableCaption, ServItemLine.TableCaption);
-                until ServOrderAlloc.Next = 0;
+                until ServOrderAlloc.Next() = 0;
         end;
     end;
 

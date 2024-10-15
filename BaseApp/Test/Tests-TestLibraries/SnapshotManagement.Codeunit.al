@@ -54,7 +54,7 @@ codeunit 130013 "Snapshot Management"
             TempSnapshot.Get(SnapshotNo);
             TempSnapshot.SetCurrentKey("Incremental Index");
             TempSnapshot.SetFilter("Incremental Index", '>=%1', TempSnapshot."Incremental Index");
-            TempSnapshot.FindSet;
+            TempSnapshot.FindSet();
 
             // Store relevant snapshots in local buffer, so filters are not overwritten by ChangeLog()
             repeat

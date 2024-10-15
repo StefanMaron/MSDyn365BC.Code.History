@@ -22,7 +22,7 @@ codeunit 134926 "Table Relation Test"
         CreateTemporaryTablerelations(TempTableRelationsMetadata);
         ExcludeKnownInvalidTableRelationsFromBeingChecked(TempTableRelationsMetadata);
 
-        TempTableRelationsMetadata.FindSet;
+        TempTableRelationsMetadata.FindSet();
         repeat
             if (TempTableRelationsMetadata."Table ID" <> CurrentTableID) or (TempTableRelationsMetadata."Field No." <> CurrentFieldID) then
                 if not ValidateFieldRelation(TempTableRelationsMetadata) then
@@ -52,7 +52,7 @@ codeunit 134926 "Table Relation Test"
         TempTableRelationsMetadataBufferIter.Copy(TempTableRelationsMetadata, true);
         TempTableRelationsMetadataBufferIter.SetRange("Table ID", TempTableRelationsMetadata."Table ID");
         TempTableRelationsMetadataBufferIter.SetRange("Field No.", TempTableRelationsMetadata."Field No.");
-        TempTableRelationsMetadataBufferIter.FindSet;
+        TempTableRelationsMetadataBufferIter.FindSet();
         repeat
             RelatedField.Get(TempTableRelationsMetadataBufferIter."Related Table ID",
               TempTableRelationsMetadataBufferIter."Related Field No.");
@@ -130,7 +130,7 @@ codeunit 134926 "Table Relation Test"
         TableRelationsMetadata: Record "Table Relations Metadata";
     begin
         TableRelationsMetadata.SetRange("Table ID", 1, 1999999999);
-        TableRelationsMetadata.FindSet;
+        TableRelationsMetadata.FindSet();
 
         repeat
             TempTableRelationsMetadata := TableRelationsMetadata;

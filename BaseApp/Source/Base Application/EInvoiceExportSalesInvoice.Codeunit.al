@@ -26,7 +26,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
         repeat
             if not IsRoundingLine(SalesInvoiceLine) then
                 FillLineTableData(TempEInvoiceExportLine, SalesInvoiceLine);
-        until SalesInvoiceLine.Next = 0;
+        until SalesInvoiceLine.Next() = 0;
         EInvoiceExportCommon.SetEInvoiceCommonTables(TempEInvoiceExportHeader, TempEInvoiceExportLine);
 
         // Create invoice root node and XML content
@@ -48,7 +48,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
         EInvoiceExportCommon.AddHeaderLegalMonetaryTotal;
 
         // Add XML content for the invoice lines
-        TempEInvoiceExportLine.FindSet;
+        TempEInvoiceExportLine.FindSet();
 
         repeat
             EInvoiceExportCommon.CreateLineNode(TempEInvoiceExportLine);
@@ -61,7 +61,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
             EInvoiceExportCommon.AddLineTaxTotal;
             EInvoiceExportCommon.AddLineItem;
             EInvoiceExportCommon.AddLinePrice;
-        until TempEInvoiceExportLine.Next = 0;
+        until TempEInvoiceExportLine.Next() = 0;
 
         // Save file
         SalesSetup.Get();
@@ -141,7 +141,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
                     TempEInvoiceExportHeader."Total Amount" += SalesInvoiceLine."Amount Including VAT";
                     TempEInvoiceExportHeader."Tax Amount" += SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount;
                 end;
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
         end;
     end;
 

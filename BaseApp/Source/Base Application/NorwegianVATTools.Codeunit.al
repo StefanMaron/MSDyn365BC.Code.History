@@ -238,7 +238,7 @@ codeunit 10600 "Norwegian VAT Tools"
             // Find month names
             Date.SetRange("Period Type", Date."Period Type"::Month);
             Date.SetRange("Period Start", DMY2Date(1, PeriodNo * 2 - 1, 2000), 20010101D);
-            Date.FindSet;
+            Date.FindSet();
             MonthName1 := Date."Period Name";
             Date.Next;
             MonthName2 := Date."Period Name";

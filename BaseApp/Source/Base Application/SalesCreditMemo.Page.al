@@ -24,7 +24,7 @@ page 44 "Sales Credit Memo"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -38,7 +38,7 @@ page 44 "Sales Credit Memo"
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
@@ -58,8 +58,9 @@ page 44 "Sales Credit Memo"
 
                         SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
-                        SellToCustomerUsesEInvoicing := CustomerUsesEInvoicing("Sell-to Customer No.")
+                        SellToCustomerUsesEInvoicing := CustomerUsesEInvoicing("Sell-to Customer No.");
+
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -1169,12 +1170,12 @@ page 44 "Sales Credit Memo"
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     Image = Flow;
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1194,7 +1195,7 @@ page 44 "Sales Credit Memo"
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1411,6 +1412,7 @@ page 44 "Sales Credit Memo"
         InstructionMgt: Codeunit "Instruction Mgt.";
         PreAssignedNo: Code[20];
         IsScheduledPosting: Boolean;
+        IsHandled: Boolean;
     begin
         CheckSalesCheckAllLinesHaveQuantityAssigned;
         PreAssignedNo := "No.";
@@ -1424,6 +1426,11 @@ page 44 "Sales Credit Memo"
         if IsScheduledPosting then
             CurrPage.Close;
         CurrPage.Update(false);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
 
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
@@ -1458,17 +1465,17 @@ page 44 "Sales Credit Memo"
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure AccountCodeOnAfterValidate()
@@ -1553,6 +1560,11 @@ page 44 "Sales Credit Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOnAfterSetDocumentIsPosted(SalesHeader: Record "Sales Header"; var IsScheduledPosting: Boolean; var DocumentIsPosted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

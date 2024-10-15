@@ -93,7 +93,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
 
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetFilter("Customer No.", Customer."No.");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
 
         while LibraryReportDataset.GetNextRow do begin
             CustLedgerEntry.CalcFields(Amount);
@@ -138,7 +138,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
 
         VendLedgerEntry.Reset();
         VendLedgerEntry.SetFilter("Vendor No.", Vendor."No.");
-        VendLedgerEntry.FindSet;
+        VendLedgerEntry.FindSet();
         // [THEN] Lines contains correct Amount, "Remainiong Amount", "Vendor Name", "Document No." is 'A1'/'A2'
         while LibraryReportDataset.GetNextRow do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo_VendorLedgerEntry', VendLedgerEntry."Document No.");
@@ -183,7 +183,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
 
         VendLedgerEntry.Reset();
         VendLedgerEntry.SetFilter("Vendor No.", Vendor."No.");
-        VendLedgerEntry.FindSet;
+        VendLedgerEntry.FindSet();
         // [THEN] Lines contains correct Amount, "Remainiong Amount", "Vendor Name", "Document No." is 'E1'/'E2'
         while LibraryReportDataset.GetNextRow do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo_VendorLedgerEntry', VendLedgerEntry."External Document No.");
@@ -257,7 +257,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         LineNo := 10000;
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetFilter("Customer No.", Customer."No.");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
 
         repeat
             CustLedgerEntry.CalcFields(Amount);
@@ -304,7 +304,7 @@ codeunit 144182 "ERM NO Reports 3 Test"
         // Find list of generated reminder lines
         ReminderLine.Reset();
         ReminderLine.SetFilter("Reminder No.", ReminderHeader."No.");
-        ReminderLine.FindSet;
+        ReminderLine.FindSet();
 
         Count := 1;
         repeat

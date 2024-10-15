@@ -308,7 +308,7 @@ report 6631 "Return Order Confirmation"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -472,7 +472,7 @@ report 6631 "Return Order Confirmation"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -814,7 +814,7 @@ report 6631 "Return Order Confirmation"
                         SegManagement.LogDocument(18, "Sales Header"."No.", 0, 0, DATABASE::Customer,
                           "Sales Header"."Bill-to Customer No.", "Sales Header"."Salesperson Code",
                           "Sales Header"."Campaign No.", "Sales Header"."Posting Description", "Sales Header"."Opportunity No.");
-                until "Sales Header".Next = 0;
+                until "Sales Header".Next() = 0;
     end;
 
     trigger OnPreReport()

@@ -1890,7 +1890,7 @@ codeunit 144136 "Remittance - Import SEPA"
         WriteLine(OutStream, '        <OrgnlInstrId>G04001</OrgnlInstrId>');
         WriteLine(OutStream, '        <OrgnlEndToEndId>1037/1</OrgnlEndToEndId>');
         WriteLine(OutStream, '        <TxSts>ACSC</TxSts>');
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
         repeat
             WriteLine(OutStream, TempNameValueBuffer.Name);
         until TempNameValueBuffer.Next = 0;

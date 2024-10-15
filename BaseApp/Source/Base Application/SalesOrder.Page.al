@@ -1,4 +1,4 @@
-﻿page 42 "Sales Order"
+page 42 "Sales Order"
 {
     Caption = 'Sales Order';
     PageType = Document;
@@ -23,7 +23,7 @@
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
@@ -37,7 +37,7 @@
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
@@ -56,7 +56,7 @@
 
                         SellToCustomerUsesEInvoicing := CustomerUsesEInvoicing("Sell-to Customer No.");
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -222,7 +222,7 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     QuickEntry = false;
-                    ToolTip = 'Specifies the date when the order was created.';
+                    ToolTip = 'Specifies the date the order was created. The order date is also used to determine the prices and discounts on the document.';
                 }
                 field("Due Date"; "Due Date")
                 {
@@ -234,10 +234,10 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the customer has asked for the order to be delivered.';
-                    
+
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Promised Delivery Date"; "Promised Delivery Date")
@@ -380,7 +380,7 @@
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
@@ -909,6 +909,12 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                }
+                field("Language Code"; "Language Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    Visible = false;
                 }
             }
             group(Control1900201301)
@@ -1736,12 +1742,12 @@
                 }
                 group(Flow)
                 {
-                    Caption = 'Flow';
+                    Caption = 'Power Automate';
                     Image = Flow;
                     action(CreateFlow)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Flow';
+                        Caption = 'Create a flow';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1761,7 +1767,7 @@
                     action(SeeFlows)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'See my Flows';
+                        Caption = 'See my flows';
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category9;
@@ -1830,7 +1836,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post (Yes/No)", NavigateAfterPost::"Posted Document");
+                        PostSalesOrder(CODEUNIT::"Sales-Post (Yes/No)", "Navigate After Posting"::"Posted Document");
                     end;
                 }
                 action(PostAndNew)
@@ -1846,7 +1852,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post (Yes/No)", NavigateAfterPost::"New Document");
+                        PostSalesOrder(CODEUNIT::"Sales-Post (Yes/No)", "Navigate After Posting"::"New Document");
                     end;
                 }
                 action(PostAndSend)
@@ -1861,7 +1867,7 @@
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Sales-Post and Send", NavigateAfterPost::"Do Nothing");
+                        PostSalesOrder(CODEUNIT::"Sales-Post and Send", "Navigate After Posting"::"Do Nothing");
                     end;
                 }
                 action("Test Report")
@@ -2243,7 +2249,6 @@
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         Usage: Option "Order Confirmation","Work Order","Pick Instruction";
-        NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         [InDataSet]
         JobQueueVisible: Boolean;
         Text001: Label 'Do you want to change %1 in all related records in the warehouse?';
@@ -2291,11 +2296,18 @@
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
     end;
 
+    [Obsolete('Replaced by PostSalesOrder().', '18.0')]
     procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
+    begin
+        PostSalesOrder(PostingCodeunitID, "Navigate After Posting".FromInteger(Navigate));
+    end;
+
+    local procedure PostSalesOrder(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     var
         SalesHeader: Record "Sales Header";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
@@ -2308,19 +2320,24 @@
 
         CurrPage.Update(false);
 
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, Navigate, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
+
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
 
         case Navigate of
-            NavigateAfterPost::"Posted Document":
+            "Navigate After Posting"::"Posted Document":
                 begin
                     if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
-                        ShowPostedConfirmationMessage;
+                        ShowPostedConfirmationMessage();
 
                     if DocumentIsScheduledForPosting or DocumentIsPosted then
                         CurrPage.Close();
                 end;
-            NavigateAfterPost::"New Document":
+            "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(SalesHeader);
                     SalesHeader.Init();
@@ -2353,17 +2370,17 @@
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure AccountCodeOnAfterValidate()
@@ -2373,7 +2390,7 @@
 
     local procedure Prepayment37OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SetDocNoVisible()
@@ -2519,6 +2536,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateShipToOptionsOnAfterShipToAddressListGetRecord(var ShipToAddress: Record "Ship-to Address"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -556,11 +556,12 @@ page 5094 "Marketing Setup"
                     trigger OnAction()
                     var
                         SetupEmailLogging: Codeunit "Setup Email Logging";
-                        AssistedSetup: Codeunit "Assisted Setup";
+                        GuidedExperience: Codeunit "Guided Experience";
+                        GuidedExperienceType: Enum "Guided Experience Type";
                     begin
                         SetupEmailLogging.RegisterAssistedSetup();
                         Commit(); // Make sure all data is committed before we run the wizard
-                        AssistedSetup.Run(Page::"Setup Email Logging");
+                        GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging");
                         if Find() then
                             EmailLoggingEnabled := "Email Logging Enabled";
                         CurrPage.Update(false);
@@ -621,9 +622,9 @@ page 5094 "Marketing Setup"
 
     trigger OnInit()
     var
-        EnvironmentInformation: Codeunit "Environment Information";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        SoftwareAsAService := EnvironmentInformation.IsSaaSInfrastructure();
+        SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
         ClientCredentialsVisible := not SoftwareAsAService;
         BasicAuthVisible := not SoftwareAsAService;
     end;

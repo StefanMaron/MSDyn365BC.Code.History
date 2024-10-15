@@ -564,12 +564,14 @@ codeunit 419 "File Management"
     [Scope('OnPrem')]
     procedure ServerDirectoryExists(DirectoryPath: Text): Boolean
     begin
+        IsAllowedPath(DirectoryPath, false);
         exit(ServerDirectoryHelper.Exists(DirectoryPath));
     end;
 
     [Scope('OnPrem')]
     procedure ServerCreateDirectory(DirectoryPath: Text)
     begin
+        IsAllowedPath(DirectoryPath, false);
         if not ServerDirectoryExists(DirectoryPath) then
             ServerDirectoryHelper.CreateDirectory(DirectoryPath);
     end;
@@ -588,6 +590,7 @@ codeunit 419 "File Management"
     [Scope('OnPrem')]
     procedure ServerRemoveDirectory(DirectoryPath: Text; Recursive: Boolean)
     begin
+        IsAllowedPath(DirectoryPath, false);
         if ServerDirectoryExists(DirectoryPath) then
             ServerDirectoryHelper.Delete(DirectoryPath, Recursive);
     end;
@@ -668,6 +671,7 @@ codeunit 419 "File Management"
         NameValueBuffer.Reset();
         NameValueBuffer.DeleteAll();
 
+        IsAllowedPath(DirectoryPath, false);
         ArrayHelper := ServerDirectoryHelper.GetFiles(DirectoryPath);
         for i := 1 to ArrayHelper.GetLength(0) do begin
             NameValueBuffer.ID := i;
@@ -693,6 +697,7 @@ codeunit 419 "File Management"
         Index: Integer;
         LastId: Integer;
     begin
+        IsAllowedPath(DirectoryPath, false);
         ArrayHelper := ServerDirectoryHelper.GetFileSystemEntries(DirectoryPath);
         for Index := 1 to ArrayHelper.GetLength(0) do begin
             if NameValueBuffer.FindLast then
@@ -736,6 +741,7 @@ codeunit 419 "File Management"
         FileInfo: DotNet FileInfo;
         ModifyDateTime: DateTime;
     begin
+        IsAllowedPath(FullFileName, false);
         ModifyDateTime := ServerDirectoryHelper.GetLastWriteTime(FullFileName);
         ModifyDate := DT2Date(ModifyDateTime);
         ModifyTime := DT2Time(ModifyDateTime);
@@ -1086,6 +1092,7 @@ codeunit 419 "File Management"
     [Scope('OnPrem')]
     procedure IsServerDirectoryEmpty(Path: Text): Boolean
     begin
+        IsAllowedPath(Path, false);
         if ServerDirectoryHelper.Exists(Path) then
             exit(ServerDirectoryHelper.GetFiles(Path).Length = 0);
         exit(false);
@@ -1143,10 +1150,10 @@ codeunit 419 "File Management"
 
     procedure IsAllowedPath(Path: Text; SkipError: Boolean): Boolean
     var
-        MembershipEntitlement: Record "Membership Entitlement";
+        EnvironmentInformation: Codeunit "Environment Information";
         WebRequestHelper: Codeunit "Web Request Helper";
     begin
-        if not MembershipEntitlement.IsEmpty then
+        if EnvironmentInformation.IsSaaS() then
             if not WebRequestHelper.IsHttpUrl(Path) then begin
                 ClearLastError();
                 if not FILE.IsPathTemporary(Path) then begin

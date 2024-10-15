@@ -264,7 +264,7 @@ report 25 "Account Schedule"
                         repeat
                             i += 1;
                             ColumnHeaderArrayText[i] := ColumnLayout."Column Header";
-                        until (ColumnLayout.Next = 0) or (i = ArrayLen(ColumnHeaderArrayText));
+                        until (ColumnLayout.Next() = 0) or (i = ArrayLen(ColumnHeaderArrayText));
                 end;
             }
 

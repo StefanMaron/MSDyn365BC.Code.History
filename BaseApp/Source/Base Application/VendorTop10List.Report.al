@@ -141,7 +141,7 @@ report 311 "Vendor - Top 10 List"
                     if not VendAmount.Find('-') then
                         CurrReport.Break();
                 end else
-                    if VendAmount.Next = 0 then
+                    if VendAmount.Next() = 0 then
                         CurrReport.Break();
                 VendAmount."Amount (LCY)" := -VendAmount."Amount (LCY)";
                 Vendor.Get(VendAmount."Vendor No.");

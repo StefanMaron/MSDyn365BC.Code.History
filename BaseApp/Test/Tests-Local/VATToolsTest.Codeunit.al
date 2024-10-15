@@ -772,7 +772,7 @@ codeunit 144001 "VAT Tools Test"
         // For Complete Shipping Advice, partial shipments are disallowed, hence select Partial.
         Customer.SetRange("Shipping Advice", Customer."Shipping Advice"::Partial);
 
-        Customer.FindSet;
+        Customer.FindSet();
     end;
 
     local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
@@ -792,7 +792,7 @@ codeunit 144001 "VAT Tools Test"
         Item.SetFilter("Unit Price", '<>0');
         Item.SetFilter(Reserve, '<>%1', Item.Reserve::Always);
 
-        Item.FindSet;
+        Item.FindSet();
     end;
 
     local procedure FindVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])

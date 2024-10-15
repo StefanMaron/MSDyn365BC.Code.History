@@ -837,8 +837,7 @@ codeunit 136310 "Job Batch Jobs"
         // [SCENARIO 374796] Unit and Total Cost of Job Ledger Entry and Job Planning Line should be updated after posting Revaluation and executing Adjust Cost Item Entry with "Automatic Update Job Item Cost"
 
         // [GIVEN] "Automatic Update Job Item Cost" = Yes in Job Setup.
-        Initialize;
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
+        Initialize();
         UpdateCostFieldsInInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Never);
         UpdateAutomaticCostOnJobsSetup(true);
         // [GIVEN] Posted Purchase order
@@ -1252,6 +1251,132 @@ codeunit 136310 "Job Batch Jobs"
         JobPlanningLine.TestField("Qty. Invoiced", Qty);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShouldSetDefaultBinCodeIfAvailableWhenLocationChanges()
+    var
+        ItemA: Record Item;
+        ItemB: Record Item;
+        JobJournalLine: Record "Job Journal Line";
+        LocationA: Record Location;
+        LocationB: Record Location;
+        BinA: Record Bin;
+        BinB: Record Bin;
+    begin
+        // [SCENARIO] Should set the job journal line bin code when the item is set and the location changes to a location with a default bin code.
+        InitSetupForDefaultBinCodeTests(ItemA, ItemB, JobJournalLine, LocationA, LocationB, BinA, BinB);
+
+        // [WHEN] Setting item A on the job journal line.
+        JobJournalLine.Validate("No.", ItemA."No.");
+
+        // [THEN] The bin code is not set.
+        Assert.AreEqual(JobJournalLine."Bin Code", '', 'Expected default bin to not be set. ');
+
+        // [WHEN] Setting item A on the job journal line.
+        JobJournalLine.Validate("Location Code", LocationB.Code);
+
+        // [THEN] The bin code is not set.
+        Assert.AreEqual(JobJournalLine."Bin Code", '', 'Expected default bin to not be set. ');
+
+        // [WHEN] Setting location A on the job journal line.
+        JobJournalLine.Validate("Location Code", LocationA.Code);
+
+        // [THEN] The bin code is populated with the default bin code for item A.
+        Assert.AreEqual(JobJournalLine."Bin Code", BinA.Code, 'Expected default bin to be set. ');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShouldSetDefaultBinCodeIfAvailableWhenItemChanges()
+    var
+        ItemA: Record Item;
+        ItemB: Record Item;
+        JobJournalLine: Record "Job Journal Line";
+        LocationA: Record Location;
+        LocationB: Record Location;
+        BinA: Record Bin;
+        BinB: Record Bin;
+    begin
+        // [SCENARIO] Should set the job journal line bin code when the location is set and the item changes to an item with a default bin code.
+        InitSetupForDefaultBinCodeTests(ItemA, ItemB, JobJournalLine, LocationA, LocationB, BinA, BinB);
+
+        // [WHEN] Setting item B on the job journal line.
+        JobJournalLine.Validate("No.", ItemB."No.");
+
+        // [THEN] The bin code is not set.
+        Assert.AreEqual(JobJournalLine."Bin Code", '', 'Expected default bin to not be set. ');
+
+        // [WHEN] Setting location A on the job journal line.
+        JobJournalLine.Validate("Location Code", LocationA.Code);
+
+        // [THEN] The bin code is not set.
+        Assert.AreEqual(JobJournalLine."Bin Code", '', 'Expected default bin to not be set. ');
+
+        // [WHEN] Setting item A on the job journal line.
+        JobJournalLine.Validate("No.", ItemA."No.");
+
+        // [THEN] The bin code is populated with the default bin code for item A.
+        Assert.AreEqual(JobJournalLine."Bin Code", BinA.Code, 'Expected default bin to be set. ');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShouldClearBinCodeWhenLocationChanges()
+    var
+        ItemA: Record Item;
+        ItemB: Record Item;
+        JobJournalLine: Record "Job Journal Line";
+        LocationA: Record Location;
+        LocationB: Record Location;
+        BinA: Record Bin;
+        BinB: Record Bin;
+    begin
+        // [SCENARIO] Should clear the job journal line bin code when the location changes to a location with no default bin code.
+        InitSetupForDefaultBinCodeTests(ItemA, ItemB, JobJournalLine, LocationA, LocationB, BinA, BinB);
+
+        // [WHEN] Setting item A and location A on the job journal line.
+        JobJournalLine.Validate("No.", ItemA."No.");
+        JobJournalLine.Validate("Location Code", LocationA.Code);
+
+        // [THEN] The bin code is populated with the default bin code for item A.
+        Assert.AreEqual(JobJournalLine."Bin Code", BinA.Code, 'Expected default bin to be set. ');
+
+        // [WHEN] Setting location B on the job journal line.
+        JobJournalLine.Validate("Location Code", LocationB.Code);
+
+        // [THEN] The bin code is cleared.
+        Assert.AreEqual(JobJournalLine."Bin Code", '', 'Expected default bin to be cleared. ');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShouldClearBinCodeWhenItemChanges()
+    var
+        ItemA: Record Item;
+        ItemB: Record Item;
+        JobJournalLine: Record "Job Journal Line";
+        LocationA: Record Location;
+        LocationB: Record Location;
+        BinA: Record Bin;
+        BinB: Record Bin;
+    begin
+        // [SCENARIO] Should clear the job journal line bin code when the item changes to an item with no default bin code.
+        InitSetupForDefaultBinCodeTests(ItemA, ItemB, JobJournalLine, LocationA, LocationB, BinA, BinB);
+
+        // [WHEN] Setting item A and location A on the job journal line.
+        JobJournalLine.Validate("No.", ItemA."No.");
+        JobJournalLine.Validate("Location Code", LocationA.Code);
+
+        // [THEN] The bin code is populated with the default bin code for item A.
+        Assert.AreEqual(JobJournalLine."Bin Code", BinA.Code, 'Expected default bin to be set. ');
+
+        // [WHEN] When setting item B.
+        JobJournalLine.Validate("No.", ItemB."No.");
+
+        // [THEN] The bin code is cleared.
+        Assert.AreEqual(JobJournalLine."Bin Code", '', 'Expected default bin to be cleared. ');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1353,7 +1478,7 @@ codeunit 136310 "Job Batch Jobs"
         SalesInvoice."Currency Code".AssistEdit;
     end;
 
-    local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; LineType: Option; ConsumableType: Enum "Job Planning Line Type"; No: Code[20]; Qty: Decimal; UnitCost: Decimal; PostingDate: Date)
+    local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; LineType: Enum "Job Line Type"; ConsumableType: Enum "Job Planning Line Type"; No: Code[20]; Qty: Decimal; UnitCost: Decimal; PostingDate: Date)
     begin
         LibraryJob.CreateJobJournalLineForType(LineType, ConsumableType, JobTask, JobJournalLine);
         with JobJournalLine do begin
@@ -1478,13 +1603,13 @@ codeunit 136310 "Job Batch Jobs"
 
     local procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; No: Code[20])
     begin
-        LibraryJob.CreateJobJournalLineForType(2, JobJournalLine.Type::Item, JobTask, JobJournalLine);  // Use 2 for Contract.
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::Billable, JobJournalLine.Type::Item, JobTask, JobJournalLine);
         JobJournalLine.Validate("No.", No);
         JobJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
         JobJournalLine.Modify(true);
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; Type: Enum "Job Planning Line Type"; No: Code[20]; JobTask: Record "Job Task")
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; Type: Enum "Job Planning Line Type"; No: Code[20]; JobTask: Record "Job Task")
     begin
         // Use Random values for Quantity and Unit Cost because values are not important.
         LibraryJob.CreateJobPlanningLine(LineType, Type, JobTask, JobPlanningLine);
@@ -1514,7 +1639,7 @@ codeunit 136310 "Job Batch Jobs"
         GenProductPostingGroup.Modify(true);
     end;
 
-    local procedure CreateJobPlanningLineWithPlanningDate(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Option; PlanningDate: Date)
+    local procedure CreateJobPlanningLineWithPlanningDate(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; PlanningDate: Date)
     begin
         CreateJobPlanningLine(JobPlanningLine, LineType, LibraryJob.ResourceType, CreateResource, JobTask);
         with JobPlanningLine do begin
@@ -1728,7 +1853,7 @@ codeunit 136310 "Job Batch Jobs"
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", EntryType);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Cost Amount (Actual)");
                 TotalCost += Abs("Cost Amount (Actual)");
@@ -2033,7 +2158,7 @@ codeunit 136310 "Job Batch Jobs"
         JobJournalLine.TestField("Line Discount %", Round((LineAmount - JobJournalLine."Line Amount") / LineAmount * 100, 0.00001));  // Taking rounding precision as used in Job Journal Line Table rounding precision.
     end;
 
-    local procedure VerifyJobPlanningLine(JobNo: Code[20]; JobTaskNo: Code[20]; LineType: Option; No: Code[20])
+    local procedure VerifyJobPlanningLine(JobNo: Code[20]; JobTaskNo: Code[20]; LineType: Enum "Job Planning Line Line Type"; No: Code[20])
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
@@ -2073,7 +2198,7 @@ codeunit 136310 "Job Batch Jobs"
         JobLedgerEntry.TestField("Unit Cost", UnitCost);
     end;
 
-    local procedure VerifyTransferJobPlanningLine(JobJournalLine: Record "Job Journal Line"; LineType: Option; LineNo: Integer)
+    local procedure VerifyTransferJobPlanningLine(JobJournalLine: Record "Job Journal Line"; LineType: Enum "Job Planning Line Line Type"; LineNo: Integer)
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
@@ -2085,7 +2210,7 @@ codeunit 136310 "Job Batch Jobs"
         JobPlanningLine.TestField(Quantity, JobJournalLine.Quantity);
     end;
 
-    local procedure VerifyValuesOnJobPlanningLine(JobNo: Code[20]; JobTaskNo: Code[20]; LineType: Option; Quantity: Decimal)
+    local procedure VerifyValuesOnJobPlanningLine(JobNo: Code[20]; JobTaskNo: Code[20]; LineType: Enum "Job Planning Line Line Type"; Quantity: Decimal)
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
@@ -2120,7 +2245,7 @@ codeunit 136310 "Job Batch Jobs"
     begin
         JobPlanningLineInvoice.SetRange("Job No.", JobTask."Job No.");
         JobPlanningLineInvoice.SetRange("Job Task No.", JobTask."Job Task No.");
-        if not JobPlanningLineInvoice.IsEmpty then
+        if not JobPlanningLineInvoice.IsEmpty() then
             Error(SalesInvoiceExistErr, JobPlanningLineInvoice.TableCaption);
     end;
 
@@ -2155,10 +2280,10 @@ codeunit 136310 "Job Batch Jobs"
         LineNo: Integer;
     begin
         JobTaskLine1.SetRange("Job No.", JobNo1);
-        JobTaskLine1.FindSet;
+        JobTaskLine1.FindSet();
         with JobTaskLine2 do begin
             SetRange("Job No.", JobNo2);
-            FindSet;
+            FindSet();
             repeat
                 LineNo += 1;
                 if LineNo <> LastLineNo then
@@ -2379,6 +2504,70 @@ codeunit 136310 "Job Batch Jobs"
         NoSeriesLine.Insert(true);
 
         SeriesCode := Code;
+    end;
+
+    // Setups Item A with default bin code A and item B with non-default bin code B.
+    local procedure InitSetupForDefaultBinCodeTests(
+        var ItemA: Record Item;
+        var ItemB: Record Item;
+        var JobJournalLine: Record "Job Journal Line";
+        var LocationA: Record Location;
+        var LocationB: Record Location;
+        var BinA: Record Bin;
+        var BinB: Record Bin
+    )
+    var
+        JobTask: Record "Job Task";
+        BinContentA: Record "Bin Content";
+        BinContentB: Record "Bin Content";
+    begin
+        Initialize();
+
+        // Two locations, A and B.
+        LibraryWarehouse.CreateLocationWMS(LocationA, true, true, false, false, false);
+        LibraryWarehouse.CreateLocationWMS(LocationB, true, true, false, false, false);
+
+        // Two items A and B.
+        LibraryInventory.CreateItem(ItemA);
+        LibraryInventory.CreateItem(ItemB);
+
+        // Two bins, one default for item A and one not default for item B.
+        LibraryWarehouse.CreateBin(
+            BinA,
+            LocationA.Code,
+            CopyStr(
+                LibraryUtility.GenerateRandomCode(BinA.FieldNo(Code), DATABASE::Bin),
+                1,
+                LibraryUtility.GetFieldLength(DATABASE::Bin, BinA.FieldNo(Code))
+            ),
+            '',
+            ''
+        );
+        LibraryWarehouse.CreateBinContent(
+            BinContentA, BinA."Location Code", '', BinA.Code, ItemA."No.", '', ItemA."Base Unit of Measure"
+        );
+        BinContentA.Validate(Fixed, true);
+        BinContentA.Validate(Default, true);
+        BinContentA.Modify(true);
+
+        LibraryWarehouse.CreateBin(
+            BinB,
+            LocationB.Code,
+            CopyStr(
+                LibraryUtility.GenerateRandomCode(BinB.FieldNo(Code), DATABASE::Bin),
+                1,
+                LibraryUtility.GetFieldLength(DATABASE::Bin, BinB.FieldNo(Code))
+            ),
+            '',
+            ''
+        );
+        LibraryWarehouse.CreateBinContent(
+            BinContentB, BinB."Location Code", '', BinB.Code, ItemB."No.", '', ItemB."Base Unit of Measure"
+        );
+
+        // A job with an item journal line.
+        CreateJobAndJobTask(JobTask);
+        CreateJobJournalLine(JobJournalLine, JobTask, '');
     end;
 }
 

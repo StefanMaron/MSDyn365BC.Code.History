@@ -74,7 +74,7 @@ report 193 "Issue Finance Charge Memos"
                                 IssuedFinChrgMemoHeader.SetRecFilter;
                                 IssuedFinChrgMemoHeader.PrintRecords(false, PrintDoc = PrintDoc::Email, HideDialog);
                             end;
-                        until TempIssuedFinChrgMemoHeader.Next = 0;
+                        until TempIssuedFinChrgMemoHeader.Next() = 0;
                 MarkedOnly := true;
                 if FindFirst then
                     if ConfirmManagement.GetResponse(ShowNotIssuedQst, true) then

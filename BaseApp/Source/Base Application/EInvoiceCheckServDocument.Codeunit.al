@@ -124,7 +124,7 @@ codeunit 10623 "E-Invoice Check Serv. Document"
                               MissingUnitOfMeasureCodeErr, "Unit of Measure Code", UnitOfMeasure.FieldCaption("International Standard Code"),
                               UnitOfMeasure.TableCaption);
                     end;
-                until (Next = 0);
+                until (Next() = 0);
 
             if EmptyLineFound then
                 if not Confirm(EmptyFieldsQst, true, "Document Type", "Document No.") then

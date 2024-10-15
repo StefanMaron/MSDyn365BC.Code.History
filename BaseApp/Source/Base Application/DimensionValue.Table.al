@@ -155,6 +155,8 @@ table 349 "Dimension Value"
     }
 
     trigger OnDelete()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
     begin
         CheckIfDimValueUsedFromOnDelete();
 
@@ -178,6 +180,12 @@ table 349 "Dimension Value"
         AnalysisSelectedDim.SetRange("Dimension Code", "Dimension Code");
         AnalysisSelectedDim.SetRange("New Dimension Value Code", Code);
         AnalysisSelectedDim.DeleteAll(true);
+
+        DimValuePerAccount.SetRange("Dimension Code", "Dimension Code");
+        DimValuePerAccount.SetRange("Dimension Value Code", Code);
+        DimValuePerAccount.DeleteAll(true);
+
+        DimMgt.UpdateDefaultDimensionAllowedDimensionValues(Rec);
     end;
 
     trigger OnInsert()
@@ -191,6 +199,7 @@ table 349 "Dimension Value"
             CostAccMgt.UpdateCostObjectFromDim(Rec, Rec, 0);
         end;
 
+        DimMgt.AddDefaultDimensionAllowedDimensionValue(Rec);
         SetLastModifiedDateTime;
     end;
 
@@ -234,6 +243,7 @@ table 349 "Dimension Value"
         AnalysisSelectedDim: Record "Analysis Selected Dimension";
         CostAccSetup: Record "Cost Accounting Setup";
         CostAccMgt: Codeunit "Cost Account Mgt";
+        DimMgt: Codeunit DimensionManagement;
         Text006: Label 'You cannot change the value of %1.';
 
     procedure CheckIfDimValueUsed(): Boolean
@@ -271,7 +281,7 @@ table 349 "Dimension Value"
         GLBudget.LockTable();
         if GLBudget.Find('-') then
             repeat
-            until GLBudget.Next = 0;
+            until GLBudget.Next() = 0;
         for BudgDimNo := 1 to 4 do begin
             case true of
                 BudgDimNo = 1:
@@ -311,9 +321,9 @@ table 349 "Dimension Value"
                                     GLBudgetEntry2."Budget Dimension 4 Code" := Code;
                             end;
                             GLBudgetEntry2.Modify();
-                        until GLBudgetEntry.Next = 0;
+                        until GLBudgetEntry.Next() = 0;
                     GLBudgetEntry.Reset();
-                until GLBudget.Next = 0;
+                until GLBudget.Next() = 0;
             end;
             GLBudget.Reset();
         end;
@@ -331,7 +341,7 @@ table 349 "Dimension Value"
         AnalysisView.LockTable();
         if AnalysisView.Find('-') then
             repeat
-            until AnalysisView.Next = 0;
+            until AnalysisView.Next() = 0;
 
         for DimensionNo := 1 to 4 do begin
             case true of
@@ -385,7 +395,7 @@ table 349 "Dimension Value"
                             end;
                             AnalysisViewEntry.Delete();
                             AnalysisViewEntry2.Insert();
-                        until AnalysisViewEntry.Next = 0;
+                        until AnalysisViewEntry.Next() = 0;
                     AnalysisViewEntry.Reset();
                     if AnalysisViewBudgEntry.Find('-') then
                         repeat
@@ -402,9 +412,9 @@ table 349 "Dimension Value"
                             end;
                             AnalysisViewBudgEntry.Delete();
                             AnalysisViewBudgEntry2.Insert();
-                        until AnalysisViewBudgEntry.Next = 0;
+                        until AnalysisViewBudgEntry.Next() = 0;
                     AnalysisViewBudgEntry.Reset();
-                until AnalysisView.Next = 0;
+                until AnalysisView.Next() = 0;
             AnalysisView.Reset();
         end;
     end;
@@ -419,7 +429,7 @@ table 349 "Dimension Value"
         ItemBudget.LockTable();
         if ItemBudget.Find('-') then
             repeat
-            until ItemBudget.Next = 0;
+            until ItemBudget.Next() = 0;
 
         for BudgDimNo := 1 to 3 do begin
             case true of
@@ -456,9 +466,9 @@ table 349 "Dimension Value"
                                     ItemBudgetEntry2."Budget Dimension 3 Code" := Code;
                             end;
                             ItemBudgetEntry2.Modify();
-                        until ItemBudgetEntry.Next = 0;
+                        until ItemBudgetEntry.Next() = 0;
                     ItemBudgetEntry.Reset();
-                until ItemBudget.Next = 0;
+                until ItemBudget.Next() = 0;
             end;
             ItemBudget.Reset();
         end;
@@ -476,7 +486,7 @@ table 349 "Dimension Value"
         ItemAnalysisView.LockTable();
         if ItemAnalysisView.Find('-') then
             repeat
-            until ItemAnalysisView.Next = 0;
+            until ItemAnalysisView.Next() = 0;
 
         for DimensionNo := 1 to 3 do begin
             case true of
@@ -523,7 +533,7 @@ table 349 "Dimension Value"
                             end;
                             ItemAnalysisViewEntry.Delete();
                             ItemAnalysisViewEntry2.Insert();
-                        until ItemAnalysisViewEntry.Next = 0;
+                        until ItemAnalysisViewEntry.Next() = 0;
                     ItemAnalysisViewEntry.Reset();
                     if ItemAnalysisViewBudgEntry.Find('-') then
                         repeat
@@ -538,9 +548,9 @@ table 349 "Dimension Value"
                             end;
                             ItemAnalysisViewBudgEntry.Delete();
                             ItemAnalysisViewBudgEntry2.Insert();
-                        until ItemAnalysisViewBudgEntry.Next = 0;
+                        until ItemAnalysisViewBudgEntry.Next() = 0;
                     ItemAnalysisViewBudgEntry.Reset();
-                until ItemAnalysisView.Next = 0;
+                until ItemAnalysisView.Next() = 0;
             ItemAnalysisView.Reset();
         end;
     end;

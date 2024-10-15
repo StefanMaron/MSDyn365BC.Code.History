@@ -39,7 +39,7 @@ xmlport 10618 "Trade Settlement 2017"
 
                     trigger OnBeforePassVariable()
                     begin
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                     end;
                 }
                 textelement(organisasjonsnavn)
@@ -56,7 +56,7 @@ xmlport 10618 "Trade Settlement 2017"
 
                     trigger OnBeforePassVariable()
                     begin
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                     end;
                 }
                 textelement(KIDnummer)
@@ -64,7 +64,7 @@ xmlport 10618 "Trade Settlement 2017"
 
                     trigger OnBeforePassVariable()
                     begin
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                     end;
                 }
                 textelement(iban)
@@ -122,7 +122,7 @@ xmlport 10618 "Trade Settlement 2017"
 
                 trigger OnBeforePassVariable()
                 begin
-                    currXMLport.Skip;
+                    currXMLport.Skip();
                 end;
             }
             textelement(mvaSumAvgift)
@@ -134,7 +134,7 @@ xmlport 10618 "Trade Settlement 2017"
                     trigger OnBeforePassVariable()
                     begin
                         if not PositiveVATSum then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(tilGode)
@@ -144,7 +144,7 @@ xmlport 10618 "Trade Settlement 2017"
                     trigger OnBeforePassVariable()
                     begin
                         if PositiveVATSum then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
             }
@@ -259,7 +259,7 @@ xmlport 10618 "Trade Settlement 2017"
 
                 trigger OnBeforePassVariable()
                 begin
-                    currXMLport.Skip;
+                    currXMLport.Skip();
                 end;
             }
         }

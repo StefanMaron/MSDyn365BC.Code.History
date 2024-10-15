@@ -272,7 +272,7 @@ report 15000063 "Remittance - Import (BBS)"
             WaitingJournal.Validate("Journal, Settlement Template", GenJnlLine."Journal Template Name");
             WaitingJournal.Validate("Journal - Settlement", GenJnlLine."Journal Batch Name");
             WaitingJournal.Modify(true);
-        until WaitingJournal.Next = 0;
+        until WaitingJournal.Next() = 0;
 
         CreateBalanceEntry(
           TransBBSDate, WaitingJournal."Account No.", RemAccount, RemAgreement,

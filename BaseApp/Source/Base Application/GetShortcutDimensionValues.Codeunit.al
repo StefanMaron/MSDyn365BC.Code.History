@@ -63,7 +63,7 @@ codeunit 480 "Get Shortcut Dimension Values"
         WhenGotGLSetup := CurrentDateTime;
     end;
 
-    [EventSubscriber(ObjectType::Table, 98, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"General Ledger Setup", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnGLSetupModify(var Rec: Record "General Ledger Setup"; var xRec: Record "General Ledger Setup"; RunTrigger: Boolean)
     begin
         HasGotGLSetup := false;

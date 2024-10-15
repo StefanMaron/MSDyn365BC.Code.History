@@ -592,7 +592,7 @@ table 5995 "Service Cr.Memo Line"
                 TempVATAmountLine.CopyFromServCrMemoLine(Rec);
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServCrMemoHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]

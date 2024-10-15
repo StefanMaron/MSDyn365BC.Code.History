@@ -215,7 +215,7 @@ page 2318 "BC O365 Sales Customer Card"
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
                             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
 
@@ -423,17 +423,17 @@ page 2318 "BC O365 Sales Customer Card"
 
     local procedure CreateCustomerFromTemplate()
     var
-        MiniCustomerTemplate: Record "Mini Customer Template";
         Customer: Record Customer;
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
     begin
         if NewMode then begin
-            if MiniCustomerTemplate.NewCustomerFromTemplate(Customer) then
+            if CustomerTemplMgt.InsertCustomerFromTemplate(Customer) then
                 Copy(Customer);
 
             TotalsHidden := true;
 
             CustomerCardState := CustomerCardState::Delete;
-            CurrPage.Update;
+            CurrPage.Update();
             NewMode := false;
         end;
     end;

@@ -134,7 +134,7 @@ codeunit 10635 "Import SEPA Common"
                     ; // do nothing
             end;
             WaitingJournal.Modify();
-        until WaitingJournal.Next = 0;
+        until WaitingJournal.Next() = 0;
     end;
 
     [Scope('OnPrem')]

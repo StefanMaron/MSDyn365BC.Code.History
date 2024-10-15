@@ -2579,22 +2579,22 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         until (ExpectedDataExchField.Next = 0);
     end;
 
-    local procedure AssertDataExchTypeMatchesResponse(IncomingDocument: Record "Incoming Document"; Choice: Integer)
+    local procedure AssertDataExchTypeMatchesResponse(IncomingDocument: Record "Incoming Document"; RelatedDocumentType: Enum "Incoming Related Document Type")
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         GenJournalLine: Record "Gen. Journal Line";
         RecordVar: Variant;
     begin
-        LibraryVariableStorage.Enqueue(Choice);
+        LibraryVariableStorage.Enqueue(RelatedDocumentType.AsInteger());
         IncomingDocument.CreateManually;
 
         if not IncomingDocument.GetRecord(RecordVar) then
-            Error(NoDocCreatedForChoiceErr, Choice);
+            Error(NoDocCreatedForChoiceErr, RelatedDocumentType);
 
         // Assert - error will occur is casting fails
         with IncomingDocument do
-            case Choice of
+            case RelatedDocumentType of
                 "Document Type"::"Sales Invoice":
                     begin
                         SalesHeader := RecordVar;
@@ -2626,7 +2626,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
                         GenJournalLine.Delete();
                     end;
                 else
-                    Error(UnknownChoiceErr, Choice);
+                    Error(UnknownChoiceErr, RelatedDocumentType);
             end;
     end;
 

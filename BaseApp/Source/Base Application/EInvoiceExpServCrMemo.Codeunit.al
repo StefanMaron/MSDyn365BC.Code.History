@@ -23,7 +23,7 @@ codeunit 10627 "E-Invoice Exp. Serv. Cr. Memo"
         repeat
             if not IsRoundingLine(ServiceCrMemoLine) then
                 FillLineTableData(TempEInvoiceExportLine, ServiceCrMemoLine);
-        until ServiceCrMemoLine.Next = 0;
+        until ServiceCrMemoLine.Next() = 0;
 
         // export section
         ExportToXML(TempEInvoiceExportHeader, TempEInvoiceExportLine);
@@ -65,7 +65,7 @@ codeunit 10627 "E-Invoice Exp. Serv. Cr. Memo"
             AddHeaderLegalMonetaryTotal;
 
             // Common for invoice and credit memo header
-            TempEInvoiceExportLine.FindSet;
+            TempEInvoiceExportLine.FindSet();
 
             repeat
                 CreateLineNode(TempEInvoiceExportLine);
@@ -74,7 +74,7 @@ codeunit 10627 "E-Invoice Exp. Serv. Cr. Memo"
                 AddLineTaxTotal;
                 AddLineItem;
                 AddLinePrice;
-            until TempEInvoiceExportLine.Next = 0;
+            until TempEInvoiceExportLine.Next() = 0;
 
             // Save file
             ServiceMgtSetup.Get();
@@ -147,7 +147,7 @@ codeunit 10627 "E-Invoice Exp. Serv. Cr. Memo"
                     TempEInvoiceExportHeader."Total Amount" += ServiceCrMemoLine."Amount Including VAT";
                     TempEInvoiceExportHeader."Tax Amount" += ServiceCrMemoLine."Amount Including VAT" - ServiceCrMemoLine.Amount;
                 end;
-            until ServiceCrMemoLine.Next = 0;
+            until ServiceCrMemoLine.Next() = 0;
         end;
     end;
 

@@ -73,7 +73,7 @@ page 1528 "Workflow Status FactBox"
                 Insert;
             end;
             InstanceID := WorkflowStepInstance.ID;
-        until WorkflowStepInstance.Next = 0;
+        until WorkflowStepInstance.Next() = 0;
         exit(not IsEmpty);
     end;
 }

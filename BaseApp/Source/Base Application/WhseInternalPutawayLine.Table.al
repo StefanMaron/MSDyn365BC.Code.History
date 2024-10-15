@@ -1,4 +1,4 @@
-﻿table 7332 "Whse. Internal Put-away Line"
+table 7332 "Whse. Internal Put-away Line"
 {
     Caption = 'Whse. Internal Put-away Line';
     LookupPageID = "Whse. Internal Put-away Lines";

@@ -7,18 +7,18 @@ codeunit 6111 "Vendor Data Migration Facade"
         DataMigrationStatusFacade: Codeunit "Data Migration Status Facade";
         ChartOfAccountsMigrated: Boolean;
     begin
-        FindSet;
         ChartOfAccountsMigrated := DataMigrationStatusFacade.HasMigratedChartOfAccounts(Rec);
-        repeat
-            OnMigrateVendor("Staging Table RecId To Process");
-            OnMigrateVendorDimensions("Staging Table RecId To Process");
+        if FindSet() then
+            repeat
+                OnMigrateVendor("Staging Table RecId To Process");
+                OnMigrateVendorDimensions("Staging Table RecId To Process");
 
-            // migrate transactions for this vendor
-            OnMigrateVendorPostingGroups("Staging Table RecId To Process", ChartOfAccountsMigrated);
-            OnMigrateVendorTransactions("Staging Table RecId To Process", ChartOfAccountsMigrated);
-            GenJournalLineIsSet := false;
-            VendorIsSet := false;
-        until Next = 0;
+                // migrate transactions for this vendor
+                OnMigrateVendorPostingGroups("Staging Table RecId To Process", ChartOfAccountsMigrated);
+                OnMigrateVendorTransactions("Staging Table RecId To Process", ChartOfAccountsMigrated);
+                GenJournalLineIsSet := false;
+                VendorIsSet := false;
+            until Next() = 0;
     end;
 
     var

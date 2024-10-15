@@ -407,7 +407,7 @@ report 28 "Dimensions - Detail"
                             DimFilterText := DimFilterText + ThisFilter;
                         SetAnaViewEntryFilter(
                           TempSelectedDim."Dimension Code", TempSelectedDim."Dimension Value Filter");
-                    until TempSelectedDim.Next = 0;
+                    until TempSelectedDim.Next() = 0;
                 AnalysisViewEntry.FilterGroup(0);
 
                 TempSelectedDim.Reset();
@@ -419,7 +419,7 @@ report 28 "Dimensions - Detail"
                         DimCode[i] := TempSelectedDim."Dimension Code";
                         LevelFilter[i] := TempSelectedDim."Dimension Value Filter";
                         i := i + 1;
-                    until (TempSelectedDim.Next = 0) or (i > 4);
+                    until (TempSelectedDim.Next() = 0) or (i > 4);
             end;
 
             trigger OnPreDataItem()
@@ -552,7 +552,7 @@ report 28 "Dimensions - Detail"
                 TempGLAcc.Init();
                 TempGLAcc := GLAcc;
                 TempGLAcc.Insert();
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
 
         TempBusUnit.Init();
         TempBusUnit.Insert();
@@ -564,7 +564,7 @@ report 28 "Dimensions - Detail"
                 TempBusUnit.Init();
                 TempBusUnit := BusUnit;
                 TempBusUnit.Insert();
-            until BusUnit.Next = 0;
+            until BusUnit.Next() = 0;
 
         SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Dimensions - Detail", AnalysisViewCode, TempSelectedDim);
         TempSelectedDim.Reset();
@@ -589,8 +589,8 @@ report 28 "Dimensions - Detail"
                         TempDimVal.Init();
                         TempDimVal := DimVal;
                         TempDimVal.Insert();
-                    until DimVal.Next = 0;
-            until TempSelectedDim.Next = 0;
+                    until DimVal.Next() = 0;
+            until TempSelectedDim.Next() = 0;
     end;
 
     var
@@ -672,14 +672,14 @@ report 28 "Dimensions - Detail"
             if AnalysisViewEntry.Find('-') then begin
                 repeat
                     AnalysisViewEntryToGLEntries.GetGLEntries(AnalysisViewEntry, TempGLEntry);
-                until AnalysisViewEntry.Next = 0;
+                until AnalysisViewEntry.Next() = 0;
             end;
             TempGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
             TempGLEntry.SetFilter("Posting Date", DateFilter);
             if not TempGLEntry.Find('-') then
                 exit(false);
         end else
-            if TempGLEntry.Next = 0 then
+            if TempGLEntry.Next() = 0 then
                 exit(false);
         if Level > 1 then
             CalcTotalAmounts(Level - 1);
@@ -720,7 +720,7 @@ report 28 "Dimensions - Detail"
                 TempDimSelectionBuf."Dimension Value Filter" := SelectedDim."Dimension Value Filter";
                 TempDimSelectionBuf.Level := SelectedDim.Level;
                 TempDimSelectionBuf.Insert();
-            until SelectedDim.Next = 0;
+            until SelectedDim.Next() = 0;
             TempDimSelectionBuf.SetDimSelection(
               3, REPORT::"Dimensions - Detail", AnalysisViewCode, ColumnDim, TempDimSelectionBuf);
         end;

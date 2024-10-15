@@ -10,7 +10,7 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
         LineNo: Integer;
     begin
         GenJnlLine.SetRange("Data Exch. Entry No.", "Entry No.");
-        GenJnlLine.FindSet;
+        GenJnlLine.FindSet();
 
         Window.Open(ProgressMsg);
 
@@ -19,7 +19,7 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
             Window.Update(1, LineNo);
 
             PreparePaymentExportDataJnl(GenJnlLine, GenJnlLine."Data Exch. Entry No.", LineNo);
-        until GenJnlLine.Next = 0;
+        until GenJnlLine.Next() = 0;
 
         Window.Close;
     end;

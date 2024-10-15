@@ -41,9 +41,8 @@ page 6311 "PBI Job Profitability"
     trigger OnOpenPage()
     var
         PBIJobChartCalc: Codeunit "PBI Job Chart Calc.";
-        JobChartType: Option Profitability,"Actual to Budget Cost","Actual to Budget Price";
     begin
-        PBIJobChartCalc.GetValues(Rec, JobChartType::Profitability);
+        PBIJobChartCalc.GetValues(Rec, "Job Chart Type"::Profitability.AsInteger());
     end;
 }
 

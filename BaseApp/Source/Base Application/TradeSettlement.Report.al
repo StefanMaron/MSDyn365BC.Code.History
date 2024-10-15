@@ -565,7 +565,7 @@ report 10602 "Trade Settlement"
 
         VATPeriod.Get(VatPeriodNo);
         StartDate := DMY2Date(VATPeriod."Start Day", VATPeriod."Start Month", Year);
-        if VATPeriod.Next = 0 then begin
+        if VATPeriod.Next() = 0 then begin
             VATPeriod.Find('-');
             Year := Year + 1;
         end;

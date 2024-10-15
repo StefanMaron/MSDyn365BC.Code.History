@@ -24,7 +24,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
         repeat
             if not IsRoundingLine(IssuedReminderLine, "Customer No.") then
                 FillLineTableData(TempEInvoiceExportLine, IssuedReminderLine);
-        until IssuedReminderLine.Next = 0;
+        until IssuedReminderLine.Next() = 0;
 
         EInvoiceExportCommon.SetEInvoiceCommonTables(TempEInvoiceExportHeader, TempEInvoiceExportLine);
 
@@ -36,7 +36,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
         EInvoiceExportCommon.AddHeaderTaxTotal;
         EInvoiceExportCommon.AddHeaderLegalMonetaryTotal;
 
-        TempEInvoiceExportLine.FindSet;
+        TempEInvoiceExportLine.FindSet();
         repeat
             if (TempEInvoiceExportLine.Type <> TempEInvoiceExportLine.Type::" ") or (TempEInvoiceExportLine."No." <> '') or
                (TempEInvoiceExportLine.Description <> '')
@@ -44,7 +44,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
                 EInvoiceExportCommon.CreateLineNode(TempEInvoiceExportLine);
                 EInvoiceExportCommon.AddLineReminderContent;
             end;
-        until TempEInvoiceExportLine.Next = 0;
+        until TempEInvoiceExportLine.Next() = 0;
 
         // Save file
         SalesSetup.Get();
@@ -117,7 +117,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
                     TempEInvoiceExportHeader."Total Amount" += IssuedReminderLine.Amount + IssuedReminderLine."VAT Amount";
                     TempEInvoiceExportHeader."Tax Amount" += IssuedReminderLine."VAT Amount";
                 end;
-            until IssuedReminderLine.Next = 0;
+            until IssuedReminderLine.Next() = 0;
         end;
     end;
 

@@ -370,7 +370,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         // Sum all service orders within the period
         CFWorksheetLine.SetRange("Source Type", CFWorksheetLine."Source Type"::"Service Orders");
         CFWorksheetLine.SetRange("Cash Flow Date", FromDate, ToDate);
-        CFWorksheetLine.FindSet;
+        CFWorksheetLine.FindSet();
         repeat
             TotalAmount += CFWorksheetLine."Amount (LCY)";
         until CFWorksheetLine.Next = 0;
@@ -414,7 +414,7 @@ codeunit 134558 "ERM Cash Flow Pages"
         CFWorksheetLine.FindFirst;
         FromDate := CFWorksheetLine."Cash Flow Date";
         CFWorksheetLine.SetRange("Cash Flow Date", FromDate);
-        CFWorksheetLine.FindSet;
+        CFWorksheetLine.FindSet();
         repeat
             TotalAmount += CFWorksheetLine."Amount (LCY)";
         until CFWorksheetLine.Next = 0;

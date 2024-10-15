@@ -41,7 +41,7 @@ table 7333 "Whse. Internal Pick Header"
                     "To Zone Code" := '';
                     "To Bin Code" := '';
                     WhseInternalPickLine.SetRange("No.", "No.");
-                    if not WhseInternalPickLine.IsEmpty then
+                    if not WhseInternalPickLine.IsEmpty() then
                         Error(
                           Text001,
                           FieldCaption("Location Code"));
@@ -164,7 +164,7 @@ table 7333 "Whse. Internal Pick Header"
                 if "Document Status" <> xRec."Document Status" then begin
                     WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::"Internal Pick");
                     WhsePickRqst.SetRange("Document No.", "No.");
-                    if not WhsePickRqst.IsEmpty then
+                    if not WhsePickRqst.IsEmpty() then
                         WhsePickRqst.ModifyAll(
                           "Completely Picked", "Document Status" = "Document Status"::"Completely Picked");
                 end;
@@ -285,7 +285,7 @@ table 7333 "Whse. Internal Pick Header"
                     "Sorting Sequence No." := SequenceNo;
                     Modify;
                     SequenceNo := SequenceNo + 10000;
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;
@@ -323,7 +323,7 @@ table 7333 "Whse. Internal Pick Header"
         WhseInternalPickLine: Record "Whse. Internal Pick Line";
     begin
         WhseInternalPickLine.SetRange("No.", "No.");
-        if not WhseInternalPickLine.IsEmpty then
+        if not WhseInternalPickLine.IsEmpty() then
             if not HideValidationDialog then
                 Message(
                   StrSubstNo(
@@ -393,7 +393,7 @@ table 7333 "Whse. Internal Pick Header"
 
         WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::"Internal Pick");
         WhsePickRqst.SetRange("Document No.", "No.");
-        if not WhsePickRqst.IsEmpty then
+        if not WhsePickRqst.IsEmpty() then
             WhsePickRqst.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Internal Pick");

@@ -498,7 +498,7 @@ codeunit 137501 "SCM Available to Pick UT"
         // [GIVEN] Sales Order with "Shipping Advice" = COMPLETE, several Sales Lines per each "Var[i][j]"
         // [GIVEN] All item variants have exact inventory to comply the sales order
         MockSalesHeader(SalesHeader);
-        TempItemVariant.FindSet;
+        TempItemVariant.FindSet();
         repeat
             ItemVariantQuantity := 0;
             for i := 1 to 2 do
@@ -538,7 +538,7 @@ codeunit 137501 "SCM Available to Pick UT"
         // [GIVEN] Transfer Order with "Shipping Advice" = COMPLETE, several Transfer Lines per each "Var[i][j]"
         // [GIVEN] All item variants have exact inventory to comply the Transfer Order
         MockTransferHeader(TransferHeader);
-        TempItemVariant.FindSet;
+        TempItemVariant.FindSet();
         repeat
             ItemVariantQuantity := 0;
             for i := 1 to 2 do
@@ -663,7 +663,7 @@ codeunit 137501 "SCM Available to Pick UT"
         WhseActivityLine.SetRange("Source Type", SourceType);
         WhseActivityLine.SetRange("Source Document", SourceDocument);
         WhseActivityLine.SetRange("Source No.", SourceNo);
-        WhseActivityLine.FindSet;
+        WhseActivityLine.FindSet();
         repeat
             WhseActivityLine.Validate("Qty. to Handle", QtyToHandle);
             if (WhseActivityLine."Action Type" = WhseActivityLine."Action Type"::Take) and (TakeBinCode <> '') then

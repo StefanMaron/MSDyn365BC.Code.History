@@ -104,7 +104,7 @@ page 1159 "Purchase Documents"
         SetRange("Document Type", "Document Type"::Invoice);
         SetFilter("Remaining Amt. (LCY)", '<>0');
         Ascending := true;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure SetFilterForPurchDocsDueToday()
@@ -114,7 +114,7 @@ page 1159 "Purchase Documents"
         SetFilter("Document Type", 'Invoice|Credit Memo');
         SetFilter("Due Date", '<=%1', WorkDate);
         Ascending := true;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure SetFilterForPurchInvoicesDueNextWeek()
@@ -124,7 +124,7 @@ page 1159 "Purchase Documents"
         SetFilter("Document Type", 'Invoice|Credit Memo');
         SetFilter("Due Date", '%1..%2', CalcDate('<1D>', WorkDate), CalcDate('<1W>', WorkDate));
         Ascending := true;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

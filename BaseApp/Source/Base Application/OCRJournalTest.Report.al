@@ -955,7 +955,7 @@ report 15000100 "OCR Journal - Test"
     begin
         GenJnlLine := "Gen. Journal Line";
         LastLineNo := "Gen. Journal Line"."Line No.";
-        if "Gen. Journal Line".Next = 0 then;
+        if "Gen. Journal Line".Next() = 0 then;
         NextGenJnlLine := "Gen. Journal Line";
         MakeRecurringTexts(NextGenJnlLine);
         "Gen. Journal Line" := GenJnlLine;
@@ -1643,7 +1643,7 @@ report 15000100 "OCR Journal - Test"
                     Continue := true;
                     exit;
                 end;
-            until Next = 0;
+            until Next() = 0;
             exit(DimText);
         end;
     end;

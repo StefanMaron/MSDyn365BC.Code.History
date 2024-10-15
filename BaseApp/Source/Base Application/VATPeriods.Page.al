@@ -56,7 +56,7 @@ page 10604 "VAT Periods"
                     trigger OnAction()
                     begin
                         VATTools.CreateStdVATPeriods(true);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

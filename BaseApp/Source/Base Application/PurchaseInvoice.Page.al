@@ -1,4 +1,4 @@
-﻿page 51 "Purchase Invoice"
+page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
     PageType = Document;
@@ -24,7 +24,7 @@
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
@@ -38,7 +38,7 @@
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor Name"; "Buy-from Vendor Name")
@@ -59,7 +59,7 @@
                         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                             PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -223,6 +223,13 @@
                     begin
                         PurchaserCodeOnAfterValidate;
                     end;
+                }
+                field("Vendor Order No."; "Vendor Order No.")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the vendor''s order number.';
+                    Visible = false;
                 }
                 field("Campaign No."; "Campaign No.")
                 {
@@ -1204,6 +1211,20 @@
                 separator(Action137)
                 {
                 }
+                action("Create Tracking Information")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Create Tracking Information';
+                    Image = ItemTracking;
+                    ToolTip = 'Create item tracking information for the entire purchase invoice.';
+
+                    trigger OnAction()
+                    var
+                        ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
+                    begin
+                        ItemTrackingDocMgt.CreateTrackingInfo(DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                    end;
+                }
                 action(MoveNegativeLines)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1282,12 +1303,12 @@
             }
             group(Flow)
             {
-                Caption = 'Flow';
+                Caption = 'Power Automate';
                 Image = Flow;
                 action(CreateFlow)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Create a Flow';
+                    Caption = 'Create a flow';
                     Image = Flow;
                     Promoted = true;
                     PromotedCategory = Category8;
@@ -1307,7 +1328,7 @@
                 action(SeeFlows)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'See my Flows';
+                    Caption = 'See my flows';
                     Image = Flow;
                     Promoted = true;
                     PromotedCategory = Category8;
@@ -1374,7 +1395,7 @@
                     PromotedCategory = Category6;
                     PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
-                    ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                    ToolTip = 'Finalize and print the document or journal. The values and quantities are posted to the related accounts.';
                     Visible = NOT IsOfficeAddin;
 
                     trigger OnAction()
@@ -1569,6 +1590,7 @@
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         InstructionMgt: Codeunit "Instruction Mgt.";
         IsScheduledPosting: Boolean;
+        IsHandled: Boolean;
     begin
         if ApplicationAreaMgmtFacade.IsFoundationEnabled then
             LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
@@ -1581,6 +1603,11 @@
         if IsScheduledPosting then
             CurrPage.Close;
         CurrPage.Update(false);
+
+        IsHandled := false;
+        OnPostDocumentBeforeNavigateAfterPosting(Rec, PostingCodeunitID, Navigate, DocumentIsPosted, IsHandled);
+        if IsHandled then
+            exit;
 
         if PostingCodeunitID <> CODEUNIT::"Purch.-Post (Yes/No)" then
             exit;
@@ -1638,17 +1665,17 @@
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         CalcFields("Invoice Discount Amount");
     end;
 
@@ -1753,6 +1780,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDocumentBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
     begin
     end;
 

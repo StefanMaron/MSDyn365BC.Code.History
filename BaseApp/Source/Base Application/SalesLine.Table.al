@@ -262,9 +262,11 @@
                 end;
 
                 if ItemReferenceMgt.IsEnabled() then
-                    UpdateItemReference()
-                else
+                    UpdateItemReference();
+#if not CLEAN16                    
+                if not ItemReferenceMgt.IsEnabled() then
                     UpdateItemCrossRef();
+#endif                    
 
                 UpdateUnitPriceByField(FieldNo("No."));
 
@@ -612,7 +614,7 @@
                 if Type = Type::Item then begin
                     if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then begin
                         OnBeforeVerifyReservedQty(Rec, xRec, FieldNo(Quantity));
-                        ReserveSalesLine.VerifyQuantity(Rec, xRec);
+                        SalesLineReserve.VerifyQuantity(Rec, xRec);
                         if not "Drop Shipment" then
                             UpdateWithWarehouseShip();
 
@@ -1673,7 +1675,9 @@
             var
                 ICGLAccount: Record "IC G/L Account";
                 Item: Record Item;
+#if not CLEAN16
                 ItemCrossReference: Record "Item Cross Reference";
+#endif
             begin
                 if "No." <> '' then
                     case "IC Partner Ref. Type" of
@@ -1689,6 +1693,7 @@
                                 if PAGE.RunModal(PAGE::"Item List", Item) = ACTION::LookupOK then
                                     Validate("IC Partner Reference", Item."No.");
                             end;
+#if not CLEAN16
                         "IC Partner Ref. Type"::"Cross Reference":
                             begin
                                 ItemCrossReference.Reset();
@@ -1701,6 +1706,7 @@
                                 if PAGE.RunModal(PAGE::"Cross Reference List", ItemCrossReference) = ACTION::LookupOK then
                                     Validate("IC Partner Reference", ItemCrossReference."Cross-Reference No.");
                             end;
+#endif
                         else
                             OnLookUpICPartnerReferenceTypeCaseElse();
                     end;
@@ -2194,9 +2200,11 @@
                 end;
 
                 if ItemReferenceMgt.IsEnabled() then
-                    UpdateItemReference()
-                else
+                    UpdateItemReference();
+#if not CLEAN16                    
+                if not ItemReferenceMgt.IsEnabled() then
                     UpdateItemCrossRef();
+#endif                    
 
                 UpdateUnitPriceByField(FieldNo("Variant Code"));
             end;
@@ -2311,10 +2319,11 @@
                 end;
 
                 if ItemReferenceMgt.IsEnabled() then
-                    ItemReferenceMgt.EnterSalesItemReference(Rec)
-                else
+                    ItemReferenceMgt.EnterSalesItemReference(Rec);
+#if not CLEAN16                    
+                if not ItemReferenceMgt.IsEnabled() then
                     DistIntegration.EnterSalesItemCrossRef(Rec);
-
+#endif                    
                 case Type of
                     Type::Item:
                         begin
@@ -2516,12 +2525,20 @@
         }
         field(5705; "Cross-Reference No."; Code[20])
         {
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
 
+#if not CLEAN16
             trigger OnLookup()
             begin
                 CrossReferenceNoLookUp;
@@ -2535,15 +2552,23 @@
                 "Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
                 ValidateCrossReferenceNo(ItemCrossReference, true);
             end;
+#endif
         }
         field(5706; "Unit of Measure (Cross Ref.)"; Code[10])
         {
+#if not CLEAN16
             AccessByPermission = TableData "Item Cross Reference" = R;
+#endif
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5707; "Cross-Reference Type"; Option)
         {
@@ -2551,15 +2576,25 @@
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5708; "Cross-Reference Type No."; Code[30])
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+#if not CLEAN17
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
+#endif
         }
         field(5709; "Item Category Code"; Code[20])
         {
@@ -3235,7 +3270,7 @@
             TestStatusOpen();
 
         if (Quantity <> 0) and ItemExists("No.") then begin
-            ReserveSalesLine.DeleteLine(Rec);
+            SalesLineReserve.DeleteLine(Rec);
             CheckReservedQtyBase();
             if "Shipment No." = '' then
                 TestField("Qty. Shipped Not Invoiced", 0);
@@ -3280,7 +3315,7 @@
         SalesCommentLine.SetRange("Document Type", "Document Type");
         SalesCommentLine.SetRange("No.", "Document No.");
         SalesCommentLine.SetRange("Document Line No.", "Line No.");
-        if not SalesCommentLine.IsEmpty then
+        if not SalesCommentLine.IsEmpty() then
             SalesCommentLine.DeleteAll();
 
         // In case we have roundings on VAT or Sales Tax, we should update some other line
@@ -3308,7 +3343,7 @@
         TestStatusOpen();
         if Quantity <> 0 then begin
             OnBeforeVerifyReservedQty(Rec, xRec, 0);
-            ReserveSalesLine.VerifyQuantity(Rec, xRec);
+            SalesLineReserve.VerifyQuantity(Rec, xRec);
         end;
         LockTable();
         SalesHeader."No." := '';
@@ -3331,7 +3366,7 @@
                 repeat
                     SalesLine2.TestField(Type, Type);
                     SalesLine2.TestField("No.", "No.");
-                until SalesLine2.Next = 0;
+                until SalesLine2.Next() = 0;
         end;
 
         if ((Quantity <> 0) or (xRec.Quantity <> 0)) and ItemExists(xRec."No.") and not FullReservedQtyIsForAsmToOrder then
@@ -3379,12 +3414,11 @@
         ATOLink: Record "Assemble-to-Order Link";
         SalesSetup: Record "Sales & Receivables Setup";
         CalChange: Record "Customized Calendar Change";
-        ConfigTemplateHeader: Record "Config. Template Header";
         TempErrorMessage: Record "Error Message" temporary;
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -3640,7 +3674,7 @@
         OnAfterAssignStdTxtValues(Rec, StandardText);
     end;
 
-    local procedure CalcShipmentDateForLocation()
+    procedure CalcShipmentDateForLocation()
     var
         CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
     begin
@@ -4074,7 +4108,7 @@
         Rec := Line;
     end;
 
-    local procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; SalesHeader: Record "Sales Header"; var PriceCalculation: Interface "Price Calculation")
+    procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; SalesHeader: Record "Sales Header"; var PriceCalculation: Interface "Price Calculation")
     var
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
@@ -4174,9 +4208,11 @@
         GetPriceCalculationHandler(PriceType::Sale, SalesHeader, PriceCalculation);
         PriceCalculation.ApplyDiscount();
         if ItemReferenceMgt.IsEnabled() then
-            ApplyPrice(FieldNo("Item Reference No."), PriceCalculation)
-        else
+            ApplyPrice(FieldNo("Item Reference No."), PriceCalculation);
+#if not CLEAN16
+        if not ItemReferenceMgt.IsEnabled() then
             ApplyPrice(FieldNo("Cross-Reference No."), PriceCalculation);
+#endif
     end;
 
     local procedure ShowMessageOnce(MessageText: Text)
@@ -4448,7 +4484,7 @@
                  ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and ("VAT %" <> 0))
             then begin
                 SalesLine2.SetFilter("VAT %", '<>0');
-                if not SalesLine2.IsEmpty then begin
+                if not SalesLine2.IsEmpty() then begin
                     SalesLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)", "VAT Base Amount");
                     TotalLineAmount := SalesLine2."Line Amount";
                     TotalInvDiscAmount := SalesLine2."Inv. Discount Amount";
@@ -4696,14 +4732,14 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAutoReserve(Rec, IsHandled, xRec, FullAutoReservation, ReserveSalesLine);
+        OnBeforeAutoReserve(Rec, IsHandled, xRec, FullAutoReservation, SalesLineReserve);
         if IsHandled then
             exit;
 
         TestField(Type, Type::Item);
         TestField("No.");
 
-        ReserveSalesLine.ReservQuantity(Rec, QtyToReserve, QtyToReserveBase);
+        SalesLineReserve.ReservQuantity(Rec, QtyToReserve, QtyToReserveBase);
         if QtyToReserveBase <> 0 then begin
             TestField("Shipment Date");
             ReservMgt.SetReservSource(Rec);
@@ -4911,7 +4947,7 @@
         IsHandled := false;
         OnBeforeCallItemTracking(Rec, IsHandled);
         if not IsHandled then
-            ReserveSalesLine.CallItemTracking(Rec);
+            SalesLineReserve.CallItemTracking(Rec);
 
         OnAfterOpenItemTrackingLines(Rec);
     end;
@@ -5022,7 +5058,7 @@
                     SalesLine."Line No." := LastSalesLine."Line No."
                 end;
                 OnAfterAddItem(SalesLine, LastSalesLine);
-            until Item.Next = 0;
+            until Item.Next() = 0;
     end;
 
     local procedure InitNewLine(var NewSalesLine: Record "Sales Line")
@@ -5038,7 +5074,6 @@
             NewSalesLine."Line No." := 0;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ShowItemSub()
     var
         IsHandled: Boolean;
@@ -5058,19 +5093,12 @@
     end;
 
     procedure ShowNonstock()
-    var
-        TempItemTemplate: Record "Item Template" temporary;
     begin
         TestField(Type, Type::Item);
         if "No." <> '' then
             Error(SelectNonstockItemErr);
         if PAGE.RunModal(PAGE::"Catalog Item List", NonstockItem) = ACTION::LookupOK then begin
-            NonstockItem.TestField("Item Template Code");
-            ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
-            ConfigTemplateHeader.FindFirst();
-            TempItemTemplate.InitializeTempRecordFromConfigTemplate(TempItemTemplate, ConfigTemplateHeader);
-            TempItemTemplate.TestField("Gen. Prod. Posting Group");
-            TempItemTemplate.TestField("Inventory Posting Group");
+            CheckNonstockItemTemplate(NonstockItem);
 
             "No." := NonstockItem."Entry No.";
             CatalogItemMgt.NonStockSales(Rec);
@@ -5153,7 +5181,7 @@
         exit(SalesLineCaptionClassMgmt.GetSalesLineCaptionClass(Rec, FieldNumber));
     end;
 
-    local procedure GetSKU() Result: Boolean
+    procedure GetSKU() Result: Boolean
     begin
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "No.") and
@@ -5299,7 +5327,7 @@
            not ((Quantity <> xRec.Quantity) and (TotalQtyToAssign = 0))
         then begin
             ItemChargeAssgntSales.SetFilter("Qty. Assigned", '<>0');
-            if not ItemChargeAssgntSales.IsEmpty then
+            if not ItemChargeAssgntSales.IsEmpty() then
                 Error(Text026,
                   FieldCaption(Amount));
             ItemChargeAssgntSales.SetRange("Qty. Assigned");
@@ -5326,7 +5354,7 @@
                     TotalAmtToAssign -= ItemChargeAssgntSales."Amount to Assign";
                 end;
                 ItemChargeAssgntSales.Modify();
-            until ItemChargeAssgntSales.Next = 0;
+            until ItemChargeAssgntSales.Next() = 0;
             CalcFields("Qty. to Assign");
         end;
     end;
@@ -5338,7 +5366,7 @@
         ItemChargeAssgntSales.SetRange("Applies-to Doc. Type", DocType);
         ItemChargeAssgntSales.SetRange("Applies-to Doc. No.", DocNo);
         ItemChargeAssgntSales.SetRange("Applies-to Doc. Line No.", DocLineNo);
-        if not ItemChargeAssgntSales.IsEmpty then
+        if not ItemChargeAssgntSales.IsEmpty() then
             ItemChargeAssgntSales.DeleteAll(true);
     end;
 
@@ -5356,7 +5384,7 @@
         ItemChargeAssgntSales.SetRange("Document Type", DocType);
         ItemChargeAssgntSales.SetRange("Document No.", DocNo);
         ItemChargeAssgntSales.SetRange("Document Line No.", DocLineNo);
-        if not ItemChargeAssgntSales.IsEmpty then
+        if not ItemChargeAssgntSales.IsEmpty() then
             ItemChargeAssgntSales.DeleteAll();
 
         OnAfterDeleteChargeChargeAssgnt(Rec, xRec, CurrFieldNo);
@@ -5375,7 +5403,7 @@
             TestField("Allow Item Charge Assignment");
             repeat
                 ItemChargeAssgntSales.TestField("Qty. to Assign", 0);
-            until ItemChargeAssgntSales.Next = 0;
+            until ItemChargeAssgntSales.Next() = 0;
         end;
     end;
 
@@ -5577,7 +5605,7 @@
                             TempVATAmountLineRemainder.Modify();
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         OnAfterUpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, QtyType);
@@ -5696,7 +5724,7 @@
                         TotalVATAmount += "Amount Including VAT" - Amount;
                         OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, SalesHeader, SalesLine, Currency, QtyType, TotalVATAmount);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         VATAmountLine.UpdateLines(
@@ -5717,7 +5745,6 @@
     procedure GetCPGInvRoundAcc(var SalesHeader: Record "Sales Header"): Code[20]
     var
         Cust: Record Customer;
-        CustTemplate: Record "Customer Template";
         CustPostingGroup: Record "Customer Posting Group";
     begin
         GetSalesSetup();
@@ -5725,10 +5752,28 @@
             if Cust.Get(SalesHeader."Bill-to Customer No.") then
                 CustPostingGroup.Get(Cust."Customer Posting Group")
             else
-                if CustTemplate.Get(SalesHeader."Sell-to Customer Template Code") then
-                    CustPostingGroup.Get(CustTemplate."Customer Posting Group");
+                GetCustomerPostingGroupFromTemplate(CustPostingGroup, SalesHeader);
 
         exit(CustPostingGroup."Invoice Rounding Account");
+    end;
+
+    local procedure GetCustomerPostingGroupFromTemplate(var CustPostingGroup: Record "Customer Posting Group"; SalesHeader: Record "Sales Header")
+    var
+        CustomerTempl: Record "Customer Templ.";
+#if not CLEAN18
+        CustTemplate: Record "Customer Template";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+#endif
+    begin
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then begin
+            if CustTemplate.Get(SalesHeader."Sell-to Customer Template Code") then
+                CustPostingGroup.Get(CustTemplate."Customer Posting Group");
+            exit;
+        end;
+#endif
+        if CustomerTempl.Get(SalesHeader."Sell-to Customer Templ. Code") then
+            CustPostingGroup.Get(CustomerTempl."Customer Posting Group");
     end;
 
     local procedure GetVATAmountLineOfMaxAmt(var VATAmountLine: Record "VAT Amount Line"; SalesLine: Record "Sales Line"): Boolean
@@ -5981,6 +6026,7 @@
             "Document No.", '', 0, "Line No."));
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by UpdateItemReference().', '17.0')]
     local procedure UpdateItemCrossRef()
     begin
@@ -5989,6 +6035,7 @@
 
         OnAfterUpdateItemCrossRef(Rec);
     end;
+#endif
 
     local procedure UpdateItemReference()
     begin
@@ -6094,6 +6141,8 @@
             Error(Text000, PurchaseOrderNo, PurchaseLineNo);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by same procedure in Item Reference Management codeunit.', '18.0')]
     procedure CrossReferenceNoLookUp()
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -6129,7 +6178,10 @@
         end;
         OnAfterCrossReferenceNoLookUp(Rec);
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by same procedure in Item Reference Management codeunit.', '18.0')]
     local procedure ValidateCrossReferenceNo(ItemCrossReference: Record "Item Cross Reference"; SearchItem: Boolean)
     var
         ReturnedItemCrossReference: Record "Item Cross Reference";
@@ -6171,6 +6223,7 @@
 
         OnAfterValidateCrossReferenceNo(Rec, ItemCrossReference);
     end;
+#endif
 
     procedure CheckServItemCreation()
     var
@@ -6425,7 +6478,7 @@
 
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
-        ReserveSalesLine.Block(SetBlock);
+        SalesLineReserve.Block(SetBlock);
     end;
 
     procedure InitQtyToShip2()
@@ -6831,7 +6884,7 @@
                 ItemLedgEntry.SetRange(Open, true);
                 if ItemLedgEntry.FindFirst then
                     exit(ItemLedgEntry."Entry No.");
-            until PostedATOLink.Next = 0;
+            until PostedATOLink.Next() = 0;
     end;
 
     procedure RollUpAsmCost()
@@ -6882,9 +6935,11 @@
                                         Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross Reference");
 
                                     if ItemReferenceMgt.IsEnabled() then
-                                        UpdateICPartnerItemReference()
-                                    else
+                                        UpdateICPartnerItemReference();
+#if not CLEAN16                                        
+                                    if not ItemReferenceMgt.IsEnabled() then
                                         UpdateICPartnerItemCrossReference();
+#endif
                                 end;
                         end;
                     end;
@@ -6918,6 +6973,7 @@
             "IC Item Reference No." := "No.";
     end;
 
+#if not CLEAN16
     local procedure UpdateICPartnerItemCrossReference()
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -6932,6 +6988,7 @@
         else
             "IC Partner Reference" := "No.";
     end;
+#endif
 
     procedure OutstandingInvoiceAmountFromShipment(SellToCustomerNo: Code[20]): Decimal
     var
@@ -7255,22 +7312,10 @@
 
     local procedure InitHeaderDefaults(SalesHeader: Record "Sales Header")
     begin
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then begin
-            if (SalesHeader."Sell-to Customer No." = '') and
-               (SalesHeader."Sell-to Customer Template Code" = '')
-            then
-                Error(
-                  Text031,
-                  SalesHeader.FieldCaption("Sell-to Customer No."),
-                  SalesHeader.FieldCaption("Sell-to Customer Template Code"));
-            if (SalesHeader."Bill-to Customer No." = '') and
-               (SalesHeader."Bill-to Customer Template Code" = '')
-            then
-                Error(
-                  Text031,
-                  SalesHeader.FieldCaption("Bill-to Customer No."),
-                  SalesHeader.FieldCaption("Bill-to Customer Template Code"));
-        end else
+
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then
+            CheckQuoteCustomerTemplateCode(SalesHeader)
+        else
             SalesHeader.TestField("Sell-to Customer No.");
 
         "Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
@@ -7662,7 +7707,7 @@
         exit(IsHandled);
     end;
 
-    local procedure ValidateUnitCostLCYOnGetUnitCost(Item: Record Item)
+    procedure ValidateUnitCostLCYOnGetUnitCost(Item: Record Item)
     var
         IsHandled: Boolean;
     begin
@@ -7715,7 +7760,7 @@
         if IsHandled then
             exit;
 
-        ReserveSalesLine.VerifyChange(Rec, xRec);
+        SalesLineReserve.VerifyChange(Rec, xRec);
     end;
 
     local procedure CheckReservedQtyBase()
@@ -7774,10 +7819,138 @@
         Error(Text039, -QtyReturned, ItemLedgEntry.FieldCaption("Document No."), ItemLedgEntry."Document No.", -QtyNotReturned);
     end;
 
+    procedure ShowBlanketOrderSalesLines(DocumentType: Enum "Sales Document Type")
+    var
+        RelatedSalesLine: Record "Sales Line";
+    begin
+        RelatedSalesLine.Reset();
+        RelatedSalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
+        RelatedSalesLine.SetRange("Document Type", DocumentType);
+        RelatedSalesLine.SetRange("Blanket Order No.", Rec."Document No.");
+        RelatedSalesLine.SetRange("Blanket Order Line No.", Rec."Line No.");
+        PAGE.RunModal(PAGE::"Sales Lines", RelatedSalesLine);
+    end;
+
+    procedure ShowBlanketOrderPostedShipmentLines()
+    var
+        SaleShptLine: Record "Sales Shipment Line";
+    begin
+        SaleShptLine.Reset();
+        SaleShptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
+        SaleShptLine.SetRange("Blanket Order No.", Rec."Document No.");
+        SaleShptLine.SetRange("Blanket Order Line No.", Rec."Line No.");
+        PAGE.RunModal(PAGE::"Posted Sales Shipment Lines", SaleShptLine);
+    end;
+
+    procedure ShowBlanketOrderPostedInvoiceLines()
+    var
+        SalesInvLine: Record "Sales Invoice Line";
+    begin
+        SalesInvLine.Reset();
+        SalesInvLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
+        SalesInvLine.SetRange("Blanket Order No.", Rec."Document No.");
+        SalesInvLine.SetRange("Blanket Order Line No.", Rec."Line No.");
+        PAGE.RunModal(PAGE::"Posted Sales Invoice Lines", SalesInvLine);
+    end;
+
+    procedure ShowBlanketOrderPostedReturnReceiptLines()
+    var
+        ReturnRcptLine: Record "Return Receipt Line";
+    begin
+        ReturnRcptLine.Reset();
+        ReturnRcptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
+        ReturnRcptLine.SetRange("Blanket Order No.", Rec."Document No.");
+        ReturnRcptLine.SetRange("Blanket Order Line No.", Rec."Line No.");
+        PAGE.RunModal(PAGE::"Posted Return Receipt Lines", ReturnRcptLine);
+    end;
+
+    procedure ShowBlanketOrderPostedCreditMemoLines()
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        SalesCrMemoLine.Reset();
+        SalesCrMemoLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
+        SalesCrMemoLine.SetRange("Blanket Order No.", Rec."Document No.");
+        SalesCrMemoLine.SetRange("Blanket Order Line No.", Rec."Line No.");
+        PAGE.RunModal(PAGE::"Posted Sales Credit Memo Lines", SalesCrMemoLine);
+    end;
+
     procedure ShowDeferralSchedule()
     begin
         GetSalesHeader();
         ShowDeferrals(SalesHeader."Posting Date", SalesHeader."Currency Code");
+    end;
+
+    local procedure CheckNonstockItemTemplate(NonstockItem: Record "Nonstock Item")
+    var
+        ItemTempl: Record "Item Templ.";
+#if not CLEAN18        
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+#endif
+    begin
+#if not CLEAN18
+        if not ItemTemplMgt.IsEnabled() then begin
+            CheckNonstockOldItemTemplate(NonstockItem);
+            exit;
+        end;
+#endif
+        ItemTempl.Get(NonstockItem."Item Templ. Code");
+        ItemTempl.TestField("Gen. Prod. Posting Group");
+        ItemTempl.TestField("Inventory Posting Group");
+    end;
+
+#if not CLEAN18
+    local procedure CheckNonstockOldItemTemplate(NonstockItem: Record "Nonstock Item")
+    var
+        TempItemTemplate: Record "Item Template" temporary;
+        ConfigTemplateHeader: Record "Config. Template Header";
+    begin
+        NonstockItem.TestField("Item Template Code");
+        ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
+        ConfigTemplateHeader.FindFirst();
+        TempItemTemplate.InitializeTempRecordFromConfigTemplate(TempItemTemplate, ConfigTemplateHeader);
+        TempItemTemplate.TestField("Gen. Prod. Posting Group");
+        TempItemTemplate.TestField("Inventory Posting Group");
+    end;
+#endif
+
+    local procedure CheckQuoteCustomerTemplateCode(SalesHeader: Record "Sales Header")
+    var
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then begin
+            if (SalesHeader."Sell-to Customer No." = '') and
+               (SalesHeader."Sell-to Customer Template Code" = '')
+            then
+                Error(
+                  Text031,
+                  SalesHeader.FieldCaption("Sell-to Customer No."),
+                  SalesHeader.FieldCaption("Sell-to Customer Template Code"));
+            if (SalesHeader."Bill-to Customer No." = '') and
+               (SalesHeader."Bill-to Customer Template Code" = '')
+            then
+                Error(
+                  Text031,
+                  SalesHeader.FieldCaption("Bill-to Customer No."),
+                  SalesHeader.FieldCaption("Bill-to Customer Template Code"));
+            exit;
+        end;
+#endif
+        if (SalesHeader."Sell-to Customer No." = '') and
+           (SalesHeader."Sell-to Customer Templ. Code" = '')
+        then
+            Error(
+              Text031,
+              SalesHeader.FieldCaption("Sell-to Customer No."),
+              SalesHeader.FieldCaption("Sell-to Customer Templ. Code"));
+        if (SalesHeader."Bill-to Customer No." = '') and
+           (SalesHeader."Bill-to Customer Templ. Code" = '')
+        then
+            Error(
+              Text031,
+              SalesHeader.FieldCaption("Bill-to Customer No."),
+              SalesHeader.FieldCaption("Bill-to Customer Templ. Code"));
     end;
 
     [IntegrationEvent(false, false)]
@@ -8026,10 +8199,13 @@
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCrossReferenceNoAssign(var SalesLine: Record "Sales Line"; ItemCrossReference: Record "Item Cross Reference")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindNoByDescription(SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var CurrentFieldNo: Integer; var IsHandled: Boolean)
@@ -8356,10 +8532,13 @@
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateItemCrossRef(var SalesLine: Record "Sales Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateItemReference(var SalesLine: Record "Sales Line")
@@ -8381,10 +8560,13 @@
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateCrossReferenceNo(var SalesLine: Record "Sales Line"; ItemCrossReference: Record "Item Cross Reference")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer);
@@ -8606,10 +8788,13 @@
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCrossReferenceNoLookUp(var SalesLine: Record "Sales Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBlanketOrderLookup(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
@@ -8731,15 +8916,21 @@
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoLookUpOnAfterSetFilters(var ItemCrossReference: Record "Item Cross Reference"; SalesLine: Record "Sales Line")
     begin
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by same event in Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoLookupOnBeforeValidateUnitPrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line")

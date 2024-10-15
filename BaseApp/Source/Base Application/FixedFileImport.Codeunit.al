@@ -43,14 +43,14 @@ codeunit 1241 "Fixed File Import"
 
         DataExchColumnDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-        DataExchColumnDef.FindSet;
+        DataExchColumnDef.FindSet();
 
         StartPosition := 1;
         repeat
             DataExchField.InsertRecXMLField(DataExch."Entry No.", LineNo, DataExchColumnDef."Column No.", '',
               CopyStr(Line, StartPosition, DataExchColumnDef.Length), DataExchLineDef.Code);
             StartPosition += DataExchColumnDef.Length;
-        until DataExchColumnDef.Next = 0;
+        until DataExchColumnDef.Next() = 0;
         LineNo += 1;
     end;
 }

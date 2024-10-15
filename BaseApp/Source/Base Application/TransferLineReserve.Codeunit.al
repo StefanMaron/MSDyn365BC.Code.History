@@ -72,6 +72,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(TransferLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry, Direction)', '16.0')]
     procedure CreateReservation(var TransLine: Record "Transfer Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50]; Direction: Enum "Transfer Direction")
     var
@@ -81,6 +82,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         ForReservEntry."Lot No." := ForLotNo;
         CreateReservation(TransLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry, Direction);
     end;
+#endif
 
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
@@ -113,7 +115,7 @@ codeunit 99000836 "Transfer Line-Reserve"
 
         DerivedTransferLine.SetRange("Document No.", TransLine."Document No.");
         DerivedTransferLine.SetRange("Derived From Line No.", TransLine."Line No.");
-        if not DerivedTransferLine.IsEmpty then begin
+        if not DerivedTransferLine.IsEmpty() then begin
             ReservEntry.SetSourceFilter(DATABASE::"Transfer Line", Direction::Inbound.AsInteger(), TransLine."Document No.", -1, false);
             ReservEntry.SetSourceFilter('', TransLine."Line No.");
         end else
@@ -275,6 +277,11 @@ codeunit 99000836 "Transfer Line-Reserve"
     end;
 
     procedure TransferTransferToItemJnlLine(var TransLine: Record "Transfer Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal; Direction: Enum "Transfer Direction")
+    begin
+        TransferTransferToItemJnlLine(TransLine, ItemJnlLine, TransferQty, Direction, false);
+    end;
+
+    procedure TransferTransferToItemJnlLine(var TransLine: Record "Transfer Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal; Direction: Enum "Transfer Direction"; IsReclass: Boolean)
     var
         OldReservEntry: Record "Reservation Entry";
         TransferLocation: Code[10];
@@ -305,8 +312,8 @@ codeunit 99000836 "Transfer Line-Reserve"
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then
             repeat
                 OldReservEntry.TestItemFields(TransLine."Item No.", TransLine."Variant Code", TransferLocation);
-                OldReservEntry."New Serial No." := OldReservEntry."Serial No.";
-                OldReservEntry."New Lot No." := OldReservEntry."Lot No.";
+                if not IsReclass then
+                    OldReservEntry.CopyNewTrackingFromReservEntry(OldReservEntry);
 
                 OnTransferTransferToItemJnlLineTransferFields(OldReservEntry, TransLine, ItemJnlLine, TransferQty, Direction);
 
@@ -353,18 +360,15 @@ codeunit 99000836 "Transfer Line-Reserve"
                 WarehouseEntry.SetRange("Whse. Document No.", WhseShptLine."No.");
                 WarehouseEntry.SetRange("Whse. Document Line No.", WhseShptLine."Line No.");
                 WarehouseEntry.SetRange("Bin Code", WhseShptLine."Bin Code");
-                if WhseItemTrackingSetup."Serial No. Required" then
-                    WarehouseEntry.SetRange("Serial No.", OldReservEntry."Serial No.");
-                if WhseItemTrackingSetup."Lot No. Required" then
-                    WarehouseEntry.SetRange("Lot No.", OldReservEntry."Lot No.");
+                WhseItemTrackingSetup.CopyTrackingFromReservEntry(OldReservEntry);
+                WarehouseEntry.SetTrackingFilterFromItemTrackingSetupIfRequired(WhseItemTrackingSetup);
                 WarehouseEntry.CalcSums("Qty. (Base)");
                 QtyToHandleBase := -WarehouseEntry."Qty. (Base)";
                 if Abs(QtyToHandleBase) > Abs(OldReservEntry."Qty. to Handle (Base)") then
                     QtyToHandleBase := OldReservEntry."Qty. to Handle (Base)";
 
                 if QtyToHandleBase < 0 then begin
-                    OldReservEntry."New Serial No." := OldReservEntry."Serial No.";
-                    OldReservEntry."New Lot No." := OldReservEntry."Lot No.";
+                    OldReservEntry.CopyNewTrackingFromReservEntry(OldReservEntry);
                     OldReservEntry."Qty. to Handle (Base)" := QtyToHandleBase;
                     OldReservEntry."Qty. to Invoice (Base)" := QtyToHandleBase;
 
@@ -389,7 +393,7 @@ codeunit 99000836 "Transfer Line-Reserve"
             exit;
 
         OldReservEntry.SetTrackingFilterFromSpec(TrackingSpecification);
-        if OldReservEntry.IsEmpty then
+        if OldReservEntry.IsEmpty() then
             exit;
 
         OldReservEntry.Lock;
@@ -423,7 +427,7 @@ codeunit 99000836 "Transfer Line-Reserve"
                         Direction.AsInteger(), NewTransLine."Document No.", '', NewTransLine."Derived From Line No.",
                         NewTransLine."Line No.", NewTransLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
-                until (OldReservEntry.Next = 0) or (TransferQty = 0);
+                until (OldReservEntry.Next() = 0) or (TransferQty = 0);
         end;
     end;
 
@@ -481,15 +485,23 @@ codeunit 99000836 "Transfer Line-Reserve"
     end;
 
     procedure CallItemTracking(var TransLine: Record "Transfer Line"; Direction: Enum "Transfer Direction")
+    begin
+        CallItemTracking(TransLine, Direction, false);
+    end;
+
+    procedure CallItemTracking(var TransLine: Record "Transfer Line"; Direction: Enum "Transfer Direction"; DirectTransfer: Boolean)
     var
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
         AvalabilityDate: Date;
     begin
         TrackingSpecification.InitFromTransLine(TransLine, AvalabilityDate, Direction);
+        if DirectTransfer then
+            ItemTrackingLines.SetDirectTransfer(true);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, AvalabilityDate);
         ItemTrackingLines.SetInbound(TransLine.IsInbound);
-        ItemTrackingLines.RunModal;
+        OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(TransLine, ItemTrackingLines);
+        ItemTrackingLines.RunModal();
         OnAfterCallItemTracking(TransLine);
     end;
 
@@ -502,7 +514,8 @@ codeunit 99000836 "Transfer Line-Reserve"
         TrackingSpecification.InitFromTransLine(TransLine, AvailabilityDate, Direction);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, AvailabilityDate);
         ItemTrackingLines.SetSecondSourceQuantity(SecondSourceQuantityArray);
-        ItemTrackingLines.RunModal;
+        OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(TransLine, ItemTrackingLines);
+        ItemTrackingLines.RunModal();
         OnAfterCallItemTracking(TransLine);
     end;
 
@@ -665,12 +678,13 @@ codeunit 99000836 "Transfer Line-Reserve"
 
     local procedure EntryStartNo(): Integer
     begin
-        exit(101);
+        exit("Reservation Summary Type"::"Transfer Shipment".AsInteger());
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
     begin
-        exit(EntryNo in [101, 102]);
+        exit(EntryNo in ["Reservation Summary Type"::"Transfer Shipment".AsInteger(),
+                         "Reservation Summary Type"::"Transfer Receipt".AsInteger()]);
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean
@@ -815,7 +829,7 @@ codeunit 99000836 "Transfer Line-Reserve"
                             TotalQuantity += TransLine."Outstanding Qty. (Base)";
                         end;
                 end;
-            until TransLine.Next = 0;
+            until TransLine.Next() = 0;
 
         if TotalQuantity = 0 then
             exit;
@@ -859,6 +873,11 @@ codeunit 99000836 "Transfer Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewTransLine: Record "Transfer Line"; OldTransLine: Record "Transfer Line"; var HasErrorInbnd: Boolean; var HasErrorOutbnd: Boolean; var ShowErrorInbnd: Boolean; var ShowErrorOutbnd: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var TransLine: REcord "Transfer Line"; var ItemTrackingLines: Page "Item Tracking Lines")
     begin
     end;
 }

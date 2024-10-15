@@ -465,9 +465,9 @@ table 79 "Company Information"
         field(7602; "Show Chart On RoleCenter"; Boolean)
         {
             Caption = 'Show Chart On RoleCenter';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'Only the Help and Chart Wrapper pages used this. The page has been changed to assume that this field is always set.';
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(7603; "Sync with O365 Bus. profile"; Boolean)
         {
@@ -834,7 +834,7 @@ table 79 "Company Information"
                 CompanyInformation.ChangeCompany(Company.Name);
                 if CompanyInformation.Get then
                     SyncEnabled := CompanyInformation."Sync with O365 Bus. profile";
-            until (Company.Next = 0) or SyncEnabled;
+            until (Company.Next() = 0) or SyncEnabled;
         end;
     end;
 

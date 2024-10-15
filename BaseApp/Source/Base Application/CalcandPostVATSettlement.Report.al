@@ -432,7 +432,7 @@
                                         until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     FindFirstEntry := false;
                                 end else begin
-                                    if VATEntry.Next = 0 then
+                                    if VATEntry.Next() = 0 then
                                         repeat
                                             VATType := IncrementGenPostingType(VATType);
                                             VATEntry.SetRange(Type, VATType);
@@ -454,7 +454,7 @@
                                 end else begin
                                     VATEntry.SetRange("Tax Jurisdiction Code");
                                     VATEntry.SetRange("Use Tax");
-                                    if VATEntry.Next = 0 then
+                                    if VATEntry.Next() = 0 then
                                         repeat
                                             VATType := IncrementGenPostingType(VATType);
                                             VATEntry.SetRange(Type, VATType);

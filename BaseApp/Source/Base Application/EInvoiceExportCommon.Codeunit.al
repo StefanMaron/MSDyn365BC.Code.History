@@ -332,7 +332,7 @@ codeunit 10628 "E-Invoice Export Common"
         if VATProductPostingGroup.FindSet then
             repeat
                 TempEInvoiceExportLine.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-                if not TempEInvoiceExportLine.IsEmpty then begin
+                if not TempEInvoiceExportLine.IsEmpty() then begin
                     VATPercentage := 0.0;
                     if TempEInvoiceExportLine.FindFirst then begin
                         VATPercentage := TempEInvoiceExportLine."VAT %";
@@ -373,7 +373,7 @@ codeunit 10628 "E-Invoice Export Common"
                         XMLCurrNode := XMLCurrNode.ParentNode;
                     end;
                 end;
-            until VATProductPostingGroup.Next = 0;
+            until VATProductPostingGroup.Next() = 0;
         TempEInvoiceExportLine.SetRange("VAT Prod. Posting Group");
     end;
 
@@ -922,7 +922,7 @@ codeunit 10628 "E-Invoice Export Common"
         if TempVATAmountLine.FindSet then
             repeat
                 WriteTaxSubTotal(TempVATAmountLine);
-            until TempVATAmountLine.Next = 0;
+            until TempVATAmountLine.Next() = 0;
         TempVATAmountLine.DeleteAll();
     end;
 
@@ -956,7 +956,7 @@ codeunit 10628 "E-Invoice Export Common"
                     TempVATAmountLine."VAT Base" += Amount;
                     TempVATAmountLine."VAT Amount" += "Amount Including VAT" - Amount;
                     TempVATAmountLine.Modify();
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure AreCustomerAndSupplierInSameCountry(): Boolean

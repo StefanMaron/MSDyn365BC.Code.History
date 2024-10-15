@@ -157,7 +157,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                     repeat
                         Evaluate(PostingNoSeriesNo, NoSeries.Description);
                         NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                    until NoSeries.Next = 0;
+                    until NoSeries.Next() = 0;
             end;
 
             if PhysInvtCount then
@@ -241,7 +241,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                     OnAfterCheckJnlLine(ItemJnlLine, SuppressCommit);
                 end;
 
-                if Next = 0 then
+                if Next() = 0 then
                     FindFirst;
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
@@ -261,7 +261,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         LastPostedDocNo := '';
         with ItemJnlLine do begin
             SetCurrentKey("Journal Template Name", "Journal Batch Name", "Line No.");
-            FindSet;
+            FindSet();
             repeat
                 if not EmptyLine and
                    (ItemJnlBatch."No. Series" <> '') and
@@ -307,7 +307,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                     end;
                     PhysInvtCountMgt.AddToTempItemSKUList("Item No.", "Location Code", "Variant Code", "Phys Invt Counting Period Type");
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
 
         OnAfterPostLines(ItemJnlLine, ItemRegNo);
@@ -325,7 +325,7 @@ codeunit 23 "Item Jnl.-Post Batch"
 
         LineCount := 0;
         ItemJnlLine2.CopyFilters(ItemJnlLine);
-        ItemJnlLine2.FindSet;
+        ItemJnlLine2.FindSet();
         repeat
             OnHandleRecurringLineOnBeforeItemJnlLine2Loop(ItemJnlLine, ItemJnlLine2);
             LineCount := LineCount + 1;
@@ -345,7 +345,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             end;
             OnHandleRecurringLineOnBeforeItemJnlLineModify(ItemJnlLine2);
             ItemJnlLine2.Modify();
-        until ItemJnlLine2.Next = 0;
+        until ItemJnlLine2.Next() = 0;
     end;
 
     local procedure HandleNonRecurringLine(var ItemJnlLine: Record "Item Journal Line"; OldEntryType: Enum "Item Ledger Entry Type")
@@ -564,13 +564,13 @@ codeunit 23 "Item Jnl.-Post Batch"
                                                 if RemQuantity > 0 then
                                                     Error(Text008 + Text009, ItemJnlLine4."Item No.");
                                             end;
-                                        until Next = 0;
+                                        until Next() = 0;
 
                                     ItemJnlLine4.Amount := RemAmountToDistribute;
                                     DistributeCosts := false;
                                 end else begin
                                     repeat
-                                        IsLastEntry := Next = 0;
+                                        IsLastEntry := Next() = 0;
                                     until IncludeEntryInCalc(ItemLedgEntry4, PostingDate, IncludeExpectedCost) or IsLastEntry;
                                     if IsLastEntry or (RemQuantity < 0) then
                                         Error(Text008 + Text009, ItemJnlLine4."Item No.");
@@ -594,7 +594,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                                 end;
                             end else begin
                                 repeat
-                                    IsLastEntry := Next = 0;
+                                    IsLastEntry := Next() = 0;
                                 until IncludeEntryInCalc(ItemLedgEntry4, PostingDate, IncludeExpectedCost) or IsLastEntry;
                                 if IsLastEntry then
                                     Error(Text008 + Text009, ItemJnlLine4."Item No.");
@@ -711,7 +711,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                             OnBeforeWhseJnlPostLineRun(ItemJnlLine, TempWhseJnlLine, IsHandled);
                             if not IsHandled then
                                 WhseJnlPostLine.Run(TempWhseJnlLine);
-                        until TempWhseJnlLine.Next = 0;
+                        until TempWhseJnlLine.Next() = 0;
                     OnAfterPostWhseJnlLine(ItemJnlLine, SuppressCommit);
                 end;
     end;
@@ -796,7 +796,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                     if not TempSKU.Get(ItemJnlLine2."Location Code", ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code") then
                         InsertTempSKU(TempSKU, ItemJnlLine2);
                 OnBeforeCheckItemAvailability(ItemJnlLine2, TempSKU);
-            until ItemJnlLine2.Next = 0;
+            until ItemJnlLine2.Next() = 0;
 
         if TempSKU.FindSet then
             repeat
@@ -816,7 +816,7 @@ codeunit 23 "Item Jnl.-Post Batch"
                         then
                             Error('');
                 end;
-            until TempSKU.Next = 0;
+            until TempSKU.Next() = 0;
     end;
 
     local procedure InsertTempSKU(var TempSKU: Record "Stockkeeping Unit" temporary; ItemJnlLine: Record "Item Journal Line")
@@ -876,7 +876,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             SetRange("Variant Code", SKU."Variant Code");
             SetRange("Source Type", DATABASE::"Prod. Order Component");
             SetRange("Source ID", ItemJnlLine."Order No.");
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
             CalcSums("Quantity (Base)");
             exit(-"Quantity (Base)");

@@ -887,7 +887,7 @@ report 15000002 "Remittance Test Report"
                     Continue := true;
                     exit;
                 end;
-            until Next = 0;
+            until Next() = 0;
             exit(DimText);
         end;
     end;

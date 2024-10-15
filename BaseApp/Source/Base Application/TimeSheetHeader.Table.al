@@ -145,12 +145,10 @@ table 950 "Time Sheet Header"
             Caption = 'Posted Filter';
             FieldClass = FlowFilter;
         }
-        field(35; "Type Filter"; Option)
+        field(35; "Type Filter"; Enum "Time Sheet Line Type")
         {
             Caption = 'Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = ' ,Resource,Job,Service,Absence,Assembly Order';
-            OptionMembers = " ",Resource,Job,Service,Absence,"Assembly Order";
         }
     }
 
@@ -249,7 +247,7 @@ table 950 "Time Sheet Header"
         if TimeSheetLine.FindSet then begin
             repeat
                 CheckTimeSheetLine(TimeSheetLine);
-            until TimeSheetLine.Next = 0;
+            until TimeSheetLine.Next() = 0;
         end else
             Error(Text001, "No.");
     end;

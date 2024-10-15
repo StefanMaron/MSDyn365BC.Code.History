@@ -49,7 +49,7 @@ table 10603 "VAT Period"
     [Scope('OnPrem')]
     procedure CheckPeriods()
     begin
-        if VATPeriod.IsEmpty then
+        if VATPeriod.IsEmpty() then
             VATTools.CreateStdVATPeriods(false);
     end;
 }

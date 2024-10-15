@@ -73,7 +73,7 @@ codeunit 10614 "E-Invoice Check Reminder"
                             Error(EmptyDescErr, "Reminder No.");
                     if (Type = Type::" ") or ("No." = '') then
                         EmptyLineFound := true;
-                until (Next = 0);
+                until (Next() = 0);
 
             if EmptyLineFound then
                 if not Confirm(EmptyFieldsQst, true, "Reminder No.") then

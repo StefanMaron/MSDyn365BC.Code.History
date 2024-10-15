@@ -1,4 +1,4 @@
-﻿codeunit 5804 ItemCostManagement
+codeunit 5804 ItemCostManagement
 {
     Permissions = TableData Item = rm,
                   TableData "Stockkeeping Unit" = rm,
@@ -454,7 +454,7 @@
                         CalcFields("Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)");
                         PreciseAmtACY += ("Cost Amount (Actual) (ACY)" + "Cost Amount (Expected) (ACY)") / Quantity * "Remaining Quantity";
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -479,8 +479,8 @@
                             CostAmt := CostAmt - "Cost Amount (Actual)" - "Cost Amount (Expected)";
                             CostAmtACY := CostAmtACY - "Cost Amount (Actual) (ACY)" - "Cost Amount (Expected) (ACY)";
                             Quantity := Quantity - "Item Ledger Entry Quantity";
-                        until Next = 0;
-                until OpenItemLedgEntry.Next = 0;
+                        until Next() = 0;
+                until OpenItemLedgEntry.Next() = 0;
         end;
 
         OnAfterExcludeOpenOutbndCosts(Item, CostAmt, CostAmtACY, Quantity);
@@ -542,7 +542,7 @@
                     UpdateUnitCostSKU(
                       Item, SKU, LastDirectCost, 0,
                       ("Location Code" = LocationCode) and ("Variant Code" = VariantCode), 0);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

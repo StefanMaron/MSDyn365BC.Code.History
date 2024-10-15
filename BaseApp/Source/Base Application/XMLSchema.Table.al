@@ -153,7 +153,7 @@ table 9600 "XML Schema"
                 if XMLSchemaElement2.Count > 1 then
                     exit(Context);
                 Context := XMLSchemaElement.GetFullPath;
-            until XMLSchemaElement.Next = 0;
+            until XMLSchemaElement.Next() = 0;
     end;
 
     procedure GetTopSchemaCode(XMLSchema: Record "XML Schema"): Code[20]

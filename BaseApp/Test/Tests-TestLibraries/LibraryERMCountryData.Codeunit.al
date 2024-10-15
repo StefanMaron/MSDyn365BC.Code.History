@@ -231,9 +231,9 @@ codeunit 131305 "Library - ERM Country Data"
         GenPostingSetup: Record "General Posting Setup";
     begin
         PrepareNormalGenPostingSetup(NormalGeneralPostingSetup);
-        GenBusPostingGroup.FindSet;
+        GenBusPostingGroup.FindSet();
         repeat
-            GenProdPostingGroup.FindSet;
+            GenProdPostingGroup.FindSet();
             repeat
                 if not GenPostingSetup.Get(GenBusPostingGroup.Code, GenProdPostingGroup.Code) then begin
                     LibraryERM.CreateGeneralPostingSetup(GenPostingSetup, GenBusPostingGroup.Code, GenProdPostingGroup.Code);
@@ -304,9 +304,9 @@ codeunit 131305 "Library - ERM Country Data"
         VATProdPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATBusPostingGroup.FindSet;
+        VATBusPostingGroup.FindSet();
         repeat
-            VATProdPostingGroup.FindSet;
+            VATProdPostingGroup.FindSet();
             repeat
                 CreateVATPostingSetup(VATBusPostingGroup.Code, VATProdPostingGroup.Code);
             until VATProdPostingGroup.Next = 0;

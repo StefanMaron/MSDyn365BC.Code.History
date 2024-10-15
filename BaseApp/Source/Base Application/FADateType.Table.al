@@ -137,7 +137,7 @@ table 5645 "FA Date Type"
                         Delete;
                         InsertRec(10, FADeprBook.FieldNo("G/L Acquisition Date"), FADeprBook.FieldCaption("G/L Acquisition Date"));
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

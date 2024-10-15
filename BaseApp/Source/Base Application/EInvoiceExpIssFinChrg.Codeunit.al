@@ -24,7 +24,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
         repeat
             if not IsRoundingLine(IssuedFinChrgMemoLine, "Customer No.") then
                 FillLineTableData(TempEInvoiceExportLine, IssuedFinChrgMemoLine);
-        until IssuedFinChrgMemoLine.Next = 0;
+        until IssuedFinChrgMemoLine.Next() = 0;
 
         EInvoiceExportCommon.SetEInvoiceCommonTables(TempEInvoiceExportHeader, TempEInvoiceExportLine);
 
@@ -36,7 +36,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
         EInvoiceExportCommon.AddHeaderTaxTotal;
         EInvoiceExportCommon.AddHeaderLegalMonetaryTotal;
 
-        TempEInvoiceExportLine.FindSet;
+        TempEInvoiceExportLine.FindSet();
         repeat
             if (TempEInvoiceExportLine.Type <> TempEInvoiceExportLine.Type::" ") or (TempEInvoiceExportLine."No." <> '') or
                (TempEInvoiceExportLine.Description <> '')
@@ -44,7 +44,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
                 EInvoiceExportCommon.CreateLineNode(TempEInvoiceExportLine);
                 EInvoiceExportCommon.AddLineReminderContent;
             end;
-        until TempEInvoiceExportLine.Next = 0;
+        until TempEInvoiceExportLine.Next() = 0;
 
         // Save file
         SalesSetup.Get();
@@ -118,7 +118,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
                     TempEInvoiceExportHeader."Total Amount" += IssuedFinChargeMemoLine.Amount + IssuedFinChargeMemoLine."VAT Amount";
                     TempEInvoiceExportHeader."Tax Amount" += IssuedFinChargeMemoLine."VAT Amount";
                 end;
-            until IssuedFinChargeMemoLine.Next = 0;
+            until IssuedFinChargeMemoLine.Next() = 0;
         end;
     end;
 

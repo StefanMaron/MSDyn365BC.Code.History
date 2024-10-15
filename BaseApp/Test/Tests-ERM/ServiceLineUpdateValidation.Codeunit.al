@@ -1226,7 +1226,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, '');
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
@@ -1241,7 +1241,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindSet;
+        ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, '');
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
@@ -1264,10 +1264,10 @@ codeunit 136113 "Service Line Update Validation"
     [Normal]
     local procedure SelectOldServiceLine(var TempServiceLine: Record "Service Line" temporary; var ServiceLine: Record "Service Line")
     begin
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceLine.SetRange("Document Type", TempServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", TempServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     [Normal]
@@ -1275,7 +1275,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     [Normal]
@@ -1296,7 +1296,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, Quantity);
             ServiceLine.Validate("Qty. to Ship", Quantity);
@@ -1309,7 +1309,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, Quantity);
             ServiceLine.Validate("Qty. to Invoice", Quantity);
@@ -1335,7 +1335,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, Quantity);
             ServiceLine.Modify(true);
@@ -1426,7 +1426,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, ServiceLine."Quantity Shipped");
             ServiceLine.Modify(true);
@@ -1575,7 +1575,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Quantity, Quantity);
         until ServiceLine.Next = 0;
@@ -1598,7 +1598,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Quantity, Quantity);
             ServiceLine.TestField("Qty. to Invoice", Quantity);
@@ -1610,7 +1610,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Quantity, Quantity);
             ServiceLine.TestField("Qty. to Ship", Quantity);
@@ -1736,7 +1736,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             asserterror ServiceLine.Validate(Quantity, -Quantity);
             Assert.AreEqual(
@@ -1754,7 +1754,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             asserterror ServiceLine.Validate("Qty. to Consume", -Quantity);
             Assert.AreEqual(
@@ -1771,7 +1771,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             asserterror ServiceLine.Validate("Qty. to Invoice", -Quantity);
             Assert.AreEqual(
@@ -1788,7 +1788,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             asserterror ServiceLine.Validate("Qty. to Ship", -Quantity);
             Assert.AreEqual(
@@ -1882,7 +1882,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Quantity, ServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", ServiceLine.Quantity - ServiceLine."Qty. to Ship");
@@ -1929,7 +1929,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Quantity, ServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", ServiceLine.Quantity - ServiceLine."Qty. to Ship");
@@ -1961,7 +1961,7 @@ codeunit 136113 "Service Line Update Validation"
         TotalConsumedQuantity: Decimal;
         TotalInvoicedQuantity: Decimal;
     begin
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
         ServiceShipmentHeader.FindLast;
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
@@ -1970,7 +1970,7 @@ codeunit 136113 "Service Line Update Validation"
             TotalConsumedQuantity := 0;
             TotalInvoicedQuantity := 0;
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");
-            ServiceShipmentLine.FindSet;
+            ServiceShipmentLine.FindSet();
             repeat
                 TotalQuantity += ServiceShipmentLine.Quantity;
                 TotalConsumedQuantity += ServiceShipmentLine."Quantity Consumed";
@@ -2003,7 +2003,7 @@ codeunit 136113 "Service Line Update Validation"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             ServiceLine.TestField(Quantity, ServiceLine.Quantity);
             ServiceLine.TestField("Quantity Shipped", 0);

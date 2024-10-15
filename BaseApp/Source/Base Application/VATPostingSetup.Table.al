@@ -297,7 +297,7 @@ table 325 "VAT Posting Setup"
     begin
         GLEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
         GLEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-        if not GLEntry.IsEmpty then
+        if not GLEntry.IsEmpty() then
             Error(YouCannotDeleteErr, "VAT Bus. Posting Group", "VAT Prod. Posting Group");
     end;
 

@@ -23,6 +23,7 @@ page 6621 "Blanket Sales Order Arch. Sub."
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the archived sales order.';
                 }
+#if not CLEAN16
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -32,6 +33,7 @@ page 6621 "Blanket Sales Order Arch. Sub."
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Suite;

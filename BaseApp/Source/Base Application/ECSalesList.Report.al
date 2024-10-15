@@ -176,7 +176,7 @@ report 130 "EC Sales List"
                             Grouping := Grouping::EUTrdPartyAmtService
                     end;
 
-                    if not (VATEntry.Next = 0) then begin
+                    if not (VATEntry.Next() = 0) then begin
                         if VATEntry."VAT Registration No." = "VAT Registration No." then
                             if ReportLayout = ReportLayout::"Separate &Lines" then begin
                                 if (VATEntry."EU Service" = "EU Service") and (VATEntry."EU 3-Party Trade" = "EU 3-Party Trade") then

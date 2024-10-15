@@ -139,7 +139,7 @@ report 10630 "VAT Reconciliation"
                                     BaseAmountPurchVAT += VATEntry.Base;
                                     PurchVAT += VATEntry.Amount;
                                 end;
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
                     end;
                 end;
                 GLAccount.Get("G/L Account No.");

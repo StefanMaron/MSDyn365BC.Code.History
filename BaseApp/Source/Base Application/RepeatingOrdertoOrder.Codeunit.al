@@ -38,7 +38,7 @@ codeunit 15000300 "Repeating Order to Order"
                         if not HideValidationDialog then
                             ItemCheckAvail.SalesLineCheck(SalesLine);
                 end;
-            until BlanketOrderSalesLine.Next = 0;
+            until BlanketOrderSalesLine.Next() = 0;
 
         // To create only the latest orders, order date should be the latest possible
         if CreateLatest or RecurringGroup."Create only the latest" then begin
@@ -102,7 +102,7 @@ codeunit 15000300 "Repeating Order to Order"
                             QuantityOnOrders := QuantityOnOrders - SalesLine."Outstanding Qty. (Base)"
                         else
                             QuantityOnOrders := QuantityOnOrders + SalesLine."Outstanding Qty. (Base)";
-                    until SalesLine.Next = 0;
+                    until SalesLine.Next() = 0;
                 if (Abs(BlanketOrderSalesLine."Qty. to Ship (Base)") + Abs(QuantityOnOrders) >
                     Abs(BlanketOrderSalesLine."Quantity (Base)")) or
                    (BlanketOrderSalesLine."Quantity (Base)" * BlanketOrderSalesLine."Outstanding Qty. (Base)" < 0)
@@ -131,7 +131,7 @@ codeunit 15000300 "Repeating Order to Order"
                     SalesOrderLine."Allow Invoice Disc." := BlanketOrderSalesLine."Allow Invoice Disc.";
                     SalesOrderLine."Allow Line Disc." := BlanketOrderSalesLine."Allow Line Disc.";
                     SalesOrderLine.Validate("Line Discount %", BlanketOrderSalesLine."Line Discount %");
-                    ReserveSalesLine.TransferSaleLineToSalesLine(
+                    SalesLineReserve.TransferSaleLineToSalesLine(
                       BlanketOrderSalesLine, SalesOrderLine, BlanketOrderSalesLine."Outstanding Qty. (Base)");
                 end;
                 SalesOrderLine."Shortcut Dimension 1 Code" := BlanketOrderSalesLine."Shortcut Dimension 1 Code";
@@ -162,7 +162,7 @@ codeunit 15000300 "Repeating Order to Order"
                     end;
                     BlanketOrderSalesLine.Modify();
                 end;
-            until BlanketOrderSalesLine.Next = 0;
+            until BlanketOrderSalesLine.Next() = 0;
 
         if not LinesCreated then
             Error(Text002);
@@ -176,7 +176,7 @@ codeunit 15000300 "Repeating Order to Order"
                     SalesCommentLine2."Document Type" := SalesOrderHeader."Document Type";
                     SalesCommentLine2."No." := SalesOrderHeader."No.";
                     SalesCommentLine2.Insert();
-                until SalesCommentLine.Next = 0;
+                until SalesCommentLine.Next() = 0;
         end;
 
         Validate("Order Date", NextOrderDate);
@@ -202,7 +202,7 @@ codeunit 15000300 "Repeating Order to Order"
         RecurringGroup: Record "Recurring Group";
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         LinesCreated: Boolean;
         HideValidationDialog: Boolean;
         QuantityOnOrders: Decimal;

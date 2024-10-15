@@ -11,6 +11,24 @@ report 123 "Finance Charge Memo - Test"
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
             RequestFilterHeading = 'Finance Charge Memo';
+            column(ContactPhoneNoLbl; ContactPhoneNoLbl)
+            {
+            }
+            column(ContactMobilePhoneNoLbl; ContactMobilePhoneNoLbl)
+            {
+            }
+            column(ContactEmailLbl; ContactEmailLbl)
+            {
+            }
+            column(ContactPhoneNo; PrimaryContact."Phone No.")
+            {
+            }
+            column(ContactMobilePhoneNo; PrimaryContact."Mobile Phone No.")
+            {
+            }
+            column(ContactEmail; PrimaryContact."E-mail")
+            {
+            }
             dataitem(PageCounter; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
@@ -154,7 +172,7 @@ report 123 "Finance Charge Memo - Test"
                                 DimText := OldDimText;
                                 exit;
                             end;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -204,7 +222,7 @@ report 123 "Finance Charge Memo - Test"
                                 Continue := Type = Type::" ";
                                 if Continue and (Description <> '') then
                                     StartLineNo := "Line No.";
-                            until (Next = 0) or not Continue;
+                            until (Next() = 0) or not Continue;
                         end;
                         SetRange("Line No.", 0, StartLineNo);
                     end;
@@ -635,6 +653,7 @@ report 123 "Finance Charge Memo - Test"
                     VATNoText := FieldCaption("VAT Registration No.");
                 if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                     AddError(DimMgt.GetDimCombErr);
+                Cust.GetPrimaryContact("Customer No.", PrimaryContact);
 
                 TableID[1] := DATABASE::Customer;
                 No[1] := "Customer No.";
@@ -699,6 +718,7 @@ report 123 "Finance Charge Memo - Test"
         Text008: Label 'Finance Charge Memo: %1';
         Text009: Label '%1 must be positive or 0.';
         GLSetup: Record "General Ledger Setup";
+        PrimaryContact: Record Contact;
         Cust: Record Customer;
         VATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry: Record "Dimension Set Entry";
@@ -751,6 +771,9 @@ report 123 "Finance Charge Memo - Test"
         VALVATBaseLCY_Control93CaptionLbl: Label 'VAT Base';
         VATAmountLine__VAT____Control94CaptionLbl: Label 'VAT %';
         VALVATBaseLCY_Control102CaptionLbl: Label 'Total';
+        ContactPhoneNoLbl: Label 'Contact Phone No.';
+        ContactMobilePhoneNoLbl: Label 'Contact Mobile Phone No.';
+        ContactEmailLbl: Label 'Contact E-Mail';
         ShowMIRLines: Boolean;
         FinChgMemoNoCaptionLbl: Label 'Finance Charge Memo No.';
 

@@ -15,8 +15,8 @@ codeunit 5771 "Whse.-Sales Release"
 
     procedure Release(SalesHeader: Record "Sales Header")
     var
-        WhseType: Option Inbound,Outbound;
-        OldWhseType: Option Inbound,Outbound;
+        WhseType: Enum "Warehouse Request Type";
+        OldWhseType: Enum "Warehouse Request Type";
         IsHandled: Boolean;
     begin
         OnBeforeRelease(SalesHeader);
@@ -40,7 +40,7 @@ codeunit 5771 "Whse.-Sales Release"
         SalesLine.SetRange("Drop Shipment", false);
         SalesLine.SetRange("Job No.", '');
         OnAfterReleaseSetFilters(SalesLine, SalesHeader);
-        if SalesLine.FindSet then begin
+        if SalesLine.FindSet() then begin
             First := true;
             repeat
                 if ((SalesHeader."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or
@@ -51,14 +51,15 @@ codeunit 5771 "Whse.-Sales Release"
                     WhseType := WhseType::Inbound;
 
                 if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
-                    CreateWhseRqst(SalesHeader, SalesLine, WhseType);
+                    CreateWarehouseRequest(SalesHeader, SalesLine, WhseType);
 
-                OnAfterReleaseOnAfterCreateWhseRequest(SalesHeader, SalesLine, WhseType, First, OldWhseType, OldLocationCode);
+                OnAfterReleaseOnAfterCreateWhseRequest(
+                    SalesHeader, SalesLine, WhseType.AsInteger(), First, OldWhseType.AsInteger(), OldLocationCode);
 
                 First := false;
                 OldLocationCode := SalesLine."Location Code";
                 OldWhseType := WhseType;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         end;
 
         OnReleaseOnAfterCreateWhseRequest(SalesHeader, SalesLine);
@@ -68,7 +69,7 @@ codeunit 5771 "Whse.-Sales Release"
         WhseRqst.SetRange(Type, WhseRqst.Type);
         WhseRqst.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         WhseRqst.SetRange("Document Status", SalesHeader.Status::Open);
-        if not WhseRqst.IsEmpty then
+        if not WhseRqst.IsEmpty() then
             WhseRqst.DeleteAll(true);
 
         OnAfterRelease(SalesHeader);
@@ -91,7 +92,7 @@ codeunit 5771 "Whse.-Sales Release"
                 WhseRqst.SetRange(Type, WhseRqst.Type);
             WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", Status::Released);
-            if not WhseRqst.IsEmpty then
+            if not WhseRqst.IsEmpty() then
                 WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
         end;
 
@@ -106,22 +107,16 @@ codeunit 5771 "Whse.-Sales Release"
             WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
             WhseRqst.SetRange("Document Status", Status::Released);
-            if not WhseRqst.IsEmpty then
+            if not WhseRqst.IsEmpty() then
                 WhseRqst.ModifyAll("External Document No.", "External Document No.");
         end;
     end;
 
-    local procedure CreateWhseRqst(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseType: Option Inbound,Outbound)
+    local procedure CreateWarehouseRequest(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WhseType: Enum "Warehouse Request Type")
     var
         SalesLine2: Record "Sales Line";
     begin
-        if ((WhseType = WhseType::Outbound) and
-            (Location.RequireShipment(SalesLine."Location Code") or
-             Location.RequirePicking(SalesLine."Location Code"))) or
-           ((WhseType = WhseType::Inbound) and
-            (Location.RequireReceive(SalesLine."Location Code") or
-             Location.RequirePutaway(SalesLine."Location Code")))
-        then begin
+        if ShouldCreateWarehouseRequest(WhseType) then begin
             SalesLine2.Copy(SalesLine);
             SalesLine2.SetRange("Location Code", SalesLine."Location Code");
             SalesLine2.SetRange("Unit of Measure Code", '');
@@ -147,11 +142,24 @@ codeunit 5771 "Whse.-Sales Release"
             SalesHeader.SetRange("Location Filter", SalesLine."Location Code");
             SalesHeader.CalcFields("Completely Shipped");
             WhseRqst."Completely Handled" := SalesHeader."Completely Shipped";
-            OnBeforeCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType);
+            OnBeforeCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType.AsInteger());
             if not WhseRqst.Insert() then
                 WhseRqst.Modify();
-            OnAfterCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType);
+            OnAfterCreateWhseRequest(WhseRqst, SalesHeader, SalesLine, WhseType.AsInteger());
         end;
+    end;
+
+    local procedure ShouldCreateWarehouseRequest(WhseType: Enum "Warehouse Request Type") ShouldCreate: Boolean;
+    begin
+        ShouldCreate :=
+           ((WhseType = "Warehouse Request Type"::Outbound) and
+            (Location.RequireShipment(SalesLine."Location Code") or
+             Location.RequirePicking(SalesLine."Location Code"))) or
+           ((WhseType = "Warehouse Request Type"::Inbound) and
+            (Location.RequireReceive(SalesLine."Location Code") or
+             Location.RequirePutaway(SalesLine."Location Code")));
+
+        OnAfterShouldCreateWarehouseRequest(Location, ShouldCreate);
     end;
 
     [IntegrationEvent(false, false)]
@@ -181,6 +189,11 @@ codeunit 5771 "Whse.-Sales Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReopen(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldCreateWarehouseRequest(Location: Record Location; var ShouldCreate: Boolean)
     begin
     end;
 

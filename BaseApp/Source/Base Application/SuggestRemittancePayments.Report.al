@@ -33,7 +33,7 @@ report 15000001 "Suggest Remittance Payments"
                             GetVendLedgEntries(true, false);
                             GetVendLedgEntries(false, false);
                             CheckAmounts(false);
-                        until (Next = 0) or StopPayments;
+                        until (Next() = 0) or StopPayments;
                 end;
 
                 if UsePaymentDisc and not StopPayments then begin
@@ -47,7 +47,7 @@ report 15000001 "Suggest Remittance Payments"
                             GetVendLedgEntries(true, true);
                             GetVendLedgEntries(false, true);
                             CheckAmounts(true);
-                        until (Next = 0) or StopPayments;
+                        until (Next() = 0) or StopPayments;
                 end;
 
                 GenJnlLine.LockTable();
@@ -302,7 +302,7 @@ report 15000001 "Suggest Remittance Payments"
         if VendLedgEntry.Find('-') then
             repeat
                 SaveAmount;
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     local procedure SaveAmount()
@@ -371,7 +371,7 @@ report 15000001 "Suggest Remittance Payments"
                     CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
                 else
                     PayableVendLedgEntry.Delete();
-            until PayableVendLedgEntry.Next = 0;
+            until PayableVendLedgEntry.Next() = 0;
 
             if (CurrencyBalance < 0) and
                ((not UsePaymentDisc) or (UsePaymentDisc and Future))
@@ -436,7 +436,7 @@ report 15000001 "Suggest Remittance Payments"
                     TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
                     Window.Update(1, VendLedgEntry."Vendor No.");
                     TempPaymentBuffer.Insert();
-                until PayableVendLedgEntry.Next = 0;
+                until PayableVendLedgEntry.Next() = 0;
                 PayableVendLedgEntry.DeleteAll();
                 PayableVendLedgEntry.SetRange("Vendor No.");
             until not PayableVendLedgEntry.Find('-');
@@ -511,7 +511,7 @@ report 15000001 "Suggest Remittance Payments"
                     Insert;
                     GenJnlLineInserted := true;
                 end;
-            until TempPaymentBuffer.Next = 0;
+            until TempPaymentBuffer.Next() = 0;
     end;
 
     local procedure SetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
@@ -547,7 +547,7 @@ report 15000001 "Suggest Remittance Payments"
                         repeat
                             TmpPayableVendLedgEntry2 := TmpPayableVendLedgEntry;
                             TmpPayableVendLedgEntry2.Insert();
-                        until TmpPayableVendLedgEntry.Next = 0;
+                        until TmpPayableVendLedgEntry.Next() = 0;
 
                     TmpPayableVendLedgEntry2.SetFilter("Currency Code", '<>%1', BankAcc."Currency Code");
                     SeveralCurrencies := SeveralCurrencies or TmpPayableVendLedgEntry2.FindFirst;

@@ -74,7 +74,7 @@ codeunit 10613 "E-Invoice Check Fin. Chrg.Memo"
                             Error(EmptyDescErr, "Finance Charge Memo No.");
                     if (Type = Type::" ") or ("No." = '') then
                         EmptyLineFound := true;
-                until (Next = 0);
+                until (Next() = 0);
 
             if EmptyLineFound then
                 if not Confirm(EmptyFieldsQst, true, "Finance Charge Memo No.") then

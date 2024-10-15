@@ -136,7 +136,7 @@ codeunit 144005 "EHF Reminder"
           IssuedReminderHeader."VAT Amount", LibraryERM.GetCurrencyCode(IssuedReminderHeader."Currency Code"));
         // [THEN] 'InvoiceLine' is exported with 'InvoicedQuantity' and 'LineExtensionAmount' = 0, 'PriceAmount' is taked from line amount
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
-        IssuedReminderLine.FindSet;
+        IssuedReminderLine.FindSet();
         repeat
             VerifyXmlLine(IssuedReminderLine, i);
             i += 1;
@@ -181,7 +181,7 @@ codeunit 144005 "EHF Reminder"
           IssuedFinChargeMemoHeader."VAT Amount", LibraryERM.GetCurrencyCode(IssuedFinChargeMemoHeader."Currency Code"));
         // [THEN] 'InvoiceLine' is exported with 'InvoicedQuantity' and 'LineExtensionAmount' = 0, 'PriceAmount' is taked from line amount
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoHeader."No.");
-        IssuedFinChargeMemoLine.FindSet;
+        IssuedFinChargeMemoLine.FindSet();
         repeat
             IssuedReminderLine.TransferFields(IssuedFinChargeMemoLine);
             VerifyXmlLine(IssuedReminderLine, i);

@@ -4,6 +4,9 @@ page 6403 "Sales Document Line Entity"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Sales Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -691,6 +694,7 @@ page 6403 "Sales Document Line Entity"
                     ApplicationArea = All;
                     Caption = 'Originally Ordered Var. Code', Locked = true;
                 }
+#if not CLEAN17              
                 field(crossReferenceNumber; "Cross-Reference No.")
                 {
                     ApplicationArea = All;
@@ -711,6 +715,7 @@ page 6403 "Sales Document Line Entity"
                     ApplicationArea = All;
                     Caption = 'Cross-Reference Type No.', Locked = true;
                 }
+#endif
                 field(itemCategoryCode; "Item Category Code")
                 {
                     ApplicationArea = All;

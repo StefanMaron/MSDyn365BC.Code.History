@@ -22,10 +22,10 @@ codeunit 15000000 "Reset Remittance Payment Order"
         // Go through all Waiting journal lines:
         WaitingJournal.Init();
         WaitingJournal.SetRange("Payment Order ID - Sent", CurrentRemPaymOrder.ID);
-        WaitingJournal.FindSet;
+        WaitingJournal.FindSet();
         repeat
             ResetWaitingJournalLine(WaitingJournal);
-        until WaitingJournal.Next = 0;
+        until WaitingJournal.Next() = 0;
     end;
 
     var

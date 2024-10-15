@@ -184,7 +184,7 @@ codeunit 10601 DocumentTools
             KundeTxt := '';
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnDeleteGenJnlLine(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     var
         GenJnlLineRegRepCode: Record "Gen. Jnl. Line Reg. Rep. Code";
@@ -208,7 +208,7 @@ codeunit 10601 DocumentTools
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Report, 393, 'OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer', '', false, false)]
+    [EventSubscriber(ObjectType::Report, Report::"Suggest Vendor Payments", 'OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer', '', false, false)]
     local procedure SuggestPaymentUpdateRemittance(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
     var
         Vendor: Record Vendor;

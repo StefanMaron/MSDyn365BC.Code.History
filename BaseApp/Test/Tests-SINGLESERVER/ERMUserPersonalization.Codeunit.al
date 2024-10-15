@@ -204,24 +204,45 @@ codeunit 134912 "ERM User Personalization"
         FindAnyRoleCenter(AllObjWithCaption);
         CreateProfile(AllObjWithCaption);
 
+        UserPersonalization.Get(UserSecurityId());
         UserPersonalizationCard.OpenEdit;
-        UserPersonalizationCard.ProfileID.AssistEdit;
+        UserPersonalizationCard.GoToRecord(UserPersonalization);
+        UserPersonalizationCard.Role.AssistEdit;
         UserPersonalizationCard.OK.Invoke;
 
+        // force session restart to make the test pass in all cases
+        RestartSession();
+
         // Verify: Verify created Profile ID.
-        UserPersonalization.Reset();
-        UserPersonalization.SetFilter("Profile ID", Format(AllObjWithCaption."Object ID"));
-        Assert.AreEqual(1, UserPersonalization.Count, 'User Personalization not found');
+        UserPersonalization.Get(UserSecurityId());
+        Assert.AreEqual(UserPersonalization."Profile ID", Format(AllObjWithCaption."Object ID"), 'Profile not set on User Personalization');
 
         // Tear Down: Setup default values.
-        UserPersonalization.SetRange("Profile ID", Format(AllObjWithCaption."Object ID"));
-        UserPersonalization.FindFirst;
         UserPersonalization.Validate("Profile ID", '');
         Clear(UserPersonalization."App ID");
         Clear(UserPersonalization.Scope);
         UserPersonalization.Modify(true);
 
         DeleteProfile(AllObjWithCaption);
+    end;
+
+    internal procedure RestartSession()
+    var
+        UserPersonalization: Record "User Personalization";
+        CurrentUserSessionSettings: SessionSettings;
+        ProfileScope: Option System,Tenant;
+    begin
+        UserPersonalization.Get(UserSecurityId());
+
+        CurrentUserSessionSettings.Init();
+        CurrentUserSessionSettings.ProfileId := UserPersonalization."Profile ID";
+        CurrentUserSessionSettings.ProfileAppId := UserPersonalization."App ID";
+        CurrentUserSessionSettings.ProfileSystemScope := UserPersonalization.Scope = ProfileScope::System;
+        CurrentUserSessionSettings.LanguageId := UserPersonalization."Language ID";
+        CurrentUserSessionSettings.LocaleId := UserPersonalization."Locale ID";
+        CurrentUserSessionSettings.Timezone := UserPersonalization."Time Zone";
+
+        CurrentUserSessionSettings.RequestSessionUpdate(true);
     end;
 
     [Test]
@@ -670,37 +691,46 @@ codeunit 134912 "ERM User Personalization"
         User1: Record User;
         User2: Record User;
         UserPersonalization: Record "User Personalization";
+        AllProfile: Record "All Profile";
         UserPersonalizationCard: TestPage "User Personalization Card";
-        ProfileID: Code[30];
     begin
         // [SCENARIO 265522] "Profile ID" must be updated when switch User Personalizations on card page
         Initialize;
+        AllProfile.SetFilter(Enabled, Format(true));
+        AllProfile.FindFirst();
 
         UserPersonalization.DeleteAll();
 
         // [GIVEN] User Personalization "UserP1" with "Profile ID" = "Profile1"
-        LibraryPermissions.CreateUser(User1, LibraryUtility.GenerateGUID, false);
-        ProfileID := CreateProfileID;
-        CreateUserPersonalization(UserPersonalization, User1."User Security ID", ProfileID);
+        LibraryPermissions.CreateUser(User1, LibraryUtility.GenerateGUID(), false);
+        CreateUserPersonalization(UserPersonalization, AllProfile."App ID", AllProfile.Scope, User1."User Security ID", AllProfile."Profile ID");
 
         // [GIVEN] User Personalization "UserP2" with "Profile ID" = "Profile2"
-        LibraryPermissions.CreateUser(User2, LibraryUtility.GenerateGUID, false);
-        ProfileID := CreateProfileID;
-        CreateUserPersonalization(UserPersonalization, User2."User Security ID", ProfileID);
+        LibraryPermissions.CreateUser(User2, LibraryUtility.GenerateGUID(), false);
+        AllProfile.Next();
+        CreateUserPersonalization(UserPersonalization, AllProfile."App ID", AllProfile.Scope, User2."User Security ID", AllProfile."Profile ID");
 
-        // [GIVEN] User Personalization Card is openned for "UserP1"
-        UserPersonalization.FindSet; // It is needed because of sorting by "User SID" which generates randomly and we cannot identify which of our records is first
+        // [GIVEN] User Personalization Card is opened for "UserP1"
+        UserPersonalization.FindSet(); // It is needed because of sorting by "User SID" which generates randomly and we cannot identify which of our records is first
 
-        UserPersonalizationCard.OpenEdit;
+        UserPersonalizationCard.OpenEdit();
         UserPersonalizationCard.GotoRecord(UserPersonalization);
-        UserPersonalizationCard.ProfileID.AssertEquals(UserPersonalization."Profile ID");
+        AllProfile.Reset();
+        AllProfile.SetFilter(Enabled, Format(true));
+        AllProfile.SetFilter("Profile ID", UserPersonalization."Profile ID");
+        AllProfile.FindFirst();
+        UserPersonalizationCard.Role.AssertEquals(AllProfile.Caption);
 
         // [WHEN] Click Next to go to "UserP2"
-        UserPersonalizationCard.Next;
+        UserPersonalizationCard.Next();
 
         // [THEN] "Profile ID" of User Personalization Card is "Profile2"
-        UserPersonalization.Next;
-        UserPersonalizationCard.ProfileID.AssertEquals(UserPersonalization."Profile ID");
+        UserPersonalization.Next();
+        AllProfile.Reset();
+        AllProfile.SetFilter(Enabled, Format(true));
+        AllProfile.SetFilter("Profile ID", UserPersonalization."Profile ID");
+        AllProfile.FindFirst();
+        UserPersonalizationCard.Role.AssertEquals(AllProfile.Caption);
     end;
 
     [Test]
@@ -1036,7 +1066,7 @@ codeunit 134912 "ERM User Personalization"
         LibraryVariableStorage.Enqueue(PersonalizationProfileID1);
         UserGroups.OpenEdit;
         UserGroups.FILTER.SetFilter(Code, UserGroup.Code);
-        UserGroups.YourProfileID.AssistEdit;
+        UserGroups.YourProfileID.Lookup();
 
         // [THEN] User's Personalization change for new profile
         VerifyUserPersonalization(User."User Security ID", PersonalizationProfileID1);
@@ -1083,7 +1113,7 @@ codeunit 134912 "ERM User Personalization"
         LibraryVariableStorage.Enqueue(CreateProfileID);
         UserGroups.OpenEdit;
         UserGroups.FILTER.SetFilter(Code, UserGroup[2].Code);
-        UserGroups.YourProfileID.AssistEdit;
+        UserGroups.YourProfileID.Lookup();
 
         // [THEN] User's Personalization doesn't change for new profile
         VerifyUserPersonalization(User."User Security ID", PersonalizationProfileID);
@@ -1135,7 +1165,7 @@ codeunit 134912 "ERM User Personalization"
         LibraryVariableStorage.Enqueue(OtherProfileID);
         UserGroups.OpenEdit;
         UserGroups.FILTER.SetFilter(Code, UserGroup[1].Code);
-        UserGroups.YourProfileID.AssistEdit;
+        UserGroups.YourProfileID.Lookup();
 
         // [THEN] User's Personalization doesn't change for new profile
         VerifyUserPersonalization(User."User Security ID", PersonalizationProfileID[1]);
@@ -1172,7 +1202,7 @@ codeunit 134912 "ERM User Personalization"
         LibraryVariableStorage.Enqueue(PersonalizationProfileID);
         UserGroups.OpenEdit;
         UserGroups.FILTER.SetFilter(Code, UserGroup.Code);
-        UserGroups.YourProfileID.AssistEdit;
+        UserGroups.YourProfileID.Lookup();
         UserGroups.Close;
 
         // [THEN] User group's default profile successfully changed
@@ -1271,6 +1301,17 @@ codeunit 134912 "ERM User Personalization"
         UserPersonalization.Init();
         UserPersonalization.Validate("User SID", UserSID);
         UserPersonalization.Validate("Profile ID", ProfileID);
+        UserPersonalization.Insert(true);
+    end;
+
+    local procedure CreateUserPersonalization(var UserPersonalization: Record "User Personalization"; AppID: Guid; Scope: Option; UserSID: Guid; ProfileID: Code[30])
+    begin
+        UserPersonalization.Init();
+        UserPersonalization.Validate("User SID", UserSID);
+        UserPersonalization.Validate("App ID", AppID);
+        UserPersonalization.Validate(Scope, Scope);
+        UserPersonalization.Validate("Profile ID", ProfileID);
+        UserPersonalization.CalcFields(Role);
         UserPersonalization.Insert(true);
     end;
 

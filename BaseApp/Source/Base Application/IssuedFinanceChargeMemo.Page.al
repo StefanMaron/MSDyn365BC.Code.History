@@ -58,6 +58,33 @@ page 450 "Issued Finance Charge Memo"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer the finance charge memo is for.';
                 }
+                field(ContactPhoneNo; PrimaryContact."Phone No.")
+                {
+                    Caption = 'Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the customer contact person the finance charge is for.';
+                }
+                field(ContactMobilePhoneNo; PrimaryContact."Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the customer contact person the finance charge is for.';
+                }
+                field(ContactEmail; PrimaryContact."E-Mail")
+                {
+                    Caption = 'Email';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = EMail;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the email address of the customer contact person the finance charge is for.';
+                }
                 field("Your Reference"; "Your Reference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -392,7 +419,15 @@ page 450 "Issued Finance Charge Memo"
         }
     }
 
+    trigger OnAfterGetRecord()
     var
+        Customer: Record Customer;
+    begin
+        Customer.GetPrimaryContact("Customer No.", PrimaryContact);
+    end;
+
+    var
+        PrimaryContact: Record Contact;
         IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";

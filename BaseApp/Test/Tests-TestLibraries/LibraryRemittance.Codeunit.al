@@ -97,7 +97,7 @@ codeunit 143009 "Library - Remittance"
         // pump them back into a temporary Gen. Journal Line table.
         // The original lines are deleted in the process.
         WaitingJournal.SetRange(Reference, PaymentOrderID);
-        WaitingJournal.FindSet;
+        WaitingJournal.FindSet();
         repeat
             TempGenJournalLine.TransferFields(WaitingJournal);
             TempGenJournalLine.Insert();

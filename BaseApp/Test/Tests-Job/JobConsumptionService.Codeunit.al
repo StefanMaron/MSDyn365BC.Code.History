@@ -355,7 +355,7 @@ codeunit 136301 "Job Consumption Service"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure ModifyJobNoOnServiceLines(ServiceHeader: Record "Service Header"; JobNo: Code[20])

@@ -347,7 +347,7 @@ report 5055 "Contact - Cover Sheet"
             if Contact.FindSet then
                 repeat
                     SegManagement.LogDocument(17, '', 0, 0, DATABASE::Contact, Contact."No.", '', '', '', '');
-                until Contact.Next = 0;
+                until Contact.Next() = 0;
     end;
 
     var

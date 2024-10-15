@@ -80,7 +80,7 @@ codeunit 2162 "O365 Sales Invoice Events"
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         if CalendarEvent.Get(O365C2GraphEventSettings."Inv. Draft Event") and (not CalendarEvent.Archived) then begin
-            if SalesHeader.IsEmpty then
+            if SalesHeader.IsEmpty() then
                 CalendarEvent.Delete(true)
             else begin
                 CalendarEvent.Validate("Scheduled Date", NewDate);
@@ -90,7 +90,7 @@ codeunit 2162 "O365 Sales Invoice Events"
             exit;
         end;
 
-        if SalesHeader.IsEmpty then
+        if SalesHeader.IsEmpty() then
             exit;
 
         CreateEvent(O365SalesEvent, O365SalesEvent.Type::"Draft Reminder", '');
@@ -238,9 +238,8 @@ codeunit 2162 "O365 Sales Invoice Events"
         exit(O365SalesInitialSetup."Is initialized");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterPostSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
+    local procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
     begin
         if not IsInvoicing then
             exit;
@@ -260,7 +259,7 @@ codeunit 2162 "O365 Sales Invoice Events"
         UpdateInactivityEvent;
     end;
 
-    [EventSubscriber(ObjectType::Table, 379, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Detailed Cust. Ledg. Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertDetailedCustLedgEntry(var Rec: Record "Detailed Cust. Ledg. Entry"; RunTrigger: Boolean)
     var
         O365SalesEvent: Record "O365 Sales Event";
@@ -326,9 +325,8 @@ codeunit 2162 "O365 Sales Invoice Events"
             exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterSalesHeaderInsert(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterSalesHeaderInsert(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not IsInvoice(Rec) then
             exit;
@@ -340,9 +338,8 @@ codeunit 2162 "O365 Sales Invoice Events"
         UpdateInactivityEvent;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterDeleteEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterSalesHeaderDelete(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnAfterSalesHeaderDelete(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not IsInvoice(Rec) then
             exit;
@@ -353,16 +350,14 @@ codeunit 2162 "O365 Sales Invoice Events"
         UpdateDraftEvent;
     end;
 
-    [EventSubscriber(ObjectType::Table, 2158, 'OnBeforeModifyEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeDocumentSentHistoryModify(var Rec: Record "O365 Document Sent History"; var xRec: Record "O365 Document Sent History"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"O365 Document Sent History", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure OnBeforeDocumentSentHistoryModify(var Rec: Record "O365 Document Sent History"; var xRec: Record "O365 Document Sent History"; RunTrigger: Boolean)
     begin
         OnInsertOrModifyDocumentSentHistory(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 2158, 'OnAfterInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterDocumentSentHistoryInsert(var Rec: Record "O365 Document Sent History"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"O365 Document Sent History", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterDocumentSentHistoryInsert(var Rec: Record "O365 Document Sent History"; RunTrigger: Boolean)
     begin
         OnInsertOrModifyDocumentSentHistory(Rec);
     end;

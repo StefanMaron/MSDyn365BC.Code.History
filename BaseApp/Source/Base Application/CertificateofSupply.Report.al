@@ -167,7 +167,7 @@ report 780 "Certificate of Supply"
                             if not TempServiceShipmentLine.FindSet then
                                 CurrReport.Break
                         end else
-                            if TempServiceShipmentLine.Next = 0 then
+                            if TempServiceShipmentLine.Next() = 0 then
                                 CurrReport.Break();
                     end;
 
@@ -218,7 +218,7 @@ report 780 "Certificate of Supply"
                                     repeat
                                         CertificateOfSupply2.InitFromSales(SalesShipmentHeader);
                                         CertificateOfSupply2.SetRequired(SalesShipmentHeader."No.");
-                                    until SalesShipmentHeader.Next = 0;
+                                    until SalesShipmentHeader.Next() = 0;
                             end;
                         "Document Type"::"Service Shipment":
                             begin
@@ -227,7 +227,7 @@ report 780 "Certificate of Supply"
                                     repeat
                                         CertificateOfSupply2.InitFromService(ServiceShipmentHeader);
                                         CertificateOfSupply2.SetRequired(ServiceShipmentHeader."No.")
-                                    until ServiceShipmentHeader.Next = 0;
+                                    until ServiceShipmentHeader.Next() = 0;
                             end;
                         "Document Type"::"Return Shipment":
                             begin
@@ -236,7 +236,7 @@ report 780 "Certificate of Supply"
                                     repeat
                                         CertificateOfSupply2.InitFromPurchase(ReturnShipmentHeader);
                                         CertificateOfSupply2.SetRequired(ReturnShipmentHeader."No.")
-                                    until ServiceShipmentHeader.Next = 0;
+                                    until ServiceShipmentHeader.Next() = 0;
                             end
                     end
             end;
@@ -413,7 +413,7 @@ report 780 "Certificate of Supply"
                     GetPurchaseLines(ReturnShipmentHeader."No.");
                 end;
         end;
-        TempServiceShipmentLine.FindSet;
+        TempServiceShipmentLine.FindSet();
     end;
 
     local procedure GetSalesLines(SalesShipmentHeaderNo: Code[20])
@@ -430,7 +430,7 @@ report 780 "Certificate of Supply"
                 TempServiceShipmentLine."Unit of Measure Code" := SalesShipmentLine."Unit of Measure Code";
                 TempServiceShipmentLine."Unit of Measure" := SalesShipmentLine."Unit of Measure";
                 TempServiceShipmentLine.Insert();
-            until SalesShipmentLine.Next = 0;
+            until SalesShipmentLine.Next() = 0;
     end;
 
     local procedure GetServiceLines(ServiceShipmentHeaderNo: Code[20])
@@ -442,7 +442,7 @@ report 780 "Certificate of Supply"
             repeat
                 TempServiceShipmentLine := ServiceShipmentLine;
                 TempServiceShipmentLine.Insert();
-            until ServiceShipmentLine.Next = 0;
+            until ServiceShipmentLine.Next() = 0;
     end;
 
     local procedure GetPurchaseLines(ReturnShipmentHeaderNo: Code[20])
@@ -459,7 +459,7 @@ report 780 "Certificate of Supply"
                 TempServiceShipmentLine."Unit of Measure Code" := ReturnShipmentLine."Unit of Measure Code";
                 TempServiceShipmentLine."Unit of Measure" := ReturnShipmentLine."Unit of Measure";
                 TempServiceShipmentLine.Insert();
-            until ReturnShipmentLine.Next = 0;
+            until ReturnShipmentLine.Next() = 0;
     end;
 
     local procedure GetLanguageCode(CertificateOfSupply: Record "Certificate of Supply"): Code[10]

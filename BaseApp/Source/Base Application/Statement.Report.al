@@ -270,7 +270,7 @@ report 116 Statement
                                             DetailedCustLedgEntry.SetRange("Entry Type", "Entry Type"::Application);
                                             DetailedCustLedgEntry.SetRange("Transaction No.", "Transaction No.");
                                             DetailedCustLedgEntry.SetFilter("Currency Code", '<>%1', "Currency Code");
-                                            if not DetailedCustLedgEntry.IsEmpty then begin
+                                            if not DetailedCustLedgEntry.IsEmpty() then begin
                                                 Description := Text005Txt;
                                                 DueDate := 0D;
                                             end else
@@ -434,13 +434,13 @@ report 116 Statement
                         CustLedgerEntry: Record "Cust. Ledger Entry";
                     begin
                         if Number = 1 then
-                            TempCurrency2.FindSet;
+                            TempCurrency2.FindSet();
 
                         repeat
                             if not IsFirstLoop then
                                 IsFirstLoop := true
                             else
-                                if TempCurrency2.Next = 0 then
+                                if TempCurrency2.Next() = 0 then
                                     CurrReport.Break();
                             CustLedgerEntry.SetRange("Customer No.", Customer."No.");
                             CustLedgerEntry.SetRange("Posting Date", 0D, EndDate);
@@ -529,7 +529,7 @@ report 116 Statement
                             if not TempAgingBandBuf.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if TempAgingBandBuf.Next = 0 then
+                            if TempAgingBandBuf.Next() = 0 then
                                 CurrReport.Break();
                         AgingBandCurrencyCode := TempAgingBandBuf."Currency Code";
                         if AgingBandCurrencyCode = '' then
