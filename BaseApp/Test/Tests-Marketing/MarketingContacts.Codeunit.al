@@ -2095,6 +2095,8 @@ codeunit 136201 "Marketing Contacts"
         // verify that attachment is exist
         Attachment.Find;
         Assert.IsTrue(Attachment."Attachment File".HasValue, EmptyAttachmentErr);
+
+        SegmentLine.Delete();
     end;
 
     [Test]
@@ -5252,6 +5254,80 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Create Interaction for Contact "C"
         // [THEN] "Create Interaction" page is opened with "Salesperson Code" = SalesPerson1
         Contact.CreateInteraction;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerPersonContactShouldNotUpdateCustomerFields()
+    var
+        Customer: Record Customer;
+        CompanyContact: Record Contact;
+        PersonContact: Record Contact;
+    begin
+        // [SCENARIO 421379] When Person Contact is created for related Customer, fields "Primary Contact No."", "Contact" should not be updated
+        Initialize();
+
+        // [GIVEN]  Company Contact "CC"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Customer "C" created from "CC" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateCustomerFromTemplate('');
+        Customer.SetRange(Name, CompanyContact.Name);
+        Customer.FindFirst();
+
+        // [GIVEN] Customer "C" has "Primary Contact No." and "Contact" fields empty
+        Customer.Validate("Primary Contact No.", '');
+        Customer.Validate(Contact, '');
+        Customer.Modify();
+
+        // [WHEN] New Person Contact created for Customer "C"
+        PersonContact.Init();
+        PersonContact.Validate(Type, PersonContact.Type::Person);
+        PersonContact.Validate("Company No.", CompanyContact."No.");
+        PersonContact.Validate(Name, CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(PersonContact.Name)));
+
+        // [THEN] Customer fields "Primary Contact No." and "Contact" are empty
+        Customer.Find();
+        Customer.TestField("Primary Contact No.", '');
+        Customer.TestField(Contact, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorPersonContactShouldNotUpdateVendorFields()
+    var
+        Vendor: Record Vendor;
+        CompanyContact: Record Contact;
+        PersonContact: Record Contact;
+    begin
+        // [SCENARIO 421379] When Person Contact is created for related Vendor, fields "Primary Contact No."", "Contact" should not be updated
+        Initialize();
+
+        // [GIVEN]  Company Vendor "VV"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Vendor "V" created from "VV" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateVendor();
+        Vendor.SetRange(Name, CompanyContact.Name);
+        Vendor.FindFirst();
+
+        // [GIVEN] Vendor "V" has "Primary Contact No." and "Contact" fields empty
+        Vendor.Validate("Primary Contact No.", '');
+        Vendor.Validate(Contact, '');
+        Vendor.Modify();
+
+        // [WHEN] New Person Contact created for Vendor "V"
+        PersonContact.Init();
+        PersonContact.Validate(Type, PersonContact.Type::Person);
+        PersonContact.Validate("Company No.", CompanyContact."No.");
+        PersonContact.Validate(Name, CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(PersonContact.Name)));
+
+        // [THEN] Vendor fields "Primary Contact No." and "Contact" are empty
+        Vendor.Find();
+        Vendor.TestField("Primary Contact No.", '');
+        Vendor.TestField(Contact, '');
     end;
 
     local procedure Initialize()

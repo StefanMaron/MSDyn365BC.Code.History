@@ -120,14 +120,18 @@ codeunit 1521 "Workflow Response Handling"
                     AddResponsePredecessor(SetStatusToPendingApprovalCode, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
                     AddResponsePredecessor(SetStatusToPendingApprovalCode, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode);
                     AddResponsePredecessor(
-                      SetStatusToPendingApprovalCode, WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode);
+                      SetStatusToPendingApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
+                    AddResponsePredecessor(
+                      SetStatusToPendingApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
                 end;
             CreateApprovalRequestsCode:
                 begin
                     AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
                     AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode);
-                    AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
+                    AddResponsePredecessor(CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
+                    AddResponsePredecessor(CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
+                    AddResponsePredecessor(CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode());
+                    AddResponsePredecessor(CreateApprovalRequestsCode(), WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
                     AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
                     AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode);
                     AddResponsePredecessor(CreateApprovalRequestsCode, WorkflowEventHandling.RunWorkflowOnVendorChangedCode);
@@ -144,8 +148,10 @@ codeunit 1521 "Workflow Response Handling"
                     AddResponsePredecessor(
                       SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
                     AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
+                    AddResponsePredecessor(SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode());
+                    AddResponsePredecessor(SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitNotExceededCode());
                     AddResponsePredecessor(
-                      SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode);
+                      SendApprovalRequestForApprovalCode(), WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode());
                     AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
                     AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
                     AddResponsePredecessor(SendApprovalRequestForApprovalCode, WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode);
@@ -926,6 +932,7 @@ codeunit 1521 "Workflow Response Handling"
         ApprovalEntry: Record "Approval Entry";
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
         GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
         ItemJournalBatch: Record "Item Journal Batch";
         FAJournalBatch: Record "FA Journal Batch";
         RecordRestrictionMgt: Codeunit "Record Restriction Mgt.";
@@ -951,6 +958,17 @@ codeunit 1521 "Workflow Response Handling"
                 begin
                     RecRef.SetTable(GenJournalBatch);
                     RecordRestrictionMgt.AllowGenJournalBatchUsage(GenJournalBatch);
+                    GenJournalBatch.Find();
+                    GenJournalBatch."Pending Approval" := false;
+                    GenJournalBatch.Modify();
+                end;
+            DATABASE::"Gen. Journal Line":
+                begin
+                    AllowRecordUsageDefault(Variant);
+                    RecRef.SetTable(GenJournalLine);
+                    GenJournalLine.Find();
+                    GenJournalLine."Pending Approval" := false;
+                    GenJournalLine.Modify();
                 end;
             DATABASE::"Item Journal Batch":
                 begin

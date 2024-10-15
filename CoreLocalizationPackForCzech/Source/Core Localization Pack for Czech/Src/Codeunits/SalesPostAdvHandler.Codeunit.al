@@ -69,4 +69,10 @@ codeunit 31327 "Sales Post Adv. Handler CZL"
         SalesCrMemoHeader."VAT Date CZL" := SalesCrMemoHeader."VAT Date";
         SalesCrMemoHeader."Credit Memo Type CZL" := Enum::"Credit Memo Type CZL"::"Corrective Tax Document";
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post Advances", 'OnAfterPrepareGenJnlLine', '', false, false)]
+    local procedure CopyFieldsFromSalesInvOnPrepareGenJnlLineOnAfterPrepareGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; SalesInvHeader: Record "Sales Invoice Header")
+    begin
+        GenJnlLine."VAT Date CZL" := SalesInvHeader."VAT Date CZL";
+    end;
 }

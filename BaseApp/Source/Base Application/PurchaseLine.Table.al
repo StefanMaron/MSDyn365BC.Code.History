@@ -3899,7 +3899,7 @@
         if not PurchCommentLine.IsEmpty() then
             PurchCommentLine.DeleteAll();
 
-        ModifyVATFields; // NAVCZ
+        RemoveVATCorrection(); // NAVCZ
 
         // In case we have roundings on VAT or Sales Tax, we should update some other line
         if (Type <> Type::" ") and ("Line No." <> 0) and ("Attached to Line No." = 0) and
@@ -3932,7 +3932,7 @@
         PurchHeader."No." := '';
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
-        ModifyVATFields; // NAVCZ
+        RemoveVATCorrection(); // NAVCZ
     end;
 
     trigger OnModify()
@@ -3953,7 +3953,7 @@
 
         if ((Quantity <> 0) or (xRec.Quantity <> 0)) and ItemExists(xRec."No.") then
             PurchLineReserve.VerifyChange(Rec, xRec);
-        ModifyVATFields; // NAVCZ
+        RemoveVATCorrection(); // NAVCZ
     end;
 
     trigger OnRename()
@@ -7714,21 +7714,31 @@
           PurchSetup."Discount Posting", PurchSetup."Discount Posting"::"Invoice Discounts");
     end;
 
-    local procedure ModifyVATFields()
+    local procedure RemoveVATCorrection()
     var
-        ModPurchLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
     begin
         // NAVCZ
-        ModPurchLine.Reset();
-        ModPurchLine.SetRange("Document Type", "Document Type");
-        ModPurchLine.SetRange("Document No.", "Document No.");
-        ModPurchLine.SetFilter("Line No.", '<>%1', "Line No.");
-        ModPurchLine.SetFilter(Type, '> %1', ModPurchLine.Type::" ");
-        ModPurchLine.SetRange("VAT Correction", true);
-        ModPurchLine.ModifyAll("VAT Difference", 0);
-        ModPurchLine.ModifyAll("VAT Difference (LCY)", 0);
-        ModPurchLine.ModifyAll("Ext. VAT Difference (LCY)", 0);
-        ModPurchLine.ModifyAll("VAT Correction", false);
+        PurchaseLine2.Reset();
+        PurchaseLine2.SetRange("Document Type", "Document Type");
+        PurchaseLine2.SetRange("Document No.", "Document No.");
+        PurchaseLine2.SetFilter("Line No.", '<>%1', "Line No.");
+        PurchaseLine2.SetFilter("VAT Difference", '<>0');
+        if PurchaseLine2.FindSet() then
+            repeat
+                PurchaseLine2."VAT Difference" := 0;
+                PurchaseLine2."VAT Difference (LCY)" := 0;
+                PurchaseLine2."VAT Correction" := false;
+                PurchaseLine2.UpdateAmounts();
+                PurchaseLine2.Modify();
+            until PurchaseLine2.Next() = 0;
+
+        if "VAT Difference" <> 0 then begin
+            "VAT Difference" := 0;
+            "VAT Difference (LCY)" := 0;
+            "VAT Correction" := false;
+            UpdateAmounts();
+        end;
     end;
 
     local procedure DivideAmount(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; QtyType: Option General,Invoicing,Shipping; PurchLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)

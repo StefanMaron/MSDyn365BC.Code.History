@@ -443,6 +443,11 @@ page 5740 "Transfer Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code of either the port of entry at which the items passed into your country/region, or the port of exit.';
                 }
+                field("Partner VAT ID"; Rec."Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                }
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
                     ApplicationArea = BasicEU;

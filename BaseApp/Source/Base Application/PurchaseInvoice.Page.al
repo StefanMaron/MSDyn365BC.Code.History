@@ -1132,7 +1132,7 @@ page 51 "Purchase Invoice"
                     trigger OnAction()
                     begin
                         OpenDocumentStatistics();
-                        CurrPage.PurchLines.PAGE.ForceCalculateTotals(); // NAVCZ
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)

@@ -223,9 +223,7 @@ codeunit 11746 "Gen. Journal Line Handler CZL"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterInsertVATEntry', '', false, false)]
-    local procedure DeleteSettlementReverseVATEntryOnAfterInsertVATEntry(VATEntry: Record "VAT Entry"; GLEntryNo: Integer; var NextEntryNo: Integer)
-    var
-        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
+    local procedure DeleteSettlementReverseVATEntryOnAfterInsertVATEntry(VATEntry: Record "VAT Entry"; GLEntryNo: Integer; var NextEntryNo: Integer; var TempGLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link" temporary)
     begin
         if (VATEntry.Type = VATEntry.Type::Settlement) and
            (VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT") and
@@ -233,8 +231,8 @@ codeunit 11746 "Gen. Journal Line Handler CZL"
            (VATEntry.Base = 0) and (VATEntry.Amount <> 0)
         then begin
             VATEntry.Delete(false);
-            GLEntryVATEntryLink.Get(GLEntryNo, VATEntry."Entry No.");
-            GLEntryVATEntryLink.Delete(false);
+            TempGLEntryVATEntryLink.Get(GLEntryNo, VATEntry."Entry No.");
+            TempGLEntryVATEntryLink.Delete(false);
             NextEntryNo -= 1;
         end;
     end;

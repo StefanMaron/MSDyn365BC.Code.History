@@ -286,7 +286,12 @@ codeunit 31039 "Purchase Posting Handler CZL"
     var
         PurchaseLine: Record "Purchase Line";
         TariffNumber: Record "Tariff Number";
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckTariffNo(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         if PurchaseLine.FindSet(false, false) then
@@ -389,5 +394,10 @@ codeunit 31039 "Purchase Posting Handler CZL"
                 PurchaseHeader.Validate("VAT Date CZL", PurchaseHeader."Posting Date");
                 PurchaseHeader.Modify();
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTariffNo(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean);
+    begin
     end;
 }

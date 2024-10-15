@@ -2280,6 +2280,9 @@
         then
             Error(PendingJournalBatchApprovalExistsErr);
         OnSendGeneralJournalBatchForApproval(GenJournalBatch);
+
+        GenJournalBatch."Pending Approval" := true;
+        GenJournalBatch.Modify();
     end;
 
     procedure TrySendJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
@@ -2296,6 +2299,9 @@
             then begin
                 OnSendGeneralJournalLineForApproval(GenJournalLine);
                 LinesSent += 1;
+
+                GenJournalLine."Pending Approval" := true;
+                GenJournalLine.Modify();
             end;
         until GenJournalLine.Next() = 0;
 
@@ -2317,6 +2323,9 @@
         GetGeneralJournalBatch(GenJournalBatch, GenJournalLine);
         OnCancelGeneralJournalBatchApprovalRequest(GenJournalBatch);
         WorkflowWebhookManagement.FindAndCancel(GenJournalBatch.RecordId);
+
+        GenJournalBatch."Pending Approval" := false;
+        GenJournalBatch.Modify();
     end;
 
     procedure TryCancelJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
@@ -2327,6 +2336,9 @@
             if HasOpenApprovalEntries(GenJournalLine.RecordId) then
                 OnCancelGeneralJournalLineApprovalRequest(GenJournalLine);
             WorkflowWebhookManagement.FindAndCancel(GenJournalLine.RecordId);
+
+            GenJournalLine."Pending Approval" := false;
+            GenJournalLine.Modify();
         until GenJournalLine.Next() = 0;
         Message(ApprovalReqCanceledForSelectedLinesMsg);
     end;

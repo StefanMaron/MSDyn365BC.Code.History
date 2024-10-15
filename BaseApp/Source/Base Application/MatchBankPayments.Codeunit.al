@@ -1345,7 +1345,8 @@
                     end;
 
                     TempBankPmtApplRule.Priority := TextToAccMapping.Priority; // NAVCZ
-                    Score := TempBankPmtApplRule.GetTextMapperScore;
+                    Score := TempBankPmtApplRule.GetTextMapperScore();
+   
                     TempBankStatementMatchingBuffer.AddMatchCandidate(
                       BankAccReconciliationLine."Statement Line No.", EntryNo,
                       Score, AccountType, AccountNo);
@@ -1361,19 +1362,43 @@
     end;
 
     local procedure FindBankAccLedgerEntry(var BankAccLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TextToAccountMapping: Record "Text-to-Account Mapping"; BalAccountNo: Code[20]): Boolean
+    var
+        RecordMatchMgt: Codeunit "Record Match Mgt.";
+        BlankDate: Date;
+        Nearness: Integer;
+        Found: Boolean;
+        Handled: Boolean;
     begin
         // NAVCZ
         if NotAplBankAccLedgEntries then
             exit(false);
         // NAVCZ
-        with BankAccLedgerEntry do begin
-            SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
-            SetRange(Open, true);
-            SetRange("Bal. Account Type", TextToAccountMapping."Bal. Source Type");
-            SetRange("Bal. Account No.", BalAccountNo);
-            SetRange("Remaining Amount", BankAccReconciliationLine."Statement Amount");
-            exit(FindFirst());
-        end;
+
+        OnFindBankAccLedgerEntryForTextToAccountMapping(Handled, Found, BankAccLedgerEntry, BankAccReconciliationLine, TextToAccountMapping, BalAccountNo);
+
+        if Handled then
+            exit(Found);
+
+        BankAccLedgerEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
+        BankAccLedgerEntry.SetRange(Open, true);
+        BankAccLedgerEntry.SetRange("Bal. Account Type", TextToAccountMapping."Bal. Source Type");
+        BankAccLedgerEntry.SetRange("Bal. Account No.", BalAccountNo);
+        BankAccLedgerEntry.SetRange("Remaining Amount", BankAccReconciliationLine."Statement Amount");
+
+        if BankAccReconciliationLine."Transaction Date" = BlankDate then
+            exit(false);
+
+        BankAccLedgerEntry.SetFilter("Posting Date", '>=%1&<=%2', CalcDate('<-2D>', BankAccReconciliationLine."Transaction Date"), CalcDate('<+2D>', BankAccReconciliationLine."Transaction Date"));
+
+        if not BankAccLedgerEntry.FindSet() then
+            exit(false);
+
+        repeat
+            Nearness := RecordMatchMgt.CalculateStringNearness(RecordMatchMgt.Trim(TextToAccountMapping."Mapping Text"), BankAccLedgerEntry.Description, StrLen(BankAccLedgerEntry.Description), GetNormalizingFactor());
+            if Nearness >= GetExactMatchTreshold() then
+                exit(true);
+        until BankAccLedgerEntry.Next() = 0;
+        exit(false);
     end;
 
     local procedure CreateAppliedEntries(BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -3197,6 +3222,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRelatedPartyInfoMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Name: Text[100]; Address: Text[100]; City: Text[30]; AccountType: Enum "Gen. Journal Account Type"; var RelatedPartyMatchedInfoText: Text; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBankAccLedgerEntryForTextToAccountMapping(Handled: Boolean; Found: Boolean; var BankAccLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TextToAccountMapping: Record "Text-to-Account Mapping"; BalAccountNo: Code[20])
     begin
     end;
 

@@ -169,6 +169,7 @@ codeunit 1004 "Job Transfer Line"
     begin
         OnBeforeFromPlanningSalesLineToJnlLine(JobPlanningLine, SalesHeader, SalesLine, JobJnlLine, EntryType);
 
+        JobJnlLine."Line No." := SalesLine."Line No.";
         JobJnlLine."Job No." := JobPlanningLine."Job No.";
         JobJnlLine."Job Task No." := JobPlanningLine."Job Task No.";
         JobJnlLine.Type := JobPlanningLine.Type;

@@ -437,6 +437,8 @@ page 740 "VAT Report"
         ReturnPeriodEnabled: Boolean;
 
     local procedure InitPageControllers()
+    var
+        DocumentAttachment: Record "Document Attachment";
     begin
         SuggestLinesControllerStatus := Status = Status::Open;
         ReleaseControllerStatus := Status = Status::Open;
@@ -447,7 +449,9 @@ page 740 "VAT Report"
         ReceiveControllerStatus := Status = Status::Submitted;
         MarkAsSubmitControllerStatus := Status = Status::Released;
         DownloadSubmissionControllerStatus := VATReportMediator.ShowSubmissionMessage(Rec);
-        DownloadResponseControllerStatus := (Status = Status::Rejected) or
+        DownloadResponseControllerStatus :=
+          DocumentAttachment.VATReturnResponseAttachmentsExist(Rec) or
+          (Status = Status::Rejected) or
           (Status = Status::Accepted) or
           (Status = Status::Closed);
         CalcAndPostVATStatus := Status = Status::Accepted;

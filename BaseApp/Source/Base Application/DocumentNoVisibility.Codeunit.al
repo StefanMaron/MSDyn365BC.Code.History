@@ -3,8 +3,6 @@ codeunit 1400 DocumentNoVisibility
     SingleInstance = true;
 
     var
-        IsSalesDocNoInitialized: Boolean;
-        IsPurchDocNoInitialized: Boolean;
         IsCustNoInitialized: Boolean;
         IsVendNoInitialized: Boolean;
         IsEmployeeNoInitialized: Boolean;
@@ -15,8 +13,6 @@ codeunit 1400 DocumentNoVisibility
         IsJobNoInitialized: Boolean;
         IsTransferOrdNoInitialized: Boolean;
         IsContactNoInitialized: Boolean;
-        SalesDocNoVisible: Boolean;
-        PurchDocNoVisible: Boolean;
         CustNoVisible: Boolean;
         VendNoVisible: Boolean;
         EmployeeNoVisible: Boolean;
@@ -27,11 +23,11 @@ codeunit 1400 DocumentNoVisibility
         JobNoVisible: Boolean;
         TransferOrdNoVisible: Boolean;
         ContactNoVisible: Boolean;
+        SalesDocsNoVisible: Dictionary of [Integer, Boolean];
+        PurchaseDocsNoVisible: Dictionary of [Integer, Boolean];
 
     procedure ClearState()
     begin
-        IsSalesDocNoInitialized := false;
-        IsPurchDocNoInitialized := false;
         IsCustNoInitialized := false;
         IsVendNoInitialized := false;
         IsEmployeeNoInitialized := false;
@@ -42,8 +38,6 @@ codeunit 1400 DocumentNoVisibility
         IsJobNoInitialized := false;
         IsTransferOrdNoInitialized := false;
         IsContactNoInitialized := false;
-        SalesDocNoVisible := false;
-        PurchDocNoVisible := false;
         CustNoVisible := false;
         VendNoVisible := false;
         EmployeeNoVisible := false;
@@ -54,6 +48,9 @@ codeunit 1400 DocumentNoVisibility
         JobNoVisible := false;
         TransferOrdNoVisible := false;
         ContactNoVisible := false;
+
+        Clear(SalesDocsNoVisible);
+        Clear(PurchaseDocsNoVisible);
     end;
 
     procedure SalesDocumentNoIsVisible(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo; DocNo: Code[20]): Boolean
@@ -63,6 +60,7 @@ codeunit 1400 DocumentNoVisibility
         DocNoSeries: Code[20];
         IsHandled: Boolean;
         IsVisible: Boolean;
+        Result: Boolean;
     begin
         IsHandled := false;
         IsVisible := false;
@@ -73,9 +71,8 @@ codeunit 1400 DocumentNoVisibility
         if DocNo <> '' then
             exit(false);
 
-        if IsSalesDocNoInitialized then
-            exit(SalesDocNoVisible);
-        IsSalesDocNoInitialized := true;
+        if SalesDocsNoVisible.ContainsKey(DocType) then
+            exit(SalesDocsNoVisible.Get(DocType));
 
         DocNoSeries := DetermineSalesSeriesNo(DocType);
         if not NoSeries.Get(DocNoSeries) then begin
@@ -83,8 +80,9 @@ codeunit 1400 DocumentNoVisibility
             SalesNoSeriesSetup.RunModal;
             DocNoSeries := DetermineSalesSeriesNo(DocType);
         end;
-        SalesDocNoVisible := ForceShowNoSeriesForDocNo(DocNoSeries);
-        exit(SalesDocNoVisible);
+        Result := ForceShowNoSeriesForDocNo(DocNoSeries);
+        SalesDocsNoVisible.Add(DocType, Result);
+        exit(Result);
     end;
 
     procedure PurchaseDocumentNoIsVisible(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order","Advance Letter"; DocNo: Code[20]): Boolean
@@ -94,6 +92,7 @@ codeunit 1400 DocumentNoVisibility
         DocNoSeries: Code[20];
         IsHandled: Boolean;
         IsVisible: Boolean;
+        Result: Boolean;
     begin
         IsHandled := false;
         IsVisible := false;
@@ -104,9 +103,8 @@ codeunit 1400 DocumentNoVisibility
         if DocNo <> '' then
             exit(false);
 
-        if IsPurchDocNoInitialized then
-            exit(PurchDocNoVisible);
-        IsPurchDocNoInitialized := true;
+        if PurchaseDocsNoVisible.ContainsKey(DocType) then
+            exit(PurchaseDocsNoVisible.Get(DocType));
 
         DocNoSeries := DeterminePurchaseSeriesNo(DocType);
         if not NoSeries.Get(DocNoSeries) then begin
@@ -114,8 +112,9 @@ codeunit 1400 DocumentNoVisibility
             PurchaseNoSeriesSetup.RunModal;
             DocNoSeries := DeterminePurchaseSeriesNo(DocType);
         end;
-        PurchDocNoVisible := ForceShowNoSeriesForDocNo(DocNoSeries);
-        exit(PurchDocNoVisible);
+        Result := ForceShowNoSeriesForDocNo(DocNoSeries);
+        PurchaseDocsNoVisible.Add(DocType, Result);
+        exit(Result);
     end;
 
     procedure TransferOrderNoIsVisible(): Boolean
