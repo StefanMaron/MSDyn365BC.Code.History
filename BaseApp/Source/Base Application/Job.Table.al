@@ -854,6 +854,11 @@ table 167 Job
         {
             Caption = 'Ship-to Code';
             TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Sell-to Customer No."));
+
+            trigger OnValidate()
+            begin
+                ShipToCodeValidate();
+            end;
         }
         field(3001; "Ship-to Name"; Text[100])
         {
@@ -1010,14 +1015,11 @@ table 167 Job
 
     trigger OnDelete()
     var
-        JobTask: Record "Job Task";
         WhseRequest: Record "Warehouse Request";
     begin
         MoveEntries.MoveJobEntries(Rec);
 
-        JobTask.SetCurrentKey("Job No.");
-        JobTask.SetRange("Job No.", "No.");
-        JobTask.DeleteAll(true);
+        DeleteRelatedJobTasks();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Job);
         CommentLine.SetRange("No.", "No.");
@@ -1092,6 +1094,7 @@ table 167 Job
         CommentLine: Record "Comment Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
+        HideValidationDialog: Boolean;
         StatusChangeQst: Label 'This will delete any unposted WIP entries for this job and allow you to reverse the completion postings for this job.\\Do you wish to continue?';
         ContactBusRelDiffCompErr: Label 'Contact %1 %2 is related to a different company than customer %3.', Comment = '%1 = The contact number; %2 = The contact''s name; %3 = The Bill-To Customer Number associated with this job';
         ContactBusRelErr: Label 'Contact %1 %2 is not related to customer %3.', Comment = '%1 = The contact number; %2 = The contact''s name; %3 = The Bill-To Customer Number associated with this job';
@@ -1118,9 +1121,19 @@ table 167 Job
         AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.';
         WhseCompletelyPickedErr: Label 'All of the items on the job planning lines are completely picked.';
         WhseNoItemsToPickErr: Label 'There are no items to pick on the job planning lines.';
+        ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
+        SellToCustomerTxt: Label 'Sell-to Customer';
+        BillToCustomerTxt: Label 'Bill-to Customer';
 
-    procedure AssistEdit(OldJob: Record Job): Boolean
+    procedure AssistEdit(OldJob: Record Job) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, OldJob, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with Job do begin
             Job := Rec;
             JobsSetup.Get();
@@ -1275,7 +1288,7 @@ table 167 Job
                 ContBusRel.Reset();
                 ContBusRel.SetCurrentKey("Link to Table", "No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-                ContBusRel.SetRange("No.", ContactNo);
+                ContBusRel.SetRange("No.", CustomerNo);
                 if ContBusRel.FindFirst() then
                     ContactNo := ContBusRel."Contact No.";
             end;
@@ -1757,7 +1770,7 @@ table 167 Job
         if IsHandled then
             exit;
 
-        if GuiAllowed then
+        if GuiAllowed() and (not GetHideValidationDialog()) then
             if not Confirm(UpdateJobTaskDimQst, false) then
                 exit;
 
@@ -1867,6 +1880,21 @@ table 167 Job
         WhsePickRequest.DeleteAll(true);
 
         ItemTrackingMgt.DeleteWhseItemTrkgLines(DATABASE::Job, 0, Rec."No.", '', 0, 0, '', false);
+    end;
+
+    local procedure DeleteRelatedJobTasks()
+    var
+        JobTask: Record "Job Task";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteRelatedJobTasks(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        JobTask.SetCurrentKey("Job No.");
+        JobTask.SetRange("Job No.", "No.");
+        JobTask.DeleteAll(true);
     end;
 
     procedure ToPriceSource(var PriceSource: Record "Price Source"; PriceType: Enum "Price Type")
@@ -2097,13 +2125,41 @@ table 167 Job
         );
     end;
 
+    internal procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    begin
+        HideValidationDialog := NewHideValidationDialog;
+    end;
+
+    internal procedure GetHideValidationDialog(): Boolean
+    begin
+        exit(HideValidationDialog);
+    end;
+
     local procedure SellToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job)
     var
         SellToCustomer: Record Customer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSellToCustomerNoUpdated(Job, xJob, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+#if not CLEAN20
+        OnBeforeUpdateCust(Rec, xRec, IsHandled);
+        If IsHandled then
+            exit;
+#endif
+
         if (Job."Sell-to Customer No." = '') or (Job."Sell-to Customer No." <> xJob."Sell-to Customer No.") then
             if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
                 Error(AssociatedEntriesExistErr, Job.FieldCaption("Sell-to Customer No."), TableCaption);
+
+        if (xJob."Sell-to Customer No." <> '') and (not GetHideValidationDialog()) and GuiAllowed() then
+            if not Confirm(ConfirmChangeQst, false, SellToCustomerTxt) then begin
+                Job."Sell-to Customer No." := xJob."Sell-to Customer No.";
+                Job."Sell-to Customer Name" := xJob."Sell-to Customer Name";
+                exit;
+            end;
 
         if Job."Sell-to Customer No." <> '' then begin
             SellToCustomer.Get(Job."Sell-to Customer No.");
@@ -2134,8 +2190,11 @@ table 167 Job
             Job."Sell-to Contact" := '';
             Job."Sell-to Contact No." := '';
         end;
+        OnSellToCustomerNoUpdatedOnAfterTransferFieldsFromCust(Job, xJob, SellToCustomer);
 
-        if (xJob."Bill-to Customer No." = xJob."Sell-to Customer No.") and xJob.BillToAddressEqualsSellToAddress() then
+        if SellToCustomer."Bill-to Customer No." <> '' then
+            Job.Validate("Bill-to Customer No.", SellToCustomer."Bill-to Customer No.")
+        else
             Job.Validate("Bill-to Customer No.", Rec."Sell-to Customer No.");
 
         if
@@ -2143,6 +2202,8 @@ table 167 Job
             ((xJob."Ship-to Code" <> '') and (xJob."Sell-to Customer No." <> Job."Sell-to Customer No."))
         then
             Job.SyncShipToWithSellTo();
+
+        OnAfterSellToCustomerNoUpdated(Job, xJob, SellToCustomer);
     end;
 
     local procedure BillToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job)
@@ -2150,9 +2211,21 @@ table 167 Job
         BillToCustomer: Record Customer;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBillToCustomerNoUpdated(Job, xJob, CurrFieldNo, IsHandled);
+        If IsHandled then
+            exit;
+
         if (Job."Bill-to Customer No." = '') or (Job."Bill-to Customer No." <> xJob."Bill-to Customer No.") then
             if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
                 Error(AssociatedEntriesExistErr, FieldCaption("Bill-to Customer No."), TableCaption);
+
+        if (xJob."Bill-to Customer No." <> '') and (not GetHideValidationDialog()) and GuiAllowed() then
+            if not Confirm(ConfirmChangeQst, false, BillToCustomerTxt) then begin
+                Job."Bill-to Customer No." := xJob."Bill-to Customer No.";
+                Job."Bill-to Name" := xJob."Bill-to Name";
+                exit;
+            end;
 
         // Set sell-to first if it hasn't been set yet.
         if (Job."Sell-to Customer No." = '') and (Job."Bill-to Customer No." <> '') then
@@ -2168,6 +2241,8 @@ table 167 Job
             Job."Bill-to Post Code" := BillToCustomer."Post Code";
             Job."Bill-to County" := BillToCustomer.County;
             Job."Bill-to Country/Region Code" := BillToCustomer."Country/Region Code";
+            Job."Payment Method Code" := BillToCustomer."Payment Method Code";
+            Job."Payment Terms Code" := BillToCustomer."Payment Terms Code";
 
             IsHandled := false;
             OnUpdateCustOnBeforeAssignIncoiceCurrencyCode(Job, xJob, BillToCustomer, IsHandled);
@@ -2197,7 +2272,32 @@ table 167 Job
             Job."Language Code" := '';
             Job."Bill-to Contact" := '';
             Job."Bill-to Contact No." := '';
+            Job."Payment Method Code" := '';
+            Job."Payment Terms Code" := '';
         end;
+
+#if not CLEAN20
+        OnAfterUpdateBillToCust(Job, BillToCustomer);
+#endif
+        OnAfterBillToCustomerNoUpdated(Job, xJob, BillToCustomer);
+    end;
+
+    local procedure ShipToCodeValidate()
+    var
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        if (xRec."Ship-to Code" <> Rec."Ship-to Code") and (Rec."Ship-to Code" <> '') then
+            if ShipToAddress.Get(Rec."Sell-to Customer No.", Rec."Ship-to Code") then begin
+                Rec."Ship-to Name" := ShipToAddress.Name;
+                Rec."Ship-to Name 2" := ShipToAddress."Name 2";
+                Rec."Ship-to Address" := ShipToAddress.Address;
+                Rec."Ship-to Address 2" := ShipToAddress."Address 2";
+                Rec."Ship-to City" := ShipToAddress.City;
+                Rec."Ship-to County" := ShipToAddress.County;
+                Rec."Ship-to Post Code" := ShipToAddress."Post Code";
+                Rec."Ship-to Country/Region Code" := ShipToAddress."Country/Region Code";
+                Rec."Ship-to Contact" := ShipToAddress.Contact;
+            end;
     end;
 
     local procedure ShouldSearchForCustomerByName(CustomerNo: Code[20]): Boolean
@@ -2258,6 +2358,16 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeBillToCustomerNoUpdated(var Job: Record Job; xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBillToCustomerNoUpdated(var Job: Record Job; xJob: Record Job; BillToCustomer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterOnInsert(var Job: Record Job; var xJob: Record Job)
     begin
     end;
@@ -2278,6 +2388,11 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var Job: Record Job; var OldJob: Record Job; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactBillToCustomerBusRelation(var Job: Record Job; Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
@@ -2294,6 +2409,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDefaultDimensionsFromCustomer(var Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRelatedJobTasks(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
     begin
     end;
 
@@ -2357,6 +2477,21 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOverBudgetValue(var Job: Record Job; JobNo: Code[20]; Usage: Boolean; Cost: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSellToCustomerNoUpdated(var Job: Record Job; xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSellToCustomerNoUpdated(var Job: Record Job; xJob: Record Job; SellToCustomer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    protected procedure OnSellToCustomerNoUpdatedOnAfterTransferFieldsFromCust(var Job: Record Job; xJob: Record Job; SellToCustomer: Record Customer)
     begin
     end;
 

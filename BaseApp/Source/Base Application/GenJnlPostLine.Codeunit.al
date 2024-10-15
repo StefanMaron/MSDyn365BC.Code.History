@@ -991,7 +991,7 @@
                 Cust.TestField("Customer Posting Group");
                 "Posting Group" := Cust."Customer Posting Group";
             end;
-            CustPostingGr.Get("Posting Group");
+            GetCustomerPostingGroup(GenJnlLine, CustPostingGr);
             ReceivablesAccount := GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr);
 
             DtldCustLedgEntry.LockTable();
@@ -1886,6 +1886,7 @@
     var
         GLEntry: Record "G/L Entry";
     begin
+        OnBeforeCreateGLEntryBalAcc(GenJnlLine, AccNo, Amount, AmountAddCurr, BalAccType, BalAccNo);
         InitGLEntry(GenJnlLine, GLEntry, AccNo, Amount, AmountAddCurr, true, true);
         GLEntry."Bal. Account Type" := BalAccType;
         GLEntry."Bal. Account No." := BalAccNo;
@@ -3882,9 +3883,7 @@
             // we don't clean "Applies-to ID" field here as it is required later for post posting processing in COD 13 / WHT functionality.
             if not GLSetup."Enable WHT" then
                 OldVendLedgEntry."Applies-to ID" := '';
-            OldVendLedgEntry."EFT Register No." := 0;
             OldVendLedgEntry."EFT Amount Transferred" := 0;
-            OldVendLedgEntry."EFT Bank Account No." := '';
             OnApplyVendLedgEntryOnBeforeOldVendLedgEntryModify(GenJnlLine, OldVendLedgEntry, NewCVLedgEntryBuf);
             OldVendLedgEntry.Modify();
 
@@ -4155,9 +4154,7 @@
             OnVendPostApplyVendLedgEntryOnAfterApplyVendLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf);
             VendLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
             VendLedgEntry."Applies-to ID" := '';
-            VendLedgEntry."EFT Register No." := 0;
             VendLedgEntry."EFT Amount Transferred" := 0;
-            VendLedgEntry."EFT Bank Account No." := '';
             VendLedgEntry.Modify(true);
 
             SourceCodeSetup.Get();
@@ -6021,9 +6018,7 @@
             VendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
             VendLedgEntry."Pmt. Tolerance (LCY)" := 0;
         end;
-        VendLedgEntry."EFT Register No." := 0;
         VendLedgEntry."EFT Amount Transferred" := 0;
-        VendLedgEntry."EFT Bank Account No." := '';
 
         OnBeforeVendLedgEntryModify(VendLedgEntry, DtldVendLedgEntry);
         VendLedgEntry.Modify();
@@ -8993,6 +8988,12 @@
         OnAfterGetVendorPostingGroup(GenJournalLine, VendorPostingGroup);
     end;
 
+    local procedure GetCustomerPostingGroup(GenJournalLine: Record "Gen. Journal Line"; var CustomerPostingGroup: Record "Customer Posting Group")
+    begin
+        CustomerPostingGroup.Get(GenJournalLine."Posting Group");
+        OnAfterGetCustomerPostingGroup(GenJournalLine, CustomerPostingGroup);
+    end;
+
     local procedure GetCustomerReceivablesAccount(GenJournalLine: Record "Gen. Journal Line"; CustomerPostingGroup: Record "Customer Posting Group") ReceivablesAccount: Code[20]
     begin
         ReceivablesAccount := CustomerPostingGroup.GetReceivablesAccount();
@@ -9079,6 +9080,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStartPosting(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateGLEntryBalAcc(var GenJnlLine: Record "Gen. Journal Line"; var AccNo: Code[20]; Amount: Decimal; AmountAddCurr: Decimal; var BalAccType: Enum "Gen. Journal Account Type"; var BalAccNo: Code[20])
     begin
     end;
 
@@ -10543,6 +10549,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCustomerPostingGroup(GenJournalLine: Record "Gen. Journal Line"; var CustomerPostingGroup: Record "Customer Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetVendorPostingGroup(GenJournalLine: Record "Gen. Journal Line"; var VendorPostingGroup: Record "Vendor Posting Group")
     begin
     end;
@@ -10588,7 +10599,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeDeferralPosting(DeferralCode: Code[10]; SourceCode: Code[10]; AccountNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeDeferralPosting(DeferralCode: Code[10]; SourceCode: Code[10]; var AccountNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var IsHandled: Boolean)
     begin
     end;
 

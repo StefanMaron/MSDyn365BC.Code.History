@@ -3756,6 +3756,7 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleName2: Record "Acc. Schedule Name";
         ColumnLayoutName: Record "Column Layout Name";
         AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        AccountScheduleCurrentColumnName: Code[10];
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201171] Request page of Account Schedule report should have not changed column layout value when Account Schedule Name without setup is changed
@@ -3766,15 +3767,20 @@ codeunit 134902 "ERM Account Schedule"
         CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
         LibraryERM.CreateAccScheduleName(AccScheduleName2);
 
+        // [GIVEN] Save the value of Account Schedule "Col2" column layout name ("Default" in W1)
+        AccScheduleOverview.Trap();
+        OpenAccountScheduleOverviewPage(AccScheduleName2.Name);
+        AccountScheduleCurrentColumnName := AccScheduleOverview.CurrentColumnName.Value;
+
         // [GIVEN] Set Column Layout as "Col2" on Account Schedule "Acc1" Overview page
         AccScheduleOverview.Trap;
         OpenAccountScheduleOverviewPage(AccScheduleName.Name);
         AccScheduleOverview.CurrentSchedName.SetValue(AccScheduleName2.Name);
 
         // [WHEN] Invoke Account Schedule report
-        RunAccountScheduleReportFromOverviewPage(AccScheduleOverview, AccScheduleName2.Name, ColumnLayoutName.Name);
+        RunAccountScheduleReportFromOverviewPage(AccScheduleOverview, AccScheduleName2.Name, AccountScheduleCurrentColumnName);
 
-        // [THEN] Request page of Account Schedule report has not changed "Col1" value as column layout with "Acc2" schedule name
+        // [THEN] Request page of Account Schedule report has not changed to "Col1" value and is equal to "Default" as column layout with "Acc2" schedule name
         // Verification is done in AccountScheduleRequestPageVerifyValuesHandler
     end;
 

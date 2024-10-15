@@ -616,6 +616,7 @@ table 5970 "Filed Service Contract Header"
             FiledServContractHeader."Name 2" := "Name 2";
             FiledServContractHeader."Bill-to Name 2" := "Bill-to Name 2";
             FiledServContractHeader."Ship-to Name 2" := "Ship-to Name 2";
+            OnFileContractOnBeforeFiledServContractHeaderInsert(ServContractHeader, FiledServContractHeader);
             FiledServContractHeader.Insert();
 
             ServContractLine.Reset();
@@ -660,6 +661,11 @@ table 5970 "Filed Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFileContract(var FiledServiceContractHeader: Record "Filed Service Contract Header"; ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFileContractOnBeforeFiledServContractHeaderInsert(var ServiceContractHeader: Record "Service Contract Header"; var FiledServiceContractHeader: Record "Filed Service Contract Header")
     begin
     end;
 }

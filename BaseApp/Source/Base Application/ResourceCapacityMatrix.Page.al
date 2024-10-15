@@ -1,4 +1,4 @@
-page 9237 "Resource Capacity Matrix"
+﻿page 9237 "Resource Capacity Matrix"
 {
     Caption = 'Resource Capacity Matrix';
     Editable = true;
@@ -417,6 +417,8 @@ page 9237 "Resource Capacity Matrix"
             MATRIX_CellData[ColumnID] := Capacity
         else
             MATRIX_CellData[ColumnID] := 0;
+
+        OnAfterMATRIX_OnAfterGetRecord(Rec, MATRIX_CellData, ColumnID);
     end;
 
 #if not CLEAN19
@@ -461,10 +463,22 @@ page 9237 "Resource Capacity Matrix"
         SetDateFilter(MATRIX_ColumnOrdinal);
         CalcFields(Capacity);
         Validate(Capacity, MATRIX_CellData[MATRIX_ColumnOrdinal]);
+
+        OnAfterValidateCapacity(Rec, MATRIX_CellData, MATRIX_ColumnOrdinal);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMatrixOnDrillDown(var ResCapacityEntry: Record "Res. Capacity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMATRIX_OnAfterGetRecord(var Resource: Record Resource; var MATRIXCellData: array[32] of Decimal; ColumnID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateCapacity(var Resource: Record Resource; var MATRIXCellData: array[32] of Decimal; MATRIXColumnOrdinal: Integer)
     begin
     end;
 }

@@ -355,6 +355,7 @@ table 14 Location
                     "Cross-Dock Bin Code" := '';
                     "To-Assembly Bin Code" := '';
                     "From-Assembly Bin Code" := '';
+                    Rec."To-Job Bin Code" := '';
                     WhseIntegrationMgt.CheckLocationOnManufBins(Rec);
                 end;
             end;
@@ -393,6 +394,7 @@ table 14 Location
                     Validate("Require Pick", true);
                     Validate("Use Cross-Docking", true);
                     "Default Bin Selection" := "Default Bin Selection"::" ";
+                    Clear(Rec."To-Job Bin Code");
                 end else
                     Validate("Adjustment Bin Code", '');
 
@@ -598,6 +600,19 @@ table 14 Location
                   "Asm.-to-Order Shpt. Bin Code",
                   FieldCaption("Asm.-to-Order Shpt. Bin Code"),
                   DATABASE::Location, Code);
+            end;
+        }
+        field(7333; "To-Job Bin Code"; Code[20])
+        {
+            Caption = 'To-Job Bin Code';
+            TableRelation = Bin.Code WHERE("Location Code" = FIELD(Code));
+
+            trigger OnValidate()
+            var
+                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
+            begin
+                Rec.TestField("Directed Put-away and Pick", false); //Directed Put-away and pick is not supported for Jobs.
+                WhseIntegrationMgt.CheckBinCode(Rec.Code, Rec."To-Job Bin Code", CopyStr(Rec.FieldCaption(Rec."To-Job Bin Code"), 1, 30), DATABASE::Location, Rec.Code);
             end;
         }
         field(7600; "Base Calendar Code"; Code[10])

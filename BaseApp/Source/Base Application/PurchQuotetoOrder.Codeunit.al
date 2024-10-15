@@ -1,4 +1,4 @@
-codeunit 96 "Purch.-Quote to Order"
+﻿codeunit 96 "Purch.-Quote to Order"
 {
     TableNo = "Purchase Header";
 
@@ -95,6 +95,7 @@ codeunit 96 "Purch.-Quote to Order"
             PurchOrderLine.LockTable();
             OnCreatePurchHeaderOnBeforePurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.Insert(true);
+            OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
 
             PostCodeCheck.MoveAllAddressID(
               DATABASE::"Purchase Header", GetPosition, DATABASE::"Purchase Header", PurchOrderHeader.GetPosition);
@@ -104,6 +105,7 @@ codeunit 96 "Purch.-Quote to Order"
                 PurchOrderHeader."Posting Date" := "Posting Date";
 
             PurchOrderHeader.InitFromPurchHeader(PurchHeader);
+            OnCreatePurchHeaderOnAfterInitFromPurchHeader(PurchOrderHeader, PurchHeader);
             PurchOrderHeader."Inbound Whse. Handling Time" := "Inbound Whse. Handling Time";
 
             PurchOrderHeader."Prepayment %" := PrepmtPercent;
@@ -150,6 +152,7 @@ codeunit 96 "Purch.-Quote to Order"
     begin
         PurchQuoteLine.SetRange("Document Type", PurchQuoteHeader."Document Type");
         PurchQuoteLine.SetRange("Document No.", PurchQuoteHeader."No.");
+        OnTransferQuoteToOrderLinesOnAfterPurchQuoteLineSetFilters(PurchQuoteLine, PurchQuoteHeader, PurchOrderHeader);
         if PurchQuoteLine.FindSet() then
             repeat
                 IsHandled := false;
@@ -173,6 +176,7 @@ codeunit 96 "Purch.-Quote to Order"
                     PurchOrderLine.Insert();
                     OnAfterInsertPurchOrderLine(PurchQuoteLine, PurchOrderLine);
                     PurchLineReserve.VerifyQuantity(PurchOrderLine, PurchQuoteLine);
+                    OnTransferQuoteToOrderLinesOnAfterVerifyQuantity(PurchOrderLine, PurchOrderHeader, PurchQuoteLine, PurchQuoteHeader);
                 end;
             until PurchQuoteLine.Next() = 0;
     end;
@@ -240,7 +244,17 @@ codeunit 96 "Purch.-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchHeaderOnAfterInitFromPurchHeader(var PurchOrderHeader: Record "Purchase Header"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreatePurchHeaderOnBeforePurchOrderHeaderInsert(var PurchOrderHeader: Record "Purchase Header"; var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(var PurchOrderHeader: Record "Purchase Header"; BlanketOrderPurchHeader: Record "Purchase Header")
     begin
     end;
 
@@ -251,6 +265,16 @@ codeunit 96 "Purch.-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePurchHeader(var PurchOrderHeader: Record "Purchase Header"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferQuoteToOrderLinesOnAfterPurchQuoteLineSetFilters(var PurchQuoteLine: Record "Purchase Line"; var PurchQuoteHeader: Record "Purchase Header"; PurchOrderHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferQuoteToOrderLinesOnAfterVerifyQuantity(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; PurchQuoteLine: Record "Purchase Line"; PurchQuoteHeader: Record "Purchase Header")
     begin
     end;
 }

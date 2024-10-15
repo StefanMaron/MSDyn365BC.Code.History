@@ -45,7 +45,17 @@ page 7001 "Price List Lines"
                     Caption = 'Assign-to Job No.';
                     Importance = Promoted;
                     Editable = IsParentAllowed;
-                    Visible = AllowUpdatingDefaults and IsParentAllowed;
+                    Visible = IsJobGroup and AllowUpdatingDefaults and UseCustomLookup;
+                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                }
+                field(AssignToParentNo; Rec."Assign-to Parent No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Assign-to Job No.';
+                    Importance = Promoted;
+                    Editable = IsParentAllowed;
+                    ShowMandatory = IsParentAllowed;
+                    Visible = IsJobGroup and AllowUpdatingDefaults and not UseCustomLookup;
                     ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(SourceNo; Rec."Source No.")
@@ -53,7 +63,17 @@ page 7001 "Price List Lines"
                     ApplicationArea = All;
                     Importance = Promoted;
                     Enabled = SourceNoEnabled;
-                    Visible = AllowUpdatingDefaults;
+                    ShowMandatory = SourceNoEnabled;
+                    Visible = AllowUpdatingDefaults and UseCustomLookup;
+                    ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
+                }
+                field(AssignToNo; Rec."Assign-to No.")
+                {
+                    ApplicationArea = All;
+                    Importance = Promoted;
+                    Enabled = SourceNoEnabled;
+                    ShowMandatory = SourceNoEnabled;
+                    Visible = AllowUpdatingDefaults and not UseCustomLookup;
                     ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(CurrencyCode; Rec."Currency Code")
@@ -90,6 +110,22 @@ page 7001 "Price List Lines"
                     ToolTip = 'Specifies the identifier of the product. If no product is selected, the price and discount values will apply to all products of the selected product type for which those values are not specified. For example, if you choose Item as the product type but do not specify a specific item, the price will apply to all items for which a price is not specified.';
                     Style = Attention;
                     StyleExpr = LineToVerify;
+                    Visible = UseCustomLookup;
+                    ShowMandatory = true;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
+                }
+                field("Product No."; Rec."Product No.")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the identifier of the product. If no product is selected, the price and discount values will apply to all products of the selected product type for which those values are not specified. For example, if you choose Item as the product type but do not specify a specific item, the price will apply to all items for which a price is not specified.';
+                    Style = Attention;
+                    StyleExpr = LineToVerify;
+                    Visible = not UseCustomLookup;
+                    ShowMandatory = true;
 
                     trigger OnValidate()
                     begin
@@ -108,6 +144,15 @@ page 7001 "Price List Lines"
                     ApplicationArea = All;
                     Enabled = ItemAsset;
                     Editable = ItemAsset;
+                    Visible = UseCustomLookup;
+                    ToolTip = 'Specifies the item variant.';
+                }
+                field("Variant Code Lookup"; Rec."Variant Code Lookup")
+                {
+                    ApplicationArea = All;
+                    Enabled = ItemAsset;
+                    Editable = ItemAsset;
+                    Visible = not UseCustomLookup;
                     ToolTip = 'Specifies the item variant.';
                 }
                 field("Work Type Code"; Rec."Work Type Code")
@@ -122,6 +167,15 @@ page 7001 "Price List Lines"
                     ApplicationArea = All;
                     Enabled = UOMEditable;
                     Editable = UOMEditable;
+                    Visible = UseCustomLookup;
+                    ToolTip = 'Specifies the unit of measure for the product.';
+                }
+                field("Unit of Measure Code Lookup"; Rec."Unit of Measure Code Lookup")
+                {
+                    ApplicationArea = All;
+                    Enabled = UOMEditable;
+                    Editable = UOMEditable;
+                    Visible = not UseCustomLookup;
                     ToolTip = 'Specifies the unit of measure for the product.';
                 }
                 field("Minimum Quantity"; Rec."Minimum Quantity")
@@ -251,9 +305,16 @@ page 7001 "Price List Lines"
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        UseCustomLookup := Rec.UseCustomizedLookup();
+    end;
+
     trigger OnAfterGetRecord()
     begin
+        Rec.SyncDropDownLookupFields();
         UpdateSourceType();
+        SetSourceNoEnabled();
         LineToVerify := Rec.IsLineToVerify();
         SetMandatoryAmount();
     end;
@@ -262,6 +323,7 @@ page 7001 "Price List Lines"
     begin
         SetEditable();
         UpdateSourceType();
+        SetSourceNoEnabled();
         LineToVerify := Rec.IsLineToVerify();
         SetMandatoryAmount();
     end;
@@ -296,28 +358,45 @@ page 7001 "Price List Lines"
     var
         JobSourceType: Enum "Job Price Source Type";
         SourceType: Enum "Sales Price Source Type";
-        SourceNoEnabled: Boolean;
 
     protected var
         PriceListHeader: Record "Price List Header";
         PriceType: Enum "Price Type";
         ViewAmountType: Enum "Price Amount Type";
+        [InDataSet]
         AllowUpdatingDefaults: Boolean;
+        [InDataSet]
         AmountEditable: Boolean;
+        [InDataSet]
         AmountTypeIsEditable: Boolean;
+        [InDataSet]
         AmountTypeIsVisible: Boolean;
         DiscountStyle: Text;
+        [InDataSet]
         DiscountMandatory: Boolean;
+        [InDataSet]
         DiscountVisible: Boolean;
+        [InDataSet]
         IsJobGroup: Boolean;
+        [InDataSet]
         IsParentAllowed: Boolean;
+        [InDataSet]
         ItemAsset: Boolean;
         PriceStyle: Text;
+        [InDataSet]
         PriceMandatory: Boolean;
+        [InDataSet]
         PriceVisible: Boolean;
+        [InDataSet]
         ResourceAsset: Boolean;
+        [InDataSet]
+        SourceNoEnabled: Boolean;
+        [InDataSet]
         LineToVerify: Boolean;
+        [InDataSet]
         UOMEditable: Boolean;
+        [InDataSet]
+        UseCustomLookup: Boolean;
 
     local procedure GetStyle(Mandatory: Boolean): Text;
     begin
@@ -382,8 +461,6 @@ page 7001 "Price List Lines"
     end;
 
     local procedure UpdateSourceType()
-    var
-        PriceSource: Record "Price Source";
     begin
         case PriceListHeader."Source Group" of
             "Price Source Group"::Customer:
@@ -399,12 +476,14 @@ page 7001 "Price List Lines"
             else
                 OnUpdateSourceTypeOnCaseElse(PriceListHeader, SourceType, IsJobGroup);
         end;
-        PriceSource."Source Type" := Rec."Source Type";
-        IsParentAllowed := PriceSource.IsParentSourceAllowed();
     end;
 
     local procedure SetSourceNoEnabled()
+    var
+        PriceSource: Record "Price Source";
     begin
+        PriceSource."Source Type" := Rec."Source Type";
+        IsParentAllowed := PriceSource.IsParentSourceAllowed();
         SourceNoEnabled := Rec.IsSourceNoAllowed();
     end;
 

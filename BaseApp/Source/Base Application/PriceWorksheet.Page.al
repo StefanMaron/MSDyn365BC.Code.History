@@ -100,7 +100,6 @@ page 7022 "Price Worksheet"
                     ApplicationArea = All;
                     Importance = Promoted;
                     Caption = 'Assign-to Type';
-                    //Editable = PriceListIsEditable;
                     Visible = SourceGroup = SourceGroup::Customer;
                     ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
@@ -114,7 +113,6 @@ page 7022 "Price Worksheet"
                     ApplicationArea = All;
                     Importance = Promoted;
                     Caption = 'Assign-to Type';
-                    //Editable = PriceListIsEditable;
                     Visible = SourceGroup = SourceGroup::Vendor;
                     ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
@@ -128,8 +126,7 @@ page 7022 "Price Worksheet"
                     ApplicationArea = All;
                     Importance = Promoted;
                     Caption = 'Assign-to Type';
-                    //Editable = PriceListIsEditable;
-                    Visible = SourceGroup = SourceGroup::Job;
+                    Visible = JobSourceGroup;
                     ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
@@ -140,15 +137,34 @@ page 7022 "Price Worksheet"
                 field("Parent Source No."; Rec."Parent Source No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = SourceGroup = SourceGroup::Job;
+                    Visible = JobSourceGroup and UseCustomLookup;
                     Editable = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
+                    ShowMandatory = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
                     ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field("Source No."; Rec."Source No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
+                    ShowMandatory = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
                     ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
+                    Visible = UseCustomLookup;
+                }
+                field("Assign-to Parent No."; Rec."Assign-to Parent No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = JobSourceGroup and not UseCustomLookup;
+                    Editable = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
+                    ShowMandatory = PriceLineEditable and ParentSourceNoEditable and AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                }
+                field("Assign-to No."; Rec."Assign-to No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
+                    ShowMandatory = PriceLineEditable and SourceNoEditable and AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
+                    Visible = not UseCustomLookup;
                 }
                 field("Asset Type"; Rec."Asset Type")
                 {
@@ -160,12 +176,29 @@ page 7022 "Price Worksheet"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = PriceLineEditable;
+                    ShowMandatory = true;
                     ToolTip = 'Specifies the identifier of the product. If no product is selected, the price and discount values will apply to all products of the selected product type for which those values are not specified. For example, if you choose Item as the product type but do not specify a specific item, the price will apply to all items for which a price is not specified.';
+                    Visible = UseCustomLookup;
+                }
+                field("Product No."; Rec."Product No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = PriceLineEditable;
+                    ShowMandatory = true;
+                    ToolTip = 'Specifies the identifier of the product. If no product is selected, the price and discount values will apply to all products of the selected product type for which those values are not specified. For example, if you choose Item as the product type but do not specify a specific item, the price will apply to all items for which a price is not specified.';
+                    Visible = not UseCustomLookup;
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = ItemAssetVisible;
+                    Visible = ItemAssetVisible and UseCustomLookup;
+                    Editable = PriceLineEditable and ItemAsset;
+                    ToolTip = 'Specifies the variant of the item on the line.';
+                }
+                field("Variant Code Lookup"; Rec."Variant Code Lookup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = ItemAssetVisible and not UseCustomLookup;
                     Editable = PriceLineEditable and ItemAsset;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
@@ -185,7 +218,14 @@ page 7022 "Price Worksheet"
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = ItemAssetVisible or ResourceAssetVisible;
+                    Visible = (ItemAssetVisible or ResourceAssetVisible) and UseCustomLookup;
+                    Editable = PriceLineEditable;
+                    ToolTip = 'Specifies the unit price of the product.';
+                }
+                field("Unit of Measure Code Lookup"; Rec."Unit of Measure Code Lookup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = (ItemAssetVisible or ResourceAssetVisible) and not UseCustomLookup;
                     Editable = PriceLineEditable;
                     ToolTip = 'Specifies the unit price of the product.';
                 }
@@ -486,8 +526,10 @@ page 7022 "Price Worksheet"
 
     trigger OnOpenPage()
     var
+        PriceListLine: Record "Price List Line";
         ServerSetting: Codeunit "Server Setting";
     begin
+        UseCustomLookup := PriceListLine.UseCustomizedLookup();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         CopyLinesEnabled := PriceListManagement.VerifySourceGroupInLines();
         InitSourceGroup();
@@ -497,6 +539,7 @@ page 7022 "Price Worksheet"
 
     trigger OnAfterGetRecord()
     begin
+        Rec.SyncDropDownLookupFields();
         UpdateSourceType();
         SetFieldsStyle();
     end;
@@ -519,8 +562,10 @@ page 7022 "Price Worksheet"
         Defaults: Text;
         DefinePriceListCodeErr: Label 'Define the default price list.';
         DefinePriceListCodeLbl: Label 'Define the price list...';
+        [InDataSet]
         UpdateMultiplePriceLists: Boolean;
         DefaultsLbl: Label '%1 = %2; ', Locked = true;
+        [InDataSet]
         CopyLinesEnabled: Boolean;
         WorksheetFilterLbl: Label 'Price_Type eq ''%1'' and Source_Group eq ''%2''', Locked = true;
 
@@ -531,31 +576,60 @@ page 7022 "Price Worksheet"
         PriceType: Enum "Price Type";
         SourceGroup: Enum "Price Source Group";
         AllowEditingActivePrice: Boolean;
+        [InDataSet]
+        JobSourceGroup: Boolean;
+        [InDataSet]
         AllowUpdatingDefaults: Boolean;
+        [InDataSet]
         AmountTypeIsEditable: Boolean;
+        [InDataSet]
         AmountTypeIsVisible: Boolean;
+        [InDataSet]
         AssetTypeEditable: Boolean;
+        [InDataSet]
         DiscountEditable: Boolean;
+        [InDataSet]
         DiscountVisible: Boolean;
+        [InDataSet]
         ItemAsset: Boolean;
+        [InDataSet]
         ItemAssetVisible: Boolean;
+        [InDataSet]
         LineExists: Boolean;
+        [InDataSet]
         ModifiedLine: Boolean;
+        [InDataSet]
         ModifiedUnitPrice: Boolean;
+        [InDataSet]
         ModifiedUnitCost: Boolean;
+        [InDataSet]
         ModifiedDirectUnitCost: Boolean;
+        [InDataSet]
         ParentSourceNoEditable: Boolean;
+        [InDataSet]
         PriceEditable: Boolean;
+        [InDataSet]
         PriceLineEditable: Boolean;
+        [InDataSet]
         PriceVisible: Boolean;
+        [InDataSet]
         PurchPriceLine: Boolean;
+        [InDataSet]
         PurchVisible: Boolean;
+        [InDataSet]
         ResourceAsset: Boolean;
+        [InDataSet]
         ResourceAssetVisible: Boolean;
+        [InDataSet]
         SalesPriceLine: Boolean;
+        [InDataSet]
         SalesVisible: Boolean;
+        [InDataSet]
         SourceNoEditable: Boolean;
+        [InDataSet]
         SourceTypeEditable: Boolean;
+        [InDataSet]
+        UseCustomLookup: Boolean;
 
     procedure SetPriceType(NewPriceType: Enum "Price Type")
     begin
@@ -625,6 +699,7 @@ page 7022 "Price Worksheet"
                 if PriceType = PriceType::Sale then
                     SourceGroup := SourceGroup::Customer;
         end;
+        JobSourceGroup := SourceGroup = SourceGroup::Job;
         SetDefaultPriceListCode();
     end;
 
@@ -724,7 +799,6 @@ page 7022 "Price Worksheet"
         PriceVisible := true;//AmountTypeFilter in [AmountTypeFilter::Any, AmountTypeFilter::Price];
         DiscountVisible := true;//AmountTypeFilter in [AmountTypeFilter::Any, AmountTypeFilter::Discount];
 
-        //PriceListLine."Asset Type" := PriceAsset."Asset Type";
         ItemAssetVisible := true;//(PriceAsset."Asset Type" = "Price Asset Type"::" ") or PriceListLine.IsAssetItem();
         ResourceAssetVisible := true;//(PriceAsset."Asset Type" = "Price Asset Type"::" ") or PriceListLine.IsAssetResource();
 
@@ -781,5 +855,6 @@ page 7022 "Price Worksheet"
         Rec.Validate("Source Type", SourceType);
         CalcSourceNoEditable();
         CurrPage.SaveRecord();
+        CurrPage.Update();
     end;
 }

@@ -38,13 +38,13 @@ page 5557 "Permission Conflicts"
             {
                 Editable = false;
 
-                field("Table ID"; "Object ID")
+                field("Table ID"; Rec."Object ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Table ID';
                     ToolTip = 'Table ID';
                 }
-                field("Table Name"; "Object Name")
+                field("Table Name"; Rec."Object Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Table Name';
@@ -59,7 +59,7 @@ page 5557 "Permission Conflicts"
 
                     trigger OnDrillDown()
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict("Read Permission", "Entitlement Read Permission", false, "User Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(Rec."Read Permission", Rec."Entitlement Read Permission", false);
                     end;
                 }
                 field("Insert Permission"; InsertPermissionsTxt)
@@ -71,7 +71,7 @@ page 5557 "Permission Conflicts"
 
                     trigger OnDrillDown()
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict("Insert Permission", "Entitlement Insert Permission", false, "User Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(Rec."Insert Permission", Rec."Entitlement Insert Permission", false);
                     end;
                 }
                 field("Modify Permission"; ModifyPermissionsTxt)
@@ -83,7 +83,7 @@ page 5557 "Permission Conflicts"
 
                     trigger OnDrillDown()
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict("Modify Permission", "Entitlement Modify Permission", false, "User Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(Rec."Modify Permission", Rec."Entitlement Modify Permission", false);
                     end;
                 }
                 field("Delete Permission"; DeletePermissionsTxt)
@@ -95,7 +95,7 @@ page 5557 "Permission Conflicts"
 
                     trigger OnDrillDown()
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict("Delete Permission", "Entitlement Delete Permission", false, "User Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(Rec."Delete Permission", Rec."Entitlement Delete Permission", false);
                     end;
                 }
                 field("Execute Permission"; ExecutePermissionsTxt)
@@ -107,7 +107,7 @@ page 5557 "Permission Conflicts"
 
                     trigger OnDrillDown()
                     begin
-                        EffectivePermissionsMgt.ShowPermissionConflict("Execute Permission", "Entitlement Execute Permission", false, "User Defined");
+                        EffectivePermissionsMgt.ShowPermissionConflict(Rec."Execute Permission", Rec."Entitlement Execute Permission", false);
                     end;
                 }
             }
@@ -152,11 +152,11 @@ page 5557 "Permission Conflicts"
 
     local procedure RefreshDisplayTexts()
     begin
-        ReadPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus("Read Permission", "Entitlement Read Permission", false);
-        InsertPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus("Insert Permission", "Entitlement Insert Permission", false);
-        ModifyPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus("Modify Permission", "Entitlement Modify Permission", false);
-        DeletePermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus("Delete Permission", "Entitlement Delete Permission", false);
-        ExecutePermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus("Execute Permission", "Entitlement Execute Permission", false);
+        ReadPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(Rec."Read Permission", Rec."Entitlement Read Permission", false);
+        InsertPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(Rec."Insert Permission", Rec."Entitlement Insert Permission", false);
+        ModifyPermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(Rec."Modify Permission", Rec."Entitlement Modify Permission", false);
+        DeletePermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(Rec."Delete Permission", Rec."Entitlement Delete Permission", false);
+        ExecutePermissionsTxt := EffectivePermissionsMgt.GetPermissionStatus(Rec."Execute Permission", Rec."Entitlement Execute Permission", false);
 
         CurrPage.Update(false);
     end;

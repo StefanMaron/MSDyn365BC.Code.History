@@ -3158,6 +3158,65 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine[1].TestField("No.", Item[1]."No.");
     end;
 
+    [Test]
+    procedure ExtTextLinkCopiedToCorrectiveSalesCreditMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Corrective] [Extended Text]
+        // [SCENARIO 425494] Extended text line should stay linked in the corrective credit memo.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with 2 lines of extended text divided by an empty line.
+        CreateSalesDocWithExtLines(SalesHeader, SalesHeader."Document Type"::Order);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] "Create Corrective Credit Memo" is invoked
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
+
+        // [THEN] Corrective Credit Memo has a line linked to the extended text
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 30000);
+        SalesLine.TestField(Type, SalesLine.Type::Item);
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 50000);
+        SalesLine.TestField("Attached to Line No.", 30000);
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 60000);
+        SalesLine.TestField("Attached to Line No.", 0);
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 70000);
+        SalesLine.TestField("Attached to Line No.", 30000);
+    end;
+
+    [Test]
+    procedure ExtTextLinkCopiedToCorrectivePurchCreditMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Corrective] [Extended Text]
+        // [SCENARIO 425494] Extended text line should stay linked in the corrective credit memo.
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with 2 lines of extended text divided by an empty line.
+        CreatePurchDocWithExtLines(PurchaseHeader, PurchaseHeader."Document Type"::Order);
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] "Create Corrective Credit Memo" is invoked
+        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchaseHeader);
+
+        // [THEN] Corrective Credit Memo has a line linked to the extended text
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 30000);
+        PurchaseLine.TestField(Type, PurchaseLine.Type::Item);
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 40000);
+        PurchaseLine.TestField("Attached to Line No.", 30000);
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 50000);
+        PurchaseLine.TestField("Attached to Line No.", 0);
+        PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 60000);
+        PurchaseLine.TestField("Attached to Line No.", 30000);
+    end;
 
     [Test]
     procedure CorrectivePurchCreditMemoLineOrder()
@@ -3415,6 +3474,163 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         TargetSalesHeader.TestField("Transaction Specification", OldTargetSalesHeader."Transaction Specification");
         TargetSalesHeader.TestField("Transaction Type", OldTargetSalesHeader."Transaction Type");
         TargetSalesHeader.TestField("Transport Method", OldTargetSalesHeader."Transport Method");
+    end;
+
+    [Test]
+    procedure PostSalesOrderWithAmountCopiedFromZeroAmountPostedInvoice()
+    var
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineInvoice: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLineOrder: Record "Sales Line";
+        SalesDocumentTypeFrom: Enum "Sales Document Type From";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 424099] Stan can copy zero amount invoice to new Sales Order and post order with new amount
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(
+            SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        LibrarySales.CreateSalesLine(
+            SalesLineInvoice, SalesHeaderInvoice, SalesLineInvoice.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLineInvoice.TestField("Unit Price", 0);
+
+        SalesInvoiceHeader.Get(
+            LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true));
+
+        SalesHeaderOrder.Init();
+        SalesHeaderOrder.Validate("Document Type", SalesHeaderOrder."Document Type"::Order);
+        SalesHeaderOrder.Insert(true);
+
+        Commit();
+
+        RunCopySalesDoc(SalesInvoiceHeader."No.", SalesHeaderOrder, SalesDocumentTypeFrom::"Posted Invoice", true, false);
+
+        SalesHeaderOrder.Find();
+        LibrarySales.FindFirstSalesLine(SalesLineOrder, SalesHeaderOrder);
+        SalesLineOrder.FindLast();
+        SalesLineOrder.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLineOrder.Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        SalesHeaderOrder.Find();
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, false, true);
+
+        Assert.IsFalse(SalesHeaderOrder.Find(), '');
+    end;
+
+    [Test]
+    procedure PostPurchaseOrderWithAmountCopiedFromZeroAmountPostedInvoice()
+    var
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchInveHeader: Record "Purch. Inv. Header";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseDocumentTypeFrom: Enum "Purchase Document Type From";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 424099] Stan can copy zero amount invoice to new Purchase Order and post order with new amount
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineInvoice, PurchaseHeaderInvoice, PurchaseLineInvoice.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLineInvoice.TestField("Direct Unit Cost", 0);
+
+        PurchInveHeader.Get(
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true));
+
+        PurchaseHeaderOrder.Init();
+        PurchaseHeaderOrder.Validate("Document Type", PurchaseHeaderOrder."Document Type"::Order);
+        PurchaseHeaderOrder.Insert(true);
+
+        Commit();
+
+        RunCopyPurchaseDoc(PurchInveHeader."No.", PurchaseHeaderOrder, PurchaseDocumentTypeFrom::"Posted Invoice", true, false);
+
+        PurchaseHeaderOrder.Find();
+        PurchaseHeaderOrder.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeaderOrder.Modify(true);
+
+        LibraryPurchase.FindFirstPurchLine(PurchaseLineOrder, PurchaseHeaderOrder);
+        PurchaseLineOrder.FindLast();
+        PurchaseLineOrder.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLineOrder.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        PurchaseHeaderOrder.Find();
+        PurchaseHeaderOrder.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeaderOrder.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, false, true);
+
+        Assert.IsFalse(PurchaseHeaderOrder.Find(), '');
+    end;
+
+    [Test]
+    procedure CopyDropShipmentFromSalesQuote()
+    var
+        FromSalesHeader: Record "Sales Header";
+        FromSalesLine: Record "Sales Line";
+        ToSalesHeader: Record "Sales Header";
+        ToSalesLine: Record "Sales Line";
+        PurchasingCode: Code[10];
+    begin
+        // [FEATURE] [Sales] [Quote] [Drop Shipment]
+        // [SCENARIO 431594] Copy "Drop Shipment" flag to a new sales quote.
+        Initialize();
+
+        PurchasingCode := CreatePurchasingCode(true, false);
+        LibrarySales.CreateSalesHeader(FromSalesHeader, FromSalesHeader."Document Type"::Quote, '');
+        CreateSalesLineWithPurchasingCode(FromSalesLine, FromSalesHeader, PurchasingCode);
+
+        LibrarySales.CreateSalesHeader(
+          ToSalesHeader, ToSalesHeader."Document Type"::Quote, FromSalesHeader."Sell-to Customer No.");
+
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader,
+          MapperSalesHeaders(FromSalesHeader."Document Type"), true, false);
+
+        ToSalesLine.SetRange("No.", FromSalesLine."No.");
+        LibrarySales.FindFirstSalesLine(ToSalesLine, ToSalesHeader);
+        ToSalesLine.TestField("Drop Shipment");
+    end;
+
+    [Test]
+    procedure CopySpecialOrderFromSalesQuote()
+    var
+        FromSalesHeader: Record "Sales Header";
+        FromSalesLine: Record "Sales Line";
+        ToSalesHeader: Record "Sales Header";
+        ToSalesLine: Record "Sales Line";
+        PurchasingCode: Code[10];
+    begin
+        // [FEATURE] [Sales] [Quote] [Special Order]
+        // [SCENARIO 431594] Copy "Special Order" flag to a new sales quote.
+        Initialize();
+
+        PurchasingCode := CreatePurchasingCode(false, true);
+        LibrarySales.CreateSalesHeader(FromSalesHeader, FromSalesHeader."Document Type"::Quote, '');
+        CreateSalesLineWithPurchasingCode(FromSalesLine, FromSalesHeader, PurchasingCode);
+
+        LibrarySales.CreateSalesHeader(
+          ToSalesHeader, ToSalesHeader."Document Type"::Quote, FromSalesHeader."Sell-to Customer No.");
+
+        RunCopySalesDoc(
+          FromSalesHeader."No.", ToSalesHeader,
+          MapperSalesHeaders(FromSalesHeader."Document Type"), true, false);
+
+        ToSalesLine.SetRange("No.", FromSalesLine."No.");
+        LibrarySales.FindFirstSalesLine(ToSalesLine, ToSalesHeader);
+        ToSalesLine.TestField("Special Order");
     end;
 
     local procedure Initialize()
