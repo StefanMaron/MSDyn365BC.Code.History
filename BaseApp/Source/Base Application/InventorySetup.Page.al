@@ -67,13 +67,13 @@
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
-                    ToolTip = 'Specifies a date formula for the time it takes to get items ready to ship from this location. The time element is used in the calculation of the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
+                    ToolTip = 'Specifies a date formula that calculates the time it takes to get items ready to ship. The time element is used to calculate the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
                 }
                 field("Inbound Whse. Handling Time"; "Inbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
                     Importance = Additional;
-                    ToolTip = 'Specifies a date formula for the time it takes to make items part of available inventory, after the items have been posted as received. The time element is used in the calculation of the expected receipt date as follows: Order Date + Lead Time Calculation = Planned Receipt Date + Inbound Warehouse Handling Time + Safety Lead Time = Expected Receipt Date.';
+                    ToolTip = 'Specifies a date formula that calculates the time it takes to make items available in inventory after they have been received. The time element is used to calculate the expected receipt date as follows: Order Date + Lead Time Calculation = Planned Receipt Date + Inbound Warehouse Handling Time + Safety Lead Time = Expected Receipt Date.';
                 }
                 field("Prevent Negative Inventory"; "Prevent Negative Inventory")
                 {

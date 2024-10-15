@@ -45,7 +45,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Initialize;
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostGeneralJournalLine(
-          VATPostingSetup, GenJournalLine."Account Type"::Vendor, Vendor."No.", GenJournalLine."Gen. Posting Type"::Purchase, -1);
+          VATPostingSetup, GenJournalLine."Account Type"::Vendor, Vendor."No.", GenJournalLine."Gen. Posting Type"::Purchase, -1, true);
 
         // Save VAT Statement Report for Purchase with Open Selection and Verify the Amount. Passing FALSE to find Open Entries for Purchase.
         // Exercise And Verification done in VATStatementForDifferentEntries function.
@@ -68,7 +68,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostGeneralJournalLine(
-          VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1);
+          VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1, true);
 
         // Save VAT Statement Report for Sale with Open Selection and Verify the Amount. Passing FALSE to find Open Entries for Sale.
         // Exercise And Verification done in VATStatementForDifferentEntries function.
@@ -380,7 +380,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostGeneralJournalLine(
-          VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1);
+          VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1, true);
 
         CreateVATStatementTemplateAndLine(VATStatementLine[1], VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale);
         CreateVATStatementTemplateAndLine(VATStatementLine[2], VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale);
@@ -425,7 +425,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostGeneralJournalLine(
-          VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1);
+          VATPostingSetup, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Gen. Posting Type"::Sale, 1, true);
 
         CreateVATStatementTemplateAndLine(VATStatementLine[1], VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale);
         CreateVATStatementTemplateAndLine(VATStatementLine[2], VATPostingSetup, GenJournalLine."Gen. Posting Type"::Sale);
@@ -449,6 +449,54 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatementTemplate.Delete(true);
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('GLVATReconciliationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintGLVATReconciliationSameRowNo()
+    var
+        VATStatementTemplate: Record "VAT Statement Template";
+        VATStatementName: Record "VAT Statement Name";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATStatementLine: array[2] of Record "VAT Statement Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        RequestPageXML: Text;
+    begin
+        // [FEATURE] [Report] [G/L VAT Reconciliation]
+        // [SCENARIO 416991] "G/L VAT Reconciliation" report prints VAT Statement Lines with same "Row No.", "VAT Bus./Prod" groups, but different Gen. Posting Type
+        Initialize();
+
+        // [GIVEN] VAT Statement "V"
+        CreateVATPostingSetupWithBlankVATBusPostingGroup(VATPostingSetup);
+        CreateVATStatementTemplateAndName(VATStatementTemplate, VATStatementName);
+
+        // [GIVEN] VAT Statement line 1 with "Row No." = "AAA" and "General Posting Type" = Sale
+        CreateVATStatementLine(VATStatementLine[1], VATStatementTemplate, VATStatementName, VATPostingSetup, "General Posting Type"::Sale);
+        VATStatementLine[1]."Row No." := 'AAA';
+        VATStatementLine[1].Description := 'Sale';
+        VATStatementLine[1].Modify();
+        CreateAndPostGeneralJournalLine(
+            VATPostingSetup, GenJournalLine."Account Type"::Customer, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"),
+            GenJournalLine."Gen. Posting Type"::Sale, 1, false);
+
+        // [GIVEN] VAT Statement line 2 with "Row No." = "AAA" and "General Posting Type" = Purchase
+        CreateVATStatementLine(VATStatementLine[2], VATStatementTemplate, VATStatementName, VATPostingSetup, "General Posting Type"::Purchase);
+        VATStatementLine[2]."Row No." := 'AAA';
+        VATStatementLine[2].Description := 'Purchase';
+        VATStatementLine[2].Modify();
+        CreateAndPostGeneralJournalLine(
+            VATPostingSetup, GenJournalLine."Account Type"::Vendor, CreateVendor(VATPostingSetup."VAT Bus. Posting Group"),
+            GenJournalLine."Gen. Posting Type"::Purchase, -1, false);
+
+        // [WHEN] Print report "G/L VAT Reconciliation" for VAT Statement "V"
+        Commit;
+        RequestPageXML := Report.RunRequestPage(Report::"G/L - VAT Reconciliation", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"G/L - VAT Reconciliation", VATStatementName, RequestPageXML);
+
+        // [THEN] Both lines Sale and Purchase are printed
+        LibraryReportDataset.AssertElementWithValueExists('VAT_Statement_Line_Description', VATStatementLine[1].Description);
+        LibraryReportDataset.AssertElementWithValueExists('VAT_Statement_Line_Description', VATStatementLine[2].Description);
     end;
 
     local procedure Initialize()
@@ -496,7 +544,7 @@ codeunit 134992 "ERM Financial Reports IV"
         Amount: Decimal;
     begin
         // Setup: Create and Post General Journal Line with different Account Types, Find VAT Entries Amount.
-        CreateAndPostGeneralJournalLine(VATPostingSetup, AccountType, AccountNo, GenPostingType, SignFactor);
+        CreateAndPostGeneralJournalLine(VATPostingSetup, AccountType, AccountNo, GenPostingType, SignFactor, true);
         VATEntry.SetRange("Posting Date", WorkDate);
         Amount := -CalculateVATEntryAmount(VATEntry, VATPostingSetup, GenPostingType, false);
 
@@ -518,7 +566,7 @@ codeunit 134992 "ERM Financial Reports IV"
         TotalAmount := VATEntry.Amount;
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; SignFactor: Integer)
+    local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; SignFactor: Integer; FindVATPostingSetup: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -534,8 +582,13 @@ codeunit 134992 "ERM Financial Reports IV"
             GenJournalLine."Gen. Posting Type"::Purchase:
                 GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithPurchSetup);
         end;
+        if FindVATPostingSetup then
+            VATPostingSetup.Get(GenJournalLine."Bal. VAT Bus. Posting Group", GenJournalLine."Bal. VAT Prod. Posting Group")
+        else begin
+            GenJournalLine.Validate("Bal. VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+            GenJournalLine.Validate("Bal. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        end;
         GenJournalLine.Modify(true);
-        VATPostingSetup.Get(GenJournalLine."Bal. VAT Bus. Posting Group", GenJournalLine."Bal. VAT Prod. Posting Group");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -557,10 +610,20 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatementTemplate: Record "VAT Statement Template";
         VATStatementName: Record "VAT Statement Name";
     begin
+        CreateVATStatementTemplateAndName(VATStatementTemplate, VATStatementName);
+        CreateVATStatementLine(VATStatementLine, VATStatementTemplate, VATStatementName, VATPostingSetup, GenPostingType);
+    end;
+
+    local procedure CreateVATStatementTemplateAndName(var VATStatementTemplate: Record "VAT Statement Template"; var VATStatementName: Record "VAT Statement Name")
+    begin
         LibraryERM.CreateVATStatementTemplate(VATStatementTemplate);
         VATStatementTemplate.Validate("VAT Statement Report ID", REPORT::"VAT Statement");
         VATStatementTemplate.Modify(true);
         LibraryERM.CreateVATStatementName(VATStatementName, VATStatementTemplate.Name);
+    end;
+
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATStatementTemplate: Record "VAT Statement Template"; VATStatementName: Record "VAT Statement Name"; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type")
+    begin
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementTemplate.Name, VATStatementName.Name);
         VATStatementLine.Validate("Row No.", Format(LibraryRandom.RandInt(100)));
         VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
@@ -644,6 +707,30 @@ codeunit 134992 "ERM Financial Reports IV"
         VATPostingSetup.Validate("Purchase VAT Account", GLAccount."No.");
         VATPostingSetup.Validate("Sales VAT Account", GLAccount."No.");
         VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateCustomer(VATBusPostingGroupCode: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        with Customer do begin
+            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+            Modify(true);
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateVendor(VATBusPostingGroupCode: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        with Vendor do begin
+            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+            Modify(true);
+            exit("No.");
+        end;
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; BilltoPaytoNo: Code[20])
@@ -794,6 +881,12 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportValidation.SetFileName(FileName);
         LibraryReportValidation.SetFullFileName(FileName);
         VATStatement.SaveAsExcel(LibraryReportValidation.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure GLVATReconciliationRequestPageHandler(var GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation")
+    begin
     end;
 }
 

@@ -1068,6 +1068,7 @@ page 43 "Sales Invoice"
                             exit;
 
                         OpenDocumentStatistics();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action("Co&mments")

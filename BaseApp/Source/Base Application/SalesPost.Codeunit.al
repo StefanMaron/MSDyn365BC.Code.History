@@ -332,7 +332,7 @@
         TotalInvoiceAmountNegativeErr: Label 'The total amount for the invoice must be 0 or greater.';
         NoDeferralScheduleErr: Label 'You must create a deferral schedule because you have specified the deferral code %2 in line %1.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
         ZeroDeferralAmtErr: Label 'Deferral amounts cannot be 0. Line: %1, Deferral Template: %2.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
-        DownloadShipmentAlsoQst: Label 'You can also download the Sales - Shipment document now. Alternatively, you can access it from the Posted Sales Shipments window later.\\Do you want to download the Sales - Shipment document now?';
+        SendShipmentAlsoQst: Label 'You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?';
         CorrectiveSalesLineErr: Label 'You must change the quantity or the price on line %3 before you can post corrective sales %1 %2.', Comment = '%1 - Document Type %2 - Document No. %3 - Line No.';
         SuppressCommit: Boolean;
         PostingPreviewNoTok: Label '***', Locked = true;
@@ -7493,7 +7493,7 @@
         if IsHandled then
             exit(Result);
 
-        if ConfirmManagement.GetResponseOrDefault(DownloadShipmentAlsoQst, true) then
+        if ConfirmManagement.GetResponseOrDefault(SendShipmentAlsoQst, true) then
             exit(true);
 
         exit(false);

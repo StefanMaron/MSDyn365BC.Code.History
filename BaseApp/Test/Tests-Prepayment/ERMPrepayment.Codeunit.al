@@ -50,6 +50,8 @@ codeunit 134100 "ERM Prepayment"
         PrepaymentAmountInvErr: Label 'Prepmt. Amt. Inv. Incl. VAT must be equal to';
         PrepmtInvErr: Label 'Prepayment Invoice must be equal to ''No''';
         PrepmtCrMemoErr: Label 'Prepayment Credit Memo must be equal to ''No''';
+        CannotChangePrepmtAccErr: Label 'You cannot change %2 while %1 is pending prepayment.', Comment = '%2- field caption, %1 - "sales order 1001".';
+       CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - "sales order 1001".';
         CustomerNo: Code[20];
 
     [Test]
@@ -3195,7 +3197,7 @@ codeunit 134100 "ERM Prepayment"
           -Round(SalesLine."Prepmt. Line Amount" * VATPostingSetup."VAT %" / 100), 0);
 
         // Tear Down
-        GeneralPostingSetup.Validate("Sales Prepayments Account", SalesPrepaymentsAccountOld);
+        GeneralPostingSetup."Sales Prepayments Account" := SalesPrepaymentsAccountOld;
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -3240,7 +3242,7 @@ codeunit 134100 "ERM Prepayment"
           Round(PurchLine."Prepmt. Line Amount" * VATPostingSetup."VAT %" / 100), 0);
 
         // Tear Down
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", PurchPrepaymentsAccountOld);
+        GeneralPostingSetup."Purch. Prepayments Account" := PurchPrepaymentsAccountOld;
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -3693,6 +3695,140 @@ codeunit 134100 "ERM Prepayment"
 
         // [THEN] Prepayment Credit Memo "Y" is shown on page "Posted Sales Credit Memos"
         PostedSalesCrMemos."No.".AssertEquals(FindSalesPrepmtCrMemoNo(SalesHeader."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotChangeSalesPrepmtAccountVATProdSetupIfPendingPrepmtOrderExist()
+    var
+        GLAccount: Record "G/L Account";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 418735] Stop modification of "VAT Prod. Posting Group" on Prepayment Account if orders pending prepayment exist.
+
+        // [GIVEN] Sales Order 'SO' with Customer "X" and Prepayment
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+        InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
+
+        // [GIVEN] Posted Sales Prepayment Invoice "Y"
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Try to modify "VAT Prod. Posting Group" on the prepayment account 'PA'
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+        asserterror GLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+
+        // [THEN] Error message: 'You cannot change account while the sales order SO is in pending prepayment status.'
+        Assert.ExpectedError(
+            StrSubstNo(
+                CannotChangeSetupOnPrepmtAccErr, SalesHeader.RecordId,
+                GLAccount.FieldCaption("VAT Prod. Posting Group"), GLAccount."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotChangePurchPrepmtAccountGenProdSetupIfPendingPrepmtOrderExist()
+    var
+        GLAccount: Record "G/L Account";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 418735] Stop modification of "VAT Bus. Posting Group" on Prepayment Account if orders pending prepayment exist.
+
+        // [GIVEN] Purchase Order 'PO' with Vendor "X" and Prepayment
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+        InitPurchasePrepaymentScenario(PurchaseHeader, PurchaseLine, false, LibraryRandom.RandInt(100), '');
+
+        // [GIVEN] Posted Purchase Prepayment Invoice "Y"
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [WHEN] Try to modify "Gen. Prod. Posting Group" on the prepayment account 'PA'
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+        asserterror GLAccount.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
+
+        // [THEN] Error message: 'You cannot change account while the purchase order PO is in pending prepayment status.'
+        Assert.ExpectedError(
+            StrSubstNo(
+                CannotChangeSetupOnPrepmtAccErr, PurchaseHeader.RecordId,
+                GLAccount.FieldCaption("Gen. Prod. Posting Group"), GLAccount."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotChangeSalesPrepmtAccountInGenPostSetupIfPendingPrepmtOrderExist()
+    var
+        GLAccount: Record "G/L Account";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        PrepmtAccNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 418735] Stop modification of "Sales Prepayment Account" in general posting setup if orders pending prepayment exist.
+
+        // [GIVEN] Sales Order 'SO' with Customer "X" and Prepayment
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+        InitSalesPrepaymentScenario(SalesHeader, SalesLine, false, LibraryRandom.RandInt(100), '');
+
+        // [GIVEN] Posted Sales Prepayment Invoice "Y"
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Try to modify "Sales Prepayments Account" on the GeneralPostingSetup
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        asserterror GeneralPostingSetup.Validate("Sales Prepayments Account", LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [THEN] Error message: 'You cannot change Sales Prepayments Account while the sales order SO is in pending prepayment status.'
+        Assert.ExpectedError(
+            StrSubstNo(
+                CannotChangePrepmtAccErr, SalesHeader.RecordId, GeneralPostingSetup.FieldCaption("Sales Prepayments Account")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotChangePurchPrepmtAccountInGenPostSetupIfPendingPrepmtOrderExist()
+    var
+        GLAccount: Record "G/L Account";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        PrepmtAccNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 418735] Stop modification of "Purch. Prepayment Account" in general posting setup if orders pending prepayment exist.
+
+        // [GIVEN] Purchase Order 'PO' with Vendor "X" and Prepayment
+        Initialize();
+        LibraryLowerPermissions.SetO365BusFull();
+        InitPurchasePrepaymentScenario(PurchaseHeader, PurchaseLine, false, LibraryRandom.RandInt(100), '');
+
+        // [GIVEN] Posted Purchase Prepayment Invoice "Y"
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [WHEN] Try to modify "Purch. Prepayments Account" on the GeneralPostingSetup
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        asserterror GeneralPostingSetup.Validate("Purch. Prepayments Account", LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [THEN] Error message: 'You cannot change Purch. Prepayments Account while the purchase order PO is in pending prepayment status.'
+        Assert.ExpectedError(
+            StrSubstNo(
+                CannotChangePrepmtAccErr, PurchaseHeader.RecordId, GeneralPostingSetup.FieldCaption("Purch. Prepayments Account")));
     end;
 
     local procedure Initialize()

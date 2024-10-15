@@ -985,6 +985,7 @@ page 50 "Purchase Order"
                     trigger OnAction()
                     begin
                         OpenPurchaseOrderStatistics();
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)
