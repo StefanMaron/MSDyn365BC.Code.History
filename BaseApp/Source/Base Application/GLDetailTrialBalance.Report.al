@@ -167,14 +167,18 @@ report 10804 "G/L Detail Trial Balance"
                     begin
                         if DocNumSort then
                             SetCurrentKey("G/L Account No.", "Document No.", "Posting Date");
-                        SetRange("Posting Date", Date."Period Start", Date."Period End");
+
+                        if EndDateIsClosing then
+                            SetRange("Posting Date", Date."Period Start", Date."Period End")
+                        else
+                            SetRange("Posting Date", Date."Period Start", NormalDate(Date."Period End"));
                     end;
                 }
 
                 trigger OnPreDataItem()
                 begin
                     SetRange("Period Type", TotalBy);
-                    SetRange("Period Start", StartDate, ClosingDate(EndDate));
+                    SetRange("Period Start", StartDate, EndDate);
                     Balance := GLAccount2.Balance;
                 end;
             }
@@ -253,6 +257,7 @@ report 10804 "G/L Detail Trial Balance"
                 FiscalYearStatusText := StrSubstNo(Text012, FiscalYearFiscalClose.CheckFiscalYearStatus(GetFilter("Date Filter")));
 
                 TotalByInt := TotalBy;
+                EndDateIsClosing := EndDate = ClosingDate(EndDate);
             end;
         }
     }
@@ -326,6 +331,7 @@ report 10804 "G/L Detail Trial Balance"
         TotalBy: Option " ",Week,Month,Quarter,Year;
         DocNumSort: Boolean;
         ShowBodyGLAccount: Boolean;
+        EndDateIsClosing: Boolean;
         "Filter": Text;
         Text010: Label 'The selected starting date %1 is not the start of a %2.';
         Text011: Label 'The selected ending date %1 is not the end of a %2.';
