@@ -1,10 +1,5 @@
 codeunit 14930 "Excel Report Builder Manager"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         TempExcelTemplateSheetBuffer: Record "Excel Template Sheet Buffer" temporary;
         FileMgt: Codeunit "File Management";

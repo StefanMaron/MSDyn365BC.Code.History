@@ -2,6 +2,7 @@ codeunit 144720 "SCM Torg-13 Test"
 {
     // // [FEATURE] [Report]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

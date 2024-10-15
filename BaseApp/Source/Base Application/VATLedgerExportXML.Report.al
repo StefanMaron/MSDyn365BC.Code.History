@@ -291,8 +291,9 @@ report 12461 "VAT Ledger Export XML"
         NomDocPdtvUplTxt: Label 'NomDocPdtvUpl', Comment = 'Should be translated as ´Š¢´Š¢´Š¢´Š¢´Š¢´Š¢´Š¢´Š¢Ôóô´Š¢´Š¢';
         DataDocPdtvUplTxt: Label 'DataDocPdtvUpl', Comment = 'Should be translated as ´Š¢´Š¢ÔáÅ´Š¢Ôóô´Š¢´Š¢';
         DataUcTovTxt: Label 'DataUcTov', Comment = 'Should be translated as ´Š¢´Š¢ÔáôþÆ«´Š¢';
-        RegNomTDTxt: Label 'RegNomTD', Comment = 'Should be translated as ´Š¢´Š¢´Š¢´Š¢´Š¢´Š¢´Š¢´Š¢';
         KodVidTovarTxt: Label 'KodVidTovar';
+        SvRegNomTxt: Label 'SvRegNom', Comment = 'Should be translated as СвРегНом';
+        RegNomProslTxt: Label 'RegNomProsl', Comment = 'Should be translated as РегНомПросл';
 
     [Scope('OnPrem')]
     procedure InitializeReport(NewVATLedgerType: Option; NewVATLedgerCode: Code[20]; NewAddSheet: Boolean)
@@ -679,7 +680,9 @@ report 12461 "VAT Ledger Export XML"
             SetFilterVATLedgerLine(VATLedgerLine);
             if FindSet then
                 repeat
-                    XMLAddSimpleElement(RegNomTDTxt, Format("CD No."));
+                    XMLAddComplexElement(SvRegNomTxt);
+                    XMLAddAttribute(XMLCurrNode, RegNomProslTxt, Format("CD No."));
+                    XMLCurrNode := XMLCurrNode.ParentNode;
                 until Next() = 0;
         end;
     end;

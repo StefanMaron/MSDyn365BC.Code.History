@@ -2,6 +2,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
 {
     // // [FEATURE] [Factura-Invoice] [Proforma-Invoice] [Report]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()
@@ -423,6 +424,7 @@ codeunit 144513 "ERM FacturaInvoiceSubUnit"
         Offset := LineNo - 22;
         Item.Get(ItemNo);
         FileName := LibraryReportValidation.GetFileName;
+        LibraryRUReports.VerifyFactura_LineNo(FileName, '1', 0);
         LibraryRUReports.VerifyFactura_ItemNo(FileName, Item.Description, 0);
         LibraryRUReports.VerifyFactura_TariffNo(FileName, Item."Tariff No.", 0);
         LibraryRUReports.VerifyFactura_Qty(FileName, Qty, Offset);

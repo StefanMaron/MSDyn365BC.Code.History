@@ -2,11 +2,9 @@ codeunit 144016 "ERM G/L Correspodence"
 {
     // // [FEATURE] [G/L Correspondence]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "G/L Entry" = i;
 
     var
         Assert: Codeunit Assert;

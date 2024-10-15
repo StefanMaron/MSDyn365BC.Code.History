@@ -33,6 +33,7 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata "Gen. Jnl. Allocation" = RIMD,
                   tabledata "Gen. Journal Batch" = RId,
                   tabledata "Gen. Journal Line" = RIMD,
+                  tabledata "Gen. Journal Line Archive" = RIMD,
                   tabledata "Gen. Journal Template" = RI,
                   tabledata "General Ledger Setup" = r,
                   tabledata "General Posting Setup" = r,

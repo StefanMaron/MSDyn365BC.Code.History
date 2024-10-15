@@ -28,6 +28,7 @@ codeunit 144200 "HRP General"
     //  CreateContractTermsForTransferLaborContractLine                                                    94061
     //  SickLeavePostedBetweenPeriods                                                                      94062
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

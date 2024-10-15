@@ -13,6 +13,7 @@ codeunit 14931 "Factura-Invoice Report Helper"
         CurrentDocumentNo: Text;
         CurrentDocumentDate: Text;
         InvoiceTxt: Label 'Invoice %1 from %2 Page %3';
+        LineNo: Integer;
 
     [Scope('OnPrem')]
     procedure InitReportTemplate(TemplateCode: Code[10])
@@ -81,6 +82,9 @@ codeunit 14931 "Factura-Invoice Report Helper"
             ExcelReportBuilderMgr.AddSection('BODY');
         end;
 
+        LineNo += 1;
+        if not IsProforma then
+            ExcelReportBuilderMgr.AddDataToSection('LineNo', Format(LineNo));
         ExcelReportBuilderMgr.AddDataToSection('ItemName', LineValue[1]);
         ExcelReportBuilderMgr.AddDataToSection('Unit', LineValue[2]);
         ExcelReportBuilderMgr.AddDataToSection('UnitName', LineValue[3]);

@@ -44,6 +44,7 @@ permissionset 5759 "D365 BANKING"
                   tabledata "G/L Entry" = Rim,
                   tabledata "G/L Register" = Rim,
                   tabledata "Gen. Journal Line" = RIMD,
+                  tabledata "Gen. Journal Line Archive" = RiMd,
                   tabledata "Gen. Journal Template" = RIMD,
                   tabledata "Interaction Log Entry" = R,
                   tabledata "Intermediate Data Import" = Rimd,

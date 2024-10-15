@@ -281,6 +281,7 @@ table 7001 "Price List Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Unit Price"), "Amount Type"::Discount);
+                Verify();
                 if "Unit Price" <> 0 then
                     "Cost Factor" := 0;
             end;
@@ -295,6 +296,7 @@ table 7001 "Price List Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Cost Factor"), "Amount Type"::Discount);
+                Verify();
                 if "Cost Factor" <> 0 then
                     "Unit Price" := 0;
             end;
@@ -310,7 +312,9 @@ table 7001 "Price List Line"
 
             trigger OnValidate()
             begin
+                TestStatusDraft();
                 CheckAmountType(FieldCaption("Unit Cost"), "Amount Type"::Discount);
+                Verify();
             end;
         }
         field(20; "Line Discount %"; Decimal)
@@ -325,6 +329,7 @@ table 7001 "Price List Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Line Discount %"), "Amount Type"::Price);
+                Verify();
             end;
         }
         field(21; "Allow Line Disc."; Boolean)
@@ -434,7 +439,9 @@ table 7001 "Price List Line"
 
             trigger OnValidate()
             begin
+                TestStatusDraft();
                 CheckAmountType(FieldCaption("Direct Unit Cost"), "Amount Type"::Discount);
+                Verify();
             end;
         }
         field(32; "Source Group"; Enum "Price Source Group")
@@ -784,8 +791,7 @@ table 7001 "Price List Line"
     procedure Verify()
     begin
         VerifySource();
-        if "Asset Type" <> "Asset Type"::" " then
-            TestField("Asset No.");
+        TestField("Asset Type");
     end;
 
     local procedure VerifyParentSource() Result: Boolean;

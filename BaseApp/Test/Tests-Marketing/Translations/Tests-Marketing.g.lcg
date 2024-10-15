@@ -95,6 +95,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Campaign Pricing - NamedType DiscountDateChangeError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2156546270 - NamedType 1648870206" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This page is no longer available. It was used by a feature that has been replaced or removed.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Campaign Pricing - NamedType FeatureIsOnErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2156546270 - NamedType 2913131865" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[If Sales Type = Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.]]></Val>
@@ -608,6 +617,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Merged value,%2 = Original value]D;]A;(LookupHint=Codeunit Marketing Interaction - NamedType MergedFieldErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1825309050 - NamedType 666313839" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No attachment found. You must either add an attachment or choose a template in the Word Template Code field on the Interaction Template page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interaction - NamedType NoAttachmentErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1825309050 - NamedType 2038633821" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Rollback.]]></Val>
@@ -653,9 +671,18 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interaction - NamedType UnknownErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1825309050 - NamedType 2840729064" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot use an attachment when a Word template has been specified.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Interaction - NamedType WordTemplateUsedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3113797739 - NamedType 2119306127" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The correspondence type for this interaction is Email, which requires an interaction template with an attachment. To continue, you can change contact’s correspondence type, select an interaction template with a different correspondence type, or select a template that ignores the contact correspondence type.]]></Val>
+      <Val><![CDATA[The correspondence type for this interaction is Email, which requires an interaction template with an attachment or Word template. To continue, you can either change the correspondence type for the contact, select an interaction template that has a different correspondence type, or select a template that ignores the contact correspondence type.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

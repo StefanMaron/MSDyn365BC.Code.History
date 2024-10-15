@@ -87,7 +87,7 @@
         GetLocation(LocationCode);
 
         IsHandled := false;
-        OnCreateTempLineOnBeforeCheckReservation(SourceType, SourceNo, SourceLineNo, QtyBaseMaxAvailToPick, IsHandled);
+        OnCreateTempLineOnBeforeCheckReservation(SourceType, SourceNo, SourceLineNo, QtyBaseMaxAvailToPick, IsHandled, LocationCode, ItemNo);
         if not IsHandled then begin
             if Location."Directed Put-away and Pick" then
                 QtyBaseMaxAvailToPick := // Total qty (excl. Receive bin content) that are not assigned to any activity/ order
@@ -3657,7 +3657,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateTempLineOnBeforeCheckReservation(SourceType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyBaseMaxAvailToPick: Decimal; var isHandled: Boolean)
+    local procedure OnCreateTempLineOnBeforeCheckReservation(SourceType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyBaseMaxAvailToPick: Decimal; var isHandled: Boolean; LocationCode: Code[10]; ItemNo: Code[20])
     begin
     end;
 

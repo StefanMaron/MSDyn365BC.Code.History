@@ -1,12 +1,11 @@
 codeunit 147200 "ERM VAT Purchase Ledger Corr."
 {
     // // [FEATURE] [VAT Purchase Ledger]
-
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "VAT Entry Type" = imd,
+                  tabledata "Cust. Ledger Entry" = imd,
+                  tabledata "Vendor Ledger Entry" = imd;
 
     var
         Assert: Codeunit Assert;

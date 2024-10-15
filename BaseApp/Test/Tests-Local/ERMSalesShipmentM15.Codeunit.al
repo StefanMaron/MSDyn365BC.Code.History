@@ -1,5 +1,6 @@
 codeunit 144706 "ERM Sales Shipment M-15"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

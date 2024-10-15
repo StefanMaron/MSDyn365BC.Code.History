@@ -410,6 +410,8 @@ table 352 "Default Dimension"
                     Cust."Global Dimension 1 Code" := NewDimValue;
                 2:
                     Cust."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateCustGlobalDimCodeOnCaseElse(GlobalDimCodeNo, CustNo, NewDimValue);
             end;
             Cust.Modify(true);
         end;
@@ -425,6 +427,8 @@ table 352 "Default Dimension"
                     Vend."Global Dimension 1 Code" := NewDimValue;
                 2:
                     Vend."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateVendGlobalDimCodeOnCaseElse(GlobalDimCodeNo, VendNo, NewDimValue);
             end;
             Vend.Modify(true);
         end;
@@ -508,6 +512,8 @@ table 352 "Default Dimension"
                     BankAcc."Global Dimension 1 Code" := NewDimValue;
                 2:
                     BankAcc."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateBankGlobalDimCodeCaseElse(GlobalDimCodeNo, BankAccNo, NewDimValue);
             end;
             BankAcc.Modify(true);
         end;
@@ -523,6 +529,8 @@ table 352 "Default Dimension"
                     Employee."Global Dimension 1 Code" := NewDimValue;
                 2:
                     Employee."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateEmpoyeeGlobalDimCodeCaseElse(GlobalDimCodeNo, EmployeeNo, NewDimValue);
             end;
             Employee.Modify(true);
         end;
@@ -538,6 +546,8 @@ table 352 "Default Dimension"
                     FA."Global Dimension 1 Code" := NewDimValue;
                 2:
                     FA."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateFAGlobalDimCodeCaseElse(GlobalDimCodeNo, FANo, NewDimValue);
             end;
             FA.Modify(true);
         end;
@@ -553,6 +563,8 @@ table 352 "Default Dimension"
                     Insurance."Global Dimension 1 Code" := NewDimValue;
                 2:
                     Insurance."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateInsuranceGlobalDimCodeCaseElse(GlobalDimCodeNo, InsuranceNo, NewDimValue);
             end;
             Insurance.Modify(true);
         end;
@@ -568,6 +580,8 @@ table 352 "Default Dimension"
                     RespCenter."Global Dimension 1 Code" := NewDimValue;
                 2:
                     RespCenter."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateRespCenterGlobalDimCodeCaseElse(GlobalDimCodeNo, RespCenterNo, NewDimValue);
             end;
             RespCenter.Modify(true);
         end;
@@ -583,6 +597,8 @@ table 352 "Default Dimension"
                     WorkCenter."Global Dimension 1 Code" := NewDimValue;
                 2:
                     WorkCenter."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateWorkCenterGlobalDimCodeCaseElse(GlobalDimCodeNo, WorkCenterNo, NewDimValue);
             end;
             WorkCenter.Modify(true);
         end;
@@ -598,6 +614,8 @@ table 352 "Default Dimension"
                     SalespersonPurchaser."Global Dimension 1 Code" := NewDimValue;
                 2:
                     SalespersonPurchaser."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateSalesPurchGlobalDimCodeCaseElse(GlobalDimCodeNo, SalespersonPurchaserNo, NewDimValue);
             end;
             SalespersonPurchaser.Modify(true);
         end;
@@ -613,6 +631,8 @@ table 352 "Default Dimension"
                     Campaign."Global Dimension 1 Code" := NewDimValue;
                 2:
                     Campaign."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateCampaignGlobalDimCodeCaseElse(GlobalDimCodeNo, CampaignNo, NewDimValue);
             end;
             Campaign.Modify(true);
         end;
@@ -645,6 +665,8 @@ table 352 "Default Dimension"
                     CFManualExpense."Global Dimension 1 Code" := NewDimValue;
                 2:
                     CFManualExpense."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateNeutrPayGlobalDimCodeCaseElse(GlobalDimCodeNo, CFManualExpenseNo, NewDimValue);
             end;
             CFManualExpense.Modify(true);
         end;
@@ -660,6 +682,8 @@ table 352 "Default Dimension"
                     CFManualRevenue."Global Dimension 1 Code" := NewDimValue;
                 2:
                     CFManualRevenue."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateNeutrRevGlobalDimCodeCaseElse(GlobalDimCodeNo, CFManualRevenueNo, NewDimValue);
             end;
             CFManualRevenue.Modify(true);
         end;
@@ -1128,6 +1152,8 @@ table 352 "Default Dimension"
                     VendorTempl."Global Dimension 1 Code" := NewDimValue;
                 2:
                     VendorTempl."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateVendorTemplGlobalDimCodeCaseElse(GlobalDimCodeNo, VendorTemplCode, NewDimValue);
             end;
             VendorTempl.Modify(true);
         end;
@@ -1143,6 +1169,8 @@ table 352 "Default Dimension"
                     CustomerTempl."Global Dimension 1 Code" := NewDimValue;
                 2:
                     CustomerTempl."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateCustomerTemplGlobalDimCodeCaseElse(GlobalDimCodeNo, CustomerTemplCode, NewDimValue);
             end;
             CustomerTempl.Modify(true);
         end;
@@ -1158,6 +1186,8 @@ table 352 "Default Dimension"
                     ItemTempl."Global Dimension 1 Code" := NewDimValue;
                 2:
                     ItemTempl."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateItemTemplGlobalDimCodeCaseElse(GlobalDimCodeNo, ItemTemplCode, NewDimValue);
             end;
             ItemTempl.Modify(true);
         end;
@@ -1173,6 +1203,8 @@ table 352 "Default Dimension"
                     EmployeeTempl."Global Dimension 1 Code" := NewDimValue;
                 2:
                     EmployeeTempl."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateEmployeeTemplGlobalDimCodeCaseElse(GlobalDimCodeNo, EmployeeTemplCode, NewDimValue);
             end;
             EmployeeTempl.Modify(true);
         end;
@@ -1194,7 +1226,67 @@ table 352 "Default Dimension"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateBankGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; BankAccNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCampaignGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; CampaignNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustGlobalDimCodeOnCaseElse(GlobalDimCodeNo: Integer; CustNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustomerTemplGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; CustomerTemplCode: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEmpoyeeGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; EmployeeNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEmployeeTemplGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; EmployeeTemplCode: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateFAGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; FANo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateInsuranceGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; InsuranceNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateItemGlobalDimCodeOnCaseElse(GlobalDimCodeNo: Integer; ItemNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemTemplGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; ItemTemplCode: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateJobGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; JobNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateNeutrRevGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; CFManualRevenueNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateNeutrPayGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; CFManualExpenseNo: Code[20]; NewDimValue: Code[20])
     begin
     end;
 
@@ -1209,7 +1301,27 @@ table 352 "Default Dimension"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateJobGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; JobNo: Code[20]; NewDimValue: Code[20])
+    local procedure OnUpdateRespCenterGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; RespCenterNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesPurchGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; SalespersonPurchaserNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendGlobalDimCodeOnCaseElse(GlobalDimCodeNo: Integer; VendNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendorTemplGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; VendorTemplCode: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateWorkCenterGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; WorkCenterNo: Code[20]; NewDimValue: Code[20])
     begin
     end;
 }

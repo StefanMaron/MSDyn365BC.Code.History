@@ -1,10 +1,10 @@
 codeunit 144715 "ERM FA-3 Report Test"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Default Signature Setup" = imd,
+                  tabledata "Posted FA Doc. Header" = imd,
+                  tabledata "Posted FA Doc. Line" = imd;
 
     var
         LibraryRandom: Codeunit "Library - Random";

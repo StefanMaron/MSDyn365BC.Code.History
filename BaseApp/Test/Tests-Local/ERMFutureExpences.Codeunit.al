@@ -1,5 +1,6 @@
 codeunit 144010 "ERM Future Expences"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

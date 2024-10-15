@@ -403,25 +403,94 @@ page 35603 Vendors
                     RunPageLink = Code = FIELD("Invoice Disc. Code");
                     ToolTip = 'Set up different discounts applied to invoices for the selected customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                 }
+                action(PriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Price Lists';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up purchase price lists for products that you buy from the vendor. An product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, "Price Amount Type"::Any);
+                    end;
+                }
+                action(PriceLines)
+                {
+                    AccessByPermission = TableData "Purchase Price Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Prices';
+                    Image = Price;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up purchase price lines for products that you buy from the vendor. A product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Price);
+                    end;
+                }
+                action(DiscountLines)
+                {
+                    AccessByPermission = TableData "Purchase Discount Access" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Purchase Discounts';
+                    Image = LineDiscount;
+                    Scope = Repeater;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you buy from the vendor. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceSource: Record "Price Source";
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        Rec.ToPriceSource(PriceSource);
+                        PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
+                    end;
+                }
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Prices';
                     Image = ResourcePrice;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Prices";
                     RunPageLink = "Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Vendor No.");
                     ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Line Discounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Line Discounts';
                     Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Purchase Line Discounts";
                     RunPageLink = "Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Vendor No.");
                     ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Prepa&yment Percentages")
                 {
@@ -798,51 +867,24 @@ page 35603 Vendors
         }
     }
 
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
+    var
+        ExtendedPriceEnabled: Boolean;
+
     [Scope('OnPrem')]
-    procedure GetSelectionFilter(): Code[80]
+    procedure GetSelectionFilter(): Text
     var
         Vend: Record Vendor;
-        FirstVend: Code[30];
-        LastVend: Code[30];
-        SelectionFilter: Code[250];
-        VendCount: Integer;
-        More: Boolean;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
     begin
         CurrPage.SetSelectionFilter(Vend);
-        VendCount := Vend.Count();
-        if VendCount > 0 then begin
-            Vend.Find('-');
-            while VendCount > 0 do begin
-                VendCount := VendCount - 1;
-                Vend.MarkedOnly(false);
-                FirstVend := Vend."No.";
-                LastVend := FirstVend;
-                More := (VendCount > 0);
-                while More do
-                    if Vend.Next() = 0 then
-                        More := false
-                    else
-                        if not Vend.Mark then
-                            More := false
-                        else begin
-                            LastVend := Vend."No.";
-                            VendCount := VendCount - 1;
-                            if VendCount = 0 then
-                                More := false;
-                        end;
-                if SelectionFilter <> '' then
-                    SelectionFilter := SelectionFilter + '|';
-                if FirstVend = LastVend then
-                    SelectionFilter := SelectionFilter + FirstVend
-                else
-                    SelectionFilter := SelectionFilter + FirstVend + '..' + LastVend;
-                if VendCount > 0 then begin
-                    Vend.MarkedOnly(true);
-                    Vend.Next;
-                end;
-            end;
-        end;
-        exit(SelectionFilter);
+        exit(SelectionFilterManagement.GetSelectionFilterForVendor(Vend));
     end;
 
     [Scope('OnPrem')]

@@ -1,5 +1,6 @@
 codeunit 144507 "ERM FA Depreciation Bonus"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

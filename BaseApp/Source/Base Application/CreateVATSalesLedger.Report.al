@@ -2,6 +2,8 @@ report 12456 "Create VAT Sales Ledger"
 {
     Caption = 'Create VAT Sales Ledger';
     ProcessingOnly = true;
+    Permissions = tabledata "VAT Ledger Line" = i,
+                  tabledata "VAT Ledger Connection" = i;
 
     dataset
     {

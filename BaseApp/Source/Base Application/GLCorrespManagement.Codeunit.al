@@ -13,7 +13,9 @@ codeunit 12404 "G/L Corresp. Management"
                   TableData "Value Entry" = rimd,
                   TableData "Service Ledger Entry" = rimd,
                   TableData "Warranty Ledger Entry" = rimd,
+                  TableData "G/L Correspondence" = rimd,
                   TableData "G/L Correspondence Entry" = rimd,
+                  TableData "G/L Corresp. Posting Buffer" = rimd,
                   TableData "VAT Ledger" = rimd,
                   TableData "VAT Ledger Line" = rimd;
 

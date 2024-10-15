@@ -2,6 +2,7 @@ codeunit 144017 "ERM Corrective Documents"
 {
     // // [FEATURE] [Corrective Documents]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

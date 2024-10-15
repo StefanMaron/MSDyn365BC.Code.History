@@ -2,11 +2,15 @@ codeunit 144102 "SCM Inventory reports"
 {
     // // [FEATURE] [SCM] [Report]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Document Print Buffer" = id,
+                  tabledata "Item Ledger Entry" = i,
+                  tabledata "Sales Invoice Header" = i,
+                  tabledata "Invt. Shipment Header" = i,
+                  tabledata "Invt. Shipment Line" = i,
+                  tabledata "Value Entry" = i,
+                  tabledata "Value Entry Relation" = i;
 
     var
         LibraryInventory: Codeunit "Library - Inventory";
@@ -58,7 +62,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         // Torg-1 Report. Partially Posted Purch. Order.
         RunReceiptDeviationsTorg2Report(
-          CreatePartialPostPurchDoc(TotalQtys), '', WorkDate, '', DATABASE::"Purchase Header", PurchaseHeader."Document Type"::Order.AsInteger());
+          CreatePartialPostPurchDoc(TotalQtys), '', WorkDate, '', Database::"Purchase Header", PurchaseHeader."Document Type"::Order.AsInteger());
         VerifyTorg2Totals(100, 95, TotalQtys);
     end;
 
@@ -72,7 +76,7 @@ codeunit 144102 "SCM Inventory reports"
         // Torg-1 Report. Print from Item Receipt Document
         RunReceiptDeviationsTorg2Report(
           CreateInvtReceiptDocument(TotalQtys),
-          '', WorkDate, '', DATABASE::"Invt. Document Header", InvtDocumentHeader."Document Type"::Receipt.AsInteger());
+          '', WorkDate, '', Database::"Invt. Document Header", InvtDocumentHeader."Document Type"::Receipt.AsInteger());
         VerifyTorg2Totals(100, 136, TotalQtys);
     end;
 
@@ -85,7 +89,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         // Torg-1 Report. Print from Posted Item Receipt Document.
         RunReceiptDeviationsTorg2Report(
-          PostItemDocument(CreateInvtReceiptDocument(TotalQtys)), '', WorkDate, '', DATABASE::"Invt. Receipt Header", 0);
+          PostItemDocument(CreateInvtReceiptDocument(TotalQtys)), '', WorkDate, '', Database::"Invt. Receipt Header", 0);
         VerifyTorg2Totals(100, 136, TotalQtys);
     end;
 
@@ -337,7 +341,7 @@ codeunit 144102 "SCM Inventory reports"
         MockInvtDocHeader(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment);
         MockInvtDocLine(InvtDocumentLine, InvtDocumentHeader);
         InvtDocumentLine."Item No." :=
-            LibraryUtility.GenerateRandomCode20(InvtDocumentLine.FieldNo("Item No."), DATABASE::"Invt. Document Line");
+            LibraryUtility.GenerateRandomCode20(InvtDocumentLine.FieldNo("Item No."), Database::"Invt. Document Line");
         InvtDocumentLine.Modify();
 
         // [WHEN] Run 'Item Write-off act TORG-16' report 
@@ -494,7 +498,7 @@ codeunit 144102 "SCM Inventory reports"
         with InvtDocumentHeader do begin
             Init;
             "Document Type" := DocType;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Invt. Document Header");
+            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), Database::"Invt. Document Header");
             Insert;
         end;
     end;
@@ -503,7 +507,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         with InvtShipmentHeader do begin
             Init;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Invt. Shipment Header");
+            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), Database::"Invt. Shipment Header");
             Insert;
         end;
     end;
@@ -571,7 +575,7 @@ codeunit 144102 "SCM Inventory reports"
             "Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, FieldNo("Entry No."));
             Positive := (InvtDocumentLine."Document Type" = InvtDocumentLine."Document Type"::Receipt);
             SetSource(
-              DATABASE::"Invt. Document Line",
+              Database::"Invt. Document Line",
               InvtDocumentLine."Document Type".AsInteger(), InvtDocumentLine."Document No.", InvtDocumentLine."Line No.", '', 0);
             "Appl.-to Item Entry" := AppliesToEntry;
             Insert;
@@ -582,7 +586,7 @@ codeunit 144102 "SCM Inventory reports"
     begin
         with SalesInvoiceHeader do begin
             Init;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Invoice Header");
+            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), Database::"Sales Invoice Header");
             "Corrective Document" := IsCorrDoc;
             "Corrective Doc. Type" := CorrDocType;
             Insert;
@@ -710,7 +714,7 @@ codeunit 144102 "SCM Inventory reports"
         CreateEmployee(Employee);
         with DocSignature do begin
             Init;
-            "Table ID" := DATABASE::"Invt. Document Header";
+            "Table ID" := Database::"Invt. Document Header";
             "Document Type" := 1;
             "Document No." := DocumentNo;
             "Employee Type" := EmployeeType;

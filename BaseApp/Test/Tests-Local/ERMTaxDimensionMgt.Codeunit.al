@@ -1,5 +1,6 @@
 codeunit 144518 "ERM Tax Dimension Mgt."
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

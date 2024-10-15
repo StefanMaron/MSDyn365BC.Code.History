@@ -3,6 +3,7 @@ codeunit 144013 "ERM Print Corr. Documents"
     // This codeunit have UTs that checks whether correction document should print or not in the sequence of invoice/credit memos, corrections and revisions.
     // In each test case you could see the sequence of documents (Invoice, Credit Memo, Correction, Revision) and the actions applied (Release, Post).
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

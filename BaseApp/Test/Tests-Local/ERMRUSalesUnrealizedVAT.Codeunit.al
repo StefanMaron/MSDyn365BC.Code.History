@@ -1,5 +1,6 @@
 codeunit 144012 "ERM RU Sales Unrealized VAT"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

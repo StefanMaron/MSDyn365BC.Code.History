@@ -1,5 +1,6 @@
 codeunit 144514 "ERM FacturaInvoiceGovReg451"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

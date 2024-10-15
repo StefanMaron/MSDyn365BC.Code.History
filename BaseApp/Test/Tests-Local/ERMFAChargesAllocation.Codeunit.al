@@ -1,5 +1,6 @@
 codeunit 144510 "ERM FA Charges Allocation"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

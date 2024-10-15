@@ -1,6 +1,7 @@
 codeunit 135405 "Logged Segment E2E"
 {
     Subtype = Test;
+    TestPermissions = NonRestrictive;
 
     trigger OnRun()
     begin

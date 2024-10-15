@@ -1,9 +1,6 @@
 codeunit 143015 "Library - Tax Accounting"
 {
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "FA Ledger Entry" = imd;
 
     var
         FASetup: Record "FA Setup";

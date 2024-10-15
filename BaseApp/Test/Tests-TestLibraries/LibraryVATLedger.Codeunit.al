@@ -1,11 +1,16 @@
 codeunit 143018 "Library - VAT Ledger"
 {
     // // [FEATURE] [VAT Ledger]
-
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Item Ledger Entry" = i,
+                  tabledata "Sales Cr.Memo Header" = i,
+                  tabledata "Sales Cr.Memo Line" = i,
+                  tabledata "Sales Invoice Header" = i,
+                  tabledata "Sales Invoice Line" = i,
+                  tabledata "VAT Ledger Line" = i,
+                  tabledata "VAT Ledger Line CD No." = i,
+                  tabledata "VAT Ledger Line Tariff No." = i,
+                  tabledata "Value Entry" = i,
+                  tabledata "VAT Entry" = im;
 
     var
         LibrarySales: Codeunit "Library - Sales";

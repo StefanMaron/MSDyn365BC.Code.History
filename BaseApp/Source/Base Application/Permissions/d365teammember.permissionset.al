@@ -630,6 +630,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Inter. Log Entry Comment Line" = RM,
                   tabledata "Interaction Group" = RM,
                   tabledata "Interaction Log Entry" = RIMD,
+                  tabledata "Interaction Merge Data" = RM,
                   tabledata "Interaction Template" = RM,
                   tabledata "Interaction Template Setup" = RM,
                   tabledata "Interaction Tmpl. Language" = RM,

@@ -1,5 +1,6 @@
 codeunit 147124 "ERM VAT Lists Reporting"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

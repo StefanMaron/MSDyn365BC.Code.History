@@ -1,10 +1,8 @@
 codeunit 144516 "ERM Create Tax Reg. Entry"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "FA Ledger Entry" = imd;
 
     var
         Assert: Codeunit Assert;

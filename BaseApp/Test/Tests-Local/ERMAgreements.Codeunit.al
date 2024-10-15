@@ -1,6 +1,9 @@
 codeunit 144508 "ERM Agreements"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
+    Permissions = tabledata "Vendor Ledger Entry" = imd,
+                  tabledata "Cust. Ledger Entry" = imd;
 
     trigger OnRun()
     begin

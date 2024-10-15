@@ -1,6 +1,6 @@
 codeunit 5632 "FA Jnl.-Post Line"
 {
-    Permissions = TableData "FA Ledger Entry" = r,
+    Permissions = TableData "FA Ledger Entry" = rm,
                   TableData "FA Register" = rm,
                   TableData "Maintenance Ledger Entry" = r,
                   TableData "Ins. Coverage Ledger Entry" = r;

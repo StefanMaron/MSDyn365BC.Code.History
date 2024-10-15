@@ -98,6 +98,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             Find('-');
             repeat
+                OnCodeOnBeforeUndoLoop(SalesShptLine);
                 TempGlobalItemLedgEntry.Reset();
                 if not TempGlobalItemLedgEntry.IsEmpty() then
                     TempGlobalItemLedgEntry.DeleteAll();
@@ -120,7 +121,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                     DocLineNo := GetCorrectionLineNo(SalesShptLine);
 
                 InsertNewShipmentLine(SalesShptLine, ItemShptEntryNo, DocLineNo);
-                OnAfterInsertNewShipmentLine(SalesShptLine, PostedWhseShptLine, PostedWhseShptLineFound, DocLineNo);
+                OnAfterInsertNewShipmentLine(SalesShptLine, PostedWhseShptLine, PostedWhseShptLineFound, DocLineNo, ItemShptEntryNo);
 
                 if PostedWhseShptLineFound then
                     WhseUndoQty.UndoPostedWhseShptLine(PostedWhseShptLine);
@@ -327,6 +328,8 @@ codeunit 5815 "Undo Sales Shipment Line"
     var
         SalesLine: Record "Sales Line";
     begin
+        OnBeforeUpdateOrderLine(SalesShptLine);
+
         with SalesShptLine do begin
             SalesLine.Get(SalesLine."Document Type"::Order, "Order No.", "Order Line No.");
             UndoPostingMgt.UpdateSalesLine(SalesLine, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry);
@@ -593,7 +596,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertNewShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var PostedWhseShptLineFound: Boolean; DocLineNo: Integer)
+    local procedure OnAfterInsertNewShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var PostedWhseShptLineFound: Boolean; DocLineNo: Integer; ItemShptEntryNo: Integer)
     begin
     end;
 
@@ -614,6 +617,16 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesShptLineModify(var SalesShptLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOrderLine(var SalesShptLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeUndoLoop(var SalesShptLine: Record "Sales Shipment Line")
     begin
     end;
 

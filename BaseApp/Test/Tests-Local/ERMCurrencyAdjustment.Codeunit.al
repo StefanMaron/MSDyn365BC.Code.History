@@ -2,6 +2,7 @@ codeunit 144103 "ERM Currency Adjustment"
 {
     // // [FEATURE] [Adjust Exchange Rates] [Dimensions]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

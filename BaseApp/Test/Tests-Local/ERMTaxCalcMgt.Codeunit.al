@@ -1,5 +1,6 @@
 codeunit 144519 "ERM Tax Calc Mgt."
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

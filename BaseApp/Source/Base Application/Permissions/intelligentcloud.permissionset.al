@@ -641,6 +641,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Inter. Log Entry Comment Line" = R,
                   tabledata "Interaction Group" = R,
                   tabledata "Interaction Log Entry" = R,
+                  tabledata "Interaction Merge Data" = R,
                   tabledata "Interaction Template" = R,
                   tabledata "Interaction Template Setup" = R,
                   tabledata "Interaction Tmpl. Language" = R,

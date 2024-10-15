@@ -64,7 +64,7 @@
         end;
         ReservEntry."Untracked Surplus" := InsertReservEntry."Untracked Surplus" and not ReservEntry.Positive;
 
-        OnCreateEntryOnBeforeSurplusCondition(ReservEntry);
+        OnCreateEntryOnBeforeSurplusCondition(ReservEntry, QtyToHandleAndInvoiceIsSet);
 
         if (Status = Status::Reservation) or (Status = Status::Tracking) then begin
             InsertReservEntry2.TestField("Source Type");
@@ -86,7 +86,7 @@
             ReservEntry2."Qty. per Unit of Measure" := InsertReservEntry2."Qty. per Unit of Measure";
             ReservEntry2."Untracked Surplus" := InsertReservEntry2."Untracked Surplus" and not ReservEntry2.Positive;
 
-            OnAfterCopyFromInsertReservEntry(InsertReservEntry2, ReservEntry2, ReservEntry);
+            OnAfterCopyFromInsertReservEntry(InsertReservEntry2, ReservEntry2, ReservEntry, Status, QtyToHandleAndInvoiceIsSet);
 
             if not QtyToHandleAndInvoiceIsSet then begin
                 ReservEntry2."Qty. to Handle (Base)" := ReservEntry2."Quantity (Base)";
@@ -173,6 +173,8 @@
         InsertReservEntry.CopyTrackingFromreservEntry(ForReservEntry);
 
         InsertReservEntry.TestField("Qty. per Unit of Measure");
+
+        OnAfterCreateReservEntryFor(InsertReservEntry, Sign);
     end;
 
 #if not CLEAN16
@@ -202,6 +204,8 @@
         InsertReservEntry2.CopyTrackingFromSpec(FromTrackingSpecification);
 
         InsertReservEntry2.TestField("Qty. per Unit of Measure");
+
+        OnAfterCreateReservEntryFrom(InsertReservEntry2);
     end;
 
 #if not CLEAN16
@@ -300,6 +304,7 @@
         OldReservEntry2: Record "Reservation Entry";
         FromTracingSpecification: Record "Tracking Specification";
     begin
+        OnBeforeCreateRemainingReservEntryProcedure(OldReservEntry);
         CreateReservEntryFor(
           OldReservEntry."Source Type", OldReservEntry."Source Subtype",
           OldReservEntry."Source ID", OldReservEntry."Source Batch Name",
@@ -317,6 +322,7 @@
                 FromTracingSpecification.SetSourceFromReservEntry((OldReservEntry2));
                 FromTracingSpecification."Qty. per Unit of Measure" := OldReservEntry2."Qty. per Unit of Measure";
                 FromTracingSpecification.CopyTrackingFromReservEntry(OldReservEntry2);
+                OnCreateRemainingReservEntryOnBeforeCreateReservEntryFrom(OldReservEntry2);
                 CreateReservEntryFrom(FromTracingSpecification);
                 InsertReservEntry2."Warranty Date" := OldReservEntry2."Warranty Date";
                 InsertReservEntry2."Expiration Date" := OldReservEntry2."Expiration Date";
@@ -444,7 +450,7 @@
             end;
         end else
             if Abs(TransferQty) < Abs(OldReservEntry."Quantity (Base)") then begin
-                OnBeforeUseOldReservEntry(OldReservEntry, InsertReservEntry);
+                OnBeforeUseOldReservEntry(OldReservEntry, InsertReservEntry, CurrSignFactor);
                 if OldReservEntry.Binding = OldReservEntry.Binding::"Order-to-Order" then
                     SetBinding(OldReservEntry.Binding::"Order-to-Order");
                 if OldReservEntry."Disallow Cancellation" then
@@ -869,6 +875,7 @@
         WhseItemTrkgQtyBase: Decimal;
         ReservEntryQtyBase: Decimal;
     begin
+        OnBeforeCreateWhseItemTrkgLines(ReservEntry);
         with WhseShipmentLine do begin
             SetSourceFilter(
               ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.", true);
@@ -996,7 +1003,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromInsertReservEntry(var InsertReservEntry: Record "Reservation Entry"; var ReservEntry: Record "Reservation Entry"; FromReservEntry: Record "Reservation Entry")
+    local procedure OnAfterCopyFromInsertReservEntry(var InsertReservEntry: Record "Reservation Entry"; var ReservEntry: Record "Reservation Entry"; FromReservEntry: Record "Reservation Entry"; Status: Enum "Reservation Status"; QtyToHandleAndInvoiceIsSet: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateReservEntryFor(var ReservationEntry: Record "Reservation Entry"; Sign: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateReservEntryFrom(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -1066,7 +1083,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateRemainingReservEntryProcedure(var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateRemainingNonSurplusReservEntry(var ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseItemTrkgLines(ReservationEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -1096,7 +1123,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUseOldReservEntry(var ReservEntry: Record "Reservation Entry"; var InsertReservEntry: Record "Reservation Entry")
+    local procedure OnBeforeUseOldReservEntry(var ReservEntry: Record "Reservation Entry"; var InsertReservEntry: Record "Reservation Entry"; CurrSignFactor: Integer)
     begin
     end;
 
@@ -1106,12 +1133,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateEntryOnBeforeSurplusCondition(var ReservEntry: Record "Reservation Entry")
+    local procedure OnCreateEntryOnBeforeSurplusCondition(var ReservEntry: Record "Reservation Entry"; QtyToHandleAndInvoiceIsSet: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservEntryExtraFields(var InsertReservEntry: Record "Reservation Entry"; OldTrackingSpecification: Record "Tracking Specification"; NewTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateRemainingReservEntryOnBeforeCreateReservEntryFrom(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 

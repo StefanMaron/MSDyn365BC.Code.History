@@ -2,6 +2,7 @@ codeunit 144719 "ERM Reconciliation Report"
 {
     // // [FEATURE] [Reports] [Reconciliation]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

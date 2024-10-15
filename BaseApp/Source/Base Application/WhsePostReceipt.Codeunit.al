@@ -132,7 +132,7 @@ codeunit 5760 "Whse.-Post Receipt"
             Clear(WhseJnlRegisterLine);
         end;
 
-        OnAfterCode(WhseRcptHeader);
+        OnAfterCode(WhseRcptHeader, WhseRcptLine);
     end;
 
     local procedure CheckUnitOfMeasureCode(WarehouseReceiptLine: Record "Warehouse Receipt Line")
@@ -1058,7 +1058,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure OnAfterCode(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 

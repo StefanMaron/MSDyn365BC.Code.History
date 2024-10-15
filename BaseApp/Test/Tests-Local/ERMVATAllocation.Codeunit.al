@@ -9,11 +9,9 @@ codeunit 144008 "ERM VAT Allocation"
     // VATAllocOnAdvStatementWithDimension                       89640
     // VATAllocOnAdvStatementWithCombinedDim                     89640
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "VAT Document Entry Buffer" = rimd;
 
     var
         VATAllocationLineRef: Record "VAT Allocation Line";

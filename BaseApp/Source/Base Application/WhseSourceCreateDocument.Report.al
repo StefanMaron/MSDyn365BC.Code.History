@@ -187,6 +187,7 @@ report 7305 "Whse.-Source - Create Document"
 
             trigger OnPreDataItem()
             begin
+                OnBeforeWhsePutAwayWorksheetLineOnPreDataItem("Whse. Put-away Worksheet Line");
                 if WhseDoc <> WhseDoc::"Put-away Worksheet" then
                     CurrReport.Break();
 
@@ -1210,6 +1211,11 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseItemTrackingLineModify(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWhsePutAwayWorksheetLineOnPreDataItem(var WhsePutawayWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
 }

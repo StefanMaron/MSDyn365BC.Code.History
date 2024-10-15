@@ -1,9 +1,6 @@
 codeunit 229 "Document-Print"
 {
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Document Print Buffer" = rimd;
 
     var
         Text001: Label '%1 is missing for %2 %3.';

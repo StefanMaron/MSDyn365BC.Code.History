@@ -6,6 +6,7 @@ codeunit 147110 "SCM Item Charge Assignment"
     // 3. SalesItemAssAfterPreview               343708
     // 4. SalesItemAssWithModifyAndPreview       343710
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

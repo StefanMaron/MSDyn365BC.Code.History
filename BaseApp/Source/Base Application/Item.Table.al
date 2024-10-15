@@ -5,7 +5,8 @@
     DrillDownPageID = "Item List";
     LookupPageID = "Item Lookup";
     Permissions = TableData "Service Item" = rm,
-                  TableData "Service Item Component" = rm;
+                  TableData "Service Item Component" = rm,
+                  TableData "Bin Content" = d;
 
     fields
     {
@@ -2727,6 +2728,7 @@
         InvtSetup.TestField("Item Nos.");
         if NoSeriesMgt.SelectSeries(InvtSetup."Item Nos.", xRec."No. Series", "No. Series") then begin
             NoSeriesMgt.SetSeries("No.");
+            Validate("No.");
             exit(true);
         end;
     end;
@@ -2873,9 +2875,10 @@
         end;
     end;
 
-    procedure IsMfgItem(): Boolean
+    procedure IsMfgItem() Result: Boolean
     begin
-        exit("Replenishment System" = "Replenishment System"::"Prod. Order");
+        Result := "Replenishment System" = "Replenishment System"::"Prod. Order";
+        OnAfterIsMfgItem(Rec, Result);
     end;
 
     procedure IsAssemblyItem(): Boolean
@@ -3653,6 +3656,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteRelatedData(Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsMfgItem(Item: Record Item; var Result: Boolean)
     begin
     end;
 

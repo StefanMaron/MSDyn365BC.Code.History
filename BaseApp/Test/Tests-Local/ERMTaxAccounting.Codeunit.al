@@ -1,10 +1,9 @@
 codeunit 144515 "ERM Tax Accounting"
 {
+    TestPermissions = NonRestrictive;
+    Permissions = tabledata "G/L Correspondence Entry" = rimd,
+                  tabledata "FA Ledger Entry" = im;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
 
     var
         Assert: Codeunit Assert;

@@ -10,11 +10,13 @@ codeunit 147126 "ERM Manual VAT Settlement"
     // 4. PurchUndeprFASettlement                330293
     // 5. PurchUndeprFASettlementWOutRelease     330294
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "VAT Entry" = imd,
+                  tabledata "Detailed Cust. Ledg. Entry" = imd,
+                  tabledata "Detailed Vendor Ledg. Entry" = imd,
+                  tabledata "Cust. Ledger Entry" = imd,
+                  tabledata "Vendor Ledger Entry" = imd;
 
     var
         LibrarySales: Codeunit "Library - Sales";

@@ -2103,7 +2103,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; CurrBinCode: Code[20]; BinCode: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeBinContentLookUp(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ZoneCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; CurrBinCode: Code[20]; var BinCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

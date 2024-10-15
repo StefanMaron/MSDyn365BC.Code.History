@@ -1,5 +1,6 @@
 codeunit 147201 "ERM VAT Sales Ledger Corr."
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

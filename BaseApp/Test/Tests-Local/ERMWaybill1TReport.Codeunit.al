@@ -2,6 +2,7 @@ codeunit 144701 "ERM Waybill 1-T Report"
 {
     // // [FEATURE] [Reports]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

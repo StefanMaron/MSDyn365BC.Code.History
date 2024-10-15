@@ -1,4 +1,4 @@
-page 283 "Recurring General Journal"
+﻿page 283 "Recurring General Journal"
 {
     AdditionalSearchTerms = 'accruals';
     ApplicationArea = Suite, FixedAssets;
@@ -752,9 +752,15 @@ page 283 "Recurring General Journal"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
-                    RunObject = Codeunit "Gen. Jnl.-Post";
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
+
+                    trigger OnAction()
+                    var
+                    begin
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
+                        CurrPage.Update(false);
+                    end;
                 }
                 action(Preview)
                 {

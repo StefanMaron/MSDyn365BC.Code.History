@@ -2,11 +2,9 @@ codeunit 144101 "ERM G/L Reports"
 {
     // // [FEATURE] [Reports]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "G/L Entry" = rimd;
 
     var
         LibraryERM: Codeunit "Library - ERM";

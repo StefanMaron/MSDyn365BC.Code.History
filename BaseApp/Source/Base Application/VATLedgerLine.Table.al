@@ -1,6 +1,9 @@
 table 12405 "VAT Ledger Line"
 {
     Caption = 'VAT Ledger Line';
+    Permissions = tabledata "VAT Ledger Line Tariff No." = d,
+                  tabledata "VAT Ledger Line CD No." = d,
+                  tabledata "VAT Ledger Connection" = d;
 
     fields
     {
@@ -235,7 +238,7 @@ table 12405 "VAT Ledger Line"
                 VATLedgerLineTariffNo: Record "VAT Ledger Line Tariff No.";
             begin
                 VATLedgerLineTariffNo.SetFilterVATLedgerLine(Rec);
-                PAGE.Run(PAGE::"VAT Ledger Line Tariff No.", VATLedgerLineTariffNo);
+                Page.Run(Page::"VAT Ledger Line Tariff No.", VATLedgerLineTariffNo);
             end;
         }
         field(12464; "VAT Correction"; Boolean)

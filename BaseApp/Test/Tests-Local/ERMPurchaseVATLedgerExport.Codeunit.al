@@ -3,11 +3,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
     //   // [FEATURE] [VAT Ledger] [Purchase]
     // // Empty VersionList not to run tests in Snap
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "VAT Entry" = imd;
 
     var
         LibraryRandom: Codeunit "Library - Random";
@@ -1230,9 +1228,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         LibraryReportValidation.VerifyCellValue(
           RowNo, 125, GetCurrDescription(PurchInvHeader."Currency Code"));
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 136, FormatValue(PurchInvLine."Amount Including VAT")); // Column 15
+            RowNo, 126, FormatValue(PurchInvLine."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 152, FormatValue(PurchInvLine."Amount Including VAT (LCY)" - PurchInvLine."Amount (LCY)")); // Column 16
+            RowNo, 142, FormatValue(PurchInvLine."Amount Including VAT (LCY)" - PurchInvLine."Amount (LCY)")); // Column 16
     end;
 
     local procedure VerifyVATLedgExportConventionalRelational(InvNo: Code[20])
@@ -1245,9 +1243,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         GetPurchInvHeader(InvNo, PurchInvHeader, PurchInvLine);
         LibraryReportValidation.VerifyCellValue(RowNo, 125, ''); // Column 14
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 136, FormatValue(PurchInvLine."Amount Including VAT (LCY)")); // Column 15
+            RowNo, 126, FormatValue(PurchInvLine."Amount Including VAT (LCY)")); // Column 15
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 152, FormatValue(PurchInvLine."Amount Including VAT (LCY)" - PurchInvLine."Amount (LCY)")); // Column 16
+            RowNo, 142, FormatValue(PurchInvLine."Amount Including VAT (LCY)" - PurchInvLine."Amount (LCY)")); // Column 16
     end;
 
     local procedure VerifyVATLedgExportCorrection(CorInvNo: Code[20])
@@ -1261,9 +1259,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         LibraryReportValidation.VerifyCellValue(
           RowNo, 32, PurchInvHeader."No." + '; ' + Format(PurchInvHeader."Document Date")); // Column 5
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 136, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
+            RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 152, FormatValue(PurchInvHeader."Amount Including VAT" - PurchInvLine.Amount)); // Column 16
+            RowNo, 142, FormatValue(PurchInvHeader."Amount Including VAT" - PurchInvLine.Amount)); // Column 16
     end;
 
     local procedure VerifyVATLedgExportRevision(RevInvNo: Code[20])
@@ -1277,9 +1275,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         LibraryReportValidation.VerifyCellValue(
           RowNo, 23, PurchInvHeader."Revision No." + '; ' + Format(PurchInvHeader."Document Date")); // Column 5
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 136, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
+            RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 152, FormatValue(PurchInvHeader."Amount Including VAT" - PurchInvHeader.Amount)); // Column 16
+            RowNo, 142, FormatValue(PurchInvHeader."Amount Including VAT" - PurchInvHeader.Amount)); // Column 16
     end;
 
     local procedure VerifyVATLedgExportRevCorr(CorInvNo: Code[20]; RevInvNo: Code[20])
@@ -1300,9 +1298,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
           RowNo, 41, RevPurchInvHeader."Revision No." + '; ' + Format(RevPurchInvHeader."Document Date")); // Column 5
 
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 136, FormatValue(RevPurchInvHeader."Amount Including VAT")); // Column 15
+            RowNo, 126, FormatValue(RevPurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 152, FormatValue(RevPurchInvHeader."Amount Including VAT" - RevPurchInvHeader.Amount)); // Column 16
+            RowNo, 142, FormatValue(RevPurchInvHeader."Amount Including VAT" - RevPurchInvHeader.Amount)); // Column 16
     end;
 
     local procedure VerifyVATLedgExportImportFullVAT(InvNo: Code[20]; PayDocNo: Code[20]; PayDocDate: Date)
@@ -1317,9 +1315,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         LibraryReportValidation.VerifyCellValue(
           RowNo, 50, PayDocNo + '; ' + Format(PayDocDate)); // Column 7
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 136, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
+            RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 152, FormatValue(PurchInvHeader."Amount Including VAT" - PurchInvHeader.Amount)); // Column 16
+            RowNo, 142, FormatValue(PurchInvHeader."Amount Including VAT" - PurchInvHeader.Amount)); // Column 16
     end;
 
     local procedure VerifyVATLedgExportImportFullVATExtDocNo(InvNo: Code[20]; PayDocNo: Code[20]; PayDocDate: Date; VendVATInvNo: Code[30]; VendorVATInvDate: Date)
@@ -1335,9 +1333,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         LibraryReportValidation.VerifyCellValue(
           RowNo, 50, PayDocNo + '; ' + Format(PayDocDate)); // Column 7
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 136, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
+            RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 152, FormatValue(PurchInvHeader."Amount Including VAT" - PurchInvHeader.Amount)); // Column 16
+            RowNo, 142, FormatValue(PurchInvHeader."Amount Including VAT" - PurchInvHeader.Amount)); // Column 16
     end;
 
     local procedure VerifyVATLedgExportTwoPayments(VendorNo: Code[20])
@@ -1369,9 +1367,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
         LibraryReportValidation.VerifyCellValue(
           RowNo, 50, PayDocNo + '; ' + Format(PayDocDate)); // Column 7
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 136, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
+            RowNo, 126, FormatValue(PurchInvHeader."Amount Including VAT")); // Column 15
         LibraryReportValidation.VerifyCellValue(
-          RowNo, 152, FormatValue(CalcVATAgentEntryAmount(PurchInvHeader."Buy-from Vendor No."))); // Column 16
+            RowNo, 142, FormatValue(CalcVATAgentEntryAmount(PurchInvHeader."Buy-from Vendor No."))); // Column 16
     end;
 
     local procedure VerifyVATLedgExportCVCellValue(ExpectedCV: Text)
@@ -1416,9 +1414,9 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
 
     local procedure VerifyExcelRowBasicAmount(RowNo: Integer; Amount: Decimal; VATAmount: Decimal)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 136, FormatValue(Amount)); // Column 15
-        LibraryReportValidation.VerifyCellValue(RowNo, 152, FormatValue(VATAmount)); // Column 16
-        LibraryReportValidation.VerifyCellValue(RowNo + 1, 152, FormatValue(VATAmount)); // Total Column 16
+        LibraryReportValidation.VerifyCellValue(RowNo, 126, FormatValue(Amount)); // Column 15
+        LibraryReportValidation.VerifyCellValue(RowNo, 142, FormatValue(VATAmount)); // Column 16
+        LibraryReportValidation.VerifyCellValue(RowNo + 1, 142, FormatValue(VATAmount)); // Total Column 16
     end;
 
     local procedure VerifyVATLedgExportCustomerPrepayment(SalesHeader: Record "Sales Header")
@@ -1441,7 +1439,7 @@ codeunit 147141 "ERM Purchase VAT Ledger Export"
 
     local procedure VerifyVATLedgExportVATAgentPrepayment(AmountText: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(19, 136, AmountText);
+        LibraryReportValidation.VerifyCellValue(19, 126, AmountText);
     end;
 }
 

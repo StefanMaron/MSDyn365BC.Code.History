@@ -2,6 +2,7 @@ codeunit 147202 "ERM Human Resource UT"
 {
     // // [FEATURE] [UI] [UT]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

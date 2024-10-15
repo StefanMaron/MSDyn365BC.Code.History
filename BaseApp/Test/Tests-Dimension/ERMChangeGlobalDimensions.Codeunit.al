@@ -197,6 +197,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimensionsPage."Old Global Dimension 2 Code".AssertEquals(DimensionValue[1]."Dimension Code");
     end;
 
+    /* Test removed due to table "Dtld. Entry With Global Dim 2" missed in the license. Will be restored in 19.0.
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -247,6 +248,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", DimensionValue[2]."Dimension Code");
         GeneralLedgerSetup.TestField("Global Dimension 2 Code", DimensionValue[1]."Dimension Code");
     end;
+    */
 
     [Test]
     [Scope('OnPrem')]
@@ -308,6 +310,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim.TestField("Shortcut Dimension 2 Code", DimensionValue[2].Code);
     end;
 
+    /* Test removed due to table "Dtld. Entry With Global Dim 2" missed in the license. Will be restored in 19.0.
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -360,6 +363,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", DimensionValue[2]."Dimension Code");
         GeneralLedgerSetup.TestField("Global Dimension 2 Code", DimensionValue[1]."Dimension Code");
     end;
+    */
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1228,6 +1232,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.ExpectedError(StrSubstNo(DimIsUsedInGLSetupErr, DimensionValue[3]."Dimension Code"));
     end;
 
+    /* Test removed due to table "Dtld. Entry With Global Dim 2" missed in the license. Will be restored in 19.0.
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -1320,6 +1325,7 @@ codeunit 134483 "ERM Change Global Dimensions"
             Assert.IsFalse(Get("Object Type"::Table, DATABASE::"Job Task"), '1001');
         end;
     end;
+    */
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1893,6 +1899,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.IsTrue(IsNullGuid(ChangeGlobalDimLogEntry."Task ID"), 'Task ID should be null');
     end;
 
+    /* Test removed due to table "Dtld. Entry With Global Dim 2" missed in the license. Will be restored in 19.0.
     [Test]
     [Scope('OnPrem')]
     procedure T306_DependentTableIsScheduledByParentTable()
@@ -1933,11 +1940,11 @@ codeunit 134483 "ERM Change Global Dimensions"
         // [GIVEN] Run Prepare()
         BindSubscription(ERMChangeGlobalDimensions);
         ExpectedTaskID :=
-          MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
+            MockTaskScheduling(ERMChangeGlobalDimensions, DATABASE::"Table With Dimension Set ID");
         MockTaskScheduling(
-          ERMChangeGlobalDimensions, DATABASE::"Detailed Entry With Global Dim");
+            ERMChangeGlobalDimensions, DATABASE::"Detailed Entry With Global Dim");
         MockTaskScheduling(
-          ERMChangeGlobalDimensions, DATABASE::"Dtld. Entry With Global Dim 2");
+            ERMChangeGlobalDimensions, DATABASE::"Dtld. Entry With Global Dim 2");
         ChangeGlobalDimensions.Prepare;
 
         // [WHEN] Run Start()
@@ -1959,6 +1966,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry.TestField("Task ID", ExpectedTaskID);
         ChangeGlobalDimLogEntry.TestField("Parent Table ID", DATABASE::"Table With Dimension Set ID");
     end;
+    */
 
     [Test]
     [Scope('OnPrem')]
@@ -2013,6 +2021,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         ChangeGlobalDimLogEntry.TestField("Task ID", ExpectedTaskID);
     end;
 
+    /* Test removed due to table "Dtld. Entry With Global Dim 2" missed in the license. Will be restored in 19.0.
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -2075,9 +2084,9 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryLowerPermissions.SetOutsideO365Scope;
         Initialize;
         Assert.AreEqual(
-          DATABASE::"Table With Dimension Set ID", GetParentTableNo(DATABASE::"Detailed Entry With Global Dim"), 'Parent for 134485');
+            DATABASE::"Table With Dimension Set ID", GetParentTableNo(DATABASE::"Detailed Entry With Global Dim"), 'Parent for 134485');
         Assert.AreEqual(
-          DATABASE::"Table With Dimension Set ID", GetParentTableNo(DATABASE::"Dtld. Entry With Global Dim 2"), 'Parent for 134486');
+            DATABASE::"Table With Dimension Set ID", GetParentTableNo(DATABASE::"Dtld. Entry With Global Dim 2"), 'Parent for 134486');
         Assert.AreEqual(DATABASE::"Cust. Ledger Entry", GetParentTableNo(DATABASE::"Detailed Cust. Ledg. Entry"), 'Parent for 379');
         Assert.AreEqual(DATABASE::"Vendor Ledger Entry", GetParentTableNo(DATABASE::"Detailed Vendor Ledg. Entry"), 'Parent for 380');
         Assert.AreEqual(0, GetParentTableNo(DATABASE::"CV Ledger Entry Buffer"), 'Parent for 382');
@@ -2111,20 +2120,20 @@ codeunit 134483 "ERM Change Global Dimensions"
         BindSubscription(ERMChangeGlobalDimensions);
         TaskID := MockTaskScheduling(ERMChangeGlobalDimensions, ChangeGlobalDimLogEntry[1]."Table ID");
         MockScheduledLogEntry(
-          ParentChangeGlobalDimLogEntry, DATABASE::"Table With Dimension Set ID", 0, 1);
+            ParentChangeGlobalDimLogEntry, DATABASE::"Table With Dimension Set ID", 0, 1);
         ParentChangeGlobalDimLogEntry."Is Parent Table" := true;
         ParentChangeGlobalDimLogEntry."Task ID" := TaskID;
         ParentChangeGlobalDimLogEntry.UpdateStatus;
         ParentChangeGlobalDimLogEntry.Modify();
         // [GIVEN] First Dependent entry, where "Table ID" = 134485, "Parent Table ID" = 134483, "Status" = 'Scheduled'
         MockScheduledLogEntry(
-          ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", 0, 1);
+            ChangeGlobalDimLogEntry[1], DATABASE::"Detailed Entry With Global Dim", 0, 1);
         ChangeGlobalDimLogEntry[1]."Task ID" := TaskID;
         ChangeGlobalDimLogEntry[1].UpdateStatus;
         ChangeGlobalDimLogEntry[1].Modify();
         // [GIVEN] Second Dependent entry, where "Table ID" = 134486, "Parent Table ID" = 134483, "Status" = 'Scheduled'
         MockScheduledLogEntry(
-          ChangeGlobalDimLogEntry[2], DATABASE::"Dtld. Entry With Global Dim 2", 0, 1);
+            ChangeGlobalDimLogEntry[2], DATABASE::"Dtld. Entry With Global Dim 2", 0, 1);
         ChangeGlobalDimLogEntry[2]."Task ID" := TaskID;
         ChangeGlobalDimLogEntry[2].UpdateStatus;
         ChangeGlobalDimLogEntry[2].Modify();
@@ -2137,6 +2146,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Assert.IsFalse(ChangeGlobalDimLogEntry[1].Find, '1st Dependent entry must be deleted.');
         Assert.IsFalse(ChangeGlobalDimLogEntry[2].Find, '2nd Dependent entry must be deleted.');
     end;
+    */
 
     [Test]
     [Scope('OnPrem')]
@@ -3143,6 +3153,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         JobTask.TestField("Global Dimension 2 Code", DimensionValue[2].Code);
     end;
 
+    /* Test removed due to table "Dtld. Entry With Global Dim 2" missed in the license. Will be restored in 19.0.
     [Test]
     [Scope('OnPrem')]
     procedure T408_DependentTableGetsDimCodesFromParent()
@@ -3173,8 +3184,8 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetup.Modify();
         // [GIVEN] ChangeGlobalDimLogEntry for table "Table With Dimension Set ID", where "Status" is "Scheduled","Is Parent Table" is 'Yes'
         MockScheduledLogEntry(
-          ChangeGlobalDimLogEntry[1], DATABASE::"Table With Dimension Set ID",
-          ChangeGlobalDimLogEntry[1]."Change Type 1"::Replace, ChangeGlobalDimLogEntry[1]."Change Type 2"::Replace);
+            ChangeGlobalDimLogEntry[1], DATABASE::"Table With Dimension Set ID",
+            ChangeGlobalDimLogEntry[1]."Change Type 1"::Replace, ChangeGlobalDimLogEntry[1]."Change Type 2"::Replace);
         ChangeGlobalDimLogEntry[1]."Is Parent Table" := true;
         ChangeGlobalDimLogEntry[1].Modify();
         // [GIVEN] ChangeGlobalDimLogEntry for 1st dependent table, where "Status" is " "
@@ -3200,6 +3211,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDimensionSetID.Find;
         VerifyDependentRecords(TableWithDimensionSetID);
     end;
+    */
 
     [Test]
     [Scope('OnPrem')]
@@ -3760,7 +3772,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim: Record "Table With Default Dim";
         TableWithDimensionSetID: Record "Table With Dimension Set ID";
         DetailedEntryWithGlobalDim: Record "Detailed Entry With Global Dim";
-        DtldEntryWithGlobalDim2: Record "Dtld. Entry With Global Dim 2";
+        // DtldEntryWithGlobalDim2: Record "Dtld. Entry With Global Dim 2";
         UserSetup: Record "User Setup";
         ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
     begin
@@ -3772,7 +3784,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         TableWithDefaultDim.DeleteAll();
         TableWithDimensionSetID.DeleteAll();
         DetailedEntryWithGlobalDim.DeleteAll();
-        DtldEntryWithGlobalDim2.DeleteAll();
+        // DtldEntryWithGlobalDim2.DeleteAll();
         UserSetup.DeleteAll();
         UnbindSubscription(ChangeGlobalDimLogMgt);
         if IsInitialized then
@@ -3884,7 +3896,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     var
         TableWithDimensionSetID: Record "Table With Dimension Set ID";
         DetailedEntryWithGlobalDim: Record "Detailed Entry With Global Dim";
-        DtldEntryWithGlobalDim2: Record "Dtld. Entry With Global Dim 2";
+        // DtldEntryWithGlobalDim2: Record "Dtld. Entry With Global Dim 2";
         I: Integer;
     begin
         TableWithDimensionSetID.DeleteAll();
@@ -3898,12 +3910,14 @@ codeunit 134483 "ERM Change Global Dimensions"
                         DetailedEntryWithGlobalDim."Parent Entry No." := TableWithDimensionSetID."Entry No.";
                         DetailedEntryWithGlobalDim.Insert();
                     end;
+            /* Test removed due to table "Dtld. Entry With Global Dim 2" missed in the license. Will be restored in 19.0.
                 DATABASE::"Dtld. Entry With Global Dim 2":
                     begin
                         DtldEntryWithGlobalDim2."Entry No." := 0; // autoinc
                         DtldEntryWithGlobalDim2."Parent Entry No." := TableWithDimensionSetID."Entry No.";
                         DtldEntryWithGlobalDim2.Insert();
                     end;
+            */
             end;
         end;
         DependentChangeGlobalDimLogEntry.Init();
@@ -3926,7 +3940,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     local procedure CreateDependentRecords(TableWithDimensionSetID: Record "Table With Dimension Set ID"; DependentTableNo: integer; NoOfRecords: Integer)
     var
         DetailedEntryWithGlobalDim: Record "Detailed Entry With Global Dim";
-        DtldEntryWithGlobalDim2: Record "Dtld. Entry With Global Dim 2";
+        // DtldEntryWithGlobalDim2: Record "Dtld. Entry With Global Dim 2";
         RecNo: Integer;
     begin
         case DependentTableNo of
@@ -3942,6 +3956,7 @@ codeunit 134483 "ERM Change Global Dimensions"
                         DetailedEntryWithGlobalDim.Insert();
                     end;
                 end;
+        /* Test removed due to table "Dtld. Entry With Global Dim 2" missed in the license. Will be restored in 19.0.
             DATABASE::"Dtld. Entry With Global Dim 2":
                 begin
                     DtldEntryWithGlobalDim2."Entry No." := 0;
@@ -3954,6 +3969,7 @@ codeunit 134483 "ERM Change Global Dimensions"
                         DtldEntryWithGlobalDim2.Insert();
                     end;
                 end;
+        */
         end;
     end;
 

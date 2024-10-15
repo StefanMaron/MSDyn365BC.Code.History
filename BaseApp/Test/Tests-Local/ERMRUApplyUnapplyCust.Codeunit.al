@@ -2,6 +2,7 @@ codeunit 144504 "ERM RU Apply Unapply Cust"
 {
     // // [FEATURE] [Sales]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

@@ -5,6 +5,7 @@ codeunit 144015 "ERM RU Void Check"
     // UnapplyAndVoidMultiplePurchApplication        91336
     // UnapplyAndVoidMultipleSalesApplication        91336
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

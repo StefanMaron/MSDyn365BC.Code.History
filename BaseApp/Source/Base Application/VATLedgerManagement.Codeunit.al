@@ -1,9 +1,8 @@
 codeunit 12423 "VAT Ledger Management"
 {
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "VAT Ledger Line Tariff No." = imd,
+                  tabledata "VAT Ledger Line CD No." = imd,
+                  tabledata "VAT Ledger Line" = imd;
 
     var
         MultipleCDNoTxt: Label 'DIFFERENT', Comment = 'Means that there are several different "CD No." values';

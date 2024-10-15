@@ -1,9 +1,6 @@
 codeunit 143016 "Library RU Reports"
 {
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "FA Ledger Entry" = i;
 
     var
         LibrarySales: Codeunit "Library - Sales";
@@ -964,7 +961,7 @@ codeunit 143016 "Library RU Reports"
     [Scope('OnPrem')]
     procedure VerifyFactura_DocNo(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'BO', 2, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'BN', 2, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
@@ -982,7 +979,7 @@ codeunit 143016 "Library RU Reports"
     [Scope('OnPrem')]
     procedure VerifyFactura_SellerINN(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'W', 9, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'Y', 9, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
@@ -994,97 +991,103 @@ codeunit 143016 "Library RU Reports"
     [Scope('OnPrem')]
     procedure VerifyFactura_BuyerName(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'O', 13, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'O', 14, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_BuyerAddress(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'J', 14, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'J', 15, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_BuyerINN(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'AA', 15, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AA', 16, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
-    procedure VerifyFactura_ItemNo(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
+    procedure VerifyFactura_LineNo(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
         VerifyExcelReportValue(FileName, 'A', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
+    procedure VerifyFactura_ItemNo(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
+    begin
+        VerifyExcelReportValue(FileName, 'E', 23 + RowOffset, ExpectedValue);
+    end;
+
+    [Scope('OnPrem')]
     procedure VerifyFactura_TariffNo(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'W', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AA', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_Unit(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'AD', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AH', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_UnitName(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'AK', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AN', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_Qty(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'AV', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AY', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_Price(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'BE', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'BH', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_Amount(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'BQ', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'BT', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_VATPct(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'CQ', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'CT', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_VATAmount(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'CY', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'DB', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_AmountInclVAT(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'DK', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'DN', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_CountryCode(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'EA', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'ED', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_CountryName(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'EH', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'EK', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyFactura_GTD(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'EV', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'EY', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
@@ -1096,19 +1099,19 @@ codeunit 143016 "Library RU Reports"
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_DocNo(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'AA', 8, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'Y', 8, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_CorrDocDate(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'AI', 6, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AL', 6, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_DocDate(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'AI', 8, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AL', 8, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
@@ -1150,73 +1153,79 @@ codeunit 143016 "Library RU Reports"
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_CurrencyName(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'Y', 16, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'Z', 16, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_CurrencyCode(FileName: Text; ExpectedValue: Text)
     begin
-        VerifyExcelReportValue(FileName, 'BV', 16, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'BS', 16, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
-    procedure VerifyCorrFactura_ItemNo(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
+    procedure VerifyCorrFactura_LineNo(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
         VerifyExcelReportValue(FileName, 'A', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
+    procedure VerifyCorrFactura_ItemNo(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
+    begin
+        VerifyExcelReportValue(FileName, 'E', 23 + RowOffset, ExpectedValue);
+    end;
+
+    [Scope('OnPrem')]
     procedure VerifyCorrFactura_TariffNo(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'Z', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AA', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_UOMCode(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'AB', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AC', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_UOMName(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'AI', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AJ', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_Qty(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'AU', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'AV', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_Price(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'BE', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'BF', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_Amount(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'BQ', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'BR', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_VATPct(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'CS', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'CT', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_VATAmount(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'DC', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'DD', 23 + RowOffset, ExpectedValue);
     end;
 
     [Scope('OnPrem')]
     procedure VerifyCorrFactura_AmountInclVAT(FileName: Text; ExpectedValue: Text; RowOffset: Integer)
     begin
-        VerifyExcelReportValue(FileName, 'DN', 23 + RowOffset, ExpectedValue);
+        VerifyExcelReportValue(FileName, 'DO', 23 + RowOffset, ExpectedValue);
     end;
 
     local procedure VerifyExcelReportValue(FileName: Text; ColumnName: Text; RowNo: Integer; ExpectedValue: Text)

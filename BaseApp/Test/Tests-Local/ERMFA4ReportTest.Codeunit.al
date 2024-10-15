@@ -1,10 +1,11 @@
 codeunit 144717 "ERM FA-4 Report Test"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Default Signature Setup" = imd,
+                  tabledata "Invt. Receipt Line" = imd,
+                  tabledata "Posted FA Doc. Header" = imd,
+                  tabledata "Posted FA Doc. Line" = imd;
 
     var
         Assert: Codeunit Assert;
@@ -20,56 +21,56 @@ codeunit 144717 "ERM FA-4 Report Test"
     [Scope('OnPrem')]
     procedure SingleLineFAWriteOffFA4()
     begin
-        FAWriteoffAct(REPORT::"FA Write-off Act FA-4", false);
+        FAWriteoffAct(Report::"FA Write-off Act FA-4", false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure MultipleLineFAWriteOffFA4()
     begin
-        FAWriteoffAct(REPORT::"FA Write-off Act FA-4", true);
+        FAWriteoffAct(Report::"FA Write-off Act FA-4", true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SingleLinePostedFAWriteOffFA4()
     begin
-        FAPostedWriteoffAct(REPORT::"FA Posted Writeoff Act FA-4", false);
+        FAPostedWriteoffAct(Report::"FA Posted Writeoff Act FA-4", false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure MultipleLinePostedFAWriteOffFA4()
     begin
-        FAPostedWriteoffAct(REPORT::"FA Posted Writeoff Act FA-4", true);
+        FAPostedWriteoffAct(Report::"FA Posted Writeoff Act FA-4", true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SingleLineFAWriteOffFA4a()
     begin
-        FAWriteoffAct(REPORT::"FA Writeoff Act FA-4a", false);
+        FAWriteoffAct(Report::"FA Writeoff Act FA-4a", false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure MultipleLineFAWriteOffFA4a()
     begin
-        FAWriteoffAct(REPORT::"FA Writeoff Act FA-4a", true);
+        FAWriteoffAct(Report::"FA Writeoff Act FA-4a", true);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SingleLinePostedFAWriteOffFA4a()
     begin
-        FAPostedWriteoffAct(REPORT::"Posted FA Writeoff Act FA-4a", false);
+        FAPostedWriteoffAct(Report::"Posted FA Writeoff Act FA-4a", false);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure MultipleLinePostedFAWriteOffFA4a()
     begin
-        FAPostedWriteoffAct(REPORT::"Posted FA Writeoff Act FA-4a", true);
+        FAPostedWriteoffAct(Report::"Posted FA Writeoff Act FA-4a", true);
     end;
 
     local procedure FAWriteoffAct(ReportID: Integer; MultipleLine: Boolean)
@@ -296,9 +297,9 @@ codeunit 144717 "ERM FA-4 Report Test"
     local procedure RunReport(FADocHeader: Record "FA Document Header"; ReportID: Integer)
     begin
         case ReportID of
-            REPORT::"FA Write-off Act FA-4":
+            Report::"FA Write-off Act FA-4":
                 RunFAWriteOffFA4(FADocHeader);
-            REPORT::"FA Writeoff Act FA-4a":
+            Report::"FA Writeoff Act FA-4a":
                 RunFAWriteOffFA4a(FADocHeader);
         end;
     end;
@@ -306,9 +307,9 @@ codeunit 144717 "ERM FA-4 Report Test"
     local procedure RunPostedReport(PostedFADocHeader: Record "Posted FA Doc. Header"; ReportID: Integer)
     begin
         case ReportID of
-            REPORT::"FA Posted Writeoff Act FA-4":
+            Report::"FA Posted Writeoff Act FA-4":
                 RunPostedFAWriteOffFA4(PostedFADocHeader);
-            REPORT::"Posted FA Writeoff Act FA-4a":
+            Report::"Posted FA Writeoff Act FA-4a":
                 RunPostedFAWriteOffFA4a(PostedFADocHeader);
         end;
     end;
@@ -395,10 +396,10 @@ codeunit 144717 "ERM FA-4 Report Test"
             RowShift := 0;
             repeat
                 case ReportID of
-                    REPORT::"FA Write-off Act FA-4":
+                    Report::"FA Write-off Act FA-4":
                         VerifyFAWriteoffFA4Results(
                           "FA No.", Description, "Depreciation Book Code", "Item Receipt No.", ReportID, RowShift);
-                    REPORT::"FA Writeoff Act FA-4a":
+                    Report::"FA Writeoff Act FA-4a":
                         VerifyFAWriteoffFA4aResults(
                           "FA No.", "Depreciation Book Code", "Item Receipt No.", ReportID, RowShift);
                 end;
@@ -419,10 +420,10 @@ codeunit 144717 "ERM FA-4 Report Test"
             RowShift := 0;
             repeat
                 case ReportID of
-                    REPORT::"FA Posted Writeoff Act FA-4":
+                    Report::"FA Posted Writeoff Act FA-4":
                         VerifyFAWriteoffFA4Results(
                           "FA No.", Description, "Depreciation Book Code", "Item Receipt No.", ReportID, RowShift);
-                    REPORT::"Posted FA Writeoff Act FA-4a":
+                    Report::"Posted FA Writeoff Act FA-4a":
                         VerifyFAWriteoffFA4aResults(
                           "FA No.", "Depreciation Book Code", "Item Receipt No.", ReportID, RowShift);
                 end;
@@ -447,14 +448,14 @@ codeunit 144717 "ERM FA-4 Report Test"
         LibraryReportValidation.VerifyCellValue(LineRowID, 40, FA."Manufacturing Year");
         LibraryReportValidation.VerifyCellValue(LineRowID, 50, Format(FA."Initial Release Date"));
         case ReportID of
-            REPORT::"FA Write-off Act FA-4":
+            Report::"FA Write-off Act FA-4":
                 begin
                     LibraryReportValidation.VerifyCellValue(LineRowID, 70, Format(FADepreciationBook."Acquisition Cost"));
                     LibraryReportValidation.VerifyCellValue(LineRowID, 80, Format(Abs(FADepreciationBook.Depreciation)));
                     LibraryReportValidation.VerifyCellValue(LineRowID, 90, Format(FADepreciationBook."Book Value"));
                     VerifyItemDocLine(ReceiptNo, 2);
                 end;
-            REPORT::"FA Posted Writeoff Act FA-4":
+            Report::"FA Posted Writeoff Act FA-4":
                 begin
                     LibraryReportValidation.VerifyCellValue(LineRowID, 70, Format(Abs(FADepreciationBook."Acquisition Cost")));
                     LibraryReportValidation.VerifyCellValue(LineRowID, 80, Format(Abs(FADepreciationBook.Depreciation)));
@@ -486,14 +487,14 @@ codeunit 144717 "ERM FA-4 Report Test"
         LibraryReportValidation.VerifyCellValue(LineRowID, 50, Format(FA."Run after Release Date"));
         LibraryReportValidation.VerifyCellValue(LineRowID, 60, Format(FA."Run after Renovation Date"));
         case ReportID of
-            REPORT::"FA Write-off Act FA-4":
+            Report::"FA Write-off Act FA-4":
                 begin
                     LibraryReportValidation.VerifyCellValue(LineRowID, 70, Format(Abs(FADepreciationBook."Initial Acquisition Cost")));
                     LibraryReportValidation.VerifyCellValue(LineRowID, 80, Format(Abs(FADepreciationBook.Depreciation)));
                     LibraryReportValidation.VerifyCellValue(LineRowID, 90, Format(FADepreciationBook."Book Value"));
                     VerifyItemDocLine(ReceiptNo, 3);
                 end;
-            REPORT::"FA Posted Writeoff Act FA-4":
+            Report::"FA Posted Writeoff Act FA-4":
                 begin
                     LibraryReportValidation.VerifyCellValue(LineRowID, 70, Format(Abs(FADepreciationBook.Depreciation)));
                     LibraryReportValidation.VerifyCellValue(LineRowID, 80, Format(Abs(FADepreciationBook.Depreciation)));

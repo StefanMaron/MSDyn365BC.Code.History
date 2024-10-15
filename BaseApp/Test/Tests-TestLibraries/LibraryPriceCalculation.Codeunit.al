@@ -270,7 +270,7 @@ codeunit 130510 "Library - Price Calculation"
                 PriceType::Sale:
                     PriceListLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
                 PriceType::Purchase:
-                    PriceListLine.Validate("Unit Cost", LibraryRandom.RandDec(1000, 2));
+                    PriceListLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
             end;
         PriceListLine.Insert(true);
     end;

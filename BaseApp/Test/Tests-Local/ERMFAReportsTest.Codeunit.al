@@ -2,11 +2,11 @@ codeunit 144714 "ERM FA Reports Test"
 {
     // // [FEATURE] [Fixed Asset] [Reports]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Posted FA Doc. Header" = imd,
+                  tabledata "Posted FA Doc. Line" = imd,
+                  tabledata "FA Ledger Entry" = imd;
 
     var
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";

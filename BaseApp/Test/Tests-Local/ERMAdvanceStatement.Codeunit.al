@@ -2,6 +2,7 @@ codeunit 144707 "ERM Advance Statement"
 {
     // // [FEATURE] [Purchases] [Advance Statement]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

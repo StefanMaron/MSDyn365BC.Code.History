@@ -104,7 +104,10 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetCreateDefaultAADApplicationTag());
         PerDatabaseUpgradeTags.Add(GetDefaultAADApplicationDescriptionTag());
         PerDatabaseUpgradeTags.Add(GetMonitorSensitiveFieldPermissionUpgradeTag());
+#if not CLEAN19
         PerDatabaseUpgradeTags.Add(GetDataOutOfGeoAppUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetExportExcelReportUpgradeTag());
+#endif
         PerDatabaseUpgradeTags.Add(GetUpgradePowerBIOptinImageUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetUserCalloutsUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetUserGroupsSetAppIdUpgradeTag());
@@ -666,10 +669,19 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-379473-DefaultAADApplicationDescriptionTag-20201217');
     end;
 
+#if not CLEAN19
+    [Obsolete('Function will be removed', '19.0')]
     procedure GetDataOutOfGeoAppUpgradeTag(): Code[250]
     begin
         exit('MS-370438-DataOutOfGeoAppTag-20210121');
     end;
+
+    [Obsolete('Function will be removed', '19.0')]
+    procedure GetExportExcelReportUpgradeTag(): Code[250]
+    begin
+        exit('MS-390522-ExportExcelReport-20210611')
+    end;
+#endif
 
     procedure GetUserTaskDescriptionToUTF8UpgradeTag(): Code[250]
     begin

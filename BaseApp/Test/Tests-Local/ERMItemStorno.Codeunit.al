@@ -3,6 +3,7 @@ codeunit 144006 "ERM Item Storno"
     // // [FEATURE] [Red Storno]
     // PS 24221
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

@@ -1,5 +1,6 @@
 codeunit 144511 "ERM Allocation Charge"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

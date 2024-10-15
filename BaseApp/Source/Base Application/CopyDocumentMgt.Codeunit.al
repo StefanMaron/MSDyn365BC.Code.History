@@ -144,7 +144,7 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
-    procedure GetPurchaseDocumentType(FromDocType: Enum "Purchase Document Type From"): Enum "Purchase Document Type"
+    procedure GetPurchaseDocumentType(FromDocType: Enum "Purchase Document Type From") ToDocType: Enum "Purchase Document Type"
     begin
         case FromDocType of
             FromDocType::Quote:
@@ -167,6 +167,8 @@ codeunit 6620 "Copy Document Mgt."
                 exit("Purchase Document Type"::"Blanket Order");
             FromDocType::"Arch. Return Order":
                 exit("Purchase Document Type"::"Return Order");
+            else
+                OnGetPurchaseDocumentTypeCaseElse(FromDocType, ToDocType);
         end;
     end;
 
@@ -654,6 +656,7 @@ codeunit 6620 "Copy Document Mgt."
 
     local procedure CopySalesHeaderFromPostedShipment(FromSalesShptHeader: Record "Sales Shipment Header"; var ToSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header")
     begin
+        FromSalesShptHeader.CalcFields("Work Description");
         ToSalesHeader.Validate("Sell-to Customer No.", FromSalesShptHeader."Sell-to Customer No.");
         OnCopySalesDocOnBeforeTransferPostedShipmentFields(ToSalesHeader, FromSalesShptHeader);
         ToSalesHeader.TransferFields(FromSalesShptHeader, false);
@@ -679,6 +682,7 @@ codeunit 6620 "Copy Document Mgt."
 
     local procedure CopySalesHeaderFromSalesHeaderArchive(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header")
     begin
+        FromSalesHeaderArchive.CalcFields("Work Description");
         ToSalesHeader.Validate("Sell-to Customer No.", FromSalesHeaderArchive."Sell-to Customer No.");
         ToSalesHeader.TransferFields(FromSalesHeaderArchive, false);
         OnCopySalesDocOnAfterTransferArchSalesHeaderFields(ToSalesHeader, FromSalesHeaderArchive);
@@ -1488,7 +1492,7 @@ codeunit 6620 "Copy Document Mgt."
             if not IsHandled then
                 if ToSalesLine.Reserve = ToSalesLine.Reserve::Always then
                     ToSalesLine.AutoReserve();
-            OnAfterInsertToSalesLine(ToSalesLine, FromSalesLine, RecalculateLines, DocLineNo, FromSalesDocType, FromSalesHeader);
+            OnAfterInsertToSalesLine(ToSalesLine, FromSalesLine, RecalculateLines, DocLineNo, FromSalesDocType, FromSalesHeader, NextLineNo);
         end else
             LinesNotCopied := LinesNotCopied + 1;
 
@@ -6956,12 +6960,13 @@ codeunit 6620 "Copy Document Mgt."
         FromDocType2: Enum "Sales Document Type From";
         IsHandled: Boolean;
     begin
+        FromDocType2 := "Sales Document Type From".FromInteger(FromDocType);
+
         IsHandled := false;
         OnBeforeInitAndCheckSalesDocuments(FromDocType2, FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, FromSalesHeader, ToSalesHeader, ToSalesLine, MoveNegLines, IncludeHeader, RecalculateLines, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
-        FromDocType2 := "Sales Document Type From".FromInteger(FromDocType);
         with ToSalesHeader do
             case FromDocType2 of
                 "Sales Document Type From"::Quote,
@@ -8210,7 +8215,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertToSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; RecalculateLines: Boolean; DocLineNo: Integer; FromSalesDocType: Enum "Sales Document Type From"; FromSalesHeader: Record "Sales Header")
+    local procedure OnAfterInsertToSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; RecalculateLines: Boolean; DocLineNo: Integer; FromSalesDocType: Enum "Sales Document Type From"; FromSalesHeader: Record "Sales Header"; var NextLineNo: Integer)
     begin
     end;
 
@@ -8841,6 +8846,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchLineOnAfterSetDimensions(var ToPurchaseLine: Record "Purchase Line"; FromPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetPurchaseDocumentTypeCaseElse(FromDocType: Enum "Purchase Document Type From"; var ToDocType: Enum "Purchase Document Type")
     begin
     end;
 

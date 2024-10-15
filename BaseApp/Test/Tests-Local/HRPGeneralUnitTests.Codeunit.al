@@ -1,10 +1,9 @@
-codeunit 144208 "HRP General Unit Tests"
+Codeunit 144208 "HRP General Unit Tests"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Employee Absence Entry" = i,
+                  tabledata "Employee Job Entry" = im;
 
     var
         LibraryHRP: Codeunit "Library - HRP";
@@ -1035,7 +1034,7 @@ codeunit 144208 "HRP General Unit Tests"
             Insert(true);
         end;
 
-        CODEUNIT.Run(CODEUNIT::"Approve Group Order", GroupOrderHeader);
+        Codeunit.Run(Codeunit::"Approve Group Order", GroupOrderHeader);
 
         EmployeeJobEntry.SetRange("Employee No.", LaborContract."Employee No.");
         EmployeeJobEntry.FindFirst;
@@ -1110,7 +1109,7 @@ codeunit 144208 "HRP General Unit Tests"
         PositionNo := CreatePosition(WorkDate, true);
 
         CreateStaffListOrder(StaffListOrderHeader, StaffListOrderLine.Type::Position, StaffListOrderLine.Action::Approve, PositionNo);
-        CODEUNIT.Run(CODEUNIT::"Release Staff List Order", StaffListOrderHeader);
+        Codeunit.Run(Codeunit::"Release Staff List Order", StaffListOrderHeader);
 
         Assert.AreEqual(StaffListOrderHeader.Status::Released, StaffListOrderHeader.Status,
           StrSubstNo(FieldValueErr, StaffListOrderHeader.FieldCaption(Status)));
@@ -1135,7 +1134,7 @@ codeunit 144208 "HRP General Unit Tests"
         OrgUnitCode := LibraryHRP.CreateOrgUnit(WorkDate, OrgUnit.Type::Unit);
 
         CreateStaffListOrder(StaffListOrderHeader, StaffListOrderLine.Type::"Org. Unit", StaffListOrderLine.Action::Approve, OrgUnitCode);
-        CODEUNIT.Run(CODEUNIT::"Staff List Order-Post", StaffListOrderHeader);
+        Codeunit.Run(Codeunit::"Staff List Order-Post", StaffListOrderHeader);
 
         VerifyPostedStaffListOrder(StaffListOrderHeader."No.", OrgUnitCode);
 
@@ -1363,7 +1362,7 @@ codeunit 144208 "HRP General Unit Tests"
 
     local procedure ClosePeriod(var PayrollPeriod: Record "Payroll Period")
     begin
-        CODEUNIT.Run(CODEUNIT::"Payroll Period-Close", PayrollPeriod);
+        Codeunit.Run(Codeunit::"Payroll Period-Close", PayrollPeriod);
     end;
 
     local procedure CreateStaffListOrder(var StaffListOrderHeader: Record "Staff List Order Header"; LineType: Option; LineAction: Option; LineCode: Code[20])

@@ -9,12 +9,9 @@ codeunit 144209 "HRP Personified Reporting UT"
     // PayrollRepBufMultiplePacks_UT4                                                                   360787
     // PayrollRepBufMultiplePacks_UT5                                                                   360787
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        IsInitialized := false;
-    end;
+    Permissions = tabledata "Payroll Ledger Entry" = i;
 
     var
         LibraryRandom: Codeunit "Library - Random";

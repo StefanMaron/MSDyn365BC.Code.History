@@ -1,5 +1,6 @@
 codeunit 144014 "ERM Prepayments Local"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

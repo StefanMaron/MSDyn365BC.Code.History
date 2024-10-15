@@ -13,6 +13,7 @@ codeunit 144204 "HRP AE Pregnancy Leave"
     // 8.  PregnLeaveCalc                         339285
     // 9.  TFS339285Scenario                      339285
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

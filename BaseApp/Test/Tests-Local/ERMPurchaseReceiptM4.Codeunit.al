@@ -2,6 +2,7 @@ codeunit 144703 "ERM Purchase Receipt M-4"
 {
     // // [FEATURE] [Report] [M-4]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

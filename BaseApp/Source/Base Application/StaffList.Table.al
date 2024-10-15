@@ -1,6 +1,8 @@
 table 17372 "Staff List"
 {
     Caption = 'Staff List';
+    Permissions = tabledata "Staff List Archive" = i,
+                  tabledata "Staff List Line Archive" = i;
 
     fields
     {

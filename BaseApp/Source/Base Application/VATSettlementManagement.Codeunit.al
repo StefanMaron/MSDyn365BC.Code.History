@@ -1,6 +1,7 @@
 codeunit 12411 "VAT Settlement Management"
 {
-    Permissions = TableData "VAT Entry" = imd;
+    Permissions = TableData "VAT Entry" = imd,
+                  TableData "VAT Document Entry Buffer" = i;
 
     trigger OnRun()
     begin

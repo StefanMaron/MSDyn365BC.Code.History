@@ -4,6 +4,7 @@ codeunit 144205 "HRP Personified Reporting"
     // Test Function Name                                                                               TFS ID
     // ---------------------------------------------------------------------------------------------------------
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

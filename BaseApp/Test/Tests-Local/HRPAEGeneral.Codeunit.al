@@ -18,6 +18,7 @@ codeunit 144201 "HRP AE General"
     //   13. AE calculation with maximum allowed average earning (415000)
     //   14. AE calculation based on current period salary
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

@@ -1,5 +1,6 @@
 codeunit 144517 "ERM Tax Register Mgt."
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

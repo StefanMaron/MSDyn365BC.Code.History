@@ -2,11 +2,11 @@ codeunit 147130 "ERM Sales VAT Ledger"
 {
     // // [FEATURE] [UT] [VAT Ledger] [Sales]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "VAT Entry" = imd,
+                  tabledata "Vendor Ledger Entry" = imd,
+                  tabledata "Sales Invoice Header" = imd;
 
     var
         Assert: Codeunit Assert;

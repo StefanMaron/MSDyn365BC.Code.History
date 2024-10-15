@@ -12,6 +12,7 @@ codeunit 147123 "ERM VAT Posting Preview"
     // SalesInvNotCreatedAfterDeletionPreviewedOrder                               359624
     // SalesCrMemoNotCreatedAfterDeletionPreviewedCrMemo                           359624
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

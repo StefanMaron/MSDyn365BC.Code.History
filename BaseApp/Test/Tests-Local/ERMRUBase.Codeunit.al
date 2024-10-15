@@ -7,6 +7,7 @@ codeunit 144001 "ERM RU - Base"
     // ----------------------------------------------------------------------------
     // BankPaymentOrderPaymentPurpose                                     359661
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()
@@ -1417,8 +1418,8 @@ codeunit 144001 "ERM RU - Base"
         LocalReportManagement: Codeunit "Local Report Management";
     begin
         // [FEATURE] [VAT Ledger] [Report] [XML] [UT]
-        // [SCENARIO 378777] VAT Ledger version is '5.07'
-        Assert.AreEqual('5.07', LocalReportManagement.GetVATLedgerFormatVersion(), 'VAT Ledger version');
+        // [SCENARIO 400756] VAT Ledger version is '5.08'
+        Assert.AreEqual('5.08', LocalReportManagement.GetVATLedgerFormatVersion(), 'VAT Ledger version');
     end;
 
     local procedure Initialize()
@@ -1619,7 +1620,7 @@ codeunit 144001 "ERM RU - Base"
         if StrLen(CompanyInformation."VAT Registration No.") = 10 then  // The company is an organization
             Result += Format(CompanyInformation."KPP Code");
         Result += '_' + Format(Today, 8, '<Year4><Month,2><Day,2>'); // Date format YYYYMMDD
-        Result += '_05_07';
+        Result += '_05_08';
         Result += '_N'; // Iteration number; added to create unique file names
     end;
 

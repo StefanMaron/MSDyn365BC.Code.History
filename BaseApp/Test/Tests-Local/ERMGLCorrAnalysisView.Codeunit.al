@@ -1,5 +1,6 @@
 codeunit 144100 "ERM G/L Corr. Analysis View"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

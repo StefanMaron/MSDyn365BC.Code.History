@@ -3,6 +3,7 @@ codeunit 144007 "ERM VAT Reinstatement"
     // // [FEATURE] [VAT Reinstatement]
     // RegF 24897 VAT reinstatement
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

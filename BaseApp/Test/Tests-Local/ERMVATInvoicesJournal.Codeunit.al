@@ -6,6 +6,7 @@ codeunit 147125 "ERM VAT Invoices Journal"
     // 3. ReceivedFacturesInSamePeriod         341217
     // 4. ReceivedFacturesInNextPeriod         341033
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

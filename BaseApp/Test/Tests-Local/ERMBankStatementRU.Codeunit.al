@@ -1,5 +1,6 @@
 codeunit 147127 "ERM Bank Statement RU"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

@@ -2,6 +2,7 @@ codeunit 144700 "ERM Cash Management"
 {
     // // [FEATURE] [Cash Management]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

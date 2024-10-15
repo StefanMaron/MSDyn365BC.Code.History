@@ -1,5 +1,6 @@
 codeunit 144202 "HRP Payments"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

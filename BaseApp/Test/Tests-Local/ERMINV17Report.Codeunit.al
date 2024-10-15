@@ -1,10 +1,11 @@
 codeunit 144704 "ERM INV-17 Report"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Cust. Ledger Entry" = i,
+                  tabledata "Detailed Cust. Ledg. Entry" = i,
+                  tabledata "Vendor Ledger Entry" = i,
+                  tabledata "Detailed Vendor Ledg. Entry" = i;
 
     var
         LibraryRandom: Codeunit "Library - Random";

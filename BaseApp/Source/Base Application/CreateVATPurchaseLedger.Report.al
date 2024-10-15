@@ -2,6 +2,8 @@ report 12455 "Create VAT Purchase Ledger"
 {
     Caption = 'Create VAT Purchase Ledger';
     ProcessingOnly = true;
+    Permissions = tabledata "VAT Ledger Line" = i,
+                  tabledata "VAT Ledger Connection" = i;
 
     dataset
     {

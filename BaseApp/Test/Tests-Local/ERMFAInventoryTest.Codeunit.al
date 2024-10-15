@@ -2,11 +2,9 @@ codeunit 144716 "ERM FA Inventory Test"
 {
     // // [FEATURE] [Report] [Inventory]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Document Print Buffer" = imd;
 
     var
         Assert: Codeunit Assert;

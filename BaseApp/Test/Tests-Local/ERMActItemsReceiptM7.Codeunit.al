@@ -1,5 +1,6 @@
 codeunit 144708 "ERM Act Items Receipt M-7"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

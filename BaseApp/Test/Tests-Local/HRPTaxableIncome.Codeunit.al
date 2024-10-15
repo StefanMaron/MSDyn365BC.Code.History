@@ -17,6 +17,7 @@ codeunit 144203 "HRP Taxable Income"
     // 11. TaxableAmountAfterReverseDoc             87933
     // 12. TaxableAmountAfterReverseAndRecalculate  88258,89396
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

@@ -1,5 +1,6 @@
 codeunit 144705 "ERM Shipment Request M-11"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

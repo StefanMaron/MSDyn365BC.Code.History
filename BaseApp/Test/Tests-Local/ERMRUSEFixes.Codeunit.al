@@ -1,5 +1,12 @@
 codeunit 144004 "ERM RU SE Fixes"
 {
+    TestPermissions = NonRestrictive;
+    Permissions = tabledata "G/L Correspondence Entry" = rimd,
+                  tabledata "G/L Correspondence" = rimd,
+                  tabledata "G/L Entry" = rimd,
+                  tabledata "FA Ledger Entry" = rimd,
+                  tabledata "Vendor Ledger Entry" = rimd,
+                  tabledata "Detailed Vendor Ledg. Entry" = rimd;
     Subtype = Test;
 
     trigger OnRun()

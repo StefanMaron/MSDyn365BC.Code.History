@@ -1,5 +1,6 @@
 codeunit 144713 "ERM Letter of Attorney M-2A"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

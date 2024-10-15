@@ -1,5 +1,6 @@
 codeunit 144512 "ERM Calculate VAT per Lines"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

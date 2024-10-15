@@ -21,11 +21,11 @@ report 14919 "Item Report TORG-29"
                 TORG29Helper.CreateTempReceipts(
                   TempValueEntryReceipts, ErrorBuffer, TempEntriesCount, ErrorsCount,
                   ResidOnstart, StartDate, EndDate, LocationCode,
-                  AmountType, ReceiptsDetailing, SalesType, SalesCode, ShowCostReceipts);
+                  AmountType, ReceiptsDetailing, SalesPriceType, SalesCode, ShowCostReceipts);
                 TORG29Helper.CreateTempShipment(
                   TempValueEntryShipment, ErrorBuffer, TempEntriesCount, ErrorsCount,
                   StartDate, EndDate, LocationCode,
-                  AmountType, ShipmentDetailing, SalesType, SalesCode, ShowCostShipment);
+                  AmountType, ShipmentDetailing, SalesPriceType, SalesCode, ShowCostShipment);
                 TORG29Helper.FillHeader(
                   Location.Name + ' ' + Location."Name 2", Format(OperationType),
                   ReportNo, Format(ReportDate), StartDate, Format(EndDate),
@@ -356,6 +356,7 @@ report 14919 "Item Report TORG-29"
                         trigger OnValidate()
                         begin
                             PageUpdateControls;
+                            SalesPriceType := GetSalesPriceType(SalesType);
                             SalesCode := '';
                         end;
                     }
@@ -371,7 +372,7 @@ report 14919 "Item Report TORG-29"
                         begin
                             Clear(CustomerPriceGroupList);
                             Clear(CampaignList);
-                            if SalesType = SalesType::Campaign then begin
+                            if SalesPriceType = SalesPriceType::Campaign then begin
                                 CampaignList.LookupMode(true);
                                 if CampaignList.RunModal = ACTION::LookupOK then begin
                                     CampaignList.GetRecord(Campaign);
@@ -511,6 +512,7 @@ report 14919 "Item Report TORG-29"
         ShipmentDetailing: Option "Sum",Document,Item,Operation;
         AmountType: Option Cost,Price;
         SalesType: Option "Customer Price Group","All Customers",Campaign;
+        SalesPriceType: Enum "Sales Price Type";
         ShowCostReceipts: Boolean;
         ShowCostShipment: Boolean;
         ReportDate: Date;
@@ -554,11 +556,23 @@ report 14919 "Item Report TORG-29"
         if CtrlEnable then
             SalesCode := '';
 
-        if SalesType = SalesType::"All Customers" then begin
+        if SalesPriceType = SalesPriceType::"All Customers" then begin
             SalesCodeCtrlEnable := false;
             SalesCode := '';
         end else
             SalesCodeCtrlEnable := CtrlEnable;
+    end;
+
+    local procedure GetSalesPriceType(SalesType: Option "Customer Price Group","All Customers",Campaign): Enum "Sales Price Type"
+    begin
+        case SalesType of
+            SalesType::"All Customers":
+                exit("Sales Price Type"::"All Customers");
+            SalesType::"Customer Price Group":
+                exit("Sales Price Type"::"Customer Price Group");
+            SalesType::Campaign:
+                exit("Sales Price Type"::Campaign);
+        end
     end;
 
     [Scope('OnPrem')]
@@ -568,7 +582,7 @@ report 14919 "Item Report TORG-29"
     end;
 
     [Scope('OnPrem')]
-    procedure InitializeRequest(NewLocationCode: Code[10]; NewReportNo: Text[30]; NewResponsibleEmployee: Code[20]; NewReportAcceptorEmployee: Code[20]; NewStartDate: Date; NewEndDate: Date; NewOperationType: Text[30]; NewAttachesNo: Integer; NewReceiptsDetailing: Option; NewShipmentDetailing: Option; NewAmountType: Option; NewSalesType: Option; NewSalesCode: Code[20]; NewShowCostReceipts: Boolean; NewShowCostShipment: Boolean)
+    procedure InitializeRequest(NewLocationCode: Code[10]; NewReportNo: Text[30]; NewResponsibleEmployee: Code[20]; NewReportAcceptorEmployee: Code[20]; NewStartDate: Date; NewEndDate: Date; NewOperationType: Text[30]; NewAttachesNo: Integer; NewReceiptsDetailing: Option; NewShipmentDetailing: Option; NewAmountType: Option; NewSalesType: Option "Customer Price Group","All Customers",Campaign; NewSalesCode: Code[20]; NewShowCostReceipts: Boolean; NewShowCostShipment: Boolean)
     begin
         LocationCode := NewLocationCode;
         ReportNo := NewReportNo;
@@ -582,6 +596,7 @@ report 14919 "Item Report TORG-29"
         ShipmentDetailing := NewShipmentDetailing;
         AmountType := NewAmountType;
         SalesType := NewSalesType;
+        SalesPriceType := GetSalesPriceType(SalesType);
         SalesCode := NewSalesCode;
         ShowCostReceipts := NewShowCostReceipts;
         ShowCostShipment := NewShowCostShipment;

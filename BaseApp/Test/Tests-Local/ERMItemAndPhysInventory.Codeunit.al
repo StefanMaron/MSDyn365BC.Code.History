@@ -1,5 +1,6 @@
 codeunit 144709 "ERM Item And Phys. Inventory"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

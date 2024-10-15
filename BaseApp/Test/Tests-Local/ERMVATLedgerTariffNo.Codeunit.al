@@ -2,11 +2,9 @@ codeunit 147133 "ERM VAT Ledger Tariff No."
 {
     // // [FEATURE] [UT] [VAT Ledger] [Tariff No.]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "VAT Ledger Line" = d;
 
     var
         LibraryVATLedger: Codeunit "Library - VAT Ledger";

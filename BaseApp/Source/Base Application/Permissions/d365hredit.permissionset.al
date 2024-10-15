@@ -3,9 +3,11 @@ permissionset 3242 "D365 HR, EDIT"
     Assignable = true;
     Caption = 'Dynamics 365 Create Basic HR';
 
+    IncludedPermissionSets = "D365 HR, VIEW";
+
     Permissions = tabledata "Alternative Address" = RD,
                   tabledata "Confidential Information" = RD,
-                  tabledata Employee = RIMD,
+                  tabledata Employee = IMD,
                   tabledata "Employee Absence" = RID,
                   tabledata "Employee Qualification" = RMD,
                   tabledata "Employee Relative" = RD,

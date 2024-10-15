@@ -4,7 +4,8 @@ table 111 "Sales Shipment Line"
     DrillDownPageID = "Posted Sales Shipment Lines";
     LookupPageID = "Posted Sales Shipment Lines";
     Permissions = TableData "Item Ledger Entry" = r,
-                  TableData "Value Entry" = r;
+                  TableData "Value Entry" = r,
+                  TableData "Sales Shipment Line" = m;
 
     fields
     {

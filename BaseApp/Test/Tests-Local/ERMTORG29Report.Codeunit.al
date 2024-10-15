@@ -1,22 +1,21 @@
 codeunit 144712 "ERM TORG-29 Report"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Item Ledger Entry" = i,
+                  tabledata "Value Entry" = i;
 
     var
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         TORG29Helper: Codeunit "TORG-29 Helper";
         isInitialized: Boolean;
         ReceiptsDetailing: Option Document,Item,Operation;
         ShipmentDetailing: Option "Sum",Document,Item,Operation;
         AmountType: Option Cost,Price;
-        SalesType: Option "Customer Price Group","All Customers",Campaign;
         WrongResidOnStartErr: Label 'Wrong residual on start.';
         WrongErrorsCountErr: Label 'Wrong errors count.';
         NoPriceFoundTxt: Label 'No price found';
@@ -67,7 +66,34 @@ codeunit 144712 "ERM TORG-29 Report"
         PostingDate := CalcDate('<1M>', PostingDate);
         TORG29Helper.CreateTempReceipts(
           TempValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, ResidOnstart, PostingDate, PostingDate,
-          LocationCode, AmountType::Price, ReceiptsDetailing::Document, SalesType::"All Customers", '', false);
+          LocationCode, AmountType::Price, ReceiptsDetailing::Document, "Sales Price Type"::"All Customers", '', false);
+        TempValueEntry.CalcSums("Item Ledger Entry Quantity");
+        Assert.AreEqual(
+          Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"), ResidOnstart, WrongResidOnStartErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ResidOnStartWithPriceAmountTypeV16()
+    var
+        TempValueEntry: Record "Value Entry" temporary;
+        ErrorBuffer: Record "Value Entry" temporary;
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        PostingDate: Date;
+        ResidOnstart: Decimal;
+        SalesPrice: Decimal;
+        EntriesCount: Integer;
+        ErrorsCount: Integer;
+    begin
+        InitData(PostingDate, ItemNo, LocationCode);
+        EnableNewPricing();
+        SalesPrice := MockSalesPriceListLine(ItemNo, PostingDate);
+        MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, 1);
+        PostingDate := CalcDate('<1M>', PostingDate);
+        TORG29Helper.CreateTempReceipts(
+          TempValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, ResidOnstart, PostingDate, PostingDate,
+          LocationCode, AmountType::Price, ReceiptsDetailing::Document, "Sales Price Type"::"All Customers", '', false);
         TempValueEntry.CalcSums("Item Ledger Entry Quantity");
         Assert.AreEqual(
           Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"), ResidOnstart, WrongResidOnStartErr);
@@ -92,7 +118,7 @@ codeunit 144712 "ERM TORG-29 Report"
         PostingDate := CalcDate('<1M>', InitialPostingDate);
         TORG29Helper.CreateTempReceipts(
           TempValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, ResidOnstart, PostingDate, PostingDate,
-          LocationCode, AmountType::Price, ReceiptsDetailing::Document, SalesType::"All Customers", '', false);
+          LocationCode, AmountType::Price, ReceiptsDetailing::Document, "Sales Price Type"::"All Customers", '', false);
         VerifyErrors(TempValueEntry, ErrorBuffer, ErrorsCount);
     end;
 
@@ -114,7 +140,7 @@ codeunit 144712 "ERM TORG-29 Report"
         MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, 1);
         TORG29Helper.CreateTempReceipts(
           TempRcptValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, ResidOnstart, PostingDate, PostingDate,
-          LocationCode, AmountType::Cost, ReceiptsDetailing::Item, SalesType::"All Customers", '', false);
+          LocationCode, AmountType::Cost, ReceiptsDetailing::Item, "Sales Price Type"::"All Customers", '', false);
         TempValueEntry.CalcSums("Cost Amount (Actual)");
         Assert.AreEqual(1, TempRcptValueEntry.Count, WrongEntriesCountErr);
         Assert.AreEqual(
@@ -142,7 +168,36 @@ codeunit 144712 "ERM TORG-29 Report"
         MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, 1);
         TORG29Helper.CreateTempReceipts(
           TempRcptValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, ResidOnstart, PostingDate, PostingDate,
-          LocationCode, AmountType::Price, ReceiptsDetailing::Document, SalesType::"All Customers", '', false);
+          LocationCode, AmountType::Price, ReceiptsDetailing::Document, "Sales Price Type"::"All Customers", '', false);
+        TempValueEntry.CalcSums("Item Ledger Entry Quantity");
+        TempRcptValueEntry.CalcSums("Valued Quantity");
+        Assert.AreEqual(
+          TempRcptValueEntry."Valued Quantity", Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"),
+          StrSubstNo(WrongValueErr, TempRcptValueEntry.FieldCaption("Valued Quantity")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceiptsWithPriceAmountTypeV16()
+    var
+        TempValueEntry: Record "Value Entry" temporary;
+        TempRcptValueEntry: Record "Value Entry" temporary;
+        ErrorBuffer: Record "Value Entry" temporary;
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        PostingDate: Date;
+        ResidOnstart: Decimal;
+        SalesPrice: Decimal;
+        EntriesCount: Integer;
+        ErrorsCount: Integer;
+    begin
+        InitData(PostingDate, ItemNo, LocationCode);
+        EnableNewPricing();
+        SalesPrice := MockSalesPriceListLine(ItemNo, PostingDate);
+        MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, 1);
+        TORG29Helper.CreateTempReceipts(
+          TempRcptValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, ResidOnstart, PostingDate, PostingDate,
+          LocationCode, AmountType::Price, ReceiptsDetailing::Document, "Sales Price Type"::"All Customers", '', false);
         TempValueEntry.CalcSums("Item Ledger Entry Quantity");
         TempRcptValueEntry.CalcSums("Valued Quantity");
         Assert.AreEqual(
@@ -167,7 +222,7 @@ codeunit 144712 "ERM TORG-29 Report"
         MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, -1);
         TORG29Helper.CreateTempShipment(
           TempShptValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, PostingDate, PostingDate,
-          LocationCode, AmountType::Price, ShipmentDetailing::Document, SalesType::"All Customers", '', false);
+          LocationCode, AmountType::Price, ShipmentDetailing::Document, "Sales Price Type"::"All Customers", '', false);
         VerifyErrors(TempValueEntry, ErrorBuffer, ErrorsCount);
     end;
 
@@ -188,7 +243,7 @@ codeunit 144712 "ERM TORG-29 Report"
         MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, -1);
         TORG29Helper.CreateTempShipment(
           TempShptValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, PostingDate, PostingDate,
-          LocationCode, AmountType::Cost, ShipmentDetailing::Item, SalesType::"All Customers", '', false);
+          LocationCode, AmountType::Cost, ShipmentDetailing::Item, "Sales Price Type"::"All Customers", '', false);
         TempValueEntry.CalcSums("Cost Amount (Actual)");
         Assert.AreEqual(1, TempShptValueEntry.Count, WrongEntriesCountErr);
         Assert.AreEqual(
@@ -215,7 +270,35 @@ codeunit 144712 "ERM TORG-29 Report"
         MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, -1);
         TORG29Helper.CreateTempShipment(
           TempShptValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, PostingDate, PostingDate,
-          LocationCode, AmountType::Price, ShipmentDetailing::Document, SalesType::"All Customers", '', false);
+          LocationCode, AmountType::Price, ShipmentDetailing::Document, "Sales Price Type"::"All Customers", '', false);
+        TempValueEntry.CalcSums("Item Ledger Entry Quantity");
+        TempShptValueEntry.CalcSums("Valued Quantity");
+        Assert.AreEqual(
+          TempShptValueEntry."Valued Quantity", -Round(SalesPrice * TempValueEntry."Item Ledger Entry Quantity"),
+          StrSubstNo(WrongValueErr, TempShptValueEntry.FieldCaption("Valued Quantity")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShptsWithPriceAmountTypeV16()
+    var
+        TempValueEntry: Record "Value Entry" temporary;
+        TempShptValueEntry: Record "Value Entry" temporary;
+        ErrorBuffer: Record "Value Entry" temporary;
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        PostingDate: Date;
+        SalesPrice: Decimal;
+        EntriesCount: Integer;
+        ErrorsCount: Integer;
+    begin
+        InitData(PostingDate, ItemNo, LocationCode);
+        EnableNewPricing();
+        SalesPrice := MockSalesPriceListLine(ItemNo, PostingDate);
+        MockCostAmountValueEntries(TempValueEntry, ItemNo, LocationCode, PostingDate, -1);
+        TORG29Helper.CreateTempShipment(
+          TempShptValueEntry, ErrorBuffer, EntriesCount, ErrorsCount, PostingDate, PostingDate,
+          LocationCode, AmountType::Price, ShipmentDetailing::Document, "Sales Price Type"::"All Customers", '', false);
         TempValueEntry.CalcSums("Item Ledger Entry Quantity");
         TempShptValueEntry.CalcSums("Valued Quantity");
         Assert.AreEqual(
@@ -229,6 +312,7 @@ codeunit 144712 "ERM TORG-29 Report"
     begin
         Clear(LibraryReportValidation);
         Clear(TORG29Helper);
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
 
         if isInitialized then
             exit;
@@ -256,6 +340,20 @@ codeunit 144712 "ERM TORG-29 Report"
             Insert(true);
             exit("No.");
         end;
+    end;
+
+    local procedure MockSalesPriceListLine(ItemNo: Code[20]; PostingDate: Date): Decimal
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, ItemNo);
+        PriceListLine.Validate("Starting Date", PostingDate);
+        PriceListLine."Ending Date" := PostingDate;
+        PriceListLine."Unit Price" := LibraryRandom.RandDec(100, 2);
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify;
+        exit(PriceListLine."Unit Price");
     end;
 
     local procedure MockSalesPrice(ItemNo: Code[20]; PostingDate: Date): Decimal
@@ -351,6 +449,12 @@ codeunit 144712 "ERM TORG-29 Report"
         end;
     end;
 
+    local procedure EnableNewPricing()
+    begin
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+    end;
+
     local procedure CopyFromValueEntryToValueEntry(var ToValueEntry: Record "Value Entry"; FromValueEntry: Record "Value Entry")
     begin
         ToValueEntry := FromValueEntry;
@@ -360,6 +464,7 @@ codeunit 144712 "ERM TORG-29 Report"
     local procedure RunTORG29Report(LocationCode: Code[10]; PostingDate: Date)
     var
         TORG29Rep: Report "Item Report TORG-29";
+        SalesType: Option "Customer Price Group","All Customers",Campaign;
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
         TORG29Rep.SetFileNameSilent(LibraryReportValidation.GetFileName);

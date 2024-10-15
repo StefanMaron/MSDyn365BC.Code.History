@@ -2,11 +2,12 @@ codeunit 147131 "ERM Purchase VAT Ledger"
 {
     // // [FEATURE] [UT] [VAT Ledger] [Purchase]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "VAT Entry" = imd,
+                  tabledata "Vendor Ledger Entry" = imd,
+                  tabledata "Purch. Inv. Header" = imd,
+                  tabledata "Detailed Vendor Ledg. Entry" = imd;
 
     var
         LibraryRandom: Codeunit "Library - Random";
@@ -30,7 +31,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         VATLedgerCode: Code[20];
     begin
         // [SCENARIO] Purchase VAT Ledger Line is created when run REP12455 "Create VAT Purchase Ledger" for vendor
-        Initialize;
+        Initialize();
         LibraryRUReports.UpdateCompanyInfo;
         LibraryRUReports.CreateVendor(Vendor);
 
@@ -62,7 +63,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         VendorNo: Code[20];
         VATLedgerCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
@@ -86,7 +87,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
     begin
         // [FEATURE] [Sales] [Prepayment]
         // [SCENARIO] Purchase VAT Ledger Line is created when run REP12455 "Create VAT Purchase Ledger" for customer with "Prepayment" vat entry
-        Initialize;
+        Initialize();
         LibraryRUReports.UpdateCompanyInfo;
         LibraryRUReports.CreateCustomer(Customer);
 
@@ -120,7 +121,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
     begin
         // [FEATURE] [Sales] [Prepayment]
         // [SCENARIO] Purchase VAT Ledger Line is created when run REP12455 "Create VAT Purchase Ledger" for customer with "Credit Memo" vat entry
-        Initialize;
+        Initialize();
         CustomerNo := LibrarySales.CreateCustomerNo;
 
         // [GIVEN] Posted "Credit Memo" VAT Entry for customer "C" with "Full Name" = "X", "VAT Registration No." = "Y", "KPP Code" = "Z"
@@ -149,7 +150,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         VATLedgerCode: Code[20];
     begin
         // [SCENARIO] Purchase VAT Ledger Line is created when run REP12455 "Create VAT Purchase Ledger" for "Non-resident" "VAT Agent" vendor
-        Initialize;
+        Initialize();
         VendorNo := CreateVATAgentVendorNo;
 
         // [GIVEN] Posted VAT Entry for "Non-resident" "VAT Agent" vendor "V" with "Full Name" = "X"
@@ -178,7 +179,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         VATLedgerCode: Code[20];
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATLedgerMgt.GetVATPctRate2019);
@@ -208,7 +209,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 376533] Navigate button opens Navigate page with information for selected line in list part
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Purchase Ledger with 2 posted documents "X1" and "X2"
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -247,7 +248,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
         ExpectedAmount: Decimal;
     begin
         // [SCENARIO 379333] Purchase VAT Ledger line amount should correspond to total amount purchase lines with different VAT posting setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create 2 VAT different posting setup
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -291,7 +292,7 @@ codeunit 147131 "ERM Purchase VAT Ledger"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 303035] Purchase VAT Ledger Line has visible fields Base20, Amount20
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         LibraryRUReports.UpdateCompanyInfo;
         LibraryRUReports.CreateVendor(Vendor);

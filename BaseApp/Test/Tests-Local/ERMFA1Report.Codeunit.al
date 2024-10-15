@@ -2,11 +2,14 @@ codeunit 144711 "ERM FA-1 Report"
 {
     // // [FEATURE] [Fixed Asset] [UT] [Report] [FA Release Act]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Default Signature Setup" = imd,
+                  tabledata "FA Ledger Entry" = imd,
+                  tabledata "Posted FA Doc. Header" = imd,
+                  tabledata "Posted FA Doc. Line" = imd,
+                  tabledata "Sales Invoice Header" = imd,
+                  tabledata "Sales Invoice Line" = imd;
 
     var
         Assert: Codeunit Assert;

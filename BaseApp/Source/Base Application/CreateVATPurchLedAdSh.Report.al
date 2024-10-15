@@ -2,6 +2,8 @@ report 14962 "Create VAT Purch. Led. Ad. Sh."
 {
     Caption = 'Create VAT Purch. Led. Ad. Sh.';
     ProcessingOnly = true;
+    Permissions = tabledata "VAT Ledger Line" = imd,
+                  tabledata "VAT Ledger Connection" = imd;
 
     dataset
     {

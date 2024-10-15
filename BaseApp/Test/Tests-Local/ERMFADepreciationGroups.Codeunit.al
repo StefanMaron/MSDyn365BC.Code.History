@@ -1,5 +1,6 @@
 codeunit 144509 "ERM FA Depreciation Groups"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

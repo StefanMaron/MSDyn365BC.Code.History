@@ -2,12 +2,9 @@ codeunit 144723 "ERM Cash Orders"
 {
     // // [FEATURE] [Cash Order]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        IsInitialized := false;
-    end;
+    Permissions = tabledata "Bank Account Ledger Entry" = i;
 
     var
         Assert: Codeunit Assert;

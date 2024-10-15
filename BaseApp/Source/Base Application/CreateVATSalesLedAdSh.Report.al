@@ -2,6 +2,8 @@ report 14963 "Create VAT Sales Led. Ad. Sh."
 {
     Caption = 'Create VAT Sales Led. Ad. Sh.';
     ProcessingOnly = true;
+    Permissions = tabledata "VAT Ledger Line" = i,
+                  tabledata "VAT Ledger Connection" = i;
 
     dataset
     {

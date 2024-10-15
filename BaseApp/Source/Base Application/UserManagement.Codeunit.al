@@ -100,7 +100,7 @@ codeunit 418 "User Management"
         Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
         BasicAuthDepricationDescriptionTok: Label 'Web Service Access Key';
-        BasicAuthDepricationTok: Label 'Web Service Access Key is being deprecated on SaaS. Please use OAuth.';
+        BasicAuthDepricationTok: Label 'Web Service Access Key has been deprecated in Business Central online. Please use OAuth.';
         DontShowAgainTok: Label 'Don''t show me again';
         ShowMoreLinkTok: Label 'Show more';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';

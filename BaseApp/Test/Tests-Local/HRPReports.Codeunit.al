@@ -7,6 +7,7 @@ codeunit 144206 "HRP Reports"
     //   2. EmployeePaysheetPayrollDoc: Verify Employee Paysheet for Payroll Document
     //   3. Staff List T-3            : Verify staff list for whole organization
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

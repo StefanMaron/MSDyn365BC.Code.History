@@ -3,11 +3,10 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
     // // [FEATURE] [VAT Ledger] [Sales]
     // // Empty VersionList not to run tests in Snap
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "VAT Ledger Line" = imd,
+                  tabledata "VAT Entry" = imd;
 
     var
         LibraryVATLedger: Codeunit "Library - VAT Ledger";
@@ -915,8 +914,8 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         VerifyRepCommonValues(SalesInvHeader, RowNo, 1);
 
         LibraryRUReports.FindVATLedgerLine(VATLedgerLine, VATLedgerLine.Type::Sales, VATLedgerCode, SalesInvHeader."Sell-to Customer No.");
-        VerifyColumn3a(RowNo, VATLedgerLine.GetCDNoListString);
-        VerifyColumn3b(RowNo, VATLedgerLine."Tariff No.");
+        VerifyColumn20(RowNo, VATLedgerLine.GetCDNoListString);
+        VerifyColumn3a(RowNo, VATLedgerLine."Tariff No.");
 
         VerifyColumn13a(RowNo, '');
         VerifyColumn13b(RowNo, FormatValue(SalesInvLine."Amount Including VAT"));
@@ -1212,29 +1211,24 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
         LibraryReportValidation.VerifyCellValue(RowNo, 19, ExpectedValue);
     end;
 
-    local procedure VerifyColumn3b(RowNo: Integer; ExpectedValue: Text)
-    begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 27, ExpectedValue);
-    end;
-
     local procedure VerifyColumn4(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 34, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 26, ExpectedValue);
     end;
 
     local procedure VerifyColumn5(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 42, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 34, ExpectedValue);
     end;
 
     local procedure VerifyColumn6(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 50, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 42, ExpectedValue);
     end;
 
     local procedure VerifyColumn7(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 58, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 50, ExpectedValue);
     end;
 
     local procedure VerifyColumn9(RowNo: Integer; ExpectedValue: Text)
@@ -1249,62 +1243,67 @@ codeunit 147140 "ERM Sales VAT Ledger Export"
 
     local procedure VerifyColumn11(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 97, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 89, ExpectedValue);
     end;
 
     local procedure VerifyColumn12(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 106, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 98, ExpectedValue);
     end;
 
     local procedure VerifyColumn13a(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 114, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 106, ExpectedValue);
     end;
 
     local procedure VerifyColumn13b(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 121, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 113, ExpectedValue);
     end;
 
     local procedure VerifyColumn14(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 128, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 120, ExpectedValue);
     end;
 
     local procedure VerifyColumn14a(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 134, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 126, ExpectedValue);
     end;
 
     local procedure VerifyColumn15(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 140, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 132, ExpectedValue);
     end;
 
     local procedure VerifyColumn16(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 146, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 138, ExpectedValue);
     end;
 
     local procedure VerifyColumn17(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 152, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 144, ExpectedValue);
     end;
 
     local procedure VerifyColumn17a(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 158, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 150, ExpectedValue);
     end;
 
     local procedure VerifyColumn18(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 164, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 156, ExpectedValue);
     end;
 
     local procedure VerifyColumn19(RowNo: Integer; ExpectedValue: Text)
     begin
-        LibraryReportValidation.VerifyCellValue(RowNo, 170, ExpectedValue);
+        LibraryReportValidation.VerifyCellValue(RowNo, 162, ExpectedValue);
+    end;
+
+    local procedure VerifyColumn20(RowNo: Integer; ExpectedValue: Text)
+    begin
+        LibraryReportValidation.VerifyCellValue(RowNo, 173, ExpectedValue);
     end;
 }
 

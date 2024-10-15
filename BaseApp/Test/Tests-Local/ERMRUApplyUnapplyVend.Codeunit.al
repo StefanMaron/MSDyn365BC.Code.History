@@ -6,6 +6,7 @@ codeunit 144505 "ERM RU Apply Unapply Vend"
     // ---------------------------------------------------------------------------
     // 1. UnapplyPaymentAtAllowedDate                                      322866
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

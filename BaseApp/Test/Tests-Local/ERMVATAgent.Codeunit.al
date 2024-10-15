@@ -6,6 +6,7 @@ codeunit 144009 "ERM VAT Agent"
     // TEST FUNCTION NAME                           TFS ID
     // ApplyPartialVATAgentPmtToInvoice             326656
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

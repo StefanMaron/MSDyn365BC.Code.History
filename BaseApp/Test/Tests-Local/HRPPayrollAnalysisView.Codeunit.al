@@ -1,10 +1,8 @@
 codeunit 144207 "HRP Payroll Analysis View"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    Permissions = tabledata "Payroll Ledger Entry" = i;
 
     var
         Assert: Codeunit Assert;

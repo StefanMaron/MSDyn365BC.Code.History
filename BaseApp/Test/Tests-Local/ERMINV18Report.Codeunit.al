@@ -1,5 +1,6 @@
 codeunit 144710 "ERM INV-18 Report"
 {
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

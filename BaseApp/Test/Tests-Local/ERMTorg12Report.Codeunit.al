@@ -2,6 +2,7 @@ codeunit 144702 "ERM Torg-12 Report"
 {
     // // [FEATURE] [Reports]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

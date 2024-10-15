@@ -18,7 +18,7 @@ codeunit 14949 "TORG-29 Helper"
         AdjmtTxt: Label 'Adj.';
 
     [Scope('OnPrem')]
-    procedure CreateTempReceipts(var TempValueEntryReceipts: Record "Value Entry"; var ErrorBuffer: Record "Value Entry"; var EntriesCount: Integer; var ErrorsCount: Integer; var ResidOnstart: Decimal; StartDate: Date; EndDate: Date; LocationCode: Code[10]; PassedAmountType: Option; PassedReceiptsDetailing: Option; PassedSalesType: Option; SalesCode: Code[20]; ShowCostReceipts: Boolean)
+    procedure CreateTempReceipts(var TempValueEntryReceipts: Record "Value Entry"; var ErrorBuffer: Record "Value Entry"; var EntriesCount: Integer; var ErrorsCount: Integer; var ResidOnstart: Decimal; StartDate: Date; EndDate: Date; LocationCode: Code[10]; PassedAmountType: Option; PassedReceiptsDetailing: Option; PassedSalesPriceType: Enum "Sales Price Type"; SalesCode: Code[20]; ShowCostReceipts: Boolean)
     var
         Vendor: Record Vendor;
         Customer: Record Customer;
@@ -47,7 +47,7 @@ codeunit 14949 "TORG-29 Helper"
         Location.Get(LocationCode);
 
         ResidOnstart :=
-          CalcRcptResidOnStart(ErrorBuffer, ErrorsCount, StartDate, LocationCode, PassedAmountType, PassedSalesType, SalesCode);
+          CalcRcptResidOnStart(ErrorBuffer, ErrorsCount, StartDate, LocationCode, PassedAmountType, PassedSalesPriceType, SalesCode);
 
         case PassedReceiptsDetailing of
             ReceiptsDetailing::Document:
@@ -92,7 +92,7 @@ codeunit 14949 "TORG-29 Helper"
 
                     if PassedAmountType = AmountType::Price then
                         CurrentSalesAmount +=
-                          CalcAmountFromSalesPrice(ErrorBuffer, ErrorsCount, ValueEntryReceipts, PassedSalesType, SalesCode, UpdateFlag);
+                          CalcAmountFromSalesPrice(ErrorBuffer, ErrorsCount, ValueEntryReceipts, PassedSalesPriceType, SalesCode, UpdateFlag);
                     if (PassedAmountType = AmountType::Cost) or ShowCostReceipts then begin
                         CurrentCostAmount := CurrentCostAmount + Round(ValueEntryReceipts."Cost Amount (Actual)");
                         TempValueEntryReceipts."Valued Quantity" := CurrentCostAmount;
@@ -171,7 +171,7 @@ codeunit 14949 "TORG-29 Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateTempShipment(var TempValueEntryShipment: Record "Value Entry"; var ErrorBuffer: Record "Value Entry"; var EntriesCount: Integer; var ErrorsCount: Integer; StartDate: Date; EndDate: Date; LocationCode: Code[10]; PassedAmountType: Option; PassedShipmentDetailing: Option; PassedSalesType: Option; SalesCode: Code[20]; ShowCostShipment: Boolean)
+    procedure CreateTempShipment(var TempValueEntryShipment: Record "Value Entry"; var ErrorBuffer: Record "Value Entry"; var EntriesCount: Integer; var ErrorsCount: Integer; StartDate: Date; EndDate: Date; LocationCode: Code[10]; PassedAmountType: Option; PassedShipmentDetailing: Option; PassedSalesType: Enum "Sales Price Type"; SalesCode: Code[20]; ShowCostShipment: Boolean)
     var
         Item: Record Item;
         Vendor: Record Vendor;
@@ -319,13 +319,42 @@ codeunit 14949 "TORG-29 Helper"
         ValueEntryShipment.Reset();
     end;
 
-    local procedure CalcAmountFromSalesPrice(var ErrorBuffer: Record "Value Entry"; var ErrorsCount: Integer; ValueEntry: Record "Value Entry"; SalesType: Option; SalesCode: Code[20]; UpdateFlag: Boolean): Decimal
+    local procedure CalcAmountFromSalesPrice(var ErrorBuffer: Record "Value Entry"; var ErrorsCount: Integer; ValueEntry: Record "Value Entry"; SalesPriceType: Enum "Sales Price Type"; SalesCode: Code[20]; UpdateFlag: Boolean) Result: Decimal
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+#if not CLEAN19
+        if CalcAmountFromSalesPriceV15(ErrorBuffer, ErrorsCount, ValueEntry, SalesPriceType, SalesCode, UpdateFlag, Result) then
+            exit(Result);
+#endif
+        FilterSalesPrice(PriceListLine, ValueEntry, SalesPriceType, SalesCode);
+        if PriceListLine.FindFirst() and (PriceListLine.Count = 1) then
+            Result := Round(PriceListLine."Unit Price" * ValueEntry."Item Ledger Entry Quantity");
+        if not UpdateFlag then begin
+            ErrorsCount := ErrorsCount + 1;
+            ErrorBuffer.Init();
+            ErrorBuffer."Item No." := ValueEntry."Item No.";
+            ErrorBuffer."Posting Date" := ValueEntry."Posting Date";
+            if PriceListLine.Count = 0 then
+                ErrorBuffer.Description := NoPriceFoundErr
+            else
+                ErrorBuffer.Description := SeveralPricesFoundErr;
+            ErrorBuffer."Entry No." := ErrorsCount;
+            ErrorBuffer.Insert();
+        end;
+    end;
+
+#if not CLEAN19
+    local procedure CalcAmountFromSalesPriceV15(var ErrorBuffer: Record "Value Entry"; var ErrorsCount: Integer; ValueEntry: Record "Value Entry"; SalesPriceType: Enum "Sales Price Type"; SalesCode: Code[20]; UpdateFlag: Boolean; var Result: Decimal): Boolean;
     var
         SalesPrice: Record "Sales Price";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        FilterSalesPrice(SalesPrice, ValueEntry, SalesType, SalesCode);
-        if SalesPrice.FindFirst and (SalesPrice.Count = 1) then
-            exit(Round(SalesPrice."Unit Price" * ValueEntry."Item Ledger Entry Quantity"));
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            exit(false);
+        FilterSalesPrice(SalesPrice, ValueEntry, SalesPriceType, SalesCode);
+        if SalesPrice.FindFirst() and (SalesPrice.Count = 1) then
+            Result := Round(SalesPrice."Unit Price" * ValueEntry."Item Ledger Entry Quantity");
         if not UpdateFlag then begin
             ErrorsCount := ErrorsCount + 1;
             ErrorBuffer.Init();
@@ -338,9 +367,11 @@ codeunit 14949 "TORG-29 Helper"
             ErrorBuffer."Entry No." := ErrorsCount;
             ErrorBuffer.Insert();
         end;
+        exit(true);
     end;
+#endif
 
-    local procedure CalcRcptResidOnStart(var ErrorBuffer: Record "Value Entry"; var ErrorsCount: Integer; StartDate: Date; LocationCode: Code[10]; PassedAmountType: Option; PassedSalesType: Option; SalesCode: Code[20]) ResidOnstart: Decimal
+    local procedure CalcRcptResidOnStart(var ErrorBuffer: Record "Value Entry"; var ErrorsCount: Integer; StartDate: Date; LocationCode: Code[10]; PassedAmountType: Option; PassedSalesType: Enum "Sales Price Type"; SalesCode: Code[20]) ResidOnstart: Decimal
     var
         Item: Record Item;
         ValueEntryReceipts: Record "Value Entry";
@@ -370,7 +401,8 @@ codeunit 14949 "TORG-29 Helper"
         end;
     end;
 
-    local procedure FilterSalesPrice(var SalesPrice: Record "Sales Price"; ValueEntry: Record "Value Entry"; SalesType: Option; SalesCode: Code[20])
+#if not CLEAN19
+    local procedure FilterSalesPrice(var SalesPrice: Record "Sales Price"; ValueEntry: Record "Value Entry"; SalesPriceType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         Item: Record Item;
     begin
@@ -381,9 +413,41 @@ codeunit 14949 "TORG-29 Helper"
             Item.Get(ValueEntry."Item No.");
             SetRange("Unit of Measure Code", Item."Base Unit of Measure");
             SetRange("Sales Code", SalesCode);
-            SetRange("Sales Type", SalesType + 1);
+            SetRange("Sales Type", SalesPriceType);
             SetFilter("Starting Date", '<=%1', ValueEntry."Posting Date");
             SetFilter("Ending Date", '>=%1|''''', ValueEntry."Posting Date");
+        end;
+    end;
+#endif
+    local procedure FilterSalesPrice(var PriceListLine: Record "Price List Line"; ValueEntry: Record "Value Entry"; SalesPriceType: Enum "Sales Price Type"; SourceNo: Code[20])
+    var
+        Item: Record Item;
+    begin
+
+        PriceListLine.Reset();
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
+        PriceListLine.SetRange("Asset No.", ValueEntry."Item No.");
+        PriceListLine.SetRange("Currency Code", '');
+        PriceListLine.SetRange("Minimum Quantity", 0);
+        Item.Get(ValueEntry."Item No.");
+        PriceListLine.SetRange("Unit of Measure Code", Item."Base Unit of Measure");
+        PriceListLine.SetRange("Source No.", SourceNo);
+        PriceListLine.SetRange("Source Type", GetSourceType(SalesPriceType));
+        PriceListLine.SetFilter("Starting Date", '<=%1', ValueEntry."Posting Date");
+        PriceListLine.SetFilter("Ending Date", '>=%1|''''', ValueEntry."Posting Date");
+        PriceListLine.SetRange(Status, "Price Status"::Active);
+    end;
+
+    local procedure GetSourceType(SalesPriceType: Enum "Sales Price Type"): Enum "Price Source Type";
+    var
+    begin
+        case SalesPriceType of
+            SalesPriceType::"All Customers":
+                exit("Price Source Type"::"All Customers");
+            SalesPriceType::Campaign:
+                exit("Price Source Type"::Campaign);
+            SalesPriceType::"Customer Price Group":
+                exit("Price Source Type"::"Customer Price Group");
         end;
     end;
 

@@ -2,6 +2,7 @@ codeunit 144722 "ERM Bill of Lading Report"
 {
     // // [FEATURE] [Report] [Bill of Lading]
 
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()

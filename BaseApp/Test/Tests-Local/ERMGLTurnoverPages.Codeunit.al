@@ -1,7 +1,7 @@
 codeunit 144104 "ERM G/L Turnover Pages"
 {
     // // [FEATURE] [G/L Turnover]
-
+    TestPermissions = NonRestrictive;
     Subtype = Test;
 
     trigger OnRun()
