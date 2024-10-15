@@ -865,6 +865,8 @@ codeunit 12184 "Fattura Doc. Helper"
         InvDiscAmount := FieldRef.Value;
         FieldRef := RecRef.Field(QuantityFieldNo);
         QtyValue := FieldRef.Value;
+        if QtyValue = 0 then
+            exit(0);
         exit(Round(InvDiscAmount / QtyValue));
     end;
 
