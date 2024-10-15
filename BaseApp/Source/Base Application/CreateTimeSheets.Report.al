@@ -31,11 +31,13 @@
                         TimeSheetHeader."Starting Date" := StartingDate;
                         TimeSheetHeader."Ending Date" := EndingDate;
                         TimeSheetHeader.Validate("Resource No.", "No.");
+                        OnResourceOnAfterGerRecordOnBeforeTimeSheetHeaderInsert(TimeSheetHeader, Resource);
                         TimeSheetHeader.Insert(true);
                         TimeSheetCounter += 1;
 
                         if CreateLinesFromJobPlanning then
                             TimeSheetMgt.CreateLinesFromJobPlanning(TimeSheetHeader);
+                        OnResourceOnAfterGerRecordOnAfterTimeSheetHeaderInserted(TimeSheetHeader, Resource);
                     end;
                 end;
 
@@ -251,6 +253,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResourceOnAfterGerRecord(var Resource: Record Resource; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResourceOnAfterGerRecordOnBeforeTimeSheetHeaderInsert(var TimeSheetHeader: Record "Time Sheet Header"; Resource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResourceOnAfterGerRecordOnAfterTimeSheetHeaderInserted(TimeSheetHeader: Record "Time Sheet Header"; Resource: Record Resource)
     begin
     end;
 }

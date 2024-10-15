@@ -264,10 +264,8 @@ codeunit 350 IntraJnlManagement
                          IntrastatJnlLine, AdvancedIntrastatChecklist."Field No.", ErrorMessage."Message Type"::Error) <> 0);
             until AdvancedIntrastatChecklist.Next() = 0;
 
-        if AnyError and ThrowError then begin
-            Commit();
-            Error(AdvChecklistErr);
-        end;
+        if AnyError and ThrowError then
+            ThrowJournalBatchError();
 
         exit(not AnyError);
     end;
@@ -303,7 +301,6 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo("Total Weight"), '');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: True');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Total Weight"), '');
-        CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Shpt. Method Code"), '');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: True');
     end;
 
@@ -326,6 +323,21 @@ codeunit 350 IntraJnlManagement
         AdvancedIntrastatChecklist.Validate("Field No.", FieldNo);
         AdvancedIntrastatChecklist.Validate("Filter Expression", FilterExpr);
         if AdvancedIntrastatChecklist.Insert() then;
+    end;
+
+    procedure CheckForJournalBatchError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ThrowError: Boolean)
+    var
+        ErrorMessage: Record "Error Message";
+    begin
+        ChecklistSetBatchContext(ErrorMessage, IntrastatJnlLine);
+        if ErrorMessage.HasErrors(false) and ThrowError then
+            ThrowJournalBatchError();
+    end;
+
+    local procedure ThrowJournalBatchError()
+    begin
+        Commit();
+        Error(AdvChecklistErr);
     end;
 }
 

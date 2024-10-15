@@ -970,13 +970,8 @@
         with TempAttachReportSelections do
             repeat
                 if CanSaveReportAsPDF(TempAttachReportSelections."Report ID") then begin
-                    FileManagement.BLOBImportFromServerFile(
-                        TempBlob,
-                        SaveReportAsPDF(
-                            "Report ID", RecordVariant, "Custom Report Layout Code", "Report Selection Usage".FromInteger(ReportUsage)));
-
+                    SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", "Report Selection Usage".FromInteger(ReportUsage));
                     SaveDocumentAttachmentFromRecRef(RecRef, TempAttachReportSelections, DocumentNo, AccountNo, TempBlob, NumberOfReportsAttached);
-
                 end;
             until Next() = 0;
 
@@ -1279,17 +1274,18 @@
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerAttachmentFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
+        AttachmentInStream: InStream;
         ClientAttachmentFileName: Text;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                TempBlob.CreateInStream(AttachmentInStream);
                 ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
-                FileManagement.DownloadHandler(
-                    ServerAttachmentFilePath, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
+                DownloadFromStream(AttachmentInStream, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
             until Next() = 0;
     end;
 
@@ -1307,17 +1303,18 @@
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerAttachmentFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
+        AttachmentInStream: InStream;
         ClientAttachmentFileName: Text;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FindReportUsageForVend(ReportUsage, VendorNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                TempBlob.CreateInStream(AttachmentInStream);
                 ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
-                FileManagement.DownloadHandler(
-                    ServerAttachmentFilePath, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
+                DownloadFromStream(AttachmentInStream, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
             until Next() = 0;
     end;
 
@@ -1335,19 +1332,18 @@
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerAttachmentTempBlob: Codeunit "Temp Blob";
-        ServerAttachmentInStream: InStream;
-        ServerAttachmentFilePath: Text;
+        AttachmentTempBlob: Codeunit "Temp Blob";
+        AttachmentInStream: InStream;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FindReportUsageForCust(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
-                FileManagement.BLOBImportFromServerFile(ServerAttachmentTempBlob, ServerAttachmentFilePath);
-                ServerAttachmentTempBlob.CreateInStream(ServerAttachmentInStream);
+                SaveReportAsPDFInTempBlob(
+                    AttachmentTempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                AttachmentTempBlob.CreateInStream(AttachmentInStream);
                 DataCompression.AddEntry(
-                  ServerAttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
+                    AttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
             until Next() = 0;
     end;
 
@@ -1365,19 +1361,18 @@
     var
         TempReportSelections: Record "Report Selections" temporary;
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerAttachmentTempBlob: Codeunit "Temp Blob";
-        ServerAttachmentInStream: InStream;
-        ServerAttachmentFilePath: Text;
+        AttachmentTempBlob: Codeunit "Temp Blob";
+        AttachmentInStream: InStream;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
         FindReportUsageForVend(ReportUsage, VendorNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
-                FileManagement.BLOBImportFromServerFile(ServerAttachmentTempBlob, ServerAttachmentFilePath);
-                ServerAttachmentTempBlob.CreateInStream(ServerAttachmentInStream);
+                SaveReportAsPDFInTempBlob(
+                    AttachmentTempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
+                AttachmentTempBlob.CreateInStream(AttachmentInStream);
                 DataCompression.AddEntry(
-                    ServerAttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
+                    AttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
             until Next() = 0;
     end;
 
@@ -1545,13 +1540,21 @@
         if not IsHandled then begin
             TempBlob.CreateOutStream(OutStream);
             LastUsedParameters := CustomLayoutReporting.GetReportRequestPageParameters(ReportID);
-            Report.SaveAs(ReportID, LastUsedParameters, ReportFormat::Pdf, OutStream, RecordVariant);
+            Report.SaveAs(ReportID, LastUsedParameters, ReportFormat::Pdf, OutStream, GetRecRef(RecordVariant));
         end;
         OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, '', true, TempBlob);
 
         ReportLayoutSelectionLocal.SetTempLayoutSelected('');
 
         Commit();
+    end;
+
+    local procedure GetRecRef(RecVariant: Variant) RecRef: RecordRef
+    begin
+        if RecVariant.IsRecordRef() then
+            exit(RecVariant);
+        if RecVariant.IsRecord() then
+            RecRef.GetTable(RecVariant);
     end;
 
     local procedure SaveReportAsHTML(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage") FilePath: Text[250]
@@ -1989,7 +1992,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveDocumentAttachmentFromRecRef(RecRef: RecordRef; var TempAttachReportSelections: Record "Report Selections"; DocumentNo: Code[20]; AccountNo: Code[20]; var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean; NumberOfReportsAttached: Integer)
+    local procedure OnBeforeSaveDocumentAttachmentFromRecRef(RecRef: RecordRef; var TempAttachReportSelections: Record "Report Selections"; DocumentNo: Code[20]; AccountNo: Code[20]; var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean; var NumberOfReportsAttached: Integer)
     begin
     end;
 

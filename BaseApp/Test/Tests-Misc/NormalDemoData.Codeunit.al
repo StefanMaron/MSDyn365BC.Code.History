@@ -353,14 +353,14 @@ codeunit 138200 "Normal DemoData"
         DefaultDimension.SetFilter("Allowed Values Filter", '<>%1', '');
         Assert.RecordIsNotEmpty(DefaultDimension);
     end;
-    
+
     [Test]
     procedure AdvancedIntrastatChecklist()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
     begin
-        Assert.RecordCount(AdvancedIntrastatChecklist, 17);
+        Assert.RecordCount(AdvancedIntrastatChecklist, 16);
 
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Checklist");
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Form");
@@ -372,7 +372,6 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo("Total Weight"), '');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Total Weight"), '');
-        AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Shpt. Method Code"), '');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
     end;
 

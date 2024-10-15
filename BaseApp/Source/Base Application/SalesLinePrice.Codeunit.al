@@ -246,6 +246,8 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
     begin
         if not SalesLine."Allow Line Disc." then
             SalesLine."Line Discount %" := 0;
+
+        OnAfterUpdate(SalesLine, CurrPriceType, AmountType);
     end;
 
     procedure AddActivatedCampaignsAsSource()
@@ -319,6 +321,11 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdate(var SalesLine: Record "Sales Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     begin
     end;
 
