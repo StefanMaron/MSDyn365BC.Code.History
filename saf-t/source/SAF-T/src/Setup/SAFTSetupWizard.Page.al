@@ -372,7 +372,7 @@ page 5280 "SAF-T Setup Wizard"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Match chart of accounts';
                 ToolTip = 'Automatically match existing G/L accounts with SAF-T standard accounts codes, with either two or four digits depending on the mapping type selected in the previous step.';
-                Visible = MappingAccountVisible and SAFTStandardAccMappingSelected;
+                Visible = MappingAccountVisible;
                 Image = MapAccounts;
                 InFooterBar = true;
                 trigger OnAction();
@@ -389,7 +389,7 @@ page 5280 "SAF-T Setup Wizard"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Create chart of accounts';
                 ToolTip = 'Create a chart of accounts in Business Central from SAF-T standard accounts codes, with either two or four digits depending on mapping type selected in the previous step.';
-                Visible = MappingRangeStepVisible and SAFTStandardAccMappingSelected;
+                Visible = MappingRangeStepVisible;
                 Image = MapAccounts;
                 InFooterBar = true;
                 trigger OnAction();
@@ -482,7 +482,6 @@ page 5280 "SAF-T Setup Wizard"
         DimensionExportVisible: Boolean;
         ContactVisible: Boolean;
         TopBannerVisible: Boolean;
-        SAFTStandardAccMappingSelected: Boolean;
         StandardAccountsLoaded: Boolean;
         SetupCompleted: Boolean;
         DataUpgradeAgreed: Boolean;
