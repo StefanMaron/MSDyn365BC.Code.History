@@ -206,7 +206,7 @@
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
         // [THEN] Intrastat Journal Line Amount = "X"
-        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Unit Price", 1));
+        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", -1, -Round(Item."Unit Price", 1));
     end;
 
     [Test]
@@ -446,6 +446,7 @@
         repeat
             IntrastatJnlLine.Validate("Transport Method", TransportMethod);
             IntrastatJnlLine.Validate("Transaction Type", TransactionType);
+            IntrastatJnlLine."Transaction Specification" := LibraryUtility.GenerateGUID();
             IntrastatJnlLine.Validate("Net Weight", LibraryRandom.RandDecInRange(1, 10, 2));
             IntrastatJnlLine.Validate("Entry/Exit Point", ExitEntryPoint);
             IntrastatJnlLine.Modify(true);

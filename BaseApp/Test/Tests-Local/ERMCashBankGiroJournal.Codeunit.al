@@ -851,7 +851,6 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure CBGStatementLineRecognizeBankAccountNoWithLongIBAN()
     var
@@ -1728,7 +1727,6 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     end;
 
     [Test]
-    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure CBGStatementReconciliationCustomerInvoiceLineApllies();
     var
@@ -1766,7 +1764,6 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     end;
 
     [Test]
-    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure CBGStatementReconciliationCustomerCreditMemoLineApllies();
     var
@@ -2556,13 +2553,12 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     [Test]
     [HandlerFunctions('ApplyToIDModalPageHandler,PaymentToleranceWarningModalPageHandler,YesConfirmHandler')]
     [Scope('OnPrem')]
-    procedure ApplyUnapplyCBGStatementWithPaymentTolerance()
+    procedure ApplyCustomerCBGStatementWithPaymentTolerance()
     var
         CustomerBankAccount: Record "Customer Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CBGStatementLine: Record "CBG Statement Line";
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         GLEntry: Record "G/L Entry";
         CustomerPostingGroup: Record "Customer Posting Group";
         Customer: Record Customer;
@@ -2572,9 +2568,10 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
         PaymentTolerancePct: Decimal;
+        PaymentNo: Code[20];
     begin
-        // [FEATURE] [Apply] [Unapply] [Payment] [Invoice] [Payment Tolerance] [UI]
-        // [SCENARIO] Stan can unapply applied payment to invoice via Bank/Giro Journal page with Payment Tolerance
+        // [FEATURE] [Customer] [Apply] [Payment] [Invoice] [Payment Tolerance] [UI]
+        // [SCENARIO 395043] Stan can apply payment to invoice via Bank/Giro Journal page with 'Post as Payment Tolerance' selected in Payment Tolerance Warning
         Initialize();
 
         // [GIVEN] "Payment Tolerance Warning" = TRUE and "Payment Tolerance %" = 5 in General Ledger Setup
@@ -2591,7 +2588,84 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] Payment with Amount = -990 applied to the invoice in Bank/Giro Journal
-        // [GIVEN] Selected "Leave Remaining Amount" on Payment Tolerance Warning dialog
+        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Customer);
+        BankGiroJournal.Subform."Account No.".SetValue(CustomerBankAccount."Customer No.");
+
+        // [GIVEN] Selected 'Post as Payment Tolerance' on Payment Tolerance Warning dialog
+        BankGiroJournal.Subform.ApplyEntries.Invoke;
+        PaymentAmount := Round(BankGiroJournal.Subform.Credit.AsDEcimal * (100 - PaymentTolerancePct / 2) / 100);
+        LibraryVariableStorage.Enqueue(1);
+        BankGiroJournal.Subform.Credit.SetValue(PaymentAmount);
+        PaymentNo := BankGiroJournal."Document No.".Value;
+        LibraryVariableStorage.AssertEmpty();
+
+        // [WHEN] Post CBG Statement
+        BankGiroJournal.Post.Invoke();
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Bank Account Ledger entry created with Amount = "-990"
+        VerifyBankAccountLedgerEntryAmount(BankAccountNo, PaymentAmount);
+
+        // [THEN] Payment Tolerance amount is posted on customer's "Payment Tolerance Debit Account"
+        Customer.Get(CustomerBankAccount."Customer No.");
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        FilterGLEntry(GLEntry, PaymentNo, CustomerPostingGroup."Payment Tolerance Debit Acc.");
+        GLEntry.FindFirst();
+
+        // [THEN] Invoice's customer ledger applied to payment with "Remaining Amount" = 0. Entry has been closed.
+        VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
+          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Invoice, InvoiceAmount, 0, false);
+
+        // [THEN] Payment's customer ledger applied to invoice with "Remaining Amount" = 0. Entry has been closed.
+        VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
+          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Payment, -InvoiceAmount, 0, false);
+
+        // [THEN] Payment's amount posted on "Receivables Account" of the customer
+        GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Receivables Account");
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, -InvoiceAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyToIDModalPageHandler,PaymentToleranceWarningModalPageHandler,YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplyCBGStatementWithPaymentTolerance()
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CBGStatementLine: Record "CBG Statement Line";
+        GLEntry: Record "G/L Entry";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        Customer: Record Customer;
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        ExportProtocolCode: Code[20];
+        BankAccountNo: Code[20];
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+        PaymentTolerancePct: Decimal;
+        PaymentNo: Code[20];
+    begin
+        // [FEATURE] [Customer] [Apply] [Unapply] [Payment] [Invoice] [Payment Tolerance] [UI]
+        // [SCENARIO 395043] Stan can unapply applied payment to invoice via Bank/Giro Journal page with 'Leave Remaining Amount' selected in Payment Tolerance Warning
+        Initialize();
+
+        // [GIVEN] "Payment Tolerance Warning" = TRUE and "Payment Tolerance %" = 5 in General Ledger Setup
+        PaymentTolerancePct := LibraryRandom.RandIntInRange(3, 7);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 1100, 2);
+
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
+
+        InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, BankAccountNo);
+
+        // [GIVEN] Invoice with Amount = 1000
+        CreateGeneralJournal(GenJournalLine, CustomerBankAccount."Customer No.", GenJournalLine."Account Type"::Customer, InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Payment with Amount = -990 applied to the invoice in Bank/Giro Journal
         BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
         BankGiroJournal.OpenEdit();
         BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Customer);
@@ -2602,17 +2676,21 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PaymentAmount := Round(BankGiroJournal.Subform.Credit.AsDecimal * (100 - PaymentTolerancePct / 2) / 100);
         LibraryVariableStorage.Enqueue(2);
         BankGiroJournal.Subform.Credit.SetValue(PaymentAmount);
+        PaymentNo := BankGiroJournal."Document No.".Value;
         LibraryVariableStorage.AssertEmpty();
 
         // [WHEN] Post CBG Statement
-        LibraryVariableStorage.Enqueue(2);
         BankGiroJournal.Post.Invoke();
         LibraryVariableStorage.AssertEmpty();
 
         // [THEN] Bank Account Ledger entry created with Amount = "-990"
-        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.FindFirst();
-        BankAccountLedgerEntry.TestField(Amount, PaymentAmount);
+        VerifyBankAccountLedgerEntryAmount(BankAccountNo, PaymentAmount);
+
+        // [THEN] Nothing posted on customer's "Payment Tolerance Debit Account"
+        Customer.Get(CustomerBankAccount."Customer No.");
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        FilterGLEntry(GLEntry, PaymentNo, CustomerPostingGroup."Payment Tolerance Debit Acc.");
+        Assert.RecordIsEmpty(GLEntry);
 
         // [THEN] Invoice's customer ledger applied to payment with "Remaining Amount" = 10. Entry remains open.
         VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
@@ -2622,18 +2700,9 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
           CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Payment, -PaymentAmount, 0, false);
 
-        Customer.Get(CustomerBankAccount."Customer No.");
-        CustomerPostingGroup.Get(Customer."Customer Posting Group");
-
-        // [THEN] Nothing posted on customer's "Payment Tolerance Credit Account"
-        GLEntry.FindLast();
-        GLEntry.SetRange("Document No.", GLEntry."Document No.");
-        GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Payment Tolerance Credit Acc.");
-        Assert.RecordIsEmpty(GLEntry);
-
         // [THEN] Payment's amount posted on "Receivables Account" of the customer
         GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Receivables Account");
-        GLEntry.FindLast();
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, -PaymentAmount);
 
         // [THEN] Stan able to unapply payment entry
@@ -2643,9 +2712,174 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
           CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Invoice, InvoiceAmount, InvoiceAmount, true);
-
         VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
           CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Payment, -PaymentAmount, -PaymentAmount, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyToIDVendorModalPageHandler,PaymentToleranceWarningModalPageHandler,YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyVendorCBGStatementWithPaymentTolerance()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        CBGStatementLine: Record "CBG Statement Line";
+        GLEntry: Record "G/L Entry";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        Vendor: Record Vendor;
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        ExportProtocolCode: Code[20];
+        BankAccountNo: Code[20];
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+        PaymentTolerancePct: Decimal;
+        PaymentNo: Code[20];
+    begin
+        // [FEATURE] [Vendor] [Apply] [Payment] [Invoice] [Payment Tolerance] [UI]
+        // [SCENARIO 395043] Stan can apply payment to invoice via Bank/Giro Journal page with 'Post as Payment Tolerance' selected in Payment Tolerance Warning
+        Initialize();
+
+        // [GIVEN] "Payment Tolerance Warning" = TRUE and "Payment Tolerance %" = 5 in General Ledger Setup
+        PaymentTolerancePct := LibraryRandom.RandIntInRange(3, 7);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 1100, 2);
+
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
+
+        InitVendorForExport(VendorBankAccount, ExportProtocolCode, BankAccountNo);
+
+        // [GIVEN] Invoice with Amount = 1000
+        CreateGeneralJournal(GenJournalLine, VendorBankAccount."Vendor No.", GenJournalLine."Account Type"::Vendor, -InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Payment with Amount = -990 applied to the invoice in Bank/Giro Journal
+        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Vendor);
+        BankGiroJournal.Subform."Account No.".SetValue(VendorBankAccount."Vendor No.");
+
+        // [GIVEN] Selected 'Post as Payment Tolerance' on Payment Tolerance Warning dialog
+        BankGiroJournal.Subform.ApplyEntries.Invoke;
+        PaymentAmount := Round(BankGiroJournal.Subform.Debit.AsDEcimal * (100 - PaymentTolerancePct / 2) / 100);
+        LibraryVariableStorage.Enqueue(1);
+        BankGiroJournal.Subform.Debit.SetValue(PaymentAmount);
+        PaymentNo := BankGiroJournal."Document No.".Value;
+        LibraryVariableStorage.AssertEmpty();
+
+        // [WHEN] Post CBG Statement
+        BankGiroJournal.Post.Invoke();
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Bank Account Ledger entry created with Amount = "-990"
+        VerifyBankAccountLedgerEntryAmount(BankAccountNo, -PaymentAmount);
+
+        // [THEN] Payment Tolerance Amount is posted on vendor's "Payment Tolerance Credit Account"
+        Vendor.Get(VendorBankAccount."Vendor No.");
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        FilterGLEntry(GLEntry, PaymentNo, VendorPostingGroup."Payment Tolerance Credit Acc.");
+        GLEntry.FindFirst();
+
+        // [THEN] Invoice's vendor ledger applied to payment with "Remaining Amount" = 0. Entry has been closed.
+        VerifyVendorLedgerEntryAmountRemainingAmountOpen(
+          VendorBankAccount."Vendor No.", VendorLedgerEntry."Document Type"::Invoice, -InvoiceAmount, 0, false);
+
+        // [THEN] Payment's vendor ledger applied to invoice fully, "Remaining Amount" = 0. Entry has been closed.
+        VerifyVendorLedgerEntryAmountRemainingAmountOpen(
+          VendorBankAccount."Vendor No.", VendorLedgerEntry."Document Type"::Payment, InvoiceAmount, 0, false);
+
+        // [THEN] Payment's amount posted on "Receivables Account" of the vendor
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payables Account");
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, InvoiceAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyToIDVendorModalPageHandler,PaymentToleranceWarningModalPageHandler,YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplyVendorCBGStatementWithPaymentToleranceRemainingAmt()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        CBGStatementLine: Record "CBG Statement Line";
+        GLEntry: Record "G/L Entry";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        Vendor: Record Vendor;
+        BankGiroJournal: TestPage "Bank/Giro Journal";
+        ExportProtocolCode: Code[20];
+        BankAccountNo: Code[20];
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+        PaymentTolerancePct: Decimal;
+        PaymentNo: Code[20];
+    begin
+        // [FEATURE] [Vendor] [Apply] [Unapply] [Payment] [Invoice] [Payment Tolerance] [UI]
+        // [SCENARIO 395043] Stan can unapply applied payment to invoice via Bank/Giro Journal page with 'Leave Remaining Amount' selected in Payment Tolerance Warning
+        Initialize();
+
+        // [GIVEN] "Payment Tolerance Warning" = TRUE and "Payment Tolerance %" = 5 in General Ledger Setup
+        PaymentTolerancePct := LibraryRandom.RandIntInRange(3, 7);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 1100, 2);
+
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
+
+        InitVendorForExport(VendorBankAccount, ExportProtocolCode, BankAccountNo);
+
+        // [GIVEN] Invoice with Amount = 1000
+        CreateGeneralJournal(GenJournalLine, VendorBankAccount."Vendor No.", GenJournalLine."Account Type"::Vendor, -InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Payment with Amount = -990 applied to the invoice in Bank/Giro Journal
+        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
+        BankGiroJournal.OpenEdit();
+        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Vendor);
+        BankGiroJournal.Subform."Account No.".SetValue(VendorBankAccount."Vendor No.");
+
+        // [GIVEN] Selected 'Leave Remaining Amount' on Payment Tolerance Warning dialog
+        BankGiroJournal.Subform.ApplyEntries.Invoke;
+        PaymentAmount := Round(BankGiroJournal.Subform.Debit.AsDEcimal * (100 - PaymentTolerancePct / 2) / 100);
+        LibraryVariableStorage.Enqueue(2);
+        BankGiroJournal.Subform.Debit.SetValue(PaymentAmount);
+        PaymentNo := BankGiroJournal."Document No.".Value;
+        LibraryVariableStorage.AssertEmpty();
+
+        // [WHEN] Post CBG Statement
+        BankGiroJournal.Post.Invoke();
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Bank Account Ledger entry created with Amount = "-990"
+        VerifyBankAccountLedgerEntryAmount(BankAccountNo, -PaymentAmount);
+
+        // [THEN] Nothing posted on vendor's "Payment Tolerance Credit Account"
+        Vendor.Get(VendorBankAccount."Vendor No.");
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        FilterGLEntry(GLEntry, PaymentNo, VendorPostingGroup."Payment Tolerance Credit Acc.");
+        Assert.RecordIsEmpty(GLEntry);
+
+        // [THEN] Invoice's vendor ledger applied to payment with "Remaining Amount" = 10. Entry remains open.
+        VerifyVendorLedgerEntryAmountRemainingAmountOpen(
+          VendorBankAccount."Vendor No.", VendorLedgerEntry."Document Type"::Invoice, -InvoiceAmount, -InvoiceAmount + PaymentAmount, true);
+
+        // [THEN] Payment's vendor ledger applied to invoice fully, "Remaining Amount" = 10. Entry has been closed.
+        VerifyVendorLedgerEntryAmountRemainingAmountOpen(
+          VendorBankAccount."Vendor No.", VendorLedgerEntry."Document Type"::Payment, PaymentAmount, 0, false);
+
+        // [THEN] Payment's amount posted on "Receivables Account" of the vendor
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup."Payables Account");
+        GLEntry.FindLast();
+        GLEntry.TestField(Amount, PaymentAmount);
+
+        // [THEN] Stan able to unapply payment entry
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GLEntry."Document No.");
+        LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
+
+        VerifyVendorLedgerEntryAmountRemainingAmountOpen(
+          VendorBankAccount."Vendor No.", VendorLedgerEntry."Document Type"::Invoice, -InvoiceAmount, -InvoiceAmount, true);
+        VerifyVendorLedgerEntryAmountRemainingAmountOpen(
+          VendorBankAccount."Vendor No.", VendorLedgerEntry."Document Type"::Payment, PaymentAmount, PaymentAmount, true);
     end;
 
     [Test]
@@ -4145,9 +4379,15 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PaymentTerms: Record "Payment Terms";
         TransactionMode: Record "Transaction Mode";
         Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
     begin
         CreateAndUpdateCustTransactionMode(TransactionMode, ExportProtocol, OurBank);
         LibrarySales.CreateCustomer(Customer);
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        CustomerPostingGroup.Validate("Receivables Account", LibraryERM.CreateGLAccountNo);
+        CustomerPostingGroup.Validate("Payment Tolerance Credit Acc.", LibraryERM.CreateGLAccountNo);
+        CustomerPostingGroup.Validate("Payment Tolerance Debit Acc.", LibraryERM.CreateGLAccountNo);
+        CustomerPostingGroup.Modify(true);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, CalcPmtDiscOnCrMemos);
         CreateCustomerBankAccount(CustomerBankAccount, Customer."No.", TransactionMode."Our Bank");
         Customer.Validate("Transaction Mode Code", TransactionMode.Code);
@@ -4248,9 +4488,15 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PaymentTerms: Record "Payment Terms";
         TransactionMode: Record "Transaction Mode";
         Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
     begin
         CreateAndUpdateVendTransactionMode(TransactionMode, ExportProtocol, OurBank);
         LibraryPurchase.CreateVendor(Vendor);
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        VendorPostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Validate("Payment Tolerance Credit Acc.", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Validate("Payment Tolerance Debit Acc.", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Modify(true);
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, CalcPmtDiscOnCrMemos);
         CreateVendorBankAccount(VendorBankAccount, Vendor."No.", TransactionMode."Our Bank");
         Vendor.Validate("Transaction Mode Code", TransactionMode.Code);
@@ -4466,6 +4712,12 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         CashJournal.Subform."Account Type".SetValue(CashJournal.Subform."Account Type".GetOption(1));  // Using 1 for Option Value: G/L Account.
         CashJournal.Subform."Account No.".SetValue(AccountNo);
+    end;
+
+    local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAcountNo: Code[20])
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAcountNo);
     end;
 
     local procedure FindBankAccountNo(): Text[30]
@@ -4975,7 +5227,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        CustomerBankAccount.Validate(IBAN, IBANNumber);
+        CustomerBankAccount.IBAN := IBANNumber;
         CustomerBankAccount.Modify(true);
     end;
 
@@ -5043,6 +5295,15 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode);
         TransactionMode.Validate("Source Code", SourceCode.Code);
         TransactionMode.Modify(true);
+    end;
+
+    local procedure VerifyBankAccountLedgerEntryAmount(AccountNo: Code[20]; ExpectedAmount: Decimal)
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+    begin
+        BankAccountLedgerEntry.SetRange("Bank Account No.", AccountNo);
+        BankAccountLedgerEntry.FindFirst;
+        BankAccountLedgerEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyOriginalPaymentAmountAfterDiscount(VendorNo: Code[20])
@@ -5153,6 +5414,23 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         with CustLedgerEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Customer No.", CustomerNo);
+            FindLast();
+
+            CalcFields(Amount, "Remaining Amount");
+
+            TestField(Amount, ExpectedAmount);
+            TestField("Remaining Amount", ExpectedRemaningAmount);
+            TestField(Open, ExpectedOpen);
+        end;
+    end;
+
+    local procedure VerifyVendorLedgerEntryAmountRemainingAmountOpen(VendorNo: Code[20]; DocumentType: Option; ExpectedAmount: Decimal; ExpectedRemaningAmount: Decimal; ExpectedOpen: Boolean)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        with VendorLedgerEntry do begin
+            SetRange("Document Type", DocumentType);
+            SetRange("Vendor No.", VendorNo);
             FindLast();
 
             CalcFields(Amount, "Remaining Amount");

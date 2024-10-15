@@ -364,7 +364,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         AddElement(XMLNodeCurr, 'Id', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
-        if Worldpayment then begin
+        if Worldpayment and (PaymentHistoryLine."Bank Account No." <> '') then begin
             AddElement(XMLNodeCurr, 'Othr', '', '', XMLNewChild);
             XMLNodeCurr := XMLNewChild;
             AddElement(XMLNodeCurr, 'Id', DelChr(CopyStr(PaymentHistoryLine."Bank Account No.", 1, 30)), '', XMLNewChild);

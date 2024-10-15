@@ -27,14 +27,21 @@
                     IsCorrection: Boolean;
                     CountryRegionOfOriginCode: Code[10];
                 begin
-                    TestField("Item No.");
-                    TestField("Tariff No.");
-                    TestField("Country/Region Code");
-                    if not CounterpartyInfo then
-                        TestField("Transaction Type");
-                    TestField("Transport Method");
-                    TestField("Net Weight");
-                    TestField("Total Weight");
+
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Create Intrastat Decl. Disk", true)
+                    else begin
+                        TestField("Item No.");
+                        TestField("Tariff No.");
+                        TestField("Country/Region Code");
+                        TestField("Transport Method");
+                        TestField("Net Weight");
+                        TestField("Total Weight");
+                        if Type = Type::Shipment then
+                            TestField("Transaction Specification")
+                        else
+                            TestField("Transaction Type");
+                    end;
 
                     LineNo := LineNo + 1;
 
@@ -69,13 +76,7 @@
                                 ZeroShipment := false;
                             end;
                     end;
-                    IsCorrection := CheckCorrection("Source Entry No.", ItemDirection);
-
-                    if CounterpartyInfo then
-                        if ItemDirection = 7 then
-                            TestField("Transaction Specification")
-                        else
-                            TestField("Transaction Type");
+                    IsCorrection := CheckCorrection("Intrastat Jnl. Line");
 
                     Write(Format(Date, 0, '<Year4><Month,2>'));
                     Write(Format(ItemDirection));
@@ -102,17 +103,17 @@
                     Write('0');
                     Write(PADSTR2("Entry/Exit Point", 2, '0', '<'));
                     Write('00'); // Statistical system
-                    if CounterpartyInfo and (ItemDirection = 7) then
+                    if CounterpartyInfo and (ItemDirection = 7) or ("Transaction Type" = '') then
                         Write(' ')
                     else
                         Write(PADSTR2("Transaction Type", 1, '', '>')); // Transaction code
                     Write(PADSTR2(DelChr("Tariff No."), 8, '0', '<'));
                     Write('00');
-                    Write(Sign(RoundedWeight, IsCorrection));
+                    Write(Sign(RoundedWeight));
                     Write(PADSTR2(Format(RoundedWeight, 0, '<Integer>'), 10, ' ', '<'));
-                    Write(Sign(SpecialUnit, IsCorrection));
+                    Write(Sign(SpecialUnit));
                     Write(PADSTR2(Format(SpecialUnit, 0, '<Integer>'), 10, ' ', '<'));
-                    Write(Sign(Amount, IsCorrection));
+                    Write(Sign(Amount));
                     Write(PADSTR2(Format(Amount, 0, '<Integer>'), 10, ' ', '<'));
                     if IsCorrection then
                         Write('-')
@@ -252,6 +253,7 @@
                 Write(PADSTR2(PhoneNo, 15, ' ', '>'));
                 Write(PADSTR2('', 13, ' ', '>'));
                 Write(CrLf);
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
             end;
 
             trigger OnPreDataItem()
@@ -328,10 +330,13 @@
         ExportFile.TextMode := false;
         ExportFile.WriteMode := true;
         ExportFile.Create(ServerTempFileName);
+        if IntrastatSetup.Get() then;
     end;
 
     var
         CompanyInfo: Record "Company Information";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         ExportFile: File;
         PhoneNo: Text[15];
         ServerTempFileName: Text;
@@ -412,20 +417,11 @@
         ExportFile.Seek(ExportFile.Pos - 1);
     end;
 
-    local procedure Sign(Number: Decimal; IsCorrection: Boolean): Text[1]
+    local procedure Sign(Number: Decimal): Text[1]
     begin
-        case Number < 0 of
-            true:
-                if not IsCorrection then
-                    exit('-')
-                else
-                    exit('+');
-            false:
-                if not IsCorrection then
-                    exit('+')
-                else
-                    exit('-');
-        end;
+        if Number < 0 then
+            exit('-');
+        exit('+');
     end;
 
     local procedure CrLf() CrLf: Text[2]
@@ -434,28 +430,12 @@
         CrLf[2] := 10;
     end;
 
-    local procedure CheckCorrection(SourceEntryNo: Integer; var ItemDirection: Integer): Boolean
+    local procedure CheckCorrection(IntrastatJnlLine: Record 263): Boolean
     var
-        ItemLedgerEntry: Record "Item Ledger Entry";
+        IntrastatLocalMgt: Codeunit "Intrastat Local Mgt.";
+        ItemDirectionType: Option;
     begin
-        with ItemLedgerEntry do begin
-            Get(SourceEntryNo);
-            case "Document Type" of
-                "Document Type"::"Purchase Return Shipment",
-                "Document Type"::"Purchase Credit Memo":
-                    begin
-                        ItemDirection := 6;
-                        exit(true);
-                    end;
-                "Document Type"::"Sales Return Receipt",
-                "Document Type"::"Sales Credit Memo",
-                "Document Type"::"Service Credit Memo":
-                    begin
-                        ItemDirection := 7;
-                        exit(true);
-                    end;
-            end;
-        end;
+        exit(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectionType));
     end;
 
     [Scope('OnPrem')]

@@ -203,12 +203,19 @@ page 11411 "Elec. Tax Declaration Card"
                     trigger OnAction()
                     var
                         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
+                        ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
                         EnvironmentInfo: Codeunit "Environment Information";
+                        UseReqWindow: Boolean;
                     begin
                         ElecTaxDeclarationHeader := Rec;
-                        ElecTaxDeclarationHeader.SetRecFilter;
-
-                        REPORT.RunModal(REPORT::"Submit Elec. Tax Declaration", EnvironmentInfo.IsSaaS, false, ElecTaxDeclarationHeader);
+                        ElecTaxDeclarationHeader.SetRecFilter();
+                        ElecTaxDeclarationSetup.Get();
+                        if ElecTaxDeclarationSetup."Use Certificate Setup" then
+                            UseReqWindow := false
+                        else
+                            UseReqWindow := EnvironmentInfo.IsSaaS();
+                        REPORT.RunModal(
+                          REPORT::"Submit Elec. Tax Declaration", UseReqWindow, false, ElecTaxDeclarationHeader);
                     end;
                 }
             }

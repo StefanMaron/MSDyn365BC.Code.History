@@ -491,13 +491,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM MISC - NamedType EntryExitPointErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2885174154 - NamedType 3353806735" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2885174154 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong value %1 in intrastat file.]]></Val>
+      <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM MISC - NamedType WrongValueErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM MISC - NamedType AdvChecklistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1956804364 - NamedType 2146008245" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
