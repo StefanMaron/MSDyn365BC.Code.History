@@ -511,6 +511,7 @@ page 132 "Posted Sales Invoice"
                         ApplicationArea = BasicMX;
                         Importance = Additional;
                         ToolTip = 'Specifies the official invoice number for the electronic document.';
+                        Editable = false;
                     }
                     field("No. of E-Documents Sent"; Rec."No. of E-Documents Sent")
                     {

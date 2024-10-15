@@ -725,7 +725,7 @@ table 901 "Assembly Line"
         }
         key(Key2; "Document Type", "Document No.", Type, "Location Code")
         {
-            IncludedFields = "Cost Amount", Quantity;
+            IncludedFields = "Cost Amount", Quantity, "No.";
         }
         key(Key3; "Document Type", Type, "No.", "Variant Code", "Location Code", "Due Date")
         {

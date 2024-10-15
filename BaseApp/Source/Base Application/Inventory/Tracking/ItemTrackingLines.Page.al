@@ -629,16 +629,17 @@ page 6510 "Item Tracking Lines"
 
                     trigger OnAction()
                     var
-                        Options: Text;
                         Selected: Integer;
+                        ContinuousScanningStrMenuLabelWithoutPackageNoLbl: Label 'Serial No.,Lot No.';
+                        ContinuousScanningStrMenuLabelWithPackageNoLbl: Label 'Serial No.,Lot No.,Package No.';
                     begin
                         if not CheckQtyIsEnoughForScanning() then
                             exit;
 
-                        Options := 'Serial No.,Lot No.';
                         if PackageNoVisible then
-                            Options := Options + ',Package No.';
-                        Selected := Dialog.StrMenu(Options, 0);
+                            Selected := Dialog.StrMenu(ContinuousScanningStrMenuLabelWithPackageNoLbl, 0)
+                        else
+                            Selected := Dialog.StrMenu(ContinuousScanningStrMenuLabelWithoutPackageNoLbl, 0);
                         case Selected of
                             1:
                                 ItemTrackingEntryType := "Item Tracking Entry Type"::"Serial No.";
@@ -1269,7 +1270,7 @@ page 6510 "Item Tracking Lines"
         TrackingSpecification.SetItemData(TempRec."Item No.", TempRec.Description, TempRec."Location Code", TempRec."Variant Code", TempRec."Bin Code", TempRec."Qty. per Unit of Measure");
     end;
 
-    internal procedure CheckItemTrakcingLineIsInBoundForBarcodeScanning(): Boolean
+    internal procedure CheckItemTrackingLineIsInBoundForBarcodeScanning(): Boolean
     var
         ItemLedgerEntryType: Enum "Item Ledger Entry Type";
     begin
@@ -1304,7 +1305,7 @@ page 6510 "Item Tracking Lines"
         if not ContinuousScanningMode then
             exit;
 
-        if CheckItemTrakcingLineIsInBoundForBarcodeScanning() then
+        if CheckItemTrackingLineIsInBoundForBarcodeScanning() then
             case ItemTrackingEntryType of
                 "Item Tracking Entry Type"::"Serial No.":
                     ScanSerialNoInBound(Barcode);
@@ -2787,7 +2788,7 @@ page 6510 "Item Tracking Lines"
         if CreateLotNo then begin
             Rec.TestField("Lot No.", '');
             AssignNewLotNo();
-            OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Lot No."));
+            OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Lot No."), SourceTrackingSpecification);
         end;
 
         Item.TestField("Serial Nos.");
@@ -2797,7 +2798,7 @@ page 6510 "Item Tracking Lines"
             Rec.Validate("Quantity Handled (Base)", 0);
             Rec.Validate("Quantity Invoiced (Base)", 0);
             AssignNewSerialNo();
-            OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Serial No."));
+            OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Serial No."), SourceTrackingSpecification);
             Rec.Validate("Quantity (Base)", QtySignFactor());
             Rec."Entry No." := NextEntryNo();
             if TestTempSpecificationExists(CheckTillEntryNo) then
@@ -2849,7 +2850,7 @@ page 6510 "Item Tracking Lines"
         Rec.Validate("Quantity Handled (Base)", 0);
         Rec.Validate("Quantity Invoiced (Base)", 0);
         AssignNewLotNo();
-        OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Lot No."));
+        OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Lot No."), SourceTrackingSpecification);
         Rec."Qty. per Unit of Measure" := QtyPerUOM;
         Rec."Qty. Rounding Precision (Base)" := QtyRoundingPerBase;
         Rec.Validate("Quantity (Base)", QtyToCreate);
@@ -2911,7 +2912,7 @@ page 6510 "Item Tracking Lines"
         Rec.Validate("Quantity Handled (Base)", 0);
         Rec.Validate("Quantity Invoiced (Base)", 0);
         AssignNewPackageNo();
-        OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Package No."));
+        OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Package No."), SourceTrackingSpecification);
         Rec."Qty. per Unit of Measure" := QtyPerUOM;
         Rec.Validate("Quantity (Base)", QtyToCreate);
         Rec."Entry No." := NextEntryNo();
@@ -3006,7 +3007,7 @@ page 6510 "Item Tracking Lines"
         if CreateLotNo then begin
             Rec.TestField("Lot No.", '');
             AssignNewLotNo();
-            OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Lot No."));
+            OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Lot No."), SourceTrackingSpecification);
         end;
 
         CheckTillEntryNo := LastEntryNo;
@@ -3014,7 +3015,7 @@ page 6510 "Item Tracking Lines"
             Rec.Validate("Quantity Handled (Base)", 0);
             Rec.Validate("Quantity Invoiced (Base)", 0);
             AssignNewCustomizedSerialNo(CustomizedSN);
-            OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Serial No."));
+            OnAfterAssignNewTrackingNo(Rec, xRec, Rec.FieldNo("Serial No."), SourceTrackingSpecification);
             Rec.Validate("Quantity (Base)", QtySignFactor());
             Rec."Entry No." := NextEntryNo();
             if TestTempSpecificationExists(CheckTillEntryNo) then
@@ -3707,7 +3708,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignNewTrackingNo(var TrkgSpec: Record "Tracking Specification"; xTrkgSpec: Record "Tracking Specification"; FieldID: Integer)
+    local procedure OnAfterAssignNewTrackingNo(var TrkgSpec: Record "Tracking Specification"; xTrkgSpec: Record "Tracking Specification"; FieldID: Integer; var SourceTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

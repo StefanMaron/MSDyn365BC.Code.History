@@ -412,7 +412,7 @@ codeunit 900 "Assembly-Post"
         InvSetup: Record "Inventory Setup";
     begin
         if InvSetup.OptimGLEntLockForMultiuserEnv() then
-            AssemblyLine.SetCurrentKey("Document Type", Type, "No.")
+            AssemblyLine.SetCurrentKey("Document Type", "Document No.", Type, "No.")
         else
             AssemblyLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
     end;

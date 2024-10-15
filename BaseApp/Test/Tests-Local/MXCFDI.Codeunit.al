@@ -6291,6 +6291,36 @@
         LibraryReportDataset.AssertElementWithValueExists('SalesInvHeaderTotalInvDiscountAmount', -SalesLine."Inv. Discount Amount");
     end;
 
+    [Test]
+    [HandlerFunctions('ChangeFiscalNumberPACInPostedSalesInvUpdatePage')]
+    procedure ChangeFiscalInvoiceNumberPACInPostedSalesInvUpdateDocument()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesInvoicePage: TestPage "Posted Sales Invoice";
+        FiscalInvoiceNumberPAC: Text[50];
+    begin
+        // [FEATURE] [UX] [UT]
+        // [SCENARIO 493274] Stan can change the "Fiscal Invoice Number PAC" in the Posted Sales Invoice Update Document page
+
+        Initialize();
+        // [GIVEN] Posted sales invoice with blank Fiscal Invoice Number PAC
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Insert();
+        PostedSalesInvoicePage.OpenEdit();
+        PostedSalesInvoicePage.Filter.SetFilter("No.", SalesInvoiceHeader."No.");
+        FiscalInvoiceNumberPAC := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(FiscalInvoiceNumberPAC);
+        // [GIVEN] Opened "Posted Sales Inv. - Update" page        
+        PostedSalesInvoicePage."Update Document".Invoke();
+        // [WHEN] Stan sets the "Fiscal Invoice Number PAC" field to a value "X" and closes the page
+        // Done in ChangeFiscalNumberPACInPostedSalesInvUpdatePage
+        // [THEN] The value "X" is saved in the Fiscal Invoice Number PAC field of the posted sales invoice
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.TestField("Fiscal Invoice Number PAC", FiscalInvoiceNumberPAC);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         PostCode: Record "Post Code";
@@ -9176,5 +9206,12 @@
                     NameValueBuffer.Modify;
                 end;
         end;
+    end;
+
+    [ModalPageHandler]
+    procedure ChangeFiscalNumberPACInPostedSalesInvUpdatePage(var PostedSalesInvUpdatePage: TestPage "Posted Sales Inv. - Update")
+    begin
+        PostedSalesInvUpdatePage."Fiscal Invoice Number PAC".SetValue(LibraryVariableStorage.DequeueText());
+        PostedSalesInvUpdatePage.Ok().Invoke();
     end;
 }

@@ -96,9 +96,14 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     local procedure HandlePostDocument(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; CommitIsSupressed: Boolean; var HideProgressWindow: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var IsHandled: Boolean)
     var
         AllocAccTelemetry: Codeunit "Alloc. Acc. Telemetry";
+        ContainsAllocationAccount: Boolean;
     begin
+        VerifyLinesFromDocument(PurchaseHeader, ContainsAllocationAccount);
+
+        if not ContainsAllocationAccount then
+            exit;
+
         AllocAccTelemetry.LogPurchaseInvoicePostingUsage();
-        VerifyLinesFromDocument(PurchaseHeader);
         CreateLinesFromDocument(PurchaseHeader)
     end;
 
@@ -276,7 +281,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
             AllocAccManualOverride.DeleteAll();
     end;
 
-    local procedure VerifyLinesFromDocument(var PurchaseHeader: Record "Purchase Header")
+    local procedure VerifyLinesFromDocument(var PurchaseHeader: Record "Purchase Header"; var ContainsAllocationAccount: Boolean)
     var
         AllocationAccountPurchaseLine: Record "Purchase Line";
     begin
@@ -284,24 +289,24 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         AllocationAccountPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         AllocationAccountPurchaseLine.SetRange("Type", AllocationAccountPurchaseLine."Type"::"Allocation Account");
         AllocationAccountPurchaseLine.ReadIsolation := IsolationLevel::ReadUncommitted;
-        if not AllocationAccountPurchaseLine.FindSet() then
-            exit;
-
-        repeat
-            VerifyPurchaseLines(AllocationAccountPurchaseLine);
-        until AllocationAccountPurchaseLine.Next() = 0;
+        if AllocationAccountPurchaseLine.FindSet() then begin
+            ContainsAllocationAccount := true;
+            repeat
+                VerifyPurchaseLines(AllocationAccountPurchaseLine);
+            until AllocationAccountPurchaseLine.Next() = 0;
+        end;
 
         AllocationAccountPurchaseLine.Reset();
         AllocationAccountPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         AllocationAccountPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         AllocationAccountPurchaseLine.SetFilter("Selected Alloc. Account No.", '<>%1', '');
         AllocationAccountPurchaseLine.ReadIsolation := IsolationLevel::ReadUncommitted;
-        if not AllocationAccountPurchaseLine.FindSet() then
-            exit;
-
-        repeat
-            VerifyPurchaseLines(AllocationAccountPurchaseLine);
-        until AllocationAccountPurchaseLine.Next() = 0;
+        if AllocationAccountPurchaseLine.FindSet() then begin
+            ContainsAllocationAccount := true;
+            repeat
+                VerifyPurchaseLines(AllocationAccountPurchaseLine);
+            until AllocationAccountPurchaseLine.Next() = 0;
+        end;
     end;
 
     local procedure CreatePurchaseLine(var AllocationPurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; var LastLineNo: Integer; Increment: Integer)
@@ -314,7 +319,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         PurchaseLine.Validate("No.", AllocationLine."Destination Account Number");
         PurchaseLine.Quantity := AllocationPurchaseLine.Quantity;
         PurchaseLine."Unit Cost" := AllocationPurchaseLine."Unit Cost";
-        PurchaseLine."Direct Unit Cost" := AllocationPurchaseLine."Direct Unit Cost";
+        PurchaseLine.Validate("Direct Unit Cost", AllocationLine.Amount);
         PurchaseLine.Validate("Line Amount", AllocationLine.Amount);
 
         TransferDimensionSetID(PurchaseLine, AllocationLine, AllocationPurchaseLine."Alloc. Acc. Modified by User");

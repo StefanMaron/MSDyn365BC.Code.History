@@ -42,6 +42,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WhsePostAndPrintMsg: Label 'Number of source documents posted: 1 out of a total of 1.\\Number of put-away activities created: 1.';
         NumberOfDocPrintedMsg: Label 'Number of put-away activities printed: 1.';
         ReportExecutedErr: Label 'Report Executed should be true';
+        WhseEntryItemNoElementName: Label 'WarehouseEntryItemNo';
 
     [Test]
     [HandlerFunctions('PickingListRequestPageHandler')]
@@ -2308,6 +2309,135 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEmployee.Delete(true);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,WhseAdjustmentBinRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure WhseAdjustmentBinReportShouldPrintAllItemsOfLocationWhenLocationFilterIsApplied()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Zone: Record Zone;
+        Zone2: Record Zone;
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        Bin3: Record Bin;
+        BinType: Record "Bin Type";
+        BinType2: Record "Bin Type";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseJournalTemplate: Record "Warehouse Journal Template";
+        WhseJournalBatch: Record "Warehouse Journal Batch";
+        WhseJournalLine: Record "Warehouse Journal Line";
+        WhseJournalLine2: Record "Warehouse Journal Line";
+        WhseEntry: Record "Warehouse Entry";
+    begin
+        // [SCENARIO 488628] Warehouse adjustment bin report 7320 not printing results
+        Initialize();
+
+        // [GIVEN] Create Item.
+        CreateItem(Item);
+
+        // [GIVEN] Create Item 2.
+        CreateItem(Item2);
+
+        // [GIVEN] Create Full Warehouse Setup.
+        CreateFullWarehouseSetup(Location, WarehouseEmployee, false);
+
+        // [GIVEN] Create Location with Warehouse Employee Setup.
+        CreateLocationWithWarehouseEmployeeSetup(Location, WarehouseEmployee);
+
+        // [GIVEN] Find Pick & Put Away Bin Type.
+        FindBinType(BinType, false, false, true, true);
+
+        // [GIVEN] Find No Type Bin Type 2.
+        FindBinType(BinType2, false, false, false, false);
+
+        // [GIVEN] Create Zone.
+        LibraryWarehouse.CreateZone(
+            Zone,
+            Zone.Code,
+            Location.Code,
+            BinType.Code,
+            '',
+            '',
+            LibraryRandom.RandInt(0),
+            false);
+
+        // [GIVEN] Create Zone 2.
+        LibraryWarehouse.CreateZone(
+            Zone2,
+            Zone2.Code,
+            Location.Code,
+            BinType2.Code,
+            '',
+            '',
+            0,
+            false);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, BinType.Code);
+
+        // [GIVEN] Create Bin 2.
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Bin2.Code, Zone.Code, BinType.Code);
+
+        // [GIVEN] Create Bin 3.
+        LibraryWarehouse.CreateBin(Bin3, Location.Code, Bin3.Code, Zone2.Code, BinType2.Code);
+
+        // [GIVEN] Validate Assembly, Production & Adjustment Bin Codes in Location.
+        ValidateAssemblyProdAndAdjmtBinCodesInLocation(Location, Bin.Code, Bin2.Code, Bin3.Code);
+
+        // [GIVEN] Create Warehouse Journal Setup.
+        LibraryWarehouse.WarehouseJournalSetup(Location.Code, WhseJournalTemplate, WhseJournalBatch);
+
+        // [GIVEN] Create Warehouse Item Journal Line for Item.
+        LibraryWarehouse.CreateWhseJournalLine(
+            WhseJournalLine,
+            WhseJournalBatch."Journal Template Name",
+            WhseJournalBatch.Name,
+            Bin2."Location Code",
+            Bin2."Zone Code",
+            Bin2.Code,
+            WhseJournalLine."Entry Type"::"Positive Adjmt.",
+            Item."No.",
+            LibraryRandom.RandInt(2));
+
+        // [GIVEN] Create Warehouse Item Journal Line 2 for Item 2.
+        LibraryWarehouse.CreateWhseJournalLine(
+            WhseJournalLine2,
+            WhseJournalBatch."Journal Template Name",
+            WhseJournalBatch.Name,
+            Bin3."Location Code",
+            Bin3."Zone Code",
+            Bin3.Code,
+            WhseJournalLine2."Entry Type"::"Positive Adjmt.",
+            Item2."No.",
+            LibraryRandom.RandInt(4));
+
+        // [GIVEN] Register Warehouse Journal Lines.
+        LibraryVariableStorage.Enqueue(WantToRegisterConfirm);
+        LibraryVariableStorage.Enqueue(JournalLineRegistered);
+        LibraryWarehouse.RegisterWhseJournalLine(WhseJournalTemplate.Name, WhseJournalBatch.Name, Location.Code, false);
+
+        // [GIVEN] Run Warehouse Adjustment Bin Report with Location Code Filter.
+        WhseEntry.SetRange("Location Code", Location.Code);
+        REPORT.Run(REPORT::"Whse. Adjustment Bin", true, false, WhseEntry);
+
+        // [GIVEN] Load Warehouse Adjustment Bin Report.
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [WHEN] Find First Row of Warehouse Adjustment Bin Report.
+        LibraryReportDataset.GetNextRow();
+
+        // [VERIFY] Verify First Row has Item.
+        LibraryReportDataset.AssertCurrentRowValueEquals(WhseEntryItemNoElementName, Item."No.");
+
+        // [WHEN] Find Last Row of Warehouse Adjustment Bin Report.
+        LibraryReportDataset.GetLastRow();
+
+        // [VERIFY] Verify Last Row has Item 2.
+        LibraryReportDataset.AssertCurrentRowValueEquals(WhseEntryItemNoElementName, Item2."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3213,6 +3343,47 @@ codeunit 137305 "SCM Warehouse Reports"
         AnalysisView.Code := Format(LibraryRandom.RandIntInRange(1, 10000));
         AnalysisView."Account Source" := AccountSource;
         AnalysisView.Insert();
+    end;
+
+    local procedure CreateLocationWithWarehouseEmployeeSetup(
+        var Location: Record Location;
+        var WarehouseEmployee: Record "Warehouse Employee")
+    begin
+        WarehouseEmployee.DeleteAll(true);
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Location.Validate("Asm. Consump. Whse. Handling", Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Location.Modify(true);
+
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+    end;
+
+    local procedure FindBinType(
+        var BinType: Record "Bin Type";
+        Receive: Boolean;
+        Ship: Boolean;
+        Pick: Boolean;
+        PutAway: Boolean)
+    begin
+        BinType.SetRange("Put Away", PutAway);
+        BinType.SetRange(Pick, Pick);
+        BinType.SetRange(Receive, Receive);
+        BinType.SetRange(Ship, Ship);
+        BinType.FindFirst();
+    end;
+
+    local procedure ValidateAssemblyProdAndAdjmtBinCodesInLocation(
+        var Location: Record Location;
+        BinCode: Code[20];
+        BinCode2: Code[20];
+        Bincode3: Code[20])
+    begin
+        Location.Validate("To-Production Bin Code", BinCode3);
+        Location.Validate("From-Production Bin Code", BinCode2);
+        Location.Validate("To-Assembly Bin Code", BinCode3);
+        Location.Validate("From-Assembly Bin Code", BinCode2);
+        Location.Validate("Adjustment Bin Code", BinCode);
+        Location.Modify(true);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnBeforePrintDocument', '', false, false)]
