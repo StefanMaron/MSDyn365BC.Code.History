@@ -168,6 +168,11 @@
             Caption = 'Original Pmt. Disc. Possible';
             DataClassification = SystemMetadata;
         }
+        field(31; "Location Code"; Code[10])
+        {
+            Caption = 'Location Code';
+            DataClassification = SystemMetadata;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';

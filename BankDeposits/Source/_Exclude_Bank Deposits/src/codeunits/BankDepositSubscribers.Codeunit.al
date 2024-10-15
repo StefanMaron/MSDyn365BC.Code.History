@@ -95,6 +95,38 @@ codeunit 1695 "Bank Deposit Subscribers"
         SetupBankDepositReports.SetupReportSelections();
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GenJnlManagement, 'OnBeforeOpenJournalPageFromBatch', '', false, false)]
+    local procedure OnBeforeOpenJournalPageFromBatch(
+        var GenJnlBatch: Record "Gen. Journal Batch";
+        var GenJnlTemplate: Record "Gen. Journal Template";
+        var IsHandled: Boolean)
+    begin
+        if not (GenJnlTemplate.Type = GenJnlTemplate.Type::"Bank Deposits") then
+            exit;
+
+        OpenBankDepositPage(GenJnlBatch, GenJnlTemplate);
+        IsHandled := true;
+    end;
+
+    local procedure OpenBankDepositPage(GenJnlBatch: Record "Gen. Journal Batch"; GenJnlTemplate: Record "Gen. Journal Template")
+    var
+        BankDepositHeader: Record "Bank Deposit Header";
+        SetupBankDepositReports: Codeunit "Setup Bank Deposit Reports";
+    begin
+        BankDepositHeader.SetRange("Journal Template Name", GenJnlTemplate.Name);
+        BankDepositHeader.SetRange("Journal Batch Name", GenJnlBatch.Name);
+        if BankDepositHeader.IsEmpty() then begin
+            SetupBankDepositReports.InsertSetupData();
+
+            BankDepositHeader.Init();
+            BankDepositHeader."Journal Template Name" := GenJnlTemplate.Name;
+            BankDepositHeader."Journal Batch Name" := GenJnlBatch.Name;
+            BankDepositHeader.Insert(true);
+        end;
+
+        Page.Run(GenJnlTemplate."Page ID", BankDepositHeader);
+    end;
+
 #if not CLEAN21
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureDisableConfirmed', '', false, false)]
     local procedure HandleOnAfterFeatureDisableConfirmed(FeatureKey: Record "Feature Key")

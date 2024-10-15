@@ -1870,6 +1870,7 @@
         VATPostingSetup: Record "VAT Posting Setup";
         SalesLine2: Record "Sales Line";
         Currency: Record Currency;
+        SalesLine: Record "Sales Line";
     begin
         with PrepmtInvLineBuffer do begin
             SalesInvLine.Init();
@@ -1884,6 +1885,10 @@
             SalesInvLine."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
             SalesInvLine."Dimension Set ID" := "Dimension Set ID";
             SalesInvLine.Description := Description;
+            if not SalesHeader."Compress Prepayment" then
+                if SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", "Line No.") then
+                    SalesInvLine."Description 2" := SalesLine."Description 2";
+
             SalesInvLine.Quantity := 1;
             if GLSetup.CheckFullGSTonPrepayment("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                 SalesInvLine."Prepayment Line" := true;

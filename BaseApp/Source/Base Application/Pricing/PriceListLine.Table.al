@@ -825,15 +825,19 @@ table 7001 "Price List Line"
         "Asset ID" := PriceAsset."Asset ID";
         Description := PriceAsset.Description;
         "Unit of Measure Code" := PriceAsset."Unit of Measure Code";
+        "Unit of Measure Code Lookup" := PriceAsset."Unit of Measure Code";
         "Variant Code" := PriceAsset."Variant Code";
         "Work Type Code" := PriceAsset."Work Type Code";
 
-        "Allow Invoice Disc." := PriceAsset."Allow Invoice Disc.";
         if not GetHeader() or PriceListHeader."Allow Updating Defaults" then
             if "VAT Bus. Posting Gr. (Price)" = '' then begin
                 "Price Includes VAT" := PriceAsset."Price Includes VAT";
                 "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
             end;
+
+        if (PriceListHeader.Code = '') or (IsNullGuid(PriceListHeader.SystemId)) or (not PriceListHeader."Allow Invoice Disc.") then
+            "Allow Invoice Disc." := PriceAsset."Allow Invoice Disc.";
+
         CopyFromAssetType();
 #if not CLEAN23
         OnAfterCopyFromPriceAsset(PriceAsset, Rec);

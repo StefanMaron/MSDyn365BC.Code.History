@@ -5243,9 +5243,16 @@
     var
         SourceCodeSetup: Record "Source Code Setup";
         GenJournalLine2: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
         ReadGLSetup();
         SourceCodeSetup.Get();
+
+        IsHandled := false;
+        OnBeforeCheckAdjustmentAppliesto(GLSetup, SourceCodeSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJournalLine2 do begin
             if GLSetup."Adjustment Mandatory" then begin
                 SetRange("Journal Template Name", Rec."Journal Template Name");
@@ -7244,6 +7251,7 @@ then
         "WHT Business Posting Group" := Cust."WHT Business Posting Group";
         "WHT Product Posting Group" := '';
         CheckConfirmDifferentCustomerAndBillToCustomer(Cust, "Account No.");
+        OnGetCustomerAccountOnBeforeValidatePaymentTermsCode(Rec, Cust, HideValidationDialog);
         Validate("Payment Terms Code");
         CheckPaymentTolerance();
 
@@ -9645,6 +9653,16 @@ then
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReplaceDescription(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalTemplate: Record "Gen. Journal Template"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustomerAccountOnBeforeValidatePaymentTermsCode(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer; HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAdjustmentAppliesto(GeneralLedgerSetup: Record "General Ledger Setup"; SourceCodeSetup: Record "Source Code Setup"; var IsHandled: Boolean)
     begin
     end;
 }

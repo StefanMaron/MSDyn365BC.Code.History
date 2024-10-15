@@ -232,7 +232,14 @@ table 5199 Attendee
     end;
 
     procedure CreateAttendee(var Attendee: Record Attendee; TaskNo: Code[20]; LineNo: Integer; AttendanceType: Integer; AttendeeType: Integer; AttendeeNo: Code[20]; SendInvitation: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateAttendee(Attendee, TaskNo, "Line No.", AttendanceType, AttendeeType, AttendeeNo, SendInvitation, IsHandled);
+        if IsHandled then
+            exit;
+
         ValidateOrganizer(AttendeeNo, AttendanceType, AttendeeType, TaskNo);
 
         Attendee.Init();
@@ -269,6 +276,11 @@ table 5199 Attendee
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateAttendee(AttendeeRec: Record Attendee; var Attendee: Record Attendee; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAttendee(var Attendee: Record Attendee; TaskNo: Code[20]; LineNo: Integer; AttendanceType: Integer; AttendeeType: Integer; AttendeeNo: Code[20]; SendInvitation: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

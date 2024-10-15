@@ -54,11 +54,7 @@ codeunit 5520 "Get Unplanned Demand"
         DemandQtyBase: Decimal;
         IncludeMetDemandForSpecificSalesOrderNo: Code[20];
         RecordCounter: Integer;
-
         ProgressMsg: Label 'Determining Unplanned Orders @1@@@@@@@';
-        FilterStringBuilderLbl: Label '%1|', Locked = true;
-        SendTraceCategoryLbl: Label 'Planning', Locked = true;
-        FilterTooLongMsg: Label 'Item filter is too long.', Locked = true;
 
     procedure SetIncludeMetDemandForSpecificSalesOrderNo(SalesOrderNo: Code[20])
     begin
@@ -69,10 +65,11 @@ codeunit 5520 "Get Unplanned Demand"
     var
         SalesOrderLine: Record "Sales Line";
         TempItem: Record Item temporary;
-        Item: Record Item;
         TypeHelper: Codeunit "Type Helper";
         SelectionFilterMgt: Codeunit SelectionFilterManagement;
-        ItemFilter: Text;
+        ItemNoList: List of [Code[20]];
+        ItemNo: Code[20];
+        ItemFilter: TextBuilder;
     begin
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         AsmLine.SetRange(Type, AsmLine.Type::Item);
@@ -81,42 +78,36 @@ codeunit 5520 "Get Unplanned Demand"
         SalesOrderLine.SetRange("Document No.", IncludeMetDemandForSpecificSalesOrderNo);
         SalesOrderLine.SetRange("Document Type", SalesOrderLine."Document Type"::Order);
         SalesOrderLine.SetRange(Type, SalesOrderLine.Type::Item);
+        SalesOrderLine.SetLoadFields("No.");
 
         if SalesOrderLine.FindSet() then begin
             repeat
                 // Find all the items needed to be planned and add it to a temp item bufffer
                 OnSetFilterToSpecificSalesOrderOnBeforeTempItemGet(TempItem, SalesOrderLine);
-                if not TempItem.Get(SalesOrderLine."No.") then
-                    if Item.Get(SalesOrderLine."No.") then begin
-                        TempItem := Item;
-                        TempItem.Insert();
-                    end;
+                if not ItemNoList.Contains(SalesOrderLine."No.") then
+                    ItemNoList.Add(SalesOrderLine."No.");
+                TempItem."No." := SalesOrderLine."No."; // only to preserve same behavior regards to event OnSetFilterToSpecificSalesOrderOnBeforeTempItemGet() 
             until SalesOrderLine.Next() = 0;
 
-            if TempItem.Count() >= (TypeHelper.GetMaxNumberOfParametersInSQLQuery() - 100) then
+            if ItemNoList.Count() >= (TypeHelper.GetMaxNumberOfParametersInSQLQuery() - 100) then
                 exit;
 
             // Build a filter string from the temporary item buffer
-            if not TempItem.FindSet() then
+            if ItemNoList.Count() = 0 then
                 exit;
 
-            repeat
-                if (StrLen(ItemFilter) + StrLen(TempItem."No.") + 1) > MaxStrLen(ItemFilter) then begin
-                    Session.LogMessage('0000CG7', FilterTooLongMsg, Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', SendTraceCategoryLbl);
-                    exit;
-                end;
+            foreach ItemNo in ItemNolist do begin
+                if ItemFilter.Length > 0 then
+                    ItemFilter.Append('|');
+                ItemFilter.Append(SelectionFilterMgt.AddQuotes(ItemNo));
+            end;
 
-                ItemFilter += StrSubstNo(FilterStringBuilderLbl, SelectionFilterMgt.AddQuotes(TempItem."No."));
-            Until TempItem.Next() = 0;
-
-            ItemFilter := CopyStr(ItemFilter, 1, StrLen(ItemFilter) - 1);
-
-            SalesLine.SetFilter("No.", ItemFilter);
-            ServLine.SetFilter("No.", ItemFilter);
-            ProdOrderComp.SetFilter("Item No.", ItemFilter);
-            AsmLine.SetFilter("No.", ItemFilter);
-            JobPlanningLine.SetFilter("No.", ItemFilter);
-            OnAfterSetFilterToSpecificSalesOrder(ItemFilter)
+            SalesLine.SetFilter("No.", ItemFilter.ToText());
+            ServLine.SetFilter("No.", ItemFilter.ToText());
+            ProdOrderComp.SetFilter("Item No.", ItemFilter.ToText());
+            AsmLine.SetFilter("No.", ItemFilter.ToText());
+            JobPlanningLine.SetFilter("No.", ItemFilter.ToText());
+            OnAfterSetFilterToSpecificSalesOrder(ItemFilter.ToText())
         end;
     end;
 

@@ -242,10 +242,17 @@
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         AppliedPmtEntry: Record "Applied Payment Entry";
+        CreationDateTime: DateTime;
+        MatchedWithAI: Boolean;
+        LineCount: Integer;
+        TelemetryCategories: Dictionary of [Text, Text];
+        DurationUntilPosting: BigInteger;
     begin
         if PreviewMode then
             exit;
         OnBeforeFinalizePost(BankAccRecon);
+        CreationDateTime := BankAccRecon.SystemCreatedAt;
+        MatchedWithAI := AIMatchProposalsExist(BankAccRecon);
         with BankAccRecon do begin
             if BankAccReconLine.LinesExist(BankAccRecon) then
                 repeat
@@ -254,13 +261,30 @@
 
                     BankAccReconLine.Delete();
                     BankAccReconLine.ClearDataExchEntries();
+                    LineCount += 1;
 
                 until BankAccReconLine.Next() = 0;
 
             Find();
             Delete();
         end;
+        TelemetryCategories.Add('Category', BankAccountRecCategoryLbl);
+        TelemetryCategories.Add('MatchedWithAI', Format(MatchedWithAI));
+        TelemetryCategories.Add('NumberOfLines', Format(LineCount));
+        DurationUntilPosting := CurrentDateTime() - CreationDateTime;
+        Session.LogMessage('0000LHY', Format(DurationUntilPosting), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
         OnAfterFinalizePost(BankAccRecon);
+    end;
+
+    local procedure AIMatchProposalsExist(var BankAccReconciliation: Record "Bank Acc. Reconciliation"): Boolean
+    var
+        PaymentMatchingDetails: Record "Payment Matching Details";
+    begin
+        PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        PaymentMatchingDetails.SetFilter(Message, '*Copilot*');
+        exit(not PaymentMatchingDetails.IsEmpty());
     end;
 
     local procedure CheckLinesMatchEndingBalance(BankAccRecon: Record "Bank Acc. Reconciliation"; var Difference: Decimal)
