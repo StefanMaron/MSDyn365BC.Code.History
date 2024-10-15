@@ -6,7 +6,7 @@ page 12103 "Withholding Tax Export"
     InsertAllowed = false;
     LinksAllowed = false;
     ModifyAllowed = false;
-    PageType = Worksheet;
+    PageType = Card;
     ShowFilter = false;
     UsageCategory = Tasks;
 

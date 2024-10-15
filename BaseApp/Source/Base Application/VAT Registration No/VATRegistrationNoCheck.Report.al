@@ -1,7 +1,7 @@
-report 32 "VAT Registration No. Check"
+﻿report 32 "VAT Registration No. Check"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './VATRegistrationNoCheck.rdlc';
+    RDLCLayout = './VAT Registration No/VATRegistrationNoCheck.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Batch VAT Registration No. Check';
     UsageCategory = ReportsAndAnalysis;
