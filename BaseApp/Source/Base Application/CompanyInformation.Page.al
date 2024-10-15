@@ -516,7 +516,8 @@ Page 1 "Company Information"
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the registration number of the vendor.';
+                    Importance = Additional;
+                    ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
                 field("Tax Office Name"; "Tax Office Name")
                 {

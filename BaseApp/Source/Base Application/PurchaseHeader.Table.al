@@ -57,7 +57,7 @@
                 "Tax Liable" := Vend."Tax Liable";
                 "VAT Country/Region Code" := Vend."Country/Region Code";
                 "VAT Registration No." := Vend."VAT Registration No.";
-                "Registration No." := Vend."Registration No.";
+                "Registration No." := CopyStr(Vend."Registration Number", 1, MaxStrLen("Registration No."));
                 Validate("Lead Time Calculation", Vend."Lead Time Calculation");
                 "Shipment Method Code" := Vend."Shipment Method Code";
                 "Responsibility Center" := UserSetupMgt.GetRespCenter(1, Vend."Responsibility Center");
@@ -1384,7 +1384,7 @@
                         "Buy-from Vendor Name" := Vend.Name;
                         "Buy-from Vendor Name 2" := Vend."Name 2";
                         CopyBuyFromVendorAddressFieldsFromVendor(Vend, true);
-                    	"Registration No." := Vend."Registration No.";
+                        "Registration No." := CopyStr(Vend."Registration Number", 1, MaxStrLen("Registration No."));
                     end;
 
                     OnValidateOrderAddressCodeOnAfterCopyBuyFromVendorAddressFieldsFromVendor(Rec, Vend);
