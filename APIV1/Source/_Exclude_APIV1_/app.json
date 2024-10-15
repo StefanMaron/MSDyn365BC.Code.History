@@ -2,7 +2,7 @@
     "id":  "8afe7b40-8c87-4beb-ada0-451d1761bf95",
     "name":  "_Exclude_APIV1_",
     "publisher":  "Microsoft",
-    "version":  "16.0.11240.12085",
+    "version":  "16.1.12629.12805",
     "brief":  "",
     "description":  "",
     "privacyStatement":  "",
@@ -19,5 +19,5 @@
     "platform":  "13.0.0.0",
     "target":  "OnPrem",
     "showMyCode":  true,
-    "application":  "16.0.0.0"
+    "application":  "16.1.0.0"
 }

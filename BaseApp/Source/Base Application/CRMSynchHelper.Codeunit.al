@@ -726,7 +726,7 @@ codeunit 5342 "CRM Synch. Helper"
     var
         Vendor: Record Vendor;
     begin
-        if not Vendor.Get(CRMProduct.VendorPartNumber) then
+        if not Vendor.Get(CopyStr(CRMProduct.VendorID, 1, MaxStrLen(Vendor."No."))) then
             exit(false);
 
         if CRMProduct.VendorName <> Vendor.Name then begin

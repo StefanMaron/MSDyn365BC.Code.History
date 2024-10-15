@@ -926,6 +926,9 @@ report 207 "Sales - Credit Memo"
     var
         Caption: Text;
     begin
+        OnBeforeGetDocumentCaption("Sales Cr.Memo Header", Caption);
+        if Caption <> '' then
+            exit(Caption);
         if CompanyInfo."Country/Region Code" = 'DE' then begin
             if "Sales Cr.Memo Header"."Prepayment Credit Memo" then
                 Caption := DocDEPrepmtCap
@@ -995,6 +998,11 @@ report 207 "Sales - Credit Memo"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterPostDataItem(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDocumentCaption(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var DocCaption: Text)
     begin
     end;
 }

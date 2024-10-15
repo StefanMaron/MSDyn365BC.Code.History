@@ -88,6 +88,8 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         TestIfAnyFreeNumberSeries(PurchCrMemoHdr);
         TestExternalDocument(PurchCrMemoHdr);
         TestInventoryPostingClosed(PurchCrMemoHdr);
+
+        OnAfterTestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
     end;
 
     local procedure SetTrackInfoForCancellation(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
@@ -320,7 +322,13 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     local procedure TestInventoryPostingSetup(PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestInventoryPostingSetup(PurchCrMemoLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with InventoryPostingSetup do begin
             Get(PurchCrMemoLine."Location Code", PurchCrMemoLine."Posting Group");
             TestField("Inventory Account");
@@ -443,6 +451,16 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
             ErrorType::DimErr:
                 Error(InvalidDimCodeCancelErr, AccountCaption, AccountNo, No, Name);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestCorrectCrMemoIsAllowed(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestInventoryPostingSetup(PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

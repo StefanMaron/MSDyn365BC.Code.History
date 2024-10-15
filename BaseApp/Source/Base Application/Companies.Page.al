@@ -159,6 +159,7 @@ page 357 Companies
     trigger OnDeleteRecord(): Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
         OnBeforeDeleteRecord(Rec);
         if SoftwareAsAService and (Count = 1) then begin
@@ -166,10 +167,10 @@ page 357 Companies
             Error('');
         end;
 
-        if not ConfirmManagement.GetResponseOrDefault(DeleteCompanyQst, false) then
+        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(DeleteCompanyQst, CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec)), false) then
             exit(false);
         if SoftwareAsAService then
-            if not ConfirmManagement.GetResponseOrDefault(DeleteCompanyAuditQst, false) then
+            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(DeleteCompanyAuditQst, CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec)), false) then
                 exit(false)
             else begin
                 SENDTRACETAG('0000BEH', ALCompanyActivityCategoryTok, Verbosity::Normal, STRSUBSTNO(UsenCompanyTok, UserId(), COMPANYNAME()), DataClassification::EndUserIdentifiableInformation);
@@ -200,8 +201,8 @@ page 357 Companies
     end;
 
     var
-        DeleteCompanyQst: Label 'Do you want to delete the company?\All company data will be deleted.\\Do you want to continue?';
-        DeleteCompanyAuditQst: Label 'The company will be permanently deleted. We will record your user name and the time of day that you deleted the company for auditing purposes.\\Do you want to continue?';
+        DeleteCompanyQst: Label 'Do you want to delete the company %1?\All company data will be deleted.\\Do you want to continue?', Comment = '%1 = Company Name';
+        DeleteCompanyAuditQst: Label 'You are about to permanently delete the company %1.\\For auditing purposes, your user name and the time of day that you deleted the company will be recorded.\\Do you want to continue?', Comment = '%1 = Company Name';
         ALCompanyActivityCategoryTok: Label 'AL Company Activity', Locked = true;
         UsenCompanyTok: Label 'User %1 deleted the %2 company', Locked = true;
         CompanyTok: Label 'Company %1 has been deleted', Locked = true;

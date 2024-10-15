@@ -187,6 +187,56 @@ codeunit 134122 "Price Asset List UT"
         TempPriceAsset.TestField(Level, Level);
     end;
 
+    [Test]
+    procedure T030_RemoveAssetFromList()
+    var
+        Item: Record Item;
+        TempPriceAsset: Record "Price Asset" temporary;
+        PriceAssetList: Codeunit "Price Asset List";
+        AssetType: Enum "Price Asset Type";
+        Level: Integer;
+    begin
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Add "Item" 'I' at level 7
+        Level := LibraryRandom.RandInt(10);
+        PriceAssetList.SetLevel(Level);
+        PriceAssetList.Add(AssetType::Item, Item."No.");
+        // [WHEN] Remove 'Item'
+        PriceAssetList.Remove(AssetType::Item);
+
+        // [THEN] GetList returns 0 records
+        PriceAssetList.GetList(TempPriceAsset);
+        Assert.RecordCount(TempPriceAsset, 0);
+    end;
+
+    [Test]
+    procedure T031_RemoveAssetFromListAtLevel()
+    var
+        Item: Record Item;
+        TempPriceAsset: Record "Price Asset" temporary;
+        PriceAssetList: Codeunit "Price Asset List";
+        AssetType: Enum "Price Asset Type";
+        Level: Integer;
+    begin
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Add "Item" at level 7 and at level 8
+        Level := LibraryRandom.RandInt(10);
+        PriceAssetList.SetLevel(Level);
+        PriceAssetList.Add(AssetType::Item, Item."No.");
+        PriceAssetList.IncLevel();
+        PriceAssetList.Add(AssetType::Item, Item."No.");
+
+        // [WHEN] Remove 'Item' at level 7
+        PriceAssetList.RemoveAtLevel(AssetType::Item, Level);
+
+        // [THEN] GetList returns 1 records, that is Item at level 8
+        PriceAssetList.GetList(TempPriceAsset);
+        Assert.RecordCount(TempPriceAsset, 1);
+        TempPriceAsset.FindFirst();
+        TempPriceAsset.TestField(Level, Level + 1);
+    end;
 
     local procedure Initialize()
     begin

@@ -87,7 +87,13 @@ codeunit 1720 "Deferral Utilities"
     var
         DeferralTemplate: Record "Deferral Template";
         AccountingPeriod: Record "Accounting Period";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcDeferralNoOfPeriods(CalcMethod, NoOfPeriods, StartDate, IsHandled);
+        if IsHandled then
+            exit(NoOfPeriods);
+
         case CalcMethod of
             DeferralTemplate."Calc. Method"::"Equal per Period",
           DeferralTemplate."Calc. Method"::"User-Defined":
@@ -393,7 +399,7 @@ codeunit 1720 "Deferral Utilities"
                 end;
         end;
 
-        OnAfterSetStartDate(DeferralTemplate, StartDate);
+        OnAfterSetStartDate(DeferralTemplate, StartDate, AdjustedStartDate);
     end;
 
     procedure SetDeferralRecords(var DeferralHeader: Record "Deferral Header"; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; CalcMethod: Enum "Deferral Calculation Method"; NoOfPeriods: Integer; AdjustedDeferralAmount: Decimal; AdjustedStartDate: Date; DeferralCode: Code[10]; DeferralDescription: Text[100]; AmountToDefer: Decimal; AdjustStartDate: Boolean; CurrencyCode: Code[10])
@@ -788,6 +794,8 @@ codeunit 1720 "Deferral Utilities"
                 TotalAmount := TotalAmount - AmtToDefer;
                 TotalAmountACY := TotalAmountACY - AmtToDeferACY;
             end;
+
+        OnAfterAdjustTotalAmountForDeferrals(DeferralCode, AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY);
     end;
 
     procedure AdjustTotalAmountForDeferralsNoBase(DeferralCode: Code[10]; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal)
@@ -800,6 +808,8 @@ codeunit 1720 "Deferral Utilities"
                 TotalAmount := TotalAmount - AmtToDefer;
                 TotalAmountACY := TotalAmountACY - AmtToDeferACY;
             end;
+
+        OnAfterAdjustTotalAmountForDeferrals(DeferralCode, AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY);
     end;
 
     local procedure GetPeriodStartingDate(PostingDate: Date): Date
@@ -880,7 +890,7 @@ codeunit 1720 "Deferral Utilities"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetStartDate(DeferralTemplate: Record "Deferral Template"; var StartDate: Date)
+    local procedure OnAfterSetStartDate(DeferralTemplate: Record "Deferral Template"; var StartDate: Date; var AdjustedStartDate: Date)
     begin
     end;
 
@@ -916,6 +926,16 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedDeferralLineInsert(var PostedDeferralLine: Record "Posted Deferral Line"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAdjustTotalAmountForDeferrals(DeferralCode: Code[10]; var AmtToDefer: Decimal; var AmtToDeferACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcDeferralNoOfPeriods(CalcMethod: Enum "Deferral Calculation Method"; NoOfPeriods: Integer; StartDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

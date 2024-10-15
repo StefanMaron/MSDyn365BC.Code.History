@@ -584,28 +584,29 @@ codeunit 139186 "CRM Synch. Skipped Records"
     procedure T126_DeleteCouplingActionDeletesCouplingRecord()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMSystemuser: array[2] of Record "CRM Systemuser";
-        SalespersonPurchaser: array[2] of Record "Salesperson/Purchaser";
+        CRMProduct: array[2] of Record "CRM Product";
+        Item: array[2] of Record Item;
         CRMSkippedRecords: TestPage "CRM Skipped Records";
     begin
         // [FEATURE] [UI]
         // [SCENARIO] "Delete Coupling" action removes coupling of the selected record
         Init;
-        // [GIVEN] Coupled Salespersons 'X' and 'Y' are skipped for synchronization.
-        MockSkippedSalespersons(SalespersonPurchaser, CRMSystemuser);
+        // [GIVEN] Coupled Items 'X' and 'Y' are skipped for synchronization.
+        MockSkippedItem(Item[1], CRMProduct[1]);
+        MockSkippedItem(Item[2], CRMProduct[2]);
         // [GIVEN] Open "CRM Skipped Records" page, where 'X' is selected
         CRMSkippedRecords.OpenEdit;
-        CRMSkippedRecords.FindFirstField(Description, SalespersonPurchaser[1].Name);
+        CRMSkippedRecords.FindFirstField(Description, Item[1]."No.");
 
         // [WHEN] run action "Delete Coupling"
         CRMSkippedRecords.DeleteCRMCoupling.Invoke;
-        // [THEN] the Salesperson 'X' is not coupled and not in the list of skipped records
-        Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(SalespersonPurchaser[1].RecordId), 'the coupling should be removed.');
+        // [THEN] the Item 'X' is not coupled and not in the list of skipped records
+        Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(Item[1].RecordId), 'the coupling should be removed.');
         Assert.IsFalse(
-          CRMSkippedRecords.FindFirstField(Description, SalespersonPurchaser[1].Name), 'the record should dissapear from the page');
-        // [THEN] the remaining Salesperson 'Y' is still in the list
+          CRMSkippedRecords.FindFirstField(Description, Item[1]."No."), 'the record should dissapear from the page');
+        // [THEN] the remaining Item 'Y' is still in the list
         Assert.IsTrue(
-          CRMSkippedRecords.FindFirstField(Description, SalespersonPurchaser[2].Name), 'the second record should be in the list');
+          CRMSkippedRecords.FindFirstField(Description, Item[2]."No."), 'the second record should be in the list');
     end;
 
     [Test]
@@ -614,29 +615,30 @@ codeunit 139186 "CRM Synch. Skipped Records"
     procedure T127_DeleteCouplingActionDeletesCouplingForRemovedNAVRecord()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMSystemuser: array[2] of Record "CRM Systemuser";
-        SalespersonPurchaser: array[2] of Record "Salesperson/Purchaser";
+        CRMProduct: array[2] of Record "CRM Product";
+        Item: array[2] of Record Item;
         CRMSkippedRecords: TestPage "CRM Skipped Records";
     begin
         // [FEATURE] [Deleted Couplings]
         // [SCENARIO] "Delete Coupling" action removes coupling of the deleted NAV record
         Init;
-        // [GIVEN] Coupled Salespersons 'X' and 'Y' are skipped for synchronization.
-        MockSkippedSalespersons(SalespersonPurchaser, CRMSystemuser);
-        // [GIVEN] Salesperson 'X' has been deleted
-        SalespersonPurchaser[1].Delete();
+        // [GIVEN] Coupled Items 'X' and 'Y' are skipped for synchronization.
+        MockSkippedItem(Item[1], CRMProduct[1]);
+        MockSkippedItem(Item[2], CRMProduct[2]);
+        // [GIVEN] Item 'X' has been deleted
+        Item[1].Delete();
 
         // [GIVEN] Open "CRM Skipped Records" page, where 'X' is selected
         CRMSkippedRecords.OpenEdit;
-        CRMSkippedRecords.FindFirstField("Int. Description", CRMSystemuser[1].FullName);
+        CRMSkippedRecords.FindFirstField("Int. Description", CRMProduct[1].ProductNumber);
 
         // [WHEN] run action "Delete Coupling"
         CRMSkippedRecords.DeleteCRMCoupling.Invoke;
 
         // [THEN] the Salesperson 'X' is not coupled and not in the list of skipped records
-        Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMSystemuser[1].SystemUserId), 'the coupling should be removed.');
+        Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMProduct[1].ProductId), 'the coupling should be removed.');
         Assert.IsFalse(
-          CRMSkippedRecords.FindFirstField(Description, SalespersonPurchaser[1].Name), 'the record should dissapear from the page');
+          CRMSkippedRecords.FindFirstField(Description, Item[1]."No."), 'the record should dissapear from the page');
     end;
 
     [Test]

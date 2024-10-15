@@ -675,7 +675,7 @@ table 295 "Reminder Header"
                       CurrencyForReminderLevel.FieldNo("Additional Fee")), 1, 100);
                 ReminderLine.Validate(Amount, AdditionalFee);
                 ReminderLine."Line Type" := ReminderLine."Line Type"::"Additional Fee";
-                OnBeforeInsertReminderTextLine(ReminderLine, ReminderText);
+                OnBeforeInsertReminderTextLine(ReminderLine, ReminderText, ReminderHeader);
                 OnBeforeInsertReminderLine(ReminderLine);
                 ReminderLine.Insert();
                 if TransferExtendedText.ReminderCheckIfAnyExtText(ReminderLine, false) then
@@ -840,7 +840,7 @@ table 295 "Reminder Header"
                     ReminderLine."Line Type" := ReminderLine."Line Type"::"Beginning Text"
                 else
                     ReminderLine."Line Type" := ReminderLine."Line Type"::"Ending Text";
-                OnBeforeInsertReminderTextLine(ReminderLine, ReminderText);
+                OnBeforeInsertReminderTextLine(ReminderLine, ReminderText, ReminderHeader);
                 OnBeforeInsertReminderLine(ReminderLine);
                 ReminderLine.Insert();
             until ReminderText.Next = 0;
@@ -1107,7 +1107,7 @@ table 295 "Reminder Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertReminderTextLine(var ReminderLine: Record "Reminder Line"; var ReminderText: Record "Reminder Text")
+    local procedure OnBeforeInsertReminderTextLine(var ReminderLine: Record "Reminder Line"; var ReminderText: Record "Reminder Text"; ReminderHeader: Record "Reminder Header")
     begin
     end;
 

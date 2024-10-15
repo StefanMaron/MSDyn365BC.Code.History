@@ -240,6 +240,7 @@ codeunit 134163 "Company Init Unit Test"
         DeleteAllDataInSourceCodeTable();
         DeleteAllStandardTexts();
         DeleteReportSelections();
+        DeleteDACHReportSelection;
         DeleteJobWIPMethods();
         DeleteBankExportImportSetup();
         DeleteBankClearingStandard();
@@ -256,6 +257,7 @@ codeunit 134163 "Company Init Unit Test"
         CheckSourceCodeTable();
         CheckStandardTexts();
         CheckReportSelections();
+        CheckDACHReportSelection;
         CheckJobWIPMethods();
         CheckBankExportImportSetup();
         CheckVATRegNrValidation();
@@ -343,6 +345,13 @@ codeunit 134163 "Company Init Unit Test"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.DeleteAll();
+    end;
+
+    local procedure DeleteDACHReportSelection()
+    var
+        DACHReportSelections: Record "DACH Report Selections";
+    begin
+        DACHReportSelections.DeleteAll();
     end;
 
     local procedure DeleteJobWIPMethods()
@@ -595,6 +604,15 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Return", '1', REPORT::"Arch. Sales Return Order");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Order Pick Instruction", '1', REPORT::"Pick Instruction");
         CheckReportSelectionEntry(ReportSelections.Usage::"C.Statement", '1', REPORT::"Standard Statement");
+    end;
+
+    local procedure CheckDACHReportSelection()
+    var
+        DACHReportSelections: Record "DACH Report Selections";
+    begin
+        DACHReportSelections.FindFirst;
+        DACHReportSelections.TestField("Report ID");
+        DACHReportSelections.TestField(Sequence);
     end;
 
     local procedure CheckReportSelectionEntry(RecUsage: Integer; Sequence: Text; ReportId: Integer)

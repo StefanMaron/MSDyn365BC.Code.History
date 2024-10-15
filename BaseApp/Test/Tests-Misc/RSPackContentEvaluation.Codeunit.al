@@ -619,8 +619,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        // [SCENARIO] There are 7 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 7);
+        // [SCENARIO] There are 4 VAT Prod. Posting groups
+        Assert.RecordCount(VATProductPostingGroup, 4);
     end;
 
     [Test]

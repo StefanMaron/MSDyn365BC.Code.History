@@ -342,6 +342,7 @@ report 492 "Copy Purchase Document"
     local procedure LookupPurchArchive()
     begin
         FromPurchHeaderArchive.Reset();
+        OnLookupPurchArchiveOnBeforeSetFilters(FromPurchHeaderArchive, PurchHeader);
         FromPurchHeaderArchive.FilterGroup := 0;
         FromPurchHeaderArchive.SetRange("Document Type", CopyDocMgt.ArchPurchHeaderDocType(DocType));
         FromPurchHeaderArchive.FilterGroup := 2;
@@ -412,6 +413,8 @@ report 492 "Copy Purchase Document"
 
     local procedure LookupPostedReturn()
     begin
+        OnBeforeLookupPostedReturn(FromReturnShptHeader, PurchHeader);
+
         FromReturnShptHeader."No." := DocNo;
         if (DocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
             if FromReturnShptHeader.SetCurrentKey("Buy-from Vendor No.") then begin
@@ -467,12 +470,22 @@ report 492 "Copy Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostedReturn(var FromReturnShptHeader: Record "Return Shipment Header"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePreReport()
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateIncludeHeader(var DoIncludeHeader: Boolean; DocType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupPurchArchiveOnBeforeSetFilters(var FromPurchHeaderArchive: Record "Purchase Header Archive"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 

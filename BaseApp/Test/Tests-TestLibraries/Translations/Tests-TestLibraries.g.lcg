@@ -1328,15 +1328,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Mock Master Table - Field Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 3239175751 - Field 3348941625 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Key]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table Obsolete Removed Table - Field Key - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Table 4170263786 - Field 415504711 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Id]]></Val>
@@ -2181,42 +2172,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With PK 16 Fields - Field Field16 - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 4010737240 - Field 3348941625 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Key]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Removed Field - Field Key - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 4010737240 - Field 1975823043 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Obsolete Field Removed]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table Table With Removed Field - Field Obsolete Field Removed - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 4010737240 - Field 498980640 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Obsolete Field Pending]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Removed Field - Field Obsolete Field Pending - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 4010737240 - Field 668379323 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Normal Field]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Table With Removed Field - Field Normal Field - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 3406196827 - Field 415504711 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -3245,15 +3200,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Assert - NamedType TextEndSubstringIsBlankErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3923843657 - NamedType 1866849693" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Standard]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Must be similar to "Data Type" option in table 101900 Demonstration Data Setup]D;]A;(LookupHint=Codeunit Assis. Comp. Setup Plat. Tests - NamedType StandardTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4033808984 - NamedType 1493571964" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[FIRST TEST Page]]></Val>
@@ -4046,6 +3992,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - CRM Integration - NamedType TempMappingNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3701101974 - NamedType 449689522" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Table %1 already verified in VerifyShorcutDimCodesUpdatedOnDimSetIDValidation]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = table name]D;]A;(LookupHint=Codeunit Library - Dimension - NamedType TableWithDimSetIDAlreadyVerifiedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 647530252 - NamedType 2011886100" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There are no %1 within the filters specified.]]></Val>
@@ -4053,6 +4008,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - ERM - NamedType NoRecordsInFilterError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3077960804 - NamedType 3310932644" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PCS]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - ERM Country Data - NamedType PCS)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3077960804 - NamedType 1971898887" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[BOX]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - ERM Country Data - NamedType BOX)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 842842907 - NamedType 1592273577" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

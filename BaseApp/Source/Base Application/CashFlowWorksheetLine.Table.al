@@ -318,6 +318,8 @@ table 846 "Cash Flow Worksheet Line"
         then
             ApplyCFPaymentTerm := true;
 
+        OnCalculateCFAmountAndCFDateOnAfterAssignApplyCFPaymentTerm(Rec, ApplyCFPaymentTerm);
+
         if not ApplyCFPaymentTerm then begin
             if not CashFlowForecast."Consider Discount" then
                 exit;
@@ -386,6 +388,11 @@ table 846 "Cash Flow Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var xCashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateCFAmountAndCFDateOnAfterAssignApplyCFPaymentTerm(CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var ApplyCFPaymentTerm: Boolean)
     begin
     end;
 }

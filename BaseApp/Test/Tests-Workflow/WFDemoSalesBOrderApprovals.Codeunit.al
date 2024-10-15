@@ -12,6 +12,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
     var
         DocCannotBeReleasedErr: Label 'This document can only be released when the approval process is complete.';
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
@@ -30,6 +31,7 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         UserSetup: Record "User Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Sales BOrder Approvals");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
@@ -37,8 +39,10 @@ codeunit 134174 "WF Demo Sales BOrder Approvals"
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Sales BOrder Approvals");
         IsInitialized := true;
-        BindSubscription(LibraryJobQueue)
+        BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo Sales BOrder Approvals");
     end;
 
     [Test]

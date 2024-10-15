@@ -14,6 +14,8 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
         LibraryInventory: Codeunit "Library - Inventory";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        IsInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('SendNotificationHandler,RecallNotificationHandler')]
@@ -111,12 +113,18 @@ codeunit 134318 "WF Credit Limit Exceeded Tests"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Credit Limit Exceeded Tests");
         LibraryERMCountryData.CreateVATData;
         LibraryApplicationArea.EnableFoundationSetup;
 
         SalesReceivablesSetup.FindFirst;
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
         SalesReceivablesSetup.Modify(true);
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Credit Limit Exceeded Tests");
+        isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Credit Limit Exceeded Tests");
     end;
 
     [RecallNotificationHandler]

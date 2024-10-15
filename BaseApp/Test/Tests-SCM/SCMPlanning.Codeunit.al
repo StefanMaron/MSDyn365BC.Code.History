@@ -4822,6 +4822,60 @@ codeunit 137020 "SCM Planning"
         Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PlanningWithLeadTimeCalculationDoesNotSuggestAboveMaxQty()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        LeadTimeCalculation: DateFormula;
+        MaxQty: Decimal;
+        InvtQty: Decimal;
+        SalesQty: Decimal;
+    begin
+        // [FEATURE] [Maximum Inventory] [Lead Time Calculation]
+        // [SCENARIO 343547] Planning engine must keep the inventory on the maximum level when the reorder point is crossed more than once within Lead Time Calculation period.
+        Initialize();
+        Evaluate(LeadTimeCalculation, '<60D>');
+        MaxQty := 50;
+        InvtQty := 25;
+        SalesQty := 5;
+
+        // [GIVEN] Item with "Maximum Qty." reordering policy.
+        // [GIVEN] Max. inventory = 50. Reorder point = 46.
+        // [GIVEN] Lead time calculation = 60 days.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Maximum Qty.");
+        Item.Validate("Lead Time Calculation", LeadTimeCalculation);
+        Item.Validate("Maximum Inventory", MaxQty);
+        Item.Validate("Reorder Point", MaxQty - SalesQty + 1);
+        Item.Modify(true);
+
+        // [GIVEN] Post 25 qty. to the inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', InvtQty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Two sales lines each for 5 qty.
+        // [GIVEN] The reorder point will thus be crossed three times - for the inventory and each sales line.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate + 5, SalesQty);
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate + 10, SalesQty);
+
+        // [WHEN] Calculate regenerative plan starting from WORKDATE.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, CalcDate('<CY>', WorkDate));
+
+        // [THEN] Three planning lines are created.
+        // [THEN] The resulting inventory with the consideration of the planning lines is 50 qty. (= Max. Inventory of the item).
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.CalcSums(Quantity);
+        Assert.RecordCount(RequisitionLine, 3);
+        Assert.AreEqual(MaxQty, InvtQty - 2 * SalesQty + RequisitionLine.Quantity, 'Wrong planned quantity.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

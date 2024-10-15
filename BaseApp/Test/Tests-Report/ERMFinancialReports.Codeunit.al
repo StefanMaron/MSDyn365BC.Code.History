@@ -1164,9 +1164,9 @@ codeunit 134982 "ERM Financial Reports"
 
         // [THEN] Country/Region Code is exported as 'BE' and VAT Registration No. as 'BE123456789'
         Assert.AreNotEqual(
-          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 27, 2, CopyStr(SellToCustomer."Country/Region Code", 1, 2)), '');
+          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 1, 2, CopyStr(SellToCustomer."Country/Region Code", 1, 2)), '');
         Assert.AreNotEqual(
-          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 29, 10, CopyStr(SellToCustomer."VAT Registration No.", 1, 10)), '');
+          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 4, 10, CopyStr(SellToCustomer."VAT Registration No.", 1, 10)), '');
 
         FileManagement.DeleteServerFile(FileName);
     end;
@@ -2284,6 +2284,8 @@ codeunit 134982 "ERM Financial Reports"
     [Scope('OnPrem')]
     procedure VATVIESDeclDiskRequestPageHandler(var VATVIESDeclarationDisk: TestRequestPage "VAT- VIES Declaration Disk")
     begin
+        VATVIESDeclarationDisk.FileVersion.SetValue(LibraryRandom.RandText(30));
+        VATVIESDeclarationDisk."FileVersion 2".SetValue(LibraryRandom.RandText(30));
         VATVIESDeclarationDisk.OK.Invoke;
     end;
 }

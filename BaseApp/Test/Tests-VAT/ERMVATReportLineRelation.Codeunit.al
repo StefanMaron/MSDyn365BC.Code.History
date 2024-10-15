@@ -39,32 +39,6 @@ codeunit 134057 "ERM VAT Report Line Relation"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestCreateFilterForAmountMapping()
-    var
-        VATReportLineRelation: Record "VAT Report Line Relation";
-        TableNo: Integer;
-    begin
-        VATReportLineRelation."VAT Report No." := 'Test';
-        VATReportLineRelation."VAT Report Line No." := 1;
-        VATReportLineRelation."Line No." := 1;
-        VATReportLineRelation."Table No." := DATABASE::"VAT Entry";
-        VATReportLineRelation."Entry No." := 1;
-        VATReportLineRelation.Insert(true);
-
-        VATReportLineRelation."VAT Report No." := 'Test';
-        VATReportLineRelation."VAT Report Line No." := 1;
-        VATReportLineRelation."Line No." := 2;
-        VATReportLineRelation."Table No." := DATABASE::"VAT Entry";
-        VATReportLineRelation."Entry No." := 2;
-
-        VATReportLineRelation.Insert(true);
-        Assert.AreEqual('1|2', VATReportLineRelation.CreateFilterForAmountMapping('Test', 1, TableNo), ErrorMessage);
-
-        TearDown('Test');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure VATStatementBoxNoIsVisible()
     var
         VATStatementName: Record "VAT Statement Name";

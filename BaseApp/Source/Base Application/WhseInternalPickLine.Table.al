@@ -494,6 +494,8 @@ table 7334 "Whse. Internal Pick Line"
         WhseWorksheetLine."Qty. (Base)" := "Qty. (Base)";
         WhseWorksheetLine."Qty. to Handle (Base)" :=
           "Qty. (Base)" - "Qty. Picked (Base)" - "Pick Qty. (Base)";
+
+        OnOpenItemTrackingLinesOnBeforeSetSource(Rec, WhseWorksheetLine);
         WhseItemTrackingLines.SetSource(WhseWorksheetLine, DATABASE::"Whse. Internal Pick Line");
         WhseItemTrackingLines.RunModal;
         Clear(WhseItemTrackingLines);
@@ -640,6 +642,11 @@ table 7334 "Whse. Internal Pick Line"
         if WhseInternalPickLine.FindLast then
             exit(WhseInternalPickLine."Sorting Sequence No.");
         exit(0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenItemTrackingLinesOnBeforeSetSource(var WhseInternalPickLine: Record "Whse. Internal Pick Line"; var WhseWorksheetLine: Record "Whse. Worksheet Line");
+    begin
     end;
 }
 

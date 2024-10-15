@@ -331,6 +331,7 @@ page 515 "Item Avail. by Location Lines"
 
     procedure Set(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
     begin
+        OnBeforeSet(Rec, NewItem, NewAmountType);
         Item.Copy(NewItem);
         PeriodStart := Item.GetRangeMin("Date Filter");
         PeriodEnd := Item.GetRangeMax("Date Filter");
@@ -379,6 +380,11 @@ page 515 "Item Avail. by Location Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetItemFilter(var Item: Record Item; var PeriodStart: Date; var PeriodEnd: Date);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSet(var Location: Record Location; var Item: Record Item; NewAmountType: Option "Net Change","Balance at Date");
     begin
     end;
 }

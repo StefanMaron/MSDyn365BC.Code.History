@@ -210,7 +210,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure AvgForwardAddCurr()
     begin
@@ -223,7 +223,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure AvgManCapCostDiffAddCurr()
     begin
@@ -236,7 +236,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure AvgForwardProdOrderCompAddCurr()
     begin
@@ -249,7 +249,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure AvgManualRoutingDiffAddCurr()
     begin
@@ -262,7 +262,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure AvgSubconBackwardAddCurr()
     begin
@@ -275,7 +275,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure AvgSubconManCostDiffAddCurr()
     begin
@@ -1820,6 +1820,13 @@ codeunit 137004 "SCM WIP Costing Production-II"
     [Scope('OnPrem')]
     procedure MessageHandler(Msg: Text[1024])
     begin
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
+        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

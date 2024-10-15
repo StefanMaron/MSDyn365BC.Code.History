@@ -47,7 +47,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesInvoiceList.Trap;
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
+        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
         InvokePostSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
 
         VerifyTwoOfThreeDocumentsUnposted(SalesHeaderUI, SalesHeader);
@@ -79,7 +79,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesCreditMemos.Trap;
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
+        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
         InvokePostSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
 
         VerifyTwoOfThreeDocumentsUnposted(SalesHeaderUI, SalesHeader);
@@ -308,7 +308,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesInvoiceList.Trap;
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
+        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
         ErrorMessagesPage.Trap;
         InvokePostSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
 
@@ -339,7 +339,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesCreditMemos.Trap;
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
+        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
         ErrorMessagesPage.Trap;
         InvokePostSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
 
