@@ -33,6 +33,9 @@
       "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
     },
     {
+      "path": "./VATGroupManagement/Test/VATGroupManagementTest"
+    },
+    {
       "path": "./EssentialBusinessHeadlines/Test/EssentialBusinessHeadlinesTest"
     },
     {
