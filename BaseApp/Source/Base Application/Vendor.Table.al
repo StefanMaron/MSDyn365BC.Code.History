@@ -201,6 +201,25 @@
             Caption = 'Language Code';
             TableRelation = Language;
         }
+        field(25; "Registration Number"; Text[50])
+        {
+            Caption = 'Registration No.';
+
+            trigger OnValidate()
+            var
+                IsHandled: Boolean;
+            begin
+                IsHandled := false;
+                OnBeforeValidateRegistrationNumber(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+                if StrLen("Registration Number") > 20 then
+                    FieldError("Registration Number", FieldLengthErr);
+#if not CLEAN22
+                "Registration No." := CopyStr("Registration Number", 1, MaxStrLen("Registration No."));
+#endif
+            end;
+        }
         field(26; "Statistics Group"; Integer)
         {
             Caption = 'Statistics Group';
@@ -1400,6 +1419,19 @@
         field(11000; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
+            ObsoleteReason = 'Replaced with Registration Number';
+#if CLEAN22
+            ObsoleteTag = '25.0';
+            ObsoleteState = Removed;
+#else
+            ObsoleteTag = '22.0';
+            ObsoleteState = Pending;
+
+            trigger OnValidate()
+            begin
+                "Registration Number" := "Registration No.";
+            end;
+#endif            
         }
         field(5005270; "Delivery Reminder Terms"; Code[10])
         {
@@ -1639,6 +1671,7 @@
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
         PhoneNoCannotContainLettersErr: Label 'must not contain letters';
+        FieldLengthErr: Label 'must not have the length more than 20 symbols';
 
     procedure AssistEdit(OldVend: Record Vendor): Boolean
     var
@@ -2558,5 +2591,10 @@
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateRegistrationNumber(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
 }
 

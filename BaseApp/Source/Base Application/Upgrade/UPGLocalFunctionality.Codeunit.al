@@ -12,9 +12,10 @@ codeunit 104100 "Upg Local Functionality"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
+
         UpdatePhysInventoryOrders();
         CleanupPhysOrders();
+        UpdateVendorRegistrationNo();
     end;
 
     local procedure UpdatePhysInventoryOrders()
@@ -244,5 +245,24 @@ codeunit 104100 "Upg Local Functionality"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCheckPartnerVATIDTag());
     end;
 #endif
+
+    procedure UpdateVendorRegistrationNo()
+    var
+        Vendor: Record Vendor;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+    begin
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetVendorRegistrationNoTag()) THEN
+            EXIT;
+
+        Vendor.SetFilter("Registration No.", '<>%1', '');
+        if Vendor.findset(true) then
+            repeat
+                Vendor."Registration Number" := Vendor."Registration No.";
+                Vendor.Modify();
+            until Vendor.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetVendorRegistrationNoTag());
+    end;
 }
 
