@@ -2592,7 +2592,7 @@
         Customer.SetFilter(Name, CustomerFilterFromStart);
         OnGetCustNoOpenCardOnAfterOnAfterCustomerFilterFromStart(Customer);
 
-        if Customer.FindFirst then
+        if Customer.FindFirst() and (Customer.Count() = 1) then
             exit(Customer."No.");
 
         CustomerFilterContains := '''@*' + CustomerWithoutQuote + '*''';
