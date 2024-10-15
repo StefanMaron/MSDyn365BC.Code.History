@@ -322,7 +322,7 @@ codeunit 134167 "Copy Price Data Test"
         JobItemPrice.DeleteAll();
         PriceListLine.DeleteAll();
         PriceListHeader.DeleteAll();
-        // [GIVEN] JobItemPrice, where "Apply Job Price" is true, "Apply Job Discount" is false.
+        // [GIVEN] JobItemPrice, where "Apply Job Price" is false, "Apply Job Discount" is true.
         CreateJobItemPrice(JobItemPrice, false, true);
 
         // [WHEN] Copy JobItemPrice with header generation
@@ -351,7 +351,7 @@ codeunit 134167 "Copy Price Data Test"
         JobItemPrice.DeleteAll();
         PriceListLine.DeleteAll();
         PriceListHeader.DeleteAll();
-        // [GIVEN] JobItemPrice, where "Apply Job Price" is true, "Apply Job Discount" is false.
+        // [GIVEN] JobItemPrice, where "Apply Job Price" is true, "Apply Job Discount" is true.
         CreateJobItemPrice(JobItemPrice, true, true);
 
         // [WHEN] Copy JobItemPrice with header generation
@@ -363,6 +363,85 @@ codeunit 134167 "Copy Price Data Test"
         PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
         PriceListLine.TestField("Unit Price", JobItemPrice."Unit Price");
         PriceListLine.TestField("Cost Factor", JobItemPrice."Unit Cost Factor");
+        PriceListLine.TestField("Line Discount %", 0);
+        PriceListCode := PriceListLine."Price List Code";
+        VerifyHeader(PriceListLine);
+        Assert.IsTrue(PriceListLine.Next() <> 0, 'not found second line');
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Discount);
+        PriceListLine.TestField("Unit Price", 0);
+        PriceListLine.TestField("Cost Factor", 0);
+        PriceListLine.TestField("Line Discount %", JobItemPrice."Line Discount %");
+        PriceListCode := PriceListLine."Price List Code";
+        VerifyHeader(PriceListLine);
+    end;
+
+    [Test]
+    procedure T024_CopyJobItemPriceZeroDiscToTwoHeaders()
+    var
+        JobItemPrice: Record "Job Item Price";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListCode: Code[20];
+    begin
+        Initialize();
+        JobItemPrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] JobItemPrice, where "Apply Job Price" is true, "Apply Job Discount" is true, "Line Discount %" is 0.
+        CreateJobItemPrice(JobItemPrice, true, true);
+        JobItemPrice."Line Discount %" := 0;
+        JobItemPrice.Modify();
+
+        // [WHEN] Copy JobItemPrice with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(JobItemPrice, PriceListLine);
+
+        // [THEN] Added 2 Price List Lines and 2 Headers with Amount Type "Price" and "Discount"
+        PriceListLine.FindFirst();
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.TestField("Unit Price", JobItemPrice."Unit Price");
+        PriceListLine.TestField("Cost Factor", JobItemPrice."Unit Cost Factor");
+        PriceListLine.TestField("Line Discount %", 0);
+        PriceListCode := PriceListLine."Price List Code";
+        VerifyHeader(PriceListLine);
+        // [THEN] The discount line, where "Line Discount %" is 0
+        Assert.IsTrue(PriceListLine.Next() <> 0, 'not found second line');
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Discount);
+        PriceListLine.TestField("Unit Price", 0);
+        PriceListLine.TestField("Cost Factor", 0);
+        PriceListLine.TestField("Line Discount %", 0);
+        PriceListCode := PriceListLine."Price List Code";
+        VerifyHeader(PriceListLine);
+    end;
+
+    [Test]
+    procedure T025_CopyJobItemPriceZeroPriceToTwoHeaders()
+    var
+        JobItemPrice: Record "Job Item Price";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListCode: Code[20];
+    begin
+        Initialize();
+        JobItemPrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] JobItemPrice, where "Apply Job Price" is true, "Apply Job Discount" is true, "Unit Price" is 0.
+        CreateJobItemPrice(JobItemPrice, true, true);
+        JobItemPrice."Unit Price" := 0;
+        JobItemPrice."Unit Cost Factor" := 0;
+        JobItemPrice.Modify();
+
+        // [WHEN] Copy JobItemPrice with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(JobItemPrice, PriceListLine);
+
+        // [THEN] Added 2 Price List Lines and 2 Headers with Amount Type "Price" and "Discount"
+        // [THEN] The price line, where "Unit Price" is 0
+        PriceListLine.FindFirst();
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.TestField("Unit Price", 0);
+        PriceListLine.TestField("Cost Factor", 0);
         PriceListLine.TestField("Line Discount %", 0);
         PriceListCode := PriceListLine."Price List Code";
         VerifyHeader(PriceListLine);
@@ -634,6 +713,48 @@ codeunit 134167 "Copy Price Data Test"
         // [THEN] Added zero Price List Header/Line
         Assert.RecordIsEmpty(PriceListHeader);
         Assert.RecordIsEmpty(PriceListLine);
+    end;
+
+    [Test]
+    procedure T044_CopyJobResourcePriceZeroDiscToTwoHeaders()
+    var
+        JobResourcePrice: Record "Job Resource Price";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceListCode: Code[20];
+    begin
+        // [SCENARIO] Copy even zero discount to a new discount line.
+        Initialize();
+        JobResourcePrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] JobResourcePrice, where "Apply Job Price" is true, "Apply Job Discount" is true, "Line Discount %" is 0
+        CreateJobResourcePrice(JobResourcePrice, true, true);
+        JobResourcePrice."Line Discount %" := 0;
+        JobResourcePrice.Modify();
+
+        // [WHEN] Copy JobItemPrice with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(JobResourcePrice, PriceListLine);
+
+        // [THEN] Added 1st Price List Header, where "Price Type" 'Sale', "Amount Type" 'Price'
+        PriceListLine.FindFirst();
+        PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Sale);
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.TestField("Unit Price", JobResourcePrice."Unit Price");
+        PriceListLine.TestField("Cost Factor", JobResourcePrice."Unit Cost Factor");
+        PriceListLine.TestField("Line Discount %", 0);
+        PriceListCode := PriceListLine."Price List Code";
+        VerifyHeader(PriceListLine);
+        // [THEN] Added 2nd Price List Header, where "Price Type" 'Sale', "Amount Type" 'Discount', "Line Discount %" is 0
+        Assert.IsTrue(PriceListLine.Next() <> 0, 'not found second line');
+        PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Sale);
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Discount);
+        PriceListLine.TestField("Line Discount %", 0);
+        PriceListLine.TestField("Unit Price", 0);
+        PriceListLine.TestField("Cost Factor", 0);
+        PriceListCode := PriceListLine."Price List Code";
+        VerifyHeader(PriceListLine);
     end;
 
     [Test]

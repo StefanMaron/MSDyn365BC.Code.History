@@ -1101,6 +1101,20 @@ codeunit 5477 "Sales Invoice Aggregator"
             Error(CanOnlySetUOMForTypeItemErr);
     end;
 
+    procedure FixInvoicesCreatedFromOrders()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        NullGuid: Guid;
+    begin
+        SalesInvoiceHeader.SetFilter("Order No.", '<>''''');
+        SalesInvoiceHeader.SetFilter("Draft Invoice SystemId", '<>%1', NullGuid);
+        SalesInvoiceHeader.ModifyAll("Draft Invoice SystemId", NullGuid, true);
+        if not (UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixAPISalesInvoicesCreatedFromOrders())) then
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetFixAPISalesInvoicesCreatedFromOrders());
+    end;
+
     local procedure CheckValidLineRecord(var SalesLine: Record "Sales Line"): Boolean
     begin
         if SalesLine.IsTemporary then
