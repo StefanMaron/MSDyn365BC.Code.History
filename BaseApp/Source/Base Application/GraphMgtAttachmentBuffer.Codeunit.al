@@ -587,11 +587,11 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                                 LinkAttachmentToDocument(UnlinkedAttachment.SystemId, DocumentId, FileName);
                             end;
                         else begin
-                                CopyAttachment(TempNewAttachmentEntityBuffer, UnlinkedAttachment, false);
-                                if FileName = '' then
-                                    FileName := UnlinkedAttachment."File Name";
-                                LinkAttachmentToDocument(UnlinkedAttachment.SystemId, DocumentId, FileName);
-                            end;
+                            CopyAttachment(TempNewAttachmentEntityBuffer, UnlinkedAttachment, false);
+                            if FileName = '' then
+                                FileName := UnlinkedAttachment."File Name";
+                            LinkAttachmentToDocument(UnlinkedAttachment.SystemId, DocumentId, FileName);
+                        end;
                     end
                 else
                     if TempNewAttachmentEntityBuffer."File Name" <> TempOldAttachmentEntityBuffer."File Name" then
@@ -807,6 +807,11 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             exit;
         end;
 
+        if DocumentRecordRef.Number = Database::"Sales Cr.Memo Header" then begin
+            DocumentType := DocumentType::"Sales Credit Memo";
+            exit;
+        end;
+
         if DocumentRecordRef.Number = DATABASE::"Purch. Inv. Header" then begin
             DocumentType := DocumentType::Invoice;
             exit;
@@ -826,26 +831,28 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             end;
         end;
 
-        DocumentRecordRef.SetTable(SalesHeader);
+        if DocumentRecordRef.Number = Database::"Sales Header" then begin
+            DocumentRecordRef.SetTable(SalesHeader);
 
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then begin
-            DocumentType := DocumentType::Invoice;
-            exit;
-        end;
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then begin
+                DocumentType := DocumentType::Invoice;
+                exit;
+            end;
 
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then begin
-            DocumentType := DocumentType::Quote;
-            exit;
-        end;
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then begin
+                DocumentType := DocumentType::Quote;
+                exit;
+            end;
 
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
-            DocumentType := DocumentType::"Sales Order";
-            exit;
-        end;
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+                DocumentType := DocumentType::"Sales Order";
+                exit;
+            end;
 
-        if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then begin
-            DocumentType := DocumentType::"Sales Credit Memo";
-            exit;
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then begin
+                DocumentType := DocumentType::"Sales Credit Memo";
+                exit;
+            end;
         end;
     end;
 
@@ -1271,6 +1278,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         GLEntry: Record "G/L Entry";
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         if FindIncomingDocument(DocumentRecordRef, IncomingDocument) then
             exit;
@@ -1350,6 +1358,19 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             IncomingDocument.Insert(true);
             PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
             PurchaseHeader.Modify();
+            exit;
+        end;
+
+        if IsSalesCreditMemo(DocumentRecordRef) and IsPostedDocument(DocumentRecordRef) then begin
+            DocumentRecordRef.SetTable(SalesCrMemoHeader);
+            IncomingDocument.Description := CopyStr(SalesCrMemoHeader."Sell-to Customer Name", 1, MaxStrLen(IncomingDocument.Description));
+            IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Sales Credit Memo";
+            IncomingDocument."Posting Date" := SalesCrMemoHeader."Posting Date";
+            IncomingDocument."Document No." := SalesCrMemoHeader."No.";
+            IncomingDocument."Posted Date-Time" := CurrentDateTime;
+            IncomingDocument.Status := IncomingDocument.Status::Posted;
+            IncomingDocument.Posted := true;
+            IncomingDocument.Insert(true);
             exit;
         end;
     end;
