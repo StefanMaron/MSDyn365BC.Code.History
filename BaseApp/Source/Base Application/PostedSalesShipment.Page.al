@@ -480,11 +480,23 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
                 }
+                field("SAT Address ID"; Rec."SAT Address ID")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
+                    BlankZero = true;
+                }
+#if not CLEAN23                
                 field("Transit-to Location"; "Transit-to Location")
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the location that the goods or merchandise are moved to.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with SAT Address ID.';
+                    ObsoleteTag = '23.0';
                 }
+#endif                
                 field("Transport Operators"; "Transport Operators")
                 {
                     ApplicationArea = BasicMX;
