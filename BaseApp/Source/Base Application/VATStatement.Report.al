@@ -27,7 +27,7 @@ report 12 "VAT Statement"
                 column(Heading; Heading)
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(StmtName_VatStmtName; "VAT Statement Name"."Statement Template Name")
@@ -70,7 +70,7 @@ report 12 "VAT Statement"
                 }
                 column(TotalAmount; TotalAmount)
                 {
-                    AutoFormatExpression = GetCurrency;
+                    AutoFormatExpression = GetCurrency();
                     AutoFormatType = 1;
                 }
                 column(UseAmtsInAddCurr; UseAmtsInAddCurr)
@@ -220,7 +220,7 @@ report 12 "VAT Statement"
         else
             Heading := Text004;
         Heading2 := StrSubstNo(Text005, StartDate, EndDateReq);
-        VATStmtLineFilter := VATStmtLine.GetFilters;
+        VATStmtLineFilter := VATStmtLine.GetFilters();
     end;
 
     var
@@ -233,7 +233,6 @@ report 12 "VAT Statement"
         GLSetup: Record "General Ledger Setup";
         VATStmtLine: Record "VAT Statement Line";
         Selection: Enum "VAT Statement Report Selection";
-        PeriodSelection: Enum "VAT Statement Report Period Selection";
         PrintInIntegers: Boolean;
         VATStmtLineFilter: Text;
         Heading: Text[50];
@@ -246,7 +245,6 @@ report 12 "VAT Statement"
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
         UseAmtsInAddCurr: Boolean;
-        HeaderText: Text[50];
         EndDate: Date;
         StartDate: Date;
         EndDateReq: Date;
@@ -261,6 +259,10 @@ report 12 "VAT Statement"
         RepinclonlyclosedVATentCaptionLbl: Label 'The report includes only closed VAT entries.';
         TotalAmountCaptionLbl: Label 'Amount';
 
+    protected var
+        HeaderText: Text[50];
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
+
     procedure CalcLineTotal(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
     var
         DummyTotalBase: Decimal;
@@ -271,6 +273,7 @@ report 12 "VAT Statement"
     procedure CalcLineTotalWithBase(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal; Level: Integer): Boolean
     var
         VATReportSetup: Record "VAT Report Setup";
+        DummyVATAmount: Decimal;
     begin
         if Level = 0 then begin
             TotalBase := 0;
@@ -331,11 +334,13 @@ report 12 "VAT Statement"
                                 if VATReportSetup.Get() then;
                                 if VATReportSetup."Report VAT Base" then
                                     Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
+                                AddNonDeductibleVAT(Base, Amount, VATStmtLine2);
                             end;
                         VATStmtLine2."Amount Type"::Base:
                             begin
                                 VATEntry.CalcSums(Base, "Additional-Currency Base");
                                 Amount := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
+                                AddNonDeductibleVAT(Amount, DummyVATAmount, VATStmtLine2);
                             end;
                         VATStmtLine2."Amount Type"::"Unrealized Amount":
                             begin
@@ -377,6 +382,8 @@ report 12 "VAT Statement"
                 end;
             VATStmtLine2.Type::Description:
                 ;
+            else
+                OnCalcLineTotalWithBaseOnCaseElse(VATStmtLine2, Amount, TotalAmount, Level, PeriodSelection, StartDate, EndDate, EndDateReq, PrintInIntegers, UseAmtsInAddCurr);
         end;
 
         exit(true);
@@ -423,12 +430,29 @@ report 12 "VAT Statement"
         exit(Amount + AmountToAdd);
     end;
 
-    local procedure GetCurrency(): Code[10]
+    protected procedure GetCurrency(): Code[10]
     begin
         if UseAmtsInAddCurr then
             exit(GLSetup."Additional Reporting Currency");
 
         exit('');
+    end;
+
+    local procedure AddNonDeductibleVAT(var VATBase: Decimal; var VATAmount: Decimal; VATStmtLine: Record "VAT Statement Line")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if not VATPostingSetup.Get(VATStmtLine."VAT Bus. Posting Group", VATStmtLine."VAT Prod. Posting Group") then
+            exit;
+        if not VATPostingSetup."Calc. Prop. Deduction VAT" then
+            exit;
+
+        if VATPostingSetup."Proportional Deduction VAT %" = 0 then
+            VATAmount := Round(VATBase * VATPostingSetup."VAT %" / 100)
+        else begin
+            VATBase := Round(VATBase * 100 / VATPostingSetup."Proportional Deduction VAT %");
+            VATAmount := Round(VATAmount * 100 / VATPostingSetup."Proportional Deduction VAT %");
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -443,6 +467,11 @@ report 12 "VAT Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; Selection: Enum "VAT Statement Report Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalWithBaseOnCaseElse(var VATStmtLine2: Record "VAT Statement Line"; var Amount: Decimal; var TotalAmount: Decimal; Level: Integer; PeriodSelection: Enum "VAT Statement Report Period Selection"; StartDate: Date; EndDate: Date; EndDateReq: Date; PrintInIntegers: Boolean; UseAmtsInAddCurr: Boolean)
     begin
     end;
 }

@@ -7689,7 +7689,7 @@
                 FieldError("Direct Unit Cost", StrSubstNo(Text043, FieldCaption("Prepayment %")));
         end;
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
-            if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
+            if ("Prepmt. Line Amount" < "Prepmt. Amt. Inv.") and (PurchHeader.Status <> PurchHeader.Status::Released) then begin
                 if IsServiceCharge() then
                     Error(CannotChangePrepaidServiceChargeErr);
                 if "Inv. Discount Amount" <> 0 then
