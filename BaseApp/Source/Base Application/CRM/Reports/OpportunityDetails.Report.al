@@ -287,7 +287,9 @@ report 5068 "Opportunity - Details"
         ActivityStartDate: Date;
         ActivityStatus: Option Planned;
         CurrStage: Integer;
+#pragma warning disable AA0074
         Text001: Label 'Planned';
+#pragma warning restore AA0074
         LastSalesCycleStage: Integer;
         PlannedStartingDate: Date;
         CurrReportPageNoCaptionLbl: Label 'Page';

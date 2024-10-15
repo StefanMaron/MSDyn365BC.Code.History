@@ -17,9 +17,13 @@ codeunit 1108 "CA Jnl.-Post"
     var
         CostJnlLine: Record "Cost Journal Line";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+#pragma warning disable AA0074
         Text001: Label 'Do you want to post the journal lines?';
         Text003: Label 'The journal lines were successfully posted.';
+#pragma warning disable AA0470
         Text004: Label 'The journal lines were successfully posted. You are now in the %1 journal.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

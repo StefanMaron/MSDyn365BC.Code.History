@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Inventory.Requisition;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Company;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
@@ -9,11 +8,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Substitution;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
-using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 codeunit 5522 "Order Planning Mgt."
 {
@@ -28,10 +23,14 @@ codeunit 5522 "Order Planning Mgt."
         UOMMgt: Codeunit "Unit of Measure Management";
         DemandType: Enum "Unplanned Demand Type";
         HasGotCompanyInfo: Boolean;
+#pragma warning disable AA0074
         Text000: Label 'Generating Lines to Plan @1@@@@@@@';
         Text001: Label 'Item Substitution is not possible for the active line.';
+#pragma warning disable AA0470
         Text003: Label 'You cannot use this function because the active line has no %1.';
+#pragma warning restore AA0470
         Text004: Label 'All items are available and no planning lines are created.';
+#pragma warning restore AA0074
         DelReqLine: Boolean;
 
     procedure GetOrdersToPlan(var ReqLine: Record "Requisition Line")
@@ -55,10 +54,9 @@ codeunit 5522 "Order Planning Mgt."
 
     procedure PlanSpecificSalesOrder(var ReqLine: Record "Requisition Line"; SalesOrderNo: Code[20])
     var
-        SalesHeader: Record "Sales Header";
         GetUnplannedDemand: Codeunit "Get Unplanned Demand";
     begin
-        SetSalesOrder();
+        SetDemandType("Demand Order Source Type"::"Sales Demand");
         PrepareRequisitionRecord(ReqLine);
 
         GetUnplannedDemand.SetIncludeMetDemandForSpecificSalesOrderNo(SalesOrderNo);
@@ -67,7 +65,31 @@ codeunit 5522 "Order Planning Mgt."
         TransformUnplannedDemandToRequisitionLines(ReqLine);
 
         ReqLine.SetRange("Demand Order No.", SalesOrderNo);
-        ReqLine.SetRange("Demand Subtype", SalesHeader."Document Type"::Order);
+        ReqLine.SetRange("Demand Subtype", 1); // "Sales Document Type"::Order
+    end;
+
+    procedure PlanSpecificJob(var ReqLine: Record "Requisition Line"; JobNo: Code[20])
+    var
+        GetUnplannedDemand: Codeunit "Get Unplanned Demand";
+    begin
+        SetDemandType("Demand Order Source Type"::"Job Demand");
+        PrepareRequisitionRecord(ReqLine);
+
+        GetUnplannedDemand.SetIncludeMetDemandForSpecificJobNo(JobNo);
+        GetUnplannedDemand.Run(TempUnplannedDemand);
+
+        TransformUnplannedDemandToRequisitionLines(ReqLine);
+
+        ReqLine.SetRange("Demand Order No.", JobNo);
+        ReqLine.SetRange("Demand Subtype", 2);
+    end;
+
+    procedure SetTaskFilterOnReqLine(var ReqLine: Record "Requisition Line"; DemandLineNoFilter: Text)
+    begin
+        if DemandLineNoFilter = '' then
+            exit;
+
+        ReqLine.SetFilter("Demand Line No.", DemandLineNoFilter);
     end;
 
     procedure PrepareRequisitionRecord(var RequisitionLine: Record "Requisition Line")
@@ -160,12 +182,7 @@ codeunit 5522 "Order Planning Mgt."
 
     local procedure InsertReqLineFromUnplannedDemand(var ReqLine: Record "Requisition Line"; var Item: Record Item)
     var
-        SalesLine: Record "Sales Line";
-        ServLine: Record "Service Line";
-        AsmLine: Record "Assembly Line";
-        ProdOrderComp2: Record "Prod. Order Component";
         PlanningLineMgt: Codeunit "Planning Line Management";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -178,28 +195,7 @@ codeunit 5522 "Order Planning Mgt."
         if Item."No." <> TempUnplannedDemand."Item No." then
             Item.Get(TempUnplannedDemand."Item No.");
         if Item."Item Tracking Code" <> '' then
-            case TempUnplannedDemand."Demand Type" of
-                TempUnplannedDemand."Demand Type"::Sales:
-                    begin
-                        SalesLine.Get(TempUnplannedDemand."Demand SubType", TempUnplannedDemand."Demand Order No.", TempUnplannedDemand."Demand Line No.");
-                        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), ReqLine.RowID1(), true);
-                    end;
-                TempUnplannedDemand."Demand Type"::Production:
-                    begin
-                        ProdOrderComp2.Get(TempUnplannedDemand."Demand SubType", TempUnplannedDemand."Demand Order No.", TempUnplannedDemand."Demand Line No.", TempUnplannedDemand."Demand Ref. No.");
-                        ItemTrackingMgt.CopyItemTracking(ProdOrderComp2.RowID1(), ReqLine.RowID1(), true);
-                    end;
-                TempUnplannedDemand."Demand Type"::Service:
-                    begin
-                        ServLine.Get(TempUnplannedDemand."Demand SubType", TempUnplannedDemand."Demand Order No.", TempUnplannedDemand."Demand Line No.");
-                        ItemTrackingMgt.CopyItemTracking(ServLine.RowID1(), ReqLine.RowID1(), true);
-                    end;
-                TempUnplannedDemand."Demand Type"::Assembly:
-                    begin
-                        AsmLine.Get(TempUnplannedDemand."Demand SubType", TempUnplannedDemand."Demand Order No.", TempUnplannedDemand."Demand Line No.");
-                        ItemTrackingMgt.CopyItemTracking(AsmLine.RowID1(), ReqLine.RowID1(), true);
-                    end;
-            end;
+            OnInsertDemandLinesOnCopyItemTracking(ReqLine, TempUnplannedDemand);
         if ReqLine.Quantity > 0 then
             PlanningLineMgt.Calculate(ReqLine, 1, true, true, 0);
         ReqLine.Find('+');
@@ -209,18 +205,7 @@ codeunit 5522 "Order Planning Mgt."
     begin
         ReqLine.Init();
         ReqLine."Journal Batch Name" := ReqLine.GetJnlBatchNameForOrderPlanning();
-        case UnplannedDemand."Demand Type" of
-            UnplannedDemand."Demand Type"::Sales:
-                ReqLine."Demand Type" := Database::"Sales Line";
-            UnplannedDemand."Demand Type"::Production:
-                ReqLine."Demand Type" := Database::"Prod. Order Component";
-            UnplannedDemand."Demand Type"::Service:
-                ReqLine."Demand Type" := Database::"Service Line";
-            UnplannedDemand."Demand Type"::Job:
-                ReqLine."Demand Type" := Database::"Job Planning Line";
-            UnplannedDemand."Demand Type"::Assembly:
-                ReqLine."Demand Type" := Database::"Assembly Line";
-        end;
+        ReqLine.SetDemandTypeFromUnplannedDemand(UnplannedDemand);
         ReqLine."Demand Subtype" := UnplannedDemand."Demand SubType";
         ReqLine."Demand Order No." := UnplannedDemand."Demand Order No.";
         ReqLine.Status := UnplannedDemand.Status;
@@ -269,9 +254,9 @@ codeunit 5522 "Order Planning Mgt."
     var
         Item: Record Item;
         AvailableToPromise: Codeunit "Available to Promise";
+        ODF: DateFormula;
         GrossRequirement: Decimal;
         ScheduledRcpt: Decimal;
-        ODF: DateFormula;
     begin
         if ItemNo = '' then
             exit(0);
@@ -320,30 +305,50 @@ codeunit 5522 "Order Planning Mgt."
         HasGotCompanyInfo := CompanyInfo.Get();
     end;
 
+    procedure SetDemandType(NewDemandType: Enum "Demand Order Source Type")
+    begin
+        DemandType := NewDemandType;
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by procedure SetDemandType()', '25.0')]
     procedure SetSalesOrder()
     begin
         DemandType := DemandType::Sales;
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure SetDemandType()', '25.0')]
     procedure SetProdOrder()
     begin
         DemandType := DemandType::Production;
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure SetDemandType()', '25.0')]
     procedure SetServOrder()
     begin
         DemandType := DemandType::Service;
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure SetDemandType()', '25.0')]
     procedure SetJobOrder()
     begin
         DemandType := DemandType::Job;
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure SetDemandType()', '25.0')]
     procedure SetAsmOrder()
     begin
         DemandType := DemandType::Assembly;
     end;
+#endif
 
     procedure InsertAltSupplySubstitution(var ReqLine: Record "Requisition Line")
     var
@@ -624,6 +629,11 @@ codeunit 5522 "Order Planning Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnPrepareRequisitionRecordOnBeforeDeleteAll(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDemandLinesOnCopyItemTracking(var RequisitionLine: Record "Requisition Line"; UnplannedDemand: Record "Unplanned Demand")
     begin
     end;
 

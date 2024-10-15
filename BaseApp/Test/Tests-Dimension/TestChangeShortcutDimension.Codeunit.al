@@ -41,30 +41,28 @@ codeunit 134482 "Test Change Shortcut Dimension"
         // Exercise
         ClearShortCutDims();
         DimNo := 2;
-        with GeneralLedgerSetup do begin
-            Get();
-            if Dimension.FindSet() then
-                repeat
-                    if not (Dimension.Code in ["Global Dimension 1 Code", "Global Dimension 2 Code"]) then begin
-                        DimNo += 1;
-                        case DimNo of
-                            3:
-                                Validate("Shortcut Dimension 3 Code", Dimension.Code);
-                            4:
-                                Validate("Shortcut Dimension 4 Code", Dimension.Code);
-                            5:
-                                Validate("Shortcut Dimension 5 Code", Dimension.Code);
-                            6:
-                                Validate("Shortcut Dimension 6 Code", Dimension.Code);
-                            7:
-                                Validate("Shortcut Dimension 7 Code", Dimension.Code);
-                            8:
-                                Validate("Shortcut Dimension 8 Code", Dimension.Code);
-                        end;
-                        VerifyDimValueGlobalDimNo(Dimension.Code, DimNo);
+        GeneralLedgerSetup.Get();
+        if Dimension.FindSet() then
+            repeat
+                if not (Dimension.Code in [GeneralLedgerSetup."Global Dimension 1 Code", GeneralLedgerSetup."Global Dimension 2 Code"]) then begin
+                    DimNo += 1;
+                    case DimNo of
+                        3:
+                            GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension.Code);
+                        4:
+                            GeneralLedgerSetup.Validate("Shortcut Dimension 4 Code", Dimension.Code);
+                        5:
+                            GeneralLedgerSetup.Validate("Shortcut Dimension 5 Code", Dimension.Code);
+                        6:
+                            GeneralLedgerSetup.Validate("Shortcut Dimension 6 Code", Dimension.Code);
+                        7:
+                            GeneralLedgerSetup.Validate("Shortcut Dimension 7 Code", Dimension.Code);
+                        8:
+                            GeneralLedgerSetup.Validate("Shortcut Dimension 8 Code", Dimension.Code);
                     end;
-                until (DimNo = 8) or (Dimension.Next() = 0);
-        end;
+                    VerifyDimValueGlobalDimNo(Dimension.Code, DimNo);
+                end;
+            until (DimNo = 8) or (Dimension.Next() = 0);
     end;
 
     [Test]
@@ -226,16 +224,14 @@ codeunit 134482 "Test Change Shortcut Dimension"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            Validate("Shortcut Dimension 3 Code", '');
-            Validate("Shortcut Dimension 4 Code", '');
-            Validate("Shortcut Dimension 5 Code", '');
-            Validate("Shortcut Dimension 6 Code", '');
-            Validate("Shortcut Dimension 7 Code", '');
-            Validate("Shortcut Dimension 8 Code", '');
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", '');
+        GeneralLedgerSetup.Validate("Shortcut Dimension 4 Code", '');
+        GeneralLedgerSetup.Validate("Shortcut Dimension 5 Code", '');
+        GeneralLedgerSetup.Validate("Shortcut Dimension 6 Code", '');
+        GeneralLedgerSetup.Validate("Shortcut Dimension 7 Code", '');
+        GeneralLedgerSetup.Validate("Shortcut Dimension 8 Code", '');
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure VerifyDimValueGlobalDimNo(DimCode: Code[20]; DimNo: Integer)

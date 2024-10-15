@@ -51,8 +51,8 @@ page 917 "Component - Item FactBox"
 
                     trigger OnDrillDown()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByEvent());
-                        Clear(ItemAvailFormsMgt);
+                        AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmLine(Rec, "Item Availability Type"::"Event");
+                        Clear(AssemblyAvailabilityMgt);
                     end;
                 }
                 field("Available Inventory"; AssemblyInfoPaneManagement.CalcAvailableInventory(Rec))
@@ -182,7 +182,7 @@ page 917 "Component - Item FactBox"
 
     var
         Item: Record Item;
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        AssemblyAvailabilityMgt: Codeunit "Assembly Availability Mgt.";
         AssemblyInfoPaneManagement: Codeunit "Assembly Info-Pane Management";
 
     local procedure ShowNo(): Code[20]

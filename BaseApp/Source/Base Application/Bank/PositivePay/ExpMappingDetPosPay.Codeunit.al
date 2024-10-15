@@ -44,7 +44,9 @@ codeunit 1705 "Exp. Mapping Det Pos. Pay"
     end;
 
     var
+#pragma warning disable AA0470
         ProgressMsg: Label 'Processing line no. #1######.';
+#pragma warning restore AA0470
 
     local procedure HandlePositivePayDetails(PositivePayDetail: Record "Positive Pay Detail"): Boolean
     var

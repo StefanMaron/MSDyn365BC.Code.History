@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Vendor;
+namespace Microsoft.Purchases.Vendor;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.BusinessRelation;
@@ -44,7 +44,6 @@ using Microsoft.Purchases.Pricing;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.FinanceCharge;
-using Microsoft.Service.Item;
 using Microsoft.Utilities;
 using System;
 using System.Automation;
@@ -61,10 +60,9 @@ table 23 Vendor
     DrillDownPageID = "Vendor List";
     LookupPageID = "Vendor Lookup";
     Permissions = TableData "Vendor Ledger Entry" = r,
-                  TableData "Service Item" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
-#if not CLEAN23
+#if not CLEAN25
                   TableData "Purchase Price" = rd,
                   TableData "Purchase Line Discount" = rd,
 #endif
@@ -79,6 +77,7 @@ table 23 Vendor
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -95,6 +94,7 @@ table 23 Vendor
         field(2; Name; Text[100])
         {
             Caption = 'Name';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -109,18 +109,22 @@ table 23 Vendor
         field(4; "Name 2"; Text[50])
         {
             Caption = 'Name 2';
+            OptimizeForTextSearch = true;
         }
         field(5; Address; Text[100])
         {
             Caption = 'Address';
+            OptimizeForTextSearch = true;
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
+            OptimizeForTextSearch = true;
         }
         field(7; City; Text[30])
         {
             Caption = 'City';
+            OptimizeForTextSearch = true;
             TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
             else
             if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
@@ -150,6 +154,7 @@ table 23 Vendor
         field(8; Contact; Text[100])
         {
             Caption = 'Contact';
+            OptimizeForTextSearch = true;
 
             trigger OnLookup()
             var
@@ -189,6 +194,7 @@ table 23 Vendor
         field(9; "Phone No."; Text[30])
         {
             Caption = 'Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -204,10 +210,12 @@ table 23 Vendor
         field(10; "Telex No."; Text[20])
         {
             Caption = 'Telex No.';
+            OptimizeForTextSearch = true;
         }
         field(14; "Our Account No."; Text[20])
         {
             Caption = 'Our Account No.';
+            OptimizeForTextSearch = true;
         }
         field(15; "Territory Code"; Code[10])
         {
@@ -272,6 +280,7 @@ table 23 Vendor
         field(25; "Registration Number"; Text[50])
         {
             Caption = 'Registration No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -389,6 +398,7 @@ table 23 Vendor
         field(48; "Format Region"; Text[80])
         {
             Caption = 'Format Region';
+            OptimizeForTextSearch = true;
             TableRelation = "Language Selection"."Language Tag";
         }
         field(53; "Last Modified Date Time"; DateTime)
@@ -685,14 +695,17 @@ table 23 Vendor
         field(84; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
+            OptimizeForTextSearch = true;
         }
         field(85; "Telex Answer Back"; Text[20])
         {
             Caption = 'Telex Answer Back';
+            OptimizeForTextSearch = true;
         }
         field(86; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -773,10 +786,12 @@ table 23 Vendor
         {
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
+            OptimizeForTextSearch = true;
         }
         field(93; "EORI Number"; Text[40])
         {
             Caption = 'EORI Number';
+            OptimizeForTextSearch = true;
         }
         field(97; "Debit Amount"; Decimal)
         {
@@ -839,6 +854,7 @@ table 23 Vendor
         field(102; "E-Mail"; Text[80])
         {
             Caption = 'Email';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
@@ -854,6 +870,7 @@ table 23 Vendor
         field(103; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = URL;
             ObsoleteReason = 'Field length will be increased to 255.';
             ObsoleteState = Pending;
@@ -864,6 +881,7 @@ table 23 Vendor
         field(103; "Home Page"; Text[255])
         {
             Caption = 'Home Page';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = URL;
         }
 #pragma warning restore AS0086
@@ -1258,6 +1276,7 @@ table 23 Vendor
         field(5061; "Mobile Phone No."; Text[30])
         {
             Caption = 'Mobile Phone No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
@@ -1608,9 +1627,6 @@ table 23 Vendor
         ItemVendor: Record "Item Vendor";
         PurchPrepmtPct: Record "Purchase Prepayment %";
         CustomReportSelection: Record "Custom Report Selection";
-#if not CLEAN22
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         ItemReference: Record "Item Reference";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
     begin
@@ -1657,9 +1673,6 @@ table 23 Vendor
             PurchPrepmtPct.DeleteAll(true);
 
         VATRegistrationLogMgt.DeleteVendorLog(Rec);
-#if not CLEAN22
-        IntrastatSetup.CheckDeleteIntrastatContact(IntrastatSetup."Intrastat Contact Type"::Vendor, "No.");
-#endif
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Vendor, "No.");
     end;
 
@@ -1683,14 +1696,14 @@ table 23 Vendor
             NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Vendor Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
             if not IsHandled then begin
 #endif
-            "No. Series" := PurchSetup."Vendor Nos.";
-            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                "No. Series" := xRec."No. Series";
-            "No." := NoSeries.GetNextNo("No. Series");
-            Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
-            Vendor.SetLoadFields("No.");
-            while Vendor.Get("No.") do
+                "No. Series" := PurchSetup."Vendor Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
                 "No." := NoSeries.GetNextNo("No. Series");
+                Vendor.ReadIsolation(IsolationLevel::ReadUncommitted);
+                Vendor.SetLoadFields("No.");
+                while Vendor.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
 #if not CLEAN24
                 NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Vendor Nos.", 0D, "No.");
             end;
@@ -1771,15 +1784,21 @@ table 23 Vendor
         InsertFromContact: Boolean;
         ForceUpdateContact: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot delete %1 %2 because there is at least one outstanding Purchase %3 for this vendor.';
         Text003: Label 'Do you wish to create a contact for %1 %2?';
         Text004: Label 'Contact %1 %2 is not related to vendor %3 %4.';
+#pragma warning restore AA0470
         Text005: Label 'post';
         Text006: Label 'create';
+#pragma warning disable AA0470
         Text007: Label 'You cannot %1 this type of document when Vendor %2 is blocked with type %3';
         Text008: Label 'The %1 %2 has been assigned to %3 %4.\The same %1 cannot be entered on more than one %3.';
         Text009: Label 'Reconciling IC transactions may be difficult if you change IC Partner Code because this %1 has ledger entries in a fiscal year that has not yet been closed.\ Do you still want to change the IC Partner Code?';
         Text010: Label 'You cannot change the contents of the %1 field because this %2 has one or more open ledger entries.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SelectVendorErr: Label 'You must select an existing vendor.';
         CreateNewVendTxt: Label 'Create a new vendor card for %1.', Comment = '%1 is the name to be used to create the customer. ';
         VendNotRegisteredTxt: Label 'This vendor is not registered. To continue, choose one of the following options:';
@@ -2807,7 +2826,7 @@ table 23 Vendor
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [Scope('OnPrem')]
     procedure ValidatePricesIncludingVATOnAfterGetVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")

@@ -84,14 +84,22 @@ codeunit 5606 "FA Check Consistency"
         SalvageValue: Decimal;
         NewAmount: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The first entry must be an %2 for %1.';
         Text001: Label '%1 is disposed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InvalidDisposalDateErr: Label 'The disposal date of fixed asset code %1 must be the last date%2.', Comment = '%1=code value, e.g.E000140, %2=in depreciation book code x(x= a code value, e.g. COMPANY), remains empty when depr. book code is empty';
+#pragma warning disable AA0074
         Text003: Label 'Accumulated';
+#pragma warning disable AA0470
         Text004: Label '%2%3 must not be positive on %4 for %1.';
         Text005: Label '%2%3 must not be negative on %4 for %1.';
         Text006: Label '%2 must not be negative or less than %3 on %4 for %1.';
         Text007: Label '%2 must not be negative on %3 for %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FixedAssetCategoryTok: Label 'AL Fixed Assest';
         HandelPatternAppliedTok: Label 'IsHandled';
         FixedAssetEntryNotFoundTok: Label 'Fixed Asset Entry Not Found';

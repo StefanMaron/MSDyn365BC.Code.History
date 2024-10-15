@@ -48,7 +48,9 @@ page 5235 "HR Confidential Comment List"
     var
         Employee: Record Employee;
         ConfidentialInfo: Record "Confidential Information";
+#pragma warning disable AA0074
         Text000: Label 'untitled', Comment = 'it is a caption for empty page';
+#pragma warning restore AA0074
 
     procedure Caption(HRCommentLine: Record "HR Confidential Comment Line"): Text
     begin

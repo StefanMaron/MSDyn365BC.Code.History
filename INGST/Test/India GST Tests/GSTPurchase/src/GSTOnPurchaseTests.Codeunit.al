@@ -1022,59 +1022,7 @@ codeunit 18131 "GST On Purchase Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostApplicationFromPurchRCMInvVendorWithNormalPayment()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        GenJournalLine: Record "Gen. Journal Line";
-        VendorLedgerEntryPayment: Record "Vendor Ledger Entry";
-        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
-        GSTGroupType: Enum "GST Group Type";
-        GSTVendorType: Enum "GST Vendor Type";
-        DocumentType: Enum "Purchase Document Type";
-        LineType: Enum "Sales Line Type";
-        TemplateType: Enum "Gen. Journal Template Type";
-        DocumentNo: Code[20];
-        VendorNo: Code[20];
-    begin
-        // [SCENARIO] [IN BC] Unapplying a payment with a RCM invoice is not reversing the GST related entries.
-        InitializeShareStep(true, false, false);
-
-        // [GIVEN] Create GST Setup, and tax rates for Unregistered Vendor with input Tax Credit is availment where Jurisdiction type is Interstate
-        CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Service, false, true);
-        Storage.Set(NoOfLineLbl, '1');
-        Evaluate(VendorNo, Storage.Get(VendorNoLbl));
-
-        // [GIVEN] Create and Post Purchase Invoice with GST and Line type as G/L Account
-        DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::"G/L Account", DocumentType::Invoice);
-
-        // [GIVEN] Post Bank Payment Voucher
-        CreateGenJnlLineForVoucher(GenJournalLine, TemplateType::"Bank Payment Voucher");
-        Storage.Set(PaymentDocNoLbl, GenJournalLine."Document No.");
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        // [GIVEN] Post Apply Payment to Invoice
-        VendorLedgerEntryPayment.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntryPayment.SetRange("Document Type", VendorLedgerEntryPayment."Document Type"::Payment);
-
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryPayment);
-
-        VendorLedgerEntryInvoice.SetRange("Vendor No.", VendorNo);
-        LibraryERM.FindVendorLedgerEntry(
-          VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, DocumentNo);
-
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryInvoice);
-
-        LibraryERM.PostVendLedgerApplication(VendorLedgerEntryPayment);
-
-        // [WHEN] Unapply Vendor Ledger Payment Entry
-        UnapplyVendLedgerEntry(VendorLedgerEntryPayment."Document Type", VendorLedgerEntryPayment."Document No.");
-
-        // [THEN] G/L Entries are created and verified
-        LibraryGST.VerifyGLEntries(VendorLedgerEntryPayment."Document Type", VendorLedgerEntryPayment."Document No.", 6);
-    end;
-
+    [HandlerFunctions('TaxRatePageHandler,ConfirmationHandler,DocumentArchived')]
     procedure VerifyTaxInformationDataExistInPurchaseOrderArchive()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1175,6 +1123,60 @@ codeunit 18131 "GST On Purchase Tests"
 
         //[THEN] Verify Tax Transaction Value Exist for Purchase Return Order Archive
         VerifyTaxTransactionValueExist(PurchaseHeader."Document Type", PurchaseHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler')]
+    procedure PostApplicationFromPurchRCMInvVendorWithNormalPayment()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntryPayment: Record "Vendor Ledger Entry";
+        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
+        GSTGroupType: Enum "GST Group Type";
+        GSTVendorType: Enum "GST Vendor Type";
+        DocumentType: Enum "Purchase Document Type";
+        LineType: Enum "Sales Line Type";
+        TemplateType: Enum "Gen. Journal Template Type";
+        DocumentNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO] [IN BC] Unapplying a payment with a RCM invoice is not reversing the GST related entries.
+        InitializeShareStep(true, false, false);
+
+        // [GIVEN] Create GST Setup, and tax rates for Unregistered Vendor with input Tax Credit is availment where Jurisdiction type is Interstate
+        CreateGSTSetup(GSTVendorType::Unregistered, GSTGroupType::Service, false, true);
+        Storage.Set(NoOfLineLbl, '1');
+        Evaluate(VendorNo, Storage.Get(VendorNoLbl));
+
+        // [GIVEN] Create and Post Purchase Invoice with GST and Line type as G/L Account
+        DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseLine, LineType::"G/L Account", DocumentType::Invoice);
+
+        // [GIVEN] Post Bank Payment Voucher
+        CreateGenJnlLineForVoucher(GenJournalLine, TemplateType::"Bank Payment Voucher");
+        Storage.Set(PaymentDocNoLbl, GenJournalLine."Document No.");
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Post Apply Payment to Invoice
+        VendorLedgerEntryPayment.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntryPayment.SetRange("Document Type", VendorLedgerEntryPayment."Document Type"::Payment);
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryPayment);
+
+        VendorLedgerEntryInvoice.SetRange("Vendor No.", VendorNo);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, DocumentNo);
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryInvoice);
+
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntryPayment);
+
+        // [WHEN] Unapply Vendor Ledger Payment Entry
+        UnapplyVendLedgerEntry(VendorLedgerEntryPayment."Document Type", VendorLedgerEntryPayment."Document No.");
+
+        // [THEN] G/L Entries are created and verified
+        LibraryGST.VerifyGLEntries(VendorLedgerEntryPayment."Document Type", VendorLedgerEntryPayment."Document No.", 6);
     end;
 
     local procedure VerifyTaxTransactionValueExist(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])

@@ -145,8 +145,12 @@ table 87 "Date Compr. Register"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The entry cannot be unapplied, because the %1 has been compressed.';
         Text001: Label 'The transaction cannot be reversed, because the %1 has been compressed.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetLastEntryNo(): Integer;
     var

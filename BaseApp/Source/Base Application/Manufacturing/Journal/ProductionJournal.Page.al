@@ -498,7 +498,7 @@ page 5510 "Production Journal"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -822,8 +822,6 @@ page 5510 "Production Journal"
 
     var
         Item: Record Item;
-        ProdOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
         ProdOrderComp: Record "Prod. Order Component";
         TempItemJnlLine: Record "Item Journal Line" temporary;
         CostCalcMgt: Codeunit "Cost Calculation Management";
@@ -831,7 +829,6 @@ page 5510 "Production Journal"
         UOMMgt: Codeunit "Unit of Measure Management";
         PostingDate: Date;
         xPostingDate: Date;
-        ProdOrderLineNo: Integer;
         ToTemplateName: Code[10];
         ToBatchName: Code[10];
         ActualRunTime: Decimal;
@@ -839,10 +836,13 @@ page 5510 "Production Journal"
         ActualOutputQty: Decimal;
         ActualScrapQty: Decimal;
         ActualConsumpQty: Decimal;
-        FlushingFilter: Enum "Flushing Method Filter";
         IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
+        ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        FlushingFilter: Enum "Flushing Method Filter";
+        ProdOrderLineNo: Integer;
         ShortcutDimCode: array[8] of Code[20];
         DescriptionIndent: Integer;
         QuantityHideValue: Boolean;

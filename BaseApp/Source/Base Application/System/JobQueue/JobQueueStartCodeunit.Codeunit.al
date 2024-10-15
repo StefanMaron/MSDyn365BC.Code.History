@@ -20,17 +20,12 @@ codeunit 449 "Job Queue Start Codeunit"
         ErrorMessageRegisterId: Guid;
         Success: Boolean;
         LastError: DotNet LastError;
-        SuppressErrorLogging: Boolean;
     begin
         OnBeforeRun(Rec);
 
         if Rec."User Language ID" <> 0 then
             GlobalLanguage(Rec."User Language ID");
 
-        SuppressErrorLogging := false;
-        OnBeforeActivateErrorMessageHandler(Rec, ErrorMessageHandler, ErrorMessageManagement, SuppressErrorLogging);
-        if not SuppressErrorLogging then
-            ErrorMessageManagement.Activate(ErrorMessageHandler);
         ErrorMessageManagement.PushContext(ErrorContextElement, Rec.RecordId(), 0, JobQueueStartContextTxt);
         case Rec."Object Type to Run" of
             Rec."Object Type to Run"::Codeunit:
@@ -39,11 +34,13 @@ codeunit 449 "Job Queue Start Codeunit"
                 Success := RunReport(Rec."Object ID to Run", Rec);
         end;
 
-        if (not Success) or ErrorMessageManagement.GetErrorsInContext(ErrorContextElement, TempErrorMessage) then begin
-            ErrorMessageRegisterId := ErrorMessageHandler.RegisterErrorMessages(false);
-            Rec."Error Message Register Id" := ErrorMessageRegisterId;
-            Rec.Modify();
-            Commit();
+        if not success then begin
+            if ErrorMessageManagement.GetErrorsInContext(ErrorContextElement, TempErrorMessage) then begin
+                ErrorMessageRegisterId := ErrorMessageHandler.RegisterErrorMessages(false);
+                Rec."Error Message Register Id" := ErrorMessageRegisterId;
+                Rec.Modify();
+                Commit();
+            end;
             ErrorMessageManagement.PopContext(ErrorContextElement);
 
             // throw last error
@@ -78,10 +75,13 @@ codeunit 449 "Job Queue Start Codeunit"
     begin
     end;
 
+#if not CLEAN25
+    [Obsolete('Not needed anymore', '26.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeActivateErrorMessageHandler(var JobQueueEntry: Record "Job Queue Entry"; var ErrorMessageHandler: Codeunit "Error Message Handler"; var ErrorMessageManagement: Codeunit "Error Message Management"; var SuppressErrorLogging: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var JobQueueEntry: Record "Job Queue Entry")

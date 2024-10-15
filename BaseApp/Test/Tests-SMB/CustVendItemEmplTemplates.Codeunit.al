@@ -1367,7 +1367,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         asserterror ItemTemplMgt.InsertItemFromTemplate(Item);
 
         // [THEN] Item is not created, error message thrown by system
-        Assert.ExpectedError('VAT Posting Setup does not exist');
+        Assert.ExpectedErrorCannotFind(Database::"VAT Posting Setup");
 
         LibraryVariableStorage.AssertEmpty();
     end;

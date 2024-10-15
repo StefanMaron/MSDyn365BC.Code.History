@@ -572,8 +572,10 @@ table 99000830 "Planning Routing Line"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'This routing line cannot be moved because of critical work centers in previous operations';
         Text001: Label 'This routing line cannot be moved because of critical work centers in next operations';
+#pragma warning restore AA0074
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
         ReqLine: Record "Requisition Line";

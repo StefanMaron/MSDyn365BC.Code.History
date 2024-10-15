@@ -304,9 +304,13 @@ report 99001026 "Replan Production Order"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Replanning Production Orders...\\';
+#pragma warning disable AA0470
         Text001: Label 'Status         #1##########\';
         Text002: Label 'No.            #2##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MfgSetup: Record "Manufacturing Setup";
         CalcProdOrder: Codeunit "Calculate Prod. Order";
         CreateProdOrderLines: Codeunit "Create Prod. Order Lines";

@@ -618,8 +618,9 @@ codeunit 137213 BarcodeScannerItemTrackTest
     procedure CreateItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; var ItemTrackingLines: Page Microsoft.Inventory.Tracking."Item Tracking Lines"; DestMode: Boolean)
     var
         TrackingSpecification: Record "Tracking Specification";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
     begin
-        TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+        ItemJnlLineReserve.InitFromItemJnlLine(TrackingSpecification, ItemJournalLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
         ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
         ItemTrackingLines.SetContinuousScanningMode(DestMode);

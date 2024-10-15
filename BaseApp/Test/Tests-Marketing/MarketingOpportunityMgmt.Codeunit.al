@@ -35,11 +35,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         DeleteErr: Label 'You cannot delete this opportunity while it is active.';
         ActionType: Option " ",First,Next,Previous,Skip,Update,Jump;
         SalespersonCode: Code[20];
-        DoesNotExistErr: Label 'The %1 does not exist.';
         SalesQuoteErr: Label 'You cannot go to this stage before you have assigned a sales quote.';
         SalesQuoteNo: Code[20];
         ActionTaken: Option " ",Next,Previous,Updated,Jumped,Won,Lost;
-        AssignSalesQuoteServiceTierErr: Label '%1 must be equal to ''In Progress''  in %2: %3=%4. Current value is ''%5''.';
         ActivateFirstStage: Boolean;
         Completed: Decimal;
         ShowSalesQuoteErr: Label 'There is no sales quote that is assigned to this opportunity.';
@@ -313,7 +311,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity.SetRange("Contact No.", Contact."No.");
         Opportunity.FindFirst();
         asserterror Opportunity.UpdateOpportunity();
-        Assert.ExpectedError(StrSubstNo(DoesNotExistErr, SalesCycleStage.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Sales Cycle Stage");
     end;
 
     [Test]
@@ -370,7 +368,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 3. Verify: Verify error occurs on selecting Skip Option on Update opportunity wizard.
         asserterror UpdateOpportunityValue(Contact."No.");
-        Assert.ExpectedError(StrSubstNo(DoesNotExistErr, SalesCycleStage.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Sales Cycle Stage");
     end;
 
     [Test]
@@ -691,11 +689,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // 3. Verify: Verify error occurs on Create Sales Quote to close Opportunity.
         Opportunity.Get(Opportunity."No.");
         asserterror Opportunity.CreateQuote();
-        Assert.AreEqual(
-          StrSubstNo(AssignSalesQuoteServiceTierErr, Opportunity.FieldCaption(Status), Opportunity.TableCaption(),
-            Opportunity.FieldCaption("No."), Opportunity."No.", ActionTaken::Lost),
-          GetLastErrorText,
-          UnknownErr);
+        Assert.ExpectedTestFieldError(Opportunity.FieldCaption(Status), Format(Opportunity.Status::"In Progress"));
     end;
 
     [Test]
@@ -1824,7 +1818,6 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity.CloseOpportunity();
     end;
 
-
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Opportunity Mgmt");
@@ -2001,16 +1994,14 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     var
         RecRef: RecordRef;
     begin
-        with RlshpMgtCommentLine do begin
-            Init();
-            Validate("Table Name", "Table Name"::Opportunity);
-            Validate("No.", Opportunity."No.");
-            Validate(Date, WorkDate());
-            RecRef.GetTable(RlshpMgtCommentLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
-            Comment := LibraryUtility.GenerateRandomCode(FieldNo(Comment), DATABASE::"Rlshp. Mgt. Comment Line");
-            Insert(true);
-        end;
+        RlshpMgtCommentLine.Init();
+        RlshpMgtCommentLine.Validate("Table Name", RlshpMgtCommentLine."Table Name"::Opportunity);
+        RlshpMgtCommentLine.Validate("No.", Opportunity."No.");
+        RlshpMgtCommentLine.Validate(Date, WorkDate());
+        RecRef.GetTable(RlshpMgtCommentLine);
+        RlshpMgtCommentLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, RlshpMgtCommentLine.FieldNo("Line No.")));
+        RlshpMgtCommentLine.Comment := LibraryUtility.GenerateRandomCode(RlshpMgtCommentLine.FieldNo(Comment), DATABASE::"Rlshp. Mgt. Comment Line");
+        RlshpMgtCommentLine.Insert(true);
     end;
 
     local procedure CreateSalesCycleStage(var SalesCycleStage: Record "Sales Cycle Stage"; SalesCycleCode: Code[10])
@@ -2120,11 +2111,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
     local procedure MockInterLogEntry(var InteractionLogEntry: Record "Interaction Log Entry")
     begin
-        with InteractionLogEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
-            Insert();
-        end;
+        InteractionLogEntry.Init();
+        InteractionLogEntry."Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, InteractionLogEntry.FieldNo("Entry No."));
+        InteractionLogEntry.Insert();
     end;
 
     local procedure OpenOpportunityCardForContact(var OpportunityCard: TestPage "Opportunity Card"; ContactNo: Code[20])
@@ -2582,20 +2571,18 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity.CalcFields(
           "Current Sales Cycle Stage", "Estimated Value (LCY)", "Chances of Success %", "Probability %");
 
-        with Opportunity do begin
-            TestField(
-              "Current Sales Cycle Stage",
-              OpportunityCard.Control7."Current Sales Cycle Stage".AsInteger());
-            TestField(
-              "Estimated Value (LCY)",
-              OpportunityCard.Control7."Estimated Value (LCY)".AsDecimal());
-            TestField(
-              "Chances of Success %",
-              OpportunityCard.Control7."Chances of Success %".AsDecimal());
-            TestField(
-              "Probability %",
-              OpportunityCard.Control7."Probability %".AsDecimal());
-        end;
+        Opportunity.TestField(
+          "Current Sales Cycle Stage",
+          OpportunityCard.Control7."Current Sales Cycle Stage".AsInteger());
+        Opportunity.TestField(
+          "Estimated Value (LCY)",
+          OpportunityCard.Control7."Estimated Value (LCY)".AsDecimal());
+        Opportunity.TestField(
+          "Chances of Success %",
+          OpportunityCard.Control7."Chances of Success %".AsDecimal());
+        Opportunity.TestField(
+          "Probability %",
+          OpportunityCard.Control7."Probability %".AsDecimal());
     end;
 
     [PageHandler]
@@ -2608,17 +2595,15 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesCycle.CalcFields(
           "No. of Opportunities", "Estimated Value (LCY)", "Calcd. Current Value (LCY)");
 
-        with SalesCycle do begin
-            TestField(
-              "No. of Opportunities",
-              SalesCycles.Control5."No. of Opportunities".AsInteger());
-            TestField(
-              "Estimated Value (LCY)",
-              SalesCycles.Control5."Estimated Value (LCY)".AsDecimal());
-            TestField(
-              "Calcd. Current Value (LCY)",
-              SalesCycles.Control5."Calcd. Current Value (LCY)".AsDecimal());
-        end;
+        SalesCycle.TestField(
+          "No. of Opportunities",
+          SalesCycles.Control5."No. of Opportunities".AsInteger());
+        SalesCycle.TestField(
+          "Estimated Value (LCY)",
+          SalesCycles.Control5."Estimated Value (LCY)".AsDecimal());
+        SalesCycle.TestField(
+          "Calcd. Current Value (LCY)",
+          SalesCycles.Control5."Calcd. Current Value (LCY)".AsDecimal());
     end;
 
     [ModalPageHandler]

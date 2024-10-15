@@ -28,7 +28,9 @@ codeunit 5335 "Integration Table Synch."
         MappingDoesNotAllowDirectionErr: Label 'The %1 %2 is not configured for %3 synchronization.', Comment = '%1 = Integration Table Mapping caption, %2 Integration Table Mapping Name, %3 = the calculated synch. direction (FromIntegrationTable|ToIntegrationTable)';
         InvalidStateErr: Label 'The synchronization process is in a state that is not valid.';
         DirectionChangeIsNotSupportedErr: Label 'You cannot change the synchronization direction after a job has started.';
+#pragma warning disable AA0470
         TablesDoNotMatchMappingErr: Label 'Source table %1 and destination table %2 do not match integration table mapping %3.', Comment = '%1,%2 - tables Ids; %2 - name of the mapping.';
+#pragma warning restore AA0470
 
     procedure BeginIntegrationSynchJob(ConnectionType: TableConnectionType; var IntegrationTableMapping: Record "Integration Table Mapping"; SourceTableID: Integer) JobID: Guid
     begin
@@ -114,7 +116,7 @@ codeunit 5335 "Integration Table Synch."
           IntegrationTableMapping, SourceRecordRef, DestinationRecordRef,
           IntegrationRecordSynch, SynchActionType::ForceModify, false, EmptyGuid,
           IntegrationTableConnectionType);
-        IntegrationRecSynchInvoke.CheckTransferFields(IntegrationRecordSynch, SourceRecordRef, DestinationRecordRef, FieldsModified, BidirectionalFieldsModified);
+        IntegrationRecSynchInvoke.CheckTransferFields(IntegrationRecordSynch, IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, FieldsModified, BidirectionalFieldsModified);
     end;
 
     procedure Synchronize(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; ForceModify: Boolean; IgnoreSynchOnlyCoupledRecords: Boolean): Boolean
@@ -459,19 +461,26 @@ codeunit 5335 "Integration Table Synch."
 
     local procedure CreateIntegrationSynchJobEntry(JobType: Option) JobID: Guid
     begin
-        if CurrentIntegrationSynchJob.IsEmpty() or IsNullGuid(CurrentIntegrationSynchJob.ID) then begin
-            CurrentIntegrationSynchJob.Reset();
-            CurrentIntegrationSynchJob.Init();
-            CurrentIntegrationSynchJob.ID := CreateGuid();
-            CurrentIntegrationSynchJob."Start Date/Time" := CurrentDateTime;
-            CurrentIntegrationSynchJob."Integration Table Mapping Name" := CurrentIntegrationTableMapping.GetName();
-            CurrentIntegrationSynchJob."Synch. Direction" := CurrentIntegrationTableMapping.Direction;
-            CurrentIntegrationSynchJob."Job Queue Log Entry No." := JobQueueLogEntryNo;
-            CurrentIntegrationSynchJob.Type := JobType;
-            CurrentIntegrationSynchJob.Insert(true);
-            Commit();
-            JobID := CurrentIntegrationSynchJob.ID;
-        end;
+        if IsNullGuid(CurrentIntegrationSynchJob.ID) then
+            JobID := InsertIntegrationSynchJobEntry(JobType)
+        else
+            if CurrentIntegrationSynchJob.IsEmpty() then
+                JobID := InsertIntegrationSynchJobEntry(JobType);
+    end;
+
+    local procedure InsertIntegrationSynchJobEntry(JobType: Option): Guid
+    begin
+        CurrentIntegrationSynchJob.Reset();
+        CurrentIntegrationSynchJob.Init();
+        CurrentIntegrationSynchJob.ID := CreateGuid();
+        CurrentIntegrationSynchJob."Start Date/Time" := CurrentDateTime;
+        CurrentIntegrationSynchJob."Integration Table Mapping Name" := CurrentIntegrationTableMapping.GetName();
+        CurrentIntegrationSynchJob."Synch. Direction" := CurrentIntegrationTableMapping.Direction;
+        CurrentIntegrationSynchJob."Job Queue Log Entry No." := JobQueueLogEntryNo;
+        CurrentIntegrationSynchJob.Type := JobType;
+        CurrentIntegrationSynchJob.Insert(true);
+        Commit();
+        exit(CurrentIntegrationSynchJob.ID);
     end;
 
     local procedure BuildTempIntegrationFieldMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; SynchDirection: Option; var TempIntegrationFieldMapping: Record "Temp Integration Field Mapping")

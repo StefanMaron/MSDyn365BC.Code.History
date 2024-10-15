@@ -161,36 +161,6 @@ codeunit 134931 "Journal Management Tests"
         VerifyFiltersInFilterGroups(RequisitionWkshName, RequisitionWkshName.FieldNo("Worksheet Template Name"), ExpectedTemplateName, 0);
     end;
 
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure OpenJnlBatch_IntraJnlManagement_PresetGroup2()
-    var
-        IntrastatJnlTemplate: array[2] of Record "Intrastat Jnl. Template";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntraJnlManagement: Codeunit IntraJnlManagement;
-        ExpectedTemplateName: array[2] of Code[10];
-    begin
-        // [FEATURE] [Intrastat Journal] [Intrastat]
-        // [SCENARIO 313743] Stan can call IntraJnlManagement.OpenJnlBatch despite predefined filters in filtergroup(2)
-        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate[1]);
-        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate[1].Name);
-        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate[2]);
-        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate[2].Name);
-
-        IntrastatJnlBatch.FilterGroup(2);
-        IntrastatJnlBatch.SetRange("Journal Template Name", IntrastatJnlTemplate[1].Name);
-        IntrastatJnlBatch.FilterGroup(0);
-
-        ExpectedTemplateName[1] := '';
-        ExpectedTemplateName[2] := IntrastatJnlTemplate[1].Name;
-
-        IntraJnlManagement.OpenJnlBatch(IntrastatJnlBatch);
-
-        VerifyFiltersInFilterGroups(IntrastatJnlBatch, IntrastatJnlBatch.FieldNo("Journal Template Name"), ExpectedTemplateName, 0);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure OpenJnlBatch_CostJnlManagement_PresetGroup2()
@@ -444,36 +414,6 @@ codeunit 134931 "Journal Management Tests"
 
         VerifyFiltersInFilterGroups(RequisitionWkshName, RequisitionWkshName.FieldNo("Worksheet Template Name"), ExpectedTemplateName, 2);
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure OpenJnlBatch_IntraJnlManagement_PresetGroup0()
-    var
-        IntrastatJnlTemplate: array[2] of Record "Intrastat Jnl. Template";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntraJnlManagement: Codeunit IntraJnlManagement;
-        ExpectedTemplateName: array[2] of Code[10];
-    begin
-        // [FEATURE] [Intrastat Journal] [Intrastat]
-        // [SCENARIO 313743] Stan can call IntraJnlManagement.OpenJnlBatch despite predefined filters in filtergroup(0)
-        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate[1]);
-        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate[1].Name);
-        LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate[2]);
-        LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate[2].Name);
-
-        IntrastatJnlBatch.FilterGroup(0);
-        IntrastatJnlBatch.SetRange("Journal Template Name", IntrastatJnlTemplate[1].Name);
-        IntrastatJnlBatch.FilterGroup(2);
-
-        ExpectedTemplateName[2] := '';
-        ExpectedTemplateName[1] := IntrastatJnlTemplate[1].Name;
-
-        IntraJnlManagement.OpenJnlBatch(IntrastatJnlBatch);
-
-        VerifyFiltersInFilterGroups(IntrastatJnlBatch, IntrastatJnlBatch.FieldNo("Journal Template Name"), ExpectedTemplateName, 2);
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]

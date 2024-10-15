@@ -78,7 +78,10 @@ table 7113 "Analysis Type"
     var
         AnalysisRepMgmt: Codeunit "Analysis Report Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot specify a %1 for %2.';
+#pragma warning restore AA0470
         Text001: Label 'COGS';
         Text002: Label 'Non-Inventoriable Cost';
         Text003: Label 'Sales Amount';
@@ -134,6 +137,7 @@ table 7113 "Analysis Type"
         Text053: Label 'Indirect Cost %';
         Text054: Label 'INDCOSTPCT';
         Text055: Label 'The default Analysis Types have been recreated.';
+#pragma warning restore AA0074
 
     local procedure CanUseValueTypeForItemLedgerEntryTypeFilter() CanUseValueType: Boolean
     begin

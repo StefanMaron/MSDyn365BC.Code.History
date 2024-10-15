@@ -5,7 +5,6 @@ using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Email;
 using System.Globalization;
@@ -98,40 +97,40 @@ report 780 "Certificate of Supply"
                 column(delete_As_Appropriate_Caption; deleteAsAppropriateLbl)
                 {
                 }
-                column(No; TempServiceShipmentHeader."No.")
+                column(No; TempSalesShipmentHeader."No.")
                 {
                 }
-                column(Bill_to_Name; TempServiceShipmentHeader."Bill-to Name")
+                column(Bill_to_Name; TempSalesShipmentHeader."Bill-to Name")
                 {
                 }
-                column(Bill_to_Address; TempServiceShipmentHeader."Bill-to Address")
+                column(Bill_to_Address; TempSalesShipmentHeader."Bill-to Address")
                 {
                 }
-                column(Bill_to_Address2; TempServiceShipmentHeader."Bill-to Address 2")
+                column(Bill_to_Address2; TempSalesShipmentHeader."Bill-to Address 2")
                 {
                 }
-                column(Bill_to_City; TempServiceShipmentHeader."Bill-to City")
+                column(Bill_to_City; TempSalesShipmentHeader."Bill-to City")
                 {
                 }
-                column(Bill_To_CountryRegion_Code; TempServiceShipmentHeader."Bill-to Country/Region Code")
+                column(Bill_To_CountryRegion_Code; TempSalesShipmentHeader."Bill-to Country/Region Code")
                 {
                 }
-                column(EMail; TempServiceShipmentHeader."E-Mail")
+                column(EMail; TempSalesShipmentHeader."Sell-to E-Mail")
                 {
                 }
-                column(Ship_to_Address; TempServiceShipmentHeader."Ship-to Address")
+                column(Ship_to_Address; TempSalesShipmentHeader."Ship-to Address")
                 {
                 }
-                column(Ship_to_Address2; TempServiceShipmentHeader."Ship-to Address 2")
+                column(Ship_to_Address2; TempSalesShipmentHeader."Ship-to Address 2")
                 {
                 }
-                column(Ship_to_City; TempServiceShipmentHeader."Ship-to City")
+                column(Ship_to_City; TempSalesShipmentHeader."Ship-to City")
                 {
                 }
-                column(Ship_to_Country_Region_Code; TempServiceShipmentHeader."Ship-to Country/Region Code")
+                column(Ship_to_Country_Region_Code; TempSalesShipmentHeader."Ship-to Country/Region Code")
                 {
                 }
-                column(Ship_to_Name; TempServiceShipmentHeader."Ship-to Name")
+                column(Ship_to_Name; TempSalesShipmentHeader."Ship-to Name")
                 {
                 }
                 column(Shipment_Method_Code; CertificateOfSupply."Shipment Method Code")
@@ -146,47 +145,47 @@ report 780 "Certificate of Supply"
                 dataitem("<Integer2>"; "Integer")
                 {
                     DataItemTableView = sorting(Number) order(ascending) where(Number = filter(1 ..));
-                    column(Item_No_Caption; TempServiceShipmentLine.FieldCaption("No."))
+                    column(Item_No_Caption; TempSalesShipmentLine.FieldCaption("No."))
                     {
                     }
-                    column(Decription_Caption; TempServiceShipmentLine.FieldCaption(Description))
+                    column(Decription_Caption; TempSalesShipmentLine.FieldCaption(Description))
                     {
                     }
-                    column(Quantity_Caption; TempServiceShipmentLine.FieldCaption(Quantity))
+                    column(Quantity_Caption; TempSalesShipmentLine.FieldCaption(Quantity))
                     {
                     }
-                    column(Unit_of_Measure_Caption; TempServiceShipmentLine.FieldCaption("Unit of Measure"))
+                    column(Unit_of_Measure_Caption; TempSalesShipmentLine.FieldCaption("Unit of Measure"))
                     {
                     }
-                    column(Line_No; TempServiceShipmentLine."Line No.")
+                    column(Line_No; TempSalesShipmentLine."Line No.")
                     {
                     }
-                    column(Item_No; TempServiceShipmentLine."No.")
+                    column(Item_No; TempSalesShipmentLine."No.")
                     {
                     }
-                    column(Description; TempServiceShipmentLine.Description)
+                    column(Description; TempSalesShipmentLine.Description)
                     {
                     }
-                    column(Quantity; TempServiceShipmentLine.Quantity)
+                    column(Quantity; TempSalesShipmentLine.Quantity)
                     {
                     }
-                    column(Unit_of_Measure; TempServiceShipmentLine."Unit of Measure Code")
+                    column(Unit_of_Measure; TempSalesShipmentLine."Unit of Measure Code")
                     {
                     }
 
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not TempServiceShipmentLine.FindSet() then
+                            if not TempSalesShipmentLine.FindSet() then
                                 CurrReport.Break()
                         end else
-                            if TempServiceShipmentLine.Next() = 0 then
+                            if TempSalesShipmentLine.Next() = 0 then
                                 CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        TempServiceShipmentLine.SetFilter(Quantity, '<>%1', 0);
+                        TempSalesShipmentLine.SetFilter(Quantity, '<>%1', 0);
                     end;
                 }
 
@@ -201,9 +200,14 @@ report 780 "Certificate of Supply"
             var
                 Language: Codeunit Language;
             begin
+#if not CLEAN25
                 Clear(TempServiceShipmentHeader);
                 TempServiceShipmentLine.Reset();
                 TempServiceShipmentLine.DeleteAll();
+#endif
+                Clear(TempSalesShipmentHeader);
+                TempSalesShipmentLine.Reset();
+                TempSalesShipmentLine.DeleteAll();
                 CurrReport.Language := Language.GetLanguageIdOrDefault(GetLanguageCode(CertificateOfSupply));
                 CurrReport.FormatRegion := Language.GetFormatRegionOrDefault(GetFormatRegionCode(CertificateOfSupply));
                 SetSource(CertificateOfSupply);
@@ -214,7 +218,6 @@ report 780 "Certificate of Supply"
             trigger OnPreDataItem()
             var
                 SalesShipmentHeader: Record "Sales Shipment Header";
-                ServiceShipmentHeader: Record "Service Shipment Header";
                 ReturnShipmentHeader: Record "Return Shipment Header";
                 CertificateOfSupply2: Record "Certificate of Supply";
             begin
@@ -235,16 +238,6 @@ report 780 "Certificate of Supply"
                                         CertificateOfSupply2.SetRequired(SalesShipmentHeader."No.");
                                     until SalesShipmentHeader.Next() = 0;
                             end;
-                        "Document Type"::"Service Shipment":
-                            begin
-                                CopyFilter("Document No.", ServiceShipmentHeader."No.");
-                                OnCertificateOfSupplyOnPreDataItemOnAfterFilterForServiceShipmentHeader(CertificateOfSupply, ServiceShipmentHeader);
-                                if ServiceShipmentHeader.FindSet() then
-                                    repeat
-                                        CertificateOfSupply2.InitFromService(ServiceShipmentHeader);
-                                        CertificateOfSupply2.SetRequired(ServiceShipmentHeader."No.")
-                                    until ServiceShipmentHeader.Next() = 0;
-                            end;
                         "Document Type"::"Return Shipment":
                             begin
                                 CopyFilter("Document No.", ReturnShipmentHeader."No.");
@@ -253,7 +246,7 @@ report 780 "Certificate of Supply"
                                     repeat
                                         CertificateOfSupply2.InitFromPurchase(ReturnShipmentHeader);
                                         CertificateOfSupply2.SetRequired(ReturnShipmentHeader."No.")
-                                    until ServiceShipmentHeader.Next() = 0;
+                                    until ReturnShipmentHeader.Next() = 0;
                             end
                     end
             end;
@@ -304,8 +297,14 @@ report 780 "Certificate of Supply"
         CreateCertificatesofSupply: Boolean;
 
     protected var
-        TempServiceShipmentHeader: Record "Service Shipment Header" temporary;
-        TempServiceShipmentLine: Record "Service Shipment Line" temporary;
+        TempSalesShipmentHeader: Record "Sales Shipment Header" temporary;
+        TempSalesShipmentLine: Record "Sales Shipment Line" temporary;
+#if not CLEAN25
+        [Obsolete('Use report Serv. Certificate of Supply instead.', '25.0')]
+        TempServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header" temporary;
+        [Obsolete('Use report Serv. Certificate of Supply instead.', '25.0')]
+        TempServiceShipmentLine: Record Microsoft.Service.History."Service Shipment Line" temporary;
+#endif
 
         Quantity_of_the_object_of_the_supply_Lbl: Label '(Quantity of the object of the supply)';
         Standard_commercial_description___in_the_case_of_vehicles__including_vehicle_identification_number_Lbl: Label '(Standard commercial description - in the case of vehicles, including vehicle identification number)';
@@ -330,7 +329,6 @@ report 780 "Certificate of Supply"
     local procedure SetSource(CertificateOfSupply: Record "Certificate of Supply")
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
-        ServiceShipmentHeader: Record "Service Shipment Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
         IsHandled: Boolean;
     begin
@@ -343,74 +341,56 @@ report 780 "Certificate of Supply"
             CertificateOfSupply."Document Type"::"Sales Shipment":
                 begin
                     SalesShipmentHeader.Get(CertificateOfSupply."Document No.");
-                    SetSourceSales(SalesShipmentHeader);
-                end;
-            CertificateOfSupply."Document Type"::"Service Shipment":
-                begin
-                    ServiceShipmentHeader.Get(CertificateOfSupply."Document No.");
-                    SetSourceService(ServiceShipmentHeader);
+                    SetSourceFromSalesHeader(SalesShipmentHeader);
                 end;
             CertificateOfSupply."Document Type"::"Return Shipment":
                 begin
                     ReturnShipmentHeader.Get(CertificateOfSupply."Document No.");
-                    SetSourcePurchase(ReturnShipmentHeader);
+                    SetSourceFromPurchaseHeader(ReturnShipmentHeader);
                 end;
         end;
     end;
 
-    local procedure SetSourceSales(SalesShipmentHeader: Record "Sales Shipment Header")
+    local procedure SetSourceFromSalesHeader(SalesShipmentHeader: Record "Sales Shipment Header")
     var
         Customer: Record Customer;
     begin
-        // bill to details
-        Customer.Get(SalesShipmentHeader."Bill-to Customer No.");
-        TempServiceShipmentHeader."Bill-to Name" := SalesShipmentHeader."Bill-to Name";
-        TempServiceShipmentHeader."Bill-to Customer No." := SalesShipmentHeader."Bill-to Customer No.";
-        TempServiceShipmentHeader."Bill-to Address" := SalesShipmentHeader."Bill-to Address";
-        TempServiceShipmentHeader."Bill-to Address 2" := SalesShipmentHeader."Bill-to Address 2";
-        TempServiceShipmentHeader."Bill-to City" := SalesShipmentHeader."Bill-to City";
-        TempServiceShipmentHeader."Bill-to Country/Region Code" := SalesShipmentHeader."Bill-to Country/Region Code";
-        TempServiceShipmentHeader."E-Mail" := Customer."E-Mail";
-        TempServiceShipmentHeader."No." := SalesShipmentHeader."No.";
+        Customer.Get(SalesShipmentHeader."Sell-to Customer No.");
+        TempSalesShipmentHeader := SalesShipmentHeader;
+        TempSalesShipmentHeader."Sell-to E-Mail" := Customer."E-Mail";
 
-        // ship contact details
-        TempServiceShipmentHeader."Ship-to Name" := SalesShipmentHeader."Ship-to Name";
-        TempServiceShipmentHeader."Ship-to Address" := SalesShipmentHeader."Ship-to Address";
-        TempServiceShipmentHeader."Ship-to Address 2" := SalesShipmentHeader."Ship-to Address 2";
-        TempServiceShipmentHeader."Ship-to City" := SalesShipmentHeader."Ship-to City";
-        TempServiceShipmentHeader."Ship-to Country/Region Code" := SalesShipmentHeader."Ship-to Country/Region Code";
-
+        OnAfterSetSourceFromSalesHeader(SalesShipmentHeader, TempSalesShipmentHeader);
+#if not CLEAN25
         OnAfterSetSourceSales(SalesShipmentHeader, TempServiceShipmentHeader);
+#endif
     end;
 
-    local procedure SetSourceService(ServiceShipmentHeader: Record "Service Shipment Header")
-    begin
-        TempServiceShipmentHeader := ServiceShipmentHeader;
-    end;
-
-    local procedure SetSourcePurchase(ReturnShipmentHeader: Record "Return Shipment Header")
+    local procedure SetSourceFromPurchaseHeader(ReturnShipmentHeader: Record "Return Shipment Header")
     var
         Vendor: Record Vendor;
     begin
         Vendor.Get(ReturnShipmentHeader."Buy-from Vendor No.");
 
         // bill to details
-        TempServiceShipmentHeader."Bill-to Name" := ReturnShipmentHeader."Buy-from Vendor Name";
-        TempServiceShipmentHeader."Bill-to Address" := ReturnShipmentHeader."Buy-from Address";
-        TempServiceShipmentHeader."Bill-to Address 2" := ReturnShipmentHeader."Buy-from Address 2";
-        TempServiceShipmentHeader."Bill-to City" := ReturnShipmentHeader."Buy-from City";
-        TempServiceShipmentHeader."Bill-to Country/Region Code" := ReturnShipmentHeader."Buy-from Country/Region Code";
-        TempServiceShipmentHeader."E-Mail" := Vendor."E-Mail";
-        TempServiceShipmentHeader."No." := ReturnShipmentHeader."No.";
+        TempSalesShipmentHeader."Bill-to Name" := ReturnShipmentHeader."Buy-from Vendor Name";
+        TempSalesShipmentHeader."Bill-to Address" := ReturnShipmentHeader."Buy-from Address";
+        TempSalesShipmentHeader."Bill-to Address 2" := ReturnShipmentHeader."Buy-from Address 2";
+        TempSalesShipmentHeader."Bill-to City" := ReturnShipmentHeader."Buy-from City";
+        TempSalesShipmentHeader."Bill-to Country/Region Code" := ReturnShipmentHeader."Buy-from Country/Region Code";
+        TempSalesShipmentHeader."Sell-to E-Mail" := Vendor."E-Mail";
+        TempSalesShipmentHeader."No." := ReturnShipmentHeader."No.";
 
         // ship contact details
-        TempServiceShipmentHeader."Ship-to Name" := ReturnShipmentHeader."Ship-to Name";
-        TempServiceShipmentHeader."Ship-to Address" := ReturnShipmentHeader."Ship-to Address";
-        TempServiceShipmentHeader."Ship-to Address 2" := ReturnShipmentHeader."Ship-to Address 2";
-        TempServiceShipmentHeader."Ship-to City" := ReturnShipmentHeader."Ship-to City";
-        TempServiceShipmentHeader."Ship-to Country/Region Code" := ReturnShipmentHeader."Ship-to Country/Region Code";
+        TempSalesShipmentHeader."Ship-to Name" := ReturnShipmentHeader."Ship-to Name";
+        TempSalesShipmentHeader."Ship-to Address" := ReturnShipmentHeader."Ship-to Address";
+        TempSalesShipmentHeader."Ship-to Address 2" := ReturnShipmentHeader."Ship-to Address 2";
+        TempSalesShipmentHeader."Ship-to City" := ReturnShipmentHeader."Ship-to City";
+        TempSalesShipmentHeader."Ship-to Country/Region Code" := ReturnShipmentHeader."Ship-to Country/Region Code";
 
+        OnAfterSetSourceFromPurchaseHeader(ReturnShipmentHeader, TempSalesShipmentHeader);
+#if not CLEAN25
         OnAfterSetSourcePurchase(ReturnShipmentHeader, TempServiceShipmentHeader);
+#endif
     end;
 
     local procedure IsReportInPreviewMode(): Boolean
@@ -423,7 +403,6 @@ report 780 "Certificate of Supply"
     local procedure GetLines(CertificateOfSupply: Record "Certificate of Supply")
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
-        ServiceShipmentHeader: Record "Service Shipment Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
         IsHandled: Boolean;
     begin
@@ -438,18 +417,13 @@ report 780 "Certificate of Supply"
                     SalesShipmentHeader.Get(CertificateOfSupply."Document No.");
                     GetSalesLines(SalesShipmentHeader."No.");
                 end;
-            CertificateOfSupply."Document Type"::"Service Shipment":
-                begin
-                    ServiceShipmentHeader.Get(CertificateOfSupply."Document No.");
-                    GetServiceLines(ServiceShipmentHeader."No.");
-                end;
             CertificateOfSupply."Document Type"::"Return Shipment":
                 begin
                     ReturnShipmentHeader.Get(CertificateOfSupply."Document No.");
                     GetPurchaseLines(ReturnShipmentHeader."No.");
                 end;
         end;
-        TempServiceShipmentLine.FindSet();
+        TempSalesShipmentLine.FindSet();
     end;
 
     local procedure GetSalesLines(SalesShipmentHeaderNo: Code[20])
@@ -459,26 +433,9 @@ report 780 "Certificate of Supply"
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeaderNo);
         if SalesShipmentLine.FindSet() then
             repeat
-                TempServiceShipmentLine."Line No." := SalesShipmentLine."Line No.";
-                TempServiceShipmentLine."No." := SalesShipmentLine."No.";
-                TempServiceShipmentLine.Description := SalesShipmentLine.Description;
-                TempServiceShipmentLine.Quantity := SalesShipmentLine.Quantity;
-                TempServiceShipmentLine."Unit of Measure Code" := SalesShipmentLine."Unit of Measure Code";
-                TempServiceShipmentLine."Unit of Measure" := SalesShipmentLine."Unit of Measure";
-                TempServiceShipmentLine.Insert();
+                TempSalesShipmentLine := SalesShipmentLine;
+                TempSalesShipmentLine.Insert();
             until SalesShipmentLine.Next() = 0;
-    end;
-
-    local procedure GetServiceLines(ServiceShipmentHeaderNo: Code[20])
-    var
-        ServiceShipmentLine: Record "Service Shipment Line";
-    begin
-        ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeaderNo);
-        if ServiceShipmentLine.FindSet() then
-            repeat
-                TempServiceShipmentLine := ServiceShipmentLine;
-                TempServiceShipmentLine.Insert();
-            until ServiceShipmentLine.Next() = 0;
     end;
 
     local procedure GetPurchaseLines(ReturnShipmentHeaderNo: Code[20])
@@ -488,20 +445,19 @@ report 780 "Certificate of Supply"
         ReturnShipmentLine.SetRange("Document No.", ReturnShipmentHeaderNo);
         if ReturnShipmentLine.FindSet() then
             repeat
-                TempServiceShipmentLine."Line No." := ReturnShipmentLine."Line No.";
-                TempServiceShipmentLine."No." := ReturnShipmentLine."No.";
-                TempServiceShipmentLine.Description := ReturnShipmentLine.Description;
-                TempServiceShipmentLine.Quantity := ReturnShipmentLine.Quantity;
-                TempServiceShipmentLine."Unit of Measure Code" := ReturnShipmentLine."Unit of Measure Code";
-                TempServiceShipmentLine."Unit of Measure" := ReturnShipmentLine."Unit of Measure";
-                TempServiceShipmentLine.Insert();
+                TempSalesShipmentLine."Line No." := ReturnShipmentLine."Line No.";
+                TempSalesShipmentLine."No." := ReturnShipmentLine."No.";
+                TempSalesShipmentLine.Description := ReturnShipmentLine.Description;
+                TempSalesShipmentLine.Quantity := ReturnShipmentLine.Quantity;
+                TempSalesShipmentLine."Unit of Measure Code" := ReturnShipmentLine."Unit of Measure Code";
+                TempSalesShipmentLine."Unit of Measure" := ReturnShipmentLine."Unit of Measure";
+                TempSalesShipmentLine.Insert();
             until ReturnShipmentLine.Next() = 0;
     end;
 
     local procedure GetLanguageCode(CertificateOfSupply: Record "Certificate of Supply") Result: Code[10]
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
-        ServiceShipmentHeader: Record "Service Shipment Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
         IsHandled: Boolean;
     begin
@@ -516,11 +472,6 @@ report 780 "Certificate of Supply"
                     SalesShipmentHeader.Get(CertificateOfSupply."Document No.");
                     exit(SalesShipmentHeader."Language Code");
                 end;
-            CertificateOfSupply."Document Type"::"Service Shipment":
-                begin
-                    ServiceShipmentHeader.Get(CertificateOfSupply."Document No.");
-                    exit(ServiceShipmentHeader."Language Code");
-                end;
             CertificateOfSupply."Document Type"::"Return Shipment":
                 begin
                     ReturnShipmentHeader.Get(CertificateOfSupply."Document No.");
@@ -532,7 +483,6 @@ report 780 "Certificate of Supply"
     local procedure GetFormatRegionCode(CertificateOfSupply: Record "Certificate of Supply") Result: Text[80]
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
-        ServiceShipmentHeader: Record "Service Shipment Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
         IsHandled: Boolean;
     begin
@@ -546,11 +496,6 @@ report 780 "Certificate of Supply"
                 begin
                     SalesShipmentHeader.Get(CertificateOfSupply."Document No.");
                     exit(SalesShipmentHeader."Format Region");
-                end;
-            CertificateOfSupply."Document Type"::"Service Shipment":
-                begin
-                    ServiceShipmentHeader.Get(CertificateOfSupply."Document No.");
-                    exit(ServiceShipmentHeader."Format Region");
                 end;
             CertificateOfSupply."Document Type"::"Return Shipment":
                 begin
@@ -585,23 +530,57 @@ report 780 "Certificate of Supply"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnCertificateOfSupplyOnPreDataItemOnAfterFilterForServiceShipmentHeader(var CertificateOfSupply: Record "Certificate of Supply"; var ServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header")
+    begin
+        OnCertificateOfSupplyOnPreDataItemOnAfterFilterForServiceShipmentHeader(CertificateOfSupply, ServiceShipmentHeader);
+    end;
+
+    [Obsolete('Use report Serv. Certificate of Supply instead.', '25.0')]
     [IntegrationEvent(true, false)]
-    local procedure OnCertificateOfSupplyOnPreDataItemOnAfterFilterForServiceShipmentHeader(var CertificateOfSupply: Record "Certificate of Supply"; var ServiceShipmentHeader: Record "Service Shipment Header")
+    local procedure OnCertificateOfSupplyOnPreDataItemOnAfterFilterForServiceShipmentHeader(var CertificateOfSupply: Record "Certificate of Supply"; var ServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnCertificateOfSupplyOnPreDataItemOnAfterFilterForReturnShipmentHeader(var CertificateOfSupply: Record "Certificate of Supply"; var ReturnShipmentHeader: Record "Return Shipment Header")
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnAfterSetSourcePurchase(var ReturnShipmentHeader: Record "Return Shipment Header"; var TempServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header" temporary)
+    begin
+        OnAfterSetSourcePurchase(ReturnShipmentHeader, TempServiceShipmentHeader);
+    end;
+
+    [Obsolete('Use report Serv. Certificate of Supply instead.', '25.0')]
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSetSourcePurchase(var ReturnShipmentHeader: Record "Return Shipment Header"; var TempServiceShipmentHeader: Record "Service Shipment Header" temporary)
+    local procedure OnAfterSetSourcePurchase(var ReturnShipmentHeader: Record "Return Shipment Header"; var TempServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header" temporary)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetSourceFromPurchaseHeader(var ReturnShipmentHeader: Record "Return Shipment Header"; var TempSalesShipmentHeader: Record Microsoft.Sales.History."Sales Shipment Header" temporary)
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnAfterSetSourceSales(var SalesShipmentHeader: Record "Sales Shipment Header"; var TempServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header" temporary)
+    begin
+        OnAfterSetSourceSales(SalesShipmentHeader, TempServiceShipmentHeader);
+    end;
+
+    [Obsolete('Use report Serv. Certificate of Supply instead.', '25.0')]
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSetSourceSales(var SalesShipmentHeader: Record "Sales Shipment Header"; var TempServiceShipmentHeader: Record "Service Shipment Header" temporary)
+    local procedure OnAfterSetSourceSales(var SalesShipmentHeader: Record "Sales Shipment Header"; var TempServiceShipmentHeader: Record Microsoft.Service.History."Service Shipment Header" temporary)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetSourceFromSalesHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; var TempServiceShipmentHeader: Record Microsoft.Sales.History."Sales Shipment Header" temporary)
     begin
     end;
 }

@@ -63,7 +63,6 @@ codeunit 5400 "Available Management"
           "Qty. on Sales Order",
           "Qty. on Component Lines",
           "Trans. Ord. Shipment (Qty.)",
-          "Qty. on Service Order",
           "Qty. on Assembly Order",
           "Qty. on Purch. Return");
 
@@ -80,11 +79,12 @@ codeunit 5400 "Available Management"
           CopyOfItem."Trans. Ord. Shipment (Qty.)" +
           CopyOfItem."Qty. in Transit" +
           CopyOfItem."Trans. Ord. Receipt (Qty.)" -
-          CopyOfItem."Qty. on Service Order" -
           CopyOfItem."Qty. on Job Order" -
           CopyOfItem."Qty. on Purch. Return" +
           CopyOfItem."Qty. on Assembly Order" +
           CopyOfItem."Qty. on Sales Return";
+
+        OnCalcAvailableQtyOnAfterCalculation(CopyOfItem, AvailableQty);
 
         OnAfterCalcAvailableQty(Item, CalcAvailable, PlannedOrderReceiptDate, AvailableQty);
 
@@ -196,6 +196,11 @@ codeunit 5400 "Available Management"
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeCalcAvailableQty(var Item: Record Item; CalcAvailable: Boolean; PlannedOrderReceiptDate: Date; var AvailableQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailableQtyOnAfterCalculation(var CopyOfItem: Record Item; var AvailableQty: Decimal)
     begin
     end;
 }

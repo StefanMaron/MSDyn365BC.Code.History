@@ -6,9 +6,6 @@ namespace Microsoft.EServices.EDocument;
 
 using System.Environment;
 
-#if not CLEAN22
-#pragma warning disable AS0109 // warning on table being made temporary
-#endif
 table 137 "Inc. Doc. Attachment Overview"
 {
     Caption = 'Inc. Doc. Attachment Overview';

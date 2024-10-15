@@ -382,15 +382,13 @@ codeunit 139006 "Test My Settings"
     begin
         for AccountNo := 1 to ArrayLen(GLAccount) do begin
             LibraryERM.CreateGLAccount(GLAccount[AccountNo]);
-            with GLEntry do begin
-                Init();
-                "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-                "G/L Account No." := GLAccount[AccountNo]."No.";
-                Amount := LibraryRandom.RandDec(100, 2);
-                Insert();
-                GLAccountNo[AccountNo] := "G/L Account No.";
-                GLAccountBalance[AccountNo] := Amount;
-            end;
+            GLEntry.Init();
+            GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+            GLEntry."G/L Account No." := GLAccount[AccountNo]."No.";
+            GLEntry.Amount := LibraryRandom.RandDec(100, 2);
+            GLEntry.Insert();
+            GLAccountNo[AccountNo] := GLEntry."G/L Account No.";
+            GLAccountBalance[AccountNo] := GLEntry.Amount;
         end;
     end;
 
@@ -406,12 +404,10 @@ codeunit 139006 "Test My Settings"
 
     local procedure CreateMyAccountRecord(var MyAccount: Record "My Account"; GLAccountNo: Code[20])
     begin
-        with MyAccount do begin
-            Init();
-            "User ID" := UserId;
-            "Account No." := GLAccountNo;
-            Insert();
-        end;
+        MyAccount.Init();
+        MyAccount."User ID" := UserId;
+        MyAccount."Account No." := GLAccountNo;
+        MyAccount.Insert();
     end;
 
     local procedure VerifyGLAccountBalanceAndEntriesFilterOnDrillDown(MyAccountsTestPage: TestPage "My Accounts"; GLAccountNo: Code[20]; ExpectedBalance: Decimal)

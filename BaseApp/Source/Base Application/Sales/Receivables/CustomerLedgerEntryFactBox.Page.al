@@ -123,7 +123,9 @@ page 9106 "Customer Ledger Entry FactBox"
         NoOfAppliedEntries: Integer;
         NoOfDetailedCustomerEntries: Integer;
         DocumentHeading: Text[250];
+#pragma warning disable AA0074
         Text000: Label 'Document';
+#pragma warning restore AA0074
 
     local procedure CalcNoOfRecords()
     var

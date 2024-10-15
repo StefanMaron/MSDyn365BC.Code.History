@@ -47,4 +47,39 @@ codeunit 134899 "Test Sequence No. Mgt."
         Assert.IsTrue(InteractionLogEntry."Entry No." > LastNo, 'Wrong number generated');
     end;
 
+    [Test]
+    procedure VerifySequenceName()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+        SeqNameLbl: Label 'TableSeq%1', Comment = '%1 - Table No.', Locked = true;
+        PreviewSeqNameLbl: Label 'PreviewTableSeq%1', Comment = '%1 - Table No.', Locked = true;
+    begin
+        // We distinguish between posting and preview, and for preview; whether it is previewable, which e.g. Warehouse entry is and G/L Entry is not.
+        // Regular sequence name:
+        Assert.AreEqual(StrSubstNo(SeqNameLbl, Database::"Warehouse Entry"), SequenceNoMgt.GetTableSequenceName(false, Database::"Warehouse Entry"), 'wrong sequence name for Warehouse Entry');
+        // Preview name:
+        Assert.AreEqual(StrSubstNo(PreviewSeqNameLbl, Database::"Warehouse Entry"), SequenceNoMgt.GetTableSequenceName(true, Database::"Warehouse Entry"), 'wrong sequence name for preview for Warehouse Entry');
+        // Regular sequence name for G/L Entry:
+        Assert.AreEqual(StrSubstNo(SeqNameLbl, Database::"G/L Entry"), SequenceNoMgt.GetTableSequenceName(false, Database::"G/L Entry"), 'wrong sequence name for G/L Entry');
+        // There is no preview name for G/L Entry (which does not support preview), so it should just return the normal name
+        Assert.AreEqual(StrSubstNo(SeqNameLbl, Database::"G/L Entry"), SequenceNoMgt.GetTableSequenceName(true, Database::"G/L Entry"), 'wrong sequence name for preview for G/L Entry');
+    end;
+
+    [Test]
+    procedure VerifyPreviewSequenceName()
+    begin
+        PreviewPosting();
+    end;
+
+    local procedure PreviewPosting()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        NoSequencePreviewTest: Codeunit "No Sequence Preview Test";
+    begin
+        BindSubscription(NoSequencePreviewTest);
+        asserterror GenJnlPostPreview.Preview(NoSequencePreviewTest, JobQueueEntry);
+        Assert.AreEqual('', GetLastErrorText(), 'Unexpected error from preview');
+        UnBindSubscription(NoSequencePreviewTest);
+    end;
 }

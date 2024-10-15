@@ -7,6 +7,7 @@ namespace Microsoft.Purchases.Archive;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.TaxEngine.TaxTypeHandler;
 using Microsoft.Foundation.Attachment;
+using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 
@@ -22,11 +23,24 @@ pageextension 18016 "GST Blank. Purch Ord Arch Ext" extends "Blanket Purchase Or
                 SubPageLink = "Table ID Filter" = const(5110), "Document Type Filter" = field("Document Type"), "Document No. Filter" = field("Document No."), "Line No. Filter" = field("Line No."), "Version No. Filter" = field("Version No.");
                 ApplicationArea = Basic, Suite;
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(38),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                SubPageLink = "Table ID" = const(Database::"Purchase Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
             }

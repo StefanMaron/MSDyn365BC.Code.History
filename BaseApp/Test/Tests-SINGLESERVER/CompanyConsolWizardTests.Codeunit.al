@@ -135,19 +135,17 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CompanyConsolidationWizard.Trap();
         PAGE.Run(PAGE::"Company Consolidation Wizard");
 
-        with CompanyConsolidationWizard do begin
-            ActionNext.Invoke(); // Welcome page
-            ActionNext.Invoke(); // Choose to create company
-            CompanyName.SetValue('NEWCOMPANY');
-            CompanyData.SetValue(1); // Set to None to avoid lengthy data import
-            ActionNext.Invoke(); // Basic Information page
-            ActionNext.Invoke(); // Choose Source Companies
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Welcome page
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Choose to create company
+        CompanyConsolidationWizard.CompanyName.SetValue('NEWCOMPANY');
+        CompanyConsolidationWizard.CompanyData.SetValue(1); // Set to None to avoid lengthy data import
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Basic Information page
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Choose Source Companies
 
-            // [WHEN] A Business Unit Code is not entered
-            asserterror ActionNext.Invoke();
-            // [THEN] An error is given stating "Enter a Business Unit Code."
-            Assert.ExpectedError(SpecifyBusinessUnitCodeTxt);
-        end;
+        // [WHEN] A Business Unit Code is not entered
+        asserterror CompanyConsolidationWizard.ActionNext.Invoke();
+        // [THEN] An error is given stating "Enter a Business Unit Code."
+        Assert.ExpectedError(SpecifyBusinessUnitCodeTxt);
         CompanyConsolidationWizard.Close();
     end;
 
@@ -440,22 +438,20 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CompanyConsolidationWizard.Trap();
         PAGE.Run(PAGE::"Company Consolidation Wizard");
 
-        with CompanyConsolidationWizard do begin
-            ActionNext.Invoke(); // Welcome page
-            ActionNext.Invoke(); // Choose to create company
-            CompanyName.SetValue(NewCompanyName);
-            CompanyData.SetValue(1); // Set to None to avoid lengthy data import
-            ActionNext.Invoke(); // Basic Information page
-            SelectCreatedCompanyForBusUnit(BusinessUnit);
-            ActionNext.Invoke(); // Choose Source Companies
-            Assert.IsFalse(ActionBack.Enabled(), 'Back should not be enabled');
-            Assert.IsFalse(ConsolidationAccount.FindFirst(), 'Consolidation Account should have no accounts as we set CompanyData to None');
-            Code.SetValue('1');
-            ActionNext.Invoke(); // Set up consolidated company
-            ActionNext.Invoke(); // Set up consolidated company page 2
-            Assert.IsFalse(ActionBack.Enabled(), 'Back should not be enabled at the end of the wizard');
-            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
-        end;
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Welcome page
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Choose to create company
+        CompanyConsolidationWizard.CompanyName.SetValue(NewCompanyName);
+        CompanyConsolidationWizard.CompanyData.SetValue(1); // Set to None to avoid lengthy data import
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Basic Information page
+        SelectCreatedCompanyForBusUnit(BusinessUnit);
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Choose Source Companies
+        Assert.IsFalse(CompanyConsolidationWizard.ActionBack.Enabled(), 'Back should not be enabled');
+        Assert.IsFalse(ConsolidationAccount.FindFirst(), 'Consolidation Account should have no accounts as we set CompanyData to None');
+        CompanyConsolidationWizard.Code.SetValue('1');
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Set up consolidated company
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Set up consolidated company page 2
+        Assert.IsFalse(CompanyConsolidationWizard.ActionBack.Enabled(), 'Back should not be enabled at the end of the wizard');
+        Assert.IsFalse(CompanyConsolidationWizard.ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
     end;
 
     local procedure RunConsolidationWizardToCompletionExistingCompany(var CompanyConsolidationWizard: TestPage "Company Consolidation Wizard"; BusinessUnit: Text[30]; NewCompanyName: Text[30])
@@ -465,26 +461,24 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CompanyConsolidationWizard.Trap();
         PAGE.Run(PAGE::"Company Consolidation Wizard");
 
-        with CompanyConsolidationWizard do begin
-            ActionNext.Invoke(); // Welcome page
-            SelectCompanyOption.SetValue(1);
-            ActionNext.Invoke(); // Choose to use existing company
-            LibraryVariableStorage.Enqueue(NewCompanyName); // for PickCompanyModalHandler
-            "Select Company".AssistEdit();
-            ActionNext.Invoke(); // Select Company
-            SelectCreatedCompanyForBusUnit(BusinessUnit);
-            Assert.IsFalse(ConsolidationAccount.FindFirst(), 'Consolidation Account should not be created');
-            ActionNext.Invoke(); // Choose Source Companies
-            Assert.IsFalse(ActionBack.Enabled(), 'Back should not be enabled');
-            Code.SetValue('1');
-            Assert.IsTrue(ConsolidationAccount.FindFirst(), 'Consolidation Account should be created');
-            // [THEN] Account should exist in the ConsolidationAccount table
-            Assert.IsTrue(ConsolidationAccount.Get('10100'), 'Account should exist');
-            ActionNext.Invoke(); // Set up consolidated company
-            ActionNext.Invoke(); // Set up consolidated company page 2
-            Assert.IsFalse(ActionBack.Enabled(), 'Back should notbe enabled at the end of the wizard');
-            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
-        end;
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Welcome page
+        CompanyConsolidationWizard.SelectCompanyOption.SetValue(1);
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Choose to use existing company
+        LibraryVariableStorage.Enqueue(NewCompanyName); // for PickCompanyModalHandler
+        CompanyConsolidationWizard."Select Company".AssistEdit();
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Select Company
+        SelectCreatedCompanyForBusUnit(BusinessUnit);
+        Assert.IsFalse(ConsolidationAccount.FindFirst(), 'Consolidation Account should not be created');
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Choose Source Companies
+        Assert.IsFalse(CompanyConsolidationWizard.ActionBack.Enabled(), 'Back should not be enabled');
+        CompanyConsolidationWizard.Code.SetValue('1');
+        Assert.IsTrue(ConsolidationAccount.FindFirst(), 'Consolidation Account should be created');
+        // [THEN] Account should exist in the ConsolidationAccount table
+        Assert.IsTrue(ConsolidationAccount.Get('10100'), 'Account should exist');
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Set up consolidated company
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Set up consolidated company page 2
+        Assert.IsFalse(CompanyConsolidationWizard.ActionBack.Enabled(), 'Back should notbe enabled at the end of the wizard');
+        Assert.IsFalse(CompanyConsolidationWizard.ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
     end;
 
     local procedure RunConsolidationWizardExistingCompanyNoCompanyEntered(var CompanyConsolidationWizard: TestPage "Company Consolidation Wizard")
@@ -492,14 +486,12 @@ codeunit 139317 "Company Consol. Wizard Tests"
         CompanyConsolidationWizard.Trap();
         PAGE.Run(PAGE::"Company Consolidation Wizard");
 
-        with CompanyConsolidationWizard do begin
-            ActionNext.Invoke(); // Welcome page
-            SelectCompanyOption.SetValue(1);
-            ActionNext.Invoke(); // Choose to use existing company
-            asserterror ActionNext.Invoke();
-            Assert.ExpectedError(EmptyCompanyNameErr);
-            Close();
-        end;
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Welcome page
+        CompanyConsolidationWizard.SelectCompanyOption.SetValue(1);
+        CompanyConsolidationWizard.ActionNext.Invoke(); // Choose to use existing company
+        asserterror CompanyConsolidationWizard.ActionNext.Invoke();
+        Assert.ExpectedError(EmptyCompanyNameErr);
+        CompanyConsolidationWizard.Close();
     end;
 
     local procedure CreateGLAccountWithConsolidationSetup(var GLAccount: Record "G/L Account")
@@ -528,17 +520,14 @@ codeunit 139317 "Company Consol. Wizard Tests"
     var
         BusinessUnitSetup: Record "Business Unit Setup";
     begin
-        with BusinessUnitSetup do begin
-            Reset();
-            if Find('-') then begin
-                repeat
-                    if "Company Name" <> NewCreatedBusUnit then begin
-                        Include := false;
-                        Modify();
-                    end;
-                until Next() = 0;
-            end;
-        end;
+        BusinessUnitSetup.Reset();
+        if BusinessUnitSetup.Find('-') then
+            repeat
+                if BusinessUnitSetup."Company Name" <> NewCreatedBusUnit then begin
+                    BusinessUnitSetup.Include := false;
+                    BusinessUnitSetup.Modify();
+                end;
+            until BusinessUnitSetup.Next() = 0;
     end;
 
     [Normal]

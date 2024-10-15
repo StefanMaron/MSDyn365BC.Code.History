@@ -149,6 +149,11 @@ table 436 "IC Inbox Purchase Header"
             OptionCaption = 'Returned by Partner,Created by Partner';
             OptionMembers = "Returned by Partner","Created by Partner";
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(5790; "Requested Receipt Date"; Date)
         {
             Caption = 'Requested Receipt Date';

@@ -31,32 +31,40 @@ codeunit 1100 "Cost Account Mgt"
         RecsProcessed: Integer;
         RecsCreated: Integer;
         CostTypeExists: Boolean;
+#pragma warning disable AA0074
         Text000: Label 'This function transfers all income statement accounts from the chart of accounts to the chart of cost types.\\All types including Heading, Begin-Total, and End-Total are transferred.\General ledger accounts that have the same number as an existing cost type are not transferred.\\Do you want to start the job?';
+#pragma warning disable AA0470
         Text001: Label 'Indent %1?';
         Text002: Label 'Create cost types:\Number   #1########';
         Text003: Label '%1 income statement accounts processed. %2 cost types created.';
         Text004: Label 'Indent chart of cost types\Number   #1########';
         Text005: Label 'End-Total %1 does not belong to the corresponding Begin-Total.';
+#pragma warning restore AA0470
         Text006: Label 'This function registers the cost types in the chart of accounts.\\This creates the link between chart of accounts and cost types and verifies that each income statement account is only linked to a cost type.\\Start job?';
+#pragma warning disable AA0470
         Text007: Label '%1 cost types are processed and logged in %2 G/L accounts.';
         Text008: Label 'Check assignment cost type - G/L account\Number   #1########';
         Text009: Label 'Cost type %1 should be assigned to G/L account %2.\Cost type %3 is already linked to G/L account %2.\\Each G/L account can only be linked to a single cost type.\However, it is possible to link multiple G/L accounts to a single cost type.';
         Text010: Label 'Indenting chart\Number   #1########';
         Text011: Label 'End-Total %1 does not belong to Begin-Total.';
+#pragma warning restore AA0470
         Text012: Label 'The range is too long and cannot be transferred to the End-Total field.\\Move End-Total closer to Begin-Total or use shorter codes.';
         Text013: Label '%1 %2 is not defined in Cost Accounting.', Comment = '%1=Table caption Cost Center;%2=Field Value Cost Center Code';
         Text014: Label '%1 %2 is blocked in Cost Accounting.', Comment = '%1=Table caption Cost Center;%2=Field Value Cost Center Code';
         Text015: Label '%1 %2 does not have line type %1 or Begin-Total.', Comment = '%1=Table caption Cost Center;%2=Field Value Cost Center Code';
         Text016: Label 'Do you want to create %1 %2 in Cost Accounting?', Comment = '%1=Table caption Cost Center or Cost Object;%2=Field Value';
         Text017: Label '%1 %2 has been updated in Cost Accounting.', Comment = '%1=Table caption Cost Center or Cost Object or Cost Type;%2=Field Value';
+#pragma warning disable AA0470
         Text018: Label 'Create dimension\Number   #1########';
         Text019: Label '%1 cost centers created.';
         Text020: Label '%1 cost objects created.';
         Text021: Label 'Do you want to get cost centers from dimension %1 ?';
         Text022: Label 'Do you want to get cost objects from dimension %1 ?';
         Text023: Label 'The %1 %2 cannot be inserted because it already exists as %3.', Comment = '%1=Table caption Cost Center or Cost Object or Cost Type or Dimension Value;%2=Field Value';
+#pragma warning restore AA0470
         Text024: Label 'Do you want to update %1 %2 in Cost Accounting?', Comment = '%1=Table caption Cost Center or Cost Object;%2=Field Value';
         Text025: Label 'The %1 cannot be updated with this %2 because the %3 does not fall within the From/To range.', Comment = '%1=Cost Budget Register tablecaption,%2=Cost Budget Entry tablecaption,%3=Entry No. fieldcaption';
+#pragma warning restore AA0074
         ArrayExceededErr: Label 'You can only indent %1 levels for entities of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
 
     procedure GetCostTypesFromChartOfAccount()

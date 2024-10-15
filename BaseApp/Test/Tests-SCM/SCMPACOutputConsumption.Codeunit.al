@@ -835,13 +835,11 @@ codeunit 137006 "SCM PAC Output Consumption"
     end;
 
     local procedure UpdateInventorySetup()
-    var
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
         LibraryInventory.SetAutomaticCostAdjmtNever();
-        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, "Average Cost Period Type"::Day);
     end;
 
     [Normal]

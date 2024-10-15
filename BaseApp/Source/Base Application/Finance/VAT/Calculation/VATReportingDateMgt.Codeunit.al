@@ -13,7 +13,6 @@ using Microsoft.Finance.VAT.Setup;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Security.User;
 using System.Telemetry;
@@ -22,18 +21,14 @@ using System.Utilities;
 codeunit 799 "VAT Reporting Date Mgt"
 {
     SingleInstance = true;
-    Permissions = TableData "Sales Invoice Header" = rm,
-                    TableData "Sales Cr.Memo Header" = rm,
-                    TableData "Service Invoice Header" = rm,
-                    TableData "Service Cr.Memo Header" = rm,
-                    TableData "Issued Reminder Header" = rm,
-                    TableData "Issued Fin. Charge Memo Header" = rm,
-                    TableData "Purch. Inv. Header" = rm,
-                    TableData "Purch. Cr. Memo Hdr." = rm,
-                    TableData "G/L Entry" = rm,
-                    TableData "VAT Entry" = rm,
-                    TableData "VAT Return Period" = r,
-                    TableData "General Ledger Setup" = r;
+    Permissions = TableData "Issued Reminder Header" = rm,
+                  TableData "Issued Fin. Charge Memo Header" = rm,
+                  TableData "Purch. Inv. Header" = rm,
+                  TableData "Purch. Cr. Memo Hdr." = rm,
+                  TableData "G/L Entry" = rm,
+                  TableData "VAT Entry" = rm,
+                  TableData "VAT Return Period" = r,
+                  TableData "General Ledger Setup" = r;
 
     trigger OnRun()
     begin
@@ -251,8 +246,6 @@ codeunit 799 "VAT Reporting Date Mgt"
     var
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -267,11 +260,7 @@ codeunit 799 "VAT Reporting Date Mgt"
                         FilterSalesInvoiceHeader(VATEntry, SalesInvHeader);
                         RecordRef.GetTable(SalesInvHeader);
                         Updated := UpdateVATDateFromRecordRef(RecordRef, SalesInvHeader.FieldNo("VAT Reporting Date"), VATEntry."VAT Reporting Date");
-                        if not Updated then begin
-                            FilterServInvoiceHeader(VATEntry, ServiceInvHeader);
-                            RecordRef.GetTable(ServiceInvHeader);
-                            Updated := UpdateVATDateFromRecordRef(RecordRef, ServiceInvHeader.FieldNo("VAT Reporting Date"), VATEntry."VAT Reporting Date");
-                        end;
+                        OnUpdatePostedDocumentsOnAfterUpdateSalesInvoice(VATEntry, Updated);
                     end;
                     if VATEntry.Type = VATEntry.Type::Purchase then begin
                         FilterPurchInvoiceHeader(VATEntry, PurchInvHeader);
@@ -285,11 +274,7 @@ codeunit 799 "VAT Reporting Date Mgt"
                         FilterSalesCrMemoHeader(VATEntry, SalesCrMemoHeader);
                         RecordRef.GetTable(SalesCrMemoHeader);
                         Updated := UpdateVATDateFromRecordRef(RecordRef, SalesCrMemoHeader.FieldNo("VAT Reporting Date"), VATEntry."VAT Reporting Date");
-                        if not Updated then begin
-                            FilterServCrMemoHeader(VATEntry, ServiceCrMemoHeader);
-                            RecordRef.GetTable(ServiceCrMemoHeader);
-                            Updated := UpdateVATDateFromRecordRef(RecordRef, ServiceCrMemoHeader.FieldNo("VAT Reporting Date"), VATEntry."VAT Reporting Date");
-                        end;
+                        OnUpdatePostedDocumentsOnAfterUpdateSalesCreditMemo(VATEntry, Updated);
                     end;
                     if VATEntry.Type = VATEntry.Type::Purchase then begin
                         FilterPurchCrMemoHeader(VATEntry, PurchCrMemoHeader);
@@ -328,20 +313,6 @@ codeunit 799 "VAT Reporting Date Mgt"
         SalesCrMemoHeader.SetRange("No.", VATEntry."Document No.");
         SalesCrMemoHeader.SetRange("Posting Date", VATEntry."Posting Date");
         SalesCrMemoHeader.SetRange("External Document No.", VATEntry."External Document No.");
-    end;
-
-    local procedure FilterServInvoiceHeader(VATEntry: Record "VAT Entry"; var ServiceInvHeader: Record "Service Invoice Header")
-    begin
-        ServiceInvHeader.Reset();
-        ServiceInvHeader.SetRange("No.", VATEntry."Document No.");
-        ServiceInvHeader.SetRange("Posting Date", VATEntry."Posting Date");
-    end;
-
-    local procedure FilterServCrMemoHeader(VATEntry: Record "VAT Entry"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header");
-    begin
-        ServiceCrMemoHeader.Reset();
-        ServiceCrMemoHeader.SetRange("No.", VATEntry."Document No.");
-        ServiceCrMemoHeader.SetRange("Posting Date", VATEntry."Posting Date");
     end;
 
     local procedure FilterIssuedReminderHeader(VATEntry: Record "VAT Entry"; var IssuedReminderHeader: Record "Issued Reminder Header")
@@ -441,6 +412,16 @@ codeunit 799 "VAT Reporting Date Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateLinkedEntries(VATEntry: Record "VAT Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePostedDocumentsOnAfterUpdateSalesInvoice(VATEntry: Record "VAT Entry"; var Updated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePostedDocumentsOnAfterUpdateSalesCreditMemo(VATEntry: Record "VAT Entry"; var Updated: Boolean)
     begin
     end;
 }

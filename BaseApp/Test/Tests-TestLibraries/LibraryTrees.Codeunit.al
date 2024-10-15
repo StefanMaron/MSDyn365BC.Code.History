@@ -659,13 +659,13 @@ codeunit 132208 "Library - Trees"
                             LocalRolledUpScrapAmount := 0;
                             GetTreeCostWithScrap(LocalRolledUpScrapAmount, LocalCost, Item1);
                             RolledUpScrapAmount +=
-                              ProdBOMLine."Quantity per" *
-                              RoutingScrapPercentage * LocalRolledUpScrapAmount * (1 + Item."Scrap %" / 100) * (1 + ProdBOMLine."Scrap %" / 100);
+                                ProdBOMLine."Quantity per" * LocalRolledUpScrapAmount *
+                                (1 + CombineMultilevelScrapFactors(RoutingScrapPercentage, CombineMultilevelScrapFactors(ProdBOMLine."Scrap %", Item."Scrap %")) / 100);
 
                             if Item1."Replenishment System" = Item1."Replenishment System"::Purchase then
                                 SingleLevelScrapAmount +=
-                                  ProdBOMLine."Quantity per" *
-                                  RoutingScrapPercentage * Item1."Unit Cost" * (Item."Scrap %" / 100) * (ProdBOMLine."Scrap %" / 100);
+                                    ProdBOMLine."Quantity per" * Item1."Unit Cost" *
+                                    CombineMultilevelScrapFactors(RoutingScrapPercentage, CombineMultilevelScrapFactors(ProdBOMLine."Scrap %", Item."Scrap %")) / 100;
                         until ProdBOMLine.Next() = 0;
 
                     ProcessedScrapPercentage := 1;
@@ -675,13 +675,13 @@ codeunit 132208 "Library - Trees"
                                 WorkCenter.Get(RoutingLine."No.");
                                 RolledUpScrapAmount +=
                                   (RoutingLine."Run Time" *
-                                   RoutingScrapPercentage / ProcessedScrapPercentage + RoutingLine."Setup Time" / Item."Lot Size") *
+                                   (1 + RoutingScrapPercentage / 100) / ProcessedScrapPercentage + RoutingLine."Setup Time" / Item."Lot Size") *
                                   WorkCenter."Unit Cost" * (1 + Item."Scrap %" / 100);
                             end else begin
                                 MachineCenter.Get(RoutingLine."No.");
                                 RolledUpScrapAmount +=
                                   (RoutingLine."Run Time" *
-                                   RoutingScrapPercentage / ProcessedScrapPercentage + RoutingLine."Setup Time" / Item."Lot Size") *
+                                   (1 + RoutingScrapPercentage / 100) / ProcessedScrapPercentage + RoutingLine."Setup Time" / Item."Lot Size") *
                                   MachineCenter."Unit Cost" * (1 + Item."Scrap %" / 100);
                             end;
                             ProcessedScrapPercentage *= 1 + RoutingLine."Scrap Factor %" / 100;
@@ -694,15 +694,19 @@ codeunit 132208 "Library - Trees"
         RolledUpScrapAmount := Round(RolledUpScrapAmount, LibraryERM.GetUnitAmountRoundingPrecision());
     end;
 
-    [Normal]
+    local procedure CombineMultilevelScrapFactors(LowLevelScrapPct: Decimal; HighLevelScrapPct: Decimal): Decimal
+    begin
+        exit(LowLevelScrapPct + HighLevelScrapPct + LowLevelScrapPct * HighLevelScrapPct / 100);
+    end;
+
     local procedure GetCombinedScrapPercentage(var RoutingLine: Record "Routing Line"): Decimal
     var
         ScrapPercentage: Decimal;
     begin
-        ScrapPercentage := 1;
+        ScrapPercentage := 0;
         if RoutingLine.FindSet() then
             repeat
-                ScrapPercentage *= 1 + RoutingLine."Scrap Factor %" / 100;
+                ScrapPercentage := CombineMultilevelScrapFactors(RoutingLine."Scrap Factor %", ScrapPercentage);
             until RoutingLine.Next() = 0;
 
         exit(ScrapPercentage);

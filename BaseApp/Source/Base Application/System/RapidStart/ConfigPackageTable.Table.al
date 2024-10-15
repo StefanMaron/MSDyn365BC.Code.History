@@ -273,12 +273,18 @@ table 8613 "Config. Package Table"
         ConfigPackageMgt: Codeunit "Config. Package Management";
         i: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot use system table %1 in the package.';
         Text002: Label 'You cannot use the Dimensions as Columns function for table %1.';
         Text003: Label 'The Default Dimension and Dimension Value tables must be included in the package %1 to enable this option. The missing tables will be added to the package. Do you want to continue?';
+#pragma warning restore AA0470
         Text004: Label 'You cannot rename the configuration package table.';
         Text005: Label 'The setup of Dimensions as Columns was canceled.';
+#pragma warning disable AA0470
         Text010: Label 'Define the drill-down page in the %1 field.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CannotAddParentErr: Label 'Cannot add a parent table. This table is already included in a three-level hierarchy, which is the maximum.';
         CannotBeItsOwnParentErr: Label 'Cannot add the parent table. A table cannot be its own parent or child.';
         CircularDependencyErr: Label 'Cannot add the parent table. The table is already the child of the selected tab.';

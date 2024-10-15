@@ -293,12 +293,11 @@ codeunit 5052 AttachmentManagement
     var
         ExchangeServiceSetup: Record "Exchange Service Setup";
         AzureADMgt: Codeunit "Azure AD Mgt.";
-        [NonDebuggable]
-        AccessToken: Text;
+        AccessToken: SecretText;
     begin
-        AccessToken := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
+        AccessToken := AzureADMgt.GetAccessTokenAsSecretText(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false);
 
-        if AccessToken <> '' then begin
+        if not AccessToken.IsEmpty() then begin
             ExchangeWebServicesServer.InitializeWithOAuthToken(AccessToken, ExchangeWebServicesServer.GetEndpoint());
             exit;
         end;

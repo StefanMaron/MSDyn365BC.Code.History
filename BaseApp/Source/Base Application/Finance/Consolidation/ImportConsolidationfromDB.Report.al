@@ -375,22 +375,30 @@ report 90 "Import Consolidation from DB"
         BusinessUnitCode: Code[20];
         IsJournalTemplNameVisible: Boolean;
         SkipDateConfirm, SkipRunningTrialBalanceAfter : Boolean;
+#pragma warning disable AA0470
         Text032Err: Label 'The %1 is later than the %2 in company %3.';
+#pragma warning restore AA0470
         GLEntryNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter a document number.';
         Text001: Label 'Importing Subsidiary Data...\\';
+#pragma warning disable AA0470
         Text002: Label 'Business Unit Code   #1##########\';
         Text003: Label 'G/L Account No.      #2##########\';
         Text004: Label 'Date                 #3######';
+#pragma warning restore AA0470
         Text006: Label 'Enter the starting date for the consolidation period.';
         Text007: Label 'Enter the ending date for the consolidation period.';
         Text020: Label 'Copy Dimensions';
+#pragma warning disable AA0470
         Text022: Label 'A %1 with %2 on a closing date (%3) was found while consolidating nonclosing entries (%4 %5).';
         Text023: Label 'Do you want to consolidate in the period from %1 to %2?';
         Text024: Label 'There is no %1 to consolidate.';
+#pragma warning restore AA0470
         Text028: Label 'You must create a new fiscal year in the consolidated company.';
         Text030: Label 'When using closing dates, the starting and ending dates must be the same.';
+#pragma warning restore AA0074
         ConsPeriodSubsidiaryQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year of one or more of the subsidiaries.\Do you want to proceed with the consolidation?', Comment = '%1 and %2 - request page values';
         ConsPeriodCompanyQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year %3 .. %4 of the consolidated company %5.\Do you want to proceed with the consolidation?', Comment = '%1, %2, %3, %4 - request page values, %5 - company name';
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';

@@ -25,11 +25,10 @@ codeunit 137292 "SCM Inventory Costing Orders"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         isInitialized: Boolean;
-        ApplFromItemEntryNoError: Label 'Positive must be equal to ''No''  in Item Ledger Entry: Entry No.=%1. Current value is ''Yes''.';
         AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         BaseCalendarError: Label 'There is no Base Calendar Change within the filter.';
         CloseInventoryPeriodError: Label 'The Inventory Period cannot be closed because there is at least one item with unadjusted entries in the current period.';
@@ -41,18 +40,14 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ItemFilter: Label '%1|%2|%3';
         ItemTrackingLotNoError: Label 'Variant  cannot be fully applied';
         OrderTrackingMessage: Label 'There are no order tracking entries for this line.';
-        RecordFoundError: Label 'Record must not Found.';
         ReservationError: Label 'Applies-to Entry must not be filled out when reservations exist in Item Ledger Entry';
         ReturnOrderTrackingError: Label 'You must use form Item Tracking Lines to enter Appl.-to Item Entry, if item tracking is used.';
-#if not CLEAN23
-        SalesPriceWorksheetError: Label 'The Sales Price Worksheet does not exist.';
-#endif
         TrackingAndActionMessage: Label 'The change will not affect existing entries.';
         UndoShipmentLine: Label 'Do you want to undo the selected shipment line';
         ValueNotMatchedError: Label 'Value must be same.';
         ReservationDisruptedWarningMsg: Label 'One or more reservation entries exist for the item';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
+        AverageCostPeriod: Enum "Average Cost Period Type";
 
     [Test]
     [Scope('OnPrem')]
@@ -246,7 +241,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         asserterror ServiceLine.Validate("Appl.-from Item Entry", ItemLedgerEntry."Entry No.");
 
         // Verify: Verify Error while validating Appl.-from Item Entry on Service Order.
-        Assert.ExpectedError(StrSubstNo(ApplFromItemEntryNoError, ItemLedgerEntry."Entry No."));
+        Assert.ExpectedTestFieldError(ItemLedgerEntry.FieldCaption(Positive), Format(false));
     end;
 
     [Test]
@@ -698,12 +693,12 @@ codeunit 137292 "SCM Inventory Costing Orders"
         Initialize();
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
         ItemNo := CreateItem(Item."Costing Method"::Average, Item."Order Tracking Policy"::None);
-        CreateItemJournalLine(
-          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo);
-        CreateItemJournalLine(
-          ItemJournalLine2, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-          ItemJournalLine2."Entry Type"::"Negative Adjmt.", ItemNo);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, LibraryRandom.RandIntInRange(50, 100));
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine2, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine2."Entry Type"::"Negative Adjmt.", ItemNo, LibraryRandom.RandInt(50));
 
         // Exercise.
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -734,13 +729,13 @@ codeunit 137292 "SCM Inventory Costing Orders"
         Initialize();
         SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
         ItemNo := CreateItem(Item."Costing Method"::Average, Item."Order Tracking Policy"::None);
-        CreateItemJournalLine(
-          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, LibraryRandom.RandIntInRange(50, 100));
         ModifyItemJournalLine(ItemJournalLine);
-        CreateItemJournalLine(
-          ItemJournalLine2, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-          ItemJournalLine2."Entry Type"::"Negative Adjmt.", ItemNo);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine2, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+            ItemJournalLine2."Entry Type"::"Negative Adjmt.", ItemNo, LibraryRandom.RandInt(50));
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // Exercise:
@@ -829,7 +824,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
 
         // Verify: Verify Post Value Entry To G/L should not exist any entry for given Item.
         PostValueEntryToGL.SetRange("Item No.", ItemJournalLine."Item No.");
-        Assert.IsFalse(PostValueEntryToGL.FindFirst(), RecordFoundError);
+        Assert.RecordIsEmpty(PostValueEntryToGL);
     end;
 
     [Test]
@@ -930,7 +925,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
           LibraryERM.GetAmountRoundingPrecision(), ValueNotMatchedError);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('SuggestSalesPriceOnWkshRequestPageHandler')]
     [Scope('OnPrem')]
@@ -986,7 +981,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
             SalesPrice."Unit of Measure Code", 0);  // 0 for Minimum Amount.
 
         // Verify: Verify Sales Price Worksheet Error.
-        Assert.ExpectedError(SalesPriceWorksheetError);
+        Assert.ExpectedErrorCannotFind(Database::"Sales Price Worksheet");
     end;
 
     [Test]
@@ -1047,7 +1042,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         asserterror VerifySalesPriceWorksheet(SalesPrice, WorkDate(), ItemNo, CustomerPriceGroup, 0, UnitPrice);
 
         // Verify: Verify Sales Price Worksheet Error.
-        Assert.ExpectedError(SalesPriceWorksheetError);
+        Assert.ExpectedErrorCannotFind(Database::"Sales Price Worksheet");
     end;
 
     [Test]
@@ -1308,7 +1303,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         VerifyPairedItemLedgerEntriesAmount(Item."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('SuggestSalesPriceOnWkshRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1453,7 +1448,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         CustomerPriceGroup.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifyCustomerPriceGroupFieldsOnSalesPriceWorksheet(SalesPrice: Record "Sales Price"; StartingDate: Date; ItemNo: Code[20]; SalesCode: Code[20]; AllowInvDisc: Boolean; AllowLineDisc: Boolean; PriceInclVAT: Boolean; VATBusPostGroup: Code[20])
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -1488,7 +1483,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         Location.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateAndUpdateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; ItemNo: Code[20]; BaseUnitOfMeasure: Code[10]; StartingDate: Date; EndingDate: Date; UnitPrice: Decimal; MinimumQuantity: Decimal)
     begin
         LibraryCosting.CreateSalesPrice(SalesPrice, SalesType, SalesCode, ItemNo, StartingDate, '', '', BaseUnitOfMeasure, MinimumQuantity);
@@ -1515,7 +1510,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         exit(Item."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateAndUpdatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20]; ItemNo: Code[20])
     begin
         LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, ItemNo, WorkDate(), '', '', '', LibraryRandom.RandDec(10, 2));  // Use random for Minimum Quanity.
@@ -1562,7 +1557,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
           ItemJournalLine, JournalTemplateName, JournalBatchName, EntryType, ItemNo, LibraryRandom.RandInt(100));  // Taking Random Quantity.
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateLineDiscForCustomer(SalesPrice: Record "Sales Price"; LineDiscountPct: Decimal)
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -1794,7 +1789,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         exit(Vendor."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure EnqueVariables(BaseUnitOfMeasure: Code[10]; CustomerPriceGroup: Code[10]; EndingDate: Date; NewPrices: Boolean)
     var
         SalesPrice: Record "Sales Price";
@@ -1985,7 +1980,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ReclassificationItemJournalLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure RunSuggestSalesPriceOnWkshReport(CustomerPriceGroup: Code[10]; StartingDate: Date; EndingDate: Date)
     var
         SalesPrice: Record "Sales Price";
@@ -2046,7 +2041,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         exit(Item."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SetupSuggestSalesPrice(var SalesPrice: Record "Sales Price"; CustomerPriceGroup: Code[10]; CustomerPriceGroup2: Code[10]; Range: Integer; ItemNo: Code[20]; StartingDate: Date; NewPrice: Boolean; UnitPrice: Decimal)
     var
         Item: Record Item;
@@ -2152,17 +2147,15 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ItemLedgerEntry: Record "Item Ledger Entry";
         TotalCost: Decimal;
     begin
-        with ItemLedgerEntry do begin
-            FindItemLedgerEntry(ItemLedgerEntry, ItemNo, true);
-            CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
-            TotalCost := "Cost Amount (Actual)" + "Cost Amount (Expected)";
+        FindItemLedgerEntry(ItemLedgerEntry, ItemNo, true);
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
+        TotalCost := ItemLedgerEntry."Cost Amount (Actual)" + ItemLedgerEntry."Cost Amount (Expected)";
 
-            FindItemLedgerEntry(ItemLedgerEntry, ItemNo, false);
-            CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
-            Assert.AreEqual(
-              -TotalCost, "Cost Amount (Actual)" + "Cost Amount (Expected)",
-              'Costs on inbound and applied outbound item entries do not match.');
-        end;
+        FindItemLedgerEntry(ItemLedgerEntry, ItemNo, false);
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
+        Assert.AreEqual(
+          -TotalCost, ItemLedgerEntry."Cost Amount (Actual)" + ItemLedgerEntry."Cost Amount (Expected)",
+          'Costs on inbound and applied outbound item entries do not match.');
     end;
 
     local procedure VerifyValueEntryLines(var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; DocumentType: Enum "Item Ledger Document Type"; Adjustment: Boolean)
@@ -2193,7 +2186,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ItemApplicationEntry.TestField(Quantity, Quantity);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifySalesPriceWorksheet(SalesPrice: Record "Sales Price"; StartingDate: Date; ItemNo: Code[20]; SalesCode: Code[20]; CurrentUnitPrice: Decimal; NewUnitPrice: Decimal)
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -2270,7 +2263,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         Reservation."Auto Reserve".Invoke();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWkshRequestPageHandler(var SuggestSalesPriceOnWksh: TestRequestPage "Suggest Sales Price on Wksh.")

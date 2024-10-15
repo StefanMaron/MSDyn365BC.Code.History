@@ -1490,7 +1490,6 @@ codeunit 18391 "GST Transfer Order Shipment"
     begin
     end;
 
-    //OnBeforeValidateTransferLineForAccountSetup(TransferHeader, TransferShipmentHeader, TempTransferBufferFinal, TempGSTPostingBufferFinal, IsHandled);
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateTransferLineForAccountSetup(TransferHeader: Record "Transfer Header"; TransferShipmentHeader: Record "Transfer Shipment Header"; TempTransferBufferFinal: Record "Transfer Buffer" temporary; TempGSTPostingBufferFinal: Record "GST Posting Buffer" temporary; var IsHandled: Boolean)
     begin

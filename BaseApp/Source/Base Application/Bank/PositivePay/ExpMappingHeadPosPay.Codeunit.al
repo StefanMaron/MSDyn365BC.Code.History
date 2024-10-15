@@ -42,6 +42,8 @@ codeunit 1703 "Exp. Mapping Head Pos. Pay"
     end;
 
     var
+#pragma warning disable AA0470
         ProgressMsg: Label 'Processing line no. #1######.';
+#pragma warning restore AA0470
 }
 

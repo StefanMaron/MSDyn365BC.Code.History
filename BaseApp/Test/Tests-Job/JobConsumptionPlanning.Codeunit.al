@@ -439,15 +439,13 @@ codeunit 136307 "Job Consumption - Planning"
 
     local procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; JobPlanningLine: Record "Job Planning Line"; PostingDate: Date)
     begin
-        with JobJournalLine do begin
-            LibraryJob.CreateJobJournalLineForType(
-              JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::"G/L Account", JobTask, JobJournalLine);
-            Validate("No.", JobPlanningLine."No.");
-            Validate(Quantity, JobPlanningLine.Quantity);
-            Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-            Validate("Posting Date", PostingDate);
-            Modify(true);
-        end;
+        LibraryJob.CreateJobJournalLineForType(
+          JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::"G/L Account", JobTask, JobJournalLine);
+        JobJournalLine.Validate("No.", JobPlanningLine."No.");
+        JobJournalLine.Validate(Quantity, JobPlanningLine.Quantity);
+        JobJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Validate("Posting Date", PostingDate);
+        JobJournalLine.Modify(true);
     end;
 
     local procedure CreateJobWithJobTask(var JobTask: Record "Job Task")
@@ -469,12 +467,10 @@ codeunit 136307 "Job Consumption - Planning"
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        with JobWIPMethod do begin
-            LibraryJob.CreateJobWIPMethod(JobWIPMethod);
-            Validate("Recognized Costs", "Recognized Costs"::"Cost of Sales");
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryJob.CreateJobWIPMethod(JobWIPMethod);
+        JobWIPMethod.Validate("Recognized Costs", JobWIPMethod."Recognized Costs"::"Cost of Sales");
+        JobWIPMethod.Modify(true);
+        exit(JobWIPMethod.Code);
     end;
 
     local procedure CreateJobWithWIPMethod(var Job: Record Job; JobWIPMethodCode: Code[20]; WIPPostingMethod: Option; ApplyUsageLink: Boolean)
@@ -484,23 +480,19 @@ codeunit 136307 "Job Consumption - Planning"
         LibraryJob.CreateJob(Job);
         JobPostingGroup.Get(Job."Job Posting Group");
         LibraryJob.UpdateJobPostingGroup(JobPostingGroup);
-        with Job do begin
-            Validate("WIP Method", JobWIPMethodCode);
-            Validate("WIP Posting Method", WIPPostingMethod);
-            Validate("Apply Usage Link", ApplyUsageLink);
-            Modify(true);
-        end;
+        Job.Validate("WIP Method", JobWIPMethodCode);
+        Job.Validate("WIP Posting Method", WIPPostingMethod);
+        Job.Validate("Apply Usage Link", ApplyUsageLink);
+        Job.Modify(true);
     end;
 
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task")
     begin
-        with JobPlanningLine do begin
-            LibraryJob.CreateJobPlanningLine("Line Type"::"Both Budget and Billable", Type::"G/L Account", JobTask, JobPlanningLine);
-            Validate(Quantity, LibraryRandom.RandInt(5));
-            Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-            Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-        end;
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(5));
+        JobPlanningLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        JobPlanningLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure CreateJobTask(var JobTask: Record "Job Task"; Job: Record Job)
@@ -584,11 +576,9 @@ codeunit 136307 "Job Consumption - Planning"
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesHeader do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Sell-to Customer No.", CustomerNo);
-            FindFirst();
-        end;
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.FindFirst();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -704,28 +694,24 @@ codeunit 136307 "Job Consumption - Planning"
         JobLedgerEntry: Record "Job Ledger Entry";
         JobWIPEntry: Record "Job WIP Entry";
     begin
-        with JobLedgerEntry do begin
-            SetRange("Job No.", Job."No.");
-            SetFilter("Posting Date", '%1..%2', StartingDate, EndingDate);
-            CalcSums("Total Cost");
-            JobWIPEntry.SetRange("Job No.", Job."No.");
-            JobWIPEntry.FindFirst();
-            JobWIPEntry.TestField("WIP Entry Amount", -"Total Cost");
-        end;
+        JobLedgerEntry.SetRange("Job No.", Job."No.");
+        JobLedgerEntry.SetFilter("Posting Date", '%1..%2', StartingDate, EndingDate);
+        JobLedgerEntry.CalcSums("Total Cost");
+        JobWIPEntry.SetRange("Job No.", Job."No.");
+        JobWIPEntry.FindFirst();
+        JobWIPEntry.TestField("WIP Entry Amount", -JobLedgerEntry."Total Cost");
     end;
 
     local procedure CreateJobJournal(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task")
     var
         LibraryResource: Codeunit "Library - Resource";
     begin
-        with JobJournalLine do begin
-            LibraryJob.CreateJobJournalLine("Line Type"::" ", JobTask, JobJournalLine);
-            Validate(Type, Type::Resource);
-            Validate("No.", LibraryResource.CreateResourceNo());
-            Validate(Quantity, 1);
-            Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-        end;
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::" ", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Resource);
+        JobJournalLine.Validate("No.", LibraryResource.CreateResourceNo());
+        JobJournalLine.Validate(Quantity, 1);
+        JobJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Modify(true);
     end;
 
     local procedure CreatePostJobJournalLine(var Job: Record Job; var JobTask: Record "Job Task"; ApplyUsageLink: Boolean; AllowScheduleContractLines: Boolean)
@@ -819,14 +805,12 @@ codeunit 136307 "Job Consumption - Planning"
 
     local procedure CreateJobJournalLineWithItem(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task")
     begin
-        with JobJournalLine do begin
-            LibraryJob.CreateJobJournalLine("Line Type"::" ", JobTask, JobJournalLine);
-            Validate(Type, Type::Item);
-            Validate("No.", LibraryInventory.CreateItemNo());
-            Validate(Quantity, 1);
-            Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-        end;
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::" ", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", LibraryInventory.CreateItemNo());
+        JobJournalLine.Validate(Quantity, 1);
+        JobJournalLine.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Modify(true);
     end;
 
     [RequestPageHandler]

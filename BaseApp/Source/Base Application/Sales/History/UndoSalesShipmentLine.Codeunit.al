@@ -15,7 +15,6 @@ using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Item;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Journal;
@@ -36,11 +35,11 @@ codeunit 5815 "Undo Sales Shipment Line"
     begin
         IsHandled := false;
         SkipTypeCheck := false;
-        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck, HideDialog);
+        OnBeforeOnRun(Rec, IsHandled, SkipTypeCheck, UndoSalesShptLineParams."Hide Dialog");
         if IsHandled then
             exit;
 
-        if not HideDialog then
+        if not UndoSalesShptLineParams."Hide Dialog" then
             if not Confirm(Text000) then
                 exit;
 
@@ -55,6 +54,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary;
         TempGlobalItemLedgerEntry: Record "Item Ledger Entry" temporary;
         TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
+        UndoSalesShptLineParams: Record "Undo Sales Shpt. Line Params";
         UndoPostingManagement: Codeunit "Undo Posting Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         WhseUndoQuantity: Codeunit "Whse. Undo Quantity";
@@ -62,36 +62,41 @@ codeunit 5815 "Undo Sales Shipment Line"
         AssemblyPost: Codeunit "Assembly-Post";
         UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
         ATOWindowDialog: Dialog;
-        HideDialog: Boolean;
         NextLineNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you really want to undo the selected Shipment lines?';
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
         Text003: Label 'Checking lines...';
-        Text004: Label 'Some shipment lines may have unused service items. Do you want to delete them?';
         Text005: Label 'This shipment has already been invoiced. Undo Shipment can be applied only to posted, but not invoiced shipments.';
+#pragma warning disable AA0470
         Text055: Label '#1#################################\\Checking Undo Assembly #2###########.';
         Text056: Label '#1#################################\\Posting Undo Assembly #2###########.';
         Text057: Label '#1#################################\\Finalizing Undo Assembly #2###########.';
+#pragma warning restore AA0470
         Text059: Label '%1 %2 %3', Comment = '%1 = SalesShipmentLine."Document No.". %2 = SalesShipmentLine.FIELDCAPTION("Line No."). %3 = SalesShipmentLine."Line No.". This is used in a progress window.';
+#pragma warning restore AA0074
         AlreadyReversedErr: Label 'This shipment has already been reversed.';
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
-        HideDialog := NewHideDialog;
+        UndoSalesShptLineParams."Hide Dialog" := NewHideDialog;
+    end;
+
+    procedure SetParameters(var NewUndoSalesShptLineParams: Record "Undo Sales Shpt. Line Params")
+    begin
+        UndoSalesShptLineParams := NewUndoSalesShptLineParams;
     end;
 
     local procedure "Code"()
     var
         PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
         SalesLine: Record "Sales Line";
-        ServiceItem: Record "Service Item";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         WindowDialog: Dialog;
         ItemShptEntryNo: Integer;
         DocLineNo: Integer;
-        DeleteServItems: Boolean;
         PostedWhseShptLineFound: Boolean;
         IsHandled: Boolean;
     begin
@@ -99,20 +104,17 @@ codeunit 5815 "Undo Sales Shipment Line"
         SalesShipmentLine.SetCurrentKey("Item Shpt. Entry No.");
         SalesShipmentLine.SetFilter(Quantity, '<>0');
         SalesShipmentLine.SetRange(Correction, false);
-        OnCodeOnAfterSalesShptLineSetFilters(SalesShipmentLine, HideDialog);
+        OnCodeOnAfterSalesShptLineSetFilters(SalesShipmentLine, UndoSalesShptLineParams."Hide Dialog");
         if SalesShipmentLine.IsEmpty() then
             Error(AlreadyReversedErr);
         SalesShipmentLine.FindFirst();
         repeat
-            if not HideDialog then
+            if not UndoSalesShptLineParams."Hide Dialog" then
                 WindowDialog.Open(Text003);
             CheckSalesShptLine(SalesShipmentLine);
         until SalesShipmentLine.Next() = 0;
 
-        ServiceItem.SetCurrentKey("Sales/Serv. Shpt. Document No.");
-        ServiceItem.SetRange("Sales/Serv. Shpt. Document No.", SalesShipmentLine."Document No.");
-        if ServiceItem.FindFirst() then
-            DeleteServItems := ShouldDeleteServItems(ServiceItem);
+        OnAfterCheckSalesShipmentLines(SalesShipmentLine, UndoSalesShptLineParams);
 
         SalesShipmentLine.Find('-');
         repeat
@@ -124,7 +126,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             if not TempGlobalItemEntryRelation.IsEmpty() then
                 TempGlobalItemEntryRelation.DeleteAll();
 
-            if not HideDialog then
+            if not UndoSalesShptLineParams."Hide Dialog" then
                 WindowDialog.Open(Text001);
 
             IsHandled := false;
@@ -159,8 +161,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             if (SalesShipmentLine."Blanket Order No." <> '') and (SalesShipmentLine."Blanket Order Line No." <> 0) then
                 UpdateBlanketOrder(SalesShipmentLine);
 
-            if DeleteServItems then
-                DeleteSalesShptLineServItems(SalesShipmentLine);
+            OnBeforeDeleteRelatedItems(SalesShipmentLine, UndoSalesShptLineParams);
 
             SalesShipmentLine."Quantity Invoiced" := SalesShipmentLine.Quantity;
             SalesShipmentLine."Qty. Invoiced (Base)" := SalesShipmentLine."Quantity (Base)";
@@ -169,7 +170,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             OnBeforeSalesShptLineModify(SalesShipmentLine);
             SalesShipmentLine.Modify();
-            OnAfterSalesShptLineModify(SalesShipmentLine, DocLineNo, HideDialog);
+            OnAfterSalesShptLineModify(SalesShipmentLine, DocLineNo, UndoSalesShptLineParams."Hide Dialog");
 
             UndoFinalizePostATO(SalesShipmentLine);
         until SalesShipmentLine.Next() = 0;
@@ -177,21 +178,6 @@ codeunit 5815 "Undo Sales Shipment Line"
         MakeInventoryAdjustment();
 
         OnAfterCode(SalesShipmentLine);
-    end;
-
-    local procedure ShouldDeleteServItems(var ServiceItem: Record "Service Item") Result: Boolean
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeGetDeleteServItems(SalesShipmentLine, ServiceItem, HideDialog, Result, IsHandled);
-        if IsHandled then
-            exit;
-
-        if not HideDialog then
-            Result := Confirm(Text004, true)
-        else
-            Result := true;
     end;
 
     local procedure CheckSalesShptLine(SalesShipmentLine2: Record "Sales Shipment Line")
@@ -302,6 +288,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         ItemJournalLine."Variant Code" := SalesShipmentLine2."Variant Code";
         ItemJournalLine."Bin Code" := SalesShipmentLine2."Bin Code";
         ItemJournalLine."Document Date" := SalesShipmentHeader."Document Date";
+        ItemJournalLine."Unit of Measure Code" := SalesShipmentLine2."Unit of Measure Code";
 
         OnAfterCopyItemJnlLineFromSalesShpt(ItemJournalLine, SalesShipmentHeader, SalesShipmentLine2, TempWarehouseJournalLine, WhseUndoQuantity, ItemLedgEntryNo, NextLineNo, TempGlobalItemLedgerEntry, TempGlobalItemEntryRelation, IsHandled);
         if IsHandled then
@@ -433,27 +420,6 @@ codeunit 5815 "Undo Sales Shipment Line"
                 ItemEntryRelation.TransferFieldsSalesShptLine(NewSalesShipmentLine);
                 ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next() = 0;
-    end;
-
-    local procedure DeleteSalesShptLineServItems(SalesShipmentLine2: Record "Sales Shipment Line")
-    var
-        ServiceItem: Record "Service Item";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeDeleteSalesShptLineServItems(SalesShipmentLine2, IsHandled);
-        if IsHandled then
-            exit;
-
-        ServiceItem.SetCurrentKey("Sales/Serv. Shpt. Document No.", "Sales/Serv. Shpt. Line No.");
-        ServiceItem.SetRange("Sales/Serv. Shpt. Document No.", SalesShipmentLine2."Document No.");
-        ServiceItem.SetRange("Sales/Serv. Shpt. Line No.", SalesShipmentLine2."Line No.");
-        ServiceItem.SetRange("Shipment Type", ServiceItem."Shipment Type"::Sales);
-        if ServiceItem.Find('-') then
-            repeat
-                if ServiceItem.CheckIfCanBeDeleted() = '' then
-                    if ServiceItem.Delete(true) then;
-            until ServiceItem.Next() = 0;
     end;
 
     local procedure UndoInitPostATO(var SalesShipmentLine2: Record "Sales Shipment Line")
@@ -666,10 +632,18 @@ codeunit 5815 "Undo Sales Shipment Line"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeDeleteSalesShptLineServItems(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeDeleteSalesShptLineServItems(SalesShipmentLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit ServUndoSalesShipmentLine', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesShptLineServItems(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertNewShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var PostedWhseShptLineFound: Boolean; DocLineNo: Integer; ItemShptEntryNo: Integer)
@@ -691,10 +665,17 @@ codeunit 5815 "Undo Sales Shipment Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetDeleteServItems(SalesShipmentLine: Record "Sales Shipment Line"; var ServiceItem: Record "Service Item"; HideDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
+#if not CLEAN25
+    internal procedure RunOnBeforeGetDeleteServItems(SalesShipmentLine: Record "Sales Shipment Line"; var ServiceItem: Record Microsoft.Service.Item."Service Item"; HideDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+
+    [Obsolete('Moved to codeunit ServUndoSalesShipmentLine', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDeleteServItems(SalesShipmentLine: Record "Sales Shipment Line"; var ServiceItem: Record Microsoft.Service.Item."Service Item"; HideDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesShptLineModify(var SalesShptLine: Record "Sales Shipment Line")
@@ -783,6 +764,16 @@ codeunit 5815 "Undo Sales Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeProcessItemShptEntry(var ItemShptEntryNo: Integer; var DocLineNo: Integer; var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckSalesShipmentLines(var SalesShipmentLine: Record "Sales Shipment Line"; var UndoSalesShptLineParams: Record "Undo Sales Shpt. Line Params")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRelatedItems(var SalesShipmentLine: Record "Sales Shipment Line"; UndoSalesShptLineParams: Record "Undo Sales Shpt. Line Params")
     begin
     end;
 }

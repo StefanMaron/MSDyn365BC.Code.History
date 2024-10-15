@@ -68,15 +68,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Apply Unapply Employee - NamedType NoEntriesAppliedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3836724765 - NamedType 919431862" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to 'Application'  in %2: %3=%4. Current value is 'Initial Entry'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = FIELD Caption, %2 = Table Caption,%3 = Field Caption,%4 = Field Value]D;]A;(LookupHint=Codeunit ERM Apply Unapply Employee - NamedType UnapplyErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4248961454 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -167,15 +158,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType DoYouWantToUpdateTheLinesQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 4254015749" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dynamic Day Caption Is No Correct]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType DynamicDayCaptionIsNotCorrectErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 1628154805" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Error Message]]></Val>
@@ -212,24 +194,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectCostValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 1583085692" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect Entry Type]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectEntryTypeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 3254796084" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect Posting Date]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectPostingDateErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 752454007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Posting Entry No. page opened]]></Val>
@@ -248,15 +212,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectPostingEntryQuantityErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 3552981902" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect Time Sheet No. opened]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectTimeSheetNoOpenedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 3469945327" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Manager Time Sheet Archive No. opened]]></Val>
@@ -264,15 +219,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectTSArchiveNoOpenedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 3743634004" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect User ID]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType IncorrectUserIDErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 2078580476" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -320,33 +266,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType SameUserIDMessageErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 911427482" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Status must be Open or Rejected in line with Time Sheet No.='%1', Line No.='10000'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Status must be Open or Rejected in Time Sheet Line Time Sheet No.='xxx', Line No.='xxx'.]D;]A;(LookupHint=Codeunit RES Time Sheets Creation - NamedType StatusMustBeOpenOrRejectedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 2156661909" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Status Should be Open]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType StatusShouldBeOpenErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 2724274698" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Status field value should be Submitted]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType StatusShouldBeSumbittedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 2316870939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Rolling back changes...]]></Val>
@@ -363,15 +282,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType ThereIsNoEmployeeLinkedWithResErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 3482764677" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is nothing to submit for line with Time Sheet No.=%1, Line No.=10000.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType ThereIsNothingToSubmitErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 890773720" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -392,24 +302,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType TimeSheetDoesNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 3969077048" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Time Sheet Line Status is incorrect]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType TimesheetLineStatusIncorrectErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 4086242814" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Time Sheet Line Type is incorrect]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType TimesheetLineTypeIsIncorrectErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 4033413976" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 time sheets have been moved to archive.]]></Val>
@@ -417,15 +309,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType TimeSheetsHaveBeenMovedtoArchErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4122090376 - NamedType 88357023" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Type must be equal to 'Project'  in Time Sheet Line: Time Sheet No.=%1, Line No.=0.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Time Sheets Creation - NamedType TypeMustBeEqualToJobErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 1833398596" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -572,15 +455,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource - NamedType JobPlanningLineMustBeEmptyMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 348912950 - NamedType 3541040025" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Project Task Type must be equal to 'Posting'  in Project Task:]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource - NamedType JobTaskTypeErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 3641032744" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The journal lines were successfully posted.]]></Val>
@@ -725,15 +599,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource Employee - NamedType InvalidEmailAddressTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3106737076 - NamedType 3371549315" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. per Unit of Measure must be equal to '%1'  in Human Resource Unit of Measure: Code=%3. Current value is '%2'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource Employee - NamedType QtyPerUnitOfMeasureErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3106737076 - NamedType 3800651618" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2 must not exist after deletion.]]></Val>
@@ -788,24 +653,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource Reports - NamedType ValidationErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1422905949 - NamedType 3328968785" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must not be deleted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Planning Management - NamedType ResourceSkillDeletionError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1262548388 - NamedType 1195352358" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Time Sheet field %1 value is incorrect.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT Time Sheets Posting - NamedType Text016)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1262548388 - NamedType 1940672225" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is no Time Sheet]]></Val>
@@ -840,15 +687,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT Time Sheets Posting - NamedType Text024)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1262548388 - NamedType 3853762076" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Service Line field %1 value is incorrect.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT Time Sheets Posting - NamedType Text027)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

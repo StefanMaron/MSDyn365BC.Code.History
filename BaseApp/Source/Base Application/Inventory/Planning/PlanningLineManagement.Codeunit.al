@@ -8,6 +8,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Capacity;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Planning;
@@ -30,8 +31,12 @@ codeunit 99000809 "Planning Line Management"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'BOM phantom structure for %1 is higher than 50 levels.';
+#pragma warning restore AA0470
         Text002: Label 'There is not enough space to insert lower level Make-to-Order lines.';
+#pragma warning restore AA0074
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
         ReqLine: Record "Requisition Line";
@@ -53,11 +58,15 @@ codeunit 99000809 "Planning Line Management"
         NextPlanningCompLineNo: Integer;
         Blocked: Boolean;
         PlanningResiliency: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text010: Label 'The line with %1 %2 for %3 %4 or one of its versions, has no %5 defined.';
         Text011: Label '%1 has recalculate set to false.';
         Text012: Label 'You must specify %1 in %2 %3.';
         Text014: Label 'Production BOM Header No. %1 used by Item %2 has BOM levels that exceed 50.';
+#pragma warning restore AA0470
         Text015: Label 'There is no more space to insert another line in the worksheet.';
+#pragma warning restore AA0074
 
     local procedure TransferRouting(var ReqLine: Record "Requisition Line")
     var
@@ -326,7 +335,7 @@ codeunit 99000809 "Planning Line Management"
 
                                 PlanningComponent."Flushing Method" := CompSKU."Flushing Method";
                                 PlanningComponent."Ref. Order Type" := ReqLine."Ref. Order Type";
-                                PlanningComponent."Ref. Order Status" := Enum::"Production Order Status".FromInteger(ReqLine."Ref. Order Status");
+                                PlanningComponent."Ref. Order Status" := ReqLine."Ref. Order Status";
                                 PlanningComponent."Ref. Order No." := ReqLine."Ref. Order No.";
                                 OnBeforeInsertAsmPlanningComponent(ReqLine, AsmBOMComp[Level], PlanningComponent);
                                 PlanningComponent.Insert();
@@ -626,7 +635,7 @@ codeunit 99000809 "Planning Line Management"
             PlanningComponent."Planning Level Code" := ReqLine."Planning Level" + 1;
 
         PlanningComponent."Ref. Order Type" := ReqLine."Ref. Order Type";
-        PlanningComponent."Ref. Order Status" := Enum::"Production Order Status".FromInteger(ReqLine."Ref. Order Status");
+        PlanningComponent."Ref. Order Status" := ReqLine."Ref. Order Status";
         PlanningComponent."Ref. Order No." := ReqLine."Ref. Order No.";
         OnBeforeInsertPlanningComponent(ReqLine, ProdBOMLine, PlanningComponent, LineQtyPerUOM, ItemQtyPerUOM);
         PlanningComponent.Insert();
@@ -665,7 +674,7 @@ codeunit 99000809 "Planning Line Management"
                (Direction = Direction::Forward)
             then
                 ReqLine."Due Date" :=
-                  LeadTimeMgt.PlannedDueDate(
+                  LeadTimeMgt.GetPlannedDueDate(
                     ReqLine."No.",
                     ReqLine."Location Code",
                     ReqLine."Variant Code",
@@ -712,6 +721,7 @@ codeunit 99000809 "Planning Line Management"
         ReqLine3: Record "Requisition Line";
         Item3: Record Item;
         PlanningComp: Record "Planning Component";
+        TrackingSpecification: Record "Tracking Specification";
         PlngComponentReserve: Codeunit "Plng. Component-Reserve";
         PlanningLineNo: Integer;
         NoOfComponents: Integer;
@@ -815,8 +825,15 @@ codeunit 99000809 "Planning Line Management"
                    ReqLine3."Original Quantity") *
                   ReqLine3."Qty. per Unit of Measure";
                 ReqLine3.Modify();
-                PlngComponentReserve.BindToRequisition(
-                  PlanningComp, ReqLine3, PlanningComp."Expected Quantity", PlanningComp."Expected Quantity (Base)");
+                if PlanningComp."Location Code" = ReqLine3."Location Code" then begin
+                    TrackingSpecification.InitTrackingSpecification(
+                        DATABASE::"Requisition Line", 0,
+                        ReqLine3."Worksheet Template Name", ReqLine3."Journal Batch Name", 0, ReqLine3."Line No.",
+                        ReqLine3."Variant Code", ReqLine3."Location Code", ReqLine3."Qty. per Unit of Measure");
+                    PlngComponentReserve.BindToTracking(
+                        PlanningComp, TrackingSpecification, ReqLine3.Description, ReqLine3."Ending Date",
+                        PlanningComp."Expected Quantity", PlanningComp."Expected Quantity (Base)");
+                end;
                 PlanningComp."Supplied-by Line No." := ReqLine3."Line No.";
                 PlanningComp.Modify();
                 ReqLine3.Validate("Production BOM No.");

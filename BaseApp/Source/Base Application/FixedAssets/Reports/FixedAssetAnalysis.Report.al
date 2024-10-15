@@ -219,6 +219,8 @@ report 5600 "Fixed Asset - Analysis"
     {
         Permissions = TableData "FA Setup" = r;
         SaveValues = true;
+        AboutTitle = 'About Fixed Asset Analysis';
+        AboutText = '**Fixed Asset Analysis** Report is a flexible reporting option that provides a comprehensive examination of an organization''s fixed assets, such as property, plant, and equipment (PP&E), for different purposes. If the purpose is to reconcile asset values with GL then fields like acquisition, depreciation can be selected. If the purpose is about reviewing net value along with write down value, users can use this report accordingly by choosing the relevant amount fields and amount fields for multiple periods.';
 
         layout
         {
@@ -232,6 +234,8 @@ report 5600 "Fixed Asset - Analysis"
                         ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Book';
                         TableRelation = "Depreciation Book";
+                        AboutTitle = 'Select Depreciation Book';
+                        AboutText = 'Chose the Depreciation Book and specify the Starting Date, Ending Date for which details are to be seen , these are mandatory fields.';
                         ToolTip = 'Specifies the code for the depreciation book to be included in the report or batch job.';
                     }
                     field(StartingDate; StartingDate)
@@ -251,6 +255,8 @@ report 5600 "Fixed Asset - Analysis"
                         ApplicationArea = FixedAssets;
                         Caption = 'Date Field 1';
                         TableRelation = "FA Date Type"."FA Date Type Name" where("FA Entry" = const(true));
+                        AboutTitle = 'Select Date Field';
+                        AboutText = 'Specify the Date and Amount fields which need to be shown in the report depending on the purpose of the output.';
                         ToolTip = 'Specifies the first type of date that the report must show. The report has two columns in which two types of dates can be displayed. In each of the fields, select one of the available date types.';
                     }
                     field(DateType2; DateType2)
@@ -307,6 +313,8 @@ report 5600 "Fixed Asset - Analysis"
                         ApplicationArea = FixedAssets;
                         Caption = 'Group Totals';
                         OptionCaption = ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
+                        AboutTitle = 'Select Group Totals';
+                        AboutText = 'Enter the grouping criteria as needed from the option values.Enable the options to see the report details Per Fixed Asset- print information separately for each fixed asset, Only Sold Assets - show information only for sold fixed assets, Budget Report - Calculate future depreciation and book value. This is valid only if you have selected Depreciation and Book Value for Amount Field 1, 2 or 3.';
                         ToolTip = 'Specifies if you want the report to group fixed assets and print totals using the category defined in this field. For example, maintenance expenses for fixed assets can be shown for each fixed asset class.';
                     }
                     field(PrintDetails; PrintDetails)
@@ -410,18 +418,22 @@ report 5600 "Fixed Asset - Analysis"
         SalesReport: Boolean;
         TypeExist: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Fixed Asset - Analysis';
         Text001: Label '(Budget Report)';
         Text002: Label 'Group Total';
         Text003: Label 'Sold';
+#pragma warning disable AA0470
         Text004: Label 'Group Totals: %1';
         Text005: Label '%1 or %2 must be specified only together with the option %3.';
         Text006: Label 'The Starting Date must be specified when you use the option %1.';
         Text007: Label 'The date type %1 is not a valid option.';
         Text008: Label 'The posting type %1 is not a valid option.';
         Text009: Label '%1 has been modified in fixed asset %2.';
+#pragma warning restore AA0470
         Text010: Label 'before Starting Date,Net Change,at Ending Date';
         Text011: Label ' ,FA Class,FA Subclass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
+#pragma warning restore AA0074
         CurrReportPAGENOCaptionLbl: Label 'Page';
         TotalCaptionLbl: Label 'Total';
         OnlySoldAssetsLbl: Label '(Only Sold Assets)';

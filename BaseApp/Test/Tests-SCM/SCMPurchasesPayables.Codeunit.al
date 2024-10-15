@@ -671,8 +671,7 @@ codeunit 137061 "SCM Purchases & Payables"
         PurchaseLine.Validate("Unit Cost (LCY)", PurchaseLine."Direct Unit Cost" + LibraryRandom.RandIntInRange(20, 50));
 
         // [THEN] "Indirect Cost %" = (15 - 10) / 10 * 100 = 50
-        with PurchaseLine do
-            IndirectCostPercent := Round(("Unit Cost (LCY)" - "Direct Unit Cost") / "Direct Unit Cost" * 100, 0.00001);
+        IndirectCostPercent := Round((PurchaseLine."Unit Cost (LCY)" - PurchaseLine."Direct Unit Cost") / PurchaseLine."Direct Unit Cost" * 100, 0.00001);
         PurchaseLine.TestField("Indirect Cost %", IndirectCostPercent);
     end;
 
@@ -1078,7 +1077,7 @@ codeunit 137061 "SCM Purchases & Payables"
         ManufacturingSetup.Modify(true);
     end;
 
-    local procedure ModifyInventorySetup(AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostPeriod: Option)
+    local procedure ModifyInventorySetup(AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostPeriod: Enum "Average Cost Period Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -1396,13 +1395,11 @@ codeunit 137061 "SCM Purchases & Payables"
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20])
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", ItemNo);
+        PurchaseLine.FindFirst();
     end;
 
     local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
@@ -1516,13 +1513,11 @@ codeunit 137061 "SCM Purchases & Payables"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            FindFirst();
-            TestField("Cost Amount (Actual)", CostAmt);
-        end;
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Entry Type", EntryType);
+        ValueEntry.FindFirst();
+        ValueEntry.TestField("Cost Amount (Actual)", CostAmt);
     end;
 
     [MessageHandler]

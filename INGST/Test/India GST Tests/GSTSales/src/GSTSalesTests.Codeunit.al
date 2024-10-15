@@ -3796,36 +3796,7 @@ codeunit 18196 "GST Sales Tests"
     end;
 
     [Test]
-    [HandlerFunctions('TaxRatePageHandler')]
-    procedure PostFromSalesInvoiceForSEZCustomerInterStatePIT()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        GSTCustomeType: Enum "GST Customer Type";
-        GSTGroupType: Enum "GST Group Type";
-        DocumentType: Enum "Sales Document Type";
-        LineType: Enum "Sales Line Type";
-        PostedDocumentNo: Code[20];
-    begin
-        // [SCENARIO] Wrong GST Calculation if Item Price is Incl of Tax and Customer Type is SEZ Unit.
-        // [FEATURE] [Sales Invoice] [Inter-State GST,Sez Unit Customer]
-
-        // [GIVEN] Created GST Setup and tax rates for SEZ Customer with Interstate Jurisdiction and Price Incusive of Tax Setup
-        CreateGSTSetup(GSTCustomeType::"SEZ Unit", GSTGroupType::Goods, false);
-        InitializeShareStep(false, false);
-        SalesWithPriceInclusiveOfTax(true);
-
-        // [WHEN] Create and Post Sales Invoice with GST and Line Type as Item for Interstate Juridisction
-        PostedDocumentNo := CreateAndPostSalesDocument(
-            SalesHeader,
-            SalesLine,
-            LineType::Item,
-            DocumentType::Invoice);
-
-        // [THEN] Verify GST Ledger Entries and Detailed GST Entries
-        VerifyGSTEntries(PostedDocumentNo, Database::"Sales Invoice Header");
-    end;
-
+    [HandlerFunctions('TaxRatePageHandler,ConfirmationHandler,DocumentArchived')]
     procedure VerifyTaxInformationDataExistInSalesOrderArchive()
     var
         SalesHeader: Record "Sales Header";
@@ -3930,6 +3901,37 @@ codeunit 18196 "GST Sales Tests"
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
+    procedure PostFromSalesInvoiceForSEZCustomerInterStatePIT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GSTCustomeType: Enum "GST Customer Type";
+        GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedDocumentNo: Code[20];
+    begin
+        // [SCENARIO] Wrong GST Calculation if Item Price is Incl of Tax and Customer Type is SEZ Unit.
+        // [FEATURE] [Sales Invoice] [Inter-State GST,Sez Unit Customer]
+
+        // [GIVEN] Created GST Setup and tax rates for SEZ Customer with Interstate Jurisdiction and Price Incusive of Tax Setup
+        CreateGSTSetup(GSTCustomeType::"SEZ Unit", GSTGroupType::Goods, false);
+        InitializeShareStep(false, false);
+        SalesWithPriceInclusiveOfTax(true);
+
+        // [WHEN] Create and Post Sales Invoice with GST and Line Type as Item for Interstate Juridisction
+        PostedDocumentNo := CreateAndPostSalesDocument(
+            SalesHeader,
+            SalesLine,
+            LineType::Item,
+            DocumentType::Invoice);
+
+        // [THEN] Verify GST Ledger Entries and Detailed GST Entries
+        VerifyGSTEntries(PostedDocumentNo, Database::"Sales Invoice Header");
+    end;
+
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvoiceForExportFCYWithPaymentMethodCodeBank()
     var
         SalesHeader: Record "Sales Header";
@@ -3955,6 +3957,72 @@ codeunit 18196 "GST Sales Tests"
 
         // [THEN] G/L Entries and Detailed GST Ledger Entries verified
         LibraryGST.VerifyGLEntries(DocumentType::Invoice, PostedDocumentNo, 4);
+    end;
+
+    local procedure CreateGSTSetupWithCustomerPaymentMethodBank(
+        GSTCustomerType: Enum "GST Customer Type";
+        GSTGroupType: Enum "GST Group Type";
+        IntraState: Boolean)
+    var
+        GSTGroup: Record "GST Group";
+        HSNSAC: Record "HSN/SAC";
+        TaxComponent: Record "Tax Component";
+        CompanyInformation: Record "Company information";
+        LocationStateCode: Code[10];
+        CustomerNo: Code[20];
+        LocationCode: Code[10];
+        CustomerStateCode: Code[10];
+        LocPANNo: Code[20];
+        HSNSACCode: Code[10];
+        GSTGroupCode: Code[20];
+        LocationGSTRegNo: Code[15];
+        HsnSacType: Enum "GST Goods And Services Type";
+        GSTComponentCode: Text[30];
+    begin
+        CompanyInformation.Get();
+        if CompanyInformation."P.A.N. No." = '' then begin
+            CompanyInformation."P.A.N. No." := LibraryGST.CreatePANNos();
+            CompanyInformation.Modify();
+        end else
+            LocPANNo := CompanyInformation."P.A.N. No.";
+
+        LocPANNo := CompanyInformation."P.A.N. No.";
+        LocationStateCode := LibraryGST.CreateInitialSetup();
+        Storage.Set(LocationStateCodeLbl, LocationStateCode);
+
+        LocationGSTRegNo := LibraryGST.CreateGSTRegistrationNos(LocationStateCode, LocPANNo);
+        if CompanyInformation."GST Registration No." = '' then begin
+            CompanyInformation."GST Registration No." := LocationGSTRegNo;
+            CompanyInformation.Modify(true);
+        end;
+
+        LocationCode := LibraryGST.CreateLocationSetup(LocationStateCode, LocationGSTRegNo, false);
+        Storage.Set(LocationCodeLbl, LocationCode);
+
+        GSTGroupCode := LibraryGST.CreateGSTGroup(GSTGroup, GSTGroupType, GSTGroup."GST Place Of Supply"::" ", false);
+        Storage.Set(GSTGroupCodeLbl, GSTGroupCode);
+
+        HSNSACCode := LibraryGST.CreateHSNSACCode(HSNSAC, GSTGroupCode, HsnSacType::HSN);
+        Storage.Set(HSNSACCodeLbl, HSNSACCode);
+
+        if IntraState then begin
+            CustomerNo := LibraryGST.CreateCustomerSetup();
+            UpdateCustomerSetupWithGST(CustomerNo, GSTCustomerType, LocationStateCode, LocPANNo);
+            InitializeTaxRateParameters(IntraState, LocationStateCode, LocationStateCode);
+        end else begin
+            CustomerStateCode := LibraryGST.CreateGSTStateCode();
+            CustomerNo := LibraryGST.CreateCustomerSetupWithPaymentMethodBank();
+            UpdateCustomerSetupWithGST(CustomerNo, GSTCustomerType, CustomerStateCode, LocPANNo);
+            if GSTCustomerType in [GSTCustomerType::Export, GSTCustomerType::"SEZ Unit", GSTCustomerType::"SEZ Development"] then
+                InitializeTaxRateParameters(IntraState, '', LocationStateCode)
+            else
+                InitializeTaxRateParameters(IntraState, CustomerStateCode, LocationStateCode);
+        end;
+        Storage.Set(CustomerNoLbl, CustomerNo);
+
+        CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, TaxComponent, GSTComponentCode);
+
+        CreateTaxRate();
     end;
 
     local procedure VerifyTaxTransactionValueExist(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -4905,73 +4973,6 @@ codeunit 18196 "GST Sales Tests"
         Storage.Set(PostedDocumentNoLbl, PostedDocumentNo);
         exit(PostedDocumentNo);
     end;
-
-    local procedure CreateGSTSetupWithCustomerPaymentMethodBank(
-        GSTCustomerType: Enum "GST Customer Type";
-        GSTGroupType: Enum "GST Group Type";
-        IntraState: Boolean)
-    var
-        GSTGroup: Record "GST Group";
-        HSNSAC: Record "HSN/SAC";
-        TaxComponent: Record "Tax Component";
-        CompanyInformation: Record "Company information";
-        LocationStateCode: Code[10];
-        CustomerNo: Code[20];
-        LocationCode: Code[10];
-        CustomerStateCode: Code[10];
-        LocPANNo: Code[20];
-        HSNSACCode: Code[10];
-        GSTGroupCode: Code[20];
-        LocationGSTRegNo: Code[15];
-        HsnSacType: Enum "GST Goods And Services Type";
-        GSTComponentCode: Text[30];
-    begin
-        CompanyInformation.Get();
-        if CompanyInformation."P.A.N. No." = '' then begin
-            CompanyInformation."P.A.N. No." := LibraryGST.CreatePANNos();
-            CompanyInformation.Modify();
-        end else
-            LocPANNo := CompanyInformation."P.A.N. No.";
-
-        LocPANNo := CompanyInformation."P.A.N. No.";
-        LocationStateCode := LibraryGST.CreateInitialSetup();
-        Storage.Set(LocationStateCodeLbl, LocationStateCode);
-
-        LocationGSTRegNo := LibraryGST.CreateGSTRegistrationNos(LocationStateCode, LocPANNo);
-        if CompanyInformation."GST Registration No." = '' then begin
-            CompanyInformation."GST Registration No." := LocationGSTRegNo;
-            CompanyInformation.Modify(true);
-        end;
-
-        LocationCode := LibraryGST.CreateLocationSetup(LocationStateCode, LocationGSTRegNo, false);
-        Storage.Set(LocationCodeLbl, LocationCode);
-
-        GSTGroupCode := LibraryGST.CreateGSTGroup(GSTGroup, GSTGroupType, GSTGroup."GST Place Of Supply"::" ", false);
-        Storage.Set(GSTGroupCodeLbl, GSTGroupCode);
-
-        HSNSACCode := LibraryGST.CreateHSNSACCode(HSNSAC, GSTGroupCode, HsnSacType::HSN);
-        Storage.Set(HSNSACCodeLbl, HSNSACCode);
-
-        if IntraState then begin
-            CustomerNo := LibraryGST.CreateCustomerSetup();
-            UpdateCustomerSetupWithGST(CustomerNo, GSTCustomerType, LocationStateCode, LocPANNo);
-            InitializeTaxRateParameters(IntraState, LocationStateCode, LocationStateCode);
-        end else begin
-            CustomerStateCode := LibraryGST.CreateGSTStateCode();
-            CustomerNo := LibraryGST.CreateCustomerSetupWithPaymentMethodBank();
-            UpdateCustomerSetupWithGST(CustomerNo, GSTCustomerType, CustomerStateCode, LocPANNo);
-            if GSTCustomerType in [GSTCustomerType::Export, GSTCustomerType::"SEZ Unit", GSTCustomerType::"SEZ Development"] then
-                InitializeTaxRateParameters(IntraState, '', LocationStateCode)
-            else
-                InitializeTaxRateParameters(IntraState, CustomerStateCode, LocationStateCode);
-        end;
-        Storage.Set(CustomerNoLbl, CustomerNo);
-
-        CreateGSTComponentAndPostingSetup(IntraState, LocationStateCode, TaxComponent, GSTComponentCode);
-
-        CreateTaxRate();
-    end;
-
 
     [PageHandler]
     procedure TaxRatePageHandler(var TaxRates: TestPage "Tax Rates")

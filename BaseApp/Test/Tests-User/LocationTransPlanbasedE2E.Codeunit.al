@@ -459,10 +459,8 @@ codeunit 135402 "Location Trans. Plan-based E2E"
 
     local procedure CheckPostedDetailsOfTransferShipmentAndReceiptForSpecificTransferOrder(TransferHeader: Record "Transfer Header")
     begin
-        with TransferHeader do begin
-            AssertPostedTransferShipmentExists("Transfer-from Code", "Transfer-to Code", "In-Transit Code");
-            AssertPostedTransferReceiptExists("Transfer-from Code", "Transfer-to Code", "In-Transit Code");
-        end;
+        AssertPostedTransferShipmentExists(TransferHeader."Transfer-from Code", TransferHeader."Transfer-to Code", TransferHeader."In-Transit Code");
+        AssertPostedTransferReceiptExists(TransferHeader."Transfer-from Code", TransferHeader."Transfer-to Code", TransferHeader."In-Transit Code");
     end;
 
     local procedure CreateLocation("Code": Code[10]; Name: Text[100])

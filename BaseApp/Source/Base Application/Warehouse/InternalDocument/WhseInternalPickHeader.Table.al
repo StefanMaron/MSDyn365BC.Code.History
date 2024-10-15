@@ -255,12 +255,16 @@ table 7333 "Whse. Internal Pick Header"
         NoSeries: Codeunit "No. Series";
         WmsManagement: Codeunit "WMS Management";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You cannot change the %1, because the document has one or more lines.';
         Text003: Label 'You are not allowed to use %1 %2.';
         Text005: Label 'must not be the %1 of the %2';
         Text006: Label 'You have changed %1 on the %2, but it has not been changed on the existing Warehouse Internal Pick Lines.\';
+#pragma warning restore AA0470
         Text007: Label 'You must update the existing Warehouse Internal Pick Lines manually.';
+#pragma warning restore AA0074
 
     protected var
         HideValidationDialog: Boolean;

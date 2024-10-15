@@ -160,6 +160,10 @@ page 9970 "Posted Sales Invoice API"
                 {
                     Caption = 'Ship-to Post Code';
                 }
+                field(shipToPhoneNo; Rec."Ship-to Phone No.")
+                {
+                    Caption = 'Ship-to Phone No.';
+                }
                 field(shortcutDimension1Code; Rec."Shortcut Dimension 1 Code")
                 {
                     Caption = 'Shortcut Dimension 1 Code';

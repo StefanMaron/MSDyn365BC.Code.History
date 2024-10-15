@@ -63,41 +63,35 @@ codeunit 137811 "SCM - Costing UT"
 
     local procedure SetupItem(var Item: Record Item)
     begin
-        with Item do begin
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Item);
-            "Costing Method" := "Costing Method"::Average;
-            "Unit Cost" := 99.99999;
-            Insert();  // function which is tested later requires Item in table (GET method is called)
-        end;
+        Item."No." := LibraryUtility.GenerateRandomCode(Item.FieldNo("No."), DATABASE::Item);
+        Item."Costing Method" := Item."Costing Method"::Average;
+        Item."Unit Cost" := 99.99999;
+        Item.Insert();  // function which is tested later requires Item in table (GET method is called)
     end;
 
     local procedure SetupSKU(var SKU: Record "Stockkeeping Unit"; var Item: Record Item)
     begin
-        with SKU do begin
-            "Location Code" := LibraryUtility.GenerateRandomCode(FieldNo("Location Code"), DATABASE::"Stockkeeping Unit");
-            "Item No." := Item."No.";
-            "Variant Code" := '';
-            "Unit Cost" := Item."Unit Cost";
-            Insert();  // function which is tested later requires SKU in table due to MODIFY command
-        end;
+        SKU."Location Code" := LibraryUtility.GenerateRandomCode(SKU.FieldNo("Location Code"), DATABASE::"Stockkeeping Unit");
+        SKU."Item No." := Item."No.";
+        SKU."Variant Code" := '';
+        SKU."Unit Cost" := Item."Unit Cost";
+        SKU.Insert();  // function which is tested later requires SKU in table due to MODIFY command
     end;
 
     local procedure SetupValueEntry(var ValueEntry: Record "Value Entry"; var SKU: Record "Stockkeeping Unit"; CostAmountActual: Decimal)
     begin
-        with ValueEntry do begin
-            if FindLast() then begin
-                Init();
-                "Entry No." += 1;
-            end else
-                "Entry No." := 1;
-            "Item No." := SKU."Item No.";
-            "Location Code" := SKU."Location Code";
-            "Variant Code" := SKU."Variant Code";
-            "Valuation Date" := WorkDate();
-            "Item Ledger Entry Quantity" := 1;
-            "Cost Amount (Actual)" := CostAmountActual;
-            Insert();  // function which is tested later requires Value Entry in table
-        end;
+        if ValueEntry.FindLast() then begin
+            ValueEntry.Init();
+            ValueEntry."Entry No." += 1;
+        end else
+            ValueEntry."Entry No." := 1;
+        ValueEntry."Item No." := SKU."Item No.";
+        ValueEntry."Location Code" := SKU."Location Code";
+        ValueEntry."Variant Code" := SKU."Variant Code";
+        ValueEntry."Valuation Date" := WorkDate();
+        ValueEntry."Item Ledger Entry Quantity" := 1;
+        ValueEntry."Cost Amount (Actual)" := CostAmountActual;
+        ValueEntry.Insert();  // function which is tested later requires Value Entry in table
     end;
 
     local procedure VerifyUnitCostOfSKU(UnitCostOfSKU: Decimal; ItemUnitCost: Decimal; NewUnitCost: Decimal)

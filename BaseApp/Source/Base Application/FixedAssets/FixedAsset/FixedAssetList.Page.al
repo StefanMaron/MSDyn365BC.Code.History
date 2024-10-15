@@ -22,6 +22,8 @@ page 5601 "Fixed Asset List"
     PageType = List;
     SourceTable = "Fixed Asset";
     UsageCategory = Lists;
+    AboutTitle = 'About Fixed Asset';
+    AboutText = 'Here you overview all registered fixed assets with their statistics, class, subclass, location code and acquired status.';
 
     layout
     {
@@ -92,10 +94,22 @@ page 5601 "Fixed Asset List"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Fixed Asset"), "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Fixed Asset"), "No." = field("No.");
             }
             systempart(Control1900383207; Links)
@@ -340,6 +354,14 @@ page 5601 "Fixed Asset List"
         }
         area(reporting)
         {
+            action("FixedAssetsAnalysis")
+            {
+                ApplicationArea = FixedAssets;
+                Caption = 'Analyze Fixed Assets';
+                Image = NonStockItem;
+                RunObject = Query "Fixed Assets Analysis";
+                ToolTip = 'Analyze (group, summarize, pivot) your Fixed Asset Ledger Entries with related Fixed Asset master data such as Fixed Asset, Asset Class/Subclass, and XXX.';
+            }
             action("Fixed Assets List")
             {
                 ApplicationArea = FixedAssets;
@@ -452,7 +474,9 @@ page 5601 "Fixed Asset List"
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
-
+                actionref(FixedAssetsAnalysis_Promoted; FixedAssetsAnalysis)
+                {
+                }
                 actionref(Analysis_Promoted; Analysis)
                 {
                 }

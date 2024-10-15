@@ -46,7 +46,11 @@ codeunit 402 "Purchase Header Apply"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify %1 or %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PurchHeader: Record "Purchase Header";
         VendLedgEntry: Record "Vendor Ledger Entry";
         ApplyVendEntries: Page "Apply Vendor Entries";

@@ -309,6 +309,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Contact".Visible(), 'Ship-To Contact is not visible');
                     Assert.IsFalse(BlanketSalesOrder."Ship-to Name".Visible(), 'Ship-To Name is visible');
                     Assert.IsFalse(BlanketSalesOrder."Ship-to Post Code".Visible(), 'Ship-To Post Code is visible');
+                    Assert.IsTrue(BlanketSalesOrder."Ship-to Phone No.".Visible(), 'Ship-To Phone No. is not visible');
                 end;
             ShipToOptions::"Alternate Shipping Address":
                 begin
@@ -319,6 +320,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Contact".Visible(), 'Ship-To Contact is not visible');
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Name".Visible(), 'Ship-To Name is not visible');
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Post Code".Visible(), 'Ship-To Post Code is not visible');
+                    Assert.IsTrue(BlanketSalesOrder."Ship-to Phone No.".Visible(), 'Ship-To Phone No. is not visible');
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Code".Editable(), 'Ship-To Code is not editable');
                     Assert.IsFalse(BlanketSalesOrder."Ship-to Address".Editable(), 'Ship-To Address is editable');
                     Assert.IsFalse(BlanketSalesOrder."Ship-to Address 2".Editable(), 'Ship-To Address 2 is editable');
@@ -326,6 +328,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Contact".Editable(), 'Ship-To Contact is not editable');
                     Assert.IsFalse(BlanketSalesOrder."Ship-to Name".Editable(), 'Ship-To Name is editable');
                     Assert.IsFalse(BlanketSalesOrder."Ship-to Post Code".Editable(), 'Ship-To Post Code is editable');
+                    Assert.IsTrue(BlanketSalesOrder."Ship-to Phone No.".Editable(), 'Ship-To Phone No. is not editable');
                 end;
             ShipToOptions::"Custom Address":
                 begin
@@ -336,6 +339,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Contact".Visible(), 'Ship-To Contact is not visible');
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Name".Visible(), 'Ship-To Name is not visible');
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Post Code".Visible(), 'Ship-To Post Code is not visible');
+                    Assert.IsTrue(BlanketSalesOrder."Ship-to Phone No.".Visible(), 'Ship-To Phone No. is not visible');
                     Assert.IsFalse(BlanketSalesOrder."Ship-to Code".Editable(), 'Ship-To Code is editable');
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Address".Editable(), 'Ship-To Address is not editable');
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Address 2".Editable(), 'Ship-To Address 2 is not editable');
@@ -343,6 +347,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Contact".Editable(), 'Ship-To Contact is not editable');
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Name".Editable(), 'Ship-To Name is not editable');
                     Assert.IsTrue(BlanketSalesOrder."Ship-to Post Code".Editable(), 'Ship-To Post Code is not editable');
+                    Assert.IsTrue(BlanketSalesOrder."Ship-to Phone No.".Editable(), 'Ship-To Phone No. is not editable');
                 end;
         end;
     end;

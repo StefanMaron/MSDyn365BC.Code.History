@@ -447,7 +447,7 @@ codeunit 134817 "Item Variant Blocked Test"
         asserterror AssemblyLine.Validate("Variant Code", BlockedItemVariant.Code);
 
         // [THEN] Error 'Blocked must be equal to 'No''
-        Assert.ExpectedError(StrSubstNo(BlockedTestFieldErr, BlockedItemVariant.FieldCaption(Blocked), Format(false)));
+        Assert.ExpectedTestFieldError(BlockedItemVariant.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -475,7 +475,7 @@ codeunit 134817 "Item Variant Blocked Test"
 
         // [THEN] Error 'Blocked must be equal to 'No''
         asserterror PlanningComponent.Validate("Variant Code", BlockedItemVariant."Code");
-        Assert.ExpectedError(StrSubstNo(BlockedTestFieldErr, BlockedItemVariant.FieldCaption(Blocked), Format(false)));
+        Assert.ExpectedTestFieldError(BlockedItemVariant.FieldCaption(Blocked), Format(false));
     end;
 
     # region Service Blocked

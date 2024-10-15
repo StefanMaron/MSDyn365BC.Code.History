@@ -336,18 +336,12 @@ page 5096 "Task List"
 
     var
         RecordsFound: Boolean;
+#pragma warning disable AA0074
         Text000: Label '(Multiple)';
         Text001: Label 'untitled';
         Text004: Label 'The Make Phone Call function for this task is available only on the Attendee Scheduling window.';
         Text005: Label 'You must select a task with a contact assigned to it before you can use the Make Phone Call function.';
-
-#if not CLEAN22
-    [Obsolete('Replaced by procedure GetCaption()', '22.0')]
-    procedure Caption() CaptionStr: Text
-    begin
-        exit(GetCaption());
-    end;
-#endif
+#pragma warning restore AA0074
 
     procedure GetCaption() CaptionStr: Text
     var

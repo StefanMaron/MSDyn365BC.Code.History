@@ -199,12 +199,18 @@ page 161 "Purchase Statistics"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Purchase %1 Statistics';
+#pragma warning restore AA0470
         Text001: Label 'Amount';
         Text002: Label 'Total';
+#pragma warning disable AA0470
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because a vendor invoice discount with the code %1 exists.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PurchSetup: Record "Purchases & Payables Setup";
 
     protected var

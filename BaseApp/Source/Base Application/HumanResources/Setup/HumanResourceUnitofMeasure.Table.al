@@ -53,6 +53,8 @@ table 5220 "Human Resource Unit of Measure"
     var
         HumanResSetup: Record "Human Resources Setup";
 
+#pragma warning disable AA0074
         Text000: Label 'must be greater than 0';
+#pragma warning restore AA0074
 }
 

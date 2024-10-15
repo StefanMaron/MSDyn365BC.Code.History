@@ -39,7 +39,7 @@
         TransferOrderSubpageNotUpdatedErr: Label 'Transfer Order subpage is not updated.';
         AnotherItemWithSameDescTxt: Label 'We found an item with the description';
         RoundingTo0Err: Label 'Rounding of the field';
-        RoundingErr: Label 'is of lesser precision than expected';
+        RoundingErr: Label 'is of lower precision than expected';
         RoundingBalanceErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
         ILECorrectedAndNotErr: Label 'Expected same number of corrected and not corrected Item Ledger Entries for undone Transfer Shipment';
         ILEIncorrectSumErr: Label 'Expected sum of quantities to be 0 for Item Ledger Entries after undone Transfer Shipment';
@@ -49,7 +49,6 @@
         DerivedTransLineErr: Label 'Expected no Derived Transfer Line i.e. line with "Derived From Line No." equal to original transfer line.';
         IncorrectSNUndoneErr: Label 'The Serial No. of the item on the transfer shipment line that was undone was different from the SN on the corresponding transfer line.';
         ApplToItemEntryErr: Label '%1 must be %2 in %3.', Comment = '%1 is Appl-to Item Entry, %2 is Item Ledger Entry No. and %3 is Transfer Line';
-        ItemLedgerEntryMustBeFoundErr: Label 'Item Ledger Entry must be found.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -397,7 +396,7 @@
     procedure UndoTransShptLineFindsCorrectTrackingInfo()
     var
         TransferHeader: Record "Transfer Header";
-        TransferLine: Array[3] of Record "Transfer Line";
+        TransferLine: array[3] of Record "Transfer Line";
         TransferShipmentLine: Record "Transfer Shipment Line";
         ItemJournalLine: Record "Item Journal Line";
         Item: Record Item;
@@ -1664,14 +1663,12 @@
 
         // [THEN] Existed inbound warehouse request for "T" is updated.
         TransferHeader.CalcFields("Completely Received");
-        with WarehouseRequest do begin
-            FilterWhseRequest(
-              WarehouseRequest, Type::Inbound, TransferHeader."Transfer-to Code", 1, TransferHeader."No.");
-            FindFirst();
-            VerifyWhseRequest(
-              WarehouseRequest, TransferHeader, SourceDocument::"Inb. Transfer", TransferHeader."Completely Received",
-              "Shipment Date", TransferHeader."Receipt Date");
-        end;
+        FilterWhseRequest(
+          WarehouseRequest, WarehouseRequest.Type::Inbound, TransferHeader."Transfer-to Code", 1, TransferHeader."No.");
+        WarehouseRequest.FindFirst();
+        VerifyWhseRequest(
+          WarehouseRequest, TransferHeader, SourceDocument::"Inb. Transfer", TransferHeader."Completely Received",
+          WarehouseRequest."Shipment Date", TransferHeader."Receipt Date");
     end;
 
     [Test]
@@ -1728,14 +1725,12 @@
 
         // [THEN] New inbound warehouse request for "T" is created.
         TransferHeader.CalcFields("Completely Received");
-        with WarehouseRequest do begin
-            FilterWhseRequest(
-              WarehouseRequest, Type::Inbound, TransferHeader."Transfer-to Code", 1, TransferHeader."No.");
-            FindFirst();
-            VerifyWhseRequest(
-              WarehouseRequest, TransferHeader, SourceDocument::"Inb. Transfer", TransferHeader."Completely Received",
-              0D, TransferHeader."Receipt Date");
-        end;
+        FilterWhseRequest(
+          WarehouseRequest, WarehouseRequest.Type::Inbound, TransferHeader."Transfer-to Code", 1, TransferHeader."No.");
+        WarehouseRequest.FindFirst();
+        VerifyWhseRequest(
+          WarehouseRequest, TransferHeader, SourceDocument::"Inb. Transfer", TransferHeader."Completely Received",
+          0D, TransferHeader."Receipt Date");
     end;
 
     [Test]
@@ -1762,14 +1757,12 @@
 
         // [THEN] Existed outbound warehouse request for "T" is updated.
         TransferHeader.CalcFields("Completely Shipped");
-        with WarehouseRequest do begin
-            FilterWhseRequest(
-              WarehouseRequest, Type::Outbound, TransferHeader."Transfer-from Code", 0, TransferHeader."No.");
-            FindFirst();
-            VerifyWhseRequest(
-              WarehouseRequest, TransferHeader, SourceDocument::"Outb. Transfer", TransferHeader."Completely Shipped",
-              "Shipment Date", "Expected Receipt Date");
-        end;
+        FilterWhseRequest(
+          WarehouseRequest, WarehouseRequest.Type::Outbound, TransferHeader."Transfer-from Code", 0, TransferHeader."No.");
+        WarehouseRequest.FindFirst();
+        VerifyWhseRequest(
+          WarehouseRequest, TransferHeader, SourceDocument::"Outb. Transfer", TransferHeader."Completely Shipped",
+          WarehouseRequest."Shipment Date", WarehouseRequest."Expected Receipt Date");
     end;
 
     [Test]
@@ -1795,14 +1788,12 @@
 
         // [THEN] New outbound warehouse request for "T" is created.
         TransferHeader.CalcFields("Completely Shipped");
-        with WarehouseRequest do begin
-            FilterWhseRequest(
-              WarehouseRequest, Type::Outbound, TransferHeader."Transfer-from Code", 0, TransferHeader."No.");
-            FindFirst();
-            VerifyWhseRequest(
-              WarehouseRequest, TransferHeader, SourceDocument::"Outb. Transfer", TransferHeader."Completely Shipped",
-              "Shipment Date", 0D);
-        end;
+        FilterWhseRequest(
+          WarehouseRequest, WarehouseRequest.Type::Outbound, TransferHeader."Transfer-from Code", 0, TransferHeader."No.");
+        WarehouseRequest.FindFirst();
+        VerifyWhseRequest(
+          WarehouseRequest, TransferHeader, SourceDocument::"Outb. Transfer", TransferHeader."Completely Shipped",
+          WarehouseRequest."Shipment Date", 0D);
     end;
 
     [Test]
@@ -3680,6 +3671,69 @@
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure TransferPostingNotAllowedForDirectTransferWithDifferentQtyShipAndReceive()
+    var
+        Location: array[2] of Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: array[3] of Record "Transfer Line";
+        Item: array[3] of Record Item;
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // [SCENARIO] Transfer posting is not allowed for Direct Transfer Orders where 'Qty. to Ship' and 'Qty. to Receive' are different.
+        // https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/502987
+        Initialize();
+
+        // [GIVEN] Inventory Setup is configured for "Direct Transfer Posting" = "Receipt and Shipment"
+        InventorySetup.Get();
+        InventorySetup.Validate("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Receipt and Shipment");
+        InventorySetup.Modify();
+
+        // [GIVEN] Locations "L1" and "L2".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+
+        // [GIVEN] Item with stock at Location "L1".
+        CreateItemWithPositiveInventory(Item[1], Location[1].Code, 10);
+        CreateItemWithPositiveInventory(Item[2], Location[1].Code, 10);
+        CreateItemWithPositiveInventory(Item[3], Location[1].Code, 10);
+
+        // [GIVEN] Transfer Order From = "L1" To = "L2". Intransit is empty on direct transfer.
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify();
+
+        // [GIVEN] Three transfer lines - one will not be posted yet
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine[1], Item[1]."No.", 1);
+        TransferLine[1].Validate("Qty. to Ship", 0);
+        TransferLine[1].Validate("Qty. to Receive", 0);
+        TransferLine[1].Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine[2], Item[2]."No.", 2);
+        TransferLine[2].Validate("Qty. to Ship", 1);
+        TransferLine[2].Validate("Qty. to Receive", 1);
+        TransferLine[2].Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine[3], Item[2]."No.", 3);
+        TransferLine[3].Validate("Qty. to Ship", 3);
+        TransferLine[3].Validate("Qty. to Receive", 3);
+        TransferLine[3].Modify(true);
+
+        // [GIVEN] One line of the transfer order is posted
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true); //Ship and receive
+
+        // [GIVEN] On line 2, change the Qty. to Ship to 2 and Qty. to Receive to 0.
+        TransferLine[2].Find();
+        TransferLine[2].Validate("Qty. to Ship", 1);
+        TransferLine[2].Validate("Qty. to Receive", 0);
+        TransferLine[2].Modify(true);
+
+        // [WHEN] Transfer Order is posted.
+        asserterror CODEUNIT.Run(CODEUNIT::"TransferOrder-Post (Yes/No)", TransferHeader); //Ship and receive
+
+        // [THEN] Error is shown that posting is not allowed.
+        Assert.ExpectedError('The quantity to ship and quantity to receive must be equal in a direct transfer.');
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler,ItemTrackingLinesModalPageHandlerGeneric,CreateInvtPickPutAwayRequestPageHandler,ConfirmHandlerYes')]
     procedure InvPutAwayIsPostedFromTransferOrderHavingLotAndSerialTracking()
     var
@@ -3810,8 +3864,8 @@
         ItemLedgerEntry.SetRange("Location Code", Location2.Code);
         ItemLedgerEntry.FindFirst();
 
-        // [THEN] Item Ledger Entry is found.
-        Assert.IsFalse(ItemLedgerEntry.IsEmpty(), ItemLedgerEntryMustBeFoundErr);
+        // [THEN] Item Ledger is found.
+        Assert.IsFalse(ItemLedgerEntry.IsEmpty(), '');
     end;
 
     [Test]
@@ -4166,12 +4220,10 @@
         ItemJournalLine: Record "Item Journal Line";
     begin
         CreateItemJrnl(ItemJournalLine, EntryType, ItemNo, Qty);
-        with ItemJournalLine do begin
-            Validate("Location Code", LocationCode);
-            Validate("Variant Code", VariantCode);
-            Validate("Unit Cost", Cost);
-            Modify(true);
-        end;
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Variant Code", VariantCode);
+        ItemJournalLine.Validate("Unit Cost", Cost);
+        ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
@@ -4361,15 +4413,13 @@
         end;
         LibraryWarehouse.CreateInTransitLocation(Location);
 
-        with TransferRoute do begin
-            Init();
-            Validate("Transfer-from Code", LocationCode[1]);
-            Validate("Transfer-to Code", LocationCode[2]);
-            Validate("In-Transit Code", Location.Code);
-            Insert();
-            Validate("Transfer-to Code", LocationCode[3]);
-            Insert();
-        end;
+        TransferRoute.Init();
+        TransferRoute.Validate("Transfer-from Code", LocationCode[1]);
+        TransferRoute.Validate("Transfer-to Code", LocationCode[2]);
+        TransferRoute.Validate("In-Transit Code", Location.Code);
+        TransferRoute.Insert();
+        TransferRoute.Validate("Transfer-to Code", LocationCode[3]);
+        TransferRoute.Insert();
     end;
 
     local procedure CreateTransferSetup(var SalesHeader: Record "Sales Header"; var ItemNo: array[4] of Code[20]; CreateSalesOrderExist: Boolean)
@@ -4502,22 +4552,21 @@
         CreateReqLine(RequisitionLine);
         LibraryInventory.CreateItem(Item);
 
-        with RequisitionLine do begin
-            "Accept Action Message" := true;
-            "Action Message" := "Action Message"::New;
-            "Transfer-from Code" := LocationCode[1];
-            Type := Type::Item;
-            "No." := Item."No.";
-            "Ref. Order Type" := "Ref. Order Type"::Transfer;
-            "Transfer Shipment Date" := WorkDate();
-            "Due Date" := WorkDate();
-            Quantity := LibraryRandom.RandDec(100, 2);
+        RequisitionLine."Accept Action Message" := true;
+        RequisitionLine."Action Message" := RequisitionLine."Action Message"::New;
+        RequisitionLine."Transfer-from Code" := LocationCode[1];
+        RequisitionLine.Type := RequisitionLine.Type::Item;
+        RequisitionLine."No." := Item."No.";
+        RequisitionLine."Ref. Order Type" := RequisitionLine."Ref. Order Type"::Transfer;
+        RequisitionLine."Transfer Shipment Date" := WorkDate();
+        RequisitionLine."Due Date" := WorkDate();
+        RequisitionLine.Quantity := LibraryRandom.RandDec(100, 2);
 
-            for i := 1 to 4 do begin
-                "Line No." += 10000;
-                "Location Code" := LocationCode[3 - i mod 2]; // 2,3,2,3
-                Insert();
-            end;
+        for i := 1 to 4 do begin
+            RequisitionLine."Line No." += 10000;
+            RequisitionLine."Location Code" := LocationCode[3 - i mod 2];
+            // 2,3,2,3
+            RequisitionLine.Insert();
         end;
     end;
 
@@ -4525,33 +4574,29 @@
     var
         TransferLine: Record "Transfer Line";
     begin
-        with TransferHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Transfer Header");
-            "Transfer-from Code" := LibraryUtility.GenerateGUID();
-            "Transfer-to Code" := LibraryUtility.GenerateGUID();
-            Status := Status::Open;
-            "External Document No." := LibraryUtility.GenerateGUID();
-            "Shipment Method Code" := LibraryUtility.GenerateGUID();
-            "Shipping Agent Code" := LibraryUtility.GenerateGUID();
-            "Shipping Advice" := "Shipping Advice"::Complete;
-            "Shipment Date" := LibraryRandom.RandDate(10);
-            "Receipt Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 11, 20);
-            Insert();
-        end;
+        TransferHeader.Init();
+        TransferHeader."No." := LibraryUtility.GenerateRandomCode(TransferHeader.FieldNo("No."), DATABASE::"Transfer Header");
+        TransferHeader."Transfer-from Code" := LibraryUtility.GenerateGUID();
+        TransferHeader."Transfer-to Code" := LibraryUtility.GenerateGUID();
+        TransferHeader.Status := TransferHeader.Status::Open;
+        TransferHeader."External Document No." := LibraryUtility.GenerateGUID();
+        TransferHeader."Shipment Method Code" := LibraryUtility.GenerateGUID();
+        TransferHeader."Shipping Agent Code" := LibraryUtility.GenerateGUID();
+        TransferHeader."Shipping Advice" := TransferHeader."Shipping Advice"::Complete;
+        TransferHeader."Shipment Date" := LibraryRandom.RandDate(10);
+        TransferHeader."Receipt Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 11, 20);
+        TransferHeader.Insert();
 
-        with TransferLine do begin
-            Init();
-            "Document No." := TransferHeader."No.";
-            "Transfer-from Code" := TransferHeader."Transfer-from Code";
-            "Transfer-to Code" := TransferHeader."Transfer-to Code";
-            Quantity := LibraryRandom.RandInt(10);
-            "Quantity Shipped" := LibraryRandom.RandInt(10);
-            "Quantity Received" := LibraryRandom.RandInt(10);
-            "Completely Shipped" := ("Quantity Shipped" = Quantity);
-            "Completely Received" := ("Quantity Received" = Quantity);
-            Insert();
-        end;
+        TransferLine.Init();
+        TransferLine."Document No." := TransferHeader."No.";
+        TransferLine."Transfer-from Code" := TransferHeader."Transfer-from Code";
+        TransferLine."Transfer-to Code" := TransferHeader."Transfer-to Code";
+        TransferLine.Quantity := LibraryRandom.RandInt(10);
+        TransferLine."Quantity Shipped" := LibraryRandom.RandInt(10);
+        TransferLine."Quantity Received" := LibraryRandom.RandInt(10);
+        TransferLine."Completely Shipped" := (TransferLine."Quantity Shipped" = TransferLine.Quantity);
+        TransferLine."Completely Received" := (TransferLine."Quantity Received" = TransferLine.Quantity);
+        TransferLine.Insert();
     end;
 
     local procedure MockWhseRequest(RequestType: Enum "Warehouse Request Type"; LocCode: Code[10];
@@ -4559,43 +4604,37 @@
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
-        with WarehouseRequest do begin
-            Init();
-            Type := RequestType;
-            "Location Code" := LocCode;
-            "Source Type" := DATABASE::"Transfer Line";
-            "Source Subtype" := Abs(RequestType.AsInteger() - 1);
-            "Source No." := SourceNo;
-            "Shipment Date" := WorkDate();
-            "Expected Receipt Date" := WorkDate();
-            Insert();
-        end;
+        WarehouseRequest.Init();
+        WarehouseRequest.Type := RequestType;
+        WarehouseRequest."Location Code" := LocCode;
+        WarehouseRequest."Source Type" := DATABASE::"Transfer Line";
+        WarehouseRequest."Source Subtype" := Abs(RequestType.AsInteger() - 1);
+        WarehouseRequest."Source No." := SourceNo;
+        WarehouseRequest."Shipment Date" := WorkDate();
+        WarehouseRequest."Expected Receipt Date" := WorkDate();
+        WarehouseRequest.Insert();
     end;
 
     local procedure FilterWhseRequest(var WarehouseRequest: Record "Warehouse Request"; RequestType: Enum "Warehouse Request Type"; LocCode: Code[10];
                                                                                                          SourceSubtype: Option;
                                                                                                          SourceNo: Code[20])
     begin
-        with WarehouseRequest do begin
-            SetRange(Type, RequestType);
-            SetRange("Location Code", LocCode);
-            SetRange("Source Type", DATABASE::"Transfer Line");
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source No.", SourceNo);
-        end;
+        WarehouseRequest.SetRange(Type, RequestType);
+        WarehouseRequest.SetRange("Location Code", LocCode);
+        WarehouseRequest.SetRange("Source Type", DATABASE::"Transfer Line");
+        WarehouseRequest.SetRange("Source Subtype", SourceSubtype);
+        WarehouseRequest.SetRange("Source No.", SourceNo);
     end;
 
     local procedure MockTransferReceiptLine(var TransferReceiptLine: Record "Transfer Receipt Line"; DocumentNo: Code[20]; ItemNo: Code[20]; Desc: Text[100]; Qty: Decimal)
     begin
-        with TransferReceiptLine do begin
-            Init();
-            "Document No." := DocumentNo;
-            "Line No." := LibraryUtility.GetNewRecNo(TransferReceiptLine, FieldNo("Line No."));
-            "Item No." := ItemNo;
-            Description := Desc;
-            Quantity := Qty;
-            Insert();
-        end;
+        TransferReceiptLine.Init();
+        TransferReceiptLine."Document No." := DocumentNo;
+        TransferReceiptLine."Line No." := LibraryUtility.GetNewRecNo(TransferReceiptLine, TransferReceiptLine.FieldNo("Line No."));
+        TransferReceiptLine."Item No." := ItemNo;
+        TransferReceiptLine.Description := Desc;
+        TransferReceiptLine.Quantity := Qty;
+        TransferReceiptLine.Insert();
     end;
 
     local procedure CalculateNetChangePlan(var RequisitionLine: Record "Requisition Line"; StartDate: Date; ItemNo: array[4] of Code[20])
@@ -4799,11 +4838,9 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindLast();
-            exit("Entry No.");
-        end;
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.FindLast();
+        exit(ItemLedgEntry."Entry No.");
     end;
 
     local procedure VerifyNumberOfRequisitionLine(ItemNo: array[4] of Code[20]; NoOfLines: Integer)
@@ -4840,11 +4877,9 @@
     var
         TransferHeader: Record "Transfer Header";
     begin
-        with TransferHeader do begin
-            SetRange("Transfer-from Code", LocationFromCode);
-            SetRange("Transfer-to Code", LocationToCode);
-            Assert.AreEqual(ExpectedCount, Count, TransferOrderCountErr);
-        end;
+        TransferHeader.SetRange("Transfer-from Code", LocationFromCode);
+        TransferHeader.SetRange("Transfer-to Code", LocationToCode);
+        Assert.AreEqual(ExpectedCount, TransferHeader.Count, TransferOrderCountErr);
     end;
 
     local procedure VerifyTransferReceiptDate(var TransferOrder: TestPage "Transfer Order")
@@ -4861,29 +4896,25 @@
     var
         ItemApplicationEntry: Record "Item Application Entry";
     begin
-        with ItemApplicationEntry do begin
-            SetRange("Item Ledger Entry No.", FindLastILENo(ItemNo));
-            FindLast();
-            SetRange("Item Ledger Entry No.", "Outbound Item Entry No.");
-            FindLast();
-            TestField("Inbound Item Entry No.", AppliedToEntryNo);
-            TestField("Cost Application", true);
-        end;
+        ItemApplicationEntry.SetRange("Item Ledger Entry No.", FindLastILENo(ItemNo));
+        ItemApplicationEntry.FindLast();
+        ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
+        ItemApplicationEntry.FindLast();
+        ItemApplicationEntry.TestField("Inbound Item Entry No.", AppliedToEntryNo);
+        ItemApplicationEntry.TestField("Cost Application", true);
     end;
 
     local procedure VerifyItemApplicationEntryCost(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; ExpectedCost: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            FindSet();
-            repeat
-                CalcFields("Cost Amount (Actual)");
-                TestField("Cost Amount (Actual)", ExpectedCost * Quantity);
-            until Next() = 0;
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.FindSet();
+        repeat
+            ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+            ItemLedgerEntry.TestField("Cost Amount (Actual)", ExpectedCost * ItemLedgerEntry.Quantity);
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyDimensionOnDimSet(DimSetID: Integer; DimensionValue: Record "Dimension Value")
@@ -4899,18 +4930,16 @@
 
     local procedure VerifyWhseRequest(WarehouseRequest: Record "Warehouse Request"; TransferHeader: Record "Transfer Header"; SourceDoc: Option; IsCompletelyHandled: Boolean; ShipmentDate: Date; ReceiptDate: Date)
     begin
-        with WarehouseRequest do begin
-            TestField("Source Document", SourceDoc);
-            TestField("Document Status", TransferHeader.Status);
-            TestField("External Document No.", TransferHeader."External Document No.");
-            TestField("Completely Handled", IsCompletelyHandled);
-            TestField("Shipment Method Code", TransferHeader."Shipment Method Code");
-            TestField("Shipping Agent Code", TransferHeader."Shipping Agent Code");
-            TestField("Destination Type", "Destination Type"::Location);
-            TestField("Destination No.", "Location Code");
-            TestField("Shipment Date", ShipmentDate);
-            TestField("Expected Receipt Date", ReceiptDate);
-        end;
+        WarehouseRequest.TestField("Source Document", SourceDoc);
+        WarehouseRequest.TestField("Document Status", TransferHeader.Status);
+        WarehouseRequest.TestField("External Document No.", TransferHeader."External Document No.");
+        WarehouseRequest.TestField("Completely Handled", IsCompletelyHandled);
+        WarehouseRequest.TestField("Shipment Method Code", TransferHeader."Shipment Method Code");
+        WarehouseRequest.TestField("Shipping Agent Code", TransferHeader."Shipping Agent Code");
+        WarehouseRequest.TestField("Destination Type", WarehouseRequest."Destination Type"::Location);
+        WarehouseRequest.TestField("Destination No.", WarehouseRequest."Location Code");
+        WarehouseRequest.TestField("Shipment Date", ShipmentDate);
+        WarehouseRequest.TestField("Expected Receipt Date", ReceiptDate);
     end;
 
     local procedure SetupForUoMTest(
@@ -4987,7 +5016,7 @@
         Item: Record Item;
         FromLocation: Record Location;
         ToLocation: Record Location;
-        TransferLine: Array[3] of Record "Transfer Line";
+        TransferLine: array[3] of Record "Transfer Line";
     begin
         // Create two locations with simple setup (no bins etc.)
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);

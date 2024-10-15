@@ -8,6 +8,8 @@ using System.Utilities;
 
 codeunit 110 "Consolidate Business Units"
 {
+    Permissions = tabledata "Job Queue Entry" = rid;
+
     var
         EmptyDateRangeErr: Label 'You must specify the starting date and the ending date for the consolidation.';
         ClosingDateErr: Label 'The starting date or the ending date is a closing date, and they are not the same.';
@@ -23,6 +25,7 @@ codeunit 110 "Consolidate Business Units"
         FollowingCompaniesHaveNoAccessErr: Label 'The business units %1 have not been granted access. Select them and use the action "Grant Access" to authenticate into these companies.', Comment = '%1 comma separated names of the business units'' codes';
         LogRequestsOnlyForTroubleshootingMsg: Label 'A business unit to consolidate has "Log requests" enabled. This is recommended only for troubleshooting purposes and should be disabled to avoid data corruption. Do you want to continue?';
         ConsolidationJQECodeTok: Label 'CONSOLID', Locked = true;
+        ConsolidationJQECategoryDescriptionLbl: Label 'Importing Consolidation Data';
 
     internal procedure ValidateAndRunConsolidation(var ConsolidationProcess: Record "Consolidation Process" temporary; var BusinessUnit: Record "Business Unit" temporary): Boolean
     var
@@ -146,6 +149,7 @@ codeunit 110 "Consolidate Business Units"
         JobQueueEntry."Object ID to Run" := Codeunit::"Import and Consolidate";
         JobQueueEntry."Maximum No. of Attempts to Run" := 1;
         JobQueueEntry."Recurring Job" := false;
+        EnsureJobQueueCategoryExists(ConsolidationJQECodeTok, ConsolidationJQECategoryDescriptionLbl);
         JobQueueEntry."Job Queue Category Code" := ConsolidationJQECodeTok;
         JobQueueEntry."Record ID to Process" := ConsolidationProcess.RecordId;
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
@@ -174,6 +178,17 @@ codeunit 110 "Consolidate Business Units"
             JobQueueEntry.Delete();
         Commit();
         exit(Success);
+    end;
+
+    local procedure EnsureJobQueueCategoryExists(JobQueueCategoryCode: Code[10]; Description: Text)
+    var
+        JobQueueCategory: Record "Job Queue Category";
+    begin
+        if JobQueueCategory.Get(JobQueueCategoryCode) then
+            exit;
+        JobQueueCategory.Code := JobQueueCategoryCode;
+        JobQueueCategory.Description := CopyStr(Description, 1, MaxStrLen(JobQueueCategory.Description));
+        JobQueueCategory.Insert();
     end;
 
     local procedure ValidateDatesForBusinessUnits(var BusinessUnit: Record "Business Unit" temporary; StartingDate: Date; EndingDate: Date; AskConfirmation: Boolean)

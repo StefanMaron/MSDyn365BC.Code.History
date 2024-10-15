@@ -777,18 +777,16 @@ codeunit 134824 "UT Vendor Table"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     [ModalPageHandler]

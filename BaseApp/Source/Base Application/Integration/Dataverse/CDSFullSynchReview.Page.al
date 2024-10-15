@@ -259,10 +259,21 @@ page 7208 "CDS Full Synch. Review"
         Codeunit.Run(Codeunit::"CRM Integration Management");
         Commit();
     end;
+#if not CLEAN25
 
-    [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Replaced by SetConnectionSetup(NewCDSConnectionSetup: Record "CDS Connection Setup"; NewUserPassword: SecretText)', '25.0')]
     procedure SetConnectionSetup(NewCDSConnectionSetup: Record "CDS Connection Setup"; NewUserPassword: Text)
+    var
+        NewUserPasswordAsSecretText: SecretText;
+    begin
+        NewUserPasswordAsSecretText := NewUserPassword;
+        SetConnectionSetup(NewCDSConnectionSetup, NewUserPasswordAsSecretText);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SetConnectionSetup(NewCDSConnectionSetup: Record "CDS Connection Setup"; NewUserPassword: SecretText)
     begin
         CDSConnectionSetup := NewCDSConnectionSetup;
         UserPassword := NewUserPassword;
@@ -441,7 +452,7 @@ page 7208 "CDS Full Synch. Review"
 
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
-        UserPassword: Text;
+        UserPassword: SecretText;
         ActionStartEnabled: Boolean;
         ActionRecommendFullSynchEnabled: Boolean;
         MultiCompanyCheckboxEnabled: Boolean;

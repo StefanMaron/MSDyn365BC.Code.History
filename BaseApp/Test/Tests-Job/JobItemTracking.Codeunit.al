@@ -2565,7 +2565,7 @@ codeunit 136319 "Job Item Tracking"
 
         asserterror OpenRelatedJournalAndPost(JobPlanningLine6);
         Assert.ExpectedError('You cannot post usage for project number');
-        
+
         // [WHEN] Split the lines
         // [WHEN] AutoFill Qty. to handle and Post Inventory Pick for LocationWithRequirePickBinMandatory
         SplitAndPostInventoryPickFromPage(Job."No.", LocationWithRequirePickBinMandatory.Code, true);

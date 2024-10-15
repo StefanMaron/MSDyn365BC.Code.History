@@ -1055,7 +1055,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         // [WHEN] Standard Purchase Code is deleted
         // [THEN] Confirmation message appears 
         // [WHEN] User agrees with confirmation
-        StdPurchCode.Delete(True);
+        StdPurchCode.Delete(true);
 
         // [THEN] Standard Purchase Code and Standard Vendor Purchase Code linked are deleted
         StdPurchCode.Reset();
@@ -1094,7 +1094,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         // [WHEN] Standard Purchase Code is deleted
         // [THEN] Confirmation message appears 
         // [WHEN] User disagree with confirmation
-        AssertError StdPurchCode.Delete(true);
+        asserterror StdPurchCode.Delete(true);
         Assert.ExpectedError('');
 
         // [THEN] Standard Purchase Code and Standard Vendor Purchase Code linked are not deleted
@@ -1122,7 +1122,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
 
         // [WHEN] Standard Sales Purchase is deleted
         // [THEN] Confirmation message does not appear
-        StdPurchCode.Delete(True);
+        StdPurchCode.Delete(true);
 
         // [THEN] Standard Sales Purchase is deleted
         StdPurchCode.Reset();

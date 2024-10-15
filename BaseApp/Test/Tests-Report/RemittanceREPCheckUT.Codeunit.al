@@ -333,17 +333,15 @@ codeunit 133771 "Remittance REP Check UT"
 
     local procedure VerifyPayedDocumentsAndPartiallyPaid(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-        with VendorLedgerEntry do begin
-            LibraryReportDataset.LoadDataSetFile();
-            SetRange("Vendor No.", GenJournalLine."Account No.");
-            FindSet();
-            repeat
-                CalcFields("Remaining Amount");
-                LibraryReportDataset.AssertElementWithValueExists(
-                  'AppliedVendLedgEntryTempRemainingAmt', -("Remaining Amount" - "Amount to Apply"));
-                LibraryReportDataset.AssertElementWithValueExists('AppliedVendLedgEntryTempDocType', Format("Document Type"));
-            until Next() = 0;
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
+        VendorLedgerEntry.FindSet();
+        repeat
+            VendorLedgerEntry.CalcFields("Remaining Amount");
+            LibraryReportDataset.AssertElementWithValueExists(
+              'AppliedVendLedgEntryTempRemainingAmt', -(VendorLedgerEntry."Remaining Amount" - VendorLedgerEntry."Amount to Apply"));
+            LibraryReportDataset.AssertElementWithValueExists('AppliedVendLedgEntryTempDocType', Format(VendorLedgerEntry."Document Type"));
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     [RequestPageHandler]

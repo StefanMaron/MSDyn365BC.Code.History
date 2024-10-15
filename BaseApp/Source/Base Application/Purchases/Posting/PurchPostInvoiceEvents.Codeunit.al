@@ -588,4 +588,25 @@ codeunit 826 "Purch. Post Invoice Events"
     begin
     end;
 
+    // Invoice Posting Buffer
+
+    procedure RunOnAfterPrepareInvoicePostingBuffer(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        OnAfterPrepareInvoicePostingBuffer(PurchaseLine, InvoicePostingBuffer);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareInvoicePostingBuffer(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+    end;
+
+    procedure RunOnBeforePrepareInvoicePostingBuffer(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        OnBeforePrepareInvoicePostingBuffer(PurchaseLine, InvoicePostingBuffer);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepareInvoicePostingBuffer(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+    end;
 }

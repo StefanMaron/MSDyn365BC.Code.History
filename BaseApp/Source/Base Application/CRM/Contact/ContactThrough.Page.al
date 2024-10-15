@@ -85,8 +85,10 @@ page 5145 "Contact Through"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Contact Phone Numbers';
         Text001: Label 'Contact Emails';
+#pragma warning restore AA0074
         NumberVisible: Boolean;
         EmailVisible: Boolean;
 }

@@ -25,7 +25,6 @@
         UnappliedErr: Label '%1 must be %2 in %3.', Locked = true;
         MessageDoNotMatchErr: Label 'Error Message must be same.';
         ApplicationEntryErr: Label 'Employee ledger entry number %1 does not have an application entry.', Comment = '%1 = FIELD Caption, %2 = FIELD Value';
-        UnapplyErr: Label '%1 must be equal to ''Application''  in %2: %3=%4. Current value is ''Initial Entry''.', Comment = '%1 = FIELD Caption, %2 = Table Caption,%3 = Field Caption,%4 = Field Value';
         DetailedEmployeeLedgerErr: Label 'Detailed Employee Ledger Entry Must Found.';
         NoEntriesAppliedErr: Label 'Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.';
 
@@ -229,11 +228,7 @@
         asserterror EmplEntryApplyPostedEntries.UnApplyDtldEmplLedgEntry(DetailedEmployeeLedgEntry);
 
         // Verify: Verify error when Unapplying Document from Detailed Employee Ledger Entry.
-        Assert.AreEqual(
-          StrSubstNo(
-            UnapplyErr, DetailedEmployeeLedgEntry.FieldCaption("Entry Type"), DetailedEmployeeLedgEntry.TableCaption(),
-            DetailedEmployeeLedgEntry.FieldCaption("Entry No."), DetailedEmployeeLedgEntry."Entry No."), GetLastErrorText,
-          MessageDoNotMatchErr);
+        Assert.ExpectedTestFieldError(DetailedEmployeeLedgEntry.FieldCaption("Entry Type"), Format(DetailedEmployeeLedgEntry."Entry Type"::Application));
     end;
 
     [Test]
@@ -312,8 +307,9 @@
     var
         GenJournalLine: Record "Gen. Journal Line";
         Employee: Record Employee;
-        DummyGeneralJournal: TestPage "General Journal";
+        GenJnlApply: Codeunit "Gen. Jnl.-Apply";
         ExpenseAccNo: Code[20];
+        JournalBatchName: Code[10];
     begin
         // Verify that Apply Employee Entry Page Shows Correct value when payment is applied.
 
@@ -322,12 +318,12 @@
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateEmployee(Employee);
         ExpenseAccNo := CreateBalanceSheetAccount();
-        CreateAndPostEmplExpense(Employee, ExpenseAccNo, -LibraryRandom.RandIntInRange(100, 200));
+        CreateAndPostEmplExpense(Employee, ExpenseAccNo, -LibraryRandom.RandIntInRange(100, 200), JournalBatchName);
 
-        CreateAndPostEmplExpense(Employee, ExpenseAccNo, -LibraryRandom.RandIntInRange(100, 200));
+        CreateAndPostEmplExpense(Employee, ExpenseAccNo, -LibraryRandom.RandIntInRange(100, 200), JournalBatchName);
 
         CreateGeneralJournalLine(GenJournalLine, 1, Employee."No.", GenJournalLine."Document Type"::Payment,
-          -GetTotalAppliedAmount(Employee."No.", WorkDate()));
+          -GetTotalAppliedAmount(Employee."No.", WorkDate()), JournalBatchName);
         ModifyGenJournalLine(GenJournalLine);
 
         // Exercise: Apply Set Applies To ID and Amount Apply.
@@ -335,8 +331,7 @@
         SetAppliesToIDAndAmountToApply(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // Verify: Verification done in ApplyingEmployeeEntriesPageHandler.
-        OpenGenJournalPage(DummyGeneralJournal, GenJournalLine."Document No.", GenJournalLine."Document Type");
-        DummyGeneralJournal."Apply Entries".Invoke();
+        GenJnlApply.Run(GenJournalLine);
     end;
 
     [Test]
@@ -477,16 +472,24 @@
         SetAppliesToIDAndPostEntry(EmployeeLedgerEntry2, EmployeeLedgerEntry);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; NoOfLine: Integer; EmployeeNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; NoOfLine: Integer; EmployeeNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; JournalBatchName: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Counter: Integer;
     begin
-        SelectGenJournalBatch(GenJournalBatch);
+        if JournalBatchName = '' then begin
+            SelectGenJournalBatch(GenJournalBatch);
+            JournalBatchName := GenJournalBatch.Name;
+        end;
         for Counter := 1 to NoOfLine do
             LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+              GenJournalLine, LibraryERM.SelectGenJnlTemplate(), JournalBatchName, DocumentType,
               GenJournalLine."Account Type"::Employee, EmployeeNo, Amount);
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; NoOfLine: Integer; EmployeeNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
+    begin
+        CreateGeneralJournalLine(GenJournalLine, NoOfLine, EmployeeNo, DocumentType, Amount, '');
     end;
 
     local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
@@ -550,33 +553,22 @@
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         TotalAmount: Decimal;
     begin
-        with EmployeeLedgerEntry do begin
-            SetRange("Employee No.", EmployeeNo);
-            SetRange("Posting Date", PostingDate);
-            FindSet();
-            repeat
-                CalcFields(Amount);
-                TotalAmount += Amount;
-            until Next() = 0;
-            exit(TotalAmount);
-        end;
+        EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
+        EmployeeLedgerEntry.SetRange("Posting Date", PostingDate);
+        EmployeeLedgerEntry.FindSet();
+        repeat
+            EmployeeLedgerEntry.CalcFields(Amount);
+            TotalAmount += EmployeeLedgerEntry.Amount;
+        until EmployeeLedgerEntry.Next() = 0;
+        exit(TotalAmount);
     end;
 
     local procedure ModifyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do begin
-            Validate("Document No.", IncStr("Document No."));
-            Validate("External Document No.", "Document No.");
-            Validate("Posting Date", CalcDate('<1Y>', WorkDate()));
-            Modify(true);
-        end;
-    end;
-
-    local procedure OpenGenJournalPage(DummyGeneralJournal: TestPage "General Journal"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
-    begin
-        DummyGeneralJournal.OpenEdit();
-        DummyGeneralJournal.FILTER.SetFilter("Document No.", DocumentNo);
-        DummyGeneralJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
+        GenJournalLine.Validate("Document No.", IncStr(GenJournalLine."Document No."));
+        GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
+        GenJournalLine.Validate("Posting Date", CalcDate('<1Y>', WorkDate()));
+        GenJournalLine.Modify(true);
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -595,17 +587,15 @@
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
-        with EmployeeLedgerEntry do begin
-            SetRange("Employee No.", EmployeeNo);
-            SetRange("Applying Entry", false);
-            FindSet();
-            repeat
-                Validate("Applies-to ID", DocumentNo);
-                CalcFields("Remaining Amount");
-                Validate("Amount to Apply", "Remaining Amount");
-                Modify(true);
-            until Next() = 0;
-        end;
+        EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
+        EmployeeLedgerEntry.SetRange("Applying Entry", false);
+        EmployeeLedgerEntry.FindSet();
+        repeat
+            EmployeeLedgerEntry.Validate("Applies-to ID", DocumentNo);
+            EmployeeLedgerEntry.CalcFields("Remaining Amount");
+            EmployeeLedgerEntry.Validate("Amount to Apply", EmployeeLedgerEntry."Remaining Amount");
+            EmployeeLedgerEntry.Modify(true);
+        until EmployeeLedgerEntry.Next() = 0;
     end;
 
     local procedure UnapplyEmployeeLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -716,14 +706,26 @@
 
     local procedure CreateAndPostEmplExpense(Employee: Record Employee; GLAccountNo: Code[20]; Amount: Decimal): Code[20]
     var
+        JournalBatchName: Code[10];
+    begin
+        exit(CreateAndPostEmplExpense(Employee, GLAccountNo, Amount, JournalBatchName));
+    end;
+
+    local procedure CreateAndPostEmplExpense(Employee: Record Employee; GLAccountNo: Code[20]; Amount: Decimal; var JournalBatchName: Code[10]): Code[20]
+    var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        SelectGenJournalBatch(GenJournalBatch);
+        if JournalBatchName = '' then begin
+            LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+            JournalBatchName := GenJournalBatch.Name;
+        end;
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          GenJournalLine, LibraryERM.SelectGenJnlTemplate(), JournalBatchName, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccountNo, GenJournalLine."Bal. Account Type"::Employee, Employee."No.", Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        if GenJournalBatch.Name <> '' then
+            JournalBatchName := GenJournalBatch.Name;
         exit(GenJournalLine."Document No.");
     end;
 

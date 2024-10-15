@@ -611,8 +611,8 @@ codeunit 18427 "GST Stock Transfer Tests"
 
     local procedure CreateGSTSetup(
         GSTGroupType: Enum "GST Group Type";
-        IntraState: Boolean;
-        Availment: Boolean)
+                          IntraState: Boolean;
+                          Availment: Boolean)
     var
         GSTGroup: Record "GST Group";
         HSNSAC: Record "HSN/SAC";
@@ -642,9 +642,9 @@ codeunit 18427 "GST Stock Transfer Tests"
 
     local procedure CreateGSTSetupWithGSTCess(
         GSTGroupType: Enum "GST Group Type";
-        IntraState: Boolean;
-        CompCalcType: Enum "Component Calc Type";
-        Availment: Boolean)
+                          IntraState: Boolean;
+                          CompCalcType: Enum "Component Calc Type";
+                          Availment: Boolean)
     var
         GSTGroup: Record "GST Group";
         HSNSAC: Record "HSN/SAC";

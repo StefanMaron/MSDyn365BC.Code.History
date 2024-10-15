@@ -8,6 +8,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
 {
     Permissions = TableData "Data Exch." = rimd;
     TableNo = "Bank Acc. Reconciliation Line";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     var
@@ -25,6 +26,8 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         BankAccountRecImportedBankStatementLinesCountMsg: Label 'Number of imported lines in bank statement: %1', Locked = true;
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
         PaymentRecCategoryLbl: Label 'AL Payment Reconciliation', Locked = true;
+        InvalidFileFormatErr: Label 'The format of the chosen file is incompatible with the bank statement import format %2 specified on bank account %1. You must choose another file or change the bank statement import format on bank account %1.', Comment = '%1 - bank account code, %2 - name of a bank statement import format';
+        BankAccountNo: Code[20];
 
     procedure ImportBankStatement(BankAccRecon: Record "Bank Acc. Reconciliation"; DataExch: Record "Data Exch."): Boolean
     var
@@ -166,6 +169,41 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
                     Session.LogMessage('0000KMF', StrSubstNo(BankAccountRecImportedBankStatementLinesCountMsg, NumberOfLinesImported), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
                 end;
         end;
+    end;
+
+    internal procedure SetBankAccountNo(NewValue: Code[20])
+    begin
+        BankAccountNo := NewValue;
+    end;
+
+    local procedure GetBankAccountNo(): Code[20]
+    begin
+        exit(BankAccountNo);
+    end;
+
+    local procedure InvalidFileFormatError(var ErrorMessage: Text)
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        if GetBankAccountNo() = '' then
+            exit;
+
+        if not BankAccount.Get(GetBankAccountNo()) then
+            exit;
+
+        ErrorMessage := StrSubstNo(InvalidFileFormatErr, BankAccount."No.", BankAccount."Bank Statement Import Format");
+    end;
+
+    [EventSubscriber(ObjectType::XmlPort, XmlPort::"Data Exch. Import - CSV", 'OnInvalidHeaderSetErrorMessage', '', false, false)]
+    local procedure HandleOnInvalidHeaderSetErrorMessage(var ErrorMessage: Text);
+    begin
+        InvalidFileFormatError(ErrorMessage);
+    end;
+
+    [EventSubscriber(ObjectType::XmlPort, XmlPort::"Data Exch. Import - CSV", 'OnNoLinesFoundSetErrorMessage', '', false, false)]
+    local procedure HandleOnNoLinesFoundSetErrorMessage(var ErrorMessage: Text);
+    begin
+        InvalidFileFormatError(ErrorMessage);
     end;
 
     [IntegrationEvent(false, false)]

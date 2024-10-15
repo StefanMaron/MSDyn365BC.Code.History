@@ -1289,7 +1289,7 @@ codeunit 137091 "SCM Kitting - D2"
         asserterror SalesExplodeBOM.Run(SalesLine1);
 
         // Validate.
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrorLineType) > 0, 'Actual:' + GetLastErrorText + '; Expected:' + ErrorLineType);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption(Type), Format(SalesLine.Type::Item));
         ClearLastError();
     end;
 
@@ -1354,7 +1354,7 @@ codeunit 137091 "SCM Kitting - D2"
         asserterror PurchExplodeBOM.Run(PurchaseLine1);
 
         // Validate.
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrorLineType) > 0, 'Actual:' + GetLastErrorText + '; Expected:' + ErrorLineType);
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption(Type), Format(PurchaseLine.Type::Item));
         ClearLastError();
     end;
 

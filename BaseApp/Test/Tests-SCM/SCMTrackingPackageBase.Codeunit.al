@@ -463,34 +463,30 @@ codeunit 137263 "SCM Tracking Package Base"
     var
         InvSetup: Record "Inventory Setup";
     begin
-        with InvSetup do begin
-            Get();
-            if "Transfer Order Nos." = '' then
-                Validate("Transfer Order Nos.", CreateNoSeries());
-            if "Posted Transfer Shpt. Nos." = '' then
-                Validate("Posted Transfer Shpt. Nos.", CreateNoSeries());
-            if "Posted Transfer Rcpt. Nos." = '' then
-                Validate("Posted Transfer Rcpt. Nos.", CreateNoSeries());
-            Modify(true);
-        end;
+        InvSetup.Get();
+        if InvSetup."Transfer Order Nos." = '' then
+            InvSetup.Validate("Transfer Order Nos.", CreateNoSeries());
+        if InvSetup."Posted Transfer Shpt. Nos." = '' then
+            InvSetup.Validate("Posted Transfer Shpt. Nos.", CreateNoSeries());
+        if InvSetup."Posted Transfer Rcpt. Nos." = '' then
+            InvSetup.Validate("Posted Transfer Rcpt. Nos.", CreateNoSeries());
+        InvSetup.Modify(true);
     end;
 
     local procedure SetupInvtDocNosInInvSetup()
     var
         InvSetup: Record "Inventory Setup";
     begin
-        with InvSetup do begin
-            Get();
-            if "Invt. Receipt Nos." = '' then
-                Validate("Invt. Receipt Nos.", CreateNoSeries());
-            if "Posted Invt. Receipt Nos." = '' then
-                Validate("Posted Invt. Receipt Nos.", CreateNoSeries());
-            if "Invt. Shipment Nos." = '' then
-                Validate("Invt. Shipment Nos.", CreateNoSeries());
-            if "Posted Invt. Shipment Nos." = '' then
-                Validate("Posted Invt. Shipment Nos.", CreateNoSeries());
-            Modify(true);
-        end;
+        InvSetup.Get();
+        if InvSetup."Invt. Receipt Nos." = '' then
+            InvSetup.Validate("Invt. Receipt Nos.", CreateNoSeries());
+        if InvSetup."Posted Invt. Receipt Nos." = '' then
+            InvSetup.Validate("Posted Invt. Receipt Nos.", CreateNoSeries());
+        if InvSetup."Invt. Shipment Nos." = '' then
+            InvSetup.Validate("Invt. Shipment Nos.", CreateNoSeries());
+        if InvSetup."Posted Invt. Shipment Nos." = '' then
+            InvSetup.Validate("Posted Invt. Shipment Nos.", CreateNoSeries());
+        InvSetup.Modify(true);
     end;
 
     local procedure InitQty(var TotalQty: Decimal; var Qty: array[2] of Decimal)

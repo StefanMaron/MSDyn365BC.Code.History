@@ -17,7 +17,6 @@ using Microsoft.Purchases.Posting;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Posting;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Document;
 using System.Security.AccessControl;
 using System.Threading;
 
@@ -29,8 +28,10 @@ codeunit 841 "Cash Flow Management"
     end;
 
     var
+#pragma warning disable AA0470
         SourceDataDoesNotExistErr: Label 'Source data does not exist for %1: %2.', Comment = 'Source data doesn''t exist for G/L Account: 8210.';
         SourceDataDoesNotExistInfoErr: Label 'Source data does not exist in %1 for %2: %3.', Comment = 'Source data doesn''t exist in Vendor Ledger Entry for Document No.: PO000123.';
+#pragma warning restore AA0470
         SourceTypeNotSupportedErr: Label 'Source type is not supported.';
         DefaultTxt: Label 'Default';
         DummyDate: Date;
@@ -132,8 +133,6 @@ codeunit 841 "Cash Flow Management"
                 ShowSalesOrder(SourceNo);
             CFWorksheetLine."Source Type"::"Purchase Orders":
                 ShowPurchaseOrder(SourceNo);
-            CFWorksheetLine."Source Type"::"Service Orders":
-                ShowServiceOrder(SourceNo);
             CFWorksheetLine."Source Type"::"Cash Flow Manual Revenue":
                 ShowManualRevenue(SourceNo);
             CFWorksheetLine."Source Type"::"Cash Flow Manual Expense":
@@ -223,20 +222,6 @@ codeunit 841 "Cash Flow Management"
             Error(SourceDataDoesNotExistErr, SourceType::"Purchase Orders", SourceNo);
         PurchaseOrder.SetTableView(PurchaseHeader);
         PurchaseOrder.Run();
-    end;
-
-    local procedure ShowServiceOrder(SourceNo: Code[20])
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceOrder: Page "Service Order";
-        SourceType: Enum "Cash Flow Source Type";
-    begin
-        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
-        ServiceHeader.SetRange("No.", SourceNo);
-        if not ServiceHeader.FindFirst() then
-            Error(SourceDataDoesNotExistErr, SourceType::"Service Orders", SourceNo);
-        ServiceOrder.SetTableView(ServiceHeader);
-        ServiceOrder.Run();
     end;
 
     local procedure ShowManualRevenue(SourceNo: Code[20])
@@ -498,7 +483,6 @@ codeunit 841 "Cash Flow Management"
         CreateCashFlowAccount(CashFlowAccount."Source Type"::Receivables, '');
         CreateCashFlowAccount(CashFlowAccount."Source Type"::Payables, '');
         CreateCashFlowAccount(CashFlowAccount."Source Type"::"Sales Orders", '');
-        CreateCashFlowAccount(CashFlowAccount."Source Type"::"Service Orders", '');
         CreateCashFlowAccount(CashFlowAccount."Source Type"::"Purchase Orders", '');
         CreateCashFlowAccount(CashFlowAccount."Source Type"::"Fixed Assets Budget", '');
         CreateCashFlowAccount(CashFlowAccount."Source Type"::"Fixed Assets Disposal", '');
@@ -522,7 +506,7 @@ codeunit 841 "Cash Flow Management"
         CashFlowAccount.Insert();
     end;
 
-    local procedure GetNoFromSourceType(SourceType: Option): Text
+    procedure GetNoFromSourceType(SourceType: Option): Text
     var
         CashFlowAccount: Record "Cash Flow Account";
     begin
@@ -584,7 +568,6 @@ codeunit 841 "Cash Flow Management"
         CashFlowSetup.Validate("Receivables CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Receivables.AsInteger()));
         CashFlowSetup.Validate("Payables CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::Payables.AsInteger()));
         CashFlowSetup.Validate("Sales Order CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Sales Orders".AsInteger()));
-        CashFlowSetup.Validate("Service CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Service Orders".AsInteger()));
         CashFlowSetup.Validate("Purch. Order CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Purchase Orders".AsInteger()));
         CashFlowSetup.Validate("FA Budget CF Account No.", GetNoFromSourceType(CashFlowAccount."Source Type"::"Fixed Assets Budget".AsInteger()));
         CashFlowSetup.Validate(
@@ -637,7 +620,7 @@ codeunit 841 "Cash Flow Management"
         Window: Dialog;
         Sources: array[16] of Boolean;
         Index: Integer;
-        SourceType: Option ,Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Order","Purchase Order","Budgeted Fixed Asset","Sale of Fixed Asset","Service Orders","G/L Budget",,,Job,Tax,"Azure AI";
+        SourceType: Enum "Cash Flow Source Type";
         Handled: Boolean;
     begin
         OnBeforeUpdateCashFlowForecast(AzureAIEnabled, Handled);
@@ -657,7 +640,7 @@ codeunit 841 "Cash Flow Management"
         for Index := 1 to ArrayLen(Sources) do
             Sources[Index] := true;
 
-        Sources[SourceType::"Azure AI"] := AzureAIEnabled;
+        Sources[SourceType::"Azure AI".AsInteger()] := AzureAIEnabled;
         SuggestWorksheetLines.InitializeRequest(
           Sources, CashFlowSetup."CF No. on Chart in Role Center", CashFlowForecast."Default G/L Budget Name", true);
         SuggestWorksheetLines.UseRequestPage := false;
@@ -833,7 +816,7 @@ codeunit 841 "Cash Flow Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCreateCashFlowAccounts(LiquidFundsGLAccountFilter: Code[250])
     begin
     end;
@@ -843,7 +826,7 @@ codeunit 841 "Cash Flow Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInsertOnCreateCashFlowSetup(var CashFlowSetup: Record "Cash Flow Setup"; CashFlowNoSeriesCode: Code[20])
     begin
     end;

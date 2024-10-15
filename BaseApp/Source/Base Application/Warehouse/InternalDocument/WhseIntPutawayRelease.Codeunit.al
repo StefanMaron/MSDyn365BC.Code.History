@@ -13,9 +13,13 @@ codeunit 7316 "Whse. Int. Put-away Release"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'There is nothing to release for %1 %2.';
+#pragma warning restore AA0470
         Text001: Label 'You cannot reopen the whse. internal put-away because warehouse worksheet lines exist that must first be handled or deleted.';
         Text002: Label 'You cannot reopen the whse. internal put-away because warehouse activity lines exist that must first be handled or deleted.';
+#pragma warning restore AA0074
 
     procedure Release(WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
     var

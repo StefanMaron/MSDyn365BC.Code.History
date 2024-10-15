@@ -188,10 +188,8 @@ codeunit 134666 "Certificate Test"
 
     local procedure InsertCertificate(var IsolatedCertificate: Record "Isolated Certificate")
     begin
-        with IsolatedCertificate do begin
-            Init();
-            Insert(true);
-        end;
+        IsolatedCertificate.Init();
+        IsolatedCertificate.Insert(true);
     end;
 
     local procedure ChangeUserForCertificate(IsolatedCertificate: Record "Isolated Certificate")
@@ -212,20 +210,18 @@ codeunit 134666 "Certificate Test"
 
     local procedure SetScope(var IsolatedCertificate: Record "Isolated Certificate")
     begin
-        with IsolatedCertificate do begin
-            case Scope of
-                Scope::Company:
-                    Validate("Company ID", CompanyName);
-                Scope::User:
-                    "User ID" := Format(UserSecurityId());
-                Scope::CompanyAndUser:
-                    begin
-                        Validate("Company ID", CompanyName);
-                        "User ID" := Format(UserSecurityId());
-                    end;
-            end;
-            Modify();
+        case IsolatedCertificate.Scope of
+            IsolatedCertificate.Scope::Company:
+                IsolatedCertificate.Validate("Company ID", CompanyName);
+            IsolatedCertificate.Scope::User:
+                IsolatedCertificate."User ID" := Format(UserSecurityId());
+            IsolatedCertificate.Scope::CompanyAndUser:
+                begin
+                    IsolatedCertificate.Validate("Company ID", CompanyName);
+                    IsolatedCertificate."User ID" := Format(UserSecurityId());
+                end;
         end;
+        IsolatedCertificate.Modify();
     end;
 }
 

@@ -66,7 +66,11 @@ report 5190 "Delete Interaction Log Entries"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 has been deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NoOfInteractions: Integer;
 
     local procedure SetPurchDocInteraction(InteractionLogEntry: Record "Interaction Log Entry"; DocumentType: Enum "Purchase Document Type")

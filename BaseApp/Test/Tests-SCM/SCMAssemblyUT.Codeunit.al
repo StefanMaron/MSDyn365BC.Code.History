@@ -549,7 +549,6 @@ codeunit 137928 "SCM Assembly UT"
     var
         ItemVariant: Record "Item Variant";
         AssemblyHeader: Record "Assembly Header";
-        BlockedItemErr: Label 'Blocked must be equal to ''No''';
     begin
         // [SCENARIO] Assembly order cannot be created when item variant is blocked.
 
@@ -567,7 +566,7 @@ codeunit 137928 "SCM Assembly UT"
         asserterror AssemblyHeader.Validate("Variant Code", ItemVariant.Code);
 
         // [THEN] Error 'Blocked must be No' is shown
-        Assert.ExpectedError(BlockedItemErr);
+        Assert.ExpectedTestFieldError(ItemVariant.FieldCaption(Blocked), Format(false));
     end;
 
 
@@ -861,12 +860,10 @@ codeunit 137928 "SCM Assembly UT"
 
     local procedure MockATOLink(var AssembleToOrderLink: Record "Assemble-to-Order Link")
     begin
-        with AssembleToOrderLink do begin
-            Init();
-            "Assembly Document Type" := "Assembly Document Type"::Order;
-            "Assembly Document No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        AssembleToOrderLink.Init();
+        AssembleToOrderLink."Assembly Document Type" := AssembleToOrderLink."Assembly Document Type"::Order;
+        AssembleToOrderLink."Assembly Document No." := LibraryUtility.GenerateGUID();
+        AssembleToOrderLink.Insert();
     end;
 
     local procedure MockItemsLotsSerials(var ItemNo: array[2] of Code[20]; var LotNo: array[2] of Code[20]; var SerialNo: array[2] of Code[20])
@@ -883,36 +880,30 @@ codeunit 137928 "SCM Assembly UT"
 
     local procedure MockLocation(var Location: Record Location; ToAsmBinCode: Code[20])
     begin
-        with Location do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            "To-Assembly Bin Code" := ToAsmBinCode;
-            Insert();
-        end;
+        Location.Init();
+        Location.Code := LibraryUtility.GenerateGUID();
+        Location."To-Assembly Bin Code" := ToAsmBinCode;
+        Location.Insert();
     end;
 
     local procedure MockWhseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; IsATO: Boolean)
     begin
-        with WarehouseShipmentLine do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            "Line No." := LibraryUtility.GetNewRecNo(WarehouseShipmentLine, FieldNo("Line No."));
-            "Assemble to Order" := IsATO;
-            Insert();
-        end;
+        WarehouseShipmentLine.Init();
+        WarehouseShipmentLine."No." := LibraryUtility.GenerateGUID();
+        WarehouseShipmentLine."Line No." := LibraryUtility.GetNewRecNo(WarehouseShipmentLine, WarehouseShipmentLine.FieldNo("Line No."));
+        WarehouseShipmentLine."Assemble to Order" := IsATO;
+        WarehouseShipmentLine.Insert();
     end;
 
     local procedure MockWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseDocType: Enum "Warehouse Worksheet Document Type"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
     begin
-        with WhseWorksheetLine do begin
-            Init();
-            "Whse. Document Type" := WhseDocType;
-            "Source Type" := SourceType;
-            "Source Subtype" := SourceSubtype;
-            "Source No." := SourceNo;
-            "Whse. Document No." := WhseDocNo;
-            "Whse. Document Line No." := WhseDocLineNo;
-        end;
+        WhseWorksheetLine.Init();
+        WhseWorksheetLine."Whse. Document Type" := WhseDocType;
+        WhseWorksheetLine."Source Type" := SourceType;
+        WhseWorksheetLine."Source Subtype" := SourceSubtype;
+        WhseWorksheetLine."Source No." := SourceNo;
+        WhseWorksheetLine."Whse. Document No." := WhseDocNo;
+        WhseWorksheetLine."Whse. Document Line No." := WhseDocLineNo;
     end;
 
     local procedure MockWhseEntries(Location: Record Location; ItemNo: array[2] of Code[20]; LotNo: array[2] of Code[20]; SerialNo: array[2] of Code[20]; QtyBase: Decimal)
@@ -922,32 +913,29 @@ codeunit 137928 "SCM Assembly UT"
         j: Integer;
         k: Integer;
     begin
-        with WarehouseEntry do
-            for i := 1 to ArrayLen(ItemNo) do
-                for j := 1 to ArrayLen(LotNo) do
-                    for k := 1 to ArrayLen(SerialNo) do begin
-                        Init();
-                        "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
-                        "Location Code" := Location.Code;
-                        "Bin Code" := Location."To-Assembly Bin Code";
-                        "Item No." := ItemNo[i];
-                        "Lot No." := LotNo[j];
-                        "Serial No." := SerialNo[k];
-                        "Qty. (Base)" := QtyBase;
-                        Insert();
-                    end;
+        for i := 1 to ArrayLen(ItemNo) do
+            for j := 1 to ArrayLen(LotNo) do
+                for k := 1 to ArrayLen(SerialNo) do begin
+                    WarehouseEntry.Init();
+                    WarehouseEntry."Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, WarehouseEntry.FieldNo("Entry No."));
+                    WarehouseEntry."Location Code" := Location.Code;
+                    WarehouseEntry."Bin Code" := Location."To-Assembly Bin Code";
+                    WarehouseEntry."Item No." := ItemNo[i];
+                    WarehouseEntry."Lot No." := LotNo[j];
+                    WarehouseEntry."Serial No." := SerialNo[k];
+                    WarehouseEntry."Qty. (Base)" := QtyBase;
+                    WarehouseEntry.Insert();
+                end;
     end;
 
     local procedure MockWhseItemTrackingLineForAsmLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; AssemblyLine: Record "Assembly Line")
     begin
-        with WhseItemTrackingLine do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(WhseItemTrackingLine, FieldNo("Entry No."));
-            "Source Type" := DATABASE::"Assembly Line";
-            "Source Subtype" := AssemblyLine."Document Type".AsInteger();
-            "Source ID" := AssemblyLine."Document No.";
-            "Source Ref. No." := AssemblyLine."Line No.";
-            Insert();
-        end;
+        WhseItemTrackingLine."Entry No." := LibraryUtility.GetNewRecNo(WhseItemTrackingLine, WhseItemTrackingLine.FieldNo("Entry No."));
+        WhseItemTrackingLine."Source Type" := DATABASE::"Assembly Line";
+        WhseItemTrackingLine."Source Subtype" := AssemblyLine."Document Type".AsInteger();
+        WhseItemTrackingLine."Source ID" := AssemblyLine."Document No.";
+        WhseItemTrackingLine."Source Ref. No." := AssemblyLine."Line No.";
+        WhseItemTrackingLine.Insert();
     end;
 
     local procedure ReopenAReleasedAsmDoc(SalesDocType: Enum "Sales Document Type"; AsmDocReopens: Boolean)

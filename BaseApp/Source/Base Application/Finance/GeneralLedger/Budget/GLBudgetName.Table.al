@@ -120,8 +120,12 @@ table 95 "G/L Budget Name"
         DimSetEntry: Record "Dimension Set Entry";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1\You cannot use the same dimension twice in the same budget.';
+#pragma warning restore AA0470
         Text001: Label 'Updating budget entries @1@@@@@@@@@@@@@@@@@@';
+#pragma warning restore AA0074
 
     local procedure UpdateGLBudgetEntryDim()
     var

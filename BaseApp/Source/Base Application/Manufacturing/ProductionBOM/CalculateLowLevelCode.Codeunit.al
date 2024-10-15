@@ -29,7 +29,9 @@ codeunit 99000793 "Calculate Low-Level Code"
         Item: Record Item;
         ActualProdBOM: Record "Production BOM Header";
 
+#pragma warning disable AA0470
         ProdBomErr: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
+#pragma warning restore AA0470
 
     procedure CalcLevels(Type: Option " ",Item,"Production BOM",Assembly; No: Code[20]; Level: Integer; LevelDepth: Integer) Result: Integer
     var

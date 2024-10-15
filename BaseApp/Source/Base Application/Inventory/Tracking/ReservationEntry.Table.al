@@ -1,20 +1,13 @@
 ﻿namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.UOM;
-using Microsoft.Inventory.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Journal;
@@ -317,8 +310,10 @@ table 337 "Reservation Entry"
     var
         UOMMgt: Codeunit "Unit of Measure Management";
 
+#pragma warning disable AA0074
         Text001: Label 'Line';
         Text004: Label 'Codeunit 99000845: Illegal FieldFilter parameter';
+#pragma warning restore AA0074
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -367,33 +362,14 @@ table 337 "Reservation Entry"
         case "Source Type" of
             Database::"Item Ledger Entry":
                 exit(Enum::"Reservation Summary Type"::"Item Ledger Entry".AsInteger());
-            Database::"Purchase Line":
-                exit(Enum::"Reservation Summary Type"::"Purchase Quote".AsInteger() + "Source Subtype");
             Database::"Requisition Line":
                 exit(Enum::"Reservation Summary Type"::"Requisition Line".AsInteger());
-            Database::"Sales Line":
-                exit(Enum::"Reservation Summary Type"::"Sales Quote".AsInteger() + "Source Subtype");
             Database::"Item Journal Line":
                 exit(Enum::"Reservation Summary Type"::"Item Journal Purchase".AsInteger() + "Source Subtype");
-            Database::"Job Journal Line":
-                exit(Enum::"Reservation Summary Type"::"Job Journal Usage".AsInteger() + "Source Subtype");
-            Database::"Prod. Order Line":
-                exit(Enum::"Reservation Summary Type"::"Simulated Production Order".AsInteger() + "Source Subtype");
-            Database::"Prod. Order Component":
-                exit(Enum::"Reservation Summary Type"::"Simulated Prod. Order Comp.".AsInteger() + "Source Subtype");
-            Database::"Transfer Line":
-                exit(Enum::"Reservation Summary Type"::"Transfer Shipment".AsInteger() + "Source Subtype");
-            Database::"Service Line":
-                exit(Enum::"Reservation Summary Type"::"Service Order".AsInteger());
-            Database::"Assembly Header":
-                exit(Enum::"Reservation Summary Type"::"Assembly Quote Header".AsInteger() + "Source Subtype");
-            Database::"Assembly Line":
-                exit(Enum::"Reservation Summary Type"::"Assembly Quote Line".AsInteger() + "Source Subtype");
-            Database::"Invt. Document Line":
-                exit(Enum::"Reservation Summary Type"::"Inventory Receipt".AsInteger() + "Source Subtype");
-            else
-                exit(0);
         end;
+
+        OnAfterSummEntryNo(Rec, ReturnValue);
+        exit(ReturnValue);
     end;
 
     procedure HasSamePointer(var ReservEntry: Record "Reservation Entry"): Boolean
@@ -482,6 +458,7 @@ table 337 "Reservation Entry"
         Rec2: Record "Reservation Entry";
     begin
         Rec2.SetCurrentKey("Item No.", "Variant Code", "Location Code");
+        Rec2.SetLoadFields("Entry No.");
         if "Item No." <> '' then begin
             Rec2.SetRange("Item No.", "Item No.");
             Rec2.SetRange("Variant Code", "Variant Code");
@@ -1134,6 +1111,11 @@ table 337 "Reservation Entry"
         end;
     end;
 
+    procedure UpdateSourceCost(UnitCost: Decimal)
+    begin
+        OnUpdateSourceCost(Rec, UnitCost);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemLedgEntry(var ReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
@@ -1385,6 +1367,11 @@ table 337 "Reservation Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSummEntryNo(ReservationEntry: Record "Reservation Entry"; var ReturnValue: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSummEntryNo(ReservationEntry: Record "Reservation Entry"; var ReturnValue: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -1416,6 +1403,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReservationsOnBeforeSetSourceForNewEntry(var OldReservationEntry: Record "Reservation Entry"; var NewReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSourceCost(ReservationEntry: Record "Reservation Entry"; UnitCost: Decimal)
     begin
     end;
 

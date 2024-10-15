@@ -42,13 +42,10 @@ codeunit 137275 "SCM Inventory Journals"
         AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         SerialNoConfirmaton: Label 'Do you want to overwrite the existing information?';
         LotNoListPageCaption: Label 'Lot No. Information List';
-        LotNoError: Label 'The %1 does not exist. Identification fields and values: %2=''%3'',%4='''',%5=''%6''', Comment = '%1:TableCaption1,%2:FieldCaption1,%3:Value1,%4:FieldCaption2,%5:FieldCaption3,%6::Value2';
         LotNoInformationError: Label 'Do you want to overwrite the existing information?';
         LocationErr: Label 'Wrong Location Code in Item Journal Line.';
-        NewExpirationDate: Label 'New Expiration Date must be equal to ''%1''  in Tracking Specification: Entry No.=1. Current value is ''''.';
         ErrorMustMatch: Label 'Error must be same.';
         CorrectionsError: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
-        BlockedLotNoInformationError: Label '%1 must be equal to ''No''  in %2: %3=%4, %5=, %6=%7. Current value is ''Yes''.', Comment = '%1:FieldCaption1,%2:TableCaption1,%3:FieldCaption2,%4:Value1,%5:FieldCaption3,%6:FieldCaption4,%7::Value2';
         QuantityError: Label 'Quantity must be positive.';
         QuantityErr: Label 'Quantity must be same.';
         LotNumberError: Label 'You must assign a lot number for item %1.', Comment = '%1:Value1';
@@ -60,7 +57,6 @@ codeunit 137275 "SCM Inventory Journals"
         QtyCalculatedErr: Label 'Qty. Calculated is not correct for %1 with Variant %2, Location %3, Bin %4.';
         ItemExistErr: Label 'Item No. must have a value';
         ItemJournalLineDimErr: Label 'Dimensions on Item Journal Line should be same as on Item Ledger Entry if Calculate Inventory using By Dimensions';
-        TemplateTypeMustItemErr: Label 'Type must be equal to ''Item''';
         TextGetLastErrorText: Label 'Actual error: ''%1''. Expected: ''%2''';
         RecurringMustNoErr: Label 'Recurring must be equal to ''No''';
         CurrentSaveValuesId: Integer;
@@ -259,7 +255,6 @@ codeunit 137275 "SCM Inventory Journals"
     procedure ItemReclassJournalWithExistingLotNoError()
     var
         ReclassificationItemJournalLine: Record "Item Journal Line";
-        LotNoInformation: Record "Lot No. Information";
     begin
         // [SCENARIO] Error message after Posting Item Reclass. Journal while updating New Lot No. with existing Lot Number.
 
@@ -276,11 +271,7 @@ codeunit 137275 "SCM Inventory Journals"
             ReclassificationItemJournalLine."Journal Template Name", ReclassificationItemJournalLine."Journal Batch Name");
 
         // [THEN] Verify Error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            LotNoError, LotNoInformation.TableCaption(), LotNoInformation.FieldCaption("Item No."), GlobalItemNo,
-            ReclassificationItemJournalLine.FieldCaption("Variant Code"),
-            ReclassificationItemJournalLine.FieldCaption("Lot No."), GlobalNewLotNo));
+        Assert.ExpectedErrorCannotFind(Database::"Lot No. Information");
 
         // Tear Down.
         UpdateItemTrackingCode(false, false);
@@ -334,6 +325,7 @@ codeunit 137275 "SCM Inventory Journals"
     procedure NewExpirationDateError()
     var
         ReclassificationItemJournalLine: Record "Item Journal Line";
+        TrackingSpec: Record "Tracking Specification";
     begin
         // [SCENARIO] Error message after Posting Item Reclass. Journal while updating Lot Number.
 
@@ -349,7 +341,7 @@ codeunit 137275 "SCM Inventory Journals"
             ReclassificationItemJournalLine."Journal Template Name", ReclassificationItemJournalLine."Journal Batch Name");
 
         // [THEN] Verify Error message.
-        Assert.ExpectedError(StrSubstNo(NewExpirationDate, GlobalExpirationDate));
+        Assert.ExpectedTestFieldError(TrackingSpec.FieldCaption("New Expiration Date"), Format(GlobalExpirationDate));
     end;
 
     [Test]
@@ -477,11 +469,7 @@ codeunit 137275 "SCM Inventory Journals"
             ReclassificationItemJournalLine."Journal Template Name", ReclassificationItemJournalLine."Journal Batch Name");
 
         // [THEN] Verify Error message.
-        Assert.ExpectedError(
-          StrSubstNo(
-            BlockedLotNoInformationError, LotNoInformation.FieldCaption(Blocked), LotNoInformation.TableCaption(),
-            LotNoInformation.FieldCaption("Item No."), GlobalItemNo, ReclassificationItemJournalLine.FieldCaption("Variant Code"),
-            ReclassificationItemJournalLine.FieldCaption("Lot No."), GlobalNewLotNo));
+        Assert.ExpectedTestFieldError(LotNoInformation.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1263,7 +1251,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure CalculateInventoryWithZeroQtyFalse_PositiveAmount()
     var
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         Location: Record Location;
         StockKeepingUnit: Record "Stockkeeping Unit";
         ItemNo: Code[20];
@@ -1308,7 +1296,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure CalculateInventoryWithZeroQtyFalse_ZeroAmount()
     var
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         Location: Record Location;
         StockKeepingUnit: Record "Stockkeeping Unit";
         ItemNo: Code[20];
@@ -1348,7 +1336,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure CalculateInventoryWithZeroQtyFalse_NoTransactions()
     var
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         Location: Record Location;
         StockKeepingUnit: Record "Stockkeeping Unit";
         ItemNo: Code[20];
@@ -1383,7 +1371,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure CalculateInventoryWithZeroQtyTrue_PositiveAmount()
     var
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         Location: Record Location;
         StockKeepingUnit: Record "Stockkeeping Unit";
         ItemNo: Code[20];
@@ -1427,7 +1415,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure CalculateInventoryWithZeroQtyTrue_ZeroAmount()
     var
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         Location: Record Location;
         StockKeepingUnit: Record "Stockkeeping Unit";
         ItemNo: Code[20];
@@ -1467,7 +1455,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure CalculateInventoryWithZeroQtyTrue_NoTransactions()
     var
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         Location: Record Location;
         StockKeepingUnit: Record "Stockkeeping Unit";
         ItemNo: Code[20];
@@ -1502,7 +1490,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure CalculateInventoryWithNoTransactionsTrue_PositiveAmount()
     var
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         Location: Record Location;
         StockKeepingUnit: Record "Stockkeeping Unit";
         ItemNo: Code[20];
@@ -1546,7 +1534,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure CalculateInventoryWithNoTransactionsTrue_ZeroAmount()
     var
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         Location: Record Location;
         StockKeepingUnit: Record "Stockkeeping Unit";
         ItemNo: Code[20];
@@ -1586,7 +1574,7 @@ codeunit 137275 "SCM Inventory Journals"
     [Scope('OnPrem')]
     procedure CalculateInventoryWithNoTransactionsTrue_NoTransactions()
     var
-        ItemVariant: Array[2] of Record "Item Variant";
+        ItemVariant: array[2] of Record "Item Variant";
         Location: Record Location;
         StockKeepingUnit: Record "Stockkeeping Unit";
         ItemNo: Code[20];
@@ -1622,6 +1610,7 @@ codeunit 137275 "SCM Inventory Journals"
     procedure ItemTrackingOnLinesShouldAllowedForTemplateTypeItemOnly()
     var
         ItemJournalBatch: Record "Item Journal Batch";
+        ItemJnlTemplate: Record "Item Journal Template";
     begin
         // [SCENARIO 473079] Lot No., Expiration Date and Warranty Date are not available for Physical Inventory Journals after activating Item Tracking on Lines for Physical Inventory Batches
 
@@ -1635,9 +1624,7 @@ codeunit 137275 "SCM Inventory Journals"
         asserterror ItemJournalBatch.Validate("Item Tracking on Lines", true);
 
         // [VERIFY] Verify: Error: Type must be equal to 'Item' in Item Journal Template.
-        Assert.IsTrue(
-            StrPos(GetLastErrorText, TemplateTypeMustItemErr) > 0,
-            StrSubstNo(TextGetLastErrorText, GetLastErrorText, TemplateTypeMustItemErr));
+        Assert.ExpectedTestFieldError(ItemJnlTemplate.FieldCaption(Type), Format(ItemJournalBatch."Template Type"::Item));
     end;
 
     [Test]
@@ -1930,15 +1917,13 @@ codeunit 137275 "SCM Inventory Journals"
         LibraryInventory.CreateItemJournalLine(
           ReclassificationItemJournalLine, ReclassificationItemJournalBatch."Journal Template Name",
           ReclassificationItemJournalBatch.Name, ReclassificationItemJournalLine."Entry Type"::Transfer, Item."No.", Qty2);
-        with ReclassificationItemJournalLine do begin
-            Validate("Location Code", Location.Code);
-            Validate("New Location Code", LocationCode);
-            Validate("New Bin Code", BinCode);
-            Modify(true);
-        end;
+        ReclassificationItemJournalLine.Validate("Location Code", Location.Code);
+        ReclassificationItemJournalLine.Validate("New Location Code", LocationCode);
+        ReclassificationItemJournalLine.Validate("New Bin Code", BinCode);
+        ReclassificationItemJournalLine.Modify(true);
     end;
 
-    local procedure CreateItemWith2Variants(var ItemVariant: Array[2] of Record "Item Variant") ItemNo: Code[20]
+    local procedure CreateItemWith2Variants(var ItemVariant: array[2] of Record "Item Variant") ItemNo: Code[20]
     begin
         ItemNo := LibraryInventory.CreateItemNo();
         LibraryInventory.CreateItemVariant(ItemVariant[1], ItemNo);
@@ -2029,12 +2014,10 @@ codeunit 137275 "SCM Inventory Journals"
 
     local procedure FindItemLedgerEntryWithLocation(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Entry Type", EntryType);
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            FindFirst();
-        end;
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindItemTrackingComment(var ItemTrackingComment: Record "Item Tracking Comment"; CommentType: Enum "Item Tracking Comment Type"; ItemNo: Code[20])
@@ -2046,12 +2029,10 @@ codeunit 137275 "SCM Inventory Journals"
 
     local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20])
     begin
-        with ItemJournalLine do begin
-            SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", ItemJournalBatch.Name);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-        end;
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        ItemJournalLine.FindFirst();
     end;
 
     local procedure FindLotNoInformation(var LotNoInformation: Record "Lot No. Information"; ItemNo: Code[20])
@@ -2068,14 +2049,12 @@ codeunit 137275 "SCM Inventory Journals"
 
     local procedure PostItemJournalLine(ItemJournalLine: Record "Item Journal Line"; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal)
     begin
-        with ItemJournalLine do begin
-            Validate("Variant Code", VariantCode);
-            Validate("Location Code", LocationCode);
-            Validate("Bin Code", BinCode);
-            Validate(Quantity, Qty);
-            Modify(true);
-            LibraryInventory.PostItemJournalLine("Journal Template Name", "Journal Batch Name");
-        end;
+        ItemJournalLine.Validate("Variant Code", VariantCode);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Validate(Quantity, Qty);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure PostPurchaseOrderWithItemTracking(LotNos: Code[20]; SerialNos: Code[20]; LotSpecificTracking: Boolean; SerialNoSpecificTracking: Boolean; ItemTrackingAction2: Option; Quantity: Decimal)
@@ -2164,11 +2143,9 @@ codeunit 137275 "SCM Inventory Journals"
         CalculateInventory: Report "Calculate Inventory";
     begin
         CreateItemJournalBatch(ItemJournalBatch);
-        with ItemJournalLine do begin
-            Init();
-            Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
-            Validate("Journal Batch Name", ItemJournalBatch.Name);
-        end;
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         CalculateInventory.SetItemJnlLine(ItemJournalLine);
         Commit();
         CalculateInventory.RunModal();
@@ -2316,12 +2293,10 @@ codeunit 137275 "SCM Inventory Journals"
 
     local procedure FilterItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[20]; BinCode: Code[20])
     begin
-        with ItemJournalLine do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Variant Code", VariantCode);
-            SetRange("Location Code", LocationCode);
-            SetRange("Bin Code", BinCode);
-        end;
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        ItemJournalLine.SetRange("Variant Code", VariantCode);
+        ItemJournalLine.SetRange("Location Code", LocationCode);
+        ItemJournalLine.SetRange("Bin Code", BinCode);
     end;
 
     local procedure VerifyDimOnItemJournalLine(ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; DimSetID: array[2] of Integer)
@@ -2329,16 +2304,14 @@ codeunit 137275 "SCM Inventory Journals"
         ItemJournalLine: Record "Item Journal Line";
         iDim: Integer;
     begin
-        with ItemJournalLine do begin
-            SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", ItemJournalBatch.Name);
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            repeat
-                iDim += 1;
-                Assert.AreEqual(DimSetID[iDim], "Dimension Set ID", ItemJournalLineDimErr);
-            until Next() = 0;
-        end;
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        ItemJournalLine.FindSet();
+        repeat
+            iDim += 1;
+            Assert.AreEqual(DimSetID[iDim], ItemJournalLine."Dimension Set ID", ItemJournalLineDimErr);
+        until ItemJournalLine.Next() = 0;
     end;
 
     local procedure VerifyItemJournalLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[20]; BinCode: Code[20]; QtyCalculated: Decimal)

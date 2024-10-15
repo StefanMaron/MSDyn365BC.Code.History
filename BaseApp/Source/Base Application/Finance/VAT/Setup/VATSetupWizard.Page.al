@@ -10,7 +10,6 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Inventory.Item;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
-using Microsoft.Service.Document;
 using System.Environment;
 using System.Environment.Configuration;
 using System.IO;
@@ -22,8 +21,7 @@ page 1877 "VAT Setup Wizard"
     PageType = NavigatePage;
     Permissions = TableData "VAT Setup Posting Groups" = rimd,
                   TableData "VAT Assisted Setup Templates" = rimd,
-                  TableData "VAT Assisted Setup Bus. Grp." = rimd,
-                  TableData "Service Line" = rimd;
+                  TableData "VAT Assisted Setup Bus. Grp." = rimd;
 
     layout
     {
@@ -693,18 +691,17 @@ page 1877 "VAT Setup Wizard"
     local procedure ClearVATProdPostingGrp()
     var
         Item: Record Item;
-        ServiceLine: Record "Service Line";
         VATProductPostingGroup: Record "VAT Product Posting Group";
+        ShouldDelete: Boolean;
     begin
-        if not VATProductPostingGroup.FindSet() then
-            exit;
-
-        repeat
-            Item.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-            ServiceLine.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-            if (not Item.FindFirst()) and (not ServiceLine.FindFirst()) then
-                VATProductPostingGroup.Delete();
-        until VATProductPostingGroup.Next() = 0;
+        if VATProductPostingGroup.FindSet() then
+            repeat
+                Item.SetRange("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+                ShouldDelete := Item.IsEmpty();
+                OnBeforeDeleteVATProdPostingGroup(VATProductPostingGroup, ShouldDelete);
+                if ShouldDelete then
+                    VATProductPostingGroup.Delete();
+            until VATProductPostingGroup.Next() = 0;
     end;
 
     local procedure ClearVATBusPostingGrp()
@@ -719,7 +716,7 @@ page 1877 "VAT Setup Wizard"
         repeat
             Customer.SetRange("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
             Vendor.SetRange("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
-            if (not Vendor.FindFirst()) and (not Customer.FindFirst()) then
+            if (Vendor.IsEmpty()) and (Customer.IsEmpty()) then
                 VATBusinessPostingGroup.Delete();
         until VATBusinessPostingGroup.Next() = 0;
     end;
@@ -756,6 +753,11 @@ page 1877 "VAT Setup Wizard"
                 GenProductPostingGroup.Modify();
             end;
         until GenProductPostingGroup.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteVATProdPostingGroup(var VATProductPostingGroup: Record "VAT Product Posting Group"; var ShouldDelete: Boolean)
+    begin
     end;
 }
 

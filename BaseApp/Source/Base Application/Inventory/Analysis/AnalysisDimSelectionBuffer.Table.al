@@ -97,8 +97,12 @@ table 7158 "Analysis Dim. Selection Buffer"
     var
         AnalysisSelectedDim: Record "Analysis Selected Dimension";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Another user has modified the selected dimensions for the %1 field after you retrieved it from the database.\';
         Text002: Label 'Enter your changes again in the Dimension Selection window by clicking the AssistButton in the %1 field. ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CompareDimText(ObjectType: Integer; ObjectID: Integer; AnalysisArea: Integer; AnalysisViewCode: Code[10]; SelectedDimText: Text[250]; DimTextFieldName: Text[100])
     var

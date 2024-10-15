@@ -24,14 +24,14 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryRandom: Codeunit "Library - Random";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         NumberofLineErr: Label 'Number of Line must be same.';
@@ -133,7 +133,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Assert.AreEqual(Quantity, SalesLine.Quantity, QuantityErr);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('RetrieveDimStrMenuHandler')]
     [Scope('OnPrem')]
@@ -1737,7 +1737,7 @@ codeunit 137062 "SCM Sales & Receivables"
         until ItemBudgetEntry.Next() = 0;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifyPurchUnitPrice(ItemNo: Text[30]; QtyOfUOMPerUOM2: Decimal; UnitCostOnItemCard: Decimal; UnitPurchPrice: Decimal; UnitOfMeasureCode: Code[10]; UnitOfMeasureCode2: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
@@ -1777,7 +1777,7 @@ codeunit 137062 "SCM Sales & Receivables"
         until DateComprRegister.Next() = 0;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifySalesUnitPrice(ItemNo: Text[30]; QtyOfUOMPerUOM2: Decimal; UnitPriceOnItemCard: Decimal; UnitSalesPrice: Decimal; UnitOfMeasureCode: Code[10]; UnitOfMeasureCode2: Code[10])
     var
         SalesLine: Record "Sales Line";
@@ -1875,12 +1875,10 @@ codeunit 137062 "SCM Sales & Receivables"
 
     local procedure VerifySalesLineDetails(SalesLine: Record "Sales Line"; ExpectedType: Enum "Sales Line Type"; ExpectedNo: Code[20]; ExpectedBOMItemNo: Code[20]; ExpectedDescription: Text[100])
     begin
-        with SalesLine do begin
-            Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));
-            Assert.AreEqual(ExpectedNo, "No.", FieldCaption("No."));
-            Assert.AreEqual(ExpectedBOMItemNo, "BOM Item No.", FieldCaption("BOM Item No."));
-            Assert.AreEqual(ExpectedDescription, Description, FieldCaption(Description));
-        end;
+        Assert.AreEqual(ExpectedType, SalesLine.Type, SalesLine.FieldCaption(Type));
+        Assert.AreEqual(ExpectedNo, SalesLine."No.", SalesLine.FieldCaption("No."));
+        Assert.AreEqual(ExpectedBOMItemNo, SalesLine."BOM Item No.", SalesLine.FieldCaption("BOM Item No."));
+        Assert.AreEqual(ExpectedDescription, SalesLine.Description, SalesLine.FieldCaption(Description));
     end;
 
     local procedure VerifySalesLinesAfterExplodeBOMWithAutoExtTexts(SalesLine: Record "Sales Line"; ParentItem: Record Item; ChildItem: Record Item; ParentItemExtText: Text[100]; ChildItemExtText: Text[100])

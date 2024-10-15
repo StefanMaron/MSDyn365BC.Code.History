@@ -166,8 +166,10 @@ table 1106 "Cost Allocation Source"
         CostAccSetup: Record "Cost Accounting Setup";
         CostAllocationTarget: Record "Cost Allocation Target";
 
+#pragma warning disable AA0074
         Text000: Label 'To assign the allocation ID, the Last Allocation ID field must be defined in the Cost Accounting setup.';
         Text003: Label 'You cannot define both cost center and cost object.';
+#pragma warning restore AA0074
 
     local procedure Modified()
     begin

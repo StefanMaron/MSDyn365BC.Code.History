@@ -317,7 +317,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByEvent());
+                        AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::"Event");
                     end;
                 }
                 action(Period)
@@ -329,7 +329,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByPeriod());
+                        AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::Period);
                     end;
                 }
                 action(Variant)
@@ -341,7 +341,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByVariant());
+                        AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::Variant);
                     end;
                 }
                 action(Location)
@@ -354,7 +354,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByLocation());
+                        AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::Location);
                     end;
                 }
                 action(Lot)
@@ -377,7 +377,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByBOM());
+                        AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmHeader(Rec, "Item Availability Type"::BOM);
                     end;
                 }
             }
@@ -417,7 +417,7 @@ page 900 "Assembly Order"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -633,6 +633,7 @@ page 900 "Assembly Order"
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Re&lease';
+                    Enabled = Rec.Status <> Rec.Status::Released;
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
@@ -646,6 +647,7 @@ page 900 "Assembly Order"
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Re&open';
+                    Enabled = Rec.Status <> Rec.Status::Open;
                     Image = ReOpen;
                     ToolTip = 'Reopen the document for additional warehouse activity.';
 
@@ -1029,7 +1031,7 @@ page 900 "Assembly Order"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        AssemblyAvailabilityMgt: Codeunit "Assembly Availability Mgt.";
         VariantCodeMandatory: Boolean;
 
     protected var

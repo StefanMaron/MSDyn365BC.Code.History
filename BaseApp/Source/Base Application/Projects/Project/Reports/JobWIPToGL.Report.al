@@ -200,7 +200,9 @@ report 1010 "Job WIP To G/L"
         GLAcc: Record "G/L Account";
         JobFilter: Text;
         WIPText: Text[50];
+#pragma warning disable AA0074
         TEXT000: Label 'WIP Cost Amount,WIP Accrued Costs Amount,WIP Accrued Sales Amount,WIP Invoiced Sales Amount';
+#pragma warning restore AA0074
         WIPText1: Text[50];
         WIPText2: Text[50];
         WIPText3: Text[50];

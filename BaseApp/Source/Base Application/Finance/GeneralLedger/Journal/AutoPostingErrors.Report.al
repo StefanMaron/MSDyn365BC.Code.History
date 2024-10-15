@@ -686,7 +686,9 @@ report 6250 "Auto Posting Errors"
         Text045Txt: Label '%1 must be specified in fixed asset journal lines.', Comment = '%1=FA Posting Type field caption';
         Text046Txt: Label '%1 must be different than %2.', Comment = '%1=Depreciation Book Code field caption, %2=Duplicate in Depreciation Book field caption';
         Text047Txt: Label '%1 and %2 must not both be %3.', Comment = '%1=Account Type field caption, %2=Bal. Account Type field caption, %3=Account Type';
+#pragma warning disable AA0470
         Text049Txt: Label '%1 must not be specified when %2 = %3.', Comment = '%1=Gen. Posting Type field caption, 2%=FA Posting Type field caption, %3=FA Posting Type';
+#pragma warning restore AA0470
         Text050Txt: Label 'must not be specified together with %1 = %2.', Comment = '%1=FA Posting Type field caption, %2=FA Posting Type';
         Text051Txt: Label '%1 must be identical to %2.', Comment = '%1=Posting Date field caption,%2=FA Posting Date';
         Text052Txt: Label '%1 cannot be a closing date.', Comment = '%1=FA Posting Date field caption';
@@ -2094,50 +2096,6 @@ report 6250 "Auto Posting Errors"
         ICGLAccount: Record "IC G/L Account";
         ICBankAccount: Record "IC Bank Account";
     begin
-#if not CLEAN22
-        if (CurrentICPartner <> '') and ("Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Outgoing) then
-            if ("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-               ("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-               ("Gen. Journal Line"."Account No." <> '') and
-               ("Gen. Journal Line"."Bal. Account No." <> '')
-            then
-                AddError(StrSubstNo(Text066Txt, "Gen. Journal Line".FieldCaption("Account No."), "Gen. Journal Line".FieldCaption("Bal. Account No.")))
-            else begin
-                if (("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and ("Gen. Journal Line"."Account No." <> '')) xor
-                   (("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-                    ("Gen. Journal Line"."Bal. Account No." <> ''))
-                then
-                    if "Gen. Journal Line"."IC Partner G/L Acc. No." = '' then
-                        AddError(StrSubstNo(Text002Txt, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")))
-                    else begin
-                        if ICGLAccount.Get("Gen. Journal Line"."IC Partner G/L Acc. No.") then
-                            if ICGLAccount.Blocked then
-                                AddError(StrSubstNo(Text032Txt, ICGLAccount.FieldCaption(Blocked), false, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No."),
-                                    "Gen. Journal Line"."IC Partner G/L Acc. No."));
-
-                        if "Gen. Journal Line"."IC Account Type" = "Gen. Journal Line"."IC Account Type"::"Bank Account" then
-                            if ICBankAccount.Get("Gen. Journal Line"."IC Account No.", CurrentICPartner) then
-                                if ICBankAccount.Blocked then
-                                    AddError(StrSubstNo(Text032Txt, ICBankAccount.FieldCaption(Blocked), false, "Gen. Journal Line".FieldCaption("IC Account No."),
-                                        "Gen. Journal Line"."IC Account No."));
-                    end;
-                if not ((("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-                         ("Gen. Journal Line"."Account No." <> '')) xor
-                        (("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
-                         ("Gen. Journal Line"."Bal. Account No." <> '')))
-                then
-                    if "Gen. Journal Line"."IC Partner G/L Acc. No." <> '' then
-                        AddError(StrSubstNo(Text009Txt, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")));
-            end
-        else
-            if "Gen. Journal Line"."IC Partner G/L Acc. No." <> '' then begin
-                if "Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Incoming then
-                    AddError(StrSubstNo(Text069Txt, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No."),
-                        "Gen. Journal Line".FieldCaption("IC Direction"), Format("Gen. Journal Line"."IC Direction")));
-                if CurrentICPartner = '' then
-                    AddError(StrSubstNo(Text070Txt, "Gen. Journal Line".FieldCaption("IC Partner G/L Acc. No.")));
-            end;
-#else
         if (CurrentICPartner <> '') and ("Gen. Journal Line"."IC Direction" = "Gen. Journal Line"."IC Direction"::Outgoing) then
             if ("Gen. Journal Line"."Account Type" in ["Gen. Journal Line"."Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
                ("Gen. Journal Line"."Bal. Account Type" in ["Gen. Journal Line"."Bal. Account Type"::"G/L Account", "Gen. Journal Line"."Account Type"::"Bank Account"]) and
@@ -2181,7 +2139,6 @@ report 6250 "Auto Posting Errors"
                 if CurrentICPartner = '' then
                     AddError(StrSubstNo(Text070Txt, "Gen. Journal Line".FieldCaption("IC Account No.")));
             end;
-#endif
     end;
 
     [IntegrationEvent(false, false)]

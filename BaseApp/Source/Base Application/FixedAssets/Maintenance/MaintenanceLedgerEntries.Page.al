@@ -337,7 +337,9 @@ page 5641 "Maintenance Ledger Entries"
 
     var
         Navigate: Page Navigate;
+#pragma warning disable AA0470
         CannotUndoErr: Label 'You cannot undo the Maintenance Ledger Entry No. %1 by using the Reverse Transaction function because Depreciation Book %2 does not have the appropriate G/L integration setup.';
+#pragma warning restore AA0470
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
 
     protected var

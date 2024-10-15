@@ -14,7 +14,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
@@ -562,16 +561,22 @@ table 7321 "Warehouse Shipment Line"
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot handle more than the outstanding %1 units.';
         Text001: Label 'must not be less than %1 units';
         Text002: Label 'must not be greater than %1 units';
+#pragma warning restore AA0470
         Text003: Label 'must be greater than zero';
         Text005: Label 'The picked quantity is not enough to ship all lines.';
+#pragma warning disable AA0470
         Text007: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the shipping area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = 'Qty. Picked = 2 is greater than Qty. Shipped = 0. If you delete the Warehouse Shipment Line, the items will remain in the shipping area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the Warehouse Shipment Line?';
         Text008: Label 'You cannot rename a %1.';
         Text009: Label '%1 is set to %2. %3 should be %4.\\';
+#pragma warning restore AA0470
         Text010: Label 'Accept the entered value?';
         Text011: Label 'Nothing to handle. The quantity on the shipment lines are completely picked.';
+#pragma warning restore AA0074
 
     protected var
         WhseShptHeader: Record "Warehouse Shipment Header";
@@ -721,7 +726,6 @@ table 7321 "Warehouse Shipment Line"
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         TransferLine: Record "Transfer Line";
-        ServiceLine: Record "Service Line";
         WhseQtyOutstandingBase: Decimal;
         QtyOutstandingBase: Decimal;
         QuantityBase: Decimal;
@@ -744,6 +748,8 @@ table 7321 "Warehouse Shipment Line"
                     WhseQtyOutstandingBase := WhseQtyOutstandingBase + WhseShptLine."Qty. Outstanding (Base)";
             until WhseShptLine.Next() = 0;
 
+        OnCheckSourceDocLineQtyOnSetQtyOutstandingBase(Rec, QuantityBase, WhseQtyOutstandingBase, QtyOutstandingBase);
+
         case "Source Type" of
             Database::"Sales Line":
                 begin
@@ -765,13 +771,6 @@ table 7321 "Warehouse Shipment Line"
                     if TransferLine."Outstanding Qty. (Base)" < WhseQtyOutstandingBase + QuantityBase then
                         FieldError(Quantity, StrSubstNo(Text002, CalcQty(TransferLine."Outstanding Qty. (Base)" - WhseQtyOutstandingBase)));
                     QtyOutstandingBase := TransferLine."Outstanding Qty. (Base)";
-                end;
-            Database::"Service Line":
-                begin
-                    ServiceLine.Get("Source Subtype", "Source No.", "Source Line No.");
-                    if Abs(ServiceLine."Outstanding Qty. (Base)") < WhseQtyOutstandingBase + QuantityBase then
-                        FieldError(Quantity, StrSubstNo(Text002, CalcQty(ServiceLine."Outstanding Qty. (Base)" - WhseQtyOutstandingBase)));
-                    QtyOutstandingBase := Abs(ServiceLine."Outstanding Qty. (Base)");
                 end;
             else
                 OnCheckSourceDocLineQtyOnCaseSourceType(Rec, WhseQtyOutstandingBase, QtyOutstandingBase, QuantityBase);
@@ -915,12 +914,10 @@ table 7321 "Warehouse Shipment Line"
     var
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
-        ServiceLine: Record "Service Line";
         TransferLine: Record "Transfer Line";
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         TransferLineReserve: Codeunit "Transfer Line-Reserve";
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
         SecondSourceQtyArray: array[3] of Decimal;
         Direction: Enum "Transfer Direction";
         IsHandled: Boolean;
@@ -940,13 +937,12 @@ table 7321 "Warehouse Shipment Line"
         SecondSourceQtyArray[2] := "Qty. to Ship (Base)";
         SecondSourceQtyArray[3] := 0;
 
+        OnOpenItemTrackingLines(Rec);
+
         case "Source Type" of
             Database::"Sales Line":
                 if SalesLine.Get("Source Subtype", "Source No.", "Source Line No.") then
                     SalesLineReserve.CallItemTrackingSecondSource(SalesLine, SecondSourceQtyArray, "Assemble to Order");
-            Database::"Service Line":
-                if ServiceLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                    ServiceLineReserve.CallItemTracking(ServiceLine);
             Database::"Purchase Line":
                 if PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.") then
                     PurchLineReserve.CallItemTracking(PurchaseLine, SecondSourceQtyArray);
@@ -1349,6 +1345,16 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeConfirmDelete(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSourceDocLineQtyOnSetQtyOutstandingBase(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; QuantityBase: Decimal; WhseQtyOutstandingBase: Decimal; var QtyOutstandingBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenItemTrackingLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

@@ -253,7 +253,9 @@ report 6032 "Post Prepaid Contract Entries"
         Text000Err: Label 'You must fill in the Post Until Date field.';
         Text001Err: Label 'You must fill in the Posting Date field.';
         Text002Txt: Label 'Posting prepaid contract entries...\';
+#pragma warning disable AA0470
         Text003Txt: Label 'Service Contract: #1###############\\';
+#pragma warning restore AA0470
         Text004Txt: Label 'Service Contract';
         GLSetup: Record "General Ledger Setup";
         GenJnlLine: Record "Gen. Journal Line";
@@ -278,10 +280,14 @@ report 6032 "Post Prepaid Contract Entries"
         AmtInclDisc: Decimal;
         LastContract: Code[20];
         IsJournalTemplNameVisible: Boolean;
+#pragma warning disable AA0470
         Text005Err: Label 'You cannot post %1 because %2 %3 has at least one %4 linked to it.';
+#pragma warning restore AA0470
         Text006Txt: Label 'Unposted Credit Memo';
         Text007Txt: Label 'Prepaid Contract Entries';
+#pragma warning disable AA0074
         Text008txt: Label 'Service Contract';
+#pragma warning restore AA0074
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 
     local procedure PostGenJnlLine()

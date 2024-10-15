@@ -114,6 +114,7 @@ codeunit 134827 "UT Item Table"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('SelectionFirstItemFromItemListModalPageHandler')]
     procedure TestGetItemNoGetItemByStartOfName()
     var
         Item1: Record Item;
@@ -595,17 +596,15 @@ codeunit 134827 "UT Item Table"
         CodeCoverage: Record "Code Coverage";
     begin
         CodeCoverageMgt.Refresh();
-        with CodeCoverage do begin
-            SetRange("Line Type", "Line Type"::Code);
-            SetRange("Object Type", ObjectType);
-            SetRange("Object ID", ObjectID);
-            SetFilter("No. of Hits", '>%1', 0);
-            SetFilter(Line, '@*' + CodeLine + '*');
-            if FindSet() then
-                repeat
-                    NoOfHits += "No. of Hits";
-                until Next() = 0;
-        end;
+        CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Code);
+        CodeCoverage.SetRange("Object Type", ObjectType);
+        CodeCoverage.SetRange("Object ID", ObjectID);
+        CodeCoverage.SetFilter("No. of Hits", '>%1', 0);
+        CodeCoverage.SetFilter(Line, '@*' + CodeLine + '*');
+        if CodeCoverage.FindSet() then
+            repeat
+                NoOfHits += CodeCoverage."No. of Hits";
+            until CodeCoverage.Next() = 0;
     end;
 
     [StrMenuHandler]

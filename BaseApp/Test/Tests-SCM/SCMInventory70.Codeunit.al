@@ -143,7 +143,7 @@ codeunit 137060 "SCM Inventory 7.0"
         InventorySetup: Record "Inventory Setup";
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
-        AverageCostPeriod: Option;
+        AverageCostPeriod: Enum "Average Cost Period Type";
     begin
         // Update Average Cost Period in Inventory Setup and verify message in confirm handler.
         // Setup.
@@ -441,8 +441,7 @@ codeunit 137060 "SCM Inventory 7.0"
         UpdateItemVendorLeadTime(Vendor."No.", Item."No.", LeadTimeFormula);
 
         // [WHEN] In Item Cross Reference change Cross Reference No. from "N2" to "N1"
-        with ItemReference do
-            Rename("Item No.", '', "Unit of Measure", "Reference Type", "Reference Type No.", VendorItemNo);
+        ItemReference.Rename(ItemReference."Item No.", '', ItemReference."Unit of Measure", ItemReference."Reference Type", ItemReference."Reference Type No.", VendorItemNo);
 
         ItemVendor.Get(Vendor."No.", Item."No.", '');
         // [THEN] Item Vendor is updated: "Vendor Item No." = "N1", "Lead Time Calculation" = "1D"
@@ -506,8 +505,7 @@ codeunit 137060 "SCM Inventory 7.0"
         CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor[2]."No.", '');
 
         // [WHEN] Vendor "V2" in cross-reference is changed "V1"
-        with ItemReference do
-            Rename("Item No.", '', "Unit of Measure", "Reference Type", Vendor[1]."No.", "Reference No.");
+        ItemReference.Rename(ItemReference."Item No.", '', ItemReference."Unit of Measure", ItemReference."Reference Type", Vendor[1]."No.", ItemReference."Reference No.");
 
         // [THEN] Item Vendor for Vendor "V1" exists, Item Vendor for Vendor "V2" does not exist
         Assert.IsTrue(ItemVendor.Get(Vendor[1]."No.", Item."No.", ''), ItemVendorMustExistErr);
@@ -540,8 +538,7 @@ codeunit 137060 "SCM Inventory 7.0"
         UpdateItemVendorLeadTime(Vendor."No.", Item."No.", LeadTimeFormula);
 
         // [WHEN] Set "Unit of Measure" = "U2" in item cross-reference
-        with ItemReference do
-            Rename("Item No.", '', UnitOfMeasure.Code, "Reference Type", "Reference Type No.", "Reference No.");
+        ItemReference.Rename(ItemReference."Item No.", '', UnitOfMeasure.Code, ItemReference."Reference Type", ItemReference."Reference Type No.", ItemReference."Reference No.");
 
         ItemVendor.Get(Vendor."No.", Item."No.", '');
         // [THEN] Vendor Item No. in Item Vendor = "N", Lead Time Calculation = "1D"
@@ -1171,7 +1168,7 @@ codeunit 137060 "SCM Inventory 7.0"
           RevaluationItemJournalTemplate.Name);
     end;
 
-    local procedure UpdateInventorySetup(AverageCostPeriod: Option)
+    local procedure UpdateInventorySetup(AverageCostPeriod: Enum "Average Cost Period Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -1232,39 +1229,33 @@ codeunit 137060 "SCM Inventory 7.0"
 
     local procedure MockItemVendor(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10])
     begin
-        with ItemVendor do begin
-            Init();
-            "Vendor No." := VendorNo;
-            "Item No." := ItemNo;
-            "Variant Code" := VariantCode;
-            Evaluate("Lead Time Calculation", StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
-            "Vendor Item No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        ItemVendor.Init();
+        ItemVendor."Vendor No." := VendorNo;
+        ItemVendor."Item No." := ItemNo;
+        ItemVendor."Variant Code" := VariantCode;
+        Evaluate(ItemVendor."Lead Time Calculation", StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
+        ItemVendor."Vendor Item No." := LibraryUtility.GenerateGUID();
+        ItemVendor.Insert();
     end;
 
     local procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20])
     begin
-        with ItemVendor do begin
-            Init();
-            "Vendor No." := VendorNo;
-            "Item No." := ItemNo;
-            Insert(true);
-        end;
+        ItemVendor.Init();
+        ItemVendor."Vendor No." := VendorNo;
+        ItemVendor."Item No." := ItemNo;
+        ItemVendor.Insert(true);
     end;
 
     local procedure CreateItemTranslation(ItemNo: Code[20]; LanguageCode: Code[10]): Text[100]
     var
         ItemTranslation: Record "Item Translation";
     begin
-        with ItemTranslation do begin
-            Init();
-            Validate("Item No.", ItemNo);
-            Validate("Language Code", LanguageCode);
-            Validate(Description, ItemNo + LanguageCode);
-            Insert(true);
-            exit(Description);
-        end;
+        ItemTranslation.Init();
+        ItemTranslation.Validate("Item No.", ItemNo);
+        ItemTranslation.Validate("Language Code", LanguageCode);
+        ItemTranslation.Validate(Description, ItemNo + LanguageCode);
+        ItemTranslation.Insert(true);
+        exit(ItemTranslation.Description);
     end;
 
     local procedure CreateItemWithTwoUnitsOfMeasure(var Item: Record Item; var UnitOfMeasure: Record "Unit of Measure")

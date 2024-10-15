@@ -135,19 +135,20 @@ codeunit 139085 "Exchange Sync Credentials Test"
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
         AzureADAppSetup: Record "Azure AD App Setup";
+        DummyKey: Text;
     begin
         AzureADMgtSetup.Get();
         AzureADMgtSetup."Auth Flow Codeunit ID" := ProviderCodeunit;
         AzureADMgtSetup.Modify();
 
-        with AzureADAppSetup do
-            if not Get() then begin
-                Init();
-                "Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
-                "App ID" := CreateGuid();
-                SetSecretKeyToIsolatedStorage(CreateGuid());
-                Insert();
-            end;
+        if not AzureADAppSetup.Get() then begin
+            AzureADAppSetup.Init();
+            AzureADAppSetup."Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
+            AzureADAppSetup."App ID" := CreateGuid();
+            DummyKey := CreateGuid();
+            AzureADAppSetup.SetSecretKeyToIsolatedStorage(DummyKey);
+            AzureADAppSetup.Insert();
+        end;
     end;
 }
 
