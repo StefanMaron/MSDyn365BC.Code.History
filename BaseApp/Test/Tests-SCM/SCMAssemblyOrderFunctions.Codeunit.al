@@ -728,6 +728,49 @@ codeunit 137907 "SCM Assembly Order Functions"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ExplodeBomHandler')]
+    procedure ExplodeBOMDeletesLinkedAssemblyToOrder()
+    var
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        // [FEATURE] [Explode BOM] [Assemble-to-Order]
+        // [SCENARIO 442268] Linked assembly to order must be deleted for the exploded line.
+        Initialize();
+
+        // [GIVEN] Assemble-to-order item.
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
+        AsmItem.Modify(true);
+
+        // [GIVEN] Create BOM component.
+        LibraryInventory.CreateItem(CompItem);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, '');
+
+        // [GIVEN] Sales quote for the assembled item.
+        // [GIVEN] Ensure that the linked assembly quote is created too.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, '');
+        SalesHeader.Validate("Shipment Date", WorkDate2);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AsmItem."No.", LibraryRandom.RandInt(10));
+        LibraryAssembly.FindLinkedAssemblyOrder(
+          AssemblyHeader, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+
+        // [WHEN] Explode BOM for the sales line.
+        LibrarySales.ExplodeBOM(SalesLine);
+
+        // [THEN] The linked assembly quote has been deleted.
+        asserterror LibraryAssembly.FindLinkedAssemblyOrder(
+            AssemblyHeader, SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1078,6 +1121,12 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         Assert.ExpectedConfirm(LibraryVariableStorage.DequeueText(), Question);
         Reply := true;
+    end;
+
+    [StrMenuHandler]
+    procedure ExplodeBomHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;
     end;
 }
 
