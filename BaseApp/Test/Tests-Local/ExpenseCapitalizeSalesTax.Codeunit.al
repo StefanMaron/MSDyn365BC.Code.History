@@ -563,6 +563,42 @@
         PurchaseLine2.TestField("Tax To Be Expensed", PurchaseLine1."Tax To Be Expensed");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseCrMemoWithProvincialTaxWithExpenseCapitalize()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        GLEntry: Record "G/L Entry";
+    begin
+        // [SCENARIO 421421] Post purchase credit memo with provincial tax with "Expense/Capitalize" = true
+        Initialize();
+
+        // [GIVEN] Sales Tax setup, "Expense/Capitalize" = true
+        CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
+        TaxAreaLine.SetRange("Tax Area", TaxArea.Code);
+        TaxAreaLine.FindFirst();
+        TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
+        TaxJurisdiction.Validate("Country/Region", TaxJurisdiction."Country/Region"::CA);
+        TaxJurisdiction.Modify(true);
+        TaxArea.Validate("Country/Region", TaxArea."Country/Region"::CA);
+        TaxArea.Modify(true);
+
+        // [GIVEN] Purchase credit memo with provincial tax
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Credit Memo";
+        CreatePurchaseDocument(PurchaseHeader, TaxArea.Code, TaxGroup.Code, true, TaxArea.Code);
+
+        // [WHEN] Post purchase credit memo
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Purchase credit Memo successfully posted
+        GLEntry.SetRange("External Document No.", PurchaseHeader."Vendor Cr. Memo No.");
+        Assert.RecordCount(GLEntry, 3);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -789,6 +825,12 @@
     end;
 
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
+    begin
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
+        CreatePurchaseDocument(PurchaseHeader, TaxAreaCode, TaxGroupCode, TaxLiable, '');
+    end;
+
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; ProvincialTaxAreaCode: Code[20])
     var
         GLAccount: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -797,10 +839,11 @@
         CreateSalesTaxVATPostingSetup(VATPostingSetup);
 
         LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
-          LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+          PurchaseHeader, PurchaseHeader."Document Type", LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         PurchaseHeader.Validate("Tax Liable", TaxLiable);
         PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
+        if ProvincialTaxAreaCode <> '' then
+            PurchaseHeader.Validate("Provincial Tax Area Code", ProvincialTaxAreaCode);
         PurchaseHeader.Modify(true);
 
         CreateGLAccount(GLAccount, VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode);
@@ -920,7 +963,7 @@
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         GLEntry.TestField(Amount, ExpectedAmount);
-        end;
+    end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; TaxJurisdictionCode: Code[10]; ExpectedAmount: Decimal)
     var

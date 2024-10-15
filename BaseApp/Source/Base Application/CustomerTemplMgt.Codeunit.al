@@ -113,6 +113,7 @@ codeunit 1381 "Customer Templ. Mgt."
         CustomerRecRef.SetTable(Customer);
         if CustomerTempl."Invoice Disc. Code" <> '' then
             Customer."Invoice Disc. Code" := CustomerTempl."Invoice Disc. Code";
+        Customer.Validate("Payment Method Code", CustomerTempl."Payment Method Code");
         OnApplyTemplateOnBeforeCustomerModify(Customer, CustomerTempl);
         Customer.Modify(true);
     end;
@@ -365,7 +366,8 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
         FieldExclusionList.Add(CustomerTempl.FieldNo("Invoice Disc. Code"));
         FieldExclusionList.Add(CustomerTempl.FieldNo("No. Series"));
-		FieldExclusionList.Add(CustomerTempl.FieldNo(State));
+        FieldExclusionList.Add(CustomerTempl.FieldNo("Payment Method Code"));
+	FieldExclusionList.Add(CustomerTempl.FieldNo(State));
 
         OnAfterFillFieldExclusionList(FieldExclusionList);
     end;

@@ -313,6 +313,12 @@
                     Editable = false;
                     ToolTip = 'Specifies the code of either the port of entry at which the items passed into your country/region, or the port of exit.';
                 }
+                field("Partner VAT ID"; Rec."Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    Editable = false;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                }
             }
             group(ElectronicDocument)
             {
@@ -371,6 +377,21 @@
                 {
                     ApplicationArea = Location, BasicMX;
                     ToolTip = 'Specifies the policy number assigned by the insurer, which covers the risks of the motor transport used for the transfer of goods or merchandise.';
+                }
+                field("Medical Insurer Name"; "Medical Insurer Name")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the insurer that covers potential damage to the environment if the transport includes materials, residues or remnants, or hazardous waste.';
+                }
+                field("Medical Ins. Policy Number"; "Medical Ins. Policy Number")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the insurance policy number if the transport includes materials, residues or remnants, or hazardous waste.';
+                }
+                field("SAT Weight Unit Of Measure"; "SAT Weight Unit Of Measure")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the unit of measurement of the weight of the goods and / or merchandise that are moved in this transport.';
                 }
                 field("Electronic Document Status"; "Electronic Document Status")
                 {

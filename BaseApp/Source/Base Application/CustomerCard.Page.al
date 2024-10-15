@@ -1028,9 +1028,9 @@
 #endif                
                 action("Item References")
                 {
+                    AccessByPermission = TableData "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item References';
-                    Visible = ItemReferenceVisible;
                     Image = Change;
                     Promoted = true;
                     PromotedCategory = Category9;
@@ -2471,7 +2471,6 @@
         IntegrationTableMapping: Record "Integration Table Mapping";
         GLSetup: Record "General Ledger Setup";
         EnvironmentInfo: Codeunit "Environment Information";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         OfficeManagement: Codeunit "Office Management";
@@ -2492,7 +2491,6 @@
         IsOfficeAddin := OfficeManagement.IsAvailable;
         GLSetup.Get();
         UseVAT := GLSetup."VAT in Use";
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
         WorkFlowEventFilter :=
             WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode + '|' +
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode;
@@ -2676,8 +2674,6 @@
         CanCancelApprovalForFlow: Boolean;
         IsSaaS: Boolean;
         IsCountyVisible: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
         StatementFileNameTxt: Label 'Statement', Comment = 'Shortened form of ''Customer Statement''';
         LoadOnDemand: Boolean;
         PrevCountryCode: Code[10];

@@ -416,10 +416,10 @@ page 27 "Vendor List"
 #endif
                 action("Item Refe&rences")
                 {
+                    AccessByPermission = TableData "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item Refe&rences';
                     Image = Change;
-                    Visible = ItemReferenceVisible;
                     Promoted = true;
                     PromotedCategory = Category5;
                     RunObject = Page "Item References";
@@ -1467,7 +1467,6 @@ page 27 "Vendor List"
         SocialListeningSetup: Record "Social Listening Setup";
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         EmailFeature: Codeunit "Email Feature";
     begin
@@ -1482,7 +1481,6 @@ page 27 "Vendor List"
             if IntegrationTableMapping.Get('VENDOR') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
@@ -1506,8 +1504,6 @@ page 27 "Vendor List"
         CRMIsCoupledToRecord: Boolean;
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
         EmailImprovementFeatureEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
