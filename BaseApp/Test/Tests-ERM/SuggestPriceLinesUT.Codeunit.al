@@ -1943,9 +1943,10 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryInventory.CreateItem(Item[2]);
         Item[2]."Unit Price" := LibraryRandom.RandDec(1000, 2);
         item[2].Modify();
-        // [GIVEN] Sales Price List, where "Currency Code" is <blank>
+        // [GIVEN] Sales Price List, where "Currency Code" is <blank>, "Amount Type"::Any 
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
         PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader."Amount Type" := "Price Amount Type"::Any;
         PriceListHeader.Modify();
         // [GIVEN] Open sales price list page on Price List 'X' and run "Suggest Lines.." 
         SalesPriceList.OpenEdit();
@@ -1958,12 +1959,12 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
         SalesPriceList.SuggestLines.Invoke();
 
-        // [THEN] Two price lines are added for Items 'A' and 'B' , where "Unit Price" is 'X' and 'Y', "Minimum Quantity" is 5
+        // [THEN] Two price lines are added for Items 'A' and 'B' , where "Unit Price" is 'X' and 'Y', "Minimum Quantity" is 5, "Amount Type"::Any
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         Assert.IsTrue(PriceListLine.FindSet(), 'The list is blank.');
-        VerifyPriceLine(PriceListLine, Item[1], MinQty);
+        VerifyPriceLine(PriceListLine, Item[1], MinQty, "Price Amount Type"::Any);
         Assert.IsTrue(PriceListLine.Next() <> 0, 'The second line not found.');
-        VerifyPriceLine(PriceListLine, Item[2], MinQty);
+        VerifyPriceLine(PriceListLine, Item[2], MinQty, "Price Amount Type"::Any);
         Assert.IsTrue(PriceListLine.Next() = 0, 'The third line must not exist.');
     end;
 
@@ -1989,8 +1990,10 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryInventory.CreateItem(Item[2]);
         Item[2]."Last Direct Cost" := LibraryRandom.RandDec(1000, 2);
         item[2].Modify();
-        // [GIVEN] Purchase Price List, where "Currency Code" is <blank>
+        // [GIVEN] Purchase Price List, where "Currency Code" is <blank>, "Amount Type"::Price
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        PriceListHeader."Amount Type" := "Price Amount Type"::Price;
+        PriceListHeader.Modify();
         // [GIVEN] Open purchase price list page on Price List 'X' and run "Suggest Lines.." 
         PurchasePriceList.OpenEdit();
         PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
@@ -2002,12 +2005,12 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryVariableStorage.Enqueue(MinQty); // "Minimum Quantity"
         PurchasePriceList.SuggestLines.Invoke();
 
-        // [THEN] Two price lines are added for Items 'A' and 'B' , where "Unit Cost" is 'X' and 'Y', "Minimum Quantity" is 5
+        // [THEN] Two price lines are added for Items 'A' and 'B' , where "Unit Cost" is 'X' and 'Y', "Minimum Quantity" is 5, "Amount Type"::Price
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         Assert.IsTrue(PriceListLine.FindSet(), 'The list is blank.');
-        VerifyPriceLine(PriceListLine, Item[1], MinQty);
+        VerifyPriceLine(PriceListLine, Item[1], MinQty, "Price Amount Type"::Price);
         Assert.IsTrue(PriceListLine.Next() <> 0, 'The second line not found.');
-        VerifyPriceLine(PriceListLine, Item[2], MinQty);
+        VerifyPriceLine(PriceListLine, Item[2], MinQty, "Price Amount Type"::Price);
         Assert.IsTrue(PriceListLine.Next() = 0, 'The third line must not exist.');
     end;
 
@@ -2031,6 +2034,8 @@ codeunit 134168 "Suggest Price Lines UT"
         Resource[2].Modify();
         // [GIVEN] Sales Price List, where "Currency Code" is <blank>
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader."Amount Type" := "Price Amount Type"::Price;
+        PriceListHeader.Modify();
         // [GIVEN] PriceLineFilters, where "Asset Type" is 'Resource', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding
         PriceLineFilters.Initialize(PriceListHeader, false);
         PriceLineFilters.Validate("Asset Type", "Price Asset Type"::Resource);
@@ -2072,6 +2077,8 @@ codeunit 134168 "Suggest Price Lines UT"
         Resource[2].Modify();
         // [GIVEN] Purchase Price List, where "Currency Code" is <blank>
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        PriceListHeader."Amount Type" := "Price Amount Type"::Price;
+        PriceListHeader.Modify();
         // [GIVEN] PriceLineFilters, where "Asset Type" is 'Resource', "Asset Filter" is 'A|B', "Minimum Quantity" is 5, no rounding
         PriceLineFilters.Initialize(PriceListHeader, false);
         PriceLineFilters.Validate("Asset Type", "Price Asset Type"::Resource);
@@ -2133,9 +2140,9 @@ codeunit 134168 "Suggest Price Lines UT"
         // [THEN] Two price worksheet lines for default sales price list are added for Items 'A' and 'B' , where "Unit Price" is 'X' and 'Y', "Minimum Quantity" is 5
         PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
         Assert.IsTrue(PriceWorksheetLine.FindSet(), 'The list is blank.');
-        VerifyPriceLine(PriceWorksheetLine, Item[1], MinQty);
+        VerifyPriceLine(PriceWorksheetLine, Item[1], MinQty, "Price Amount Type"::Any);
         Assert.IsTrue(PriceWorksheetLine.Next() <> 0, 'The second line not found.');
-        VerifyPriceLine(PriceWorksheetLine, Item[2], MinQty);
+        VerifyPriceLine(PriceWorksheetLine, Item[2], MinQty, "Price Amount Type"::Any);
         Assert.IsTrue(PriceWorksheetLine.Next() = 0, 'The third line must not exist.');
     end;
 
@@ -2181,9 +2188,9 @@ codeunit 134168 "Suggest Price Lines UT"
         //ServiceCost [THEN] Two price worksheet lines for default sales price list are added for Items 'A' and 'B' , where "Unit Price" is 'X' and 'Y', "Minimum Quantity" is 5
         PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
         Assert.IsTrue(PriceWorksheetLine.FindSet(), 'The list is blank.');
-        VerifyPriceLine(PriceWorksheetLine, ServiceCost[1], MinQty, 2);
+        VerifyPriceLine(PriceWorksheetLine, ServiceCost[1], MinQty, 2, "Price Amount Type"::Any);
         Assert.IsTrue(PriceWorksheetLine.Next() <> 0, 'The second line not found.');
-        VerifyPriceLine(PriceWorksheetLine, ServiceCost[2], MinQty, 2);
+        VerifyPriceLine(PriceWorksheetLine, ServiceCost[2], MinQty, 2, "Price Amount Type"::Any);
         Assert.IsTrue(PriceWorksheetLine.Next() = 0, 'The third line must not exist.');
     end;
 
@@ -2229,9 +2236,9 @@ codeunit 134168 "Suggest Price Lines UT"
         //ServiceCost [THEN] Two price worksheet lines for default purchase price list are added for Items 'A' and 'B' , where "Unit Cost" is 'X' and 'Y', "Minimum Quantity" is 5
         PriceWorksheetLine.SetRange("Price List Code", PriceListCode);
         Assert.IsTrue(PriceWorksheetLine.FindSet(), 'The list is blank.');
-        VerifyPriceLine(PriceWorksheetLine, ServiceCost[1], MinQty, 3);
+        VerifyPriceLine(PriceWorksheetLine, ServiceCost[1], MinQty, 3, "Price Amount Type"::Any);
         Assert.IsTrue(PriceWorksheetLine.Next() <> 0, 'The second line not found.');
-        VerifyPriceLine(PriceWorksheetLine, ServiceCost[2], MinQty, 3);
+        VerifyPriceLine(PriceWorksheetLine, ServiceCost[2], MinQty, 3, "Price Amount Type"::Any);
         Assert.IsTrue(PriceWorksheetLine.Next() = 0, 'The third line must not exist.');
     end;
 
@@ -2597,7 +2604,7 @@ codeunit 134168 "Suggest Price Lines UT"
         PriceListHeader.DeleteAll(true);
         PriceWorksheetLine.DeleteAll();
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -2632,9 +2639,14 @@ codeunit 134168 "Suggest Price Lines UT"
 
     local procedure VerifyPriceLine(PriceListLine: Record "Price List Line"; Item: Record Item; MinQty: Decimal)
     begin
+        VerifyPriceLine(PriceListLine, Item, MinQty, "Price Amount Type"::Price);
+    end;
+
+    local procedure VerifyPriceLine(PriceListLine: Record "Price List Line"; Item: Record Item; MinQty: Decimal; AmountType: Enum "Price Amount Type")
+    begin
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Item);
         PriceListLine.TestField("Asset No.", Item."No.");
-        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.TestField("Amount Type", AmountType);
         PriceListLine.TestField("Minimum Quantity", MinQty);
         case PriceListLine."Price Type" of
             "Price Type"::Sale:
@@ -2654,9 +2666,14 @@ codeunit 134168 "Suggest Price Lines UT"
 
     local procedure VerifyPriceLine(PriceWorksheetLine: Record "Price Worksheet Line"; Item: Record Item; MinQty: Decimal)
     begin
+        VerifyPriceLine(PriceWorksheetLine, Item, MinQty, "Price Amount Type"::Price)
+    end;
+
+    local procedure VerifyPriceLine(PriceWorksheetLine: Record "Price Worksheet Line"; Item: Record Item; MinQty: Decimal; AmountType: Enum "Price Amount Type")
+    begin
         PriceWorksheetLine.TestField("Asset Type", "Price Asset Type"::Item);
         PriceWorksheetLine.TestField("Asset No.", Item."No.");
-        PriceWorksheetLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceWorksheetLine.TestField("Amount Type", AmountType);
         PriceWorksheetLine.TestField("Minimum Quantity", MinQty);
         case PriceWorksheetLine."Price Type" of
             "Price Type"::Sale:
@@ -2698,9 +2715,14 @@ codeunit 134168 "Suggest Price Lines UT"
 
     local procedure VerifyPriceLine(PriceWorksheetLine: Record "Price Worksheet Line"; ServiceCost: Record "Service Cost"; MinQty: Decimal; AdjFactor: Decimal)
     begin
+        VerifyPriceLine(PriceWorksheetLine, ServiceCost, MinQty, AdjFactor, "Price Amount Type"::Price);
+    end;
+
+    local procedure VerifyPriceLine(PriceWorksheetLine: Record "Price Worksheet Line"; ServiceCost: Record "Service Cost"; MinQty: Decimal; AdjFactor: Decimal; AmountType: Enum "Price Amount Type")
+    begin
         PriceWorksheetLine.TestField("Asset Type", "Price Asset Type"::"Service Cost");
         PriceWorksheetLine.TestField("Asset No.", ServiceCost.Code);
-        PriceWorksheetLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceWorksheetLine.TestField("Amount Type", AmountType);
         PriceWorksheetLine.TestField("Minimum Quantity", MinQty);
         case PriceWorksheetLine."Price Type" of
             "Price Type"::Sale:
