@@ -38,6 +38,7 @@ codeunit 5920 ServItemManagement
         ComponentLine: Integer;
         x: Integer;
         TrackingLinesExist: Boolean;
+        IsHandled: Boolean;
     begin
         if (ServLine.Type <> ServLine.Type::Item) or (ServLine."Qty. to Ship" = 0) then
             exit;
@@ -142,7 +143,10 @@ codeunit 5920 ServItemManagement
                 "Spare Part Action"::Permanent,
                 "Spare Part Action"::"Temporary":
                     begin
-                        ServItem.Get("Service Item No.");
+                        IsHandled := false;
+                        OnAddOrReplaceSIComponentPermanentTemporary(ServItem, ServLine, IsHandled);
+                        if not IsHandled then
+                            ServItem.Get("Service Item No.");
                         ServOrderMgt.ReplacementCreateServItem(ServItem, ServLine,
                           ServShptDocNo, ServShptLineNo, TempTrackingSpecification);
                     end;
@@ -359,7 +363,9 @@ codeunit 5920 ServItemManagement
     procedure CreateServItemOnServItemLine(var ServItemLine: Record "Service Item Line")
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        OnBeforeCreateServItemOnServItemLine(ServItemLine);
         with ServItemLine do begin
             TestField("Service Item No.", '');
             TestField("Document No.");
@@ -417,13 +423,15 @@ codeunit 5920 ServItemManagement
             "Service Item No." := ServItem."No.";
             "Contract No." := '';
 
-            OnCreateServItemOnServItemLine(ServItem, ServItemLine);
-
-            Modify;
-            CreateDim(
-              DATABASE::"Service Item", "Service Item No.",
-              DATABASE::"Service Item Group", "Service Item Group Code",
-              DATABASE::"Responsibility Center", "Responsibility Center");
+            IsHandled := false;
+            OnCreateServItemOnServItemLine(ServItem, ServItemLine, IsHandled);
+            if not IsHandled then begin
+                Modify;
+                CreateDim(
+                  DATABASE::"Service Item", "Service Item No.",
+                  DATABASE::"Service Item Group", "Service Item Group Code",
+                  DATABASE::"Responsibility Center", "Responsibility Center");
+            end;
         end;
 
         ServLogMgt.ServItemToServOrder(ServItemLine);
@@ -609,12 +617,22 @@ codeunit 5920 ServItemManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAddOrReplaceSIComponentPermanentTemporary(var ServItem: Record "Service Item"; var ServLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitNewServItemComponent(var ServItemComponent: Record "Service Item Component"; ServiceLine: Record "Service Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateServItemOnSalesLineShpt(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateServItemOnServItemLine(var ServItemLine: Record "Service Item Line")
     begin
     end;
 
@@ -644,7 +662,7 @@ codeunit 5920 ServItemManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateServItemOnServItemLine(var ServiceItem: Record "Service Item"; ServiceItemLine: Record "Service Item Line")
+    local procedure OnCreateServItemOnServItemLine(var ServiceItem: Record "Service Item"; ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 

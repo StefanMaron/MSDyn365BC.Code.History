@@ -20,55 +20,55 @@ codeunit 5771 "Whse.-Sales Release"
     begin
         OnBeforeRelease(SalesHeader);
 
-        with SalesHeader do begin
-            IsHandled := false;
-            OnBeforeReleaseSetWhseRequestSourceDocument(SalesHeader, WhseRqst, IsHandled);
-            if not IsHandled then
-                case "Document Type" of
-                    "Document Type"::Order:
-                        WhseRqst."Source Document" := WhseRqst."Source Document"::"Sales Order";
-                    "Document Type"::"Return Order":
-                        WhseRqst."Source Document" := WhseRqst."Source Document"::"Sales Return Order";
-                    else
-                        exit;
-                end;
-
-            SalesLine.SetCurrentKey("Document Type", "Document No.", "Location Code");
-            SalesLine.SetRange("Document Type", "Document Type");
-            SalesLine.SetRange("Document No.", "No.");
-            SalesLine.SetRange(Type, SalesLine.Type::Item);
-            SalesLine.SetRange("Drop Shipment", false);
-            SalesLine.SetRange("Job No.", '');
-            OnAfterReleaseSetFilters(SalesLine, SalesHeader);
-            if SalesLine.FindSet then begin
-                First := true;
-                repeat
-                    if (("Document Type" = "Document Type"::Order) and (SalesLine.Quantity >= 0)) or
-                       (("Document Type" = "Document Type"::"Return Order") and (SalesLine.Quantity < 0))
-                    then
-                        WhseType := WhseType::Outbound
-                    else
-                        WhseType := WhseType::Inbound;
-
-                    if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
-                        CreateWhseRqst(SalesHeader, SalesLine, WhseType);
-
-                    OnAfterReleaseOnAfterCreateWhseRequest(SalesHeader, SalesLine, WhseType, First, OldWhseType, OldLocationCode);
-
-                    First := false;
-                    OldLocationCode := SalesLine."Location Code";
-                    OldWhseType := WhseType;
-                until SalesLine.Next = 0;
+        IsHandled := false;
+        OnBeforeReleaseSetWhseRequestSourceDocument(SalesHeader, WhseRqst, IsHandled);
+        if not IsHandled then
+            case SalesHeader."Document Type" of
+                "Sales Document Type"::Order:
+                    WhseRqst."Source Document" := WhseRqst."Source Document"::"Sales Order";
+                "Sales Document Type"::"Return Order":
+                    WhseRqst."Source Document" := WhseRqst."Source Document"::"Sales Return Order";
+                else
+                    exit;
             end;
 
-            WhseRqst.Reset();
-            WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            WhseRqst.SetRange(Type, WhseRqst.Type);
-            WhseRqst.SetSourceFilter(DATABASE::"Sales Line", "Document Type", "No.");
-            WhseRqst.SetRange("Document Status", Status::Open);
-            if not WhseRqst.IsEmpty then
-                WhseRqst.DeleteAll(true);
+        SalesLine.SetCurrentKey("Document Type", "Document No.", "Location Code");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetRange("Drop Shipment", false);
+        SalesLine.SetRange("Job No.", '');
+        OnAfterReleaseSetFilters(SalesLine, SalesHeader);
+        if SalesLine.FindSet then begin
+            First := true;
+            repeat
+                if ((SalesHeader."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or
+                    ((SalesHeader."Document Type" = "Sales Document Type"::"Return Order") and (SalesLine.Quantity < 0))
+                then
+                    WhseType := WhseType::Outbound
+                else
+                    WhseType := WhseType::Inbound;
+
+                if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
+                    CreateWhseRqst(SalesHeader, SalesLine, WhseType);
+
+                OnAfterReleaseOnAfterCreateWhseRequest(SalesHeader, SalesLine, WhseType, First, OldWhseType, OldLocationCode);
+
+                First := false;
+                OldLocationCode := SalesLine."Location Code";
+                OldWhseType := WhseType;
+            until SalesLine.Next = 0;
         end;
+
+        OnReleaseOnAfterCreateWhseRequest(SalesHeader, SalesLine);
+
+        WhseRqst.Reset();
+        WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WhseRqst.SetRange(Type, WhseRqst.Type);
+        WhseRqst.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
+        WhseRqst.SetRange("Document Status", SalesHeader.Status::Open);
+        if not WhseRqst.IsEmpty then
+            WhseRqst.DeleteAll(true);
 
         OnAfterRelease(SalesHeader);
     end;
@@ -201,6 +201,11 @@ codeunit 5771 "Whse.-Sales Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReopenSetWhseRequestSourceDocument(var SalesHeader: Record "Sales Header"; var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReleaseOnAfterCreateWhseRequest(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

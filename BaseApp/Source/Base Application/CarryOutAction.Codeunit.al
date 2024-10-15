@@ -938,6 +938,40 @@
         end;
     end;
 
+    procedure PrintMultiplePurchaseOrders(var TempPurchaseHeader: Record "Purchase Header" temporary)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        ReportSelections: Record "Report Selections";
+        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+        SelectionFilterMgt: Codeunit SelectionFilterManagement;
+        TempRecRef: RecordRef;
+        RecRef: RecordRef;
+        PurchaseOrderNoFilter: Text;
+    begin
+        if not PrintOrder then
+            exit;
+
+        TempPurchaseHeader.Reset();
+        if TempPurchaseHeader.IsEmpty() then
+            exit;
+
+        TempPurchaseHeader.FindSet();
+        repeat
+            PurchaseHeader.Get(TempPurchaseHeader."Document Type", TempPurchaseHeader."No.");
+            PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, PurchaseHeader);
+        until TempPurchaseHeader.Next() = 0;
+
+        TempRecRef.GetTable(TempPurchaseHeader);
+        RecRef.GetTable(PurchaseHeader);
+        PurchaseOrderNoFilter := SelectionFilterMgt.CreateFilterFromTempTable(TempRecRef, RecRef, PurchaseHeader.FieldNo("No."));
+
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.SetFilter("No.", PurchaseOrderNoFilter);
+        PurchaseHeader.SetFilter("Buy-from Vendor No.", '<>%1', '');
+        ReportSelections.PrintWithGUIYesNoWithCheckVendor(
+            ReportSelections.Usage::"P.Order", PurchaseHeader, false, PurchaseHeader.FieldNo("Buy-from Vendor No."));
+    end;
+
     procedure PrintAsmOrder(AsmHeader: Record "Assembly Header")
     var
         ReportSelections: Record "Report Selections";
@@ -1134,9 +1168,11 @@
         SalesLine: Record "Sales Line";
         ProdOrderComp: Record "Prod. Order Component";
         AsmLine: Record "Assembly Line";
+        ServiceLine: Record "Service Line";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
     begin
@@ -1176,6 +1212,15 @@
                         AsmLine.Modify();
                     end;
                 end;
+            DATABASE::"Service Line":
+                begin
+                    ServiceLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
+                    ServiceLineReserve.BindToProdOrder(ServiceLine, ProdOrderLine, ReservQty, ReservQtyBase);
+                    if ServiceLine.Reserve = ServiceLine.Reserve::Never then begin
+                        ServiceLine.Reserve := ServiceLine.Reserve::Optional;
+                        ServiceLine.Modify();
+                    end;
+                end;
         end;
         ProdOrderLine.Modify();
     end;
@@ -1185,9 +1230,11 @@
         ProdOrderComp: Record "Prod. Order Component";
         SalesLine: Record "Sales Line";
         AsmLine: Record "Assembly Line";
+        ServiceLine: Record "Service Line";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
     begin
@@ -1225,6 +1272,15 @@
                         AsmLine.Modify();
                     end;
                 end;
+            DATABASE::"Service Line":
+                begin
+                    ServiceLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
+                    ServiceLineReserve.BindToTransfer(ServiceLine, TransLine, ReservQty, ReservQtyBase);
+                    if ServiceLine.Reserve = ServiceLine.Reserve::Never then begin
+                        ServiceLine.Reserve := ServiceLine.Reserve::Optional;
+                        ServiceLine.Modify();
+                    end;
+                end;
         end;
         TransLine.Modify();
     end;
@@ -1234,9 +1290,11 @@
         SalesLine: Record "Sales Line";
         ProdOrderComp: Record "Prod. Order Component";
         AsmLine: Record "Assembly Line";
+        ServiceLine: Record "Service Line";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
     begin
@@ -1276,6 +1334,15 @@
                         AsmLine.Modify();
                     end;
                 end;
+            DATABASE::"Service Line":
+                begin
+                    ServiceLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
+                    ServiceLineReserve.BindToAssembly(ServiceLine, AsmHeader, ReservQty, ReservQtyBase);
+                    if ServiceLine.Reserve = ServiceLine.Reserve::Never then begin
+                        ServiceLine.Reserve := ServiceLine.Reserve::Optional;
+                        ServiceLine.Modify();
+                    end;
+                end;
         end;
         AsmHeader.Modify();
     end;
@@ -1284,9 +1351,11 @@
     var
         ProdOrderComp: Record "Prod. Order Component";
         SalesLine: Record "Sales Line";
+        AsmLine: Record "Assembly Line";
         ServiceLine: Record "Service Line";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
+        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
         case SupplyReqLine."Demand Type" of
@@ -1307,6 +1376,12 @@
                     end;
                     SalesLineReserve.BindToRequisition(
                       SalesLine, DemandReqLine, SupplyReqLine."Demand Quantity", SupplyReqLine."Demand Quantity (Base)");
+                end;
+            DATABASE::"Assembly Line":
+                begin
+                    AsmLine.Get(SupplyReqLine."Demand Subtype", SupplyReqLine."Demand Order No.", SupplyReqLine."Demand Line No.");
+                    AssemblyLineReserve.BindToRequisition(
+                      AsmLine, DemandReqLine, SupplyReqLine."Demand Quantity", SupplyReqLine."Demand Quantity (Base)");
                 end;
             DATABASE::"Service Line":
                 begin

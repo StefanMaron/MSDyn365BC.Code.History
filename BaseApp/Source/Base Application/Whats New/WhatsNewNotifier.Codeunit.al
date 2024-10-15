@@ -99,7 +99,7 @@ codeunit 897 "What's New Notifier"
     /// <summary>
     /// Raises an event to be able to change the return value of IsGuiAllowed function. Used for testing.
     /// </summary>
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false)]
     local procedure OnGetGuiAllowed(var IsGuiAllowed: Boolean)
     begin
     end;
@@ -107,7 +107,7 @@ codeunit 897 "What's New Notifier"
     /// <summary>
     /// Raises an event to be able to change the return value of GetAppMajorVersion function. Used for testing.
     /// </summary>
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false)]
     local procedure OnGetAppMajorVersion(var MajorVersion: Text)
     begin
     end;
