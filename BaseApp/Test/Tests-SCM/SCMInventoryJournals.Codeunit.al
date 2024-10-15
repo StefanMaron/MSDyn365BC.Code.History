@@ -59,8 +59,9 @@ codeunit 137275 "SCM Inventory Journals"
         QtyCalculatedErr: Label 'Qty. Calculated is not correct for %1 with Variant %2, Location %3, Bin %4.';
         ItemExistErr: Label 'Item No. must have a value';
         ItemJournalLineDimErr: Label 'Dimensions on Item Journal Line should be same as on Item Ledger Entry if Calculate Inventory using By Dimensions';
-        TemplateTypeMustItemErr: Label 'Template Type must be equal to ''Item''';
+        TemplateTypeMustItemErr: Label 'Type must be equal to ''Item''';
         TextGetLastErrorText: Label 'Actual error: ''%1''. Expected: ''%2''';
+        RecurringMustNoErr: Label 'Recurring must be equal to ''No''';
         CurrentSaveValuesId: Integer;
 
     [Test]
@@ -1632,7 +1633,7 @@ codeunit 137275 "SCM Inventory Journals"
         // [WHEN] Expected Test field error while setting true to "Item Tracking on Lines" field
         asserterror ItemJournalBatch.Validate("Item Tracking on Lines", true);
 
-        // [VERIFY] Verify: Error: Template Type must be equal to 'Item' in Item Journal Batch
+        // [VERIFY] Verify: Error: Type must be equal to 'Item' in Item Journal Template.
         Assert.IsTrue(
             StrPos(GetLastErrorText, TemplateTypeMustItemErr) > 0,
             StrSubstNo(TextGetLastErrorText, GetLastErrorText, TemplateTypeMustItemErr));
@@ -1668,6 +1669,34 @@ codeunit 137275 "SCM Inventory Journals"
 
         // [VERIFY] Verify: Entry Type when "Qty. (Phys. Inventory)" updated on Phys. Inventory journal
         OpenAndVerifyEntryTypeOnPhysInventoryJournalPageWhenUpdateQuantity(ItemJournalLine)
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTrackingOnLinesShouldNotAllowedForTemplateTypeItemWhenRecurringIsTrue()
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        // [SCENARIO 492483] The option Item Tracking on lines in the Reclassification Journal should not be available
+        Initialize();
+
+        // [GIVEN] Create Item Journal Template with Type Item and Recurring true
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        ItemJournalTemplate.Validate(Type, ItemJournalTemplate.Type::Item);
+        ItemJournalTemplate.Validate(Recurring, true);
+        ItemJournalTemplate.Modify(true);
+
+        // [GIVEN] Create Item Journal Batch with Template Type Item
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+
+        // [WHEN] Expected Test field error while setting true to "Item Tracking on Lines" field
+        asserterror ItemJournalBatch.Validate("Item Tracking on Lines", true);
+
+        // [VERIFY] Verify: Error: Recurring must be equal to 'No' in Item Journal Template.
+        Assert.IsTrue(
+            StrPos(GetLastErrorText, RecurringMustNoErr) > 0,
+            StrSubstNo(TextGetLastErrorText, GetLastErrorText, RecurringMustNoErr));
     end;
 
     local procedure Initialize()

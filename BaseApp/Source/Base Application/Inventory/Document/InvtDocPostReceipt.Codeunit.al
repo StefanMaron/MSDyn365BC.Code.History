@@ -190,6 +190,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                     InvtRcptLine."Item Reference Unit of Measure" := InvtDocLine."Item Reference Unit of Measure";
                     InvtRcptLine."Item Reference Type" := InvtDocLine."Item Reference Type";
                     InvtRcptLine."Item Reference Type No." := InvtDocLine."Item Reference Type No.";
+                    InvtRcptLine."Source Code" := SourceCode;
                     OnRunOnBeforeInvtRcptLineInsert(InvtRcptLine, InvtDocLine);
                     InvtRcptLine.Insert();
                     OnRunOnAfterInvtRcptLineInsert(InvtRcptLine, InvtDocLine, InvtRcptHeader, InvtDocHeader);

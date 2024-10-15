@@ -515,7 +515,7 @@ report 7112 "Analysis Report"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                AnalysisReportManagement.LookupSourceNo("Analysis Line", SourceTypeFilter.AsInteger(), SourceNoFilter);
+                                AnalysisReportManagement.DoLookupSourceNo("Analysis Line", SourceTypeFilter, SourceNoFilter);
                             end;
                         }
                     }

@@ -325,7 +325,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         TransferDimensionSetID(PurchaseLine, AllocationLine, AllocationPurchaseLine."Alloc. Acc. Modified by User");
         PurchaseLine."Allocation Account No." := AllocationLine."Allocation Account No.";
         PurchaseLine."Selected Alloc. Account No." := '';
-        OnBeforeCreatePurchaseLine(PurchaseLine, AllocationLine);
+        OnBeforeCreatePurchaseLine(PurchaseLine, AllocationLine, AllocationPurchaseLine);
         PurchaseLine.Insert(true);
         LastLineNo := PurchaseLine."Line No.";
     end;
@@ -473,7 +473,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line")
+    local procedure OnBeforeCreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; AllocationPurchaseLine: Record "Purchase Line")
     begin
     end;
 

@@ -255,8 +255,12 @@ codeunit 87 "Blanket Sales Order to Order"
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal) CreditLimitExceeded: Boolean
     var
         StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateSalesHeader(SalesHeader);
+        IsHandled := false;
+        OnBeforeCreateSalesHeader(SalesHeader, PrepmtPercent, CreditLimitExceeded, IsHandled);
+        if IsHandled then
+            exit(CreditLimitExceeded);
 
         with SalesHeader do begin
             if SalesSetup."Copy Comments Blanket to Order" then
@@ -480,7 +484,7 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesHeader(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeCreateSalesHeader(var SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal; var CreditLimitExceeded: Boolean; var IsHandled: Boolean)
     begin
     end;
 

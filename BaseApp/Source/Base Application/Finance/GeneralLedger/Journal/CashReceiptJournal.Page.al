@@ -1500,6 +1500,9 @@ page 255 "Cash Receipt Journal"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         CanRequestFlowApprovalForAllLines: Boolean;
     begin
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            exit;
+
         if not GenJournalBatch.Get(Rec.GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
             exit;
 

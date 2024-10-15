@@ -32,6 +32,7 @@ codeunit 5052 AttachmentManagement
     var
         Attachment: Record Attachment;
         Attachment3: Record Attachment;
+        IsHandled: Boolean;
     begin
         if AttachmentNo <> 0 then begin
             Attachment.Get(AttachmentNo);
@@ -41,6 +42,11 @@ codeunit 5052 AttachmentManagement
         end;
 
         Attachment.Insert(true);
+
+        IsHandled := false;
+        OnInsertAttachmentOnAfterAttachmentInserted(Attachment, AttachmentNo, Attachment3, IsHandled);
+        if IsHandled then
+            exit(Attachment."No.");
 
         if AttachmentNo <> 0 then
             // New attachment is based on old attachment
@@ -751,6 +757,11 @@ codeunit 5052 AttachmentManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessDeliverySorter(var DeliverySorter: Record "Delivery Sorter"; var TempDeliverySorterHtml: Record "Delivery Sorter" temporary; var TempDeliverySorterWord: Record "Delivery Sorter" temporary; var TempDeliverySorterOther: Record "Delivery Sorter" temporary; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertAttachmentOnAfterAttachmentInserted(var Attachment: Record Attachment; AttachmentNo: Integer; var FromAttachment: Record Attachment; var IsHandled: Boolean)
     begin
     end;
 }

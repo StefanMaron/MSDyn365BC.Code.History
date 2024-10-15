@@ -140,10 +140,14 @@ codeunit 5611 "Calculate Normal Depreciation"
             then
                 FADeprBook.TestField("Use FA Ledger Check", true);
 
-            if BookValue + SalvageValue <= 0 then
-                SkipOnZero := true;
-            if (SalvageValue >= 0) and (BookValue <= EndingBookValue) then
-                SkipOnZero := true;
+            IsHandled := false;
+            OnCalculateOnBeforeAssignSkipOnZeroValue(FANo, FADeprBook, Sign, BookValue, DeprBasis, SalvageValue, MinusBookValue, SkipOnZero, EndingBookValue, IsHandled);
+            if not IsHandled then begin
+                if BookValue + SalvageValue <= 0 then
+                    SkipOnZero := true;
+                if (SalvageValue >= 0) and (BookValue <= EndingBookValue) then
+                    SkipOnZero := true;
+            end;
 
             if not
                (SkipOnZero and
@@ -326,6 +330,11 @@ codeunit 5611 "Calculate Normal Depreciation"
             if Amount >= 0 then
                 exit(0);
 
+        IsHandled := false;
+        OnCalculateDeprAmountOnBeforeCalculateDeprAmount(FA, SkipOnZero, DeprBookCode, Amount, BookValue2, SalvageValue2, EndingBookValue, FinalRoundingAmount, IsHandled);
+        if IsHandled then
+            exit(Amount);
+
         if not SkipOnZero then
             DepreciationCalc.AdjustDepr(
               DeprBookCode, Amount, Abs(BookValue2), -Abs(SalvageValue2),
@@ -396,6 +405,11 @@ codeunit 5611 "Calculate Normal Depreciation"
             exit(Result);
         end;
 
+        IsHandled := false;
+        OnCalcSLAmountOnBeforeCheckFixedAmount(FA, FixedAmount, NumberOfDays, DaysInFiscalYear, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if FixedAmount > 0 then
             exit(-FixedAmount * NumberOfDays / DaysInFiscalYear);
 
@@ -437,7 +451,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         result := -(DBPercent / 100) * (NumberOfDays / DaysInFiscalYear) *
           (BookValue + SalvageValue - MinusBookValue - Sign * DeprInFiscalYear);
 
-        OnAfterCalcDB1Amount(DBPercent, NumberOfDays, DaysInFiscalYear, BookValue, SalvageValue, MinusBookValue, Sign, DeprInFiscalYear, Result);
+        OnAfterCalcDB1Amount(DBPercent, NumberOfDays, DaysInFiscalYear, BookValue, SalvageValue, MinusBookValue, Sign, DeprInFiscalYear, Result, FADeprBook, FirstDeprDate);
     end;
 
     local procedure CalcDB2Amount(): Decimal
@@ -469,6 +483,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         if SLAmount < DBAmount then
             exit(SLAmount);
 
+        OnAfterCalcDBSLAmount(DBAmount, SLAmount, FADeprBook, DateFromProjection);
         exit(DBAmount)
     end;
 
@@ -554,7 +569,7 @@ codeunit 5611 "Calculate Normal Depreciation"
             DeprBasis := "Depreciable Basis";
             SalvageValue := "Salvage Value";
 
-            OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date", FADeprBook);
+            OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date", FADeprBook, DateFromProjection);
 
             BookValue2 := BookValue;
             SalvageValue2 := SalvageValue;
@@ -966,7 +981,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterBookValueRecalculateBookValue(FixedAsset: Record "Fixed Asset"; DeprBook: Record "Depreciation Book"; FAledgEntry2: Record "FA Ledger Entry"; var DeprBasis: Decimal; var BookValue: Decimal; var DeprEndingDate: Date; DisposalDate: Date; var FADepreciationBook: Record "FA Depreciation Book")
+    local procedure OnAfterBookValueRecalculateBookValue(FixedAsset: Record "Fixed Asset"; DeprBook: Record "Depreciation Book"; FAledgEntry2: Record "FA Ledger Entry"; var DeprBasis: Decimal; var BookValue: Decimal; var DeprEndingDate: Date; DisposalDate: Date; var FADepreciationBook: Record "FA Depreciation Book"; DateFromProjection: Date)
     begin
     end;
 
@@ -1018,7 +1033,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcDB1Amount(DBPercent: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; BookValue: Decimal; SalvageValue: Decimal; MinusBookValue: Decimal; Sign: Integer; DeprInFiscalYear: Decimal; var Result: Decimal)
+    local procedure OnAfterCalcDB1Amount(DBPercent: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; BookValue: Decimal; SalvageValue: Decimal; MinusBookValue: Decimal; Sign: Integer; DeprInFiscalYear: Decimal; var Result: Decimal; FADepreciationBook: Record "FA Depreciation Book"; FirstDeprDate: Date)
     begin
     end;
 
@@ -1069,6 +1084,26 @@ codeunit 5611 "Calculate Normal Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferValuesOnAfterSetDeprMethod(var FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateDeprAmountOnBeforeCalculateDeprAmount(FixedAsset: Record "Fixed Asset"; SkipOnZero: Boolean; DeprBookCode: Code[20]; var Amount: Decimal; BookValue: Decimal; SalvageValue2: Decimal; EndingBookValue: Decimal; FinalRoundingAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnBeforeAssignSkipOnZeroValue(FANo: Code[20]; FADepreciationBook: Record "FA Depreciation Book"; var Sign: Integer; var BookValue: Decimal; var DeprBasis: Decimal; var SalvageValue: Decimal; var MinusBookValue: Decimal; var SkipOnZero: Boolean; EndingBookValue: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDBSLAmount(var DBAmount: Decimal; SLAmount: Decimal; FADepreciationBook: Record "FA Depreciation Book"; DateFromProjection: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcSLAmountOnBeforeCheckFixedAmount(FixedAsset: Record "Fixed Asset"; FixedAmount: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; var IsHandled: Boolean; var Result: Decimal)
     begin
     end;
 }
