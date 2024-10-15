@@ -489,6 +489,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     procedure InitPurchOrderLine(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line")
     begin
         with RequisitionLine do begin
+            Clear(PurchOrderLine);
             PurchOrderLine.Init();
             PurchOrderLine.BlockDynamicTracking(true);
             PurchOrderLine."Document Type" := PurchOrderLine."Document Type"::Order;
@@ -620,6 +621,8 @@ codeunit 333 "Req. Wksh.-Make Order"
                     PurchOrderLine."Special Order" := true;
                     PurchOrderLine.UpdateUnitCost;
                 end;
+
+            UpdateJobLink(PurchOrderLine, ReqLine2);
 
             ReqLineReserve.TransferReqLineToPurchLine(ReqLine2, PurchOrderLine, "Quantity (Base)", false);
 
@@ -1326,6 +1329,22 @@ codeunit 333 "Req. Wksh.-Make Order"
               Text002 +
               Text003 +
               Text005);
+    end;
+
+    local procedure UpdateJobLink(var PurchaseLine: Record "Purchase Line"; RequisitionLine: Record "Requisition Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::"Order Planning") and
+           (RequisitionLine."Demand Type" = DATABASE::"Job Planning Line")
+        then begin
+            JobPlanningLine.SetRange("Job Contract Entry No.", RequisitionLine."Demand Line No.");
+            JobPlanningLine.FindFirst();
+
+            PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
+            PurchaseLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+            PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -22,6 +22,7 @@ codeunit 136114 "Service Order Check"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
         ServiceOrderError: Label 'Service Order must not exist.';
         ItemShipmentLineServiceTier: Label '%1 must be equal to ''Item''  in %2: %3=%4, %5=%6. Current value is ''%7''.';
@@ -31,6 +32,9 @@ codeunit 136114 "Service Order Check"
         CountError: Label '%1 %2 must exist.', Comment = '%1: Count of Lines;%2: Table Caption';
         PostingDateErr: Label 'Posting Date of Value Entry is incorrect';
         PostedShipmentDateTxt: Label 'Posted Shipment Date';
+        TestFieldCodeErr: Label 'TestField';
+        ReleasedStatusErr: Label 'Release Status must be equal to ''%1''  in Service Header: Document Type=%2, No.=%3. Current value is ''%4''.', Comment = '%1 - Status, %2 - Document Type, %3 - Document No., %4 - Expected Status';
+        ServiceLinesChangeMsg: Label 'You have changed %1 on the %2, but it has not been changed on the existing service lines.\You must update the existing service lines manually.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1406,13 +1410,72 @@ codeunit 136114 "Service Order Check"
         LibraryReportDataset.AssertElementWithValueExists('CompanyBankBranchNo', CompanyInformation."Bank Branch No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceLinesExistMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceDiscGroupCode()
+    var
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        TempServiceItemLine: Record "Service Item Line" temporary;
+        ServLoanerManagement: Codeunit ServLoanerManagement;
+    begin
+        // [SCENARIO 434818] System shows warning messages when OnValidate is triggered on "Invoice Disc. Code" field.
+
+        // [GIVEN] Create Service Item, Service Order with Header ,Service Item Line and Service line.
+        Initialize();
+        CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
+        CreateServiceItemAndItemLine(ServiceItem, ServiceItemLine, ServiceHeader);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+
+        // [WHEN] Exercise: Update Invoice Disc. Group code
+        ServiceHeader.Validate("Invoice Disc. Code", LibraryRandom.RandText(20));
+
+        // [THEN] Message is called when OnValidate is called for Invoice Disc. Code.
+        Assert.ExpectedMessage(StrSubstNo(ServiceLinesChangeMsg, ServiceHeader.FieldCaption("Invoice Disc. Code"), ServiceHeader.TableCaption), LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReleaseStatusCheckOnInvoiceDiscGroupCodeUpdate()
+    var
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        TempServiceItemLine: Record "Service Item Line" temporary;
+        ServiceLine: Record "Service Line";
+        ReleaseServiceDocument: Codeunit "Release Service Document";
+    begin
+        // [SCENARIO 434818] To validate that Invoice Disc. Group Code can only be updated it Release Status is open.
+
+        // [GIVEN] Create Service Item, Service Order with Header ,Service Item Line and Service Line and update quantity to 1 and release service order to ship.
+        Initialize();
+        CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
+        CreateServiceItemAndItemLine(ServiceItem, ServiceItemLine, ServiceHeader);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        ServiceLine.Validate(Quantity, 1);
+        ServiceLine.Modify(true);
+        ReleaseServiceDocument.Run(ServiceHeader);
+
+        // [WHEN] Update Invoice Disc. Group code
+        asserterror ServiceHeader.Validate("Invoice Disc. Code", LibraryRandom.RandText(20));
+
+        // [THEN] it throws an error message because Release status is not Open.
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
+        Assert.ExpectedError(StrSubstNo(ReleasedStatusErr, ServiceHeader."Release Status"::Open, ServiceHeader."Document Type", ServiceHeader."No.", ServiceHeader."Release Status"::"Released to Ship"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Order Check");
         Clear(LibraryService);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -2296,6 +2359,13 @@ codeunit 136114 "Service Order Check"
     procedure MessgeHandler(MessageTest: Text[1024])
     begin
         // Dummy Message Handler.
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceLinesExistMessageHandler(MessageTest: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(MessageTest);
     end;
 }
 
