@@ -41,6 +41,13 @@ page 2670 "Allocation Account"
                     end;
                 }
 
+                field(DocumentLinesSplit; Rec."Document Lines Split")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Document Line Split';
+                    ToolTip = 'Specifies the strategy for splitting the lines when used on the documents.';
+                }
+
                 group(DistributionAccountTypeGroup)
                 {
                     ShowCaption = false;

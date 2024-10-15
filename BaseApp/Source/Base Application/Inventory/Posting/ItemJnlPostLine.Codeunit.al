@@ -1907,7 +1907,6 @@ codeunit 22 "Item Jnl.-Post Line"
 
                 Handled := false;
                 OnApplyItemLedgEntryOnBeforeFirstReservationSetFilters(ItemJnlLine, StartApplication, FirstReservation, Handled);
-                ReservEntry.SetLoadFields("Entry No.", Positive, "Item No.", "Quantity (Base)");
                 if not Handled then
                     if FirstReservation then begin
                         FirstReservation := false;
@@ -2796,6 +2795,7 @@ codeunit 22 "Item Jnl.-Post Line"
         with ItemApplnEntry do begin
             SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
             SetRange("Output Completely Invd. Date", 0D);
+            OnUpdateItemApplnEntryOnAfterFilterItemApplicationEntry(ItemApplnEntry);
             if not IsEmpty() then
                 ModifyAll("Output Completely Invd. Date", PostingDate);
         end;
@@ -7930,6 +7930,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnPostOutputOnBeforeInsertCostValueEntries(var ItemJournalLine: Record "Item Journal Line"; var CapacityLedgerEntry: Record "Capacity Ledger Entry"; ValuedQty: Decimal; var DirCostAmt: Decimal; var IndirCostAmt: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemApplnEntryOnAfterFilterItemApplicationEntry(var ItemApplnEntry: Record "Item Application Entry")
     begin
     end;
 }

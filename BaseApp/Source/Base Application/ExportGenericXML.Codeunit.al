@@ -11,10 +11,16 @@ codeunit 1283 "Export Generic XML"
         DataExchLineDef: Record "Data Exch. Line Def";
         DataExchMapping: Record "Data Exch. Mapping";
         DataExchTableFilter: Record "Data Exch. Table Filter";
+        DefaultTableID: Integer;
         xmlDoc: XmlDocument;
         OutStr: OutStream;
         IsHandled: Boolean;
     begin
+        DataExchMapping.SetRange("Data Exch. Def Code", Rec."Data Exch. Def Code");
+        DataExchMapping.SetRange("Data Exch. Line Def Code", Rec."Data Exch. Line Def Code");
+        if DataExchMapping.FindFirst() then
+            DefaultTableID := DataExchMapping."Table ID";
+
         DataExchLineDef.SetRange("Data Exch. Def Code", Rec."Data Exch. Def Code");
         DataExchLineDef.SetFilter(Code, '<>%1', Rec."Data Exch. Line Def Code");
         if DataExchLineDef.FindSet() then
@@ -33,7 +39,8 @@ codeunit 1283 "Export Generic XML"
                         DataExchTableFilter.CalcFields("Table Filters");
                         DataExch."Table Filters" := DataExchTableFilter."Table Filters";
                     end else
-                        DataExch."Table Filters" := Rec."Table Filters";
+                        if (DefaultTableID <> 0) and (DataExchMapping."Table ID" = DefaultTableID) then
+                            DataExch."Table Filters" := Rec."Table Filters";
                     DataExch.Insert(true);
 
                     OnBeforeProcessDataExc(DataExch, IsHandled);

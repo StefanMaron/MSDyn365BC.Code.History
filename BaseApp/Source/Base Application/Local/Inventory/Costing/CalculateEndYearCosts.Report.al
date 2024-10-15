@@ -902,8 +902,15 @@ report 12115 "Calculate End Year Costs"
         SubconAmt: Decimal;
         QtyNotInvoiced: Decimal;
         ProdAmt: Decimal;
+        IsHandled: Boolean;
     begin
         ProdOrdOutput := GetProdOrderOutput();
+
+        IsHandled := false;
+        OnUpdateCostsOnAfterGetProdOrdOutput(ProdOrdOutput, IsHandled, ProdAmt);
+        if IsHandled then
+            exit(ProdAmt);
+        
         ItemCompCost := GetComponentCost();
         GetRoutingCost(DirectRtgAmt, SubconAmt, OverheadRtgAmt);
         ProdAmt := (ItemCompCost + DirectRtgAmt + OverheadRtgAmt + SubconAmt) * ItemLedgEntry.Quantity / ProdOrdOutput;
@@ -1003,6 +1010,11 @@ report 12115 "Calculate End Year Costs"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitPurchFieldsOnAfterSetItemLedgerEntryFilters(var ItemCostHistory: Record "Item Cost History"; var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCostsOnAfterGetProdOrdOutput(ProdOrdOutput: Decimal; var IsHandled: Boolean; var ProdAmt: Decimal)
     begin
     end;
 }

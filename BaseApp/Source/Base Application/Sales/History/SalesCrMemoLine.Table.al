@@ -834,6 +834,10 @@ table 115 "Sales Cr.Memo Line"
         ValueEntry: Record "Value Entry";
     begin
         CheckApplFromItemLedgEntry(ItemLedgerEntry);
+
+        if ItemLedgerEntry."Entry No." = 0 then
+            FindItemLedgerEntryFromItemApplicationEntry(ItemLedgerEntry);
+
         ValueEntry.SetLoadFields("Item Ledger Entry No.", "Item Ledger Entry Type", "Document Type", "Document No.", "Document Line No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntry."Entry Type");
@@ -952,6 +956,21 @@ table 115 "Sales Cr.Memo Line"
             SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
+    end;
+
+    local procedure FindItemLedgerEntryFromItemApplicationEntry(var ItemLedgerEntry: Record "Item Ledger Entry")
+    var
+        ItemApplicationEntry: Record "Item Application Entry";
+        TempItemLedEntry: Record "Item Ledger Entry" temporary;
+        ItemTrackingDocMgmt: Codeunit "Item Tracking Doc. Management";
+    begin
+        ItemTrackingDocMgmt.RetrieveEntriesFromPostedInvoice(TempItemLedEntry, RowID1());
+        if TempItemLedEntry.IsEmpty then
+            exit;
+
+        TempItemLedEntry.FindFirst();
+        if ItemApplicationEntry.AppliedFromEntryExists(TempItemLedEntry."Entry No.") then
+            ItemLedgerEntry.Get(ItemApplicationEntry."Outbound Item Entry No.");
     end;
 
     [IntegrationEvent(false, false)]

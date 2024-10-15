@@ -782,7 +782,7 @@ table 111 "Sales Shipment Line"
                    (SalesOrderHeader."No." <> SalesOrderLine."Document No.")
                 then
                     SalesOrderHeader.Get(SalesOrderLine."Document Type"::Order, "Order No.");
-                OnInsertInvLineFromShptLineOnAfterSalesOrderHeaderGet(SalesOrderHeader, SalesInvHeader);
+                OnInsertInvLineFromShptLineOnAfterSalesOrderHeaderGet(SalesOrderHeader, SalesInvHeader, SalesOrderLine);
 
                 PrepaymentMgt.TestSalesOrderLineForGetShptLines(SalesOrderLine);
                 InitCurrency("Currency Code");
@@ -1244,7 +1244,7 @@ table 111 "Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromShptLineOnAfterSalesOrderHeaderGet(var SalesOrderHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Header")
+    local procedure OnInsertInvLineFromShptLineOnAfterSalesOrderHeaderGet(var SalesOrderHeader: Record "Sales Header"; var SalesInvHeader: Record "Sales Header"; var SalesOrderLine: Record "Sales Line")
     begin
     end;
 

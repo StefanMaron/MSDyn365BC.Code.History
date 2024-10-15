@@ -5273,7 +5273,13 @@ table 5900 "Service Header"
     local procedure SetDefaultSalesperson()
     var
         UserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultSalesperson(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not UserSetup.Get(UserId) then
             exit;
 
@@ -6058,6 +6064,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateServiceLinesOnBeforeCopyReservEntryFromTemp(var ServiceLine: Record "Service Line"; var TempServiceLine: Record "Service Line" temporary; var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultSalesperson(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1001,8 +1001,8 @@ table 5407 "Prod. Order Component"
             ItemLedgEntry.SetRange("Order Line No.", "Prod. Order Line No.");
             ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Consumption);
             ItemLedgEntry.SetRange("Prod. Order Comp. Line No.", "Line No.");
-            if ItemLedgEntry.FindFirst() then
-                Error(Text99000000, ItemLedgEntry."Item No.", "Line No.");
+            if not ItemLedgEntry.IsEmpty() then
+                Error(Text99000000, "Item No.", "Line No.");
 
             CalcFields("Qty. transf. to Subcontractor", "Qty. on Transfer Order (Base)", "Qty. in Transit (Base)");
             TestField("Qty. transf. to Subcontractor", 0);

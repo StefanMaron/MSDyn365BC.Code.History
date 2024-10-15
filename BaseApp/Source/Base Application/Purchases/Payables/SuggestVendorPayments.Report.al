@@ -417,14 +417,14 @@ report 393 "Suggest Vendor Payments"
                     {
                         ShowCaption = false;
                         Visible = ServiceFieldsVisibiity;
-                        field(JournalTemplateName; GenJnlLine."Journal Template Name")
+                        field(JournalTemplateName; JnlTemplateName)
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
                             ToolTip = 'Specifies the journal template name of the payment journal.';
                             Visible = ServiceFieldsVisibiity;
                         }
-                        field(JournalBatchName; GenJnlLine."Journal Batch Name")
+                        field(JournalBatchName; JnlBatchName)
                         {
                             ApplicationArea = Basic, Suite;
                             ShowCaption = false;
@@ -540,6 +540,8 @@ report 393 "Suggest Vendor Payments"
         ShowPostingDateWarning: Boolean;
         VendorBalance: Decimal;
         ServiceFieldsVisibiity: Boolean;
+        JnlTemplateName: Code[10];
+        JnlBatchName: Code[10];
 
         Text000: Label 'In the Last Payment Date field, specify the last possible date that payments must be made.';
         Text001: Label 'In the Posting Date field, specify the date that will be used as the posting date for the journal entries.';
@@ -576,7 +578,12 @@ report 393 "Suggest Vendor Payments"
 
     local procedure ValidatePostingDate()
     begin
-        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+        if not GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
+            GenJnlBatch.Get(JnlTemplateName, JnlBatchName)
+        else begin
+            JnlTemplateName := GenJnlLine."Journal Template Name";
+            JnlBatchName := GenJnlLine."Journal Batch Name";
+        end;
         if GenJnlBatch."No. Series" = '' then
             NextDocNo := ''
         else begin
@@ -1283,7 +1290,8 @@ report 393 "Suggest Vendor Payments"
 
     local procedure SetDefaults()
     begin
-        GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
+        if not GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") then
+            GenJnlBatch.Get(JnlTemplateName, JnlBatchName);
         if GenJnlBatch."Bal. Account No." <> '' then begin
             GenJnlLine2."Bal. Account Type" := GenJnlBatch."Bal. Account Type";
             GenJnlLine2."Bal. Account No." := GenJnlBatch."Bal. Account No.";

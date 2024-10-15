@@ -930,6 +930,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         ForecastEntry.SetRange("Forecast Date", ForecastEntry."Forecast Date" + 1, ToDate);
                 until (not ForecastEntry.Find('-')) or ForecastExist
         end;
+
+        OnAfterCheckForecastExist(ForecastEntry, ExcludeForecastBefore, OrderDate, ToDate, ForecastExist);
         exit(ForecastExist);
     end;
 
@@ -6225,6 +6227,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnPlanItemNextStateCloseSupplyOnAfterCheckSupplyExist(var SupplyInventoryProfile: Record "Inventory Profile"; SupplyExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckForecastExist(var ProductionForecastEntry: Record "Production Forecast Entry"; ExcludeForecastBefore: Date; OrderDate: Date; ToDate: Date; var ForecastExist: Boolean);
     begin
     end;
 }
