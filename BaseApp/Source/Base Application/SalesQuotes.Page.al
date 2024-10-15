@@ -227,7 +227,7 @@ page 9300 "Sales Quotes"
             part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
-                SubPageLink = "Table ID" = CONST(36),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }

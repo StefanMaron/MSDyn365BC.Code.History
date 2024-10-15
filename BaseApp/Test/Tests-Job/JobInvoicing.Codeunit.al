@@ -3038,6 +3038,80 @@ codeunit 136306 "Job Invoicing"
         Assert.AreEqual(Job."Your Reference", SalesHeader."Your Reference", StrSubstNo(YourReferenceErr, Job.TableCaption(), SalesHeader.TableCaption));
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
+    procedure VerifyPostedSalesInvoiceCreatedFromJobPlanningLineIsCanceled()
+    var
+        Item: Record Item;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        ReversedJobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 454741] Verify Cancel Posted Sales Invoice created from Job Planning Line, with updated Unit Cost, for Item with Standard costing method
+        Initialize();
+
+        // [GIVEN] Create Item with Standard Cost      
+        CreateItemWithStandardCost(Item);
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(JobTask);
+
+        // [GIVEN] Create Job Planning Line
+        CreateJobPlanningLineWithItem(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::"Both Budget and Billable", Item."No.", 1);
+
+        // [GIVEN] Update Unit Cost on Job Planning Line
+        JobPlanningLine.Validate("Unit Cost", Item."Standard Cost" + 1);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Create new Sales Invoice from Job Planning Line                
+        TransferJobPlanningLine(JobPlanningLine, JobPlanningLine.Quantity, false, SalesHeader);
+
+        // [GIVEN] Post Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Cancel Posted Sales Invoice
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [THEN] Verify additional Job Planning Line is created with updated Unit Cost
+        FindReversedJobPlanningLine(JobPlanningLine, ReversedJobPlanningLine);
+        ReversedJobPlanningLine.TestField(Quantity, -JobPlanningLine.Quantity);
+        ReversedJobPlanningLine.TestField("Unit Cost (LCY)", JobPlanningLine."Unit Cost (LCY)");
+        ReversedJobPlanningLine.TestField("Unit Cost", JobPlanningLine."Unit Cost");
+    end;
+
+    local procedure CreateJobAndJobTask(var JobTask: Record "Job Task")
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryJob.CreateJob(Job, Customer."No.");
+        Job.Validate("Apply Usage Link", true);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+    end;
+
+    local procedure CreateJobPlanningLineWithItem(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryJob.CreateJobPlanningLine(LineType, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", ItemNo);
+        JobPlanningLine.Validate(Quantity, Quantity);
+        JobPlanningLine.Modify(true);
+    end;
+
+    local procedure CreateItemWithStandardCost(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Standard Cost", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        Item.Modify(true);
+    end;
+
     procedure CalculateWIPWithReturnedJobUsage(QuantityOnInvoice: Integer; QuantityOnCreditmemo: Integer; PostToGL: Boolean)
     var
         Job: Record Job;

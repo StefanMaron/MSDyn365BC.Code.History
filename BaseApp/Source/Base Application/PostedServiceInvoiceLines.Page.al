@@ -198,6 +198,11 @@ page 5951 "Posted Service Invoice Lines"
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        Rec.SetSecurityFilterOnRespCenter();
+    end;
+
     var
         ServInvHeader: Record "Service Invoice Header";
 }

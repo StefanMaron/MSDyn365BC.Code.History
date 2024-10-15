@@ -30,6 +30,7 @@ codeunit 1510 "Notification Management"
         ApprovalEntry: Record "Approval Entry";
         OverdueApprovalEntry: Record "Overdue Approval Entry";
         NotificationEntry: Record "Notification Entry";
+        IsHandled: Boolean;
     begin
         if UserSetup.FindSet() then
             repeat
@@ -40,9 +41,12 @@ codeunit 1510 "Notification Management"
                 if ApprovalEntry.FindSet() then
                     repeat
                         InsertOverdueEntry(ApprovalEntry, OverdueApprovalEntry);
-                        NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::Overdue,
-                          UserSetup."User ID", OverdueApprovalEntry, WorkflowStepArgument."Link Target Page",
-                          WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
+                        IsHandled := false;
+                        OnCreateOverdueNotificationsOnBeforeCreateNotificationEntry(UserSetup, ApprovalEntry, OverdueApprovalEntry, IsHandled);
+                        if not IsHandled then
+                            NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::Overdue,
+                              UserSetup."User ID", OverdueApprovalEntry, WorkflowStepArgument."Link Target Page",
+                              WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
                     until ApprovalEntry.Next() = 0;
             until UserSetup.Next() = 0;
 
@@ -228,14 +232,14 @@ codeunit 1510 "Notification Management"
                     DocumentNo := Format(FieldRef.Value);
                 end;
             else begin
-                    IsHandled := false;
-                    OnGetDocumentTypeAndNumber(RecRef, DocumentType, DocumentNo, IsHandled);
-                    if not IsHandled then begin
-                        DocumentType := RecRef.Caption;
-                        FieldRef := RecRef.Field(3);
-                        DocumentNo := Format(FieldRef.Value);
-                    end;
+                IsHandled := false;
+                OnGetDocumentTypeAndNumber(RecRef, DocumentType, DocumentNo, IsHandled);
+                if not IsHandled then begin
+                    DocumentType := RecRef.Caption;
+                    FieldRef := RecRef.Field(3);
+                    DocumentNo := Format(FieldRef.Value);
                 end;
+            end;
         end;
     end;
 
@@ -289,6 +293,11 @@ codeunit 1510 "Notification Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentTypeAndNumber(var RecRef: RecordRef; var DocumentType: Text; var DocumentNo: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateOverdueNotificationsOnBeforeCreateNotificationEntry(UserSetup: Record "User Setup"; ApprovalEntry: Record "Approval Entry"; var OverdueApprovalEntry: Record "Overdue Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 }

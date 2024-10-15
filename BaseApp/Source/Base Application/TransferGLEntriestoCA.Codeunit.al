@@ -70,6 +70,7 @@ codeunit 1105 "Transfer GL Entries to CA"
         CostCenterCode: Code[20];
         CostObjectCode: Code[20];
         CombinedEntryText: Text[50];
+        CombineEntries: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -130,7 +131,9 @@ codeunit 1105 "Transfer GL Entries to CA"
                                         end;
                                 end;
 
-                                if CostType."Combine Entries" <> CostType."Combine Entries"::None then begin
+                                CombineEntries := CostType."Combine Entries" <> CostType."Combine Entries"::None;
+                                OnGetGLEntriesOnBeforeCombineEntries(CostCenterCode, GLEntry, CostType, CombineEntries);
+                                if CombineEntries then begin
                                     TempCostJnlLine.Reset();
                                     TempCostJnlLine.SetRange("Cost Type No.", CostType."No.");
                                     if CostCenterCode <> '' then
@@ -329,6 +332,11 @@ codeunit 1105 "Transfer GL Entries to CA"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetGLEntriesOnAfterSetGLEntryFilters(var GLEntry: Record "G/L Entry"; FirstGLEntryNo: Integer; LastGLEntryNo: Integer; StartingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetGLEntriesOnBeforeCombineEntries(var CostObjectCode: Code[20]; GLEntry: Record "G/L Entry"; CostType: Record "Cost Type"; var CombineEntries: Boolean)
     begin
     end;
 }

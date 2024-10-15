@@ -56,6 +56,8 @@ page 253 "Sales Journal"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the VAT date for the entry.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -1153,6 +1155,7 @@ page 253 "Sales Journal"
     trigger OnOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         JnlSelected: Boolean;
         LastGenJnlBatch: Code[10];
         IsHandled: Boolean;
@@ -1186,6 +1189,7 @@ page 253 "Sales Journal"
         SetControlAppearanceFromBatch();
 
         OnAfterOpenPage();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -1221,6 +1225,8 @@ page 253 "Sales Journal"
         NegativeDocAmountErr: Label 'You must specify a positive amount as the document amount. If the journal line is for a document type that has a negative amount, the amount will be tracked correctly.';
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

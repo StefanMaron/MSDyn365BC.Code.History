@@ -17,7 +17,9 @@ report 496 "Batch Post Purchase Orders"
             begin
                 OnBeforePurchaseBatchPostMgt("Purchase Header", ReceiveReq, InvReq);
 
-                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
+                PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::Print, PrintDoc);
+                PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDateReq);
+                PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"VAT Date", VATDateReq);    
                 PurchaseBatchPostMgt.RunBatch(
                   "Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ReceiveReq, InvReq);
 
@@ -55,6 +57,12 @@ report 496 "Batch Post Purchase Orders"
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that the program will use as the document and/or posting date when you post if you place a checkmark in one or both of the following boxes.';
                     }
+                    field(VATDate; VATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'VAT Date';
+                        ToolTip = 'Specifies the date that the program will use as the VAT date when you post if you place a checkmark in Replace VAT Date.';
+                    }
                     field(ReplacePostingDate; ReplacePostingDate)
                     {
                         ApplicationArea = Suite;
@@ -72,6 +80,12 @@ report 496 "Batch Post Purchase Orders"
                         ApplicationArea = Suite;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the purchase orders'' document date with the date in the Posting Date field.';
+                    }
+                    field(ReplaceVATDate; ReplaceVATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'Replace VAT Date';
+                        ToolTip = 'Specifies if you want to replace the purchase orders'' VAT date with the date in the VAT Date field.';
                     }
                     field(CalcInvDiscount; CalcInvDisc)
                     {
@@ -139,14 +153,16 @@ report 496 "Batch Post Purchase Orders"
     protected var
         ReceiveReq: Boolean;
         InvReq: Boolean;
-        PostingDateReq: Date;
-        ReplacePostingDate: Boolean;
+        PostingDateReq, VATDateReq: Date;
+        ReplacePostingDate, ReplaceVATDateReq: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
 
+#if not CLEAN22
+    [Obsolete('Replaced by InitializeRequest with VAT Date parameters.', '22.0')]
     procedure InitializeRequest(NewReceiveReq: Boolean; NewInvReq: Boolean; NewPostingDateReq: Date; NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewCalcInvDisc: Boolean)
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -155,6 +171,25 @@ report 496 "Batch Post Purchase Orders"
         ReceiveReq := NewReceiveReq;
         InvReq := NewInvReq;
         PostingDateReq := NewPostingDateReq;
+        ReplacePostingDate := NewReplacePostingDate;
+        ReplaceDocumentDate := NewReplaceDocumentDate;
+        ReplaceVATDateReq := false;
+        if NewCalcInvDisc then
+            PurchasesPayablesSetup.TestField("Calc. Inv. Discount", false);
+        CalcInvDisc := NewCalcInvDisc;
+    end;
+#endif
+
+    procedure InitializeRequest(NewReceiveReq: Boolean; NewInvReq: Boolean; NewPostingDateReq: Date; NewVatDateReq: Date; NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewReplaceVATDate: Boolean; NewCalcInvDisc: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        ReceiveReq := NewReceiveReq;
+        InvReq := NewInvReq;
+        PostingDateReq := NewPostingDateReq;
+        VATDateReq := NewVatDateReq;
+        ReplaceVATDateReq := NewReplaceVATDate;
         ReplacePostingDate := NewReplacePostingDate;
         ReplaceDocumentDate := NewReplaceDocumentDate;
         if NewCalcInvDisc then
