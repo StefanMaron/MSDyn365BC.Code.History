@@ -301,6 +301,7 @@
     trigger OnDelete()
     begin
         TestField(Status, Status::Open);
+        OnDeleteOnBeforeDeleteWarehouseShipmentLines(Rec, HideValidationDialog);
         DeleteWarehouseShipmentLines;
         DeleteRelatedLines;
     end;
@@ -663,6 +664,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteWarehouseShipmentLinesOnBeforeConfirm(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Confirmed: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeDeleteWarehouseShipmentLines(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; HideValidationDialog: Boolean)
     begin
     end;
 

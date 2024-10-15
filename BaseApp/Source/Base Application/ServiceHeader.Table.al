@@ -348,10 +348,14 @@
                 Validate("Service Zone Code");
 
                 IsHandled := false;
+#if not CLEAN18
                 OnValidateShipToCodeOnBeforeDleereLines(Rec, IsHandled);
+#endif
+                OnValidateShipToCodeOnBeforeDeleteLines(Rec, IsHandled);
                 if not IsHandled then
                     if ("Ship-to Code" <> xRec."Ship-to Code") and
-                    ("Customer No." = xRec."Customer No.")
+                       ("Customer No." = xRec."Customer No.") and
+                       ServItemLineExists()
                     then begin
                         Modify(true);
                         ServLine.LockTable();
@@ -4453,8 +4457,16 @@
     begin
     end;
 
+#if not CLEAN18 
+    [Obsolete('replaced by OnValidateShipToCodeOnBeforeDeleteLines', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnValidateShipToCodeOnBeforeDleereLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipToCodeOnBeforeDeleteLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -331,6 +331,7 @@ codeunit 6520 "Item Tracing Mgt."
                     if Description2 = '' then
                         Description2 := StrSubstNo('%1 %2', RecRef.Caption, "Document No.");
                 end;
+                OnInsertRecordOnBeforeSetDescription(TempTrackEntry, RecRef, Description2);
                 SetDescription(Description2);
                 Insert;
                 exit(true);
@@ -533,7 +534,8 @@ codeunit 6520 "Item Tracing Mgt."
                                     "Record Identifier" := RecRef.RecordId;
                                 end;
                 "Entry Type"::Sale:
-                    if IsServiceDocument("Item Ledger Entry No.", ItemLedgEntry) then
+                    if IsServiceDocument("Item Ledger Entry No.", ItemLedgEntry) then begin
+                        OnSetRecordIDOnBeforeProcessServiceDocument(ItemLedgEntry, TrackingEntry);
                         case ItemLedgEntry."Document Type" of
                             ItemLedgEntry."Document Type"::"Service Shipment":
                                 if ServShptHeader.Get("Document No.") then begin
@@ -560,7 +562,7 @@ codeunit 6520 "Item Tracing Mgt."
                                     "Record Identifier" := RecRef.RecordId;
                                 end;
                         end
-                    else
+                    end else
                         if Positive then begin
                             if SalesCrMemoHeader.Get("Document No.") then begin
                                 RecRef.GetTable(SalesCrMemoHeader);
@@ -989,12 +991,22 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertRecordOnBeforeSetDescription(var TempTrackEntry: Record "Item Tracing Buffer"; var RecRef: RecordRef; var Description2: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnNextLevelOnAfterTransferData(var TempItemTracingBuffer: Record "Item Tracing Buffer" temporary; var TempItemTracingBuffer2: Record "Item Tracing Buffer" temporary)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnRetrieveHistoryDataOnAfterTraceHistoryLine(var TempItemTracingHistoryBuffer: Record "Item Tracing History Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetRecordIDOnBeforeProcessServiceDocument(ItemLedgEntry: Record "Item Ledger Entry"; var TrackingEntry: Record "Item Tracing Buffer")
     begin
     end;
 }

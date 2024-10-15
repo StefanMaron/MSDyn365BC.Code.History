@@ -32,6 +32,8 @@ codeunit 5531 "Calc. Inventory Page Data"
 
         CalcItemAvailability.CalcNewInvtEventBuf(Item, ForecastName, IncludeBlanketOrders, ExcludeForecastBefore, IncludePlan);
         CalcItemAvailability.GetInvEventBuffer(TempInvtEventBuf);
+
+        OnAfterInitialize(Item, ForecastName, IncludeBlanketOrders, ExcludeForecastBefore, IncludePlan);
     end;
 
     procedure CreatePeriodEntries(var InvtPageData: Record "Inventory Page Data"; PeriodType: Option Day,Week,Month,Quarter,Year)
@@ -518,6 +520,11 @@ codeunit 5531 "Calc. Inventory Page Data"
             else
                 PeriodDescription := Date."Period Name";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitialize(var Item: Record Item; var ForecastName: Code[10]; var IncludeBlanketOrders: Boolean; var ExcludeForecastBefore: Date; var IncludePlan: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
