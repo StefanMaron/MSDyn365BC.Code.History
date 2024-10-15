@@ -18,6 +18,7 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPermissions: Codeunit "Library - Permissions";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         PageFieldVisibleErr: Label '%1 must be visible.';
         PageFieldEditableErr: Label '%1 must be editable.';
@@ -981,6 +982,130 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         PurchaseReturnOrder.Control3."No.".AssertEquals(PurchaseReturnOrder.PurchLines."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('GLAccountListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure GenPostingSetupPageSalesCreditMemoAccountLookUpViewAllFalse()
+    var
+        GenPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        GLAccountCategory: Record "G/L Account Category";
+        GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
+        GenPostingSetupPage: TestPage "General Posting Setup";
+        AccountCategory: Option;
+        AccountType: Option;
+        AccSubcategoryFilter: Text;
+        EntryNoFilter: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 369459] "Sales Credit Memo Account" lookup opens G/L Account List with multiple filters when "View All Accounts on Lookup" = False.
+        Initialize();
+
+        CreateGenPostingSetupWithViewAllAccountsOnLookUp(GenPostingSetup, false);
+        AccountCategory := GLAccountCategory."Account Category"::Income;
+        CreateGLAccountCategory(GLAccountCategory, AccountCategory, GLAccountCategoryMgt.GetIncomeProdSales());
+        AccountType := GLAccount."Account Type"::Posting;
+        CreateGLAccount(GLAccount, AccountType, AccountCategory, GLAccountCategory."Entry No.");
+
+        OpenEditGenPostingSetup(
+            GenPostingSetupPage, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
+        GenPostingSetupPage."Sales Credit Memo Account".Lookup();
+
+        Assert.AreEqual(AccountType, LibraryVariableStorage.DequeueInteger(), '');
+        Assert.AreEqual(AccountCategory, LibraryVariableStorage.DequeueInteger(), '');
+        AccSubcategoryFilter := StrSubstNo('%1|%2', GLAccountCategoryMgt.GetIncomeProdSales(), GLAccountCategoryMgt.GetIncomeService());
+        GetAccSubcategoryEntryNoFilter(EntryNoFilter, AccountCategory, AccSubcategoryFilter);
+        Assert.AreEqual(EntryNoFilter, LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccountListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure GenPostingSetupPageSalesCreditMemoAccountLookUpViewAllTrue()
+    var
+        GenPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        GenPostingSetupPage: TestPage "General Posting Setup";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 369459] "Sales Credit Memo Account" lookup opens G/L Account List with "Account Type" = Posting filter when "View All Accounts on Lookup" = True.
+        Initialize();
+
+        CreateGenPostingSetupWithViewAllAccountsOnLookUp(GenPostingSetup, true);
+
+        OpenEditGenPostingSetup(
+            GenPostingSetupPage, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
+        GenPostingSetupPage."Sales Credit Memo Account".Lookup();
+
+        Assert.AreEqual(GLAccount."Account Type"::Posting, LibraryVariableStorage.DequeueInteger(), '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccountListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure GenPostingSetupPagePurchaseCreditMemoAccountLookUpViewAllFalse()
+    var
+        GenPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        GLAccountCategory: Record "G/L Account Category";
+        GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
+        GenPostingSetupPage: TestPage "General Posting Setup";
+        AccountCategory: Option;
+        AccountType: Option;
+        AccSubcategoryFilter: Text;
+        EntryNoFilter: Text;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 369459] "Purchase Credit Memo Account" lookup opens G/L Account List with multiple filters when "View All Accounts on Lookup" = False.
+        Initialize();
+
+        CreateGenPostingSetupWithViewAllAccountsOnLookUp(GenPostingSetup, false);
+        AccountCategory := GLAccountCategory."Account Category"::"Cost of Goods Sold";
+        CreateGLAccountCategory(GLAccountCategory, AccountCategory, GLAccountCategoryMgt.GetCOGSMaterials());
+        AccountType := GLAccount."Account Type"::Posting;
+        CreateGLAccount(GLAccount, AccountType, AccountCategory, GLAccountCategory."Entry No.");
+        AccSubcategoryFilter := StrSubstNo('%1|%2', GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor());
+        GetAccSubcategoryEntryNoFilter(EntryNoFilter, AccountCategory, AccSubcategoryFilter);
+
+        OpenEditGenPostingSetup(
+            GenPostingSetupPage, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
+        GenPostingSetupPage."Purch. Credit Memo Account".Lookup();
+
+        Assert.AreEqual(AccountType, LibraryVariableStorage.DequeueInteger(), '');
+        Assert.AreEqual(AccountCategory, LibraryVariableStorage.DequeueInteger(), '');
+        Assert.AreEqual(EntryNoFilter, LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccountListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure GenPostingSetupPagePurchaseCreditMemoAccountLookUpViewAllTrue()
+    var
+        GenPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        GenPostingSetupPage: TestPage "General Posting Setup";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 369459] "Purchase Credit Memo Account" lookup opens G/L Account List with "Account Type" = Posting filter when "View All Accounts on Lookup" = True.
+        Initialize();
+
+        CreateGenPostingSetupWithViewAllAccountsOnLookUp(GenPostingSetup, true);
+
+        OpenEditGenPostingSetup(
+            GenPostingSetupPage, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
+        GenPostingSetupPage."Purch. Credit Memo Account".Lookup();
+
+        Assert.AreEqual(GLAccount."Account Type"::Posting, LibraryVariableStorage.DequeueInteger(), '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -999,6 +1124,32 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         LibrarySetupStorage.SavePurchasesSetup();
     end;
 
+    local procedure CreateGenPostingSetupWithViewAllAccountsOnLookUp(var GenPostingSetup: Record "General Posting Setup"; ViewAllAccountsOnLookup: Boolean)
+    begin
+        LibraryERM.CreateGeneralPostingSetupInvt(GenPostingSetup);
+        GenPostingSetup.Validate("View All Accounts on Lookup", ViewAllAccountsOnLookup);
+        GenPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateGLAccount(var GLAccount: Record "G/L Account"; AccountType: Option; AccountCategory: Option; AccountCategoryEntryNo: Integer)
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Account Type" := AccountType;
+        GLAccount."Account Category" := AccountCategory;
+        GLAccount."Account Subcategory Entry No." := AccountCategoryEntryNo;
+        GLAccount.Modify();
+    end;
+
+    local procedure CreateGLAccountCategory(var GLAccountCategory: Record "G/L Account Category"; AccountCategory: Option; Description: Text)
+    begin
+        GLAccountCategory.FindLast();
+        GLAccountCategory."Entry No." += 1;
+        GLAccountCategory.Init();
+        GLAccountCategory."Account Category" := AccountCategory;
+        GLAccountCategory.Description := CopyStr(Description, 1, MaxStrLen(GLAccountCategory.Description));
+        GLAccountCategory.Insert();
+    end;
+
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
@@ -1009,6 +1160,30 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         Commit();
+    end;
+
+    local procedure GetAccSubcategoryEntryNoFilter(var EntryNoFilter: Text; AccountCategory: Option; AccountSubcategoryFilter: Text): Boolean
+    var
+        GLAccountCategory: Record "G/L Account Category";
+    begin
+        GLAccountCategory.SetRange("Account Category", AccountCategory);
+        GLAccountCategory.SetFilter(Description, AccountSubcategoryFilter);
+        if GLAccountCategory.IsEmpty() then
+            exit(false);
+        EntryNoFilter := '';
+        GLAccountCategory.FindSet();
+        repeat
+            EntryNoFilter := EntryNoFilter + Format(GLAccountCategory."Entry No.") + '|';
+        until GLAccountCategory.Next() = 0;
+        EntryNoFilter := CopyStr(EntryNoFilter, 1, StrLen(EntryNoFilter) - 1);
+        exit(true);
+    end;
+
+    local procedure OpenEditGenPostingSetup(var GenPostingSetupPage: TestPage "General Posting Setup"; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    begin
+        GenPostingSetupPage.OpenEdit();
+        GenPostingSetupPage.FILTER.SetFilter("Gen. Bus. Posting Group", GenBusPostingGroup);
+        GenPostingSetupPage.FILTER.SetFilter("Gen. Prod. Posting Group", GenProdPostingGroup);
     end;
 
     local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option): Code[20]
@@ -1062,6 +1237,16 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode();
         PurchasesPayablesSetup.Modify();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GLAccountListModalPageHandler(var GLAccountList: TestPage "G/L Account List")
+    begin
+        LibraryVariableStorage.Enqueue(GLAccountList.FILTER.GetFilter("Account Type"));
+        LibraryVariableStorage.Enqueue(GLAccountList.FILTER.GetFilter("Account Category"));
+        LibraryVariableStorage.Enqueue(GLAccountList.FILTER.GetFilter("Account Subcategory Entry No."));
+        GLAccountList.Cancel.Invoke();
     end;
 }
 

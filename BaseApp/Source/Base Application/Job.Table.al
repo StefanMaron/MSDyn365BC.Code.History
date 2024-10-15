@@ -863,7 +863,6 @@ table 167 Job
         WIPPostMethodErr: Label 'The selected %1 requires the %2 to have %3 enabled.', Comment = '%1 = The name of the WIP Posting Method field; %2 = The name of the WIP Method field; %3 = The field caption represented by the value of this job''s WIP method';
         EndingDateChangedMsg: Label '%1 is set to %2.', Comment = '%1 = The name of the Ending Date field; %2 = This job''s Ending Date value';
         UpdateJobTaskDimQst: Label 'You have changed a dimension.\\Do you want to update the lines?';
-        DocTxt: Label 'Job Quote';
         RunWIPFunctionsQst: Label 'You must run the %1 function to create completion entries for this job. \Do you want to run this function now?', Comment = '%1 = The name of the Job Calculate WIP report';
 
     procedure AssistEdit(OldJob: Record Job): Boolean
@@ -1355,19 +1354,21 @@ table 167 Job
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::JQ, Rec, DocTxt, "Bill-to Customer No.", "No.",
-          FieldNo("Bill-to Customer No."), FieldNo("No."));
+          DummyReportSelections.Usage::JQ, Rec, ReportDistributionMgt.GetFullDocumentTypeText(Rec),
+          "Bill-to Customer No.", "No.", FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         ReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.Send(
           ReportSelections.Usage::JQ, Rec, "No.", "Bill-to Customer No.",
-          DocTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
+          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure PrintRecords(ShowRequestForm: Boolean)
@@ -1384,9 +1385,11 @@ table 167 Job
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         ReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         DocumentSendingProfile.TrySendToEMail(
-          ReportSelections.Usage::JQ, Rec, FieldNo("No."), DocTxt, FieldNo("Bill-to Customer No."), ShowDialog);
+          ReportSelections.Usage::JQ, Rec, FieldNo("No."),
+          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
     procedure RecalculateJobWIP()
