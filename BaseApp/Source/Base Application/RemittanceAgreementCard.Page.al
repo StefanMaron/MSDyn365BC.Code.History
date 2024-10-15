@@ -78,6 +78,7 @@ page 15000007 "Remittance Agreement Card"
             group(Send)
             {
                 Caption = 'Send';
+                Visible = not IsSaaS;
                 field(FileName; FileName)
                 {
                     ApplicationArea = Basic, Suite;
@@ -175,12 +176,15 @@ page 15000007 "Remittance Agreement Card"
 
     trigger OnAfterGetRecord()
     begin
-        FileName := FileMgt.GetFileName("Payment File Name");
+        FileName := FileMgt.GetFileName(GetPaymentFileName());
+        IsSaaS := EnvironmentInfo.IsSaaS();
     end;
 
     var
         FileMgt: Codeunit "File Management";
+        EnvironmentInfo: Codeunit "Environment Information";
         ComDlgFilename: Text[200];
         FileName: Text;
+        IsSaaS: Boolean;
 }
 

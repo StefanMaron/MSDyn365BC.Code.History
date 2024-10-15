@@ -288,7 +288,7 @@ report 15000050 "Remittance - export (Bank)"
                             CurrentOperator := RemAgreement."Operator No.";
                             CurrentPassword := RemAgreement.Password;
                             CurrentDivision := RemAgreement.Division;
-                            CurrentFilename := RemAgreement."Payment File Name"
+                            CurrentFilename := RemAgreement.GetPaymentFileName();
                         end;
                     }
                     field(CurrentOperator; CurrentOperator)
@@ -347,7 +347,7 @@ report 15000050 "Remittance - export (Bank)"
             CurrentOperator := RemAgreement."Operator No.";
             CurrentPassword := RemAgreement.Password;
             CurrentDivision := RemAgreement.Division;
-            CurrentFilename := RemAgreement."Payment File Name"
+            CurrentFilename := RemAgreement.GetPaymentFileName();
         end;
     }
 

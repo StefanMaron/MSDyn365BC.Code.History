@@ -101,6 +101,7 @@ codeunit 5337 "CDS Int. Table Uncouple"
 
     local procedure UncoupleAllCoupledRecords(var IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch."; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary)
     var
+        CRMIntegrationRecord: Record "CRM Integration Record";
         LocalRecordRef: RecordRef;
         IntegrationRecordRef: RecordRef;
         LocalRecordFound: Boolean;
@@ -112,11 +113,15 @@ codeunit 5337 "CDS Int. Table Uncouple"
                 LocalRecordRef.Open(TempCRMIntegrationRecord."Table ID");
                 LocalRecordFound := LocalRecordRef.GetBySystemId(TempCRMIntegrationRecord."Integration ID");
                 if not LocalRecordFound then begin
+                    Clear(IntegrationRecordRef);
                     IntegrationRecordRef.Open(IntegrationTableMapping."Integration Table ID");
                     IntegrationRecordFound := IntegrationTableMapping.GetRecordRef(TempCRMIntegrationRecord."CRM ID", IntegrationRecordRef);
                 end;
                 if LocalRecordFound or IntegrationRecordFound then
-                    IntegrationTableSynch.Uncouple(LocalRecordRef, IntegrationRecordRef);
+                    IntegrationTableSynch.Uncouple(LocalRecordRef, IntegrationRecordRef)
+                else
+                    if CRMIntegrationRecord.Get(TempCRMIntegrationRecord."Integration ID", TempCRMIntegrationRecord."CRM ID") then
+                        CRMIntegrationRecord.Delete();
             until TempCRMIntegrationRecord.Next() = 0;
     end;
 

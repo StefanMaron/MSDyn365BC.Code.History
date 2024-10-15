@@ -22,6 +22,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         FileManagement: Codeunit "File Management";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
@@ -2550,6 +2551,83 @@ codeunit 134984 "ERM Sales Report III"
         // [THEN] Filter on the report page contains "Currency Filter: C1|C2".
         Filters := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Result/CustFilter', 0);
         Assert.ExpectedMessage(StrSubstNo('Currency Filter: %1|%2', CurrencyCode[1], CurrencyCode[2]), Filters);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProFormaInvoiceXML_RPH')]
+    procedure ProFormaInvoiceForUnshippedOrderAtLocationRequireShipment()
+    var
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Pro Forma Invoive] [Warehouse]
+        // [SCENARIO 402887] Quantity in Pro forma invoice for unshipped sales at WMS location is equal to the sales line's Quantity.
+        Initialize();
+
+        // [GIVEN] Location with required shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+
+        // [GIVEN] Sales order at the WMS location, quantity = 10.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', LibraryInventory.CreateItemNo(),
+          LibraryRandom.RandInt(10), Location.Code, WorkDate);
+
+        // [WHEN] Print Pro forma invoice.
+        RunStandardSalesProformaInvFromOrderPage(SalesHeader);
+
+        // [THEN] Quantity in the report = 10 (nothing is shipped yet and the customer cannot set what will be invoiced).
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemDescription', SalesLine."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', SalesLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProFormaInvoiceXML_RPH')]
+    procedure ProFormaInvoiceForShippedOrderAtLocationRequireShipment()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Pro Forma Invoive] [Warehouse]
+        // [SCENARIO 402887] Quantity in Pro Forma Invoice for shipped sales at WMS location is equal to sales line's "Qty. to Invoice"
+        Initialize();
+
+        // [GIVEN] Location with required shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Sales order at the WMS location, quantity = 10.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', LibraryInventory.CreateItemNo(),
+          LibraryRandom.RandInt(10), Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create and post warehouse shipment.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No."));
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [GIVEN] Set "Qty. to Invoice" = 0 on the sales line.
+        SalesHeader.Find();
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Invoice", 0);
+        SalesLine.Modify(true);
+
+        // [WHEN] Print Pro forma invoice.
+        RunStandardSalesProformaInvFromOrderPage(SalesHeader);
+
+        // [THEN] Quantity in the report = 0 (as defined by customer within shipped quantity).
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemDescription', SalesLine."No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', 0);
     end;
 
     local procedure Initialize()

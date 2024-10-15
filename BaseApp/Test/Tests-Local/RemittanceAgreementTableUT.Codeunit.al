@@ -260,6 +260,36 @@ codeunit 144119 "Remittance Agreement Table UT"
           'Latest Export not changed')
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetPaymentFileNameFromField()
+    var
+        RemittanceAgreement: Record "Remittance Agreement";
+        ExpectedFileName: Text;
+    begin
+        // [SCENARIO 404010] GetPaymentFileName function from Payment File Name field
+        ExpectedFileName := LibraryUTUtility.GetNewCode10();
+        RemittanceAgreement.Init();
+        RemittanceAgreement.Code := LibraryUTUtility.GetNewCode10();
+        RemittanceAgreement."Payment File Name" := ExpectedFileName;
+        Assert.AreEqual(ExpectedFileName, RemittanceAgreement.GetPaymentFileName(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetPaymentFileNameFromCode()
+    var
+        RemittanceAgreement: Record "Remittance Agreement";
+        ExpectedFileName: Text;
+    begin
+        // [SCENARIO 404010] GetPaymentFileName function from Code field
+        ExpectedFileName := LibraryUTUtility.GetNewCode10();
+        RemittanceAgreement.Init();
+        RemittanceAgreement.Code := ExpectedFileName;
+        RemittanceAgreement."Payment File Name" := '';
+        Assert.AreEqual(ExpectedFileName + '.txt', RemittanceAgreement.GetPaymentFileName(), '');
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure EditWarningConfirmHandler(Message: Text[1024]; var Reply: Boolean)
