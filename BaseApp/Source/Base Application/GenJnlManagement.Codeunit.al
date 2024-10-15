@@ -14,6 +14,7 @@ codeunit 230 GenJnlManagement
         Text003: Label 'Recurring General Journal';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
+        [SecurityFiltering(SecurityFilter::Filtered)]
         LastGenJnlLine: Record "Gen. Journal Line";
         OpenFromBatch: Boolean;
 
@@ -308,12 +309,19 @@ codeunit 230 GenJnlManagement
 
     procedure GetAccounts(var GenJnlLine: Record "Gen. Journal Line"; var AccName: Text[100]; var BalAccName: Text[100])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLAcc: Record "G/L Account";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         Cust: Record Customer;
+        [SecurityFiltering(SecurityFilter::Filtered)]
         Vend: Record Vendor;
+        [SecurityFiltering(SecurityFilter::Filtered)]
         BankAcc: Record "Bank Account";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         FA: Record "Fixed Asset";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         IC: Record "IC Partner";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         Employee: Record Employee;
     begin
         if (GenJnlLine."Account Type" <> LastGenJnlLine."Account Type") or

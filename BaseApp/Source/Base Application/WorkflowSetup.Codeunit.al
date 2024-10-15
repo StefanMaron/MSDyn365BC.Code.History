@@ -113,10 +113,10 @@ codeunit 1502 "Workflow Setup"
         PaymentOrderApprWorkflowDescTxt: Label 'Payment Order Approval Workflow';
         PaymentOrderHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Payment Order Header">%1</DataItem><DataItem name="Payment Order Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
         CashDocApprWorkflowCodeTxt: Label 'CDAPW', Locked = true;
-        CashDocApprWorkflowDescTxt: Label 'Cash Document Approval Workflow';
+        CashDocApprWorkflowDescTxt: Label 'Cash Document Approval Workflow (Obsolete)';
         CashDocHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Cash Document Header">%1</DataItem><DataItem name="Cash Document Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
         CreditDocApprWorkflowCodeTxt: Label 'CRAPW', Locked = true;
-        CreditDocApprWorkflowDescTxt: Label 'Credit Approval Workflow';
+        CreditDocApprWorkflowDescTxt: Label 'Credit Approval Workflow (Obsolete)';
         CreditHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Credit Header">%1</DataItem><DataItem name="Credit Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
         SalesAdvanceLetterApprWorkflowCodeTxt: Label 'SALAPW', Locked = true;
         SalesAdvanceLetterApprWorkflowDescTxt: Label 'Sales Advance Letter Approval Workflow';

@@ -188,6 +188,7 @@ page 5600 "Fixed Asset Card"
                     Importance = Additional;
                     TableRelation = "Depreciation Book";
                     ToolTip = 'Specifies the depreciation book that is assigned to the fixed asset.';
+                    Editable = AllowEditDepBookCode;
 
                     trigger OnValidate()
                     begin
@@ -758,6 +759,7 @@ page 5600 "Fixed Asset Card"
     trigger OnOpenPage()
     begin
         Simple := true;
+        AllowEditDepBookCode := true;
         SetNoFieldVisible;
     end;
 
@@ -778,6 +780,7 @@ page 5600 "Fixed Asset Card"
         BookValue: Decimal;
         FAPostingGroupChangeDeniedMsg: Label 'The current FA posting group is %1 but the FA subclass %2 has the default FA posting group %3. \Because there are posted FA ledger entries we will not change the FA posting group.', Comment = '%1 = FA Posting Group Code, %2 = FA Subclass Code, %3 = Default FA Posting Group. Example: The current FA posting group is MACHINERY but the FA subclass TANGIBLE has the default FA posting group CAR. \Because there are posted FA ledger entries we will not change the FA posting group.';
         FAPostingGroupChangeConfirmTxt: Label 'The current FA posting group is %1, but the FA subclass %2 has the default FA posting group %3. \Do you want to update the FA posting group?', Comment = '%1 = FA Posting Group Code, %2 = FA Subclass Code, %3 = Default FA Posting Group. The current FA posting group is MACHINERY, but the FA subclass TANGIBLE has the default FA posting group CAR. \Do you want to update the FA posting group?';
+        AllowEditDepBookCode: Boolean;
 
     local procedure ShowAcquisitionNotification()
     var
@@ -904,6 +907,7 @@ page 5600 "Fixed Asset Card"
                 ShowAddMoreDeprBooksLbl := true
             end;
             Simple := true;
+            AllowEditDepBookCode := FADepreciationBookOld."Depreciation Book Code" = '';
         end else
             Simple := false;
 

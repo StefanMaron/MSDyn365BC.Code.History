@@ -415,10 +415,10 @@
                                 "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
                                     CalculateSalesTax; // NAVCZ
                             end;
-                            NextVATEntryNo := NextVATEntryNo + 1;
+                            NextVATEntryNo := GetSettlementVATEntryNo(PostSettlement);
 
                             // Close current VAT entries
-                            if PostSettlement then
+                            if PostSettlement and (NextVATEntryNo <> 0) then
                                 CloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo);
                         end;
                     }
@@ -991,6 +991,22 @@
             (GenPostingType = GenPostingType::" ") or
             (GenPostingType = GenPostingType::Purchase) or
             (GenPostingType = GenPostingType::Sale));
+    end;
+
+    local procedure GetSettlementVATEntryNo(PostVATSettlement: Boolean): Integer
+    var
+        NextAvailableVATEntryNo: Integer;
+        LastPostedVATEntryNo: Integer;
+    begin
+        if PostVATSettlement then begin
+            NextAvailableVATEntryNo := GenJnlPostLine.GetNextVATEntryNo();
+            if NextAvailableVATEntryNo <> 0 then
+                LastPostedVATEntryNo := NextAvailableVATEntryNo - 1;
+            exit(LastPostedVATEntryNo);
+        end;
+
+        NextVATEntryNo += 1;
+        exit(NextVATEntryNo);
     end;
 
     [IntegrationEvent(false, false)]

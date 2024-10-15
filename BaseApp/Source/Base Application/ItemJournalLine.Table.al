@@ -658,7 +658,8 @@
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -669,8 +670,8 @@
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
-
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
             trigger OnValidate()
             begin
                 ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
@@ -787,7 +788,8 @@
         {
             CaptionClass = '1,2,1,' + Text007;
             Caption = 'New Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -799,7 +801,8 @@
         {
             CaptionClass = '1,2,2,' + Text007;
             Caption = 'New Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin

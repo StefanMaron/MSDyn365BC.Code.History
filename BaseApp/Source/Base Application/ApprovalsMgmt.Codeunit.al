@@ -1138,16 +1138,21 @@
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         NotificationEntry: Record "Notification Entry";
+        IsNotificationRequiredForCurrentUser: Boolean;
+        IsNotifySenderRequired: Boolean;
     begin
         if not WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
             exit;
 
+        IsNotificationRequiredForCurrentUser := (ApprovalEntry."Approver ID" <> UserId) or IsBackground();
+        IsNotifySenderRequired := ((ApprovalEntry."Sender ID" <> UserId) or IsBackground()) and (ApprovalEntry."Sender ID" <> ApprovalEntry."Approver ID");
+
         ApprovalEntry.Reset();
-        if (ApprovalEntry."Approver ID" <> UserId) and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
+        if IsNotificationRequiredForCurrentUser and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
             NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
                 ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", UserId);
-        if WorkflowStepArgument."Notify Sender" and not (ApprovalEntry."Sender ID" in [UserId, ApprovalEntry."Approver ID"]) then
+        if WorkflowStepArgument."Notify Sender" and IsNotifySenderRequired then
             NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Sender ID",
                 ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", '');
@@ -1403,7 +1408,7 @@
 
     procedure IsIncomingDocApprovalsWorkflowEnabled(var IncomingDocument: Record "Incoming Document"): Boolean
     begin
-        exit(WorkflowManagement.CanExecuteWorkflow(IncomingDocument, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode));
+        exit(WorkflowManagement.CanExecuteWorkflow(IncomingDocument, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode()));
     end;
 
     procedure IsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header"): Boolean
@@ -2365,6 +2370,13 @@
         ApprovalEntry2.SetRange(Status, ApprovalEntry2.Status::Open);
         ApprovalEntry2.SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");
         exit(not ApprovalEntry2.IsEmpty);
+    end;
+
+    local procedure IsBackground(): Boolean
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
+    begin
+        exit(ClientTypeManagement.GetCurrentClientType() in [ClientType::Background]);
     end;
 
     [IntegrationEvent(false, false)]

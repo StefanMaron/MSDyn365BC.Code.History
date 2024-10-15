@@ -6987,6 +6987,7 @@
                 if GuiAllowed and not HideProgressWindow then
                     Window.Update(3, LineCount);
 
+                TempInvoicePostBuffer.ApplyRoundingForFinalPosting();
                 GLEntryNo := PostInvoicePostBufferLine(SalesHeader, TempInvoicePostBuffer);
 
                 if (TempInvoicePostBuffer."Job No." <> '') and

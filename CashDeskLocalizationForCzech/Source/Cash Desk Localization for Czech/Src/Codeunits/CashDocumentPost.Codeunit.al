@@ -13,7 +13,7 @@ codeunit 11729 "Cash Document-Post CZP"
     begin
         OnBeforePostCashDoc(Rec);
         if not PreviewMode then
-            Rec.OnCheckCashDocPostRestrictions();
+            Rec.CheckCashDocPostRestrictions();
 
         CashDocumentHeaderCZP := Rec;
         CashDocumentHeaderCZP.TestField(CashDocumentHeaderCZP."Cash Desk No.");

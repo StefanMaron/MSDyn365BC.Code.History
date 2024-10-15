@@ -78,7 +78,8 @@
         field(4; "Dimension Value Code"; Code[20])
         {
             Caption = 'Dimension Value Code';
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
+            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"),
+                                                         Blocked = CONST(false));
 
             trigger OnValidate()
             begin

@@ -4070,6 +4070,132 @@ codeunit 137079 "SCM Production Order III"
         ItemJournalLine.TestField(Quantity, Qty / 2);
     end;
 
+    [Test]
+    procedure UpdatingProdOrderRoutingLineAfterManuallyScheduledRoutingLine()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        i: Integer;
+    begin
+        // [FEATURE] [Routing]
+        // [SCENARIO 397089] A user can set later starting date on prod. order routing line following the one set up for manually scheduling.
+        Initialize();
+
+        // [GIVEN] Routing with 4 lines.
+        // [GIVEN] First two lines have zero setup and run time.
+        // [GIVEN] Last two lines have setup and run time populated.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        for i := 1 to 2 do begin
+            LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine, '', Format(i), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        end;
+        for i := 3 to 4 do begin
+            LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine, '', Format(i), RoutingLine.Type::"Work Center", WorkCenter."No.");
+            RoutingLine.Validate("Setup Time", 10);
+            RoutingLine.Validate("Run Time", 20);
+            RoutingLine.Modify(true);
+        end;
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Create item and update routing no.
+        LibraryInventory.CreateItem(Item);
+        UpdateItemManufacturingProperties(Item, '', RoutingHeader."No.");
+
+        // [GIVEN] Create and refresh released production order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", 1, '', '');
+
+        // [GIVEN] Set "Schedule Manually" to all prod. order routing lines except the last one.
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, Item."No.");
+        ProdOrderRoutingLine.ModifyAll("Schedule Manually", true, true);
+        ProdOrderRoutingLine.FindLast();
+        ProdOrderRoutingLine.Validate("Schedule Manually", false);
+
+        // [WHEN] Update "Starting Date" on the last prod. order routing line to the nearest non-working day (Saturday).
+        ProdOrderRoutingLine.Validate("Starting Date", CalcDate('<WD6>', WorkDate));
+
+        // [THEN] No error message is shown.
+        // [THEN] The "Starting Date" is updated to the nearest working day (next Monday).
+        Assert.IsTrue(ProdOrderRoutingLine."Starting Date" > CalcDate('<WD6>', WorkDate), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RunTimeCapacityNeedOnManuallyScheduledRoutingLine()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: array[4] of Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        i: Integer;
+    begin
+        // [FEATURE] [Routing] [Capacity Need]
+        // [SCENARIO 397134] Capacity need for run time is re-created for prod. order routing line with "Manually Schedule" = TRUE (routing line "1") when a user reschedules a routing line that follows the line "1".
+        Initialize();
+
+        // [GIVEN] Routing with 4 lines.
+        // [GIVEN] First two lines have zero setup and run time.
+        // [GIVEN] Last two lines have setup and run time populated.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        for i := 1 to 2 do begin
+            LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine[i], '', Format(i), RoutingLine[i].Type::"Work Center", WorkCenter."No.");
+        end;
+        for i := 3 to 4 do begin
+            LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine[i], '', Format(i), RoutingLine[i].Type::"Work Center", WorkCenter."No.");
+            RoutingLine[i].Validate("Setup Time", 10);
+            RoutingLine[i].Validate("Run Time", 20);
+            RoutingLine[i].Modify(true);
+        end;
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Create item and update routing no.
+        LibraryInventory.CreateItem(Item);
+        UpdateItemManufacturingProperties(Item, '', RoutingHeader."No.");
+
+        // [GIVEN] Create and refresh released production order.
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, Item."No.", 1, '', '');
+
+        // [GIVEN] Set "Schedule Manually" = TRUE and "Routing Status" = Finished on the 1st operation in the prod. order routing.
+        FindProdOrderRoutingLineWithSpecifiedOperationNo(ProdOrderRoutingLine, Item."No.", RoutingLine[1]."Operation No.");
+        ProdOrderRoutingLine.Validate("Schedule Manually", true);
+        ProdOrderRoutingLine.Validate("Routing Status", ProdOrderRoutingLine."Routing Status"::Finished);
+        ProdOrderRoutingLine.Modify(true);
+
+        // [GIVEN] Set "Schedule Manually" = TRUE and "Routing Status" = Finished on the 2nd operation in the prod. order routing.
+        FindProdOrderRoutingLineWithSpecifiedOperationNo(ProdOrderRoutingLine, Item."No.", RoutingLine[2]."Operation No.");
+        ProdOrderRoutingLine.Validate("Schedule Manually", true);
+        ProdOrderRoutingLine.Validate("Routing Status", ProdOrderRoutingLine."Routing Status"::Finished);
+        ProdOrderRoutingLine.Modify(true);
+
+        // [GIVEN] Set "Schedule Manually" = TRUE on the 3rd operation in the prod. order routing.
+        FindProdOrderRoutingLineWithSpecifiedOperationNo(ProdOrderRoutingLine, Item."No.", RoutingLine[3]."Operation No.");
+        ProdOrderRoutingLine.Validate("Schedule Manually", true);
+        ProdOrderRoutingLine.Modify(true);
+
+        // [WHEN] Update "Starting Date" on the last prod. order routing line (4th operation) to a later date.
+        FindProdOrderRoutingLineWithSpecifiedOperationNo(ProdOrderRoutingLine, Item."No.", RoutingLine[4]."Operation No.");
+        ProdOrderRoutingLine.Validate("Starting Date", CalcDate('<WD6>', WorkDate));
+        ProdOrderRoutingLine.Modify(true);
+
+        // [THEN] Prod. order capacity need for the 3rd (previous) operation shows correct run time.
+        FindProdOrderRoutingLineWithSpecifiedOperationNo(ProdOrderRoutingLine, Item."No.", RoutingLine[3]."Operation No.");
+        FindProdOrderCapacityNeed(ProdOrderCapacityNeed, ProdOrderRoutingLine);
+        ProdOrderCapacityNeed.TestField("Allocated Time", ProdOrderRoutingLine."Run Time");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -5278,6 +5404,23 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine.FindFirst;
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderRoutingLine.FindFirst;
+    end;
+
+    local procedure FindProdOrderRoutingLineWithSpecifiedOperationNo(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ItemNo: Code[20]; OperationNo: Code[10])
+    begin
+        ProdOrderRoutingLine.SetRange("Operation No.", OperationNo);
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, ItemNo);
+    end;
+
+    local procedure FindProdOrderCapacityNeed(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+        ProdOrderCapacityNeed.SetRange(Status, ProdOrderRoutingLine.Status);
+        ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        ProdOrderCapacityNeed.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+        ProdOrderCapacityNeed.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+        ProdOrderCapacityNeed.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+        ProdOrderCapacityNeed.SetRange("Time Type", ProdOrderCapacityNeed."Time Type"::"Run Time");
+        ProdOrderCapacityNeed.FindFirst();
     end;
 
     local procedure FindProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMHeaderNo: Code[20]; ItemNo: Code[20])

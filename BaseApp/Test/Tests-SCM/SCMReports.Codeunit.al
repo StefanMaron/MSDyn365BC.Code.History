@@ -1309,6 +1309,59 @@ codeunit 137309 "SCM Reports"
         VerifyAssemblyBOMComponent(ParentItem."No.", BOMComponent."No.", Format(false));
     end;
 
+    [Test]
+    [HandlerFunctions('AdjustCostRequestFilterItemNoPageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustCostItemEntriesItemFilterExceedItemNo()
+    var
+        AdjustCostItemEntries: Report "Adjust Cost - Item Entries";
+        ItemFilterText: text[250];
+    begin
+        // [SCENARIO 404541] User can enter filter text > 20 symbols on 'Item No. Filter' with no error on "Adjust Cost - Item Entries" report
+        Initialize();
+
+        // [GIVEN] Item 'GL00000000' and "GL00000001"
+        // [GIVEN] "Adjust Cost - Item Entries" report request page is opened
+        ItemFilterText := LibraryInventory.CreateItemNo() + '..' + LibraryInventory.CreateItemNo();
+        LibraryVariableStorage.Enqueue(ItemFilterText);
+        Clear(AdjustCostItemEntries);
+        Commit();
+        AdjustCostItemEntries.UseRequestPage(true);
+
+        // [WHEN] "Item No. Filter" is populated with value 'GL00000000..GL00000001'
+        AdjustCostItemEntries.RunModal();
+
+        // [THEN] No error is shown and "Item No. Filter" value is 'GL00000000..GL00000001'
+        Assert.AreEqual(ItemFilterText, LibraryVariableStorage.DequeueText(), ItemFilterText);
+    end;
+
+    [Test]
+    [HandlerFunctions('AdjustCostRequestFilterItemNoLookUpPageHandler,ItemListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustCostItemEntriesItemFilterLookUpItemNo()
+    var
+        AdjustCostItemEntries: Report "Adjust Cost - Item Entries";
+        ItemNo: code[20];
+    begin
+        // [SCENARIO 404541] User can lookup at "Item No. Filter" and select Item on "Adjust Cost - Item Entries" report
+        Initialize();
+
+        // [GIVEN] Item "GL00000000"
+        ItemNo := LibraryInventory.CreateItemNo();
+        LibraryVariableStorage.Enqueue(ItemNo);
+
+        // [GIVEN] "Adjust Cost - Item Entries" report request page is opened
+        Clear(AdjustCostItemEntries);
+        Commit();
+        AdjustCostItemEntries.UseRequestPage(true);
+
+        // [WHEN] Lookup on "Item No. Filter" and selected Item "GL00000000"
+        AdjustCostItemEntries.RunModal();
+
+        // [THEN] "Item No. Filter" value is 'GL00000000'
+        Assert.AreEqual(ItemNo, LibraryVariableStorage.DequeueText(), '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2613,5 +2666,32 @@ codeunit 137309 "SCM Reports"
     begin
         AssemblyBOMs.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AdjustCostRequestFilterItemNoPageHandler(var AdjustCostItemEntries: TestRequestPage "Adjust Cost - Item Entries")
+    begin
+        AdjustCostItemEntries.FilterItemNo.SetValue(LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.Enqueue(AdjustCostItemEntries.FilterItemNo.Value);
+        AdjustCostItemEntries.Cancel().Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AdjustCostRequestFilterItemNoLookUpPageHandler(var AdjustCostItemEntries: TestRequestPage "Adjust Cost - Item Entries")
+    begin
+        AdjustCostItemEntries.FilterItemNo.Lookup();
+        LibraryVariableStorage.Enqueue(AdjustCostItemEntries.FilterItemNo.Value);
+        AdjustCostItemEntries.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemListModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.GoToKey(LibraryVariableStorage.DequeueText());
+        ItemList.OK().Invoke();
+    end;
+
 }
 

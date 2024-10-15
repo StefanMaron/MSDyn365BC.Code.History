@@ -67,8 +67,7 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupBuyfromVendorName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupBuyFromVendorName(Text));
                     end;
                 }
                 group("Buy-from")

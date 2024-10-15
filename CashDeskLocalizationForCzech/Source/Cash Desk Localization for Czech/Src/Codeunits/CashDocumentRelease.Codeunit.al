@@ -11,7 +11,7 @@ codeunit 11725 "Cash Document-Release CZP"
         if Rec.Status = Rec.Status::Released then
             exit;
         OnBeforeReleaseCashDocument(Rec);
-        Rec.OnCheckCashDocReleaseRestrictions();
+        Rec.CheckCashDocReleaseRestrictions();
 
         CheckCashDocument(Rec);
 

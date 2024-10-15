@@ -3042,6 +3042,170 @@ codeunit 137408 "SCM Warehouse VI"
         ProdOrderComponent.TestField("Qty. Picked", 3 * Qty);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    procedure PickingByFEFOWithConsideringReservationAndPickForAnotherOrder()
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[20];
+        Qty: Decimal;
+        ExpirationDate: Date;
+    begin
+        // [FEATURE] [FEFO] [Pick] [Sales] [Reservation]
+        // [SCENARIO 402464] Picking by FEFO with the proper consideration of existing pick and non-specific reservation of another sales order.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+        ExpirationDate := LibraryRandom.RandDate(10);
+
+        // [GIVEN] Directed put-away and pick location with enabled FEFO.
+        CreateFullWarehouseSetup(Location);
+        UpdateParametersOnLocation(Location, true, false);
+        LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
+        LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+
+        // [GIVEN] Lot-tracked item with mandatory expiration date.
+        CreateItemWithItemTrackingCodeWithExpirateDate(Item);
+
+        // [GIVEN] Post 10 pcs to the location via warehouse journal, assign lot no. "L", set up expiration date = "D".
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(Bin, Item."No.", LotNo, ExpirationDate, 2 * Qty);
+        CalculateAndPostWarehouseAdjustment(Item);
+
+        // [GIVEN] First sales order for 5 pcs.
+        // [GIVEN] Reserve the sales order from inventory.
+        // [GIVEN] Release, create shipment and pick.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", Qty, Location.Code);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Second sales order for 5 pcs.
+        // [GIVEN] Reserve, release, create warehouse shipment.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", Qty, Location.Code);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+
+        // [WHEN] Create pick for the warehouse shipment for the second sales order.
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [THEN] Lot No. = "L" and Expiration Date = "D" on the pick line of type "Take".
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Lot No.", LotNo);
+        WarehouseActivityLine.TestField("Expiration Date", ExpirationDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure NotesTransferredToPostedInventoryPick()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        PostedInvtPickHeader: Record "Posted Invt. Pick Header";
+        RecordLink: Record "Record Link";
+    begin
+        // [FEATURE] [Inventory Pick] [Record Link]
+        // [SCENARIO 403945] Record links are transferred from inventory pick to posted inventory pick.
+        Initialize();
+
+        // [GIVEN] Location with required pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        // [GIVEN] Post inventory to the location.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, '', LibraryRandom.RandIntInRange(20, 40));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order, release.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create inventory pick, autofill quantity to handle.
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Add a record link to the inventory pick.
+        CreateRecordLink(WarehouseActivityHeader);
+
+        // [WHEN] Post the inventory pick.
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [THEN] The record link has been transferred to posted inventory pick.
+        PostedInvtPickHeader.SetRange("Invt Pick No.", WarehouseActivityHeader."No.");
+        PostedInvtPickHeader.FindFirst();
+        RecordLink.SetRange("Record ID", PostedInvtPickHeader.RecordId);
+        Assert.RecordIsNotEmpty(RecordLink);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure NotesTransferredToPostedInventoryPutAway()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header";
+        RecordLink: Record "Record Link";
+    begin
+        // [FEATURE] [Inventory Put-away] [Record Link]
+        // [SCENARIO 403945] Record links are transferred from inventory put-away to posted inventory put-away.
+        Initialize();
+
+        // [GIVEN] Location with required put-away.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        // [GIVEN] Purchase order, release.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
+          Item."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create inventory put-away, autofill quantity to handle.
+        LibraryWarehouse.CreateInvtPutPickPurchaseOrder(PurchaseHeader);
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Add a record link to the inventory put-away.
+        CreateRecordLink(WarehouseActivityHeader);
+
+        // [WHEN] Post the inventory put-away.
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [THEN] The record link has been transferred to posted inventory put-away.
+        PostedInvtPutAwayHeader.SetRange("Invt. Put-away No.", WarehouseActivityHeader."No.");
+        PostedInvtPutAwayHeader.FindFirst();
+        RecordLink.SetRange("Record ID", PostedInvtPutAwayHeader.RecordId);
+        Assert.RecordIsNotEmpty(RecordLink);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

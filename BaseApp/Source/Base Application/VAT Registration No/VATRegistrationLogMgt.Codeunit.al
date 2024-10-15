@@ -15,9 +15,9 @@
         StreetPathTxt: Label 'descendant::vat:traderStreet', Locked = true;
         CityPathTxt: Label 'descendant::vat:traderCity', Locked = true;
         DataTypeManagement: Codeunit "Data Type Management";
-        ValidVATNoMsg: Label 'The VAT registration number is valid.';
-        InvalidVatRegNoMsg: Label 'We didn''t find a match for this number. Verify that you entered the correct number.';
-        NotVerifiedVATRegMsg: Label 'We couldn''t verify the VAT registration number. Try again later.';
+        ValidVATNoMsg: Label 'The specified VAT registration number is valid.';
+        InvalidVatRegNoMsg: Label 'We didn''t find a match for this VAT registration number. Please verify that you specified the right number.';
+        NotVerifiedVATRegMsg: Label 'We couldn''t verify the VAT registration number. Please try again later.';
         VATSrvDisclaimerUrlTok: Label 'https://go.microsoft.com/fwlink/?linkid=841741', Locked = true;
         DescriptionLbl: Label 'EU VAT Reg. No. Validation Service Setup';
         UnexpectedResponseErr: Label 'The VAT registration number could not be verified because the VIES VAT Registration No. service may be currently unavailable for the selected EU state, %1.', Comment = '%1 - Country / Region Code';
@@ -27,7 +27,7 @@
         StreetMatchPathTxt: Label 'descendant::vat:traderStreetMatch', Locked = true;
         PostcodeMatchPathTxt: Label 'descendant::vat:traderPostcodeMatch', Locked = true;
         CityMatchPathTxt: Label 'descendant::vat:traderCityMatch', Locked = true;
-        DetailsNotVerifiedMsg: Label 'VAT registration number is valid.\No details information was provided by VIES service.';
+        DetailsNotVerifiedMsg: Label 'The specified VAT registration number is valid.\The VAT VIES validation service did not provide additional details.';
 
     procedure LogCustomer(Customer: Record Customer)
     var
