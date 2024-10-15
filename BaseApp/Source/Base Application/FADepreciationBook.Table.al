@@ -886,7 +886,10 @@ table 5612 "FA Depreciation Book"
 
     local procedure CheckApplyDeprBookDefaults()
     begin
-        if (DeprBook."Default Ending Book Value" <> 0) and ("Ending Book Value" = 0) then
+        if not "Ignore Def. Ending Book Value" and
+           (DeprBook."Default Ending Book Value" <> 0) and
+           ("Ending Book Value" = 0)
+        then
             "Ending Book Value" := DeprBook."Default Ending Book Value";
         if (DeprBook."Default Final Rounding Amount" <> 0) and ("Final Rounding Amount" = 0) then
             "Final Rounding Amount" := DeprBook."Default Final Rounding Amount"
