@@ -38,6 +38,13 @@
                         CurrPage.SaveRecord;
                     end;
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field(Blocked; Blocked)
                 {
                     ApplicationArea = Basic, Suite;
@@ -237,15 +244,8 @@
                 Caption = 'Invoicing';
                 field("VAT Registration No."; "VAT Registration No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s VAT registration number.';
-
-                    trigger OnDrillDown()
-                    var
-                        VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
-                    begin
-                        VATRegistrationLogMgt.AssistEditVendorVATReg(Rec);
-                    end;
                 }
                 field(GLN; GLN)
                 {

@@ -641,6 +641,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         // [GIVEN] EFT export worksheet ready for export
         PrepareEFTExportScenario(GenJournalLine, PaymentJournal);
         FindEFTExport(EFTExport, GenJournalLine);
+        EFTExport.Description := CopyStr(EFTExport.Description, 1, MaxStrLen(TempEFTExportWorkset.Description));
         TempEFTExportWorkset.TransferFields(EFTExport);
         TempEFTExportWorkset.Include := true;
         TempEFTExportWorkset.Insert;
@@ -738,6 +739,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         EFTExportWorkset.DeleteAll;
         EFTExport.SetRange("Bank Account No.", GenJournalLine."Bal. Account No.");
         EFTExport.FindFirst;
+        EFTExport.Description := CopyStr(EFTExport.Description, 1, MaxStrLen(EFTExportWorkset.Description));
         EFTExportWorkset.TransferFields(EFTExport);
         EFTExportWorkset.Include := true;
         EFTExportWorkset.UserSettleDate := WorkDate;
@@ -1090,6 +1092,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         Assert.RecordCount(EFTExport, ArrayLen(VendorBankAccount));
         EFTExport.FindSet;
         repeat
+            EFTExport.Description := CopyStr(EFTExport.Description, 1, MaxStrLen(TempEFTExportWorkset.Description));
             TempEFTExportWorkset.TransferFields(EFTExport);
             TempEFTExportWorkset.Include := true;
             TempEFTExportWorkset.Insert;
@@ -1210,6 +1213,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         VendorBankAccount.Validate("Use for Electronic Payments", true);
         VendorBankAccount.Modify(true);
         Vendor.Get(VendorBankAccount."Vendor No.");
+        Vendor.Validate(Name, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor.Name), 0), 1, MaxStrLen(Vendor.Name)));
         Vendor.Validate("Currency Code", '');
         Vendor.Modify(true);
     end;

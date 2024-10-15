@@ -994,6 +994,8 @@ table 21 "Cust. Ledger Entry"
           CurrExchRate.ExchangeAmount("Accepted Payment Tolerance", FromCurrencyCode, ToCurrencyCode, PostingDate);
         "Amount to Apply" :=
           CurrExchRate.ExchangeAmount("Amount to Apply", FromCurrencyCode, ToCurrencyCode, PostingDate);
+
+        OnAfterRecalculateAmounts(Rec, FromCurrencyCode, ToCurrencyCode, PostingDate);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1030,6 +1032,11 @@ table 21 "Cust. Ledger Entry"
     begin
         LoCRecRef.GetTable(Rec);
         EInvoiceMgt.CancelDocument(LoCRecRef);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecalculateAmounts(var CustLedgerEntry: Record "Cust. Ledger Entry"; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; PostingDate: Date)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

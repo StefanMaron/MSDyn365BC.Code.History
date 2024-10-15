@@ -97,10 +97,10 @@ table 2158 "O365 Document Sent History"
     }
 
     var
-        DocSentHistoryCategoryTxt: Label 'AL Doc Sent History', Comment = '{LOCKED}';
-        FailedToSetStatusTelemetryErr: Label 'Failed to set Document Sent History status to %1 because of error %2.', Comment = '{LOCKED}';
-        UnrecognizedParentRecordErr: Label 'Unsupported parent record: Table %1', Comment = '{LOCKED}';
-        StatusSetTelemetryMsg: Label 'Document Sent History status set to %1.', Comment = '{LOCKED}';
+        DocSentHistoryCategoryTxt: Label 'AL Doc Sent History', Locked = true;
+        FailedToSetStatusTelemetryErr: Label 'Failed to set Document Sent History status to %1 because of error %2.', Locked = true;
+        UnrecognizedParentRecordErr: Label 'Unsupported parent record: Table %1', Locked = true;
+        StatusSetTelemetryMsg: Label 'Document Sent History status set to %1.', Locked = true;
 
     procedure NewInProgressFromJobQueue(var JobQueueEntry: Record "Job Queue Entry"): Boolean
     var

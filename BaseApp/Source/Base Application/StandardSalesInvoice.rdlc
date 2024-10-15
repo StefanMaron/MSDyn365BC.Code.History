@@ -3253,7 +3253,7 @@
                                                 <Color>LightGrey</Color>
                                                 <Style>None</Style>
                                               </Border>
-                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingLeft>10pt</PaddingLeft>
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
@@ -3530,11 +3530,11 @@
                                     </TablixCells>
                                   </TablixRow>
                                   <TablixRow>
-                                    <Height>0.52062cm</Height>
+                                    <Height>0.41181cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Textbox84">
+                                          <Textbox Name="Textbox139">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -3551,13 +3551,13 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Textbox84</rd:DefaultName>
+                                            <rd:DefaultName>Textbox139</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
                                                 <Style>None</Style>
                                               </Border>
-                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingLeft>10pt</PaddingLeft>
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
@@ -3565,7 +3565,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="LineNo_AssemblyLine">
+                                          <Textbox Name="Textbox140">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -3582,13 +3582,13 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>LineNo_AssemblyLine</rd:DefaultName>
+                                            <rd:DefaultName>Textbox140</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
                                                 <Style>None</Style>
                                               </Border>
-                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingLeft>10pt</PaddingLeft>
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
@@ -3596,7 +3596,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Description_AssemblyLine">
+                                          <Textbox Name="Textbox141">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -3613,7 +3613,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Description_AssemblyLine</rd:DefaultName>
+                                            <rd:DefaultName>Textbox141</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -3627,7 +3627,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="VariantCode_AssemblyLine">
+                                          <Textbox Name="Textbox142">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -3644,7 +3644,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>VariantCode_AssemblyLine</rd:DefaultName>
+                                            <rd:DefaultName>Textbox142</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -3658,7 +3658,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="Quantity_AssemblyLine">
+                                          <Textbox Name="Textbox143">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -3676,7 +3676,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>Quantity_AssemblyLine</rd:DefaultName>
+                                            <rd:DefaultName>Textbox143</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -3690,7 +3690,7 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="UnitOfMeasure_AssemblyLine">
+                                          <Textbox Name="Textbox144">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
@@ -3707,7 +3707,7 @@
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
-                                            <rd:DefaultName>UnitOfMeasure_AssemblyLine</rd:DefaultName>
+                                            <rd:DefaultName>Textbox144</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Color>LightGrey</Color>
@@ -3895,18 +3895,30 @@
                                             <KeepWithGroup>After</KeepWithGroup>
                                           </TablixMember>
                                           <TablixMember>
-                                            <Group Name="Details" />
                                             <Visibility>
                                               <Hidden>=Fields!Quantity_ShipmentLine.Value = 0</Hidden>
                                             </Visibility>
                                           </TablixMember>
+                                          <TablixMember>
+                                            <TablixMembers>
+                                              <TablixMember>
+                                                <Group Name="LineNo_AssemblyLine">
+                                                  <GroupExpressions>
+                                                    <GroupExpression>=Fields!LineNo_AssemblyLine.Value</GroupExpression>
+                                                  </GroupExpressions>
+                                                </Group>
+                                                <SortExpressions>
+                                                  <SortExpression>
+                                                    <Value>=Fields!LineNo_AssemblyLine.Value</Value>
+                                                  </SortExpression>
+                                                </SortExpressions>
+                                              </TablixMember>
+                                            </TablixMembers>
+                                            <Visibility>
+                                              <Hidden>=Fields!Quantity_AssemblyLine.Value = "0"</Hidden>
+                                            </Visibility>
+                                          </TablixMember>
                                         </TablixMembers>
-                                      </TablixMember>
-                                      <TablixMember>
-                                        <Visibility>
-                                          <Hidden>=Fields!Quantity_AssemblyLine.Value = 0</Hidden>
-                                        </Visibility>
-                                        <KeepWithGroup>Before</KeepWithGroup>
                                       </TablixMember>
                                     </TablixMembers>
                                   </TablixMember>
@@ -3915,7 +3927,7 @@
                               <RepeatRowHeaders>true</RepeatRowHeaders>
                               <DataSetName>DataSet_Result</DataSetName>
                               <Top>6.1614cm</Top>
-                              <Height>3.81994cm</Height>
+                              <Height>3.71113cm</Height>
                               <Width>18.40301cm</Width>
                               <ZIndex>1</ZIndex>
                               <Style>

@@ -873,11 +873,9 @@ report 1305 "Standard Sales - Order Conf."
                 VATAmountLine.DeleteAll;
                 Line.DeleteAll;
                 SalesPost.GetSalesLines(Header, Line, 0);
-                if "Tax Area Code" = '' then begin
-                    Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
-                    Line.UpdateVATOnLines(0, Header, Line, VATAmountLine)
-                end else
-                    Line.CalcSalesTaxLines(Header, Line);
+                Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
+                Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
+                Line.CalcSalesTaxLines(Header, Line);
 
                 if not IsReportInPreviewMode then
                     CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
@@ -941,7 +939,7 @@ report 1305 "Standard Sales - Order Conf."
                     {
                         ApplicationArea = Assembly;
                         Caption = 'Show Assembly Components';
-                        ToolTip = 'Specifies if you want the report to include information about components that were used in linked assembly orders that supplied the item(s) being sold.';
+                        ToolTip = 'Specifies if you want the report to include information about components that were used in linked assembly orders that supplied the item(s) being sold. (Only possible for RDLC report layout.)';
                     }
                     field(ArchiveDocument; ArchiveDocument)
                     {

@@ -621,7 +621,13 @@ codeunit 398 "Sales Tax Calculate"
         SalesTaxAmountLineCalc: Codeunit "Sales Tax Amount Line Calc";
         TotalPositive: Boolean;
         SalesLinePositive: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddSalesLine(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not SalesHeaderRead then begin
             TempPrepaidSalesLine.DeleteAll;
             SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -789,7 +795,13 @@ codeunit 398 "Sales Tax Calculate"
     var
         TaxDetail: Record "Tax Detail";
         SalesTaxAmountLineCalc: Codeunit "Sales Tax Amount Line Calc";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddPurchLine(PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not PurchHeaderRead then begin
             PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
             PurchHeaderRead := true;
@@ -2115,6 +2127,16 @@ codeunit 398 "Sales Tax Calculate"
             TaxDetail.SetFilter("Effective Date", '<=%1', WorkDate)
         else
             TaxDetail.SetFilter("Effective Date", '<=%1', Date);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSalesLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddPurchLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

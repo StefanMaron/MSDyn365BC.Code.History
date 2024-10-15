@@ -17,6 +17,7 @@ codeunit 141012 "UT REP General Ledger"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        FileManagement: Codeunit "File Management";
         AmountCap: Label 'Amount_1_';
         CreditAmountGLEntryCap: Label 'CreditAmount_GLEntry';
         DialogErr: Label 'Dialog';
@@ -1017,6 +1018,21 @@ codeunit 141012 "UT REP General Ledger"
         LibraryReportDataset.AssertElementWithValueExists(CreditAmountGLEntryCap, GLEntry."Credit Amount");
     end;
 
+    [Test]
+    [HandlerFunctions('PrintCashApplicationRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure PrintCashApplication()
+    begin
+        // [FEATURE] [Sales] [UT]
+        // [SCENARIO 333888] Report "Cash Appliction" can be printed without RDLC rendering errors
+        Initialize;
+
+        // [WHEN] Report "Cash Application" is being printed to PDF
+        Report.Run(Report::"Cash Application");
+        // [THEN] No RDLC rendering errors
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1510,6 +1526,15 @@ codeunit 141012 "UT REP General Ledger"
         ConsolidatedTrialBalance4.AmountsInWhole1000s.SetValue(true);
         ConsolidatedTrialBalance4.UseAdditionalReportingCurrency.SetValue(true);
         SaveAsXMLConsolidatedTrialBalance4Report(ConsolidatedTrialBalance4);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PrintCashApplicationRequestPageHandler(var CashApplication: TestRequestPage "Cash Application")
+    begin
+        CashApplication.PaymentDate.SetValue(WorkDate());
+        CashApplication.LastDueDate.SetValue(WorkDate());
+        CashApplication.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 }
 

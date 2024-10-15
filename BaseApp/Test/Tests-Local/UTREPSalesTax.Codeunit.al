@@ -10,7 +10,6 @@ codeunit 142066 "UT REP Sales Tax"
 
     var
         Assert: Codeunit Assert;
-        LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
@@ -2058,8 +2057,9 @@ codeunit 142066 "UT REP Sales Tax"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        LibraryApplicationArea.EnableVATSetup();
         GeneralLedgerSetup.Get;
+        GeneralLedgerSetup."VAT in Use" := true;
+        GeneralLedgerSetup.Modify;
         exit(GeneralLedgerSetup."LCY Code");
     end;
 

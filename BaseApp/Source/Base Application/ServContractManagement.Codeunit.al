@@ -29,7 +29,6 @@ codeunit 5940 ServContractManagement
         Salesperson: Record "Salesperson/Purchaser";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         NextLine: Integer;
         PostingDate: Date;
         WDate: Date;
@@ -379,7 +378,8 @@ codeunit 5940 ServContractManagement
 
         Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
 
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+        GLSetup.Get;
+        if GLSetup."VAT in Use" then
             Cust.TestField("Gen. Bus. Posting Group");
         ServHeader2.Name := Cust.Name;
         ServHeader2."Name 2" := Cust."Name 2";
@@ -420,6 +420,7 @@ codeunit 5940 ServContractManagement
           CurrExchRate.ExchangeRate(
             ServHeader2."Posting Date", ServHeader2."Currency Code");
         ServHeader2.Validate("Payment Terms Code", ServContract2."Payment Terms Code");
+
         ServHeader2."Your Reference" := ServContract2."Your Reference";
         SetSalespersonCode(ServContract2."Salesperson Code", ServHeader2."Salesperson Code");
         ServHeader2."Shortcut Dimension 1 Code" := ServContract2."Shortcut Dimension 1 Code";
@@ -692,7 +693,7 @@ codeunit 5940 ServContractManagement
         ServHeader2."Responsibility Center" := ServContract."Responsibility Center";
         Cust.Get(ServHeader2."Customer No.");
         Cust.CheckBlockedCustOnDocs(Cust, ServHeader2."Document Type", false, false);
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+        if GLSetup."VAT in Use" then
             Cust.TestField("Gen. Bus. Posting Group");
         ServHeader2.Name := Cust.Name;
         ServHeader2."Name 2" := Cust."Name 2";
@@ -966,6 +967,8 @@ codeunit 5940 ServContractManagement
                     InvPeriod := 12;
                 ServContract."Invoice Period"::None:
                     InvPeriod := 0;
+                else
+                    OnCreateAllCreditLinesCaseElse(ServContract, InvPeriod);
             end;
         ServContract.TestField("Serv. Contract Acc. Gr. Code");
         ServContractAccGr.Get(ServContract."Serv. Contract Acc. Gr. Code");
@@ -2278,6 +2281,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateAllServLinesOnAfterServContractLineSetFilters(var ServiceContractLine: Record "Service Contract Line"; ServiceContractHeader: Record "Service Contract Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateAllCreditLinesCaseElse(ServiceContractHeader: Record "Service Contract Header"; var InvPeriod: Integer)
     begin
     end;
 }

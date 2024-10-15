@@ -51,7 +51,6 @@ codeunit 5988 "Serv-Documents Mgt."
         ServLogMgt: Codeunit ServLogManagement;
         DimMgt: Codeunit DimensionManagement;
         ServAllocMgt: Codeunit ServAllocationManagement;
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         GenJnlLineExtDocNo: Code[20];
         GenJnlLineDocNo: Code[20];
         SrcCode: Code[10];
@@ -298,7 +297,7 @@ codeunit 5988 "Serv-Documents Mgt."
                     then
                         CloseCondition := false;
 
-                    if not ApplicationAreaMgmt.IsVATEnabled then
+                    if not GLSetup."VAT in Use" then
                         if (Type >= Type::Item) and
                            (("Qty. to Invoice" <> 0) or ("Qty. to Ship" <> 0))
                         then
@@ -327,7 +326,7 @@ codeunit 5988 "Serv-Documents Mgt."
                         TestBinCode;
                         TestField("No.");
                         TestField(Type);
-                        if not ApplicationAreaMgmt.IsSalesTaxEnabled then begin
+                        if GLSetup."VAT in Use" then begin
                             TestField("Gen. Bus. Posting Group");
                             TestField("Gen. Prod. Posting Group");
                         end;

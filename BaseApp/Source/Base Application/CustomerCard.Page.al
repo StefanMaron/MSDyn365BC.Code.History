@@ -38,6 +38,13 @@
                         CurrPage.SaveRecord;
                     end;
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field("Search Name"; "Search Name")
                 {
                     ApplicationArea = All;
@@ -302,15 +309,8 @@
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer''s VAT registration number for customers in EU countries/regions.';
-
-                    trigger OnDrillDown()
-                    var
-                        VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
-                    begin
-                        VATRegistrationLogMgt.AssistEditCustomerVATReg(Rec);
-                    end;
                 }
                 field(GLN; GLN)
                 {

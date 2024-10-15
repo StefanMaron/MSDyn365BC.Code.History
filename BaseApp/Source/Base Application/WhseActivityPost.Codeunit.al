@@ -332,6 +332,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             "Qty. to Handle (Base)" := -"Qty. to Handle (Base)";
                         end;
                         PurchLine.Get("Source Subtype", "Source No.", "Source Line No.");
+                        OnUpdateSourceDocumentOnAfterGetPurchLine(PurchLine, TempWhseActivLine);
                         if "Source Document" = "Source Document"::"Purchase Order" then begin
                             PurchLine.Validate("Qty. to Receive", "Qty. to Handle");
                             PurchLine."Qty. to Receive (Base)" := "Qty. to Handle (Base)";
@@ -504,15 +505,18 @@ codeunit 7324 "Whse.-Activity-Post"
             exit;
 
         with WhseActivHeader do begin
-            if "Source Document" = "Source Document"::"Prod. Consumption" then begin
-                PostConsumption(ProdOrder);
-                WhseProdRelease.Release(ProdOrder);
-            end else
-                if (Type = Type::"Invt. Put-away") and ("Source Document" = "Source Document"::"Prod. Output") then begin
-                    PostOutput(ProdOrder);
-                    WhseOutputProdRelease.Release(ProdOrder);
+            IsHandled := false;
+            OnPostWhseActivityLineOnBeforePosting(WhseActivHeader, WhseActivLine, PostedSourceNo, PostedSourceType, PostedSourceSubType, IsHandled);
+            if not IsHandled then
+                if "Source Document" = "Source Document"::"Prod. Consumption" then begin
+                    PostConsumption(ProdOrder);
+                    WhseProdRelease.Release(ProdOrder);
                 end else
-                    PostSourceDoc;
+                    if (Type = Type::"Invt. Put-away") and ("Source Document" = "Source Document"::"Prod. Output") then begin
+                        PostOutput(ProdOrder);
+                        WhseOutputProdRelease.Release(ProdOrder);
+                    end else
+                        PostSourceDoc;
 
             CreatePostedActivHeader(WhseActivHeader, PostedInvtPutAwayHeader, PostedInvtPickHeader);
 
@@ -1004,6 +1008,7 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
     end;
 
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
@@ -1041,6 +1046,16 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOutputLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostWhseActivityLineOnBeforePosting(var WhseActivityHeader: Record "Warehouse Activity Header"; var WhseActivityLine: Record "Warehouse Activity Line"; var PostedSourceNo: Code[20]; var PostedSourceType: Integer; var PostedSourceSubType: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSourceDocumentOnAfterGetPurchLine(var PurchaseLine: Record "Purchase Line"; TempWhseActivLine: Record "Warehouse Activity Line" temporary)
     begin
     end;
 

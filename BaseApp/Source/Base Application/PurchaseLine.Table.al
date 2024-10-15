@@ -455,7 +455,13 @@ table 39 "Purchase Line"
                 FindRecordMgt: Codeunit "Find Record Management";
                 ReturnValue: Text[50];
                 DescriptionIsNo: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDescription(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if Type = Type::" " then
                     exit;
 
@@ -474,10 +480,19 @@ table 39 "Purchase Line"
                                 DescriptionIsNo := false;
 
                             if not DescriptionIsNo then begin
-                                Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
                                 Item.SetRange(Blocked, false);
                                 if not IsCreditDocType() then
                                     Item.SetRange("Purchasing Blocked", false);
+
+                                // looking for an item with exact description
+                                Item.SetRange(Description, Description);
+                                if Item.FindFirst() then begin
+                                    Validate("No.", Item."No.");
+                                    exit;
+                                end;
+
+                                // looking for an item with similar description
+                                Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
                                 if Item.FindFirst then begin
                                     Validate("No.", Item."No.");
                                     exit;
@@ -570,8 +585,12 @@ table 39 "Purchase Line"
                     InitOutstanding;
                     if IsCreditDocType then
                         InitQtyToShip
-                    else
-                        InitQtyToReceive;
+                    else begin
+                        IsHandled := false;
+                        OnValidateQuantityOnBeforeInitQtyToReceive(Rec, CurrFieldNo, IsHandled);
+                        if not IsHandled then
+                            InitQtyToReceive;
+                    end;
                 end;
                 if (Quantity * xRec.Quantity < 0) or (Quantity = 0) then
                     InitItemAppl;
@@ -664,9 +683,12 @@ table 39 "Purchase Line"
                 end;
                 OnValidateQtyToReceiveOnAfterCheck(Rec, CurrFieldNo);
 
-                if "Qty. to Receive" = Quantity - "Quantity Received" then
-                    InitQtyToReceive
-                else begin
+                if "Qty. to Receive" = Quantity - "Quantity Received" then begin
+                    IsHandled := false;
+                    OnValidateQtyToReceiveOnBeforeInitQtyToReceive(Rec, CurrFieldNo, IsHandled);
+                    if not IsHandled then
+                        InitQtyToReceive;
+                end else begin
                     "Qty. to Receive (Base)" := UOMMgt.CalcBaseQty("Qty. to Receive", "Qty. per Unit of Measure");
                     InitQtyToInvoice;
                 end;
@@ -2458,7 +2480,7 @@ table 39 "Purchase Line"
                         "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
                         "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
                         "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
-                        OnAfterAssignItemUOM(Rec, Item);
+                        OnAfterAssignItemUOM(Rec, Item, CurrFieldNo);
                         if "Qty. per Unit of Measure" > xRec."Qty. per Unit of Measure" then
                             InitItemAppl;
                         UpdateUOMQtyPerStockQty;
@@ -3568,7 +3590,6 @@ table 39 "Purchase Line"
         CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
         DeferralUtilities: Codeunit "Deferral Utilities";
         PostingSetupMgt: Codeunit PostingSetupManagement;
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         TrackingBlocked: Boolean;
         StatusCheckSuspended: Boolean;
         GLSetupRead: Boolean;
@@ -3680,7 +3701,14 @@ table 39 "Purchase Line"
     end;
 
     procedure InitQtyToReceive()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitQtyToReceive(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         GetPurchSetup;
         if (PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Remainder) or
            ("Document Type" = "Document Type"::Invoice)
@@ -3697,7 +3725,14 @@ table 39 "Purchase Line"
     end;
 
     procedure InitQtyToShip()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitQtyToShip(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         GetPurchSetup;
         if (PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Remainder) or
            ("Document Type" = "Document Type"::"Credit Memo")
@@ -3714,7 +3749,14 @@ table 39 "Purchase Line"
     end;
 
     procedure InitQtyToInvoice()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitQtyToInvoice(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         "Qty. to Invoice" := MaxQtyToInvoice;
         "Qty. to Invoice (Base)" := MaxQtyToInvoiceBase;
         "VAT Difference" := 0;
@@ -3923,7 +3965,7 @@ table 39 "Purchase Line"
 
         "Unit of Measure Code" := Item."Purch. Unit of Measure";
         InitDeferralCode;
-        OnAfterAssignItemValues(Rec, Item);
+        OnAfterAssignItemValues(Rec, Item, CurrFieldNo);
     end;
 
     local procedure CopyFromFixedAsset()
@@ -4499,14 +4541,15 @@ table 39 "Purchase Line"
                 LocalGLAcc.Get(FAPostingGr.GetMaintenanceExpenseAccount);
         end;
         LocalGLAcc.CheckGLAcc;
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+        GLSetup.Get;
+        if GLSetup."VAT in Use"  then
             LocalGLAcc.TestField("Gen. Prod. Posting Group");
         "Posting Group" := FADeprBook."FA Posting Group";
         "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
         "Tax Group Code" := LocalGLAcc."Tax Group Code";
         Validate("VAT Prod. Posting Group", LocalGLAcc."VAT Prod. Posting Group");
 
-        OnAfterGetFAPostingGroup(Rec);
+        OnAfterGetFAPostingGroup(Rec, LocalGLAcc);
     end;
 
     procedure UpdateUOMQtyPerStockQty()
@@ -5216,7 +5259,7 @@ table 39 "Purchase Line"
                 repeat
                     if not ZeroAmountLine(QtyType) then begin
                         if (Type = Type::"G/L Account") and not "Prepayment Line" then
-                            RoundingLineInserted := ("No." = GetVPGInvRoundAcc(PurchHeader)) or RoundingLineInserted;
+                            RoundingLineInserted := (("No." = GetVPGInvRoundAcc(PurchHeader)) and "System-Created Entry") or RoundingLineInserted;
                         if "VAT Calculation Type" in
                            ["VAT Calculation Type"::"Reverse Charge VAT", "VAT Calculation Type"::"Sales Tax"]
                         then
@@ -6070,6 +6113,7 @@ table 39 "Purchase Line"
         SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Outstanding Qty. (Base)", '<>0');
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
         OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType);
     end;
@@ -6678,8 +6722,15 @@ table 39 "Purchase Line"
         end;
     end;
 
-    procedure FormatType(): Text[20]
+    procedure FormatType() FormattedType: Text[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFormatType(Rec, FormattedType, IsHandled);
+        If IsHandled then
+            exit(FormattedType);
+
         if Type = Type::" " then
             exit(CommentLbl);
 
@@ -6756,7 +6807,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemValues(var PurchLine: Record "Purchase Line"; Item: Record Item)
+    local procedure OnAfterAssignItemValues(var PurchLine: Record "Purchase Line"; Item: Record Item; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -6771,7 +6822,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignItemUOM(var PurchLine: Record "Purchase Line"; Item: Record Item)
+    local procedure OnAfterAssignItemUOM(var PurchLine: Record "Purchase Line"; Item: Record Item; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -6811,7 +6862,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetFAPostingGroup(var PurchaseLine: Record "Purchase Line")
+    local procedure OnAfterGetFAPostingGroup(var PurchaseLine: Record "Purchase Line"; GLAccount: Record "G/L Account")
     begin
     end;
 
@@ -7051,6 +7102,26 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatType(PurchaseLine: Record "Purchase Line"; var FormattedType: Text[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitQtyToInvoice(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitQtyToReceive(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitQtyToShip(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeJobSetCurrencyFactor(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
@@ -7142,6 +7213,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateWithWarehouseReceive(var PurchaseLine: Record "Purchase Line"; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDescription(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
     begin
     end;
 
@@ -7271,7 +7347,17 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToReceiveOnBeforeInitQtyToReceive(var PurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeDropShptCheck(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeInitQtyToReceive(var PurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 

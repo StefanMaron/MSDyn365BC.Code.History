@@ -107,18 +107,23 @@ table 5900 "Service Header"
                     OnBeforeCheckBlockedCustomer(Cust, IsHandled);
                     if not IsHandled then
                         Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
-                    Cust.TestField("Gen. Bus. Posting Group");
+                    GLSetup.Get;
+                    if GLSetup."VAT in Use" then
+                        Cust.TestField("Gen. Bus. Posting Group");
                     CopyCustomerFields(Cust);
                 end;
 
                 if "Customer No." = xRec."Customer No." then
-                    if ShippedServLinesExist then
-                        if not ApplicationAreaMgmt.IsSalesTaxEnabled then begin
+                    if ShippedServLinesExist then begin
+                        GLSetup.Get;
+                        if GLSetup."VAT in Use" then begin
                             TestField("VAT Bus. Posting Group", xRec."VAT Bus. Posting Group");
                             TestField("Gen. Bus. Posting Group", xRec."Gen. Bus. Posting Group");
                         end;
+                    end;
 
                 Commit;
+                Validate("Ship-to Code", Cust."Ship-to Code");
                 if Cust."Bill-to Customer No." <> '' then
                     Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
                 else begin
@@ -128,7 +133,6 @@ table 5900 "Service Header"
                     SkipBillToContact := false;
                 end;
 
-                Validate("Ship-to Code", '');
                 Validate("Service Zone Code");
 
                 if not SkipContact then
@@ -2583,7 +2587,6 @@ table 5900 "Service Header"
         UserSetupMgt: Codeunit "User Setup Management";
         NotifyCust: Codeunit "Customer-Notify by Email";
         ServPost: Codeunit "Service-Post";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         CurrencyDate: Date;
         TempLinkToServItem: Boolean;
         HideValidationDialog: Boolean;
@@ -2628,6 +2631,7 @@ table 5900 "Service Header"
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
         MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
+        FullServiceTypesTxt: Label 'Service Quote,Service Order,Service Invoice,Service Credit Memo';
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldServHeader: Record "Service Header"): Boolean
@@ -4109,6 +4113,23 @@ table 5900 "Service Header"
         "Currency Code" := xRec."Currency Code";
         "Posting Date" := xRec."Posting Date";
         Modify;
+    end;
+
+    procedure GetFullDocTypeTxt() FullDocTypeTxt: Text
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeGetFullDocTypeTxt(Rec, FullDocTypeTxt, IsHandled);
+
+        if IsHandled then
+            exit;
+
+        FullDocTypeTxt := SelectStr("Document Type" + 1, FullServiceTypesTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFullDocTypeTxt(var ServiceHeader: Record "Service Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

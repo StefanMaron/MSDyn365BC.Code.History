@@ -45,7 +45,7 @@ report 10086 "Cash Application"
             column(Invoices_are_included_which_are_due_through_____FORMAT_LastDueDate_______; 'Invoices are included which are due through ' + Format(LastDueDate) + '.')
             {
             }
-            column(DataItem14; 'Invoices which are not yet due may be included so that all available payment discounts can be taken up to ' + Format(DiscountDate) + '.')
+            column(Invoices_which_are_not_yet_due_may_be_included; 'Invoices which are not yet due may be included so that all available payment discounts can be taken up to ' + Format(DiscountDate) + '.')
             {
             }
             column(Document_Number_is______Vendor_Ledger_Entry__FIELDCAPTION__External_Document_No___; 'Document Number is ' + "Vendor Ledger Entry".FieldCaption("External Document No."))

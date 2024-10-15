@@ -152,7 +152,7 @@ report 10155 "Purchase Advice"
             column(ReorderAmount2Caption; ReorderAmount2CaptionLbl)
             {
             }
-            column(DataItem47; Reorder_Amount_2_is_the_quantity_you_should_order_if_you_want_to_take_into_account_the_Average_Daily_Use_CaptioLbl)
+            column(Reorder_Amount_2_is_the_quantity_you_should_order; Reorder_Amount_2_is_the_quantity_you_should_order)
             {
             }
             column(Reorder_Amount_1_is_the_quantity_you_should_order_if_you_do_not_want_to_take_those_factors_into_account_Caption; Reorder_Amount_1_is_the_quantity_you_should_order_if_you_do_not_want_to_take_those_factors_into_account_CaptionLbl)
@@ -440,7 +440,7 @@ report 10155 "Purchase Advice"
         AverageDailyUsageCaptionLbl: Label 'Average Daily Usage';
         ReorderAmount1CaptionLbl: Label 'Reorder Amount 1';
         ReorderAmount2CaptionLbl: Label 'Reorder Amount 2';
-        Reorder_Amount_2_is_the_quantity_you_should_order_if_you_want_to_take_into_account_the_Average_Daily_Use_CaptioLbl: Label 'Reorder Amount 2 is the quantity you should order if you want to take into account the Average Daily Use and Lead Time.';
+        Reorder_Amount_2_is_the_quantity_you_should_order: Label 'Reorder Amount 2 is the quantity you should order if you want to take into account the Average Daily Use and Lead Time.';
         Reorder_Amount_1_is_the_quantity_you_should_order_if_you_do_not_want_to_take_those_factors_into_account_CaptionLbl: Label 'Reorder Amount 1 is the quantity you should order if you do not want to take those factors into account.';
 
     procedure CalculateReorder(QtyExpected: Decimal): Decimal

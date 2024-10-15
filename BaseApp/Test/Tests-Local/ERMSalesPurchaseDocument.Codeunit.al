@@ -1992,6 +1992,155 @@ codeunit 142053 "ERM Sales/Purchase Document"
         Assert.AreEqual(TaxArea[2].Code, TaxAreaCode, '');
     end;
 
+    [Test]
+    [HandlerFunctions('SalesOrderConfirmationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckAmountSubjectToSalesTaxOnStandardSalesOrderConf()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        AmountSubjectToSalesTax: Decimal;
+    begin
+        // [FEATURE] [Sales] [Report]
+        // [SCENARIO 329239] When report "Standard Sales - Order Conf." is printed, Amount Subject To Sales Tax is calculated and shown.
+        Initialize;
+
+        // [GIVEN] Sales Order with Sales line with Item with Unit Price = 100, Quanity = 3 and Sales Tax 5%.
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
+        AmountSubjectToSalesTax := SalesLine.Quantity * SalesLine."Unit Price";
+
+        // [WHEN] Report "Standard Sales - Order Conf." is run.
+        Commit;
+        LibraryVariableStorage.Enqueue(SalesLine."Document No.");
+        REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, true, SalesHeader);
+
+        // [THEN] In dataset AmountSubjectToSalesTax = 100 * 3 = 300.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('AmountSubjectToSalesTax', Round(AmountSubjectToSalesTax));
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderConfirmationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckAmountExemptFromSalesTaxOnStandardSalesOrderConf()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        AmountExemptFromSalesTax: Decimal;
+    begin
+        // [FEATURE] [Sales] [Report]
+        // [SCENARIO 329239] When report "Standard Sales - Order Conf." is printed, Amount Exempt From Sales Tax is calculated and shown.
+        Initialize;
+
+        // [GIVEN] Sales Order with Sales line with Item with Unit Price = 100, Quanity = 3 and Sales Tax 0%.
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order);
+        AmountExemptFromSalesTax := SalesLine.Quantity * SalesLine."Unit Price";
+        TaxDetail.SetRange("Tax Group Code", SalesLine."Tax Group Code");
+        TaxDetail.FindFirst;
+        TaxDetail.Validate("Tax Below Maximum", 0);
+        TaxDetail.Modify(true);
+
+        // [WHEN] Report "Standard Sales - Order Conf." is run.
+        Commit;
+        LibraryVariableStorage.Enqueue(SalesLine."Document No.");
+        REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, true, SalesHeader);
+
+        // [THEN] In dataset AmountExemptFromSalesTax = 100 * 3 = 200.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('AmountExemptFromSalesTax', Round(AmountExemptFromSalesTax));
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderReportKeepsSortingByLineNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Order] [Report]
+        // [SCENARIO 331886] NA-localized "Sales Order" report prints lines sorted as in the document.
+        Initialize;
+
+        CreateSalesDocumentWithTwoSalesLines(SalesLine[1], SalesLine[2], SalesLine[1]."Document Type"::Order);
+        SalesLine[1].Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine[1].Modify(true);
+        SalesLine[2].Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine[2].Modify(true);
+        SalesHeader.Get(SalesLine[1]."Document Type", SalesLine[1]."Document No.");
+        SalesHeader.SetRecFilter;
+
+        Commit;
+        REPORT.Run(REPORT::"Sales Order", true, true, SalesHeader);
+
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLineNo', SalesLine[1]."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLineNo', SalesLine[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesReturnOrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesReturnOrderReportKeepsSortingByLineNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Return Order] [Report]
+        // [SCENARIO 331886] NA-localized "Return Authorization" report prints lines sorted as in the document.
+        Initialize;
+
+        CreateSalesDocumentWithTwoSalesLines(SalesLine[1], SalesLine[2], SalesLine[1]."Document Type"::"Return Order");
+        SalesLine[1].Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine[1].Modify(true);
+        SalesLine[2].Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine[2].Modify(true);
+        SalesHeader.Get(SalesLine[1]."Document Type", SalesLine[1]."Document No.");
+        SalesHeader.SetRecFilter;
+
+        Commit;
+        REPORT.Run(REPORT::"Return Authorization", true, true, SalesHeader);
+
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLine__No__', SalesLine[1]."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLine__No__', SalesLine[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesBlanketOrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesBlanketOrderReportKeepsSortingByLineNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Blanket Order] [Report]
+        // [SCENARIO 331886] NA-localized "Sales Blanket Order" report prints lines sorted as in the document.
+        Initialize;
+
+        CreateSalesDocumentWithTwoSalesLines(SalesLine[1], SalesLine[2], SalesLine[1]."Document Type"::"Blanket Order");
+        SalesLine[1].Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine[1].Modify(true);
+        SalesLine[2].Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine[2].Modify(true);
+        SalesHeader.Get(SalesLine[1]."Document Type", SalesLine[1]."Document No.");
+        SalesHeader.SetRecFilter;
+
+        Commit;
+        REPORT.Run(REPORT::"Sales Blanket Order", true, true, SalesHeader);
+
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLineNo', SalesLine[1]."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLineNo', SalesLine[2]."No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -2974,6 +3123,35 @@ codeunit 142053 "ERM Sales/Purchase Document"
     begin
         LibraryVariableStorage.Dequeue(AmountInclVAT);
         PurchCreditMemoStats.AmountInclVAT.AssertEquals(AmountInclVAT);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderConfirmationRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
+    begin
+        StandardSalesOrderConf.Header.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderRequestPageHandler(var SalesOrder: TestRequestPage "Sales Order")
+    begin
+        SalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesReturnOrderRequestPageHandler(var ReturnAuthorization: TestRequestPage "Return Authorization")
+    begin
+        ReturnAuthorization.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesBlanketOrderRequestPageHandler(var SalesBlanketOrder: TestRequestPage "Sales Blanket Order")
+    begin
+        SalesBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

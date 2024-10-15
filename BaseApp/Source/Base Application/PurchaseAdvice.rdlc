@@ -1726,7 +1726,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Reorder_Amount_2_is_the_quantity_you_should_order_if_you_want_to_take_into_account_the_Average_Daily_Use_and_Lead_Time_Caption.Value)</Value>
+                                  <Value>=First(Fields!Reorder_Amount_2_is_the_quantity_you_should_order.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
@@ -2357,8 +2357,8 @@ End Function
         <Field Name="ReorderAmount2Caption">
           <DataField>ReorderAmount2Caption</DataField>
         </Field>
-        <Field Name="DataItem47">
-          <DataField>DataItem47</DataField>
+        <Field Name="Reorder_Amount_2_is_the_quantity_you_should_order">
+          <DataField>Reorder_Amount_2_is_the_quantity_you_should_order</DataField>
         </Field>
         <Field Name="Reorder_Amount_1_is_the_quantity_you_should_order_if_you_do_not_want_to_take_those_factors_into_account_Caption">
           <DataField>Reorder_Amount_1_is_the_quantity_you_should_order_if_you_do_not_want_to_take_those_factors_into_account_Caption</DataField>

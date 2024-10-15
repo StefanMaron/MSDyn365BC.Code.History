@@ -25,6 +25,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Document Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Document Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IRS 1099 Form-Box");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"IRS 1099 Adjustment");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Tax Amount Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Tax Amount Difference");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Location");

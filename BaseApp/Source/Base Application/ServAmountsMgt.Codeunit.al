@@ -17,7 +17,6 @@ codeunit 5986 "Serv-Amounts Mgt."
         TempServiceLineForSpread: Record "Service Line" temporary;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         UOMMgt: Codeunit "Unit of Measure Management";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         FALineNo: Integer;
         RoundingLineNo: Integer;
         Text016: Label 'VAT Amount';
@@ -50,6 +49,7 @@ codeunit 5986 "Serv-Amounts Mgt."
     procedure FillInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
     var
         GenPostingSetup: Record "General Posting Setup";
+        GLSetup: Record "General Ledger Setup";
         ServCost: Record "Service Cost";
         TotalVAT: Decimal;
         TotalVATACY: Decimal;
@@ -58,13 +58,14 @@ codeunit 5986 "Serv-Amounts Mgt."
         TotalVATBase: Decimal;
         TotalVATBaseACY: Decimal;
     begin
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+        GLSetup.Get;
+        if GLSetup."VAT in Use" then
             if (ServiceLine."Gen. Bus. Posting Group" <> GenPostingSetup."Gen. Bus. Posting Group") or
                (ServiceLine."Gen. Prod. Posting Group" <> GenPostingSetup."Gen. Prod. Posting Group")
             then
                 GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
 
-        if ApplicationAreaMgmt.IsSalesTaxEnabled then
+        if not GLSetup."VAT in Use" then
             if (ServiceLine.Type >= ServiceLine.Type::Item) and
                ((ServiceLine."Qty. to Invoice" <> 0) or (ServiceLine."Qty. to Ship" <> 0))
             then

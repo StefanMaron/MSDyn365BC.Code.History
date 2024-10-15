@@ -283,6 +283,7 @@ report 10112 "Vendor 1099 Misc"
         FormBox: Record "IRS 1099 Form-Box";
         TempAppliedEntry: Record "Vendor Ledger Entry" temporary;
         EntryAppMgt: Codeunit "Entry Application Management";
+        IRS1099Management: Codeunit "IRS 1099 Management";
         PeriodDate: array[2] of Date;
         Year: Integer;
         TestPrint: Boolean;
@@ -315,7 +316,8 @@ report 10112 "Vendor 1099 Misc"
             SetRange("IRS 1099 Code", 'MISC-', 'MISC-99');
             if FindSet then
                 repeat
-                    Calculate1099Amount(TempAppliedEntry, "Amount to Apply");
+                    IRS1099Management.Calculate1099Amount(
+                      Invoice1099Amount, Amounts, Codes, LastLineNo, TempAppliedEntry, "Amount to Apply");
                 until Next = 0;
         end;
     end;

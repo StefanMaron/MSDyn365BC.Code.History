@@ -13,6 +13,15 @@ codeunit 10500 "IRS 1099 Management"
         UpgradeFormBoxesScheduledMsg: Label 'A job queue entry has been created.\\Make sure Earliest Start Date/Time field in the Job Queue Entry Card window is correct, and then choose the Set Status to Ready action to schedule a background job.';
         ConfirmUpgradeNowQst: Label 'The update process can take a while and block other users activities. Do you want to start the update now?';
         FormBoxesUpgradedMsg: Label 'The 1099 form boxes are successfully updated.';
+        UnkownCodeErr: Label 'Invoice %1 for vendor %2 has unknown 1099 code %3.', Comment = '%1 = document number;%2 = vendor number;%3 = IRS 1099 code.';
+
+    procedure Calculate1099Amount(var Invoice1099Amount: Decimal; var Amounts: array[20] of Decimal; Codes: array[20] of Code[10]; LastLineNo: Integer; VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedAmount: Decimal)
+    begin
+        VendorLedgerEntry.CalcFields(Amount);
+        Invoice1099Amount := -AppliedAmount * VendorLedgerEntry."IRS 1099 Amount" / VendorLedgerEntry.Amount;
+        UpdateLines(
+          Amounts, Codes, LastLineNo, VendorLedgerEntry, VendorLedgerEntry."IRS 1099 Code", Invoice1099Amount);
+    end;
 
     [Scope('OnPrem')]
     procedure ShowUpgradeFormBoxesNotificationIfUpgradeNeeded()
@@ -58,6 +67,19 @@ codeunit 10500 "IRS 1099 Management"
     end;
 
     [Scope('OnPrem')]
+    procedure GetAdjustmentAmount(VendorLedgerEntry: Record "Vendor Ledger Entry"): Decimal
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+    begin
+        if VendorLedgerEntry."IRS 1099 Code" = '' then
+            exit(0);
+        if IRS1099Adjustment.Get(
+             VendorLedgerEntry."Vendor No.", VendorLedgerEntry."IRS 1099 Code", Date2DMY(VendorLedgerEntry."Posting Date", 3))
+        then
+            exit(IRS1099Adjustment.Amount);
+    end;
+
+    [Scope('OnPrem')]
     procedure UpgradeFormBoxesFromNotification(Notification: Notification)
     begin
         UpgradeFormBoxes;
@@ -99,6 +121,21 @@ codeunit 10500 "IRS 1099 Management"
                 Message(FormBoxesUpgradedMsg);
             end;
         end;
+    end;
+
+    local procedure UpdateLines(var Amounts: array[20] of Decimal; Codes: array[20] of Code[10]; LastLineNo: Integer; ApplVendorLedgerEntry: Record "Vendor Ledger Entry"; "Code": Code[10]; Amount: Decimal): Integer
+    var
+        i: Integer;
+    begin
+        i := 1;
+        while (Codes[i] <> Code) and (i <= LastLineNo) do
+            i := i + 1;
+
+        if (Codes[i] = Code) and (i <= LastLineNo) then
+            Amounts[i] += Amount + GetAdjustmentAmount(ApplVendorLedgerEntry)
+        else
+            Error(UnkownCodeErr, ApplVendorLedgerEntry."Entry No.", ApplVendorLedgerEntry."Vendor No.", Code);
+        exit(i);
     end;
 
     [IntegrationEvent(false, false)]

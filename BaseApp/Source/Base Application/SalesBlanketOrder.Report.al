@@ -434,6 +434,8 @@ report 10069 "Sales Blanket Order"
                             Clear(TaxLiable);
                             Clear(TaxAmount);
                             Clear(AmountExclInvDisc);
+
+                            TempSalesLine.Reset;
                             NumberOfLines := TempSalesLine.Count;
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;

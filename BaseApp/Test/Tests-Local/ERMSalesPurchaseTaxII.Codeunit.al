@@ -3015,6 +3015,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Order] [Report] [Order Confirmation]
         // [SCENARIO 228827] Print REP1305 "Standard Sales - Order Conf." in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
         Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
         UpdateReportLayoutSelection(REPORT::"Standard Sales - Order Conf.", DummyReportLayoutSelection.Type::"RDLC (built-in)");
 
         // [GIVEN] Tax area with "Country/Region" = CA having several lines and custom Tax Detail setup lines including "Expense/Capitalize" = TRUE
@@ -3030,10 +3031,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         // [THEN] Report prints correct total amounts
         LibraryReportValidation.OpenFile;
         LibraryReportValidation.VerifyCellValueByRef('T', 44, 1, LibraryReportValidation.FormatDecimalValue(5617.52)); // Amount
-        LibraryReportValidation.VerifyCellValueByRef('T', 46, 1, LibraryReportValidation.FormatDecimalValue(280.88)); // PST
-        LibraryReportValidation.VerifyCellValueByRef('T', 48, 1, LibraryReportValidation.FormatDecimalValue(393.23)); // GST
-        LibraryReportValidation.VerifyCellValueByRef('T', 49, 1, LibraryReportValidation.FormatDecimalValue(6291.63)); // Total Including VAT
-        LibraryReportValidation.VerifyCellValueByRef('T', 51, 1, LibraryReportValidation.FormatDecimalValue(674.11)); // Total Tax
+        LibraryReportValidation.VerifyCellValueByRef('T', 47, 1, LibraryReportValidation.FormatDecimalValue(280.88)); // PST
+        LibraryReportValidation.VerifyCellValueByRef('T', 49, 1, LibraryReportValidation.FormatDecimalValue(393.23)); // GST
+        LibraryReportValidation.VerifyCellValueByRef('T', 50, 1, LibraryReportValidation.FormatDecimalValue(6291.63)); // Total Including VAT
+        LibraryReportValidation.VerifyCellValueByRef('T', 52, 1, LibraryReportValidation.FormatDecimalValue(674.11)); // Total Tax
 
         // Tear Down
         UpdateReportLayoutSelection(REPORT::"Standard Sales - Order Conf.", DummyReportLayoutSelection.Type::"Word (built-in)");
@@ -3045,8 +3046,10 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
     procedure PrintOrderConfirmationNAReport()
     var
         SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
         TaxAreaCode: Code[20];
         TaxGroupCode: array[2] of Code[20];
+        RowNo: Integer;
     begin
         // [FEATURE] [Rounding] [Sales] [Expense/Capitalize] [Order] [Report] [Order Confirmation]
         // [SCENARIO 228827] Print REP10075 "Sales Order" in case of Tax Country = CA, Expense, several custom lines including negative and last nontaxable
@@ -3064,8 +3067,15 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         // [THEN] Report prints all document lines
         LibraryReportValidation.OpenFile;
-        LibraryReportValidation.VerifyCellValueByRef('P', 56, 1, LibraryReportValidation.FormatDecimalValue(-101.5)); // first
-        LibraryReportValidation.VerifyCellValueByRef('P', 70, 1, LibraryReportValidation.FormatDecimalValue(1800)); // last
+        RowNo := 56;
+
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet;
+        repeat
+            LibraryReportValidation.VerifyCellValueByRef('P', RowNo, 1, LibraryReportValidation.FormatDecimalValue(SalesLine."Unit Price"));
+            RowNo += 1;
+        until SalesLine.Next = 0;
     end;
 
     [Test]

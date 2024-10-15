@@ -115,7 +115,7 @@ codeunit 142067 "UT REPORTS GENERAL"
         ObjectOptions: Record "Object Options";
     begin
         // [FEATURE] [G/L Register] [UT]
-        // [SCENARIO 315889] Settings of the "G/L Register" report are saved after the first run.
+        // [SCENARIO 331052] Settings of the "G/L Register" report are not saved after its run.
         Initialize;
         Assert.IsFalse(
           ObjectOptions.Get(LastUsedTxt, REPORT::"G/L Register", ObjectOptions."Object Type"::Report, UserId, CompanyName), '');
@@ -123,8 +123,8 @@ codeunit 142067 "UT REPORTS GENERAL"
         // [WHEN] Run "G/L Register" report.
         REPORT.Run(REPORT::"G/L Register");
 
-        // [THEN] Object options with report parameters were created for "G/L Register" report.
-        Assert.IsTrue(
+        // [THEN] Object options with report parameters were not created for "G/L Register" report.
+        Assert.IsFalse(
           ObjectOptions.Get(LastUsedTxt, REPORT::"G/L Register", ObjectOptions."Object Type"::Report, UserId, CompanyName), '');
     end;
 

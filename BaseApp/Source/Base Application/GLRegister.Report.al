@@ -223,7 +223,6 @@ report 10019 "G/L Register"
 
     requestpage
     {
-        SaveValues = true;
 
         layout
         {

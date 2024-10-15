@@ -64,13 +64,13 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="Invoices_which_are_not_yet_due_may_be_included_so_that_all_available_payment_discounts_can_be_taken_up_to_____FORMAT_DiscountDate_______">
+          <Textbox Name="Invoices_which_are_not_yet_due_may_be_included">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>=First(Fields!Invoices_which_are_not_yet_due_may_be_included_so_that_all_available_payment_discounts_can_be_taken_up_to_____FORMAT_DiscountDate_______.Value)</Value>
+                    <Value>=First(Fields!Invoices_which_are_not_yet_due_may_be_included.Value)</Value>
                     <Style>
                       <FontSize>7pt</FontSize>
                     </Style>
@@ -2722,8 +2722,8 @@ End Function
         <Field Name="Invoices_are_included_which_are_due_through_____FORMAT_LastDueDate_______">
           <DataField>Invoices_are_included_which_are_due_through_____FORMAT_LastDueDate_______</DataField>
         </Field>
-        <Field Name="DataItem14">
-          <DataField>DataItem14</DataField>
+        <Field Name="Invoices_which_are_not_yet_due_may_be_included">
+          <DataField>Invoices_which_are_not_yet_due_may_be_included</DataField>
         </Field>
         <Field Name="Document_Number_is______Vendor_Ledger_Entry__FIELDCAPTION__External_Document_No___">
           <DataField>Document_Number_is______Vendor_Ledger_Entry__FIELDCAPTION__External_Document_No___</DataField>

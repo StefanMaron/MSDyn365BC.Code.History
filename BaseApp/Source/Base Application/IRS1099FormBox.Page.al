@@ -28,6 +28,11 @@ page 10015 "IRS 1099 Form-Box"
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies the minimum value for this box that must be reported to the IRS on a 1099 form.';
                 }
+                field("Adjustment Exists"; "Adjustment Exists")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if adjustment exists for this 1099 form and the 1099 box.';
+                }
             }
         }
     }
@@ -61,6 +66,17 @@ page 10015 "IRS 1099 Form-Box"
                 PromotedCategory = Process;
                 RunObject = Report "Vendor 1099 Magnetic Media";
                 ToolTip = 'View the 1099 forms that can be exported. The form information exported by this report is the same as the reports that print 1099 forms. These reports include Vendor 1099 Div, Vendor 1099 Int, and Vendor 1099 Misc.';
+            }
+            action(Adjustments)
+            {
+                ApplicationArea = Basic, Suite;
+                Image = AdjustEntries;
+                Promoted = true;
+                PromotedCategory = Process;
+                RunObject = Page "IRS 1099 Adjustments";
+                RunPageLink = "IRS 1099 Code" = FIELD(Code);
+                RunPageView = SORTING("Vendor No.", "IRS 1099 Code", Year);
+                ToolTip = 'Specifies the adjusted amount per vendor and year.';
             }
         }
         area(reporting)

@@ -62,6 +62,7 @@ page 10811 "Generate EFT File Lines"
         EFTExport.SetRange(Transmitted, false);
         if EFTExport.Find('-') then
             repeat
+                EFTExport.Description := CopyStr(EFTExport.Description, 1, MaxStrLen(Description));
                 TransferFields(EFTExport);
                 Include := true;
                 Insert;

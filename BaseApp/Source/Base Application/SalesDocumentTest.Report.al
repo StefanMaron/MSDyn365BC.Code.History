@@ -996,7 +996,7 @@ report 202 "Sales Document - Test"
                                 end;
 
                                 if (Type >= Type::"G/L Account") and ("Qty. to Invoice" <> 0) then begin
-                                    if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+                                    if GLSetup."VAT in Use" then
                                         if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                                             AddError(
                                               StrSubstNo(
@@ -1038,7 +1038,7 @@ report 202 "Sales Document - Test"
                                     if "Prepmt. Line Amount" > "Prepmt. Amt. Inv." then
                                         AddError(StrSubstNo(Text046, FieldCaption("Prepmt. Line Amount")));
 
-                                CheckType("Sales Line");
+                                CheckSalesLine("Sales Line");
 
                                 if "Line No." > OrigMaxLineNo then begin
                                     AddDimToTempLine("Sales Line", TempDimSetEntry);
@@ -1896,7 +1896,6 @@ report 202 "Sales Document - Test"
         DimMgt: Codeunit DimensionManagement;
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         SalesPost: Codeunit "Sales-Post";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         SalesHeaderFilter: Text;
         SellToAddr: array[8] of Text[100];
         BillToAddr: array[8] of Text[100];
@@ -2280,7 +2279,9 @@ report 202 "Sales Document - Test"
     begin
     end;
 
-    local procedure CheckType(SalesLine2: Record "Sales Line")
+    local procedure CheckSalesLine(SalesLine2: Record "Sales Line")
+    var
+        ErrorText: Text[250];
     begin
         with SalesLine2 do
             case Type of
@@ -2392,6 +2393,11 @@ report 202 "Sales Document - Test"
                                     Text008,
                                     FA.TableCaption, "No."));
                     end;
+                else begin
+                        OnCheckSalesLineCaseTypeElse(Type, "No.", ErrorText);
+                        if ErrorText <> '' then
+                            AddError(ErrorText);
+                    end;
             end;
     end;
 
@@ -2489,6 +2495,11 @@ report 202 "Sales Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var SalesLine: Record "Sales Line"; TableID: array[10] of Integer; No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesLineCaseTypeElse(LineType: Option; "No.": Code[20]; var ErrorText: Text[250])
     begin
     end;
 }

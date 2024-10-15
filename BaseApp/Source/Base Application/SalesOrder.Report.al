@@ -494,6 +494,8 @@ report 10075 "Sales Order"
                             Clear(TaxLiable);
                             Clear(TaxAmount);
                             Clear(AmountExclInvDisc);
+
+                            TempSalesLine.Reset;
                             NumberOfLines := TempSalesLine.Count;
                             SetRange(Number, 1, NumberOfLines);
                             OnLineNumber := 0;

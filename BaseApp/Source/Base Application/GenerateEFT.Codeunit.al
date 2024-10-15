@@ -64,7 +64,14 @@ codeunit 10098 "Generate EFT"
     end;
 
     local procedure InitialChecks(BankAccountNo: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitalChecks(BankAccountNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with BankAccount do begin
             LockTable;
             Get(BankAccountNo);
@@ -200,6 +207,11 @@ codeunit 10098 "Generate EFT"
                 ProcessOrderNo := ProcessOrderNo - 1;
             until ProcessOrderNo = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitalChecks(BankAccountNo: Code[20]; var IsHandled: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

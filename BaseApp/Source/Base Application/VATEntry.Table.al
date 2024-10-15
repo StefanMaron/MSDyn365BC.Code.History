@@ -414,6 +414,13 @@ table 254 "VAT Entry"
             OptionCaption = ' ,Acquisition,Self Assessment,Rebate,New Housing Rebates,Pension Rebate';
             OptionMembers = " ",Acquisition,"Self Assessment",Rebate,"New Housing Rebates","Pension Rebate";
         }
+        field(27040; "DIOT-Type of Operation"; Option)
+        {
+            Caption = 'DIOT Type of Operation';
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to extension';
+            OptionMembers = " ","Prof. Services","Lease and Rent","Others";
+        }
     }
 
     keys

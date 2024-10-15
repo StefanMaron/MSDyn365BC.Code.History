@@ -122,6 +122,7 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        FileManagement: Codeunit "File Management";
         AmountDue1Cap: Label 'AmountDue_1_';
         AmountDue2Cap: Label 'AmountDue_2_';
         AmountDue3Cap: Label 'AmountDue_3_';
@@ -1549,6 +1550,24 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseAdviceSaveAsPDFReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintPurchaseAdvice()
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Purchase] [UT]
+        // [SCENARIO 333888] Report "Purchase Advice" can be printed without RDLC rendering errors
+        Initialize;
+
+        // [WHEN] Report "Purchase Advice" is being printed to PDF
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order);
+        RunPurchaseAdviceReport(WorkDate, SalesLine."No.");
+
+        // [THEN] No RDLC rendering errors
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2659,6 +2678,20 @@ codeunit 142062 "ERM Misc. Report III"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseAdviceSaveAsPDFReqPageHandler(var PurchaseAdvice: TestRequestPage "Purchase Advice")
+    var
+        PostingDate: Variant;
+        ItemNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(PostingDate);
+        LibraryVariableStorage.Dequeue(ItemNo);
+        PurchaseAdvice.Item.SetFilter("Date Filter", Format(PostingDate));
+        PurchaseAdvice.Item.SetFilter("No.", ItemNo);
+        PurchaseAdvice.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 }
 

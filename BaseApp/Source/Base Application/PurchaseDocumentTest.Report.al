@@ -980,7 +980,7 @@ report 402 "Purchase Document - Test"
                                 end;
 
                                 if (Type >= Type::"G/L Account") and ("Qty. to Invoice" <> 0) then
-                                    if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+                                    if GLSetup."VAT in Use" then
                                         if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
                                             AddError(
                                               StrSubstNo(
@@ -2158,6 +2158,8 @@ report 402 "Purchase Document - Test"
     end;
 
     local procedure CheckPurchLine(PurchaseLine: Record "Purchase Line")
+    var
+        ErrorText: Text[250];
     begin
         with PurchaseLine do
             case Type of
@@ -2233,6 +2235,11 @@ report 402 "Purchase Document - Test"
                                   StrSubstNo(
                                     Text008,
                                     FA.TableCaption, "No."));
+                    end;
+                else begin
+                        OnCheckPurchLineCaseTypeElse(Type, "No.", ErrorText);
+                        if ErrorText <> '' then
+                            AddError(ErrorText);
                     end;
             end;
     end;
@@ -2578,6 +2585,11 @@ report 402 "Purchase Document - Test"
                               StrSubstNo(Text010, Format("Posting Date")))
                     end;
                 end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckPurchLineCaseTypeElse(LineType: Option; "No.": Code[20]; var ErrorText: Text[250])
+    begin
     end;
 }
 

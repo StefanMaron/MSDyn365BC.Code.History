@@ -56,6 +56,7 @@ codeunit 10085 "A/P Magnetic Media Management"
         Codes: array[3, 30] of Code[10];
         Amounts: array[3, 30] of Decimal;
         FormatAddress: Codeunit "Format Address";
+        IRS1099Management: Codeunit "IRS 1099 Management";
         Totals: array[3, 30] of Decimal;
         FormBox: Record "IRS 1099 Form-Box";
         CodeNotSetupErr: Label 'The 1099 code %1 has not been setup in the initialization.', Comment = '%1 = 1099 Code';
@@ -78,14 +79,16 @@ codeunit 10085 "A/P Magnetic Media Management"
     procedure UpdateLines(InvoiceEntry: Record "Vendor Ledger Entry"; i: Integer; EndLine: Integer; "Code": Code[10]; Amount: Decimal): Integer
     var
         j: Integer;
+        AdjmtAmount: Decimal;
     begin
         j := 1;
         while (Codes[i, j] <> Code) and (j <= EndLine) do
             j := j + 1;
 
         if (Codes[i, j] = Code) and (j <= EndLine) then begin
-            Amounts[i, j] := Amounts[i, j] + Amount;
-            Totals[i, j] := Totals[i, j] + Amount;
+            AdjmtAmount := IRS1099Management.GetAdjustmentAmount(InvoiceEntry);
+            Amounts[i, j] += Amount + AdjmtAmount;
+            Totals[i, j] += Amount + AdjmtAmount;
         end else
             Error(Unknown1099CodeErr, InvoiceEntry."Entry No.", InvoiceEntry."Vendor No.", Code);
         exit(j); // returns code index found

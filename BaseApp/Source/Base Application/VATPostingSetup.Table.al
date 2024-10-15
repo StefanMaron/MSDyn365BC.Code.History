@@ -168,6 +168,13 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Description';
         }
+        field(27010; "DIOT-WHT %"; Decimal)
+        {
+            Caption = 'DIOT WHT Percent';
+            MinValue = 0;
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Moved to extension';
+        }
     }
 
     keys

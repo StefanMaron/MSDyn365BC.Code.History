@@ -178,6 +178,11 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that an extra VAT specification in local currency will be included on documents in a foreign currency. This can be used to make tax audits easier when reconciling VAT payables to invoices.';
                 }
+                field("VAT in Use"; "VAT in Use")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip='Specifies if you are posting US or CA sales tax and do not want to have to set up posting groups on G/L accounts.';
+                }
                 field("Use Legacy G/L Entry Locking"; "Use Legacy G/L Entry Locking")
                 {
                     ApplicationArea = Basic, Suite;

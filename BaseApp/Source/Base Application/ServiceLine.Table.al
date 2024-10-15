@@ -2666,7 +2666,6 @@ table 5902 "Service Line"
         CatalogItemMgt: Codeunit "Catalog Item Management";
         ReserveServLine: Codeunit "Service Line-Reserve";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         Select: Integer;
         FullAutoReservation: Boolean;
         HideReplacementDialog: Boolean;
@@ -3273,7 +3272,8 @@ table 5902 "Service Line"
         "Unit Price" := ServCost."Default Unit Price";
         "Unit of Measure Code" := ServCost."Unit of Measure Code";
         GLAcc.Get(ServCost."Account No.");
-        if not ApplicationAreaMgmt.IsSalesTaxEnabled then
+        GLSetup.Get;
+        if GLSetup."VAT in Use" then
             GLAcc.TestField("Gen. Prod. Posting Group");
         "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
         "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
@@ -4621,6 +4621,7 @@ table 5902 "Service Line"
         SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Outstanding Qty. (Base)", '<>0');
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
         OnAfterFilterLinesWithItemToPlan(Rec, Item);
     end;

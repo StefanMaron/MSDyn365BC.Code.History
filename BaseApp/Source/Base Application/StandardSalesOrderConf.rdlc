@@ -3755,6 +3755,7 @@
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
+                                                <LeftIndent>5pt</LeftIndent>
                                                 <Style />
                                               </Paragraph>
                                             </Paragraphs>
@@ -4012,13 +4013,26 @@
                                               <Hidden>=Fields!Type_Line.Value = " "</Hidden>
                                             </Visibility>
                                           </TablixMember>
+                                          <TablixMember>
+                                            <TablixMembers>
+                                              <TablixMember>
+                                                <Group Name="LineNo_AssemblyLine">
+                                                  <GroupExpressions>
+                                                    <GroupExpression>=Fields!LineNo_AssemblyLine.Value</GroupExpression>
+                                                  </GroupExpressions>
+                                                </Group>
+                                                <SortExpressions>
+                                                  <SortExpression>
+                                                    <Value>=Fields!LineNo_AssemblyLine.Value</Value>
+                                                  </SortExpression>
+                                                </SortExpressions>
+                                              </TablixMember>
+                                            </TablixMembers>
+                                            <Visibility>
+                                              <Hidden>=Fields!Quantity_AssemblyLine.Value = 0</Hidden>
+                                            </Visibility>
+                                          </TablixMember>
                                         </TablixMembers>
-                                      </TablixMember>
-                                      <TablixMember>
-                                        <Visibility>
-                                          <Hidden>=Fields!Quantity_AssemblyLine.Value = 0</Hidden>
-                                        </Visibility>
-                                        <KeepWithGroup>Before</KeepWithGroup>
                                       </TablixMember>
                                     </TablixMembers>
                                   </TablixMember>
@@ -4792,7 +4806,7 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <KeepTogether>true</KeepTogether>
-                              <Top>11.24876cm</Top>
+                              <Top>11.56626cm</Top>
                               <Height>0.77612cm</Height>
                               <Width>7.8cm</Width>
                               <ZIndex>4</ZIndex>
@@ -5259,7 +5273,7 @@
                               <Left>0.09699cm</Left>
                               <Height>0.4cm</Height>
                               <Width>18.30602cm</Width>
-                              <ZIndex>7</ZIndex>
+                              <ZIndex>6</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
