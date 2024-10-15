@@ -466,6 +466,8 @@ codeunit 5819 "Undo Service Consumption Line"
         NewServiceShipmentLine."Quantity Consumed" := NewServiceShipmentLine.Quantity;
         NewServiceShipmentLine."Qty. Consumed (Base)" := NewServiceShipmentLine."Quantity (Base)";
         NewServiceShipmentLine.Correction := true;
+
+        OnInsertCorrectiveShipmentLineOnBeforeInsert(NewServiceShipmentLine, OldServiceShipmentLine);
         NewServiceShipmentLine.Insert();
 
         UpdateItemJnlLine(NewServiceShipmentLine, ItemShptEntryNo);
@@ -589,6 +591,11 @@ codeunit 5819 "Undo Service Consumption Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostResourceJnlLineOnBeforeResJnlPostLine(var ResJournalLine: Record "Res. Journal Line"; var ServiceShipmentHeader: Record "Service Shipment Header"; var ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertCorrectiveShipmentLineOnBeforeInsert(var NewServiceShipmentLine: Record "Service Shipment Line"; OldServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 }

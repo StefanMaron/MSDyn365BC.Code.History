@@ -71,14 +71,23 @@ report 4406 "EXR Trial BalanceBudgetExcel"
             column(Dim2Name; Dimension2.Name) { IncludeCaption = true; }
         }
     }
+    requestpage
+    {
+        SaveValues = true;
+        AboutTitle = 'Trial Balance/Budget Excel';
+        AboutText = 'This report contains aggregated general ledger data for the trial balance with debit/credit columns for net change and balance. A report is shown for both local currency (LCY) and additional reporting currency (ACY, the latter only showing data if Additional Reporting Currency is in use. In addition to debit/credit for net change and balance the report shows the net debit/credit amount for both net change and balance for comparison. The aggregation is for the period specified in the report''s request page''s Datefilter parameter and summarized per the 2 global dimensions per g/l account category.';
+    }
     rendering
     {
         layout(TrialBalanceBudgetExcelLayout)
         {
             Type = Excel;
             LayoutFile = './ReportLayouts/Excel/GeneralLedger/TrialBalanceBudgetExcel.xlsx';
+            Caption = 'Trial Balance/Budget Excel';
+            Summary = 'Built in layout for Trial Balance/Budget Excel. Customer facing sheet contains a pivot table that shows the account balance in local currency and additional reporting currencies. Report uses Query connections.';
         }
     }
+
     labels
     {
         DataRetrieved = 'Data retrieved:';

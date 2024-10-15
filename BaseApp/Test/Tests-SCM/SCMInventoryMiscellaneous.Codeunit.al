@@ -204,6 +204,80 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     end;
 
     [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandlerExtended,CarryOutActionMsgPlanRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CalcOrderPlanRecalculateReqPlanWithFrozenZone()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        BatchName: Code[10];
+    begin
+        // [FEATURE] [Planning Worksheet] [Production Order] 
+        // [SCENARIO 502388] Calculate Order Plan and Recalculate Requisition Plan for Item with Frozen period. Specific scenario.
+        Initialize();
+
+        // [GIVEN] Create Item
+        CreateItem(Item, Item."Replenishment System"::"Prod. Order");
+        Item."Reordering Policy" := Item."Reordering Policy"::"Lot-for-Lot";
+        Evaluate(Item."Rescheduling Period", '215D');
+        Item.Modify();
+
+        // [GIVEN] Create Sales Order with 3 lines same item, different shipment dates.
+        CreateSalesOrderWithSameItemAndDifferentShipmentDate(Item);
+
+        // [GIVEN] Calculate Regen Plan for first 2 lines.
+        BatchName := CreateRequisitionWorksheetName(PAGE::"Planning Worksheet");
+        EnqueueFiltersForCalcRegenPlan(CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()), Item."No.", '', '');
+        OpenPlanWkshPageForCalcRegenPlan(BatchName);
+
+        FindRequisitionLine(RequisitionLine, Item."No.", '');
+        Assert.AreEqual(RequisitionLine.Count, 2, 'Requisition Line Count is' + Format(RequisitionLine.Count));
+
+        // [GIVEN] Accept and Carry Out Action
+        OpenPlanWkshPageForCalcPlanAndCarryOutAction(BatchName);
+
+        // [WHEN] Calculate Regen Plan for 3rd line.
+        EnqueueFiltersForCalcRegenPlan(DMY2Date(2, 12, Date2DMY(WorkDate(), 3)), CalcDate('<CY+1Y>', WorkDate()), Item."No.", '', '');
+        OpenPlanWkshPageForCalcRegenPlan(BatchName);
+
+        // [THEN] Verify that system generate just one line for the 3rd line of sales order.
+        FindRequisitionLine(RequisitionLine, Item."No.", '');
+        RequisitionLine.FindLast();
+        RequisitionLine.TestField("Action Message", RequisitionLine."Action Message"::New);
+        RequisitionLine.TestField("Quantity", 20);
+    end;
+
+    local procedure CreateSalesOrderWithSameItemAndDifferentShipmentDate(Item: Record Item)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        CreateSalesLineWithShipmentDate(SalesHeader, Item."No.", 10, DMY2Date(1, 7, Date2DMY(WorkDate(), 3)));
+        CreateSalesLineWithShipmentDate(SalesHeader, Item."No.", 15, DMY2Date(1, 12, Date2DMY(WorkDate(), 3)));
+        CreateSalesLineWithShipmentDate(SalesHeader, Item."No.", 20, DMY2Date(1, 2, Date2DMY(WorkDate(), 3) + 1));
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateSalesLineWithShipmentDate(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Qty: Decimal; ShipmentDate: Date)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
+        SalesLine.Validate("Shipment Date", ShipmentDate);
+        SalesLine.Modify();
+    end;
+
+    local procedure EnqueueFiltersForCalcRegenPlan(FromDate: Date; ToDate: Date; ItemFilter: Text; LocationFilter: Text; VariantFilter: Text)
+    begin
+        LibraryVariableStorage.Enqueue(FromDate);
+        LibraryVariableStorage.Enqueue(ToDate);
+        LibraryVariableStorage.Enqueue(ItemFilter);
+        LibraryVariableStorage.Enqueue(LocationFilter);
+        if VariantFilter <> '' then
+            LibraryVariableStorage.Enqueue(VariantFilter);
+    end;
+
+    [Test]
     [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ForecastWithVariantCodeCreatesReqLineWithoutVariantCodeWhenVariantSwitchIsOFFInManufSetup()
@@ -1780,6 +1854,27 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         PlanningWorksheet.OK().Invoke();
     end;
 
+    local procedure OpenPlanWkshPageForCalcPlanAndCarryOutAction(Name: Code[10])
+    var
+        PlanningWorksheet: TestPage "Planning Worksheet";
+    begin
+        Commit();
+        PlanningWorksheet.OpenEdit();
+        PlanningWorksheet.CurrentWkshBatchName.SetValue(Name);
+        PlanningWorksheet.Last();
+        repeat
+            PlanningWorksheet."Accept Action Message".SetValue(Format(true));
+        until not PlanningWorksheet.Previous();
+
+        // [GIVEN] Filter the planning worksheet by "Accept Action Message" = TRUE.
+        PlanningWorksheet.FILTER.SetFilter("Accept Action Message", Format(true));
+
+        // [WHEN] Carry out action message for the planning worksheet with enabled "Combine Transfer Orders".
+        Commit();
+        LibraryVariableStorage.Enqueue(true);
+        PlanningWorksheet.CarryOutActionMessage.Invoke();
+    end;
+
     local procedure OpenReqWkshPageForCalcPlanAndCarryOutAction(Name: Code[10]; CarryOutAction: Boolean)
     var
         ReqWorksheet: TestPage "Req. Worksheet";
@@ -2751,6 +2846,21 @@ codeunit 137293 "SCM Inventory Miscellaneous"
             CalculatePlanPlanWksh.Item.SetFilter("Variant Filter", LibraryVariableStorage.DequeueText());
         CalculatePlanPlanWksh.StartingDate.SetValue(CalcDate('<-CM>', WorkDate()));
         CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<CM>', WorkDate()));
+        CalculatePlanPlanWksh.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalculatePlanPlanWkshRequestPageHandlerExtended(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
+    begin
+        CurrentSaveValuesId := REPORT::"Calculate Plan - Plan. Wksh.";
+
+        CalculatePlanPlanWksh.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        CalculatePlanPlanWksh.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        CalculatePlanPlanWksh.Item.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CalculatePlanPlanWksh.Item.SetFilter("Location Filter", LibraryVariableStorage.DequeueText());
+        if LibraryVariableStorage.Length() = 1 then
+            CalculatePlanPlanWksh.Item.SetFilter("Variant Filter", LibraryVariableStorage.DequeueText());
         CalculatePlanPlanWksh.OK().Invoke();
     end;
 

@@ -11,7 +11,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = rimd,
                   TableData "Warehouse Register" = rimd,
-                  TableData "Bin Content" = rimd;        
+                  TableData "Bin Content" = rimd;
     TableNo = "Warehouse Journal Line";
 
     trigger OnRun()
@@ -35,6 +35,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     local procedure "Code"()
     var
         GlobalWhseEntry: Record "Warehouse Entry";
+        LastWhseEntryNo: Integer;
     begin
         OnBeforeCode(WhseJnlLine, WhseEntryNo);
 
@@ -42,10 +43,10 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             exit;
         WhseJnlLine.TestField("Item No.");
         GetLocation(WhseJnlLine."Location Code");
-        if WhseEntryNo = 0 then begin
-            GlobalWhseEntry.LockTable();
-            WhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
-        end;
+        GlobalWhseEntry.LockTable();
+        LastWhseEntryNo := GlobalWhseEntry.GetLastEntryNo();
+        if LastWhseEntryNo > WhseEntryNo then
+            WhseEntryNo := LastWhseEntryNo;
 
         OnCodeOnAfterGetLastEntryNo(WhseJnlLine);
 
@@ -383,7 +384,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             CheckDefaultBin(WhseEntry, BinContent);
             BinContent.Fixed := BinContent.Default;
         end;
-        OnBeforeBinContentInsert(BinContent, WhseEntry);
+        OnBeforeBinContentInsert(BinContent, WhseEntry, Bin);
         BinContent.Insert();
     end;
 
@@ -573,7 +574,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBinContentInsert(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry");
+    local procedure OnBeforeBinContentInsert(var BinContent: Record "Bin Content"; WarehouseEntry: Record "Warehouse Entry"; Bin: Record Bin);
     begin
     end;
 

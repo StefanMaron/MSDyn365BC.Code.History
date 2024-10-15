@@ -76,6 +76,8 @@ codeunit 137051 "SCM Warehouse - III"
         ExpiredItemsNotPickedMsg: Label 'Some items were not included in the pick due to their expiration date.';
         ZoneCodeMustMatchErr: Label 'Zone Code must match.';
         WhseActivityHeaderMustNotBeEmpty: Label 'Warehouse Activity Header must not be empty.';
+        ExpirationDateCalcFormula: Label '<CY-1Y>';
+        ExpirationDateMustNotBeEmptyErr: Label 'Expiration Date must not be empty.';
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler,QuantityToCreatePageHandler,ConfirmHandler,PickActivitiesMessageHandler')]
@@ -5494,6 +5496,107 @@ codeunit 137051 "SCM Warehouse - III"
         Assert.IsFalse(WarehouseActivityHeader.IsEmpty(), WhseActivityHeaderMustNotBeEmpty);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingAssignLotNoPageHandler,MessageHandler,ConfirmHandler2')]
+    [Scope('OnPrem')]
+    procedure ExpirationDateIsPopulatedInInvPickLinesFromSalesOrderItemTracking()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Location: Record Location;
+        ItemTrackingCode: Record "Item Tracking Code";
+        WarehouseEmployee: Record "Warehouse Employee";
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReservationEntry: Record "Reservation Entry";
+        ExpirationDate: Date;
+        LotNo: Code[50];
+        AssemblyOrder: TestPage "Assembly Order";
+    begin
+        // [SCENARIO 507008] Expiration Date is populated in Inventory Pick Lines when Stan manually enters Expiration Date in Assembly Header's Item Tracking Lines and then creates Inventory Pick From Sales Order.
+        Initialize();
+
+        // [GIVEN] Create Location & Validate Require Put-away, Require Pick and Asm. Consump. Whse. Handling.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Require Pick", true);
+        Location.Validate("Asm. Consump. Whse. Handling", Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Modify(true);
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Item Tracking Code and Validate Use Expiration Dates and Man. Expir. Date Entry Reqd.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create Item and Validate Replenishment System, Assembly Policy and Item Tracking Code.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create Item 2 and Validate Replenishment System.
+        LibraryInventory.CreateItem(Item2);
+        Item2.Validate("Replenishment System", Item2."Replenishment System"::Purchase);
+        Item2.Modify(true);
+
+        // [GIVEN] Create and post Purchase Order.
+        CreateAndPostPurchaseOrder(PurchaseHeader, Item2."No.", Location.Code);
+
+        // [GIVEN] Create Sales Order.
+        CreateSalesOrder(SalesHeader, Item."No.", Location.Code);
+
+        // [GIVEN] Find Assembly Header.
+        AssemblyHeader.SetRange("Item No.", Item."No.");
+        AssemblyHeader.FindFirst();
+
+        // [GIVEN] Create Assembly Line and Validate Location Code.
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item2."No.", Item2."Base Unit of Measure", LibraryRandom.RandInt(0), LibraryRandom.RandInt(0), '');
+        AssemblyLine.Validate("Location Code", Location.Code);
+        AssemblyLine.Modify(true);
+
+        // [GIVEN] Generate and save Expiration Date and Lot No. in two different Variables.
+        ExpirationDate := CalcDate(ExpirationDateCalcFormula, WorkDate());
+        LotNo := Format(LibraryRandom.RandText(3));
+
+        // [GIVEN] Open Assembly Order page and run Item Tracking Lines action.
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.GoToRecord(AssemblyHeader);
+        LibraryVariableStorage.Enqueue(TrackingAction::LotNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(ExpirationDate);
+        AssemblyOrder."Item Tracking Lines".Invoke();
+
+        // [GIVEN] Release Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Find Reservation Entry.
+        ReservationEntry.SetRange("Item No.", Item."No.");
+        ReservationEntry.FindFirst();
+
+        // [GIVEN] Validate Lot No. and Expiration Date in Reservation Entry.
+        ReservationEntry.Validate("Lot No.", LotNo);
+        ReservationEntry.Validate("Expiration Date", ExpirationDate);
+        ReservationEntry.Modify(true);
+
+        // [GIVEN] Create Inventory PutAway/Pick/Movement.
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
+
+        // [WHEN] Find Warehouse Activity Header.
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.FindFirst();
+
+        // [VERIFY] Expiration Date is not empty in Warehouse Activity Line.
+        Assert.AreNotEqual(0D, WarehouseActivityLine."Expiration Date", ExpirationDateMustNotBeEmptyErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7423,6 +7526,34 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
+    local procedure CreateAndPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocCode: Code[10])
+    var
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandIntInRange(10, 10));
+        PurchaseLine.Validate("Location Code", LocCode);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocCode: Code[10])
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(0));
+        SalesLine.Validate("Location Code", LocCode);
+        SalesLine.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ProductionJournalPostOneHandler(var ProductionJournal: TestPage "Production Journal")
@@ -7751,6 +7882,24 @@ codeunit 137051 "SCM Warehouse - III"
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
         until ItemJournalLine.Next() = 0;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingAssignLotNoPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        DequeueVariable: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        TrackingAction := DequeueVariable;
+        case TrackingAction of
+            TrackingAction::LotNo:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Expiration Date".SetValue(LibraryVariableStorage.DequeueDate());
+                end;
+        end;
+        ItemTrackingLines.OK().Invoke();
     end;
 }
 

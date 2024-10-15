@@ -43,4 +43,27 @@ page 245 "Consolidations in Progress"
             }
         }
     }
+    actions
+    {
+        area(Processing)
+        {
+            action(SeeDetails)
+            {
+                ApplicationArea = All;
+                Caption = 'See Details';
+                ToolTip = 'See details of the consolidation process';
+                RunPageOnRec = true;
+                Scope = Repeater;
+                Image = ViewDetails;
+
+                trigger OnAction()
+                var
+                    ConsProcessDetails: Page "Cons. Process Details";
+                begin
+                    ConsProcessDetails.SetConsolidationProcess(Rec.Id);
+                    ConsProcessDetails.Run();
+                end;
+            }
+        }
+    }
 }

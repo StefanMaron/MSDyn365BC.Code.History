@@ -67,6 +67,8 @@ codeunit 137072 "SCM Production Orders II"
         TimeShiftedOnParentLineMsg: Label 'The production starting date-time of the end item has been moved forward because a subassembly is taking longer than planned.';
         DateConflictInReservErr: Label 'The change leads to a date conflict with existing reservations.';
         QuantityErr: Label '%1 must be %2 in %3', Comment = '%1: Quantity, %2: Consumption Quantity Value, %3: Item Ledger Entry';
+        ILENoOfRecordsMustNotBeZeroErr: Label 'Item Ledger Entry No. of Records must not be zero.';
+        ItemLedgerEntryMustBeFoundErr: Label 'Item Ledger Entry must be found.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4312,6 +4314,259 @@ codeunit 137072 "SCM Production Orders II"
                 ItemLedgerEntry.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ProductionJournalPageHandler,GLPostingPreviewPageHandler')]
+    procedure PreviewPostingOfProductionJournalPostsCorrectConsumptionILE()
+    var
+        Item, Item2 : Record Item;
+        ProductionOrder, ProductionOrder2 : Record "Production Order";
+        ItemJournalLine: Record "Item Journal Line";
+        ReleasedProdOrder: TestPage "Released Production Order";
+    begin
+        // [SCENARIO 501883] When Preview Post or Post Production Journal From a Released Production Order, it creates correct Item Ledger Entries even if there is a Consumption Journal Line of completely different Production Order No. in Consumption Journal.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 10),
+            '',
+            '');
+
+        // [GIVEN] Create Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create and Refresh Production Order 2.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder2,
+            ProductionOrder2.Status::Released,
+            Item2."No.",
+            LibraryRandom.RandIntInRange(10, 10),
+            '',
+            '');
+
+        // [GIVEN] Create Consumption Journal Line for Production Order 2.
+        CreateConsumptionJournalLine(
+            ItemJournalLine,
+            ProductionOrder2."No.",
+            Item2."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        // [WHEN] Open Released Production Order page and run Production Journal action.
+        ReleasedProdOrder.OpenEdit();
+        ReleasedProdOrder.GoToRecord(ProductionOrder);
+        ReleasedProdOrder.ProdOrderLines.ProductionJournal.Invoke();
+
+        // [VERIFY] Item Ledger Entry No. of Records in Posting Preview is not zero.
+        Assert.AreNotEqual(0, LibraryVariableStorage.DequeueInteger(), ILENoOfRecordsMustNotBeZeroErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemTrackingAssignSerialNoPageHandler,ProductionJournalPageOutputEntryHandler,ConfirmHandler,MessageHandlerNoText')]
+    procedure NegativeQtyOutputEntryIsPostedEvenIfProdConsumpWhseHandlingIsWhsePickMandatoryInLocation()
+    var
+        CompItem, ProdItem : Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ProductionOrder: Record "Production Order";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SerialNo: Code[10];
+        Quantity: Decimal;
+        ReleasedProdOrder: TestPage "Released Production Order";
+    begin
+        // [SCENARIO 504492] Negative Output is posted from Production Journal without error even if Prod. Consump. Whse. Handling is  Warehouse Pick (mandatory) in Location.
+        Initialize();
+
+        // [GIVEN] Create a Unit of Measure Code.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create a Component Item with Unit of Measure and Validate Replenishment System.
+        CreateItemWithUOM(CompItem, UnitOfMeasure, ItemUnitOfMeasure);
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::Purchase);
+        CompItem.Modify(true);
+
+        // [GIVEN] Create an Item Tracking Code.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+
+        // [GIVEN] Create a Location with Prod. Consump. Whse. Handling.
+        CreateLocationWithProdConsumpWhseHandling(Location);
+
+        // [GIVEN] Create a Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+
+        // [GIVEN] Create a Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create an Item Journal Line.
+        CreateItemJournalLine(ItemJournalLine, CompItem."No.", LibraryRandom.RandIntInRange(5, 5), '', '');
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create a production BOM for the Production Item.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ItemUnitOfMeasure.Code);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader,
+            ProductionBOMLine,
+            '',
+            ProductionBOMLine.Type::Item,
+            CompItem."No.",
+            LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Validate Unit of Measure Code in Production BOM.
+        ProductionBOMLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ProductionBOMLine.Modify(true);
+
+        // [GIVEN] Change Status of Production BOM.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Create a Production Item with Unit of Measure and Validate
+        // Replenishment System, Reordering Policy, Production BOM No. and Item Tracking Code.
+        CreateItemWithUOM(ProdItem, UnitOfMeasure, ItemUnitOfMeasure);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Reordering Policy", ProdItem."Reordering Policy"::Order);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProdItem."No.",
+            LibraryRandom.RandIntInRange(2, 2),
+            Location.Code,
+            Bin.Code);
+
+        // [GIVEN] Generate and save Serial No and Quantity in two different Variables.
+        SerialNo := Format(LibraryRandom.RandText(3));
+        Quantity := LibraryRandom.RandIntInRange(-1, -1);
+
+        // [GIVEN] Open Released Production Order page and run Production Journal action.
+        ReleasedProdOrder.OpenEdit();
+        ReleasedProdOrder.GoToRecord(ProductionOrder);
+        LibraryVariableStorage.Enqueue(ProductionOrder.Quantity);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::" ");
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(0));
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandText(3));
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(0));
+        ReleasedProdOrder.ProdOrderLines.ProductionJournal.Invoke();
+        ReleasedProdOrder.Close();
+
+        // [GIVEN] Open Released Production Order page again and run Production Journal action.
+        ReleasedProdOrder.OpenEdit();
+        ReleasedProdOrder.GoToRecord(ProductionOrder);
+        LibraryVariableStorage.Enqueue(Quantity);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(Quantity);
+        ReleasedProdOrder.ProdOrderLines.ProductionJournal.Invoke();
+
+        // [WHEN] Find Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Item No.", ProdItem."No.");
+        ItemLedgerEntry.SetRange(Quantity, Quantity);
+
+        // [VERIFY] Item Ledger Entry is found.
+        Assert.IsFalse(ItemLedgerEntry.IsEmpty(), ItemLedgerEntryMustBeFoundErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ProductionJournalPageHandlerPostOnlyOutput,ConfirmHandlerTrue,MessageHandler')]
+    procedure CalcConsumptionCreatesItemJnlLineOfQtySameAsExpectedQtyOfProdOrderComponent()
+    var
+        CompItem, ProdItem : Record Item;
+        CompItemUnitOfMeasure, ProdItemUnitOfMeasure : array[2] of Record "Item Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJnlLine: Record "Item Journal Line";
+        ProductionJournalMgt: codeunit "Production Journal Mgt";
+    begin
+        // [SCENARIO 504304] When stan creates a Released Production Order using Manual Flushing Method, Quantity calculated by Calcluate Consumption action in Consumption Journal must match with the Expected Quantity of Prod. Order Component.
+        Initialize();
+
+        // [GIVEN] Create Component Item with Item Unit of Measure Code and Validate Flushing Method.
+        CreateComponentItemWithItemUnitOfMeasureCode(CompItem, CompItemUnitOfMeasure);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Manual);
+        CompItem.Modify(true);
+
+        // [GIVEN] Create Production Item with Item Unit of Measure Code and Validate Flushing Method.
+        CreateProductionItemWithItemUnitOfMeasureCode(ProdItem, ProdItemUnitOfMeasure);
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::Manual);
+        ProdItem.Modify(true);
+
+        // [GIVEN] Create and Refresh Production Order.
+        CreateAndRefreshProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProdItem."No.",
+            LibraryRandom.RandIntInRange(400, 400),
+            '',
+            '');
+
+        // [GIVEN] Find Prod. Order Line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Find Prod. Order Component.
+        LibraryManufacturing.CreateProductionOrderComponent(
+            ProdOrderComponent,
+            ProdOrderLine.Status,
+            ProdOrderLine."Prod. Order No.",
+            ProdOrderLine."Line No.");
+
+        // [GIVEN] Validate Item No., Quantity per, Scrap %, Length, Width, Depth and Calculation Formula in Prod. Order Component.
+        ProdOrderComponent.Validate("Item No.", CompItem."No.");
+        ProdOrderComponent.Validate("Quantity per", LibraryRandom.RandIntInRange(140, 140));
+        ProdOrderComponent.Validate("Scrap %", LibraryRandom.RandIntInRange(3, 3));
+        ProdOrderComponent.Validate(Length, LibraryRandom.RandIntInRange(2, 2));
+        ProdOrderComponent.Validate(Width, LibraryRandom.RandIntInRange(2, 2));
+        ProdOrderComponent.Validate(Depth, LibraryRandom.RandInt(0));
+        ProdOrderComponent.Validate("Calculation Formula", ProdOrderComponent."Calculation Formula"::"Length * Width * Depth");
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Post Production Journal.
+        LibraryVariableStorage.Enqueue(ProdOrderLine.Quantity);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalQst);
+        LibraryVariableStorage.Enqueue(PostingProductionJournalTxt);
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Create Consumption Journal using Calculate Consumption.
+        CreateConsumptionJournal(ProductionOrder."No.");
+
+        // [WHEN] Find Item Journal Line.
+        ItemJnlLine.SetRange("Item No.", CompItem."No.");
+        ItemJnlLine.SetRange("Entry Type", ItemJnlLine."Entry Type"::Consumption);
+        ItemJnlLine.FindFirst();
+
+        // [VERIFY] Expected Quantity of Prod. Order Component and Quanity of Item Journal Line are same.
+        Assert.AreEqual(
+            ProdOrderComponent."Expected Quantity",
+            ItemJnlLine.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                ItemJnlLine.FieldCaption(Quantity),
+                ProdOrderComponent."Expected Quantity",
+                ItemJnlLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6051,6 +6306,78 @@ codeunit 137072 "SCM Production Orders II"
         LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
     end;
 
+    local procedure CreateConsumptionJournalLine(
+        var ItemJournalLine: Record "Item Journal Line";
+        ProdOrderNo: Code[20];
+        ItemNo: Code[20];
+        Qty: Decimal)
+    var
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJnlBatch: Record "Item Journal Batch";
+    begin
+        InitItemJournalBatch(ItemJnlBatch, ItemJnlBatch."Template Type"::Consumption);
+        ItemJournalLine.Init();
+        ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::Consumption;
+
+        ItemJnlTemplate.Get(ItemJnlBatch."Journal Template Name");
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+            ItemJournalLine,
+            ItemJnlBatch,
+            ItemJnlTemplate.Name,
+            ItemJnlBatch.Name,
+            ItemJournalLine."Entry Type"::Consumption);
+
+        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.Validate("Order No.", ProdOrderNo);
+        ItemJournalLine.Validate("Item No.", ItemNo);
+        ItemJournalLine.Validate(Quantity, Qty);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure InitItemJournalBatch(var ItemJnlBatch: Record "Item Journal Batch"; TemplateType: Enum "Item Journal Template Type")
+    var
+        ItemJnlTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJnlTemplate, TemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJnlBatch, TemplateType, ItemJnlTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJnlTemplate, ItemJnlBatch);
+    end;
+
+    local procedure CreateItemWithUOM(
+        var Item: Record Item;
+        var UnitOfMeasure: Record "Unit of Measure";
+        var ItemUnitOfMeasure: Record "Item Unit of Measure")
+    begin
+        LibraryInventory.CreateItem(Item);
+
+        LibraryInventory.CreateItemUnitOfMeasure(
+            ItemUnitOfMeasure,
+            Item."No.",
+            UnitOfMeasure.Code,
+            LibraryRandom.RandInt(0));
+
+        Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateLocationWithProdConsumpWhseHandling(var Location: Record Location)
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Require Pick", true);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Location.Modify(true);
+    end;
+
+    local procedure CreateConsumptionJournal(ProductionOrderNo: Code[20])
+    begin
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+        LibraryManufacturing.CalculateConsumption(
+          ProductionOrderNo, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+    end;
+
     [ModalPageHandler]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
@@ -6149,6 +6476,77 @@ codeunit 137072 "SCM Production Orders II"
         ProductionJournal.Post.Invoke();
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.PreviewPosting.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingAssignSerialNoPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        DequeueVariable: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DequeueVariable);
+        ItemTrackingMode := DequeueVariable;
+        case ItemTrackingMode of
+            ItemTrackingMode::" ":
+                begin
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+                    ItemTrackingLines.Next();
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+                end;
+            ItemTrackingMode::"Select Entries":
+                begin
+                    ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+                end;
+        end;
+        ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageOutputEntryHandler(var ProductionJournal: TestPage "Production Journal")
+    var
+        EntryType: Enum "Item Ledger Entry Type";
+    begin
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Output), '');
+        ProductionJournal."Output Quantity".SetValue(LibraryVariableStorage.DequeueInteger());
+        ProductionJournal.ItemTrackingLines.Invoke();
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageHandlerPostOnlyOutput(var ProductionJournal: TestPage "Production Journal")
+    var
+        EntryType: Enum "Item Ledger Entry Type";
+        FlushingMethod: Enum "Flushing Method";
+    begin
+        ProductionJournal.FlushingFilter.SetValue(FlushingMethod::Manual);
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Consumption), '');
+        ProductionJournal.Quantity.SetValue(0);
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", EntryType::Output), '');
+        ProductionJournal."Output Quantity".SetValue(LibraryVariableStorage.DequeueInteger());
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GLPostingPreviewPageHandler(var ShowAllEntries: TestPage "G/L Posting Preview")
+    begin
+        ShowAllEntries.Filter.SetFilter("Table Name", 'Item Ledger Entry');
+        LibraryVariableStorage.Enqueue(ShowAllEntries."No. of Records".AsInteger());
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -6156,11 +6554,24 @@ codeunit 137072 "SCM Production Orders II"
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerNoText(Message: Text[1024])
+    begin
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), ConfirmMessage);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
         Reply := true;
     end;
 

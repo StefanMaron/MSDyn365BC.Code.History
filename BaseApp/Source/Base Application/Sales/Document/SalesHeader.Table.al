@@ -716,7 +716,14 @@ table 36 "Sales Header"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePaymentDiscount(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not (CurrFieldNo in [0, FieldNo("Posting Date"), FieldNo("Document Date")]) then
                     TestStatusOpen();
                 GLSetup.Get();
@@ -3276,7 +3283,7 @@ table 36 "Sales Header"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnInsert(Rec, IsHandled);
+        OnBeforeOnInsert(Rec, IsHandled, InsertMode);
         if IsHandled then
             exit;
 
@@ -7420,11 +7427,17 @@ table 36 "Sales Header"
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
         NoOfSelected: Integer;
         NoOfSkipped: Integer;
+        PrevFilterGroup: Integer;
     begin
         NoOfSelected := SalesHeader.Count;
+        PrevFilterGroup := SalesHeader.FilterGroup();
+        SalesHeader.FilterGroup(10);
         SalesHeader.SetFilter(Status, '<>%1', SalesHeader.Status::Released);
         NoOfSkipped := NoOfSelected - SalesHeader.Count;
         BatchProcessingMgt.BatchProcess(SalesHeader, Codeunit::"Sales Manual Release", Enum::"Error Handling Options"::"Show Error", NoOfSelected, NoOfSkipped);
+        SalesHeader.SetRange(Status);
+        SalesHeader.FilterGroup(PrevFilterGroup);
+
     end;
 
     procedure PerformManualRelease()
@@ -10037,7 +10050,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnInsert(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeOnInsert(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var InsertMode: Boolean)
     begin
     end;
 
@@ -10206,6 +10219,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipmentDate(var SalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePaymentDiscount(var SalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

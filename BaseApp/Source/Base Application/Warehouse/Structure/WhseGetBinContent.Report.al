@@ -378,7 +378,7 @@ report 7391 "Whse. Get Bin Content"
         WarehouseEntry.Reset();
         WarehouseEntry.SetCurrentKey(
           "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
-          "Lot No.", "Serial No.", "Entry Type", Dedicated, "Package No.");
+          "Lot No.", "Package No.", "Serial No.", "Entry Type", Dedicated);
         WarehouseEntry.SetRange("Item No.", BinContent."Item No.");
         WarehouseEntry.SetRange("Bin Code", BinContent."Bin Code");
         WarehouseEntry.SetRange("Location Code", BinContent."Location Code");

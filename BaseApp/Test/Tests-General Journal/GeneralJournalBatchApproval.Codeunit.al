@@ -935,7 +935,7 @@ codeunit 134321 "General Journal Batch Approval"
 
         // [THEN] Verify error message
         Assert.ExpectedError(PreventModifyRecordWithOpenApprovalEntryMsg);
-    end;    
+    end;
 
     [Test]
     procedure ShowImposedRestrictionBatchStatusIfUserModifyGenJournalLineForApprovedApprovalRequest()
@@ -969,6 +969,41 @@ codeunit 134321 "General Journal Batch Approval"
         // [WHEN] Modify a Gen. Journal Line
         GenJournalLine.Validate(Amount, LibraryRandom.RandDec(100, 2));
         GenJournalLine.Modify(true);
+
+        // [THEN] Verify result
+        GeneralJournal.OpenView();
+        GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        Assert.AreEqual(ImposedRestrictionLbl, GeneralJournal.GenJnlBatchApprovalStatus.Value(), 'Imposed restriction is not shown');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure ShowImposedRestrictionBatchStatusForWorkflowUserGroupIfFirstApprovalEntryIsApproved()
+    var
+        Workflow: Record Workflow;
+        CurrentUserSetup: Record "User Setup";
+        IntermediateApproverUserSetup: Record "User Setup";
+        FinalApproverUserSetup: Record "User Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GeneralJournal: TestPage "General Journal";
+    begin
+        // [SCENARIO 526988] Show Imposed restriction batch status for Workflow User Group if first approval entry is auto approved
+        Initialize();
+
+        // [GIVEN] Copy Workflow Template
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode());
+
+        // [GIVEN] Setup - Create 3 user setups, create workflow user group and set the group for the workflow
+        LibraryDocumentApprovals.CreateUserSetupsAndGroupOfApproversForWorkflow(
+          Workflow, CurrentUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
+        LibraryWorkflow.EnableWorkflow(Workflow);
+
+        // [GIVEN] Non-empty Gen. Journal Batch
+        CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [WHEN] Approval request has been sent for Gen. Journal Batch
+        SendApprovalRequestBatch(GenJournalBatch.Name);
 
         // [THEN] Verify result
         GeneralJournal.OpenView();

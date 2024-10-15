@@ -35,6 +35,7 @@ codeunit 134159 "Test Price Calculation - V16"
         GetPriceFieldMismatchErr: Label 'The %1 in the selected price line must be %2.',
             Comment = '%1 - a field caption, %2 - a value of the field';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
+        TestFieldErr: Label '%1 must have a value', Comment = '%1 = Field Caption';
 
     [Test]
     procedure T001_SalesLineAddsActivatedCampaignOnHeaderAsSource()
@@ -5303,6 +5304,29 @@ codeunit 134159 "Test Price Calculation - V16"
         ServiceLine.TestField("Unit Price", PriceListLineSales."Unit Price");
 
         // Cleanup
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T292_PriceListLineForAllItemsNotAllowed()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        OldHandler: Enum "Price Calculation Handler";
+    begin
+        // [SCENARIO 506148] It is not possible to create price list with Product Type = Item without specifying item number.
+        Initialize();
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+
+        LibrarySales.CreateCustomer(Customer);
+        Item."No." := '';
+        Commit();
+
+        asserterror CreatePriceLine(PriceListLine, Customer, Item, true);
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(TestFieldErr, PriceListLine.FieldCaption("Asset No.")));
+
         LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
 

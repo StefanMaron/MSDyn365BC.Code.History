@@ -64,10 +64,10 @@ table 92 "Customer Posting Group"
             trigger OnValidate()
             begin
                 if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Service Charge Acc.", true, true)
+                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Service Charge Acc.", IsVATInUse(), true)
                 else
                     CheckGLAccount(
-                      FieldNo("Service Charge Acc."), "Service Charge Acc.", true, true, GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService());
+                      FieldNo("Service Charge Acc."), "Service Charge Acc.", IsVATInUse(), true, GLAccountCategory."Account Category"::Income, GLAccountCategoryMgt.GetIncomeService());
             end;
         }
         field(8; "Payment Disc. Debit Acc."; Code[20])
@@ -111,9 +111,9 @@ table 92 "Customer Posting Group"
             trigger OnValidate()
             begin
                 if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Invoice Rounding Account", true, false)
+                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Invoice Rounding Account", IsVATInUse(), false)
                 else
-                    CheckGLAccount(FieldNo("Invoice Rounding Account"), "Invoice Rounding Account", true, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Invoice Rounding Account"), "Invoice Rounding Account", IsVATInUse(), false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(10; "Additional Fee Account"; Code[20])
@@ -134,9 +134,9 @@ table 92 "Customer Posting Group"
             trigger OnValidate()
             begin
                 if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Additional Fee Account", true, true)
+                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Additional Fee Account", IsVATInUse(), true)
                 else
-                    CheckGLAccount(FieldNo("Additional Fee Account"), "Additional Fee Account", true, true, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Additional Fee Account"), "Additional Fee Account", IsVATInUse(), true, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(11; "Interest Account"; Code[20])
@@ -157,9 +157,9 @@ table 92 "Customer Posting Group"
             trigger OnValidate()
             begin
                 if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Interest Account", true, false)
+                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Interest Account", IsVATInUse(), false)
                 else
-                    CheckGLAccount(FieldNo("Interest Account"), "Interest Account", true, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Interest Account"), "Interest Account", IsVATInUse(), false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(12; "Debit Curr. Appln. Rndg. Acc."; Code[20])
@@ -347,9 +347,9 @@ table 92 "Customer Posting Group"
             trigger OnValidate()
             begin
                 if "View All Accounts on Lookup" then
-                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Add. Fee per Line Account", true, false)
+                    GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Add. Fee per Line Account", IsVATInUse(), false)
                 else
-                    CheckGLAccount(FieldNo("Add. Fee per Line Account"), "Add. Fee per Line Account", true, false, GLAccountCategory."Account Category"::Income, '');
+                    CheckGLAccount(FieldNo("Add. Fee per Line Account"), "Add. Fee per Line Account", IsVATInUse(), false, GLAccountCategory."Account Category"::Income, '');
             end;
         }
         field(20; Description; Text[100])
@@ -535,6 +535,12 @@ table 92 "Customer Posting Group"
     local procedure LookupGLAccount(var AccountNo: Code[20]; AccountCategory: Option; AccountSubcategoryFilter: Text)
     begin
         GLAccountCategoryMgt.LookupGLAccount(Database::"Customer Posting Group", CurrFieldNo, AccountNo, AccountCategory, AccountSubcategoryFilter);
+    end;
+
+    local procedure IsVATInUse(): Boolean
+    begin
+        GLSetup.Get();
+        exit(GLSetup."VAT in Use");
     end;
 
     [IntegrationEvent(false, false)]

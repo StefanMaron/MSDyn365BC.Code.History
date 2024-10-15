@@ -11,6 +11,190 @@
       <rd:DataSourceID>5c5a5f5b-c67c-452f-ac1a-d58caf535729</rd:DataSourceID>
     </DataSource>
   </DataSources>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+      <Fields>
+        <Field Name="CompanyInformation_Name">
+          <DataField>CompanyInformation_Name</DataField>
+        </Field>
+        <Field Name="STRSUBSTNO_Text003_AsOfDate_">
+          <DataField>STRSUBSTNO_Text003_AsOfDate_</DataField>
+        </Field>
+        <Field Name="STRSUBSTNO_Text006_Currency_Description_">
+          <DataField>STRSUBSTNO_Text006_Currency_Description_</DataField>
+        </Field>
+        <Field Name="Item_TABLECAPTION__________ItemFilter">
+          <DataField>Item_TABLECAPTION__________ItemFilter</DataField>
+        </Field>
+        <Field Name="ShowVariants">
+          <DataField>ShowVariants</DataField>
+        </Field>
+        <Field Name="ShowLocations">
+          <DataField>ShowLocations</DataField>
+        </Field>
+        <Field Name="ShowACY">
+          <DataField>ShowACY</DataField>
+        </Field>
+        <Field Name="ItemFilter">
+          <DataField>ItemFilter</DataField>
+        </Field>
+        <Field Name="STRSUBSTNO_Text004_InvPostingGroup_TABLECAPTION_InvPostingGroup_Code_InvPostingGroup_Description_">
+          <DataField>STRSUBSTNO_Text004_InvPostingGroup_TABLECAPTION_InvPostingGroup_Code_InvPostingGroup_Description_</DataField>
+        </Field>
+        <Field Name="Item__Inventory_Posting_Group_">
+          <DataField>Item__Inventory_Posting_Group_</DataField>
+        </Field>
+        <Field Name="Grouping">
+          <DataField>Grouping</DataField>
+        </Field>
+        <Field Name="Item__No__">
+          <DataField>Item__No__</DataField>
+        </Field>
+        <Field Name="STRSUBSTNO_Text009_FIELDCAPTION__Costing_Method____Costing_Method__">
+          <DataField>STRSUBSTNO_Text009_FIELDCAPTION__Costing_Method____Costing_Method__</DataField>
+        </Field>
+        <Field Name="Item_Description">
+          <DataField>Item_Description</DataField>
+        </Field>
+        <Field Name="STRSUBSTNO_Text005_InvPostingGroup_TABLECAPTION_InvPostingGroup_Code_InvPostingGroup_Description_">
+          <DataField>STRSUBSTNO_Text005_InvPostingGroup_TABLECAPTION_InvPostingGroup_Code_InvPostingGroup_Description_</DataField>
+        </Field>
+        <Field Name="Inventory_to_G_L_ReconciliationCaption">
+          <DataField>Inventory_to_G_L_ReconciliationCaption</DataField>
+        </Field>
+        <Field Name="CurrReport_PAGENOCaption">
+          <DataField>CurrReport_PAGENOCaption</DataField>
+        </Field>
+        <Field Name="InventoryValueCaption">
+          <DataField>InventoryValueCaption</DataField>
+        </Field>
+        <Field Name="ReceivedNotInvoicedCaption">
+          <DataField>ReceivedNotInvoicedCaption</DataField>
+        </Field>
+        <Field Name="ShippedNotInvoicedCaption">
+          <DataField>ShippedNotInvoicedCaption</DataField>
+        </Field>
+        <Field Name="TotalExpectedCostCaption">
+          <DataField>TotalExpectedCostCaption</DataField>
+        </Field>
+        <Field Name="ReceivedNotInvoicedPostedCaption">
+          <DataField>ReceivedNotInvoicedPostedCaption</DataField>
+        </Field>
+        <Field Name="ShippedNotInvoicedPostedCaption">
+          <DataField>ShippedNotInvoicedPostedCaption</DataField>
+        </Field>
+        <Field Name="NetExpectedCostPostedCaption">
+          <DataField>NetExpectedCostPostedCaption</DataField>
+        </Field>
+        <Field Name="NetExpectedCostNotPostedCaption">
+          <DataField>NetExpectedCostNotPostedCaption</DataField>
+        </Field>
+        <Field Name="AdjustFlagEntryCaption">
+          <DataField>AdjustFlagEntryCaption</DataField>
+        </Field>
+        <Field Name="TotalInvoicedValueCaption">
+          <DataField>TotalInvoicedValueCaption</DataField>
+        </Field>
+        <Field Name="InvoicedValuePostedCaption">
+          <DataField>InvoicedValuePostedCaption</DataField>
+        </Field>
+        <Field Name="InvoicedValueNotPostedCaption">
+          <DataField>InvoicedValueNotPostedCaption</DataField>
+        </Field>
+        <Field Name="Total_Inventory_ValueCaption">
+          <DataField>Total_Inventory_ValueCaption</DataField>
+        </Field>
+        <Field Name="RowLabel">
+          <DataField>RowLabel</DataField>
+        </Field>
+        <Field Name="RowLabelTotal">
+          <DataField>RowLabelTotal</DataField>
+        </Field>
+        <Field Name="ItemTotalText">
+          <DataField>ItemTotalText</DataField>
+        </Field>
+        <Field Name="InventoryValue">
+          <DataField>InventoryValue</DataField>
+        </Field>
+        <Field Name="InventoryValueFormat">
+          <DataField>InventoryValueFormat</DataField>
+        </Field>
+        <Field Name="ReceivedNotInvoiced">
+          <DataField>ReceivedNotInvoiced</DataField>
+        </Field>
+        <Field Name="ReceivedNotInvoicedFormat">
+          <DataField>ReceivedNotInvoicedFormat</DataField>
+        </Field>
+        <Field Name="ShippedNotInvoiced">
+          <DataField>ShippedNotInvoiced</DataField>
+        </Field>
+        <Field Name="ShippedNotInvoicedFormat">
+          <DataField>ShippedNotInvoicedFormat</DataField>
+        </Field>
+        <Field Name="TotalExpectedCost">
+          <DataField>TotalExpectedCost</DataField>
+        </Field>
+        <Field Name="TotalExpectedCostFormat">
+          <DataField>TotalExpectedCostFormat</DataField>
+        </Field>
+        <Field Name="ReceivedNotInvoicedPosted">
+          <DataField>ReceivedNotInvoicedPosted</DataField>
+        </Field>
+        <Field Name="ReceivedNotInvoicedPostedFormat">
+          <DataField>ReceivedNotInvoicedPostedFormat</DataField>
+        </Field>
+        <Field Name="ShippedNotInvoicedPosted">
+          <DataField>ShippedNotInvoicedPosted</DataField>
+        </Field>
+        <Field Name="ShippedNotInvoicedPostedFormat">
+          <DataField>ShippedNotInvoicedPostedFormat</DataField>
+        </Field>
+        <Field Name="NetExpectedCostPosted">
+          <DataField>NetExpectedCostPosted</DataField>
+        </Field>
+        <Field Name="NetExpectedCostPostedFormat">
+          <DataField>NetExpectedCostPostedFormat</DataField>
+        </Field>
+        <Field Name="NetExpectedCostNotPosted">
+          <DataField>NetExpectedCostNotPosted</DataField>
+        </Field>
+        <Field Name="NetExpectedCostNotPostedFormat">
+          <DataField>NetExpectedCostNotPostedFormat</DataField>
+        </Field>
+        <Field Name="TotalInvoicedValue">
+          <DataField>TotalInvoicedValue</DataField>
+        </Field>
+        <Field Name="TotalInvoicedValueFormat">
+          <DataField>TotalInvoicedValueFormat</DataField>
+        </Field>
+        <Field Name="InvoicedValuePosted">
+          <DataField>InvoicedValuePosted</DataField>
+        </Field>
+        <Field Name="InvoicedValuePostedFormat">
+          <DataField>InvoicedValuePostedFormat</DataField>
+        </Field>
+        <Field Name="InvoicedValueNotPosted">
+          <DataField>InvoicedValueNotPosted</DataField>
+        </Field>
+        <Field Name="InvoicedValueNotPostedFormat">
+          <DataField>InvoicedValueNotPostedFormat</DataField>
+        </Field>
+        <Field Name="ItemLedgerEntry_VariantCode">
+          <DataField>ItemLedgerEntry_VariantCode</DataField>
+        </Field>
+        <Field Name="ItemLedgerEntry_LocationCode">
+          <DataField>ItemLedgerEntry_LocationCode</DataField>
+        </Field>
+        <Field Name="AdjustFlagEntry">
+          <DataField>AdjustFlagEntry</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
   <ReportSections>
     <ReportSection>
       <Body>
@@ -93,6 +277,7 @@
                             <PaddingRight>2pt</PaddingRight>
                           </Style>
                         </Textbox>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell>
@@ -275,6 +460,7 @@
                           </Style>
                         </Textbox>
                         <ColSpan>2</ColSpan>
+                        <rd:Selected>true</rd:Selected>
                       </CellContents>
                     </TablixCell>
                     <TablixCell />
@@ -3249,9 +3435,13 @@
             <TablixRowHierarchy>
               <TablixMembers>
                 <TablixMember>
+                  <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
                   <KeepTogether>true</KeepTogether>
                 </TablixMember>
                 <TablixMember>
+                  <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
                   <KeepTogether>true</KeepTogether>
                 </TablixMember>
                 <TablixMember>
@@ -3657,188 +3847,4 @@ End Function
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
   <rd:ReportUnitType>Inch</rd:ReportUnitType>
   <rd:ReportID>a8ba7548-25a3-4cb2-8e6a-54b50334fef0</rd:ReportID>
-  <DataSets>
-    <DataSet Name="DataSet_Result">
-      <Fields>
-        <Field Name="CompanyInformation_Name">
-          <DataField>CompanyInformation_Name</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text003_AsOfDate_">
-          <DataField>STRSUBSTNO_Text003_AsOfDate_</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text006_Currency_Description_">
-          <DataField>STRSUBSTNO_Text006_Currency_Description_</DataField>
-        </Field>
-        <Field Name="Item_TABLECAPTION__________ItemFilter">
-          <DataField>Item_TABLECAPTION__________ItemFilter</DataField>
-        </Field>
-        <Field Name="ShowVariants">
-          <DataField>ShowVariants</DataField>
-        </Field>
-        <Field Name="ShowLocations">
-          <DataField>ShowLocations</DataField>
-        </Field>
-        <Field Name="ShowACY">
-          <DataField>ShowACY</DataField>
-        </Field>
-        <Field Name="ItemFilter">
-          <DataField>ItemFilter</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text004_InvPostingGroup_TABLECAPTION_InvPostingGroup_Code_InvPostingGroup_Description_">
-          <DataField>STRSUBSTNO_Text004_InvPostingGroup_TABLECAPTION_InvPostingGroup_Code_InvPostingGroup_Description_</DataField>
-        </Field>
-        <Field Name="Item__Inventory_Posting_Group_">
-          <DataField>Item__Inventory_Posting_Group_</DataField>
-        </Field>
-        <Field Name="Grouping">
-          <DataField>Grouping</DataField>
-        </Field>
-        <Field Name="Item__No__">
-          <DataField>Item__No__</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text009_FIELDCAPTION__Costing_Method____Costing_Method__">
-          <DataField>STRSUBSTNO_Text009_FIELDCAPTION__Costing_Method____Costing_Method__</DataField>
-        </Field>
-        <Field Name="Item_Description">
-          <DataField>Item_Description</DataField>
-        </Field>
-        <Field Name="STRSUBSTNO_Text005_InvPostingGroup_TABLECAPTION_InvPostingGroup_Code_InvPostingGroup_Description_">
-          <DataField>STRSUBSTNO_Text005_InvPostingGroup_TABLECAPTION_InvPostingGroup_Code_InvPostingGroup_Description_</DataField>
-        </Field>
-        <Field Name="Inventory_to_G_L_ReconciliationCaption">
-          <DataField>Inventory_to_G_L_ReconciliationCaption</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENOCaption">
-          <DataField>CurrReport_PAGENOCaption</DataField>
-        </Field>
-        <Field Name="InventoryValueCaption">
-          <DataField>InventoryValueCaption</DataField>
-        </Field>
-        <Field Name="ReceivedNotInvoicedCaption">
-          <DataField>ReceivedNotInvoicedCaption</DataField>
-        </Field>
-        <Field Name="ShippedNotInvoicedCaption">
-          <DataField>ShippedNotInvoicedCaption</DataField>
-        </Field>
-        <Field Name="TotalExpectedCostCaption">
-          <DataField>TotalExpectedCostCaption</DataField>
-        </Field>
-        <Field Name="ReceivedNotInvoicedPostedCaption">
-          <DataField>ReceivedNotInvoicedPostedCaption</DataField>
-        </Field>
-        <Field Name="ShippedNotInvoicedPostedCaption">
-          <DataField>ShippedNotInvoicedPostedCaption</DataField>
-        </Field>
-        <Field Name="NetExpectedCostPostedCaption">
-          <DataField>NetExpectedCostPostedCaption</DataField>
-        </Field>
-        <Field Name="NetExpectedCostNotPostedCaption">
-          <DataField>NetExpectedCostNotPostedCaption</DataField>
-        </Field>
-        <Field Name="AdjustFlagEntryCaption">
-          <DataField>AdjustFlagEntryCaption</DataField>
-        </Field>
-        <Field Name="TotalInvoicedValueCaption">
-          <DataField>TotalInvoicedValueCaption</DataField>
-        </Field>
-        <Field Name="InvoicedValuePostedCaption">
-          <DataField>InvoicedValuePostedCaption</DataField>
-        </Field>
-        <Field Name="InvoicedValueNotPostedCaption">
-          <DataField>InvoicedValueNotPostedCaption</DataField>
-        </Field>
-        <Field Name="Total_Inventory_ValueCaption">
-          <DataField>Total_Inventory_ValueCaption</DataField>
-        </Field>
-        <Field Name="RowLabel">
-          <DataField>RowLabel</DataField>
-        </Field>
-        <Field Name="RowLabelTotal">
-          <DataField>RowLabelTotal</DataField>
-        </Field>
-        <Field Name="ItemTotalText">
-          <DataField>ItemTotalText</DataField>
-        </Field>
-        <Field Name="InventoryValue">
-          <DataField>InventoryValue</DataField>
-        </Field>
-        <Field Name="InventoryValueFormat">
-          <DataField>InventoryValueFormat</DataField>
-        </Field>
-        <Field Name="ReceivedNotInvoiced">
-          <DataField>ReceivedNotInvoiced</DataField>
-        </Field>
-        <Field Name="ReceivedNotInvoicedFormat">
-          <DataField>ReceivedNotInvoicedFormat</DataField>
-        </Field>
-        <Field Name="ShippedNotInvoiced">
-          <DataField>ShippedNotInvoiced</DataField>
-        </Field>
-        <Field Name="ShippedNotInvoicedFormat">
-          <DataField>ShippedNotInvoicedFormat</DataField>
-        </Field>
-        <Field Name="TotalExpectedCost">
-          <DataField>TotalExpectedCost</DataField>
-        </Field>
-        <Field Name="TotalExpectedCostFormat">
-          <DataField>TotalExpectedCostFormat</DataField>
-        </Field>
-        <Field Name="ReceivedNotInvoicedPosted">
-          <DataField>ReceivedNotInvoicedPosted</DataField>
-        </Field>
-        <Field Name="ReceivedNotInvoicedPostedFormat">
-          <DataField>ReceivedNotInvoicedPostedFormat</DataField>
-        </Field>
-        <Field Name="ShippedNotInvoicedPosted">
-          <DataField>ShippedNotInvoicedPosted</DataField>
-        </Field>
-        <Field Name="ShippedNotInvoicedPostedFormat">
-          <DataField>ShippedNotInvoicedPostedFormat</DataField>
-        </Field>
-        <Field Name="NetExpectedCostPosted">
-          <DataField>NetExpectedCostPosted</DataField>
-        </Field>
-        <Field Name="NetExpectedCostPostedFormat">
-          <DataField>NetExpectedCostPostedFormat</DataField>
-        </Field>
-        <Field Name="NetExpectedCostNotPosted">
-          <DataField>NetExpectedCostNotPosted</DataField>
-        </Field>
-        <Field Name="NetExpectedCostNotPostedFormat">
-          <DataField>NetExpectedCostNotPostedFormat</DataField>
-        </Field>
-        <Field Name="TotalInvoicedValue">
-          <DataField>TotalInvoicedValue</DataField>
-        </Field>
-        <Field Name="TotalInvoicedValueFormat">
-          <DataField>TotalInvoicedValueFormat</DataField>
-        </Field>
-        <Field Name="InvoicedValuePosted">
-          <DataField>InvoicedValuePosted</DataField>
-        </Field>
-        <Field Name="InvoicedValuePostedFormat">
-          <DataField>InvoicedValuePostedFormat</DataField>
-        </Field>
-        <Field Name="InvoicedValueNotPosted">
-          <DataField>InvoicedValueNotPosted</DataField>
-        </Field>
-        <Field Name="InvoicedValueNotPostedFormat">
-          <DataField>InvoicedValueNotPostedFormat</DataField>
-        </Field>
-        <Field Name="ItemLedgerEntry_VariantCode">
-          <DataField>ItemLedgerEntry_VariantCode</DataField>
-        </Field>
-        <Field Name="ItemLedgerEntry_LocationCode">
-          <DataField>ItemLedgerEntry_LocationCode</DataField>
-        </Field>
-        <Field Name="AdjustFlagEntry">
-          <DataField>AdjustFlagEntry</DataField>
-        </Field>
-      </Fields>
-      <Query>
-        <DataSourceName>DataSource</DataSourceName>
-        <CommandText />
-      </Query>
-    </DataSet>
-  </DataSets>
 </Report>

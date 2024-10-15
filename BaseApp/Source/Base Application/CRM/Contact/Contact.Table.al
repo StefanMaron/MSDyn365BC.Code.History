@@ -878,7 +878,7 @@ table 5050 Contact
         }
         key(Key3; "Company Name", "Company No.", Type, Name)
         {
-            IncludedFields = "Phone No.", "Territory Code", "Salesperson Code", "E-Mail";
+            IncludedFields = "Phone No.", "Territory Code", "Salesperson Code", "E-Mail", Address, City, "Post Code", "Contact Business Relation";
         }
         key(Key4; "Company No.")
         {
@@ -1563,6 +1563,7 @@ table 5050 Contact
         ContBusRel."Business Relation Code" := RMSetup."Bus. Rel. Code for Customers";
         ContBusRel."Link to Table" := ContBusRel."Link to Table"::Customer;
         ContBusRel."No." := Cust."No.";
+        OnCreateCustomerFromTemplateOnBeforeContBusRelInsert(Rec, Cust, ContBusRel);
         ContBusRel.Insert(true);
 
         UpdateCustVendBank.UpdateCustomer(Rec, ContBusRel);
@@ -1680,6 +1681,7 @@ table 5050 Contact
         ContBusRel."Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
         ContBusRel."Link to Table" := ContBusRel."Link to Table"::Vendor;
         ContBusRel."No." := Vend."No.";
+        OnCreateVendorFromTemplateOnBeforeContBusRelInsert(Rec, Vend, ContBusRel);
         ContBusRel.Insert(true);
 
         OnAfterVendorInsert(Vend, Rec);
@@ -1773,6 +1775,7 @@ table 5050 Contact
         ContBusRel."Business Relation Code" := RMSetup."Bus. Rel. Code for Bank Accs.";
         ContBusRel."Link to Table" := ContBusRel."Link to Table"::"Bank Account";
         ContBusRel."No." := BankAcc."No.";
+        OnCreateBankAccountOnBeforeContBusRelInsert(Rec, BankAcc, ContBusRel);
         ContBusRel.Insert(true);
 
         CheckIfPrivacyBlockedGeneric();
@@ -1840,7 +1843,13 @@ table 5050 Contact
     procedure CreateBankAccountLink()
     var
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateBankAccountLink(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckIfPrivacyBlockedGeneric();
         TestField("Company No.");
         RMSetup.Get();
@@ -3841,6 +3850,26 @@ table 5050 Contact
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateEmployeeOnBeforeInitEmployeeNo(var Employee: Record Employee; var Contact: Record Contact; EmployeeTempl: Record "Employee Templ."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustomerFromTemplateOnBeforeContBusRelInsert(var Contact: Record Contact; var Customer: Record Customer; var ContactBusinessRelation: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendorFromTemplateOnBeforeContBusRelInsert(var Contact: Record Contact; var Vendor: Record Vendor; var ContactBusinessRelation: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateBankAccountOnBeforeContBusRelInsert(var Contact: Record Contact; var BankAccount: Record "Bank Account"; var ContactBusinessRelation: Record "Contact Business Relation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateBankAccountLink(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

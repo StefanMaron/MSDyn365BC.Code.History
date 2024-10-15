@@ -10,6 +10,7 @@ using System.IO;
 using System.Reflection;
 using System.Security.User;
 using System.Utilities;
+using System.Environment.Configuration;
 
 page 9650 "Custom Report Layouts"
 {
@@ -264,6 +265,22 @@ page 9650 "Custom Report Layouts"
                             Message(UpdateNotRequiredMsg, Format(Rec.Type));
                 end;
             }
+            action(MigrateToSystemLayouts)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Migrate to System Layouts';
+                ToolTip = 'Migrate the selected custom report layouts to system layouts.';
+
+                trigger OnAction()
+                var
+                    CustomReportLayout: Record "Custom Report Layout";
+                    FeatureReportSelection: Codeunit "Feature - Report Selection";
+                begin
+                    CustomReportLayout.Copy(Rec);
+                    CurrPage.SetSelectionFilter(CustomReportLayout);
+                    FeatureReportSelection.MigrateCustomReportLayouts(CustomReportLayout);
+                end;
+            }
         }
         area(reporting)
         {
@@ -334,6 +351,9 @@ page 9650 "Custom Report Layouts"
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+                actionref(MigrateToSystem_promoted; MigrateToSystemLayouts)
+                {
+                }
             }
         }
     }

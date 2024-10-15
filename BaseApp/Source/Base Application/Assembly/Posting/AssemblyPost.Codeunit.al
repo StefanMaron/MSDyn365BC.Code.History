@@ -1399,17 +1399,21 @@ codeunit 900 "Assembly-Post"
 
                     if IsATOHeader then begin
                         ATOLink.Get(AsmHeader."Document Type", AsmHeader."No.");
-                        ATOLink.TestField(Type, ATOLink.Type::Sale);
-                        SalesLine.Get(ATOLink."Document Type", ATOLink."Document No.", ATOLink."Document Line No.");
+                        IsHandled := false;
+                        OnBeforeRestoreItemTrackingOnBeforeCreateSalesAssemblyReservationEntry(ItemLedgEntry, AsmHeader, ATOLink, CreateReservEntry, FromTrackingSpecification, ReservStatus, IsHandled);
+                        if not IsHandled then begin
+                            ATOLink.TestField(Type, ATOLink.Type::Sale);
+                            SalesLine.Get(ATOLink."Document Type", ATOLink."Document No.", ATOLink."Document Line No.");
 
-                        CreateReservEntry.SetDisallowCancellation(true);
-                        CreateReservEntry.SetBinding("Reservation Binding"::"Order-to-Order");
+                            CreateReservEntry.SetDisallowCancellation(true);
+                            CreateReservEntry.SetBinding("Reservation Binding"::"Order-to-Order");
 
-                        FromTrackingSpecification.InitFromSalesLine(SalesLine);
-                        FromTrackingSpecification."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
-                        FromTrackingSpecification.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
-                        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
-                        ReservStatus := ReservStatus::Reservation;
+                            FromTrackingSpecification.InitFromSalesLine(SalesLine);
+                            FromTrackingSpecification."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
+                            FromTrackingSpecification.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+                            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+                            ReservStatus := ReservStatus::Reservation;
+                        end;
                     end else
                         ReservStatus := ReservStatus::Surplus;
                     CreateReservEntry.CreateEntry(
@@ -1761,6 +1765,11 @@ codeunit 900 "Assembly-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPossibleToUndo(PostedAssemblyHeader: Record "Posted Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRestoreItemTrackingOnBeforeCreateSalesAssemblyReservationEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; AssemblyHeader: Record "Assembly Header"; var ATOLink: Record "Assemble-to-Order Link"; var CreateReservEntry: Codeunit "Create Reserv. Entry"; var FromTrackingSpecification: Record "Tracking Specification"; var ReservStatus: Enum "Reservation Status"; var IsHandled: Boolean)
     begin
     end;
 }

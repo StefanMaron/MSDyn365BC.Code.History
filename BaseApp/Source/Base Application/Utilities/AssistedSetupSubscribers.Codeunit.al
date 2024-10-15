@@ -174,7 +174,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         SetupCopilotAICapabilitiesTitleTxt: Label 'Set up Copilot & AI capabilities';
         SetupCopilotAICapabilitiesShortTitleTxt: Label 'Set up Copilot & AI capabilities', MaxLength = 50;
         SetupCopilotAICapabilitiesDescriptionTxt: Label 'Set up Copilot & AI capabilities to unlock AI-powered experiences.';
-        SetupCopilotAICapabilitiesHelpTxt: Label 'https://aka.ms/bcai';
+        SetupCopilotAICapabilitiesHelpTxt: Label 'https://aka.ms/bcai', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     local procedure Initialize()
@@ -198,7 +198,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         GuidedExperience.InsertAssistedSetup(SalesTaxSetupTitleTxt, SalesTaxSetupShortTitleTxt, SalesTaxSetupDescriptionTxt, 15,
             ObjectType::Page, Page::"Sales Tax Setup Wizard", AssistedSetupGroup::GettingStarted, VideoUrlSalesTaxSetupTxt, VideoCategory::GettingStarted, HelpSetupSalesTaxTxt);
         GuidedExperience.InsertAssistedSetup(SetupCopilotAICapabilitiesTitleTxt, SetupCopilotAICapabilitiesShortTitleTxt, SetupCopilotAICapabilitiesDescriptionTxt, 5, ObjectType::Page,
-            Page::"Copilot AI Capabilities", AssistedSetupGroup::GettingStarted, SetupCopilotAICapabilitiesHelpTxt, VideoCategory::GettingStarted, SetupCopilotAICapabilitiesTitleTxt);
+            Page::"Copilot AI Capabilities", AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, SetupCopilotAICapabilitiesHelpTxt);
         GlobalLanguage(Language.GetDefaultApplicationLanguageId());
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
             Page::"Sales Tax Setup Wizard", Language.GetDefaultApplicationLanguageId(), SalesTaxSetupTitleTxt);

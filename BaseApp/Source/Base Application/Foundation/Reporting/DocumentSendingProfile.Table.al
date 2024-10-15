@@ -168,7 +168,7 @@ table 60 "Document Sending Profile"
         ShipmentsTxt: Label 'Shipments';
         CreditMemosTxt: Label 'Credit Memos';
         ReceiptsTxt: Label 'Receipts';
-        JobQuotesTxt: Label 'Job Quotes';
+        JobQuotesTxt: Label 'Project Quotes';
         PurchaseOrdersTxt: Label 'Purchase Orders';
 
     procedure GetDefaultForCustomer(CustomerNo: Code[20]; var DocumentSendingProfile: Record "Document Sending Profile")

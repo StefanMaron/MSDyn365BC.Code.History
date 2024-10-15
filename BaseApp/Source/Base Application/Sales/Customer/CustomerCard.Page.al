@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.Customer;
+ namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Payment;
@@ -2235,6 +2235,19 @@ page 21 "Customer Card"
                 trigger OnAction()
                 begin
                     RunReport(REPORT::"Aged Accounts Receivable NA", Rec."No.");
+                end;
+            }
+            action("Report Customer - Labels")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Customer - Labels';
+                Image = "Report";
+                ToolTip = 'View mailing labels with the customers'' names and addresses.';
+                Visible = false;
+
+                trigger OnAction()
+                begin
+                    RunReport(REPORT::"Customer - Labels", Rec."No.");
                 end;
             }
             action("Customer Labels")

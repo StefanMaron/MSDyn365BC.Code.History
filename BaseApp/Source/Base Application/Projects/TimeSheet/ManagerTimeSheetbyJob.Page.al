@@ -628,12 +628,12 @@ page 954 "Manager Time Sheet by Job"
         end;
     end;
 
-    local procedure GetDialogText(ActionType: Option Approve,Reopen,Reject): Text[100]
+    local procedure GetDialogText(ActionType: Option Approve,Reopen,Reject): Text
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
         FilterAllLines(TimeSheetLine, ActionType);
-        exit(TimeSheetApprovalMgt.GetManagerTimeSheetDialogText(ActionType, TimeSheetLine.Count()));
+        exit(TimeSheetApprovalMgt.GetManagerTimeSheetActionDialogText(ActionType, TimeSheetLine.Count()));
     end;
 
     local procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Approve,Reopen,Reject)
@@ -663,7 +663,7 @@ page 954 "Manager Time Sheet by Job"
     begin
         CurrPage.SetSelectionFilter(TimeSheetLine);
         if TimeSheetLine.Count() > 1 then begin
-            if Confirm(ConfirmSelectedLinesTxt, false, TimeSheetApprovalMgt.GetManagerTimeSheetDialogInstruction(ActionType), TimeSheetLine.Count) then
+            if Confirm(ConfirmSelectedLinesTxt, false, TimeSheetApprovalMgt.GetManagerTimeSheetActionDialogInstruction(ActionType), TimeSheetLine.Count()) then
                 exit(2);
             Error('');
         end;
@@ -671,7 +671,7 @@ page 954 "Manager Time Sheet by Job"
         DefaultValue := 2;
         OnShowDialogOnAfterSetDefaultValue(ActionType, DefaultValue);
 
-        exit(StrMenu(GetDialogText(ActionType), DefaultValue, TimeSheetApprovalMgt.GetManagerTimeSheetDialogInstruction(ActionType)));
+        exit(StrMenu(GetDialogText(ActionType), DefaultValue, TimeSheetApprovalMgt.GetManagerTimeSheetActionDialogInstruction(ActionType)));
     end;
 
     [IntegrationEvent(false, false)]

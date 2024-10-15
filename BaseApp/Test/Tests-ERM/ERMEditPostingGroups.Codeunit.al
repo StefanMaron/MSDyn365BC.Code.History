@@ -1255,6 +1255,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         // [FEATURE] [Customer] [UI]
         // [SCENARIO 287860] User gets validation error after looking up an account with empty general posting group
         Initialize();
+        EnableVATInUse();
 
         // [GIVEN] G/L Account "1" with Category = Income and empty "Gen. Prod. Posting Group"
         GLAccountNo := CreateGLAccountNoWithAccountSubcategory(
@@ -1374,6 +1375,54 @@ codeunit 134069 "ERM Edit Posting Groups"
 
         VATPostingSetup.Get(VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         VATPostingSetup.TestField(Blocked, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerPostingGroupInterestAccoutLookupValidatesWithVATInUseDisableAndEnable()
+    var
+        CustomerPostingGroupPage: TestPage "Customer Posting Groups";
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 504164] Attempting to choose or even clicking on Invoice Rounding Account in Customer (and Vendor) Posting Group returns error, 
+        // "Gen. Prod. Posting Group must have a value in G/L Account: No.=70400. It cannot be zero or empty."
+        Initialize();
+        EnableVATInUse();
+
+        // [GIVEN] G/L Account "1" with Category = Income and empty "Gen. Prod. Posting Group"
+        GLAccountNo := CreateGLAccountNoWithAccountSubcategory(
+            CreateGLAccountCategoryWithDescription(AccountCategory::Income, LibraryUtility.GenerateGUID()));
+
+        // [WHEN] Customer Posting Group Page was open
+        CustomerPostingGroupPage.OpenEdit();
+        asserterror CustomerPostingGroupPage."Invoice Rounding Account".SetValue(GLAccountNo);
+
+        // [THEN] Error "Gen. Prod. Posting Group must have a value in G/L Account: No.=X.  It cannot be zero or empty." appears
+        Assert.ExpectedError(StrSubstNo(GenProdPostingGroupTestFieldErr, GLAccountNo));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorPostingGroupInterestAccoutLookupValidatesWithVATInUseDisableAndEnable()
+    var
+        VendorPostingGroupPage: TestPage "Vendor Posting Groups";
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 504164] Attempting to choose or even clicking on Invoice Rounding Account in Customer (and Vendor) Posting Group returns error, 
+        // "Gen. Prod. Posting Group must have a value in G/L Account: No.=70400. It cannot be zero or empty."
+        Initialize();
+        EnableVATInUse();
+
+        // [GIVEN] G/L Account "1" with Category = Income and empty "Gen. Prod. Posting Group"
+        GLAccountNo := CreateGLAccountNoWithAccountSubcategory(
+            CreateGLAccountCategoryWithDescription(AccountCategory::Income, LibraryUtility.GenerateGUID()));
+
+        // [WHEN] Customer Posting Group Page was open
+        VendorPostingGroupPage.OpenEdit();
+        asserterror VendorPostingGroupPage."Invoice Rounding Account".SetValue(GLAccountNo);
+
+        // [THEN] Error "Gen. Prod. Posting Group must have a value in G/L Account: No.=X.  It cannot be zero or empty." appears
+        Assert.ExpectedError(StrSubstNo(GenProdPostingGroupTestFieldErr, GLAccountNo));
     end;
 
     local procedure Initialize()
@@ -1505,6 +1554,15 @@ codeunit 134069 "ERM Edit Posting Groups"
         Assert.AreEqual(ExpectedVisibility, GeneralPostingSetup."Sales Pmt. Tol. Credit Acc.".Visible(), '');
         Assert.AreEqual(ExpectedVisibility, GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible(), '');
         Assert.AreEqual(ExpectedVisibility, GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.".Visible(), '');
+    end;
+
+    local procedure EnableVATInUse()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT in Use", true);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     [ModalPageHandler]

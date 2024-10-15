@@ -97,8 +97,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
         LastDocNo: Code[20];
         VATBusPostingGroup: Code[20];
         VATProdPostingGroup: Code[20];
-        GenBusPostingGroup: Code[20];
-        GenProdPostingGroup: Code[20];
         FiscalYearStartDate: Date;
         CurrencyDate: Date;
         LastDate: Date;
@@ -1252,10 +1250,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
             // Post detailed customer entries
             DtldLedgEntryInserted := PostDtldCustLedgEntries(GenJournalLine, TempDtldCVLedgEntryBuf, CustPostingGr, true);
 
-#if not CLEAN23
-            OnAfterCustLedgEntryInsert(CustLedgEntry, GenJournalLine, DtldLedgEntryInserted);
-#endif
+            OnAfterCustLedgEntryInsert(CustLedgEntry, GenJournalLine, DtldLedgEntryInserted, PreviewMode);
+#if not CLEAN25
             OnAfterCustLedgEntryInsertInclPreviewMode(CustLedgEntry, GenJournalLine, DtldLedgEntryInserted, PreviewMode);
+#endif
 
             // Post Reminder Terms - Note About Line Fee on Report
             LineFeeNoteOnReportHist.Save(CustLedgEntry);
@@ -1366,10 +1364,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnPostVendOnBeforePostDtldVendLedgEntries(VendLedgEntry, GenJournalLine, TempDtldCVLedgEntryBuf, NextEntryNo);
         DtldLedgEntryInserted := PostDtldVendLedgEntries(GenJournalLine, TempDtldCVLedgEntryBuf, VendPostingGr, true);
 
-#if not CLEAN23
-        OnAfterVendLedgEntryInsert(VendLedgEntry, GenJournalLine, DtldLedgEntryInserted);
-#endif        
+
+        OnAfterVendLedgEntryInsert(VendLedgEntry, GenJournalLine, DtldLedgEntryInserted, PreviewMode);
+#if not CLEAN25
         OnAfterVendLedgEntryInsertInclPreviewMode(VendLedgEntry, GenJournalLine, DtldLedgEntryInserted, PreviewMode);
+#endif        
 
         if DtldLedgEntryInserted then
             if IsTempGLEntryBufEmpty() then
@@ -3406,9 +3405,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         repeat
                             VATBusPostingGroup := VATEntry."VAT Bus. Posting Group";
                             VATProdPostingGroup := VATEntry."VAT Prod. Posting Group";
-                            GenBusPostingGroup := VATEntry."Gen. Bus. Posting Group";
-                            GenProdPostingGroup := VATEntry."Gen. Prod. Posting Group";
-                            UnRealisedVATAmount := VATEntry."Remaining Unrealized Amount";
+                            UnRealisedVATAmount := VATEntry."Unrealized Base" + VATEntry."Remaining Unrealized Amount";
                             if UnRealisedVATAmount <> 0 then begin
                                 IsVATEntryFilter := true;
                                 CustUnrealizedVAT(
@@ -3929,12 +3926,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     InsertSummarizedVAT(GenJnlLine);
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
                 end;
-
-                if (PaidAmount <> 0) and
-                   IsVATEntryFilter and
-                   (VATEntry2."Remaining Unrealized Amount" <> 0) and
-                   (VATPostingSetup."Unrealized VAT Type" = VATPostingSetup."Unrealized VAT Type"::"Cash Basis") then
-                    VATPart := -UnRealisedVATAmount / VATEntry2."Remaining Unrealized Amount"
+                if (UnRealisedVATAmount + VATEntry2."Remaining Unrealized Amount" + VATEntry2."Unrealized Base" = 0)
+                        and (PaidAmount <> 0)
+                        and IsVATEntryFilter then
+                    VATPart := 1
                 else
                     VATPart :=
                       VATEntry2.GetUnrealizedVATPart(
@@ -7830,16 +7825,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         VATEntry.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
-        VATEntry.SetRange("Gen. Bus. Posting Group", GenBusPostingGroup);
-        VATEntry.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
     end;
 
     local procedure ClearUnrealizedVATGlobalVariables()
     begin
         Clear(VATBusPostingGroup);
         Clear(VATProdPostingGroup);
-        Clear(GenBusPostingGroup);
-        Clear(GenProdPostingGroup);
         Clear(UnRealisedVATAmount);
     end;
 
@@ -7947,19 +7938,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure OnBeforeVendUnrealizedVAT(var GenJnlLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; SettledAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
-#if not CLEAN23
-    [Obsolete('This event is obsolete. Use OnAfterCustLedgEntryInsertInclPreviewMode instead.', '23.0')]
+
     [IntegrationEvent(true, false)]
-    local procedure OnAfterCustLedgEntryInsert(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; DtldLedgEntryInserted: Boolean)
+    local procedure OnAfterCustLedgEntryInsert(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; DtldLedgEntryInserted: Boolean; PreviewMode: Boolean)
     begin
     end;
-#endif
 
+#if not CLEAN25
+    [Obsolete('This event is obsolete. Use OnAfterCustLedgEntryInsert instead.', '25.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterCustLedgEntryInsertInclPreviewMode(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; DtldLedgEntryInserted: Boolean; PreviewMode: Boolean)
     begin
     end;
-
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertVATOnAfterCalcVATDifferenceLCY(GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; var VATDifferenceLCY: Decimal; var CurrExchRate: Record "Currency Exchange Rate")
@@ -7970,17 +7961,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure OnInsertVATOnAfterSetVATAmounts(var GenJournalLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; var GLEntryAmount: Decimal; var GLEntryVATAmount: Decimal; var VATAmount: Decimal; var GLEntryBaseAmount: Decimal; var VATBase: Decimal; var SrcCurrGLEntryAmt: Decimal; var SrcCurrGLEntryVATAmt: Decimal; var SrcCurrVATAmount: Decimal; var SrcCurrGLEntryBaseAmt: Decimal; var SrcCurrVATBase: Decimal);
     begin
     end;
-#if not CLEAN23
-    [Obsolete('This event is obsolete. Use OnAfterVendLedgEntryInsertInclPreviewMode instead.', '23.0')]
+
     [IntegrationEvent(true, false)]
-    local procedure OnAfterVendLedgEntryInsert(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var DtldLedgEntryInserted: Boolean)
+    local procedure OnAfterVendLedgEntryInsert(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var DtldLedgEntryInserted: Boolean; PreviewMode: Boolean)
     begin
     end;
-#endif
+
+#if not CLEAN25
+    [Obsolete('This event is obsolete. Use OnAfterVendLedgEntryInsert instead.', '25.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterVendLedgEntryInsertInclPreviewMode(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; var DtldLedgEntryInserted: Boolean; PreviewMode: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindAmtForAppln(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var AppliedAmount: Decimal; var AppliedAmountLCY: Decimal; var OldAppliedAmount: Decimal)
