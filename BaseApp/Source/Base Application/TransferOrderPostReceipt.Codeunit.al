@@ -91,7 +91,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 WhseRqst.LockTable();
             TransRcptLine.LockTable();
             TransLine.SetRange(Quantity);
-            TransLine.SetRange("Qty. to Receive");
+            TransLine.SetFilter("Qty. to Receive", '<>0');
             OnRunOnAfterTransLineSetFiltersForRcptLines(TransLine, TransHeader, Location, WhseReceive);
             if TransLine.Find('-') then
                 repeat

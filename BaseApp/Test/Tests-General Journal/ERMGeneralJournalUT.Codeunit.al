@@ -5255,6 +5255,67 @@
         Assert.AreEqual(GenJournalBatch.Name, GeneralJournal.CurrentJnlBatchName.Value, 'Current journal batch name not equal to batch that was opened.');
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure NoRenumberDocNoWithNoBalAcc()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccount: Record "Bank Account";
+        Customer: Record Customer;
+        Customer2: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+        Amount: Decimal;
+        Amount2: Decimal;
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 441235] Renumber Document Numbers function does not work as expected if the Payment Journal Lines do not have Bal. Account No.
+        Initialize();
+
+        // [GIVEN] Create Bank Account, 2 customer and 1 No. Series.
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomer(Customer2);
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+
+        // [GIVEN] Save DocNo and amount in Variable to verify the result.
+        DocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        Amount := LibraryRandom.RandDec(100, 2);
+        Amount2 := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create Gen Journal Template and Batch with No Series.
+        CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
+        GenJournalBatch."No. Series" := NoSeriesCode;
+        GenJournalBatch.Modify();
+
+        // [GIVEN] Create 4 Gen. Journal Line with blank document no.
+        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer, Customer."No.", -1 * Amount, WorkDate());
+        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::"Bank Account", BankAccount."No.", Amount, WorkDate());
+        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Customer, Customer2."No.", -1 * Amount2, WorkDate() + 1);
+        CreateGenJournalLineWithoutDocNo(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::"Bank Account", BankAccount."No.", Amount2, WorkDate() + 1);
+        Commit();
+
+        // [THEN] Renumber the document no
+        GenJournalLine.RenumberDocumentNo();
+
+        // [VERIFY] Verify all the Document No. on Gen. Journal Line
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+         10000, DocNo);
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          20000, DocNo);
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          30000, IncStr(DocNo));
+        VerifyGenJnlLineDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          40000, IncStr(DocNo));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -6105,6 +6166,23 @@
             ValidateAmountAndVerifySalesPurchLCYGenJournalLine(
               GenJournalLine, RecurringMethod, false, "Document Type"::"Credit Memo", "Account Type"::"G/L Account", AccountNo,
               "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, ValidateAmount, ExpectedValue);
+    end;
+
+    local procedure CreateGenJournalLineWithoutDocNo(
+        var GenJournalLine: Record "Gen. Journal Line";
+        JournalTemplateName: Code[10];
+        JournalBatchName: Code[10];
+        DocumentType: Enum "Gen. Journal Document Type";
+        AccountType: Enum "Gen. Journal Account Type";
+        AccountNo: Code[20];
+        Amount: Decimal;
+        PostingDate: Date)
+    begin
+        LibraryERM.CreateGeneralJnlLine2(GenJournalLine, JournalTemplateName, JournalBatchName, GenJournalLine."Document Type"::Payment,
+            AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine."Document No." := '';
+        GenJournalLine.Modify();
     end;
 
     [Scope('OnPrem')]
