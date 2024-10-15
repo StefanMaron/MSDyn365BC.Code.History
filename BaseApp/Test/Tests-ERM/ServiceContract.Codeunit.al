@@ -686,6 +686,64 @@ codeunit 136100 "Service Contract"
         ServiceHeader.TestField("Dimension Set ID", ServiceContractHeader."Dimension Set ID");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmDialogHandler,SelectTemplate,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceDirectDebitWhenCreateFromContract()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        Customer: Record Customer;
+        CustomerBankAccount: Record "Customer Bank Account";
+        PaymentMethod: Record "Payment Method";
+        ServiceHeader: Record "Service Header";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        CurrentWorkDate: date;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 325156] "Direct Debit Mandate ID" is filled in when Service Invoice is being created from Service Contract
+        Initialize();
+
+        // [GIVEN] Customer "CUST" with DD Mandates "DD1"
+        UpdateSalesSetupDirectDebitMandateNos();
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
+        LibrarySales.CreateCustomerMandate(SEPADirectDebitMandate, Customer."No.", '', 0D, 0D);
+        CustomerBankAccount.IBAN := 'FO97 5432 0388 8999 44';
+        CustomerBankAccount."SWIFT Code" := 'DKDABAKK';
+        CustomerBankAccount.Modify();
+        Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
+        Customer."Partner Type" := Customer."Partner Type"::Company;
+        Customer.Modify();
+        SEPADirectDebitMandate."Customer Bank Account Code" := CustomerBankAccount.Code;
+        SEPADirectDebitMandate.Modify();
+
+        // [WHEN] Create Service Contract for customer "CUST" with "Direct Debit Mandate ID" = "DD1"
+        CreateServiceContractHeader(ServiceContractHeader, Customer."No.");
+        CreateDirectDebitPaymentMethod(PaymentMethod);
+        ServiceContractHeader.Validate("Payment Method Code", PaymentMethod.Code);
+        ServiceContractHeader.Validate("Direct Debit Mandate ID", SEPADirectDebitMandate.ID);
+        ServiceContractHeader.Modify();
+        CreateServiceContractLine(
+          ServiceContractHeader, CreateServiceItem(ServiceContractHeader."Customer No."));
+        ServiceContractHeader.Find();
+
+        SignServContractDoc.SignContract(ServiceContractHeader);
+        ServiceContractHeader.Find();
+
+        // [WHEN] Service invoice is being created from Service contract
+        CurrentWorkDate := WorkDate();
+        WorkDate := ServiceContractHeader."Next Invoice Date";
+        RunCreateServiceInvoice(ServiceContractHeader."Contract No.");
+
+        // [THEN] Created service invoice has "Direct Debit Mandate ID" = "DD1"
+        FindServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
+        ServiceHeader.TestField("Direct Debit Mandate ID", SEPADirectDebitMandate.ID);
+
+        // TearDown
+        WorkDate := CurrentWorkDate;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

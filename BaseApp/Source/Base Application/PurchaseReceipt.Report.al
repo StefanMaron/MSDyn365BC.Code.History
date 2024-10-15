@@ -215,7 +215,6 @@ report 408 "Purchase - Receipt"
 
                         trigger OnPreDataItem()
                         begin
-
                             if not ShowInternalInfo then
                                 CurrReport.Break();
                         end;
@@ -307,7 +306,6 @@ report 408 "Purchase - Receipt"
 
                             trigger OnPreDataItem()
                             begin
-
                                 if not ShowInternalInfo then
                                     CurrReport.Break();
                             end;
@@ -323,7 +321,6 @@ report 408 "Purchase - Receipt"
 
                         trigger OnPreDataItem()
                         begin
-
                             MoreLines := Find('+');
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) do
                                 MoreLines := Next(-1) <> 0;
@@ -344,7 +341,6 @@ report 408 "Purchase - Receipt"
 
                         trigger OnPreDataItem()
                         begin
-
                             if "Purch. Rcpt. Header"."Buy-from Vendor No." = "Purch. Rcpt. Header"."Pay-to Vendor No." then
                                 CurrReport.Break();
                         end;
@@ -546,7 +542,7 @@ report 408 "Purchase - Receipt"
         VATRegNoCaptionLbl: Label 'VAT Registration No.';
         BankCaptionLbl: Label 'Bank';
         AccNoCaptionLbl: Label 'Account No.';
-        ShipmentNoCaptionLbl: Label 'Shipment No.';
+        ShipmentNoCaptionLbl: Label 'Receipt No.';
         BankBranchNoCaptionLbl: Label 'Bank Branch No.';
         DocDateCaptionLbl: Label 'Document Date';
         EmailCaptionLbl: Label 'Email';
