@@ -194,6 +194,8 @@ page 9068 "Project Manager Activities"
                 SetupIsComplete := JobsSetup."Default Job Posting Group" <> ''
             else
                 SetupIsComplete := JobsSetup."Job Nos." <> '';
+
+        OnAfterInit(SetupIsComplete);
     end;
 
     trigger OnOpenPage()
@@ -228,6 +230,11 @@ page 9068 "Project Manager Activities"
     procedure RefreshRoleCenter()
     begin
         CurrPage.Update();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInit(var SetupIsComplete: Boolean)
+    begin
     end;
 
     trigger UserTours::ShowTourWizard(hasTourCompleted: Boolean)

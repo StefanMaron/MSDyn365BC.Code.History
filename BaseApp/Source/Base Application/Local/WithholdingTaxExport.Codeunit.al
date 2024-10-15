@@ -254,7 +254,7 @@ codeunit 12132 "Withholding Tax Export"
     begin
         StartNewRecord(ConstRecordType::A);
 
-        FlatFileManagement.WritePositionalValue(16, 5, ConstFormat::NU, StrSubstNo(CURTxt, ReportingYear mod 100), false); // A-3
+        FlatFileManagement.WritePositionalValue(16, 5, ConstFormat::NU, StrSubstNo(CURTxt, ReportingYear mod 100 + 1), false); // A-3
 
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then begin
             FlatFileManagement.WritePositionalValue(21, 2, ConstFormat::NU, '10', false); // A-4

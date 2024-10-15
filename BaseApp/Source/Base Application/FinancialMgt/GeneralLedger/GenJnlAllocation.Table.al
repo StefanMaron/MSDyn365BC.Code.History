@@ -38,7 +38,7 @@ table 221 "Gen. Jnl. Allocation"
                 end else begin
                     GLAcc.Get("Account No.");
                     GLAcc.CheckGLAcc();
-                    GLAcc.TestField("Direct Posting", true);
+                    CheckGLAccount(GLAcc);
                 end;
                 "Account Name" := GLAcc.Name;
 
@@ -612,6 +612,20 @@ table 221 "Gen. Jnl. Allocation"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
     end;
 
+    local procedure CheckGLAccount(var GLAccount: Record "G/L Account")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckGLAccount(GLAccount, IsHandled, Rec);
+        if IsHandled then
+            exit;
+
+        GLAccount.TestField("Direct Posting", true);
+
+        OnAfterCheckGLAccount(GLAccount, Rec);
+    end;
+
 #if not CLEAN20
     local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
     var
@@ -708,6 +722,16 @@ table 221 "Gen. Jnl. Allocation"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllocationsAddCurrOnAfterGenJnlAllocModify(var GenJnlAlloc: Record "Gen. Jnl. Allocation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLAccount(GLAccount: Record "G/L Account"; var IsHandled: Boolean; var GenJnlAllocation: Record "Gen. Jnl. Allocation");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckGLAccount(var GLAccount: Record "G/L Account"; GenJnlAllocation: Record "Gen. Jnl. Allocation")
     begin
     end;
 }

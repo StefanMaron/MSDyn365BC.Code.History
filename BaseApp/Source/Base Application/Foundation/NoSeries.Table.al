@@ -21,9 +21,14 @@ table 308 "No. Series"
             Caption = 'Default Nos.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                if ("Default Nos." = false) and (xRec."Default Nos." <> "Default Nos.") and ("Manual Nos." = false) then
-                    Validate("Manual Nos.", true);
+                IsHandled := false;
+                OnBeforeValidateDefaultNos(Rec, IsHandled);
+                if not IsHandled then
+                    if ("Default Nos." = false) and (xRec."Default Nos." <> "Default Nos.") and ("Manual Nos." = false) then
+                        Validate("Manual Nos.", true);
             end;
         }
         field(4; "Manual Nos."; Boolean)
@@ -31,9 +36,14 @@ table 308 "No. Series"
             Caption = 'Manual Nos.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                if ("Manual Nos." = false) and (xRec."Manual Nos." <> "Manual Nos.") and ("Default Nos." = false) then
-                    Validate("Default Nos.", true);
+                IsHandled := false;
+                OnBeforeValidateManualNos(Rec, IsHandled);
+                if not IsHandled then
+                    if ("Manual Nos." = false) and (xRec."Manual Nos." <> "Manual Nos.") and ("Default Nos." = false) then
+                        Validate("Default Nos.", true);
             end;
         }
         field(5; "Date Order"; Boolean)
@@ -249,9 +259,9 @@ table 308 "No. Series"
 
     procedure FindNoSeriesLineToShow(var NoSeriesLine: Record "No. Series Line")
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, Code, 0D);
+        NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, Code, 0D);
 
         if NoSeriesLine.FindLast() then
             exit;
@@ -303,5 +313,14 @@ table 308 "No. Series"
             until NoSeriesLine.Next() = 0;
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDefaultNos(var NoSeries: Record "No. Series"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateManualNos(var NoSeries: Record "No. Series"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

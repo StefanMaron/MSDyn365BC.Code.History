@@ -783,6 +783,14 @@
             Caption = 'Qty. Picked (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
+
+            trigger OnValidate()
+            begin
+                "Qty. Picked" :=
+                  UOMMgt.CalcQtyFromBase("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Picked (Base)", "Qty. per Unit of Measure");
+
+                "Completely Picked" := "Qty. Picked" >= "Expected Quantity";
+            end;
         }
         field(7302; "Completely Picked"; Boolean)
         {
@@ -1600,8 +1608,13 @@
     local procedure UpdateBin(var ProdOrderComp: Record "Prod. Order Component"; FieldNo: Integer; FieldCaption: Text[30])
     var
         ProdOrderComp2: Record "Prod. Order Component";
-        OverwriteBinCode: Boolean;
+        OverwriteBinCode, IsHandled : Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateBin(ProdOrderComp, FieldNo, FieldCaption, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderComp2 := ProdOrderComp;
         ProdOrderComp2.GetDefaultBin();
         if ProdOrderComp."Bin Code" <> ProdOrderComp2."Bin Code" then
@@ -2242,6 +2255,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterUpdateUOMFromItem(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateBin(var ProdOrderComponent: Record "Prod. Order Component"; FieldNo: Integer; FieldCaption: Text[30]; var IsHandled: Boolean)
     begin
     end;
 }

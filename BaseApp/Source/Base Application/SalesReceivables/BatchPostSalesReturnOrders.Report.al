@@ -157,6 +157,7 @@
             ClientTypeManagement: Codeunit "Client Type Management";
             UserSetupManagement: Codeunit "User Setup Management";
             Receive: Boolean;
+            Invoice: Boolean;
         begin
             if not VATReportingDateMgt.IsVATDateEnabled() then begin
                 ReplaceVATDateReq := ReplacePostingDate;
@@ -172,7 +173,9 @@
             PrintDoc := false;
             PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
             VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-            UserSetupManagement.GetSalesInvoicePostingPolicy(Receive, InvReq);
+            UserSetupManagement.GetSalesInvoicePostingPolicy(Receive, Invoice);
+            if Receive then
+                InvReq := Invoice;
             PostInvoiceEditable := not Receive;
 
             OnAfterOnOpenPage(ReceiveReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc, ReplaceVATDateReq, VATDateReq);

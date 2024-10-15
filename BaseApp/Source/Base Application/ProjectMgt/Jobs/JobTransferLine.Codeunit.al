@@ -205,6 +205,8 @@
                 JobJnlLine.Validate(Quantity, -SalesLine.Quantity);
         end;
 
+        OnFromPlanningSalesLineToJnlLineOnBeforeInitAmounts(JobJnlLine, SalesLine, SalesHeader);
+
         JobJnlLine."Direct Unit Cost (LCY)" := JobPlanningLine."Direct Unit Cost (LCY)";
         if (JobPlanningLine."Currency Code" = '') and (SalesHeader."Currency Factor" <> 0) then begin
             GetCurrencyRounding(SalesHeader."Currency Code");
@@ -420,6 +422,8 @@
         Job: Record Job;
         JobTask: Record "Job Task";
     begin
+        OnBeforeFromGenJnlLineToJnlLine(JobJnlLine, GenJnlLine);
+
         JobJnlLine."Job No." := GenJnlLine."Job No.";
         JobJnlLine."Job Task No." := GenJnlLine."Job Task No.";
         JobTask.Get(GenJnlLine."Job No.", GenJnlLine."Job Task No.");
@@ -934,6 +938,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFromWarehouseActivityLineToJnlLineOnBeforeJobJnlLineInsert(var JobJournalLine: Record "Job Journal Line"; var JobPlanningLine: Record "Job Planning Line"; var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromPlanningSalesLineToJnlLineOnBeforeInitAmounts(var JobJournalLine: Record "Job Journal Line"; var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFromGenJnlLineToJnlLine(var JobJnlLine: Record "Job Journal Line"; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

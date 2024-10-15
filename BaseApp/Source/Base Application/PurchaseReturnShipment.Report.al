@@ -486,6 +486,7 @@ report 6636 "Purchase - Return Shipment"
                 Language: Codeunit Language;
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 TDDDocument := CheckTDDData();
                 if TDDDocument then begin

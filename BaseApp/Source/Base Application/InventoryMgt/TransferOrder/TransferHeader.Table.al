@@ -1214,7 +1214,13 @@
     procedure CreateDimFromDefaultDim(FieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnCreateDimFromDefaultDimOnBeforeCreateDim(Rec, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
         CreateDim(DefaultDimSource);
     end;
@@ -1223,6 +1229,8 @@
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Transfer-from Code", FieldNo = Rec.FieldNo("Transfer-from Code"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Transfer-to Code", FieldNo = Rec.FieldNo("Transfer-to Code"));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
@@ -1241,10 +1249,9 @@
         if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) then
             DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
-        if OldDimSetID <> "Dimension Set ID" then begin
+        if (OldDimSetID <> "Dimension Set ID") and TransferLinesExist() then begin
             Modify();
-            if TransferLinesExist() then
-                UpdateAllLineDim("Dimension Set ID", OldDimSetID);
+            UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
     end;
 
@@ -1826,6 +1833,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateTransferFromCodeOnBeforeUpdateTransLines(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDimFromDefaultDimOnBeforeCreateDim(var TransferHeader: Record "Transfer Header"; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var TransferHeader: Record "Transfer Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 }

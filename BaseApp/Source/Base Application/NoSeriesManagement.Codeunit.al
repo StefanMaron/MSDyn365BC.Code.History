@@ -513,35 +513,40 @@
     end;
 
     procedure SaveNoSeries()
+    var
+        IsHandled: Boolean;
     begin
-        case NoSeries."No. Series Type" of
-            NoSeries."No. Series Type"::Normal:
-                begin
-           	    if LastNoSeriesLine."Series Code" <> '' then begin
-                        if LastNoSeriesLine."Allow Gaps in Nos." then
-                            if (LastNoSeriesLine."Last No. Used" <> '') and (LastNoSeriesLine."Last No. Used" > LastNoSeriesLine.GetLastNoUsed()) then begin
-                            	LastNoSeriesLine.testfield("Sequence Name");
-                            	if NumberSequence.Exists(LastNoSeriesLine."Sequence Name") then
-                                    NumberSequence.Delete(LastNoSeriesLine."Sequence Name");
-                                LastNoSeriesLine."Starting Sequence No." := LastNoSeriesLine.ExtractNoFromCode(LastNoSeriesLine."Last No. Used");
-                                LastNoSeriesLine.CreateNewSequence();
-                            end;
-                        if not LastNoSeriesLine."Allow Gaps in Nos." or UpdateLastUsedDate then
-                            ModifyNoSeriesLine(LastNoSeriesLine);
+    	IsHandled := false;
+        OnBeforeSaveNoSeries(LastNoSeriesLine, IsHandled);
+        if not IsHandled then
+            case NoSeries."No. Series Type" of
+                NoSeries."No. Series Type"::Normal:
+                    begin
+                        if LastNoSeriesLine."Series Code" <> '' then begin
+                            if LastNoSeriesLine."Allow Gaps in Nos." then
+                                if (LastNoSeriesLine."Last No. Used" <> '') and (LastNoSeriesLine."Last No. Used" > LastNoSeriesLine.GetLastNoUsed()) then begin
+                                    LastNoSeriesLine.testfield("Sequence Name");
+                                    if NumberSequence.Exists(LastNoSeriesLine."Sequence Name") then
+                                        NumberSequence.Delete(LastNoSeriesLine."Sequence Name");
+                                    LastNoSeriesLine."Starting Sequence No." := LastNoSeriesLine.ExtractNoFromCode(LastNoSeriesLine."Last No. Used");
+                                    LastNoSeriesLine.CreateNewSequence();
+                                end;
+                            if not LastNoSeriesLine."Allow Gaps in Nos." or UpdateLastUsedDate then
+                                ModifyNoSeriesLine(LastNoSeriesLine);
+                        end;
+                        OnAfterSaveNoSeries(LastNoSeriesLine);
                     end;
-                    OnAfterSaveNoSeries(LastNoSeriesLine);
-                end;
-            NoSeries."No. Series Type"::Sales:
-                if LastNoSeriesLineSales."Series Code" <> '' then begin
-                    LastNoSeriesLineSales.Modify();
-                    OnAfterSaveNoSeriesSales(LastNoSeriesLineSales);
-                end;
-            NoSeries."No. Series Type"::Purchase:
-                if LastNoSeriesLinePurchase."Series Code" <> '' then begin
-                    LastNoSeriesLinePurchase.Modify();
-                    OnAfterSaveNoSeriesPurchase(LastNoSeriesLinePurchase);
-                end;
-        end;
+                NoSeries."No. Series Type"::Sales:
+                    if LastNoSeriesLineSales."Series Code" <> '' then begin
+                        LastNoSeriesLineSales.Modify();
+                        OnAfterSaveNoSeriesSales(LastNoSeriesLineSales);
+                    end;
+                NoSeries."No. Series Type"::Purchase:
+                    if LastNoSeriesLinePurchase."Series Code" <> '' then begin
+                        LastNoSeriesLinePurchase.Modify();
+                        OnAfterSaveNoSeriesPurchase(LastNoSeriesLinePurchase);
+                    end;
+            end;
     end;
 
     procedure ClearNoSeriesLine()
@@ -970,6 +975,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSelectSeriesOnBeforePageRunModal(DefaultNoSeriesCode: Code[20]; var NoSeries: Record "No. Series")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveNoSeries(var NoSeriesLine: Record "No. Series Line"; var IsHandled: Boolean)
     begin
     end;
 }

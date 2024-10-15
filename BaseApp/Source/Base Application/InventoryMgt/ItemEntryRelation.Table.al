@@ -86,20 +86,20 @@ table 6507 "Item Entry Relation"
         OnAfterInitFromTrackingSpec(Rec, TrackingSpecification);
     end;
 
-    procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    procedure CopyTrackingFromItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry")
     begin
-        "Serial No." := ItemLedgEntry."Serial No.";
-        "Lot No." := ItemLedgEntry."Lot No.";
+        "Serial No." := ItemLedgerEntry."Serial No.";
+        "Lot No." := ItemLedgerEntry."Lot No.";
 
-        OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
+        OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgerEntry);
     end;
 
-    procedure CopyTrackingFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
+    procedure CopyTrackingFromItemJnlLine(ItemJournalLine: Record "Item Journal Line")
     begin
-        "Serial No." := ItemJnlLine."Serial No.";
-        "Lot No." := ItemJnlLine."Lot No.";
+        "Serial No." := ItemJournalLine."Serial No.";
+        "Lot No." := ItemJournalLine."Lot No.";
 
-        OnAfterCopyTrackingFromItemJnlLine(Rec, ItemJnlLine);
+        OnAfterCopyTrackingFromItemJnlLine(Rec, ItemJournalLine);
     end;
 
     procedure CopyTrackingFromSpec(TrackingSpecification: Record "Tracking Specification")
@@ -110,16 +110,16 @@ table 6507 "Item Entry Relation"
         OnAfterCopyTrackingFromSpec(Rec, TrackingSpecification);
     end;
 
-    procedure TransferFieldsSalesShptLine(var SalesShptLine: Record "Sales Shipment Line")
+    procedure TransferFieldsSalesShptLine(var SalesShipmentLine: Record "Sales Shipment Line")
     begin
-        SetSource(DATABASE::"Sales Shipment Line", 0, SalesShptLine."Document No.", SalesShptLine."Line No.");
-        SetOrderInfo(SalesShptLine."Order No.", SalesShptLine."Order Line No.");
+        SetSource(DATABASE::"Sales Shipment Line", 0, SalesShipmentLine."Document No.", SalesShipmentLine."Line No.");
+        SetOrderInfo(SalesShipmentLine."Order No.", SalesShipmentLine."Order Line No.");
     end;
 
-    procedure TransferFieldsReturnRcptLine(var ReturnRcptLine: Record "Return Receipt Line")
+    procedure TransferFieldsReturnRcptLine(var ReturnReceiptLine: Record "Return Receipt Line")
     begin
-        SetSource(DATABASE::"Return Receipt Line", 0, ReturnRcptLine."Document No.", ReturnRcptLine."Line No.");
-        SetOrderInfo(ReturnRcptLine."Return Order No.", ReturnRcptLine."Return Order Line No.");
+        SetSource(DATABASE::"Return Receipt Line", 0, ReturnReceiptLine."Document No.", ReturnReceiptLine."Line No.");
+        SetOrderInfo(ReturnReceiptLine."Return Order No.", ReturnReceiptLine."Return Order Line No.");
     end;
 
     procedure TransferFieldsPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line")
@@ -128,28 +128,28 @@ table 6507 "Item Entry Relation"
         SetOrderInfo(PurchRcptLine."Order No.", PurchRcptLine."Order Line No.");
     end;
 
-    procedure TransferFieldsReturnShptLine(var ReturnShptLine: Record "Return Shipment Line")
+    procedure TransferFieldsReturnShptLine(var ReturnShipmentLine: Record "Return Shipment Line")
     begin
-        SetSource(DATABASE::"Return Shipment Line", 0, ReturnShptLine."Document No.", ReturnShptLine."Line No.");
-        SetOrderInfo(ReturnShptLine."Return Order No.", ReturnShptLine."Return Order Line No.");
+        SetSource(DATABASE::"Return Shipment Line", 0, ReturnShipmentLine."Document No.", ReturnShipmentLine."Line No.");
+        SetOrderInfo(ReturnShipmentLine."Return Order No.", ReturnShipmentLine."Return Order Line No.");
     end;
 
-    procedure TransferFieldsTransShptLine(var TransShptLine: Record "Transfer Shipment Line")
+    procedure TransferFieldsTransShptLine(var TransferShipmentLine: Record "Transfer Shipment Line")
     begin
-        SetSource(DATABASE::"Transfer Shipment Line", 0, TransShptLine."Document No.", TransShptLine."Line No.");
-        SetOrderInfo(TransShptLine."Transfer Order No.", TransShptLine."Line No.");
+        SetSource(DATABASE::"Transfer Shipment Line", 0, TransferShipmentLine."Document No.", TransferShipmentLine."Line No.");
+        SetOrderInfo(TransferShipmentLine."Transfer Order No.", TransferShipmentLine."Line No.");
     end;
 
-    procedure TransferFieldsTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line")
+    procedure TransferFieldsTransRcptLine(var TransferReceiptLine: Record "Transfer Receipt Line")
     begin
-        SetSource(DATABASE::"Transfer Receipt Line", 0, TransRcptLine."Document No.", TransRcptLine."Line No.");
-        SetOrderInfo(TransRcptLine."Transfer Order No.", TransRcptLine."Line No.");
+        SetSource(DATABASE::"Transfer Receipt Line", 0, TransferReceiptLine."Document No.", TransferReceiptLine."Line No.");
+        SetOrderInfo(TransferReceiptLine."Transfer Order No.", TransferReceiptLine."Line No.");
     end;
 
-    procedure TransferFieldsServShptLine(var ServShptLine: Record "Service Shipment Line")
+    procedure TransferFieldsServShptLine(var ServiceShipmentLine: Record "Service Shipment Line")
     begin
-        SetSource(DATABASE::"Service Shipment Line", 0, ServShptLine."Document No.", ServShptLine."Line No.");
-        SetOrderInfo(ServShptLine."Order No.", ServShptLine."Order Line No.");
+        SetSource(DATABASE::"Service Shipment Line", 0, ServiceShipmentLine."Document No.", ServiceShipmentLine."Line No.");
+        SetOrderInfo(ServiceShipmentLine."Order No.", ServiceShipmentLine."Order Line No.");
     end;
 
     procedure TransferFieldsPostedAsmHeader(var PostedAssemblyHeader: Record "Posted Assembly Header")
@@ -164,15 +164,15 @@ table 6507 "Item Entry Relation"
         SetOrderInfo(PostedAssemblyLine."Order No.", PostedAssemblyLine."Order Line No.");
     end;
 
-    procedure TransferFieldsInvtRcptLine(var InvtRcptLine: Record "Invt. Receipt Line")
+    procedure TransferFieldsInvtRcptLine(var InvtReceiptLine: Record "Invt. Receipt Line")
     begin
-        SetSource(DATABASE::"Invt. Receipt Line", 0, InvtRcptLine."Document No.", InvtRcptLine."Line No.");
+        SetSource(DATABASE::"Invt. Receipt Line", 0, InvtReceiptLine."Document No.", InvtReceiptLine."Line No.");
         SetSource2("Source Batch Name", 0);
     end;
 
-    procedure TransferFieldsInvtShptLine(var InvtShptLine: Record "Invt. Shipment Line")
+    procedure TransferFieldsInvtShptLine(var InvtShipmentLine: Record "Invt. Shipment Line")
     begin
-        SetSource(DATABASE::"Invt. Shipment Line", 0, InvtShptLine."Document No.", InvtShptLine."Line No.");
+        SetSource(DATABASE::"Invt. Shipment Line", 0, InvtShipmentLine."Document No.", InvtShipmentLine."Line No.");
         SetSource2("Source Batch Name", 0);
     end;
 
@@ -211,6 +211,8 @@ table 6507 "Item Entry Relation"
         SetRange("Source ID", SourceID);
         if SourceRefNo >= 0 then
             SetRange("Source Ref. No.", SourceRefNo);
+
+        OnAfterSetSourceFilter(Rec, SourceType, SourceSubtype, SourceID, SourceRefNo, SourceKey);
     end;
 
     procedure SetSourceFilter2(SourceBatchName: Code[10]; SourceProdOrderLine: Integer)
@@ -259,6 +261,11 @@ table 6507 "Item Entry Relation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetOrderInfo(ItemEntryRelation: Record "Item Entry Relation"; var OrderNo: Code[20]; var OrderLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFilter(var ItemEntryRelation: Record "Item Entry Relation"; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceKey: Boolean)
     begin
     end;
 }

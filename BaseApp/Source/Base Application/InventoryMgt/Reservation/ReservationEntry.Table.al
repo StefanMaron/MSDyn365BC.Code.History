@@ -990,6 +990,8 @@ table 337 "Reservation Entry"
                     NewReservEntry := OldReservEntry;
                     NewReservEntry.SetSource(SourceType, SourceSubtype, SourceID, SourceRefNo, SourceBatchName, SourceProdOrderLine);
 
+                    CreateReservEntry.SetQtyToHandleAndInvoiceForReservationWithoutItemTracking(NewReservEntry, NewReservEntry."Quantity (Base)", NewReservEntry."Quantity (Base)", false);
+
                     NewReservEntry.UpdateActionMessageEntries(OldReservEntry);
                     OnTransferReservationsOnAfterNewReservEntryUpdateActionMessageEntries(OldReservEntry, NewReservEntry);
                 until OldReservEntry.Next() = 0;

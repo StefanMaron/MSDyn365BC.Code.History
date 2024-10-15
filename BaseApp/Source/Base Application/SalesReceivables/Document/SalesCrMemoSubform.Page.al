@@ -1131,6 +1131,7 @@
     begin
         SetOpenPage();
 
+        SetItemReferenceVisibility();
         SetDimensionsVisibility();
     end;
 
@@ -1197,6 +1198,13 @@
     begin
         CODEUNIT.Run(CODEUNIT::"Sales-Explode BOM", Rec);
         DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
 
     local procedure SetDefaultType()
@@ -1397,13 +1405,6 @@
     begin
         CurrPage.SaveRecord();
         UpdateSplitVATLines(ChangedFieldName);
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReference: Record "Item Reference";
-    begin
-        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
 
     [IntegrationEvent(TRUE, false)]

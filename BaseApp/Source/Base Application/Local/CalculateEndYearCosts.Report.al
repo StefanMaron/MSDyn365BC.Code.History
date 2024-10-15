@@ -273,6 +273,10 @@ report 12115 "Calculate End Year Costs"
 
         GetBefStartItemQtyAndCost(ItemCostHistory."Purchase Quantity", ItemCostHistory."Purchase Amount");
         SetItemLedgerEntryFilters(ItemLedgEntry, StartingDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Purchase);
+		IsHandled := false;
+		OnInitPurchFieldsOnAfterSetItemLedgerEntryFilters(ItemCostHistory, ItemLedgEntry, IsHandled);
+		if IsHandled then
+            exit;
         if ItemLedgEntry.FindSet() then
             repeat
                 ItemLedgEntry.CalcFields("Purchase Amount (Expected)", "Purchase Amount (Actual)");
@@ -980,6 +984,11 @@ report 12115 "Calculate End Year Costs"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitPurchFields(var ItemCostHistory: Record "Item Cost History"; var IsHandled: Boolean)
+    begin
+    end;
+	
+	[IntegrationEvent(false, false)]
+    local procedure OnInitPurchFieldsOnAfterSetItemLedgerEntryFilters(var ItemCostHistory: Record "Item Cost History"; var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

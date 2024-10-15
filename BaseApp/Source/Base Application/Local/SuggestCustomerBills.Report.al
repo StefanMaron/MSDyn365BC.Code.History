@@ -188,7 +188,7 @@ report 12176 "Suggest Customer Bills"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateLineOnBeforeInsert(CustomerBillLine: Record "Customer Bill Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerBillHeader: Record "Customer Bill Header")
+    local procedure OnCreateLineOnBeforeInsert(var CustomerBillLine: Record "Customer Bill Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerBillHeader: Record "Customer Bill Header")
     begin
     end;
 }

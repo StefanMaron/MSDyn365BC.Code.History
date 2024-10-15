@@ -822,7 +822,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // [THEN] Record D Field DA002004 = "M"
         // [THEN] Record D Field DA002011 = "123"
         LoadFile(Filename);
-        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(Date, 3) mod 100));
+        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(Date, 3) mod 100 + 1));
         ValidateTextFileValue(2, 309, 2, ExceptionalEventCode);
         ValidateTextFileValue(2, 402, 8, '00000001');
         ValidateBlockValue(3, 'DA002004', ConstFormat::AN, 'M');
@@ -1455,8 +1455,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // Validate A-Record
         ValidateTextFileValue(1, 1, 1, 'A');
 
-        // Tfs Id 468096: A record contains the correct period exports into CUR
-        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(WorkDate, 3) mod 100)); // TFS 397347
+        ValidateTextFileValue(1, 16, 5, StrSubstNo(CURTxt, Date2DMY(WorkDate, 3) mod 100 + 1)); // TFS 397347
 
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then begin
             ValidateTextFileValue(1, 21, 2, '10');

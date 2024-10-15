@@ -148,11 +148,20 @@ codeunit 5069 "Word Template Interactions"
             if TempDeliverySorter."Correspondence Type" in [TempDeliverySorter."Correspondence Type"::"Hard Copy",
                                                             TempDeliverySorter."Correspondence Type"::Fax] then begin
                 WordTemplates.Load(InteractLogEntry."Word Template Code");
+
                 InteractionMergeData.MarkedOnly(true);
                 SaveFormat := SaveFormat::PDF;
                 OnExecuteMergeOnBeforeMergeWordTemplates(TempDeliverySorter, InteractLogEntry, SaveFormat);
-                EditDoc := TempDeliverySorter."Wizard Action" = Enum::"Interaction Template Wizard Action"::Open;
-                WordTemplates.Merge(InteractionMergeData, false, SaveFormat, EditDoc); // Only one document
+                EditDoc := (TempDeliverySorter."Wizard Action" = Enum::"Interaction Template Wizard Action"::Open);
+
+                if EditDoc then begin
+                    WordTemplates.Merge(InteractionMergeData, false, SaveFormat::Docx, EditDoc);
+                    WordTemplates.GetDocument(DocumentInStream);
+                    WordTemplates.Load(DocumentInStream);
+                    InteractionMergeData.DeleteAll();
+                end;
+
+                WordTemplates.Merge(InteractionMergeData, false, SaveFormat); // Only merge, do not edit as the document has been edited.
                 WordTemplates.GetDocument(DocumentInStream);
                 SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractLogEntry);
                 InteractionMergeData.DeleteAll();

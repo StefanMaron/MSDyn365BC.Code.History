@@ -47,6 +47,8 @@ codeunit 12179 "Export FatturaPA Document"
         end;
         Modify();
 
+        OnAfterGenerateXmlFile(Rec);
+
         Session.LogMessage('0000CQ8', ExportFatturaSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
     end;
 
@@ -89,7 +91,7 @@ codeunit 12179 "Export FatturaPA Document"
         // update Buffer
         TempXMLBuffer.FindFirst();
         TempXMLBuffer.Save(TempBlob);
-        OnAfterCreateBlobXML(TempXMLBuffer, TempBlob);
+        OnAfterCreateBlobXML(TempXMLBuffer, TempBlob, ClientFileName);
 
         Session.LogMessage('0000CQC', GenerateXMLSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
     end;
@@ -827,7 +829,7 @@ codeunit 12179 "Export FatturaPA Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateBlobXML(var TempXMLBuffer: Record "XML Buffer" temporary; var TempBlob: Codeunit "Temp Blob")
+    local procedure OnAfterCreateBlobXML(var TempXMLBuffer: Record "XML Buffer" temporary; var TempBlob: Codeunit "Temp Blob"; ClientFileName: Text[250])
     begin
     end;
 
@@ -863,6 +865,11 @@ codeunit 12179 "Export FatturaPA Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetFatturaValidCharacter(InputChar: Char; var ReplacementText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGenerateXmlFile(var RecordExportBuffer: Record "Record Export Buffer")
     begin
     end;
 }

@@ -1351,7 +1351,7 @@ codeunit 139511 "Intrastat IT Test"
         IntrastatReportPage.ChecklistReport.Invoke();
 
         // [THEN] Check no error in error part
-        IntrastatReportPage.ErrorMessagesPart.Filter.SetFilter("Field Name", IntrastatReportLine.FieldName("Partner VAT ID"));
+        IntrastatReportPage.ErrorMessagesPart.Filter.SetFilter("Field Name", IntrastatReportLine.FieldCaption("Partner VAT ID"));
         IntrastatReportPage.ErrorMessagesPart."Field Name".AssertEquals('');
 
         // [GIVEN] A Intrastat Report with empty "Total Weight" and "Supplementary Units" = false
@@ -1360,8 +1360,8 @@ codeunit 139511 "Intrastat IT Test"
         IntrastatReportPage.ChecklistReport.Invoke();
 
         // [THEN] You got a error in error part
-        IntrastatReportPage.ErrorMessagesPart.Filter.SetFilter("Field Name", IntrastatReportLine.FieldName("Partner VAT ID"));
-        IntrastatReportPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatReportLine.FieldName("Partner VAT ID"));
+        IntrastatReportPage.ErrorMessagesPart.Filter.SetFilter("Field Name", IntrastatReportLine.FieldCaption("Partner VAT ID"));
+        IntrastatReportPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatReportLine.FieldCaption("Partner VAT ID"));
         IntrastatReportPage.Close();
     end;
 

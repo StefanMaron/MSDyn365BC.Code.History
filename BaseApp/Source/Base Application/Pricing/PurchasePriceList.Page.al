@@ -469,6 +469,8 @@ page 7018 "Purchase Price List"
             SourceGroup::Job:
                 DefaultSourceType := Rec."Source Type"::"All Jobs";
         end;
+
+        OnAfterGetDefaultSourceType(SourceGroup, DefaultSourceType);
     end;
 
     var
@@ -513,13 +515,18 @@ page 7018 "Purchase Price List"
         CurrPage.SaveRecord();
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Purchase Price Source Type"; var IsJobGroup: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnQueryClosePageOnBeforeDraftLineCheck(var PriceListHeader: Record "Price List Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetDefaultSourceType(PriceSourceGroup: Enum "Price Source Group"; var DefaultPriceSourceType: Enum "Price Source Type")
     begin
     end;
 }

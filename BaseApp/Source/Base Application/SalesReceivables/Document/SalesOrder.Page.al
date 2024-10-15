@@ -2625,6 +2625,7 @@ page 42 "Sales Order"
             UpdateShipToBillToGroupVisibility();
             BillToContact.GetOrClear("Bill-to Contact No.");
             SellToContact.GetOrClear("Sell-to Contact No.");
+            CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
         end;
         OnAfterOnAfterGetRecord(Rec);
     end;
@@ -2704,11 +2705,13 @@ page 42 "Sales Order"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
+        OnBeforeQueryClosePage(DocumentIsScheduledForPosting);
         if not DocumentIsScheduledForPosting and ShowReleaseNotification() then
             if not InstructionMgt.ShowConfirmUnreleased() then
                 exit(false);
+        OnQueryClosePageOnBeforeConfirmCloseUnposted(DocumentIsPosted);
         if not DocumentIsPosted then
-            exit(ConfirmCloseUnposted());
+            exit(Rec.ConfirmCloseUnposted());
     end;
 
     var
@@ -3109,6 +3112,16 @@ page 42 "Sales Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; var Navigate: Enum "Navigate After Posting"; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeQueryClosePage(var DocumentIsScheduledForPosting: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnQueryClosePageOnBeforeConfirmCloseUnposted(var DocumentIsPosted: Boolean)
     begin
     end;
 }

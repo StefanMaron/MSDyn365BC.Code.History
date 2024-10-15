@@ -159,11 +159,12 @@
             ClientTypeManagement: Codeunit "Client Type Management";
             UserSetupManagement: Codeunit "User Setup Management";
             Ship: Boolean;
+            Invoice: Boolean;
             IsHandled: Boolean;
         begin
             IsHandled := false;
             OnBeforeOnOpenPage(IsHandled);
-            if not IsHandled then
+            if not IsHandled then begin
                 if not VATReportingDateMgt.IsVATDateEnabled() then begin
                     ReplaceVATDateReq := ReplacePostingDate;
                     VATDateReq := PostingDateReq;
@@ -177,9 +178,12 @@
                     PrintDoc := false;
                     PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
                     VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-                    UserSetupManagement.GetSalesInvoicePostingPolicy(Ship, InvReq);
+                    UserSetupManagement.GetSalesInvoicePostingPolicy(Ship, Invoice);
+                    if Ship then
+                        InvReq := Invoice;
                     PostInvoiceEditable := not Ship;
                 end;
+            end;
             OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc, ReplaceVATDateReq, VATDateReq);
         end;
     }
@@ -238,7 +242,7 @@
             VATDateReq := PostingDateReq;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean; var ReplaceVATDateReq: Boolean; var VATDateReq: Date)
     begin
     end;
@@ -248,7 +252,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeOnOpenPage(var IsHandled: Boolean)
     begin
     end;
