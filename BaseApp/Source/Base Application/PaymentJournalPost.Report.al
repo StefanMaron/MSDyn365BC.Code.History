@@ -66,7 +66,7 @@ report 2000004 "Payment Journal Post"
                 if CustomerTotalAmount[1] + VendorTotalAmount[1] > 0 then begin
                     GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
 
-                    GenJnlLine.Reset;
+                    GenJnlLine.Reset();
                     GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
                     GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
 
@@ -103,7 +103,7 @@ report 2000004 "Payment Journal Post"
                     end;
 
                     if PJBatchName <> '' then begin
-                        PaymJnlLine.Reset;
+                        PaymJnlLine.Reset();
                         PaymJnlLine.SetRange("Journal Template Name", "Payment Journal Line"."Journal Template Name");
                         PaymJnlLine.SetRange("Journal Batch Name", PJBatchName);
                         if PaymJnlLine.FindLast then
@@ -112,7 +112,7 @@ report 2000004 "Payment Journal Post"
                             LineNo := 0;
 
                         // Rename
-                        PaymJnlLine.Reset;
+                        PaymJnlLine.Reset();
                         PaymJnlLine.SetRange("Journal Template Name", "Payment Journal Line"."Journal Template Name");
                         PaymJnlLine.SetRange("Journal Batch Name", "Payment Journal Line"."Journal Batch Name");
                         PaymJnlLine.SetFilter("Separate Line", "Payment Journal Line".GetFilter("Separate Line"));
@@ -152,8 +152,8 @@ report 2000004 "Payment Journal Post"
     trigger OnInitReport()
     begin
         ClearAll;
-        GLSetup.Get;
-        EBSetup.Get;
+        GLSetup.Get();
+        EBSetup.Get();
     end;
 
     trigger OnPreReport()
@@ -272,8 +272,8 @@ report 2000004 "Payment Journal Post"
                 else
                     if PaymJnlLine.FindSet then
                         repeat
-                            TempDimBuf.Reset;
-                            TempDimBuf.DeleteAll;
+                            TempDimBuf.Reset();
+                            TempDimBuf.DeleteAll();
                             if SelectedDim.FindSet then
                                 repeat
                                     if DimensionSetEntry.Get(
@@ -282,7 +282,7 @@ report 2000004 "Payment Journal Post"
                                         TempDimBuf."Table ID" := DATABASE::"Payment Journal Line";
                                         TempDimBuf."Dimension Code" := DimensionSetEntry."Dimension Code";
                                         TempDimBuf."Dimension Value Code" := DimensionSetEntry."Dimension Value Code";
-                                        TempDimBuf.Insert;
+                                        TempDimBuf.Insert();
                                     end;
                                 until SelectedDim.Next = 0;
                             EntryNo := DimBufMgt.FindDimensions(TempDimBuf);
@@ -330,7 +330,7 @@ report 2000004 "Payment Journal Post"
         TempPaymJnlLine."Applies-to ID" := '';
         if BalancingPostingDate <> 0D then
             TempPaymJnlLine."Posting Date" := BalancingPostingDate;
-        TempPaymJnlLine.Insert;
+        TempPaymJnlLine.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -450,6 +450,8 @@ report 2000004 "Payment Journal Post"
                 "Source No." := PaymentJnlLine."Account No.";
                 UpdateDimSetID("Dimension Set ID", PaymentJnlLine);
                 Validate("Dimension Set ID");
+                "Message to Recipient" := CopyStr(PaymentJnlLine."Payment Message", 1, MaxStrLen("Message to Recipient"));
+                "Exported to Payment File" := true;
                 OnBeforeGenJnlLineInsert(GenJnlLine, PaymentJnlLine);
                 Insert;
 
@@ -501,7 +503,7 @@ report 2000004 "Payment Journal Post"
                     if DimensionSetEntry.Get(PaymJnlLine."Dimension Set ID", SelectedDim."Dimension Code") then begin
                         TempDimBuf."Dimension Code" := DimensionSetEntry."Dimension Code";
                         TempDimBuf."Dimension Value Code" := DimensionSetEntry."Dimension Value Code";
-                        TempDimBuf.Insert;
+                        TempDimBuf.Insert();
                     end;
                 until SelectedDim.Next = 0;
             DimSetID := DimMgt.CreateDimSetIDFromDimBuf(TempDimBuf);

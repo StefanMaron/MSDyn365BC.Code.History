@@ -309,7 +309,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         Initialize;
 
-        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         SuggestVendorPayments(PurchaseHeader."Buy-from Vendor No.");
 
         VerifyNumberAndStatusOfVendorPaymentJournalLines(
@@ -332,7 +332,7 @@ codeunit 144003 "ERM Payment Journal"
         Initialize;
 
         // [GIVEN] Post Purchase Invoice
-        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Create Dimension "X" with value "Y"
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
@@ -372,7 +372,7 @@ codeunit 144003 "ERM Payment Journal"
         // [SCENARIO 259025] When the vendor has positive balance and nothing is suggested, and there are vendor ledger entries with the same DocumentNo and DocumentType,
         // [SCENARIO 259025] there should be no warning message related to already existing open entries in the payment journal.
         Initialize;
-        PaymentJournalLine.DeleteAll;
+        PaymentJournalLine.DeleteAll();
 
         // [GIVEN] Vendor "V" with overall positive balance and two Vendor Ledger Entries with the same "Document No." and "Document Type".
         VendorNo := LibraryPurchase.CreateVendorNo;
@@ -388,10 +388,134 @@ codeunit 144003 "ERM Payment Journal"
         Assert.RecordIsEmpty(PaymentJournalLine);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsEBRPH')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentsWithGlobalDimenstion1Filter()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record "Vendor";
+        DimensionValue: Record "Dimension Value";
+        VendorFilter: Text;
+    begin
+        // [FEATURE] [Dimension]
+        // [SCENARIO 345305] Check Suggest Vendor Payments report with filter on Vendor."Global Dimension 1 Filter"
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice for Vendor "V1" with Global Dimension 1 = "D".
+        // [GIVEN] Posted Sales Invoice for Vendor "V2" with empty Global Dimension 1.
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        CreateVendorWithGlobalDimensions(Vendor, DimensionValue.Code, '');
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Report Suggest Vendor Payments is run for "V1"|"V2" with Limit Totals on Global Dimension 1 = "D".
+        VendorFilter := StrSubstNo('%1|%2', Vendor."No.", PurchaseHeader."Buy-from Vendor No.");
+        SuggestVendorPaymentsWithDimFilters(VendorFilter, DimensionValue.Code, '');
+
+        // [THEN] Payment journal line is created only for "V1" with Global Dimension 1 = "D".
+        VerifyPaymentJournalLineDimension(VendorFilter, DimensionValue);
+    END;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsEBRPH')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentsWithEmptyGlobalDimenstion1Filter()
+    var
+        PaymentJournalLine: Record "Payment Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record "Vendor";
+        DimensionValue: Record "Dimension Value";
+        VendorFilter: Text;
+    begin
+        // [FEATURE] [Dimension]
+        // [SCENARIO 345305] Check Suggest Vendor Payments report when filter on Vendor."Global Dimension 1 Filter" is not set.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice for Vendor "V1" with Global Dimension 1 = "D".
+        // [GIVEN] Posted Sales Invoice for Vendor "V2" with empty Global Dimension 1.
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        CreateVendorWithGlobalDimensions(Vendor, DimensionValue.Code, '');
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Report Suggest Vendor Payments is run for "V1"|"V2" with no filter in Limit Totals on Global Dimension.
+        VendorFilter := StrSubstNo('%1|%2', Vendor."No.", PurchaseHeader."Buy-from Vendor No.");
+        SuggestVendorPayments(VendorFilter);
+
+        // [THEN] Payment journal lines are created for both "V1" and "V2.
+        FilterEBPaymentJournalLine(PaymentJournalLine, VendorFilter, PaymentJournalLine.Status::Created);
+        Assert.RecordCount(PaymentJournalLine, 2);
+    END;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsEBRPH')]
+    [Scope('OnPrem')]
+    PROCEDURE SuggestVendorPaymentsWithGlobalDimenstion2Filter()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record "Vendor";
+        DimensionValue: Record "Dimension Value";
+        VendorFilter: Text;
+    begin
+        // [FEATURE] [Dimension]
+        // [SCENARIO 345305] Check Suggest Vendor Payments report with filter on Vendor."Global Dimension 2 Filter"
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice for Vendor "V1" with Global Dimension 2 = "D".
+        // [GIVEN] Posted Sales Invoice for Vendor "V2" with empty Global Dimension 2.
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        CreateVendorWithGlobalDimensions(Vendor, '', DimensionValue.Code);
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Report Suggest Vendor Payments is run for "V1"|"V2" with Limit Totals on Global Dimension 2 = "D".
+        VendorFilter := StrSubstNo('%1|%2', Vendor."No.", PurchaseHeader."Buy-from Vendor No.");
+        SuggestVendorPaymentsWithDimFilters(VendorFilter, '', DimensionValue.Code);
+
+        // [THEN] Payment journal line is created only for "V1" with Global Dimension 2 = "D".
+        VerifyPaymentJournalLineDimension(VendorFilter, DimensionValue);
+    END;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsEBRPH')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentsWithEmptyGlobalDimenstion2Filter()
+    var
+        PaymentJournalLine: Record "Payment Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record "Vendor";
+        DimensionValue: Record "Dimension Value";
+        VendorFilter: Text;
+    begin
+        // [FEATURE] [Dimension]
+        // [SCENARIO 345305] Check Suggest Vendor Payments report when filter on Vendor."Global Dimension 2 Filter" is not set.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice for Vendor "V1" with Global Dimension 2 = "D".
+        // [GIVEN] Posted Sales Invoice for Vendor "V2" with empty Global Dimension 2.
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        CreateVendorWithGlobalDimensions(Vendor, '', DimensionValue.Code);
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        // [WHEN] Report Suggest Vendor Payments is run for "V1"|"V2" with no filter in Limit Totals on Global Dimension.
+        VendorFilter := StrSubstNo('%1|%2', Vendor."No.", PurchaseHeader."Buy-from Vendor No.");
+        SuggestVendorPayments(VendorFilter);
+
+        // [THEN] Payment journal lines are created for both "V1" and "V2.
+        FilterEBPaymentJournalLine(PaymentJournalLine, VendorFilter, PaymentJournalLine.Status::Created);
+        Assert.RecordCount(PaymentJournalLine, 2);
+    END;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Journal");
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibrarySetupStorage.Restore;
 
         if isInitialized then
@@ -401,7 +525,7 @@ codeunit 144003 "ERM Payment Journal"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Payment Journal");
     end;
 
@@ -434,7 +558,7 @@ codeunit 144003 "ERM Payment Journal"
         GenJnlBatch.Get(TemplateName, BatchName);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
         GenJnlBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo;
-        GenJnlBatch.Modify;
+        GenJnlBatch.Modify();
 
         if UseExpProtCodeInternational then
             PreparePaymentJnlBatch(TemplateName, BatchName, ExpProtCodeInternational, refExportProtocolType::International)
@@ -635,7 +759,7 @@ codeunit 144003 "ERM Payment Journal"
         PaymentJournalLine.SetRange("Journal Template Name", TemplateName);
         PaymentJournalLine.SetRange("Journal Batch Name", BatchName);
         PaymentJournalLine.FindFirst;
-        Commit;
+        Commit();
 
         ExportProtocol.Get(ExportProtocolCode);
         ExportProtocol.ExportPaymentLines(PaymentJournalLine);
@@ -645,7 +769,7 @@ codeunit 144003 "ERM Payment Journal"
     var
         EBPaymentJournal: TestPage "EB Payment Journal";
     begin
-        Commit;
+        Commit();
 
         EBPaymentJournal.OpenEdit;
         EBPaymentJournal.CurrentJnlBatchName.SetValue(BatchName);
@@ -668,19 +792,19 @@ codeunit 144003 "ERM Payment Journal"
 
         GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
         GenJnlLine.Validate("Bal. Account No.", BankAccountNo);
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         DocumentNo := GenJnlLine."Document No.";
 
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
         with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+            LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
             Validate("Vendor Invoice No.", PadStr("Vendor Invoice No.", MaxStrLen("Vendor Invoice No."), '0'));
             Modify(true);
         end;
@@ -699,7 +823,7 @@ codeunit 144003 "ERM Payment Journal"
     var
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount.Validate("No.", LibraryUtility.GenerateRandomCode20(BankAccount.FieldNo("No."), DATABASE::"Bank Account"));
         BankAccount.Validate(Name, BankAccount."No.");
         BankAccount.Insert(true);
@@ -714,7 +838,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         CreateBankAccount(BankAccount);
         GenerateBankAccNosMod97Compliant(BankAccount."Bank Account No.", BankAccount."Bank Branch No.");
-        BankAccount.Modify;
+        BankAccount.Modify();
         exit(BankAccount."No.");
     end;
 
@@ -743,6 +867,14 @@ codeunit 144003 "ERM Payment Journal"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         CreateVendorBankAccountMod97Compliant(Vendor);
+    end;
+
+    local procedure CreateVendorWithGlobalDimensions(var Vendor: Record "Vendor"; GlobalDim1Value: Code[20]; GlobalDim2Value: Code[20])
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Global Dimension 1 Code", GlobalDim1Value);
+        Vendor.Validate("Global Dimension 2 Code", GlobalDim2Value);
+        Vendor.Modify(true);
     end;
 
     local procedure CreateVendorBankAccount(Vendor: Record Vendor; Domestic: Boolean)
@@ -903,7 +1035,12 @@ codeunit 144003 "ERM Payment Journal"
         end;
     end;
 
-    local procedure SuggestVendorPayments(VendorNo: Code[20])
+    local procedure SuggestVendorPayments(VendorNoFilter: Text)
+    begin
+        SuggestVendorPaymentsWithDimFilters(VendorNoFilter, '', '');
+    end;
+
+    local procedure SuggestVendorPaymentsWithDimFilters(VendorNoFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text)
     var
         Vendor: Record Vendor;
         PaymentJournalLine: Record "Payment Journal Line";
@@ -914,11 +1051,13 @@ codeunit 144003 "ERM Payment Journal"
         CreatePaymentTemplate(PaymentJournalTemplate);
         CreatePaymentBatch(PaymentJournalTemplate, PaymJournalBatch);
         CreatePaymentJournalLine(PaymentJournalTemplate.Name, PaymJournalBatch.Name, PaymentJournalLine);
-        Commit;
-        Vendor.SetRange("No.", VendorNo);
+        Commit();
+        Vendor.SetFilter("No.", VendorNoFilter);
+        Vendor.SetFilter("Global Dimension 1 Filter", GlobalDim1Filter);
+        Vendor.SetFilter("Global Dimension 2 Filter", GlobalDim2Filter);
         SuggestVendorPaymentsEB.SetTableView(Vendor);
         SuggestVendorPaymentsEB.SetJournal(PaymentJournalLine);
-        SuggestVendorPaymentsEB.RunModal;
+        SuggestVendorPaymentsEB.RunModal();
     end;
 
     local procedure PostPaymentJournal(GenJnlLine: Record "Gen. Journal Line"; var PaymentJnlLine: Record "Payment Journal Line"; ExportProtocolCode: Code[20])
@@ -943,11 +1082,11 @@ codeunit 144003 "ERM Payment Journal"
         end;
     end;
 
-    local procedure FilterEBPaymentJournalLine(var PaymentJournalLine: Record "Payment Journal Line"; VendorNo: Code[20]; LineStatus: Option)
+    local procedure FilterEBPaymentJournalLine(var PaymentJournalLine: Record "Payment Journal Line"; VendorNoFilter: Text; LineStatus: Option)
     begin
         with PaymentJournalLine do begin
             SetRange("Account Type", "Account Type"::Vendor);
-            SetRange("Account No.", VendorNo);
+            SetFilter("Account No.", VendorNoFilter);
             SetRange(Status, LineStatus);
         end;
     end;
@@ -961,7 +1100,7 @@ codeunit 144003 "ERM Payment Journal"
         GenJnlBatch.Get(TemplateName, BatchName);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
         GenJnlBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo;
-        GenJnlBatch.Modify;
+        GenJnlBatch.Modify();
         LibraryERM.ClearGenJournalLines(GenJnlBatch);
 
         GenJnlLine."Journal Template Name" := TemplateName;
@@ -1102,7 +1241,7 @@ codeunit 144003 "ERM Payment Journal"
         SelectedDim: Record "Selected Dimension";
     begin
         with SelectedDim do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             "User ID" := UserId;
             Validate("Object Type", 3);
@@ -1174,6 +1313,21 @@ codeunit 144003 "ERM Payment Journal"
                 Assert.AreEqual(Status, PmtJnlLine.Status, WrongStatusOfLineErr);
             until PmtJnlLine.Next = 0;
         Assert.AreEqual(NumberOfLines, Count, WrongNumberOfLinesErr);
+    end;
+
+    local procedure VerifyPaymentJournalLineDimension(VendorFilter: Text; DimensionValue: Record "Dimension Value")
+    var
+        PaymentJournalLine: Record "Payment Journal Line";
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        FilterEBPaymentJournalLine(PaymentJournalLine, VendorFilter, PaymentJournalLine.Status::Created);
+        Assert.RecordCount(PaymentJournalLine, 1);
+        PaymentJournalLine.FindFirst();
+        DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
+        LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, PaymentJournalLine."Dimension Set ID");
+        Assert.AreEqual(
+            DimensionValue.Code, DimensionSetEntry."Dimension Value Code",
+            DimensionSetEntry.FieldCaption("Dimension Value Code"));
     end;
 
     local procedure VerifyPaymentJournalLinesStatusChangedAndRenamed(TemplateName: Code[10]; BatchName: Code[10])

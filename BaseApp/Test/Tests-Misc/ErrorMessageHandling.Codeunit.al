@@ -1152,7 +1152,28 @@ codeunit 132500 "Error Message Handling"
         NamedForwardLink.SetRange(Description, '');
         NamedForwardLink.SetRange(Link, '');
         Assert.RecordIsEmpty(NamedForwardLink);
+    end;
 
+    [Test]
+    procedure T992_ExistingForwardLinkDoesNotGetOverriden()
+    var
+        NamedForwardLink: Record "Named Forward Link";
+        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+    begin
+        // [FEATURE] [UT] [Forward Link]
+        Initialize;
+        // [GIVEN] No Forward Links
+        NamedForwardLink.DeleteAll();
+        // [GIVEN] Action "A", where Description 'D', Link 'L'
+        ForwardLinkMgt.AddLink('A', 'D', 'L');
+
+        // [WHEN] Try to add action "A", where Description 'D2', Link 'L2'
+        ForwardLinkMgt.AddLink('A', 'D2', 'L2');
+
+        // [THEN]  Link "A", where Description 'D', Link 'L'
+        NamedForwardLink.Get('A');
+        NamedForwardLink.Testfield(Description, 'D');
+        NamedForwardLink.Testfield(Link, 'L');
     end;
 
     local procedure Initialize()

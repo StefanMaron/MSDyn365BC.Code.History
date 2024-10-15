@@ -50,7 +50,7 @@ report 2000019 "Suggest Vendor Payments EB"
 
                 Vend2.CopyFilters(Vend);
 
-                PaymJnlLine.LockTable;
+                PaymJnlLine.LockTable();
                 PaymJnlLine.SetRange("Journal Template Name", PaymJnlBatch."Journal Template Name");
                 PaymJnlLine.SetRange("Journal Batch Name", PaymJnlBatch.Name);
                 if PaymJnlLine.FindLast then;
@@ -69,11 +69,11 @@ report 2000019 "Suggest Vendor Payments EB"
 
             trigger OnAfterGetRecord()
             begin
-                PaymJnlLine2.Reset;
+                PaymJnlLine2.Reset();
                 PaymJnlLine2.SetRange("Journal Template Name", PaymJnlTemplate.Name);
                 PaymJnlLine2.SetRange("Journal Batch Name", PaymJnlBatch.Name);
                 PaymJnlLine2.SetRange("Account No.", '');
-                PaymJnlLine2.DeleteAll;
+                PaymJnlLine2.DeleteAll();
             end;
         }
     }
@@ -193,12 +193,14 @@ report 2000019 "Suggest Vendor Payments EB"
         with Vend do begin
             CheckBlockedVendOnJnls(Vend, VendLedgEntry."Document Type"::Payment, false);
             // select vendor ledger entries
-            VendLedgEntry.Reset;
+            VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
             VendLedgEntry.SetRange("Vendor No.", "No.");
             VendLedgEntry.SetRange(Open, true);
             if GetFilter("Currency Filter") <> '' then
                 VendLedgEntry.SetFilter("Currency Code", GetFilter("Currency Filter"));
+            VendLedgEntry.SetFilter("Global Dimension 1 Code", GetFilter("Global Dimension 1 Filter"));
+            VendLedgEntry.SetFilter("Global Dimension 2 Code", GetFilter("Global Dimension 2 Filter"));
 
             // first take credit memo's into account
             if IncCreditMemos then begin
@@ -238,7 +240,7 @@ report 2000019 "Suggest Vendor Payments EB"
 
             // cleanup if nothing to pay for this vendor (e.g. Credit memo's > Invoices)
             if AmountPerVendor <= 0 then begin
-                PaymJnlLine3.Reset;
+                PaymJnlLine3.Reset();
                 PaymJnlLine3.SetCurrentKey("Account Type", "Account No.");
                 PaymJnlLine3.SetRange("Journal Template Name", PaymJnlTemplate.Name);
                 PaymJnlLine3.SetRange("Journal Batch Name", PaymJnlBatch.Name);
@@ -256,10 +258,11 @@ report 2000019 "Suggest Vendor Payments EB"
     procedure SetPaymJnlLine()
     var
         DimMgt: Codeunit DimensionManagement;
+        DimSetIDArr: array [10] of Integer;
     begin
         with PaymJnlLine do begin
             // if the invoice already is attached to an unposted Payment Line, we skip it
-            PaymJnlLine2.Reset;
+            PaymJnlLine2.Reset();
             PaymJnlLine2.SetCurrentKey("Account Type", "Account No.");
             PaymJnlLine2.SetRange("Account Type", PaymJnlLine2."Account Type"::Vendor);
             PaymJnlLine2.SetRange("Account No.", VendLedgEntry."Vendor No.");
@@ -298,6 +301,12 @@ report 2000019 "Suggest Vendor Payments EB"
                       DimMgt.TypeToTableID2000001("Account Type"), "Account No.",
                       DATABASE::"Bank Account", "Bank Account",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
+                    if "Dimension Set ID" <> VendLedgEntry."Dimension Set ID" then begin
+                        DimSetIDArr[1] := "Dimension Set ID";
+                        DimSetIDArr[2] := VendLedgEntry."Dimension Set ID";
+                        "Dimension Set ID" :=
+                            DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+                    end;
                     Insert;
                 end;
             end else begin

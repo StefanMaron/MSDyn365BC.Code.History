@@ -61,6 +61,7 @@ codeunit 144008 "EB - Payment Journal Export"
         YouCannotCreateDocumentVendorPrivacyBlockedErr: Label 'You cannot create this type of document when Vendor %1 is blocked for privacy.', Comment = '%1 - Vendor No';
         YouCannotCreateDocumentCustomerPrivacyBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked for privacy.', Comment = '%1 - Customer No';
         InterbankClearingCodeOptionRef: Option " ",Normal,Urgent;
+        PaymentMessageTxt: Label '011397265378';
 
     [Test]
     [HandlerFunctions('SuggestVendorPaymentsReportHandler,FileSEPAPaymentsReportHandler')]
@@ -255,7 +256,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(ExpectedError, ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -299,7 +300,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(CurrencyMustBeEuroErr), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -344,7 +345,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(CurrencyCannotBeEuroErr), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -427,7 +428,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(BlankVendorCurrencyCodeErr), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -470,7 +471,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(OnlyOneBankAccountErr), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -509,7 +510,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(PaymentLineBlankBankAccountErr), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
     end;
 
     [Test]
@@ -544,7 +545,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(StrSubstNo(BlankCurrencyCodeErr, LastBankAccount), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -578,7 +579,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(BlankVendorSwiftErr), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -612,7 +613,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(StrSubstNo(BlankSwiftErr, LastBankAccount), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -655,9 +656,9 @@ codeunit 144008 "EB - Payment Journal Export"
         PurchaseHeader."Vendor Cr. Memo No." := PurchaseHeader."No.";
         if not UseEuro then begin
             PurchaseHeader.Validate("Currency Code", ForeignCurrencyCode);
-            PurchaseHeader.Modify;
+            PurchaseHeader.Modify();
         end;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryERM.FindGLAccount(GLAccount);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(5, 2));
@@ -673,7 +674,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(NoPaymentInJournalErr), CopyStr(GetLastErrorText, 1, 51), IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
     end;
 
     [Test]
@@ -704,7 +705,7 @@ codeunit 144008 "EB - Payment Journal Export"
         PurchaseHeader.Validate("Currency Code", ForeignCurrencyCode);
         PurchaseHeader."Vendor Invoice No." := PurchaseHeader."No.";
         PurchaseHeader."Vendor Cr. Memo No." := PurchaseHeader."No.";
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryERM.FindGLAccount(GLAccount);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(5, 2));
@@ -719,7 +720,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.IsTrue(StrPos(GetLastErrorText, Format(AmountMustBePositiveErr)) <> 0, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
     end;
 
     [Test]
@@ -759,7 +760,7 @@ codeunit 144008 "EB - Payment Journal Export"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         PurchaseHeader."Vendor Invoice No." := PurchaseHeader."No.";
         PurchaseHeader."Vendor Cr. Memo No." := PurchaseHeader."No.";
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryERM.FindGLAccount(GLAccount);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(5, 2));
@@ -775,7 +776,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.IsTrue(StrPos(GetLastErrorText, Format(AmountMustBePositiveErr)) <> 0, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
     end;
 
     [Test]
@@ -814,7 +815,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(SepaNotAllowedErr), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -854,7 +855,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(SepaNotAllowedErr), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -970,7 +971,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(StrSubstNo(BlankNoSeriesErr, ExportProtocol.Code), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -1090,7 +1091,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(StrSubstNo(BlankNoSeriesErr, ExportProtocol.Code), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -1126,7 +1127,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(Format(BlankVendorIbanErr), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -1161,7 +1162,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(StrSubstNo(BlankIbanErr, LastBankAccount), ErrorMessage, IncorrectErr);
 
         // Cleanup
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.DeleteAll();
         FileMgt.DeleteServerFile(FileName);
     end;
 
@@ -1405,7 +1406,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
         PaymentJournalLine[1].SetRange("Journal Template Name", PaymJournalBatch."Journal Template Name");
         PaymentJournalLine[1].SetRange("Journal Batch Name", PaymJournalBatch.Name);
-        PaymentJournalLine[1].DeleteAll;
+        PaymentJournalLine[1].DeleteAll();
 
         // [GIVEN] 1st Payment Journal Line with positive Amount and "Separate Line" = TRUE
         CreatePaymentJournalLine(
@@ -1463,7 +1464,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
         PaymentJournalLine[1].SetRange("Journal Template Name", PaymJournalBatch."Journal Template Name");
         PaymentJournalLine[1].SetRange("Journal Batch Name", PaymJournalBatch.Name);
-        PaymentJournalLine[1].DeleteAll;
+        PaymentJournalLine[1].DeleteAll();
 
         // [GIVEN] 1st Payment Journal Line with negative Amount and "Separate Line" = FALSE
         CreatePaymentJournalLine(
@@ -1583,7 +1584,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [GIVEN] Payment Journal Line for blocked Vendor
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Blocked := Vendor.Blocked::All;
-        Vendor.Modify;
+        Vendor.Modify();
         MockPaymentJnlLine(
           PaymentJournalLine, PaymentJournalLine."Account Type"::Vendor, Vendor."No.", CreateSEPAExportProtocol(false));
 
@@ -1609,7 +1610,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [GIVEN] Payment Journal Line for blocked Customer
         LibrarySales.CreateCustomer(Customer);
         Customer.Blocked := Customer.Blocked::All;
-        Customer.Modify;
+        Customer.Modify();
         MockPaymentJnlLine(
           PaymentJournalLine, PaymentJournalLine."Account Type"::Customer, Customer."No.", CreateSEPAExportProtocol(false));
 
@@ -1635,7 +1636,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [GIVEN] Payment Journal Line for blocked Vendor
         LibraryPurchase.CreateVendor(Vendor);
         Vendor."Privacy Blocked" := true;
-        Vendor.Modify;
+        Vendor.Modify();
         MockPaymentJnlLine(
           PaymentJournalLine, PaymentJournalLine."Account Type"::Vendor, Vendor."No.", CreateSEPAExportProtocol(false));
 
@@ -1661,7 +1662,7 @@ codeunit 144008 "EB - Payment Journal Export"
         // [GIVEN] Payment Journal Line for blocked Customer
         LibrarySales.CreateCustomer(Customer);
         Customer."Privacy Blocked" := true;
-        Customer.Modify;
+        Customer.Modify();
         MockPaymentJnlLine(
           PaymentJournalLine, PaymentJournalLine."Account Type"::Customer, Customer."No.", CreateSEPAExportProtocol(false));
 
@@ -1794,7 +1795,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // [GIVEN] Payment line for Customer "CVNo"
         CreatePmtJournalLine(PaymJournalBatch, CustomerVendorNo, DocNo);
-        Commit;
+        Commit();
 
         // [WHEN] Run "Export Payment Line" using Gen. Journal Line and Gen. Journal Batch
         ExportPaymentLines(FileName, PaymJournalBatch, CountryCode, ExportProtocol, false, InterbankClearingCodeOptionRef::" ");
@@ -1912,6 +1913,41 @@ codeunit 144008 "EB - Payment Journal Export"
         GenJournalLine.SetRange("Account No.", VendorNo);
         GenJournalLine.FindFirst();
         GenJournalLine.TestField("Shortcut Dimension 1 Code", DimensionValue.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsReportHandler,FileSEPAPaymentsReportHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyMessageToRecipientAndExportedToPaymentFileAfterExportPaymentLines()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        FileName: Text;
+        CountryCode: Code[10];
+        VendorNo: Code[20];
+        ExportProtocol: Code[20];
+        Swift: Code[20];
+    begin
+        // [FEATURE] [Export] [UT]
+        // [SCENARIO 343110] Exporting payment line sets "Message to Recipient" and "Exported to Payment File" for created Gen. Journal line.
+        Initialize();
+
+        // [GIVEN] Export Protocol and Vendor.
+        VendorNo := CreateVendorForExportSuggestedPayment(CountryCode, ExportProtocol);
+
+        // [GIVEN] Purchase Invoice for Vendor.
+        CreateAndPostPurchInv(VendorNo, true);
+
+        // [WHEN] Suggest and Export Payment with Payment Message "X".
+        Swift := GenerateBankAccSwiftCode();
+        ExportSuggestedPayment(
+          FileName, CountryCode, Format(VendorNo), ExportProtocol, Swift, BankIbanTxt, '',
+          true, true, InterbankClearingCodeOptionRef::" ");
+
+        // [THEN] Resulting Gen. Journal line has "Exported to Payment File" set to True and "Message to Recipient" is equal to "X"
+        VerifyGenJnlLinePaymentInfo(GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo);
+        
+        // Tear Down.
+        FileMgt.DeleteServerFile(FileName);
     end;
 
     local procedure Initialize()
@@ -2129,7 +2165,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         Vendor.Get(CreateVendor(CountryCode, ExportProtocolCode, VendorSwift, VendorIban));
         Vendor.Validate("Country/Region Code", '');
-        Vendor.Modify;
+        Vendor.Modify();
         exit(Vendor."No.");
     end;
 
@@ -2205,7 +2241,7 @@ codeunit 144008 "EB - Payment Journal Export"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         if not UseEuro then begin
             PurchaseHeader.Validate("Currency Code", ForeignCurrencyCode);
-            PurchaseHeader.Modify;
+            PurchaseHeader.Modify();
         end;
         LibraryERM.FindGLAccount(GLAccount);
         LibraryPurchase.CreatePurchaseLine(
@@ -2305,7 +2341,7 @@ codeunit 144008 "EB - Payment Journal Export"
         LibraryVariableStorage.Enqueue(VendorNo);
         EBPaymentJournalPage.OpenEdit;
         CreatePaymentJnlBatch(PaymJournalBatch);
-        Commit;
+        Commit();
         EBPaymentJournalPage.ExportProtocolCode.Value(ExportProtocol);
         EBPaymentJournalPage.CurrentJnlBatchName.Value(PaymJournalBatch.Name);
         EBPaymentJournalPage.SuggestVendorPayments.Invoke;
@@ -2320,7 +2356,7 @@ codeunit 144008 "EB - Payment Journal Export"
                     Modify(true);
                 until Next = 0;
             end;
-        Commit;
+        Commit();
         EBPaymentJournalPage.CheckPaymentLines.Invoke;
     end;
 
@@ -2344,7 +2380,7 @@ codeunit 144008 "EB - Payment Journal Export"
             repeat
                 Validate("Bank Account", BankAccountNo);
                 if PaymentMsg then
-                    Validate("Payment Message", '011397265378');
+                    Validate("Payment Message", PaymentMessageTxt);
                 if SeparateLine then
                     Validate("Separate Line", true);
                 if BlankPaymentJournalBankAccount then
@@ -2736,7 +2772,7 @@ codeunit 144008 "EB - Payment Journal Export"
         for i := 0 to (PaymentCount - 1) do begin
             XmlNode := XmlNodeList.Item(i);
             Assert.AreEqual('EndToEndId', XmlNode.Name, IncorrectNodeNameErr);
-            Assert.AreEqual('011397265378', XmlNode.InnerText, IncorrectNodeNameErr);
+            Assert.AreEqual(PaymentMessageTxt, XmlNode.InnerText, IncorrectNodeNameErr);
         end;
     end;
 
@@ -2805,6 +2841,19 @@ codeunit 144008 "EB - Payment Journal Export"
           GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No." + GLAccDeltaLineNo);
         GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::"G/L Account");
         GenJournalLine.TestField("Document Type", DocumentType);
+    end;
+
+    local procedure VerifyGenJnlLinePaymentInfo(DocumentType: Option; AccountType: Option; AccountNo: Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetRange("Document Type", DocumentType);
+        GenJournalLine.SetRange("Account Type", AccountType);
+        GenJournalLine.SetRange("Account No.", AccountNo);
+        Assert.RecordCount(GenJournalLine, 1);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Message to Recipient", PaymentMessageTxt);
+        GenJournalLine.TestField("Exported to Payment File", true);
     end;
 
     [RequestPageHandler]

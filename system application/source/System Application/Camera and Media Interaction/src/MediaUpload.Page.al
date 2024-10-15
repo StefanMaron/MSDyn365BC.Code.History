@@ -8,8 +8,12 @@
 /// </summary>
 /// <example>
 /// <code>
-/// MediaInteraction.RunModal();
-/// MediaInteraction.GetMedia(InStream);
+/// MediaUpload.RunModal();
+/// if MediaUpload.HasMedia() then begin
+///     MediaUpload.GetMedia(InStream);
+/// ...
+/// end;
+/// Clear(MediaUpload);
 /// </code>
 /// </example>
 page 1909 "Media Upload"
@@ -40,7 +44,7 @@ page 1909 "Media Upload"
     }
 
     var
-        MediaInteractionImpl: Codeunit "Media Upload Impl.";
+        MediaUploadPageImpl: Codeunit "Media Upload Page Impl.";
         [RunOnClient]
         [WithEvents]
         CameraProvider: DotNet CameraProvider;
@@ -53,7 +57,7 @@ page 1909 "Media Upload"
     /// </summary>
     trigger OnOpenPage()
     begin
-        MediaInteractionImpl.MediaInteractionOnOpenPage(CameraProvider, MediaUploadAvailable);
+        MediaUploadPageImpl.MediaInteractionOnOpenPage(CameraProvider, MediaUploadAvailable);
     end;
 
     /// <summary>
@@ -62,7 +66,7 @@ page 1909 "Media Upload"
     /// <returns>True if the media upload is available, false otherwise.</returns>
     procedure IsAvailable(): Boolean
     begin
-        exit(MediaInteractionImpl.IsAvailable(CameraProvider));
+        exit(MediaUploadPageImpl.IsAvailable(CameraProvider));
     end;
 
     /// <summary>
@@ -71,7 +75,7 @@ page 1909 "Media Upload"
     /// <param name="MediaType">The type of media to upload.</param>
     procedure SetMediaType(MediaType: Enum "Media Type")
     begin
-        MediaInteractionImpl.SetMediaType(MediaType);
+        MediaUploadPageImpl.SetMediaType(MediaType);
     end;
 
     /// <summary>
@@ -81,7 +85,7 @@ page 1909 "Media Upload"
     /// <param name="UploadFromSavedPhotoAlbum">Whether to upload media from Saved Photo Album.</param>
     procedure SetUploadFromSavedPhotoAlbum(UploadFromSavedPhotoAlbum: Boolean)
     begin
-        MediaInteractionImpl.SetUploadFromSavedPhotoAlbum(UploadFromSavedPhotoAlbum);
+        MediaUploadPageImpl.SetUploadFromSavedPhotoAlbum(UploadFromSavedPhotoAlbum);
     end;
 
     /// <summary>
@@ -92,7 +96,20 @@ page 1909 "Media Upload"
     /// <error>The picture is not available.</error>
     procedure GetMedia(var TempBlob: Codeunit "Temp Blob")
     begin
-        MediaInteractionImpl.GetMedia(TempBlob);
+        MediaUploadPageImpl.GetMedia(TempBlob);
+    end;
+
+    /// <summary>
+    /// Checks if the media is available and can be obtained with a <see cref="GetMedia"/> method.
+    /// </summary>
+    /// <remarks>
+    /// The media will not be available if the page was not opened
+    /// (e. g. MediaUpload.RunModal() function was not called) or if the dialog was canceled.
+    /// </remarks>
+    /// <returns>True if the media is available, false otherwise.</returns>
+    procedure HasMedia(): Boolean
+    begin
+        exit(MediaUploadPageImpl.HasMedia());
     end;
 
     /// <summary>
@@ -103,12 +120,12 @@ page 1909 "Media Upload"
     /// <error>The picture is not available.</error>
     procedure GetMedia(Stream: Instream)
     begin
-        MediaInteractionImpl.GetMedia(Stream);
+        MediaUploadPageImpl.GetMedia(Stream);
     end;
 
     trigger CameraProvider::PictureAvailable(FileName: Text; FilePath: Text)
     begin
-        MediaInteractionImpl.MediaInteractionOnPictureAvailable(FilePath);
+        MediaUploadPageImpl.MediaInteractionOnPictureAvailable(FilePath);
         CurrPage.Close();
     end;
 

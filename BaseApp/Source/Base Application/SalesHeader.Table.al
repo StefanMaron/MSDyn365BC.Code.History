@@ -230,6 +230,7 @@ table 36 "Sales Header"
                     Customer.Get("Bill-to Customer No.");
 
                 if Customer.LookupCustomer(Customer) then begin
+                    xRec := Rec;
                     "Bill-to Name" := Customer.Name;
                     Validate("Bill-to Customer No.", Customer."No.");
                 end;
@@ -1119,6 +1120,7 @@ table 36 "Sales Header"
                     Customer.Get("Sell-to Customer No.");
 
                 if Customer.LookupCustomer(Customer) then begin
+                    xRec := Rec;
                     "Sell-to Customer Name" := Customer.Name;
                     Validate("Sell-to Customer No.", Customer."No.");
                 end;

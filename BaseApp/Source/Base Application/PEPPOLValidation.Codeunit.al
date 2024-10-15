@@ -50,6 +50,7 @@ codeunit 1620 "PEPPOL Validation"
 
             if CompanyInfo.GLN + CompanyInfo."VAT Registration No." + CompanyInfo."Enterprise No." = '' then
                 Error(MissingCompInfGLNOrVATRegNoOrEnterpNoErr);
+
             TestField("Bill-to Name");
             TestField("Bill-to Address");
             TestField("Bill-to City");
@@ -69,6 +70,7 @@ codeunit 1620 "PEPPOL Validation"
 
             if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
                 TestField("Shipment Date");
+            TestField("Your Reference");
             TestField("Ship-to Address");
             TestField("Ship-to City");
             TestField("Ship-to Post Code");

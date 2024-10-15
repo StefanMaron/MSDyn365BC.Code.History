@@ -11,7 +11,6 @@ codeunit 144025 "Test Enterprise No and Branch"
     var
         LibraryBEHelper: Codeunit "Library - BE Helper";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
@@ -20,8 +19,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         BillToNameMustHaveValueErr: Label 'Bill-to Name must have a value';
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -48,7 +49,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         CompanyInformation.Init;
         CompanyInformation.FindFirst;
         CompanyInformation.Validate("Enterprise No.", '');
-        CompanyInformation."VAT Registration No." := LibraryBEHelper.CreateVatRegNo('BE');
+        CompanyInformation."VAT Registration No." := LibraryBEHelper.CreateVatRegNo(GetCountryBE());
 
         Assert.AreNotEqual('', CompanyInformation."VAT Registration No.", '');
         CompanyInformation.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo);
@@ -83,10 +84,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", 'BE');
+        Customer.Validate("Country/Region Code", GetCountryBE());
         Customer.Modify;
 
-        asserterror Customer.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo('BE'));
+        asserterror Customer.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo(GetCountryBE()));
         Assert.ExpectedError('Enterprise');
 
         EnterpriseNo := LibraryBEHelper.CreateEnterpriseNo;
@@ -104,11 +105,11 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", 'BE');
+        Customer.Validate("Country/Region Code", GetCountryBE());
         Customer.Modify;
 
         Customer.Validate("Enterprise No.", '');
-        Customer."VAT Registration No." := LibraryBEHelper.CreateVatRegNo('BE');
+        Customer."VAT Registration No." := LibraryBEHelper.CreateVatRegNo(GetCountryBE());
 
         Assert.AreNotEqual('', Customer."VAT Registration No.", '');
         Customer.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo);
@@ -124,7 +125,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", 'BE');
+        Customer.Validate("Country/Region Code", GetCountryBE());
         Customer.Modify;
 
         asserterror Customer.Validate("Enterprise No.", '0123456789');
@@ -140,10 +141,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", 'GB');
+        Customer.Validate("Country/Region Code", GetCountryEU());
         Customer.Modify;
 
-        Customer.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo('GB'));
+        Customer.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code"));
 
         asserterror Customer.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo);
         Assert.ExpectedError('Enterprise');
@@ -162,10 +163,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", 'GB');
+        Customer.Validate("Country/Region Code", GetCountryEU());
         Customer.Modify;
 
-        VATNo := LibraryBEHelper.CreateVatRegNo('GB');
+        VATNo := LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code");
         Customer.Validate("VAT Registration No.", VATNo);
 
         Assert.AreEqual(VATNo, Customer."VAT Registration No.", 'VAT Registration number is not set.');
@@ -181,10 +182,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", 'BE');
+        Vendor.Validate("Country/Region Code", GetCountryBE());
         Vendor.Modify;
 
-        asserterror Vendor.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo('BE'));
+        asserterror Vendor.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo(GetCountryBE()));
         Assert.ExpectedError('Enterprise');
 
         EnterpriseNo := LibraryBEHelper.CreateEnterpriseNo;
@@ -202,11 +203,11 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", 'BE');
+        Vendor.Validate("Country/Region Code", GetCountryBE());
         Vendor.Modify;
 
         Vendor.Validate("Enterprise No.", '');
-        Vendor."VAT Registration No." := LibraryBEHelper.CreateVatRegNo('BE');
+        Vendor."VAT Registration No." := LibraryBEHelper.CreateVatRegNo(GetCountryBE());
 
         Assert.AreNotEqual('', Vendor."VAT Registration No.", '');
         Vendor.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo);
@@ -222,7 +223,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", 'BE');
+        Vendor.Validate("Country/Region Code", GetCountryBE());
         Vendor.Modify;
 
         asserterror Vendor.Validate("Enterprise No.", '0123456789');
@@ -241,10 +242,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", 'GB');
+        Vendor.Validate("Country/Region Code", GetCountryEU());
         Vendor.Modify;
 
-        Vendor.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo('GB'));
+        Vendor.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Vendor."Country/Region Code"));
 
         asserterror Vendor.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo);
         Assert.ExpectedError('Enterprise');
@@ -260,10 +261,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", 'GB');
+        Vendor.Validate("Country/Region Code", GetCountryEU());
         Vendor.Modify;
 
-        VATNo := LibraryBEHelper.CreateVatRegNo('GB');
+        VATNo := LibraryERM.GenerateVATRegistrationNo(Vendor."Country/Region Code");
         Vendor.Validate("VAT Registration No.", VATNo);
 
         Assert.AreEqual(VATNo, Vendor."VAT Registration No.", 'VAT Registration number is not set.');
@@ -279,10 +280,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryMarketing.CreateCompanyContact(Contact);
-        Contact.Validate("Country/Region Code", 'BE');
+        Contact.Validate("Country/Region Code", GetCountryBE());
         Contact.Modify;
 
-        asserterror Contact.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo('BE'));
+        asserterror Contact.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo(GetCountryBE()));
         Assert.ExpectedError('Enterprise');
 
         EnterpriseNo := LibraryBEHelper.CreateEnterpriseNo;
@@ -300,11 +301,11 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryMarketing.CreateCompanyContact(Contact);
-        Contact.Validate("Country/Region Code", 'BE');
+        Contact.Validate("Country/Region Code", GetCountryBE());
         Contact.Modify;
 
         Contact.Validate("Enterprise No.", '');
-        Contact."VAT Registration No." := LibraryBEHelper.CreateVatRegNo('BE');
+        Contact."VAT Registration No." := LibraryBEHelper.CreateVatRegNo(GetCountryBE());
 
         Assert.AreNotEqual('', Contact."VAT Registration No.", '');
         Contact.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo);
@@ -320,7 +321,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryMarketing.CreateCompanyContact(Contact);
-        Contact.Validate("Country/Region Code", 'BE');
+        Contact.Validate("Country/Region Code", GetCountryBE());
         Contact.Modify;
 
         asserterror Contact.Validate("Enterprise No.", '0123456789');
@@ -339,10 +340,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryMarketing.CreateCompanyContact(Contact);
-        Contact.Validate("Country/Region Code", 'GB');
+        Contact.Validate("Country/Region Code", GetCountryEU());
         Contact.Modify;
 
-        Contact.Validate("VAT Registration No.", LibraryBEHelper.CreateVatRegNo('GB'));
+        Contact.Validate("VAT Registration No.", LibraryERM.GenerateVATRegistrationNo(Contact."Country/Region Code"));
 
         asserterror Contact.Validate("Enterprise No.", LibraryBEHelper.CreateEnterpriseNo);
         Assert.ExpectedError('Enterprise');
@@ -358,10 +359,10 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryMarketing.CreateCompanyContact(Contact);
-        Contact.Validate("Country/Region Code", 'GB');
+        Contact.Validate("Country/Region Code", GetCountryEU());
         Contact.Modify;
 
-        VATNo := LibraryBEHelper.CreateVatRegNo('GB');
+        VATNo := LibraryERM.GenerateVATRegistrationNo(Contact."Country/Region Code");
         Contact.Validate("VAT Registration No.", VATNo);
 
         Assert.AreEqual(VATNo, Contact."VAT Registration No.", 'VAT Registration number is not set.');
@@ -550,7 +551,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         LibraryBEHelper.CreateDomesticCustomer(CustomerBelgian);
-        LibraryBEHelper.CreateCustomer(CustomerNonBelgian, 'GB');
+        LibraryBEHelper.CreateCustomer(CustomerNonBelgian, GetCountryEU);
 
         ServiceHeader.Init;
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
@@ -572,15 +573,16 @@ codeunit 144025 "Test Enterprise No and Branch"
         TaxSchemeID: Text;
     begin
         // [FEATURE] [PEPPOL] [UT]
-        // [SCENARIO 201964] COD 1605 "PEPPOL Management".GetAccountingSupplierPartyTaxScheme() returns "Enterprise No." when "VAT Registration No." is empty
+        // [SCENARIO 341241] COD 1605 "PEPPOL Management".GetAccountingSupplierPartyTaxScheme() returns "Enterprise No." for Belgium country
         Initialize;
         CompanyInformation.Get;
-
+        CompanyInformation."Country/Region Code" := GetCountryBE();
+        CompanyInformation.Modify();
         CompanyInformation.TestField("Enterprise No.");
         CompanyInformation.TestField("VAT Registration No.", '');
 
         PEPPOLManagement.GetAccountingSupplierPartyTaxScheme(CompanyID, CompanyIDSchemeID, TaxSchemeID);
-        Assert.AreEqual(CompanyInformation."Enterprise No.", CompanyID, '');
+        Assert.AreEqual(CompanyInformation."Country/Region Code" + CompanyInformation."Enterprise No.", CompanyID, '');
         Assert.AreEqual(GetVATScheme, CompanyIDSchemeID, '');
         Assert.AreEqual('VAT', TaxSchemeID, '');
     end;
@@ -596,39 +598,18 @@ codeunit 144025 "Test Enterprise No and Branch"
         TaxSchemeID: Text;
     begin
         // [FEATURE] [PEPPOL] [UT]
-        // [SCENARIO 201964] COD 1605 "PEPPOL Management".GetAccountingSupplierPartyTaxScheme() returns "VAT Registration No." when "Enterprise No." is empty
+        // [SCENARIO 341241] COD 1605 "PEPPOL Management".GetAccountingSupplierPartyTaxScheme() returns "VAT Registration No." for non Belgium country
         Initialize;
-        UpdateCompanyInfo(CompanyInformation, '', LibraryBEHelper.CreateVatRegNo('BE'), '');
+        CompanyInformation.Get;
+        CompanyInformation."Country/Region Code" := GetCountryEU();
+        CompanyInformation.Modify();
+        UpdateCompanyInfo(CompanyInformation, '', LibraryERM.GenerateVATRegistrationNo(GetCountryEU), '');
 
         CompanyInformation.TestField("Enterprise No.", '');
         CompanyInformation.TestField("VAT Registration No.");
 
         PEPPOLManagement.GetAccountingSupplierPartyTaxScheme(CompanyID, CompanyIDSchemeID, TaxSchemeID);
-        Assert.AreEqual(CompanyInformation."Country/Region Code" + CompanyInformation."VAT Registration No.", CompanyID, '');
-        Assert.AreEqual(GetVATScheme, CompanyIDSchemeID, '');
-        Assert.AreEqual('VAT', TaxSchemeID, '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PEPPOLMgt_GetAccountingSupplierPartyTaxScheme_EnterpriseNoVATRegNo()
-    var
-        CompanyInformation: Record "Company Information";
-        PEPPOLManagement: Codeunit "PEPPOL Management";
-        CompanyID: Text;
-        CompanyIDSchemeID: Text;
-        TaxSchemeID: Text;
-    begin
-        // [FEATURE] [PEPPOL] [UT]
-        // [SCENARIO 201964] COD 1605 "PEPPOL Management".GetAccountingSupplierPartyTaxScheme() returns "Enterprise No." when "VAT Registration No." is not empty
-        Initialize;
-        CompanyInformation.Get;
-
-        CompanyInformation.TestField("Enterprise No.");
-        CompanyInformation.TestField("VAT Registration No.");
-
-        PEPPOLManagement.GetAccountingSupplierPartyTaxScheme(CompanyID, CompanyIDSchemeID, TaxSchemeID);
-        Assert.AreEqual(CompanyInformation."Enterprise No.", CompanyID, '');
+        Assert.AreEqual(CompanyInformation."VAT Registration No.", CompanyID, '');
         Assert.AreEqual(GetVATScheme, CompanyIDSchemeID, '');
         Assert.AreEqual('VAT', TaxSchemeID, '');
     end;
@@ -644,7 +625,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         TaxSchemeID: Text;
     begin
         // [FEATURE] [PEPPOL] [UT]
-        // [SCENARIO 201964] COD 1605 "PEPPOL Management".GetAccountingSupplierPartyTaxScheme() returns empty result when "Enterprise No." and "VAT Registration No." are empty
+        // [SCENARIO 341241] COD 1605 "PEPPOL Management".GetAccountingSupplierPartyTaxScheme() returns empty result when "Enterprise No." and "VAT Registration No." are empty
         Initialize;
         UpdateCompanyInfo(CompanyInformation, '', '', '');
 
@@ -653,8 +634,8 @@ codeunit 144025 "Test Enterprise No and Branch"
 
         PEPPOLManagement.GetAccountingSupplierPartyTaxScheme(CompanyID, CompanyIDSchemeID, TaxSchemeID);
         Assert.AreEqual('', CompanyID, '');
-        Assert.AreEqual('', CompanyIDSchemeID, '');
-        Assert.AreEqual('', TaxSchemeID, '');
+        Assert.AreEqual(GetVATScheme(), CompanyIDSchemeID, '');
+        Assert.AreEqual('VAT', TaxSchemeID, '');
     end;
 
     [Test]
@@ -668,10 +649,11 @@ codeunit 144025 "Test Enterprise No and Branch"
         CustTaxSchemeID: Text;
     begin
         // [FEATURE] [PEPPOL] [UT] [Customer]
-        // [SCENARIO 205111] COD 1605 "PEPPOL Management".CustPartyTaxSchemeCompanyID() returns "Enterprise No." when "VAT Registration No." is empty
+        // [SCENARIO 341241] COD 1605 "PEPPOL Management".CustPartyTaxSchemeCompanyID() returns "Enterprise No." for Belgium country
         Initialize;
         SalesHeader."Enterprise No." := LibraryUtility.GenerateGUID;
         SalesHeader."VAT Registration No." := '';
+        SalesHeader."Bill-to Country/Region Code" := GetCountryBE();
 
         PEPPOLManagement.GetAccountingCustomerPartyTaxScheme(
           SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID);
@@ -686,46 +668,25 @@ codeunit 144025 "Test Enterprise No and Branch"
     procedure PEPPOLMgt_GetAccountingCustomerPartyTaxScheme_VATRegNo()
     var
         SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
         PEPPOLManagement: Codeunit "PEPPOL Management";
         CustPartyTaxSchemeCompanyID: Text;
         CustPartyTaxSchemeCompIDSchID: Text;
         CustTaxSchemeID: Text;
     begin
         // [FEATURE] [PEPPOL] [UT] [Customer]
-        // [SCENARIO 205111] COD 1605 "PEPPOL Management".CustPartyTaxSchemeCompanyID() returns "VAT Registration No." when "Enterprise No." is empty
+        // [SCENARIO 341241] COD 1605 "PEPPOL Management".CustPartyTaxSchemeCompanyID() returns "VAT Registration No." for non Belgium country
         Initialize;
         SalesHeader."Enterprise No." := '';
         SalesHeader."VAT Registration No." := LibraryUtility.GenerateGUID;
+        CountryRegion.Get(GetCountryEU());
+        SalesHeader."Bill-to Country/Region Code" := CountryRegion.Code;
 
         PEPPOLManagement.GetAccountingCustomerPartyTaxScheme(
           SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID);
 
         Assert.AreEqual(SalesHeader."VAT Registration No.", CustPartyTaxSchemeCompanyID, '');
-        Assert.AreEqual(GetVATScheme, CustPartyTaxSchemeCompIDSchID, '');
-        Assert.AreEqual('VAT', CustTaxSchemeID, '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PEPPOLMgt_GetAccountingCustomerPartyTaxScheme_EnterpriseNoVATRegNo()
-    var
-        SalesHeader: Record "Sales Header";
-        PEPPOLManagement: Codeunit "PEPPOL Management";
-        CustPartyTaxSchemeCompanyID: Text;
-        CustPartyTaxSchemeCompIDSchID: Text;
-        CustTaxSchemeID: Text;
-    begin
-        // [FEATURE] [PEPPOL] [UT] [Customer]
-        // [SCENARIO 205111] COD 1605 "PEPPOL Management".CustPartyTaxSchemeCompanyID() returns "Enterprise No." when "VAT Registration No." is not empty
-        Initialize;
-        SalesHeader."Enterprise No." := LibraryUtility.GenerateGUID;
-        SalesHeader."VAT Registration No." := LibraryUtility.GenerateGUID;
-
-        PEPPOLManagement.GetAccountingCustomerPartyTaxScheme(
-          SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID);
-
-        Assert.AreEqual(SalesHeader."Enterprise No.", CustPartyTaxSchemeCompanyID, '');
-        Assert.AreEqual(GetVATScheme, CustPartyTaxSchemeCompIDSchID, '');
+        Assert.AreEqual(CountryRegion."VAT Scheme", CustPartyTaxSchemeCompIDSchID, '');
         Assert.AreEqual('VAT', CustTaxSchemeID, '');
     end;
 
@@ -740,17 +701,17 @@ codeunit 144025 "Test Enterprise No and Branch"
         CustTaxSchemeID: Text;
     begin
         // [FEATURE] [PEPPOL] [UT] [Customer]
-        // [SCENARIO 205111] COD 1605 "PEPPOL Management".CustPartyTaxSchemeCompanyID() returns empty result when "Enterprise No." and "VAT Registration No." are empty
+        // [SCENARIO 341241] COD 1605 "PEPPOL Management".CustPartyTaxSchemeCompanyID() returns empty result when "Enterprise No." and "VAT Registration No." are empty
         Initialize;
         SalesHeader."Enterprise No." := '';
         SalesHeader."VAT Registration No." := '';
 
-        PEPPOLManagement.GetAccountingCustomerPartyTaxScheme(
+        PEPPOLManagement.GetAccountingCustomerPartyTaxSchemeBIS(
           SalesHeader, CustPartyTaxSchemeCompanyID, CustPartyTaxSchemeCompIDSchID, CustTaxSchemeID);
 
         Assert.AreEqual('', CustPartyTaxSchemeCompanyID, '');
         Assert.AreEqual('', CustPartyTaxSchemeCompIDSchID, '');
-        Assert.AreEqual('', CustTaxSchemeID, '');
+        Assert.AreEqual('VAT', CustTaxSchemeID, '');
     end;
 
     [Test]
@@ -807,7 +768,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         // [FEATURE] [PEPPOL] [UT]
         // [SCENARIO 201964] COD 1620 "PEPPOL Validation" throws an error "Bill-to Name must have a value" for an empty Sales Header and filled "VAT Registration No."
         Initialize;
-        UpdateCompanyInfo(CompanyInformation, '', LibraryBEHelper.CreateVatRegNo('BE'), '');
+        UpdateCompanyInfo(CompanyInformation, '', LibraryBEHelper.CreateVatRegNo(GetCountryBE()), '');
 
         CompanyInformation.TestField("Enterprise No.", '');
         CompanyInformation.TestField("VAT Registration No.");
@@ -878,6 +839,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         SalesHeader.Init;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader.Validate("Sell-to Customer No.", CreateCustomerNo('', LibraryUtility.GenerateGUID, ''));
+        SalesHeader."Your Reference" := LibraryUtility.GenerateGUID();
 
         SalesHeader.TestField("Enterprise No.");
         SalesHeader.TestField("VAT Registration No.", '');
@@ -899,6 +861,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         SalesHeader.Init;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader.Validate("Sell-to Customer No.", CreateCustomerNo(LibraryUtility.GenerateGUID, '', ''));
+        SalesHeader."Your Reference" := LibraryUtility.GenerateGUID();
 
         SalesHeader.TestField("Enterprise No.", '');
         SalesHeader.TestField("VAT Registration No.");
@@ -920,81 +883,12 @@ codeunit 144025 "Test Enterprise No and Branch"
         SalesHeader.Init;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader.Validate("Sell-to Customer No.", CreateCustomerNo('', '', LibraryUtility.GenerateGUID));
+        SalesHeader."Your Reference" := LibraryUtility.GenerateGUID();
 
         SalesHeader.TestField("Enterprise No.", '');
         SalesHeader.TestField("VAT Registration No.", '');
 
         CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PEPPOL20_XMLExport_EnterpriseNo()
-    var
-        CompanyInformation: Record "Company Information";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        XMLFilePath: Text;
-    begin
-        // [FEATURE] [PEPPOL] [XML] [Sales] [Invoice]
-        // [SCENARIO 201964] PEPPOL 2.0 xml exports "Enterprise No." into "CompanyID" tag under "AccountingSupplierParty" and "AccountingCustomerParty" nodes
-        Initialize;
-        UpdateCompanySwiftCode;
-
-        // [GIVEN] "Company Informatiion"."Enterprise No." = "X"
-        CompanyInformation.Get;
-        CompanyInformation.TestField("Enterprise No.");
-        CompanyInformation.TestField("SWIFT Code");
-        // [GIVEN] Posted sales invoice for the customer with "Enterprise No." = "Y"
-        CreatePostSalesInvoice(SalesInvoiceHeader);
-
-        // [WHEN] Send the invoice electronically with PEPPOL 2.0 format
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, 'PEPPOL 2.0');
-
-        // [THEN] XML has been exported with tag "AccountingSupplierParty\Party\PartyTaxScheme\CompanyID" = "X"
-        LibraryXMLRead.Initialize(XMLFilePath);
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', CompanyInformation."Enterprise No.");
-        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', 'schemeID', GetVATScheme);
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:ID', 'VAT');
-
-        // [THEN] XML has been exported with tag "AccountingCustomerParty\Party\PartyTaxScheme\CompanyID" = "Y" (TFS 205111)
-        Assert.AreEqual(
-          SalesInvoiceHeader."Enterprise No.",
-          LibraryXMLRead.GetNodeValueAtIndex('cbc:CompanyID', 1), '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PEPPOL21_XMLExport_EnterpriseNo()
-    var
-        CompanyInformation: Record "Company Information";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        XMLFilePath: Text;
-    begin
-        // [FEATURE] [PEPPOL] [XML] [Sales] [Invoice]
-        // [SCENARIO 201964] PEPPOL 2.1 xml exports "Enterprise No." into "CompanyID" tag under "AccountingSupplierParty" and "AccountingCustomerParty" nodes
-        Initialize;
-        UpdateCompanySwiftCode;
-
-        // [GIVEN] "Company Informatiion"."Enterprise No." = "X"
-        CompanyInformation.Get;
-        CompanyInformation.TestField("Enterprise No.");
-        CompanyInformation.TestField("SWIFT Code");
-        // [GIVEN] Posted sales invoice for the customer with "Enterprise No." = "Y"
-        CreatePostSalesInvoice(SalesInvoiceHeader);
-
-        // [WHEN] Send the invoice electronically with PEPPOL 2.1 format
-        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, 'PEPPOL 2.1');
-
-        // [THEN] XML has been exported with tag "AccountingSupplierParty\Party\PartyTaxScheme\CompanyID" = "X"
-        LibraryXMLRead.Initialize(XMLFilePath);
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', CompanyInformation."Enterprise No.");
-        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyTaxScheme', 'cbc:CompanyID', 'schemeID', GetVATScheme);
-        LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyTaxScheme', 'cbc:ID', 'VAT');
-
-        // [THEN] XML has been exported with tag "AccountingCustomerParty\Party\PartyTaxScheme\CompanyID" = "Y" (TFS 205111)
-        Assert.AreEqual(
-          SalesInvoiceHeader."Enterprise No.",
-          LibraryXMLRead.GetNodeValueAtIndex('cbc:CompanyID', 1), '');
     end;
 
     [Test]
@@ -1010,7 +904,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         CompanyInformation.Get;
 
         // [GIVEN] Current company's Country Code is BE
-        CompanyInformation.Validate("Country/Region Code", 'BE');
+        CompanyInformation.Validate("Country/Region Code", GetCountryBE());
 
         // [GIVEN] Enterprise No is set
         CompanyInformation.Validate("Enterprise No.", '0200.068.636');
@@ -1034,7 +928,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         CompanyInformation.Get;
 
         // [GIVEN] Current company's Country Code is BE
-        CompanyInformation.Validate("Country/Region Code", 'BE');
+        CompanyInformation.Validate("Country/Region Code", GetCountryBE());
 
         // [GIVEN] Enterprise No is set
         CompanyInformation.Validate("Enterprise No.", '0200.068.636');
@@ -1105,7 +999,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         // [GIVEN] Issued reminder for the local customer with Enterprise No. = "ENO"
-        MockIssuedReminder(IssuedReminderHeader, 'BE');
+        MockIssuedReminder(IssuedReminderHeader, GetCountryBE());
         IssuedReminderHeader."Enterprise No." := LibraryBEHelper.CreateEnterpriseNo();
         IssuedReminderHeader.Modify();
 
@@ -1132,8 +1026,8 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         // [GIVEN] Issued reminder for the foreign customer with VAT Registration No. = "VATREGNO"
-        MockIssuedReminder(IssuedReminderHeader, 'GB');
-        IssuedReminderHeader."VAT Registration No." := LibraryBEHelper.CreateVatRegNo('GB');
+        MockIssuedReminder(IssuedReminderHeader, GetCountryEU());
+        IssuedReminderHeader."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(IssuedReminderHeader."Country/Region Code");
         IssuedReminderHeader.Modify();
 
         // [WHEN] Reminder is being printed
@@ -1159,7 +1053,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         // [GIVEN] Issued Finance Charge Memo for the local customer with Enterprise No. = "ENO"
-        MockIssuedFinanceChargeMemo(IssuedFinanceChargeMemoHeader, 'BE');
+        MockIssuedFinanceChargeMemo(IssuedFinanceChargeMemoHeader, GetCountryBE());
         IssuedFinanceChargeMemoHeader."Enterprise No." := LibraryBEHelper.CreateEnterpriseNo();
         IssuedFinanceChargeMemoHeader.Modify();
 
@@ -1186,8 +1080,9 @@ codeunit 144025 "Test Enterprise No and Branch"
         Initialize;
 
         // [GIVEN] Issued Finance Charge Memo for the foreign customer with VAT Registration No. = "VATREGNO"
-        MockIssuedFinanceChargeMemo(IssuedFinanceChargeMemoHeader, 'GB');
-        IssuedFinanceChargeMemoHeader."VAT Registration No." := LibraryBEHelper.CreateVatRegNo('GB');
+        MockIssuedFinanceChargeMemo(IssuedFinanceChargeMemoHeader, GetCountryEU());
+        IssuedFinanceChargeMemoHeader."VAT Registration No." :=
+            LibraryERM.GenerateVATRegistrationNo(IssuedFinanceChargeMemoHeader."Country/Region Code");
         IssuedFinanceChargeMemoHeader.Modify();
 
         // [WHEN] Finance Charge Memo is being printed
@@ -1223,7 +1118,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         FindVATEntry(VATEntry, VATEntry."Document Type"::Invoice, ServiceInvoiceNo);
         VATEntry.TestField("Enterprise No.", Customer."Enterprise No.");
     end;
-    
+
     [Test]
     [HandlerFunctions('ProFormaInvoiceXML_RPH')]
     [Scope('OnPrem')]
@@ -1303,7 +1198,15 @@ codeunit 144025 "Test Enterprise No and Branch"
 
     local procedure Initialize()
     begin
+        LibrarySetupStorage.Restore;
+
+        if IsInitialized then
+            exit;
+
         LibraryBEHelper.InitializeCompanyInformation;
+        LibrarySetupStorage.SaveCompanyInformation;
+
+        IsInitialized := true;
     end;
 
     local procedure UpdateCompanyInfo(var CompanyInformation: Record "Company Information"; EnterpriseNo: Text[50]; VATRegNo: Text[20]; GLNNo: Text[13])
@@ -1326,24 +1229,6 @@ codeunit 144025 "Test Enterprise No and Branch"
             Validate("SWIFT Code", Format(LibraryRandom.RandIntInRange(1000000, 9999999)));
             Modify(true);
         end;
-    end;
-
-    local procedure CreatePostSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Invoice,
-          CreateCustomerNo(LibraryBEHelper.CreateVatRegNo('BE'), LibraryUtility.GenerateGUID, ''));
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
-        SalesLine.Modify(true);
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        SalesInvoiceHeader.SetRange("Bill-to Customer No.", SalesHeader."Bill-to Customer No.");
-        SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        SalesInvoiceHeader.FindFirst;
     end;
 
     local procedure CreateCustomerNo(VATRegNo: Text[20]; EnterpriseNo: Text[50]; GLNNo: Code[13]): Code[20]
@@ -1401,6 +1286,22 @@ codeunit 144025 "Test Enterprise No and Branch"
             SetRange("Document No.", DocumentNo);
             FindFirst;
         end;
+    end;
+
+    local procedure GetCountryBE(): Code[10]
+    begin
+        exit('BE');
+    end;
+
+    local procedure GetCountryEU(): Code[10]
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        CountryRegion.SetFilter(Code, '<>%1', GetCountryBE);
+        CountryRegion.SetFilter("EU Country/Region Code", '<>%1', '');
+        CountryRegion.SetFilter("VAT Scheme", '<>%1', '');
+        CountryRegion.Next(CountryRegion.Count() - 1);
+        exit(CountryRegion.Code);
     end;
 
     local procedure GetVATScheme(): Text
@@ -1509,7 +1410,7 @@ codeunit 144025 "Test Enterprise No and Branch"
     begin
         FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
-    
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ProFormaInvoiceXML_RPH(var ProFormaInvoice: TestRequestPage "Standard Sales - Pro Forma Inv")

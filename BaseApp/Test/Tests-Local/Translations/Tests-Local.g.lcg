@@ -383,6 +383,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - Customer No]D;]A;(LookupHint=Codeunit EB - Payment Journal Export - NamedType YouCannotCreateDocumentCustomerPrivacyBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1990572711 - NamedType 1988928635" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[011397265378]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EB - Payment Journal Export - NamedType PaymentMessageTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3467608275 - NamedType 1450012057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT Registration Format not found.]]></Val>
