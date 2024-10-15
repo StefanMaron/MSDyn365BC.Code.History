@@ -802,6 +802,9 @@ table 5475 "Sales Invoice Entity Aggregate"
         if IsNullGuid("Customer Id") then
             exit(false);
 
+        if not GraphIntContact.IsUpdateContactIdEnabled() then
+            exit(false);
+
         Customer.SetRange(Id, "Customer Id");
         if not Customer.FindFirst then
             exit(false);
