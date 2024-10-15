@@ -275,6 +275,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         ErrorMessage: Text;
         ForceCheckBalance: Boolean;
         IsProcessingKeySet: Boolean;
+        IsHandled: Boolean;
     begin
         IsProcessingKeySet := false;
         OnBeforeProcessBalanceOfLines(GenJnlLine, GenJnlBatch, GenJnlTemplate, IsProcessingKeySet);
@@ -309,16 +310,17 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                         TestField("Posting No. Series", GenJnlBatch."Posting No. Series");
                     CheckCorrection(GenJnlLine);
                 end;
-                OnBeforeIfCheckBalance(GenJnlTemplate, GenJnlLine, LastDocType, LastDocNo, LastDate, ForceCheckBalance, SuppressCommit);
-                if ForceCheckBalance or ("Posting Date" <> LastDate) or GenJnlTemplate."Force Doc. Balance" and
-                   (("Document Type" <> LastDocType) or ("Document No." <> LastDocNo))
-                then begin
-                    CheckBalance(GenJnlLine);
-                    CurrencyBalance := 0;
-                    LastCurrencyCode := "Currency Code";
-                    GenJnlLineTemp.Reset;
-                    GenJnlLineTemp.DeleteAll;
-                end;
+                OnBeforeIfCheckBalance(GenJnlTemplate, GenJnlLine, LastDocType, LastDocNo, LastDate, ForceCheckBalance, SuppressCommit, IsHandled);
+                if not IsHandled then
+                    if ForceCheckBalance or ("Posting Date" <> LastDate) or GenJnlTemplate."Force Doc. Balance" and
+                    (("Document Type" <> LastDocType) or ("Document No." <> LastDocNo))
+                    then begin
+                        CheckBalance(GenJnlLine);
+                        CurrencyBalance := 0;
+                        LastCurrencyCode := "Currency Code";
+                        GenJnlLineTemp.Reset;
+                        GenJnlLineTemp.DeleteAll;
+                    end;
 
                 if IsNonZeroAmount(GenJnlLine) then begin
                     if LastFAAddCurrExchRate <> "FA Add.-Currency Factor" then
@@ -1361,7 +1363,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIfCheckBalance(GenJnlTemplate: Record "Gen. Journal Template"; GenJnlLine: Record "Gen. Journal Line"; var LastDocType: Option; var LastDocNo: Code[20]; var LastDate: Date; var CheckIfBalance: Boolean; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeIfCheckBalance(GenJnlTemplate: Record "Gen. Journal Template"; GenJnlLine: Record "Gen. Journal Line"; var LastDocType: Option; var LastDocNo: Code[20]; var LastDate: Date; var CheckIfBalance: Boolean; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
 

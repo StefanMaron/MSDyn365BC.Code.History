@@ -1039,6 +1039,53 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibraryReportDataset.AssertElementWithValueNotExist('ItemNo', Item."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('InvtTransactionDetailRepRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryTransactionDetailClearQuantities()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [SCENARIO 333122] Inventory - Transaction Detail report clears the unused IncreasesQty/DecreasesQty when switching to ILE of different sign
+        Initialize;
+
+        // [GIVEN] Item created
+        // [GIVEN] Positive Adjustment for Item posted for Quantity = 5
+        // [GIVEN] Negative Adjustment for Item posted for Quantity = 10
+        CreateItem(Item);
+        CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
+        CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Negative Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Created and Posted Sales Order for the Item with Quantity = 14
+        CreateSalesOrder(SalesHeader, '', Item."No.", LibraryRandom.RandDec(100, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run Inventory - Transaction Detail Report for the Item
+        Item.SetRange("No.", Item."No.");
+        Item.FindFirst;
+        REPORT.Run(REPORT::"Inventory - Transaction Detail", true, false, Item);
+
+        // [THEN] Increases Qty = 0, Decreases Qty = 14 for the entry of type "Sale"
+        LibraryReportDataset.LoadDataSetFile;
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        ItemLedgerEntry.FindFirst;
+        VerifyInventoryTransactionDetailQuantities(ItemLedgerEntry, 0, Abs(ItemLedgerEntry.Quantity));
+
+        // [THEN] Increases Qty = 5, Decreases Qty = 0 for the entry of type "Positive Adj."
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Positive Adjmt.");
+        ItemLedgerEntry.FindFirst;
+        VerifyInventoryTransactionDetailQuantities(ItemLedgerEntry, ItemLedgerEntry.Quantity, 0);
+
+        // [THEN] Increases Qty = 0, Decreases Qty = 10 for the entry of type "Negative Adj."
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
+        ItemLedgerEntry.FindFirst;
+        VerifyInventoryTransactionDetailQuantities(ItemLedgerEntry, 0, Abs(ItemLedgerEntry.Quantity));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1313,6 +1360,16 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('StartingInvoicedQty', ExpectedOpenningBalance);
+    end;
+
+    local procedure VerifyInventoryTransactionDetailQuantities(ItemLedgerEntry: Record "Item Ledger Entry"; IncreasesQty: Decimal; DecreasesQty: Decimal)
+    begin
+        LibraryReportDataset.SetRange('No_Item', ItemLedgerEntry."Item No.");
+        LibraryReportDataset.SetRange('EntryNo_ItemLedgerEntry', ItemLedgerEntry."Entry No.");
+        LibraryReportDataset.SetRange('EntryType_ItemLedgEntry', Format(ItemLedgerEntry."Entry Type"));
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('IncreasesQty', IncreasesQty);
+        LibraryReportDataset.AssertCurrentRowValueEquals('DecreasesQty', DecreasesQty);
     end;
 
     local procedure UpdateInventorySetupCostPosting()

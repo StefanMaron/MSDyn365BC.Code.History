@@ -215,6 +215,8 @@ table 1706 "Deferral Posting Buffer"
         "Deferral Code" := SalesLine."Deferral Code";
         "Deferral Doc. Type" := DeferralUtilities.GetSalesDeferralDocType;
         "Document No." := DocumentNo;
+
+        OnAfterPrepareSales(Rec, SalesLine);
     end;
 
     procedure ReverseAmounts()
@@ -246,6 +248,8 @@ table 1706 "Deferral Posting Buffer"
         "Deferral Code" := PurchLine."Deferral Code";
         "Deferral Doc. Type" := DeferralUtilities.GetPurchDeferralDocType;
         "Document No." := DocumentNo;
+
+        OnAfterPreparePurch(Rec, PurchLine);
     end;
 
     local procedure PrepareRemainderAmounts(NewAmountLCY: Decimal; NewAmount: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20])
@@ -365,6 +369,16 @@ table 1706 "Deferral Posting Buffer"
         if DeferralPostingBuffer.FindLast then
             exit(DeferralPostingBuffer."Entry No.");
         exit(0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareSales(var DeferralPostingBuffer: Record "Deferral Posting Buffer"; SalesLine: Record "Sales Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPreparePurch(var DeferralPostingBuffer: Record "Deferral Posting Buffer"; PurchaseLine: Record "Purchase Line");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

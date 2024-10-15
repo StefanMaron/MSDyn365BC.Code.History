@@ -13,6 +13,11 @@ codeunit 3024 DotNet_Uri
         DotNetUri := DotNetUri.Uri(Url);
     end;
 
+    procedure AbsoluteUri(): Text
+    begin
+        exit(DotNetUri.AbsoluteUri)
+    end;
+
     procedure EscapeDataString(Text: Text): Text
     begin
         exit(DotNetUri.EscapeDataString(Text));

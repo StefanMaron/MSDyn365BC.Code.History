@@ -123,44 +123,15 @@ page 400 "Purchase Invoice Statistics"
     trigger OnAfterGetRecord()
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
-        TempNonDeductVATAmountLineBuffer: Record "VAT Amount Line" temporary;
     begin
         ClearAll;
 
-        if "Currency Code" = '' then
-            Currency.InitRoundingPrecision
-        else
-            Currency.Get("Currency Code");
+        Currency.Initialize("Currency Code");
 
-        PurchInvLine.SetRange("Document No.", "No.");
+        CalculateTotals();
 
-        if PurchInvLine.Find('-') then
-            repeat
-                VendAmount := VendAmount + PurchInvLine.Amount;
-                if PurchInvLine."VAT Calculation Type" = PurchInvLine."VAT Calculation Type"::"Reverse Charge VAT" then
-                    AmountInclVAT := PurchInvLine.Amount
-                else begin
-                    AmountInclVAT := AmountInclVAT + PurchInvLine."Amount Including VAT";
-                    FillVATAmountLineBuf(PurchInvLine, TempNonDeductVATAmountLineBuffer);
-                end;
+        ApplyNonDeductVATToTotals(TempNonDeductVATAmountLine);
 
-                if "Prices Including VAT" then
-                    InvDiscAmount := InvDiscAmount + PurchInvLine."Inv. Discount Amount" / (1 + GetVATPct(PurchInvLine) / 100)
-                else
-                    InvDiscAmount := InvDiscAmount + PurchInvLine."Inv. Discount Amount";
-                LineQty := LineQty + PurchInvLine.Quantity;
-                TotalNetWeight := TotalNetWeight + (PurchInvLine.Quantity * PurchInvLine."Net Weight");
-                TotalGrossWeight := TotalGrossWeight + (PurchInvLine.Quantity * PurchInvLine."Gross Weight");
-                TotalVolume := TotalVolume + (PurchInvLine.Quantity * PurchInvLine."Unit Volume");
-                if PurchInvLine."Units per Parcel" > 0 then
-                    TotalParcels := TotalParcels + Round(PurchInvLine.Quantity / PurchInvLine."Units per Parcel", 1, '>');
-                if GetVATPct(PurchInvLine) <> VATPercentage then
-                    if VATPercentage = 0 then
-                        VATPercentage := GetVATPct(PurchInvLine)
-                    else
-                        VATPercentage := -1;
-            until PurchInvLine.Next = 0;
-        ApplyNonDeductVATToTotals(TempNonDeductVATAmountLineBuffer);
         VATAmount := AmountInclVAT - VendAmount;
         InvDiscAmount := Round(InvDiscAmount, Currency."Amount Rounding Precision");
 
@@ -189,13 +160,13 @@ page 400 "Purchase Invoice Statistics"
 
         PurchInvLine.CalcVATAmountLines(Rec, TempVATAmountLine);
 
-        if TempNonDeductVATAmountLineBuffer.FindSet then begin
+        if TempNonDeductVATAmountLine.FindSet then begin
             repeat
-                TempVATAmountLine := TempNonDeductVATAmountLineBuffer;
+                TempVATAmountLine := TempNonDeductVATAmountLine;
                 if TempVATAmountLine.Find then
-                    TempVATAmountLine.ApplyNonDeductibleVAT(TempNonDeductVATAmountLineBuffer."VAT Amount");
-            until TempNonDeductVATAmountLineBuffer.Next = 0;
-            TempNonDeductVATAmountLineBuffer.DeleteAll;
+                    TempVATAmountLine.ApplyNonDeductibleVAT(TempNonDeductVATAmountLine."VAT Amount");
+            until TempNonDeductVATAmountLine.Next = 0;
+            TempNonDeductVATAmountLine.DeleteAll;
         end;
 
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
@@ -209,6 +180,7 @@ page 400 "Purchase Invoice Statistics"
         PurchInvLine: Record "Purch. Inv. Line";
         Vend: Record Vendor;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
+        TempNonDeductVATAmountLine: Record "VAT Amount Line" temporary;
         Currency: Record Currency;
         VendAmount: Decimal;
         AmountInclVAT: Decimal;
@@ -230,39 +202,93 @@ page 400 "Purchase Invoice Statistics"
         exit(PurchInvLine."VAT %");
     end;
 
-    local procedure FillVATAmountLineBuf(PurchInvLine: Record "Purch. Inv. Line"; var TempNonDeductVATAmountLineBuffer: Record "VAT Amount Line" temporary)
+    local procedure FillVATAmountLineBuf(PurchInvLine: Record "Purch. Inv. Line"; var TempNonDeductVATAmountLine: Record "VAT Amount Line" temporary)
     var
         NonDeductibleVAT: Decimal;
     begin
-        if not TempNonDeductVATAmountLineBuffer.Get(
+        if not TempNonDeductVATAmountLine.Get(
           PurchInvLine."VAT Identifier", PurchInvLine."VAT Calculation Type",
           PurchInvLine."Tax Group Code", PurchInvLine."Use Tax", PurchInvLine."Line Amount" >= 0)
         then begin
-            TempNonDeductVATAmountLineBuffer.Init;
-            TempNonDeductVATAmountLineBuffer."VAT Identifier" := PurchInvLine."VAT Identifier";
-            TempNonDeductVATAmountLineBuffer."VAT Calculation Type" := PurchInvLine."VAT Calculation Type";
-            TempNonDeductVATAmountLineBuffer."Tax Group Code" := PurchInvLine."Tax Group Code";
-            TempNonDeductVATAmountLineBuffer."Use Tax" := PurchInvLine."Use Tax";
-            TempNonDeductVATAmountLineBuffer."VAT %" := PurchInvLine."VAT %";
-            TempNonDeductVATAmountLineBuffer.Positive := PurchInvLine."Line Amount" >= 0;
-            TempNonDeductVATAmountLineBuffer.Insert;
+            TempNonDeductVATAmountLine.Init;
+            TempNonDeductVATAmountLine."VAT Identifier" := PurchInvLine."VAT Identifier";
+            TempNonDeductVATAmountLine."VAT Calculation Type" := PurchInvLine."VAT Calculation Type";
+            TempNonDeductVATAmountLine."Tax Group Code" := PurchInvLine."Tax Group Code";
+            TempNonDeductVATAmountLine."Use Tax" := PurchInvLine."Use Tax";
+            TempNonDeductVATAmountLine."VAT %" := PurchInvLine."VAT %";
+            TempNonDeductVATAmountLine.Positive := PurchInvLine."Line Amount" >= 0;
+            TempNonDeductVATAmountLine.Insert;
         end;
 
         NonDeductibleVAT :=
           Round((PurchInvLine."Amount Including VAT" - PurchInvLine.Amount) * PurchInvLine."Non Deductible VAT %" / 100);
-        TempNonDeductVATAmountLineBuffer."VAT Amount" += NonDeductibleVAT;
-        TempNonDeductVATAmountLineBuffer.Modify;
+        TempNonDeductVATAmountLine."VAT Amount" += NonDeductibleVAT;
+        TempNonDeductVATAmountLine.Modify;
     end;
 
-    local procedure ApplyNonDeductVATToTotals(var TempNonDeductVATAmountLineBuffer: Record "VAT Amount Line" temporary)
+    local procedure ApplyNonDeductVATToTotals(var TempNonDeductVATAmountLine: Record "VAT Amount Line" temporary)
     begin
-        if TempNonDeductVATAmountLineBuffer.FindSet then
+        if TempNonDeductVATAmountLine.FindSet then
             repeat
-                VendAmount += TempNonDeductVATAmountLineBuffer."VAT Amount";
-                VATAmount -= TempNonDeductVATAmountLineBuffer."VAT Amount";
-                PurchInvLine."Line Amount" += TempNonDeductVATAmountLineBuffer."VAT Amount";
-                PurchInvLine.Amount += TempNonDeductVATAmountLineBuffer."VAT Amount";
-            until TempNonDeductVATAmountLineBuffer.Next = 0;
+                VendAmount += TempNonDeductVATAmountLine."VAT Amount";
+                VATAmount -= TempNonDeductVATAmountLine."VAT Amount";
+                PurchInvLine."Line Amount" += TempNonDeductVATAmountLine."VAT Amount";
+                PurchInvLine.Amount += TempNonDeductVATAmountLine."VAT Amount";
+            until TempNonDeductVATAmountLine.Next = 0;
+    end;
+
+    local procedure CalculateTotals()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(
+            Rec, VendAmount, AmountInclVAT, InvDiscAmount,
+            LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchInvLine.SetRange("Document No.", "No.");
+        if PurchInvLine.Find('-') then
+            repeat
+                VendAmount += PurchInvLine.Amount;
+                if PurchInvLine."VAT Calculation Type" = PurchInvLine."VAT Calculation Type"::"Reverse Charge VAT" then
+                    AmountInclVAT += PurchInvLine.Amount
+                else begin
+                    AmountInclVAT += PurchInvLine."Amount Including VAT";
+                    FillVATAmountLineBuf(PurchInvLine, TempNonDeductVATAmountLine);
+                end;
+
+                if "Prices Including VAT" then
+                    InvDiscAmount += PurchInvLine."Inv. Discount Amount" / (1 + GetVATPct(PurchInvLine) / 100)
+                else
+                    InvDiscAmount += PurchInvLine."Inv. Discount Amount";
+                LineQty += PurchInvLine.Quantity;
+                TotalNetWeight += PurchInvLine.Quantity * PurchInvLine."Net Weight";
+                TotalGrossWeight += PurchInvLine.Quantity * PurchInvLine."Gross Weight";
+                TotalVolume += PurchInvLine.Quantity * PurchInvLine."Unit Volume";
+                if PurchInvLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(PurchInvLine.Quantity / PurchInvLine."Units per Parcel", 1, '>');
+                if GetVATPct(PurchInvLine) <> VATPercentage then
+                    if VATPercentage = 0 then
+                        VATPercentage := GetVATPct(PurchInvLine)
+                    else
+                        VATPercentage := -1;
+
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    PurchInvLine, VendAmount, AmountInclVAT, InvDiscAmount,
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until PurchInvLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(PurchInvHeader: Record "Purch. Inv. Header"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchInvLine: Record "Purch. Inv. Line"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
     end;
 }
 

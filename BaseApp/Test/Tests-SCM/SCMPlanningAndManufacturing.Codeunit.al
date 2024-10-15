@@ -1580,6 +1580,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
+        PlanningErrorLog: Record "Planning Error Log";
         Quantity: array[2] of Decimal;
         OrderMultipleQuantity: Decimal;
         i: Integer;
@@ -1616,6 +1617,74 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [THEN] The requisition line for "I2" with quantity "Q2" exists.
         FindRequisitionLine(RequisitionLine, Item[2]."No.");
         RequisitionLine.TestField(Quantity, Quantity[2]);
+
+        // Tear down.
+        PlanningErrorLog.DeleteAll;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LinesOnOneProdOrderPlannedSeparatelyForItemWithReorderingPolicyOrder()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        RequisitionLine: Record "Requisition Line";
+        Qty: Decimal;
+        NoOfLines: Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Planning] [Reordering Policy] [Production Order] [Prod. Order Component]
+        // [SCENARIO 328536] Prod. order components that belong to different prod. order lines in one production order are planned separately for item with Reordering Policy = Order.
+        Initialize;
+        Qty := LibraryRandom.RandInt(10);
+        NoOfLines := LibraryRandom.RandIntInRange(2, 5);
+
+        // [GIVEN] Production item "P".
+        // [GIVEN] Component item "C" with Reordering Policy = "Order".
+        LibraryInventory.CreateItem(ProdItem);
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::"Prod. Order");
+        CompItem.Validate("Reordering Policy", CompItem."Reordering Policy"::Order);
+        CompItem.Modify(true);
+
+        // [GIVEN] Released production order for item "P".
+        // [GIVEN] Create 4 prod. order lines, each for 10 pcs.
+        // [GIVEN] Add component "C" to each of prod. order lines, "Quantity per" = 10 pcs.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", Qty);
+        for i := 1 to NoOfLines do begin
+            LibraryManufacturing.CreateProdOrderLine(
+              ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ProdItem."No.", '', '', Qty);
+            LibraryManufacturing.CreateProductionOrderComponent(
+              ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+            ProdOrderComponent.Validate("Item No.", CompItem."No.");
+            ProdOrderComponent.Validate("Quantity per", Qty);
+            ProdOrderComponent.Modify(true);
+        end;
+
+        // [WHEN] Calculate regenerative plan for item "C".
+        CompItem.SetRecFilter;
+        LibraryPlanning.CalcRegenPlanForPlanWksh(CompItem, WorkDate, WorkDate);
+
+        // [THEN] 4 planning lines are created.
+        FindRequisitionLine(RequisitionLine, CompItem."No.");
+        Assert.RecordCount(RequisitionLine, NoOfLines);
+
+        // [THEN] Each planning line has quantity = 100 (10 pcs on prod. order line * 10 pcs on prod. order component).
+        RequisitionLine.SetRange(Quantity, Qty * Qty);
+        Assert.RecordCount(RequisitionLine, NoOfLines);
+
+        // [THEN] Each prod. order component line is reserved.
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.FindSet;
+        repeat
+            ProdOrderComponent.CalcFields("Reserved Quantity");
+            ProdOrderComponent.TestField("Reserved Quantity", ProdOrderComponent.Quantity);
+        until ProdOrderComponent.Next = 0;
     end;
 
     local procedure Initialize()

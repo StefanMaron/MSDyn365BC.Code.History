@@ -52,6 +52,7 @@ codeunit 5760 "Whse.-Post Receipt"
     local procedure "Code"()
     var
         WhseManagement: Codeunit "Whse. Management";
+        IsHandled: Boolean;
     begin
         with WhseRcptLine do begin
             SetCurrentKey("No.");
@@ -103,8 +104,11 @@ codeunit 5760 "Whse.-Post Receipt"
 
                 CounterSourceDocTotal := CounterSourceDocTotal + 1;
 
-                OnBeforePostSourceDocument(WhseRcptLine, PurchHeader, SalesHeader, TransHeader);
-                PostSourceDocument(WhseRcptLine);
+                IsHandled := false;
+                OnBeforePostSourceDocument(
+                    WhseRcptLine, PurchHeader, SalesHeader, TransHeader, CounterSourceDocOK, HideValidationDialog, IsHandled);
+                if not IsHandled then
+                    PostSourceDocument(WhseRcptLine);
 
                 if FindLast then;
                 SetRange("Source Type");
@@ -340,6 +344,7 @@ codeunit 5760 "Whse.-Post Receipt"
         PurchPost: Codeunit "Purch.-Post";
         SalesPost: Codeunit "Sales-Post";
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
+        IsHandled: Boolean;
     begin
         WhseSetup.Get;
         with WhseRcptLine do begin
@@ -960,7 +965,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostSourceDocument(var WhseRcptLine: Record "Warehouse Receipt Line"; PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; TransferHeader: Record "Transfer Header")
+    local procedure OnBeforePostSourceDocument(var WhseRcptLine: Record "Warehouse Receipt Line"; PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; TransferHeader: Record "Transfer Header"; var CounterSourceDocOK: Integer; HideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -1622,7 +1622,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=First(Fields!G_L_Entry__TABLECAPTION________GLEntry2_FIELDCAPTION__Gen__Posting_Type____GLEntry2_GETFILTER__Gen__Posting_Type___Control20.Value)</Value>
+                                                    <Value>=First(Fields!G_L_Entry__TABLECAPTION_Control20.Value)</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                     </Style>
@@ -3034,7 +3034,7 @@
                               <DataSetName>DataSet_Result</DataSetName>
                               <Filters>
                                 <Filter>
-                                  <FilterExpression>=Fields!G_L_Entry__TABLECAPTION________GLEntry2_FIELDCAPTION__Gen__Posting_Type____GLEntry2_GETFILTER__Gen__Posting_Type___Control20.Value</FilterExpression>
+                                  <FilterExpression>=Fields!G_L_Entry__TABLECAPTION_Control20.Value</FilterExpression>
                                   <Operator>GreaterThan</Operator>
                                   <FilterValues>
                                     <FilterValue>=""</FilterValue>
@@ -3042,7 +3042,7 @@
                                 </Filter>
                               </Filters>
                               <Visibility>
-                                <Hidden>=IIF(First(Fields!G_L_Entry__TABLECAPTION________GLEntry2_FIELDCAPTION__Gen__Posting_Type____GLEntry2_GETFILTER__Gen__Posting_Type___Control20.Value)="",true,false)</Hidden>
+                                <Hidden>=IIF(First(Fields!G_L_Entry__TABLECAPTION_Control20.Value)="",true,false)</Hidden>
                               </Visibility>
                               <DataElementOutput>NoOutput</DataElementOutput>
                               <Style>
@@ -9844,8 +9844,8 @@ End Function
         <Field Name="Heading_Control18">
           <DataField>Heading_Control18</DataField>
         </Field>
-        <Field Name="DataItem20">
-          <DataField>DataItem20</DataField>
+        <Field Name="G_L_Entry__TABLECAPTION_Control20">
+          <DataField>G_L_Entry__TABLECAPTION_Control20</DataField>
         </Field>
         <Field Name="SkipHeader_4_">
           <DataField>SkipHeader_4_</DataField>

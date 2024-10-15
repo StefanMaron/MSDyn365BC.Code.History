@@ -421,7 +421,7 @@ report 1322 "Standard Purchase - Order"
                 column(Type_PurchLine; Format(Type, 0, 2))
                 {
                 }
-                column(No_PurchLine; "No.")
+                column(No_PurchLine; ItemNo)
                 {
                 }
                 column(Desc_PurchLine; Description)
@@ -516,25 +516,25 @@ report 1322 "Standard Purchase - Order"
                 column(PlannedReceiptDateLbl; PlannedReceiptDateLbl)
                 {
                 }
-                column(PlannedReceiptDate; Format("Planned Receipt Date",0,4))
+                column(PlannedReceiptDate; Format("Planned Receipt Date", 0, 4))
                 {
                 }
                 column(ExpectedReceiptDateLbl; ExpectedReceiptDateLbl)
                 {
                 }
-                column(ExpectedReceiptDate; Format("Expected Receipt Date",0,4))
+                column(ExpectedReceiptDate; Format("Expected Receipt Date", 0, 4))
                 {
                 }
                 column(PromisedReceiptDateLbl; PromisedReceiptDateLbl)
                 {
                 }
-                column(PromisedReceiptDate; Format("Promised Receipt Date",0,4))
+                column(PromisedReceiptDate; Format("Promised Receipt Date", 0, 4))
                 {
                 }
                 column(RequestedReceiptDateLbl; RequestedReceiptDateLbl)
                 {
                 }
-                column(RequestedReceiptDate; Format("Requested Receipt Date",0,4))
+                column(RequestedReceiptDate; Format("Requested Receipt Date", 0, 4))
                 {
                 }
 
@@ -544,8 +544,14 @@ report 1322 "Standard Purchase - Order"
                     TotalSubTotal += "Line Amount";
                     TotalInvoiceDiscountAmount -= "Inv. Discount Amount";
                     TotalAmount += Amount;
+
+                    ItemNo := "No.";
+
+                    if "Vendor Item No." <> '' then
+                        ItemNo := "Vendor Item No.";
+
                     if "Cross-Reference No." <> '' then
-                        "No." := "Cross-Reference No.";
+                        ItemNo := "Cross-Reference No.";
 
                     FormatDocument.SetPurchaseLine("Purchase Line", FormattedQuanitity, FormattedDirectUnitCost);
                 end;
@@ -1069,6 +1075,7 @@ report 1322 "Standard Purchase - Order"
         RequestedReceiptDateLbl: Label 'Requested Receipt Date';
         ExpectedReceiptDateLbl: Label 'Expected Receipt Date';
         PlannedReceiptDateLbl: Label 'Planned Receipt Date';
+        ItemNo: Text;
 
     procedure InitializeRequest(LogInteractionParam: Boolean)
     begin

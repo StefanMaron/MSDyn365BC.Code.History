@@ -204,6 +204,8 @@ codeunit 1000 "Job Calculate WIP"
                     JobWIPTotal."Contract (Total Price)" += JobTask."Contract (Total Price)";
                     JobWIPTotal."Contract (Invoiced Price)" += JobTask."Contract (Invoiced Price)";
                     JobWIPTotal."Contract (Invoiced Cost)" += JobTask."Contract (Invoiced Cost)";
+
+                    OnCreateJobWIPTotalOnAfterUpdateJobWIPTotal(JobTask, JobWIPTotal);
                 end;
             until JobTask.Next = 0;
 
@@ -1049,6 +1051,11 @@ codeunit 1000 "Job Calculate WIP"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPercentageOfCompletion(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total"; var JobWIPTotalChanged: Boolean; var WIPAmount: Decimal; var RecognizedAllocationPercentage: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJobWIPTotalOnAfterUpdateJobWIPTotal(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total")
     begin
     end;
 

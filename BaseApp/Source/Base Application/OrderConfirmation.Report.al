@@ -4,6 +4,8 @@ report 205 "Order Confirmation"
     RDLCLayout = './OrderConfirmation.rdlc';
     Caption = 'Order Confirmation';
     PreviewMode = PrintLayout;
+    ObsoleteReason = 'Replaced with report 1305 Standard Sales - Order Conf.';
+    ObsoleteState = Pending;
 
     dataset
     {

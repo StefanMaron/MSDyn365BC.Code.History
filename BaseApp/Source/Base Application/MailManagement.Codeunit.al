@@ -38,7 +38,14 @@ codeunit 9520 "Mail Management"
     local procedure RunMailDialog(): Boolean
     var
         EmailDialog: Page "Email Dialog";
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunMailDialog(TempEmailItem, OutlookSupported, SMTPSupported, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         EmailDialog.SetValues(TempEmailItem, OutlookSupported, SMTPSupported);
 
         if not (EmailDialog.RunModal = ACTION::OK) then begin
@@ -53,13 +60,19 @@ codeunit 9520 "Mail Management"
     local procedure SendViaSMTP(): Boolean
     var
         ErrorMessageManagement: Codeunit "Error Message Management";
+        HtmlFormated: Boolean;
         SendToList: List of [Text];
         SendToCcList: List of [Text];
         SendToBccList: List of [Text];
+        Seperators: Text;
     begin
-        SendToList.Add(TempEmailItem."Send to");
+        Seperators := '; ,';
+        SendToList := TempEmailItem."Send to".Split(Seperators.Split());
 
-        if SMTPMail.CreateMessage(TempEmailItem."From Name", TempEmailItem."From Address", SendToList, TempEmailItem.Subject, TempEmailItem.GetBodyText()) then begin
+        IF TempEmailItem."Message Type" = TempEmailItem."Message Type"::"From Email Body Template" THEN
+            HtmlFormated := true;
+
+        if SMTPMail.CreateMessage(TempEmailItem."From Name", TempEmailItem."From Address", SendToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), HtmlFormated) then begin
             SMTPMail.AddAttachment(TempEmailItem."Attachment File Path", TempEmailItem."Attachment Name");
             if TempEmailItem."Attachment File Path 2" <> '' then
                 SMTPMail.AddAttachment(TempEmailItem."Attachment File Path 2", TempEmailItem."Attachment Name 2");
@@ -75,16 +88,16 @@ codeunit 9520 "Mail Management"
                 SMTPMail.AddAttachment(TempEmailItem."Attachment File Path 7", TempEmailItem."Attachment Name 7");
 
             if TempEmailItem."Send CC" <> '' then begin
-                SendToCcList.Add(TempEmailItem."Send CC");
+                SendToCcList := TempEmailItem."Send CC".Split(Seperators.Split());
                 SMTPMail.AddCC(SendToCcList);
             end;
             if TempEmailItem."Send BCC" <> '' then begin
-                SendToBccList.Add(TempEmailItem."Send BCC");
+                SendToBccList := TempEmailItem."Send BCC".Split(Seperators.Split());
                 SMTPMail.AddBCC(SendToBccList);
             end;
         end;
 
-        OnBeforeSentViaSMTP(TempEmailItem);
+        OnBeforeSentViaSMTP(TempEmailItem, SMTPMail);
         MailSent := SMTPMail.Send;
         if not MailSent and not HideSMTPError then
             ErrorMessageManagement.LogSimpleErrorMessage(SMTPMail.GetLastSendMailErrorText);
@@ -131,11 +144,11 @@ codeunit 9520 "Mail Management"
     begin
         if Mail.TryInitializeOutlook then
             with TempEmailItem do begin
+                OnBeforeSendMailOnWinClient(TempEmailItem);
                 if "Attachment File Path" <> '' then begin
                     ClientAttachmentFilePath := DownloadPdfOnClient("Attachment File Path");
                     ClientAttachmentFullName := FileManagement.MoveAndRenameClientFile(ClientAttachmentFilePath, "Attachment Name", '');
                 end;
-                OnBeforeSendMailOnWinClient(TempEmailItem);
                 if Mail.NewMessageAsync("Send to", "Send CC", "Send BCC", Subject, GetBodyText, ClientAttachmentFullName, not HideMailDialog) then begin
                     FileManagement.DeleteClientFile(ClientAttachmentFullName);
                     MailSent := true;
@@ -468,12 +481,15 @@ codeunit 9520 "Mail Management"
         exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Background]);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetSMTPCredentials(var SMTPMailSetup: Record "SMTP Mail Setup")
     var
-        JSONManagement: Codeunit "JSON Management";
         AzureKeyVault: Codeunit "Azure Key Vault";
-        SMTPServerParameter: DotNet JObject;
+        SMTPSettingsList: JsonArray;
+        SMTPSettings: JsonObject;
+        RandomIndex: Integer;
+        JToken: JsonToken;
         SMTPServerParameters: Text;
         VaultAuthentication: Text;
         VaultUserID: Text[250];
@@ -483,26 +499,61 @@ codeunit 9520 "Mail Management"
     begin
         if not AzureKeyVault.GetAzureKeyVaultSecret(SMTPSetupTxt, SMTPServerParameters) then
             exit;
-        JSONManagement.InitializeCollection(SMTPServerParameters);
-        if JSONManagement.GetCollectionCount = 0 then
+
+        if not SMTPSettingsList.ReadFrom(SMTPServerParameters) then
             exit;
-        JSONManagement.GetJObjectFromCollectionByIndex(
-          SMTPServerParameter,
-          Random(JSONManagement.GetCollectionCount) - 1);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(SMTPServerParameter, 'Server', SMTPMailSetup."SMTP Server");
-        JSONManagement.GetStringPropertyValueFromJObjectByName(SMTPServerParameter, 'ServerPort', VaultSMTPServerPort);
+
+        if SMTPSettingsList.Count() = 0 then
+            exit;
+
+        RandomIndex := Random(SMTPSettingsList.Count()) - 1;
+
+        if not SMTPSettingsList.Get(RandomIndex, JToken) then
+            exit;
+
+        if not JToken.IsObject() then
+            exit;
+
+        SMTPSettings := JToken.AsObject();
+
+        GetAsText(SMTPSettings, 'Server', SMTPMailSetup."SMTP Server");
+        GetAsText(SMTPSettings, 'ServerPort', VaultSMTPServerPort);
         if VaultSMTPServerPort <> '' then
             Evaluate(SMTPMailSetup."SMTP Server Port", VaultSMTPServerPort);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(SMTPServerParameter, 'Authentication', VaultAuthentication);
+
+        GetAsText(SMTPSettings, 'Authentication', VaultAuthentication);
         if VaultAuthentication <> '' then
             Evaluate(SMTPMailSetup.Authentication, VaultAuthentication);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(SMTPServerParameter, 'User', VaultUserID);
+
+        GetAsText(SMTPSettings, 'User', VaultUserID);
         SMTPMailSetup.Validate("User ID", VaultUserID);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(SMTPServerParameter, 'Password', VaultPasswordKey);
+
+        GetAsText(SMTPSettings, 'Password', VaultPasswordKey);
         SMTPMailSetup.SetPassword(VaultPasswordKey);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(SMTPServerParameter, 'SecureConnection', VaultSecureConnection);
+
+        GetAsText(SMTPSettings, 'SecureConnection', VaultSecureConnection);
         if VaultSecureConnection <> '' then
             Evaluate(SMTPMailSetup."Secure Connection", VaultSecureConnection);
+    end;
+
+    [NonDebuggable]
+    local procedure GetAsText(JObject: JsonObject; PropertyKey: Text; var Result: Text): Boolean
+    var
+        JToken: JsonToken;
+        JValue: JsonValue;
+    begin
+        if not JObject.Get(PropertyKey, JToken) then
+            exit(false);
+
+        if not JToken.IsValue() then
+            exit(false);
+
+        JValue := JToken.AsValue();
+        if JValue.IsUndefined() or JValue.IsNull() then
+            exit(false);
+
+        Result := JValue.AsText();
+        exit(true);
     end;
 
     local procedure FilterEventSubscription(var EventSubscription: Record "Event Subscription"; FunctionNameFilter: Text)
@@ -568,7 +619,12 @@ codeunit 9520 "Mail Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSentViaSMTP(var TempEmailItem: Record "Email Item" temporary)
+    local procedure OnBeforeRunMailDialog(var TempEmailItem: Record "Email Item"; OutlookSupported: Boolean; SMTPSupported: Boolean; var ReturnValue: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSentViaSMTP(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail")
     begin
     end;
 

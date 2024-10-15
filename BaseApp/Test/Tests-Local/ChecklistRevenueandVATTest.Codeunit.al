@@ -15,6 +15,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
+        FileManagement: Codeunit "File Management";
         GLEntry2DocumentNoTxt: Label 'G_L_Entry2___Document_No__';
 
     [Test]
@@ -112,6 +113,23 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         LibraryReportDataset.AssertElementWithValueExists(GLEntry2DocumentNoTxt, DocumentNo);
     end;
 
+    [Test]
+    [HandlerFunctions('ChecklistRevenueAndVATSaveAsPDF_RPH')]
+    [Scope('OnPrem')]
+    procedure PrintChecklistRevenueAndVAT()
+    var
+        FilterGLAccount: Record "G/L Account";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [UT]
+        // [SCENARIO 333888] Report "Purchase Advice" can be printed without RDLC rendering errors
+        DocumentNo := CreatePostSalesDocument('');
+        FilterGLAccount.SetRange("No.", '_');
+        // [WHEN] Report "Purchase Advice" is being printed to PDF
+        REPORT.Run(REPORT::"Checklist Revenue and VAT", true, true, FilterGLAccount);
+        // [THEN] No RDLC rendering errors
+    end;
+
     local procedure AddManVATCorrection(RowNoFilter: Text): Decimal
     var
         GLSetup: Record "General Ledger Setup";
@@ -198,6 +216,15 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         RequestPage.StartDate.SetValue := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
         RequestPage.NoOfPeriods.SetValue := 12;
         RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ChecklistRevenueAndVATSaveAsPDF_RPH(var RequestPage: TestRequestPage "Checklist Revenue and VAT")
+    begin
+        RequestPage.StartDate.SetValue := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
+        RequestPage.NoOfPeriods.SetValue := 12;
+        RequestPage.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;
 }
 

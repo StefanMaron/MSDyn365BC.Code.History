@@ -667,7 +667,7 @@ report 11312 "Checklist Revenue and VAT"
             column(Heading_Control18; Heading)
             {
             }
-            column(DataItem20; "G/L Entry".TableCaption + ':' + GLEntry2.FieldCaption("Gen. Posting Type") + GLEntry2.GetFilter("Gen. Posting Type"))
+            column(G_L_Entry__TABLECAPTION_Control20; "G/L Entry".TableCaption + ':' + GLEntry2.FieldCaption("Gen. Posting Type") + GLEntry2.GetFilter("Gen. Posting Type"))
             {
             }
             column(SkipHeader_4_; SkipHeader[4])

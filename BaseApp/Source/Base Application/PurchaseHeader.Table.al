@@ -109,6 +109,8 @@ table 38 "Purchase Header"
                 then
                     RecreatePurchLines(BuyFromVendorTxt);
 
+                OnValidateBuyFromVendorNoOnAfterRecreateLines(Rec, xRec, CurrFieldNo);
+
                 if not SkipBuyFromContact then
                     UpdateBuyFromCont("Buy-from Vendor No.");
 
@@ -685,10 +687,7 @@ table 38 "Purchase Header"
                         OnAfterConfirmPurchPrice(Rec, PurchLine, RecalculatePrice);
                         PurchLine.SetPurchHeader(Rec);
 
-                        if "Currency Code" = '' then
-                            Currency.InitRoundingPrecision
-                        else
-                            Currency.Get("Currency Code");
+                        Currency.Initialize("Currency Code");
 
                         PurchLine.FindSet;
                         repeat
@@ -717,6 +716,7 @@ table 38 "Purchase Header"
                                 else
                                     PurchLine."Line Amount" := PurchLine.Amount + PurchLine."Inv. Discount Amount";
                             end;
+                            OnValidatePricesIncludingVATOnBeforePurchLineModify(PurchHeader, PurchLine, Currency, RecalculatePrice);
                             PurchLine.Modify;
                         until PurchLine.Next = 0;
                     end;
@@ -2273,6 +2273,7 @@ table 38 "Purchase Header"
     var
         PostPurchDelete: Codeunit "PostPurch-Delete";
         ArchiveManagement: Codeunit ArchiveManagement;
+        ShowPostedDocsToPrint: Boolean;
     begin
         if not UserSetupMgt.CheckRespCenter(1, "Responsibility Center") then
             Error(
@@ -2305,13 +2306,11 @@ table 38 "Purchase Header"
         PurchCommentLine.SetRange("No.", "No.");
         PurchCommentLine.DeleteAll;
 
-        if (PurchRcptHeader."No." <> '') or
-           (PurchInvHeader."No." <> '') or
-           (PurchCrMemoHeader."No." <> '') or
-           (ReturnShptHeader."No." <> '') or
-           (PurchInvHeaderPrepmt."No." <> '') or
-           (PurchCrMemoHeaderPrepmt."No." <> '')
-        then
+        ShowPostedDocsToPrint :=
+            (PurchRcptHeader."No." <> '') or (PurchInvHeader."No." <> '') or (PurchCrMemoHeader."No." <> '') or
+           (ReturnShptHeader."No." <> '') or (PurchInvHeaderPrepmt."No." <> '') or (PurchCrMemoHeaderPrepmt."No." <> '');
+        OnBeforeShowPostedDocsToPrintCreatedMsg(ShowPostedDocsToPrint);
+        if ShowPostedDocsToPrint then
             Message(PostedDocsToPrintCreatedMsg);
     end;
 
@@ -2333,7 +2332,14 @@ table 38 "Purchase Header"
     end;
 
     trigger OnRename()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRename(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         Error(Text003, TableCaption);
     end;
 
@@ -2443,6 +2449,7 @@ table 38 "Purchase Header"
         MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         StatusCheckSuspended: Boolean;
+        FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
 
     procedure InitInsert()
     var
@@ -3117,7 +3124,13 @@ table 38 "Purchase Header"
     local procedure UpdatePurchAmountLines()
     var
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePurchLineAmounts(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchLine.Reset;
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
@@ -4919,6 +4932,8 @@ table 38 "Purchase Header"
             exit;
 
         Validate("Sell-to Customer No.", '');
+        if "Buy-from Vendor No." <> '' then
+            GetVend("Buy-from Vendor No.");
         UpdateLocationCode(Vend."Location Code");
     end;
 
@@ -4968,6 +4983,23 @@ table 38 "Purchase Header"
         end;
 
         OnAfterUpdateInboundWhseHandlingTime(Rec, CurrFieldNo);
+    end;
+
+    procedure GetFullDocTypeTxt() FullDocTypeTxt: Text
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeGetFullDocTypeTxt(Rec, FullDocTypeTxt, IsHandled);
+
+        if IsHandled then
+            exit;
+
+        FullDocTypeTxt := SelectStr("Document Type" + 1, FullPurchaseTypesTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFullDocTypeTxt(var PurchaseHeader: Record "Purchase Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -5186,6 +5218,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePurchLineAmounts(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRecreatePurchLines(var PurchHeader: Record "Purchase Header")
     begin
     end;
@@ -5261,7 +5298,22 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateBuyFromVendorNoOnAfterRecreateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateBuyFromVendorNoBeforeRecreateLines(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRename(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPostedDocsToPrintCreatedMsg(var ShowPostedDocsToPrint: Boolean)
     begin
     end;
 
@@ -5337,6 +5389,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaytoVendorNoBeforeRecreateLines(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePricesIncludingVATOnBeforePurchLineModify(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; Currency: Record Currency; RecalculatePrice: Boolean);
     begin
     end;
 }

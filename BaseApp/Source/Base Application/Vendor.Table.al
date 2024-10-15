@@ -1676,9 +1676,11 @@ table 23 Vendor
             exit;
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::Vendor, "No.", FieldNumber, ShortcutDimCode);
-        Modify;
-
+        if not IsTemporary then begin
+            DimMgt.SaveDefaultDim(DATABASE::Vendor, "No.", FieldNumber, ShortcutDimCode);
+            Modify;
+        end;
+	
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -1928,6 +1930,7 @@ table 23 Vendor
         Vendor.SetFilter(Contact, VendorFilterContains);
         Vendor.SetFilter("Phone No.", VendorFilterContains);
         Vendor.SetFilter("Post Code", VendorFilterContains);
+        OnGetVendorNoOpenCardonAfterSetvendorFilters(Vendor, VendorFilterContains);
 
         if Vendor.Count = 0 then
             MarkVendorsWithSimilarName(Vendor, VendorText);
@@ -2335,6 +2338,11 @@ table 23 Vendor
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVATRegistrationValidation(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVendorNoOpenCardonAfterSetvendorFilters(var Vendor: Record Vendor; var VendorFilterContains: Text);
     begin
     end;
 }

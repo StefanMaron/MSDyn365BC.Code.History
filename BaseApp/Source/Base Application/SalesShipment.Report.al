@@ -93,7 +93,7 @@ report 208 "Sales - Shipment"
                     column(SelltoCustNo_SalesShptHeader; "Sales Shipment Header"."Sell-to Customer No.")
                     {
                     }
-                    column(DocDate_SalesShptHeader; Format("Sales Shipment Header"."Document Date", 0, 4))
+                    column(DocDate_SalesShptHeader; Format("Sales Shipment Header"."Document Date"))
                     {
                     }
                     column(SalesPersonText; SalesPersonText)
@@ -162,13 +162,13 @@ report 208 "Sales - Shipment"
                     column(SelltoCustNo_SalesShptHeaderCaption; "Sales Shipment Header".FieldCaption("Sell-to Customer No."))
                     {
                     }
-                    column(OrderNoCaption_SalesShptHeader; 'Our Document No.')
+                    column(OrderNoCaption_SalesShptHeader; OurDocumentNoLbl)
                     {
                     }
                     column(OrderNo_SalesShptHeader; "Sales Shipment Header"."Order No.")
                     {
                     }
-                    column(ExternalDocumentNoCaption_SalesShptHeader; 'Purchase Order No.')
+                    column(ExternalDocumentNoCaption_SalesShptHeader; PurchaseOrderNoLbl)
                     {
                     }
                     column(ExternalDocumentNo_SalesShptHeader; "Sales Shipment Header"."External Document No.")
@@ -743,6 +743,8 @@ report 208 "Sales - Shipment"
         DescriptionCaptionLbl: Label 'Description';
         NoCaptionLbl: Label 'No.';
         PageCaptionCap: Label 'Page %1 of %2';
+        OurDocumentNoLbl: Label 'Our Document No.';
+        PurchaseOrderNoLbl: Label 'Purchase Order No.';
 
     procedure InitLogInteraction()
     begin
