@@ -821,6 +821,8 @@ table 9650 "Custom Report Layout"
     var
         User: Record User;
     begin
+        if CurrentTransactionType() = TransactionType::Report then
+            exit(false);
         if not WritePermission then
             exit(false);
         if not User.Get(UserSecurityId) then

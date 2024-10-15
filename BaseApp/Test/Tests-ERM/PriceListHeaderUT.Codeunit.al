@@ -32,6 +32,7 @@ codeunit 134118 "Price List Header UT"
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1 - Field caption';
         StatusUpdateQst: Label 'Do you want to update status to %1?', Comment = '%1 - status value: Draft, Active, or Inactive';
         CannotDeleteActivePriceListErr: Label 'You cannot delete the active price list %1.', Comment = '%1 - the price list code.';
+        ParentSourceJobErr: Label 'Parent Source No. must be blank for Job source type.';
         ParentSourceNoMustBeFilledErr: Label 'Applies-to Parent No. must have a value';
         ParentSourceNoMustBeBlankErr: Label 'Applies-to Parent No. must be equal to ''''';
         ProductNoMustBeFilledErr: Label 'Product No. must have a value';
@@ -831,7 +832,7 @@ codeunit 134118 "Price List Header UT"
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
         // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
-        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+        Assert.ExpectedError(ParentSourceJobErr);
     end;
 
     [Test]
@@ -980,10 +981,11 @@ codeunit 134118 "Price List Header UT"
         // [FEATURE] [Price Source Type] [Extended]
         // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
         Initialize();
-        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Source No." is <blank>
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, PriceListHeader."Price Type"::Sale,
             PriceListHeader."Source Type"::Location, '');
+        PriceListHeader."Parent Source No." := 'X';
         PriceListHeader.Modify();
 
         // [WHEN] Set "Status" as 'Active'
@@ -991,6 +993,48 @@ codeunit 134118 "Price List Header UT"
 
         // [THEN] Error: "Applies-to No. must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T071_UpdateStatusOnHeaderSourceAllLocationsParentSourceFilled()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: "Applies-to Parent No."" is filled.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Locations", "Parent Source No." is 'X'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Locations", '');
+        PriceListHeader."Parent Source No." := 'X';
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
+        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+    end;
+
+    [Test]
+    procedure T072_UpdateStatusOnHeaderSourceLocationParentSourceBlank()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Parent Source No." is <blank>
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Location, 'X');
+
+        // [WHEN] Set "Status" as 'Active'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to Parent No. must have a value"
+        Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
     end;
 
 

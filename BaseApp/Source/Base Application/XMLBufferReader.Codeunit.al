@@ -85,10 +85,14 @@ codeunit 1239 "XML Buffer Reader"
     var
         TempAttributeXMLBuffer: Record "XML Buffer" temporary;
         Attribute: DotNet XmlAttribute;
+        NamespaceURI: Text;
     begin
+        NamespaceURI := '';
         if TempParentElementXMLBuffer.FindAttributes(TempAttributeXMLBuffer) then
             repeat
-                Attribute := XmlDocument.CreateAttribute(TempAttributeXMLBuffer.Name);
+                if TempAttributeXMLBuffer.Namespace <> '' then
+                    NamespaceURI := TempParentElementXMLBuffer.GetNamespaceUriByPrefix(TempAttributeXMLBuffer.Namespace);
+                Attribute := XmlDocument.CreateAttribute(TempAttributeXMLBuffer.Name, NamespaceURI);
                 Attribute.InnerText := TempAttributeXMLBuffer.Value;
                 XMLCurrElement.Attributes.SetNamedItem(Attribute);
             until TempAttributeXMLBuffer.Next = 0;

@@ -32,6 +32,7 @@ codeunit 134106 "ERM Prepayment V"
         PurchaseInvDiscForPrepmtExceededErr: Label 'You cannot enter an invoice discount for purchase document %1';
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
+        GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
 
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
@@ -3348,6 +3349,79 @@ codeunit 134106 "ERM Prepayment V"
         PurchaseLine.TestField("Prepmt. Line Amount", PrepLineAmountIclVAT);
     end;
 
+    [Test]
+    procedure ErrorGLAccountMustHaveAValueIsShownForPurchasePrepaymentInvoiceWithMissingGenBusPostingGroupInGLAccount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        // [Posting Groups] [Purchase]
+        // [SCENARIO 391612] Create Purchase Order with Prepayment and empty "Gen. Prod. Posting Group" for "Purch. Prepayments Account"
+        Initialize();
+
+        // [GIVEN] Created G/L Account with missing "Gen. Prod. Posting Group"
+        // [GIVEN] Created new General Posting Setup and use created G/L Account for "Purch. Prepayments Account"
+        PrepareSetup_391612(GeneralPostingSetup, GLAccount);
+        GeneralPostingSetup."Purch. Prepayments Account" := GLAccount."No.";
+        GeneralPostingSetup.Modify();
+
+        // [GIVEN] Created Purchase Order with Prepayment
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Prepayment %", 100);
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        PurchaseLine.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Prepayment Invoice
+        asserterror LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Error has been thrown: "Gen. Prod. Posting Group  is not set for the Prepayment G/L account with no. XXXXX."
+        Assert.ExpectedError(
+          StrSubstNo(GenProdPostingGroupErr, GLAccount.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
+    end;
+
+    [Test]
+    procedure ErrorGLAccountMustHaveAValueIsShownForSalesPrepaymentInvoiceWithMissingGenBusPostingGroupInGLAccount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        // [Posting Groups] [Sales]
+        // [SCENARIO 391612] Create Sales Order with Prepayment and empty "Gen. Prod. Posting Group" for "Purch. Prepayments Account"
+        Initialize();
+
+        // [GIVEN] Created G/L Account with missing "Gen. Prod. Posting Group"
+        // [GIVEN] Created new General Posting Setup and use created G/L Account for "Sales Prepayments Account"
+        PrepareSetup_391612(GeneralPostingSetup, GLAccount);
+        GeneralPostingSetup."Sales Prepayments Account" := GLAccount."No.";
+        GeneralPostingSetup.Modify();
+
+        // [GIVEN] Created Sales Order with Prepayment
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader.Validate("Prepayment %", 100);
+        SalesHeader.Modify(true);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        SalesLine.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        SalesLine.Modify(true);
+
+        // [WHEN] Post Prepayment Invoice
+        asserterror LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Error has been thrown: "Gen. Prod. Posting Group  is not set for the Prepayment G/L account with no. XXXXX."
+        Assert.ExpectedError(
+          StrSubstNo(GenProdPostingGroupErr, GLAccount.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3360,10 +3434,10 @@ codeunit 134106 "ERM Prepayment V"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Prepayment V");
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         LibrarySetupStorage.SavePurchasesSetup();
         LibrarySetupStorage.SaveSalesSetup();
@@ -3371,6 +3445,27 @@ codeunit 134106 "ERM Prepayment V"
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment V");
+    end;
+
+    local procedure PrepareSetup_391612(var GeneralPostingSetup: Record "General Posting Setup"; var GLAccount: Record "G/L Account")
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAccount."Gen. Prod. Posting Group" := '';
+        GLAccount.Modify();
+
+        // [GIVEN] Created new General Posting Setup and use created G/L Account for "Purch. Prepayments Account"
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        GenBusinessPostingGroup."Def. VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        GenBusinessPostingGroup.Modify();
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        GenProductPostingGroup."Def. VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        GenProductPostingGroup.Modify();
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
     end;
 
     local procedure PrepareVendorAndTwoGLAccWithSetup(var VATPostingSetup: Record "VAT Posting Setup"; var VendorNo: Code[20]; var GLAccountNo: array[2] of Code[20]; VATRate: Decimal)
@@ -3873,17 +3968,25 @@ codeunit 134106 "ERM Prepayment V"
     var
         DefaultDimension: Record "Default Dimension";
         GenPostingSetup: Record "General Posting Setup";
-        GLAccountNo: Code[20];
+        GeneralPostingSetupPrepayment: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
     begin
         MockGenBusProdPostingGroups(GenPostingSetup, GenBusPostingGroupCode, GenProdPostingGroupCode);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetupPrepayment);
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetupPrepayment."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetupPrepayment."Gen. Prod. Posting Group");
+        GLAccount.Modify(true);
+
         if CreateDfltDimInAcc then begin
             LibraryDimension.CreateDimWithDimValue(DimensionValue);
-            LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccountNo,
+            LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccount."No.",
               DimensionValue."Dimension Code", DimensionValue.Code);
         end;
-        GenPostingSetup."Sales Prepayments Account" := GLAccountNo;
-        GenPostingSetup."Purch. Prepayments Account" := GLAccountNo;
+
+        GenPostingSetup."Sales Prepayments Account" := GLAccount."No.";
+        GenPostingSetup."Purch. Prepayments Account" := GLAccount."No.";
         GenPostingSetup.Modify();
     end;
 

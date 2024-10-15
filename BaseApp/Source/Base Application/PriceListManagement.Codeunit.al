@@ -233,7 +233,7 @@ codeunit 7017 "Price List Management"
         case PriceListLine."Asset Type" of
             "Price Asset Type"::Item:
                 DuplicatePriceListLine.SetRange("Variant Code", PriceListLine."Variant Code");
-            "Price Asset Type"::Resource:
+            "Price Asset Type"::Resource, "Price Asset Type"::"Resource Group":
                 DuplicatePriceListLine.SetRange("Work Type Code", PriceListLine."Work Type Code");
         end;
     end;

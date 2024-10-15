@@ -743,7 +743,7 @@ codeunit 10 "Type Helper"
         InputDateTime := InputDateTime - Offset;
 
         TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZoneTxt);
-        exit(TimeZoneInfo.ConvertTimeFromUtc(InputDateTime, TimeZoneInfo));
+        exit(InputDateTime + TimeZoneInfo.BaseUtcOffset);
     end;
 
     procedure IntToHex(IntValue: Integer): Text

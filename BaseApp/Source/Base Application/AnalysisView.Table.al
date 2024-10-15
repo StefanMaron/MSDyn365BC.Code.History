@@ -229,8 +229,11 @@ table 363 "Analysis View"
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 1 Code", 13, '', Code, 0) then
                     Error(Text000, Dim.GetCheckDimErr);
-                ModifyDim(FieldCaption("Dimension 1 Code"), "Dimension 1 Code", xRec."Dimension 1 Code");
-                Modify;
+                if ClearDimTotalingLines("Dimension 1 Code", xRec."Dimension 1 Code", 1) then begin
+                    ModifyDim(FieldCaption("Dimension 1 Code"), "Dimension 1 Code", xRec."Dimension 1 Code");
+                    Modify();
+                end else
+                    "Dimension 1 Code" := xRec."Dimension 1 Code";
             end;
         }
         field(14; "Dimension 2 Code"; Code[20])
@@ -243,8 +246,11 @@ table 363 "Analysis View"
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 2 Code", 14, '', Code, 0) then
                     Error(Text000, Dim.GetCheckDimErr);
-                ModifyDim(FieldCaption("Dimension 2 Code"), "Dimension 2 Code", xRec."Dimension 2 Code");
-                Modify;
+                if ClearDimTotalingLines("Dimension 2 Code", xRec."Dimension 2 Code", 2) then begin
+                    ModifyDim(FieldCaption("Dimension 2 Code"), "Dimension 2 Code", xRec."Dimension 2 Code");
+                    Modify();
+                end else
+                    "Dimension 2 Code" := xRec."Dimension 2 Code";
             end;
         }
         field(15; "Dimension 3 Code"; Code[20])
@@ -257,8 +263,11 @@ table 363 "Analysis View"
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 3 Code", 15, '', Code, 0) then
                     Error(Text000, Dim.GetCheckDimErr);
-                ModifyDim(FieldCaption("Dimension 3 Code"), "Dimension 3 Code", xRec."Dimension 3 Code");
-                Modify;
+                if ClearDimTotalingLines("Dimension 3 Code", xRec."Dimension 3 Code", 3) then begin
+                    ModifyDim(FieldCaption("Dimension 3 Code"), "Dimension 3 Code", xRec."Dimension 3 Code");
+                    Modify();
+                end else
+                    "Dimension 3 Code" := xRec."Dimension 3 Code";
             end;
         }
         field(16; "Dimension 4 Code"; Code[20])
@@ -271,8 +280,11 @@ table 363 "Analysis View"
                 TestField(Blocked, false);
                 if Dim.CheckIfDimUsed("Dimension 4 Code", 16, '', Code, 0) then
                     Error(Text000, Dim.GetCheckDimErr);
-                ModifyDim(FieldCaption("Dimension 4 Code"), "Dimension 4 Code", xRec."Dimension 4 Code");
-                Modify;
+                if ClearDimTotalingLines("Dimension 4 Code", xRec."Dimension 4 Code", 4) then begin
+                    ModifyDim(FieldCaption("Dimension 4 Code"), "Dimension 4 Code", xRec."Dimension 4 Code");
+                    Modify();
+                end else
+                    "Dimension 4 Code" := xRec."Dimension 4 Code";
             end;
         }
         field(17; "Include Budgets"; Boolean)
@@ -346,6 +358,7 @@ table 363 "Analysis View"
         Text017Msg: Label 'Enabling the %1 feature immediately updates the analysis view with the latest entries. Do you want to start using the feature, and update the analysis view now?', Comment = '%1 = The name of the feature that is being enabled';	
         Text018Msg: Label 'If you enable the %1 feature it can take significantly more time to post documents, such as sales or purchase orders and invoices. Do you want to continue?', Comment = '%1 = The name of the feature that is being enabled';
         SkipConfirmationDialogue: Boolean;
+        ClearDimTotalingConfirmTxt: Label 'Changing dimension will clear dimension totaling columns of Account Schedule Lines using current Analysis Vew. \Do you want to continue?';
 
     local procedure ModifyDim(DimFieldName: Text[100]; DimValue: Code[20]; xDimValue: Code[20])
     begin
@@ -464,6 +477,31 @@ table 363 "Analysis View"
         AnalysisViewEntry.DeleteAll();
 
         OnAfterAnalysisViewReset(Rec);
+    end;
+
+    local procedure ClearDimTotalingLines(DimValue: Code[20]; xDimValue: Code[20]; DimNumber: Integer): Boolean
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        ConfirmManagement: Codeunit "Confirm Management";
+        AskedUser: Boolean;
+        ClearTotaling: Boolean;
+    begin
+        if DimValue <> xDimValue then begin
+            ClearTotaling := true;
+            AccScheduleName.SetRange("Analysis View Name", Code);
+            if AccScheduleName.FindSet() then
+                repeat
+                    if not AccScheduleName.DimTotalingLinesAreEmpty(DimNumber) and ClearTotaling then begin
+                        if not AskedUser then begin
+                            ClearTotaling := ConfirmManagement.GetResponseOrDefault(ClearDimTotalingConfirmTxt, true);
+                            AskedUser := true;
+                        end;
+                        if ClearTotaling then
+                            AccScheduleName.ClearDimTotalingLines(DimNumber);
+                    end;
+                until AccScheduleName.Next() = 0;
+        end;
+        exit(ClearTotaling);
     end;
 
     procedure CheckDimensionsAreRetained(ObjectType: Integer; ObjectID: Integer; OnlyIfIncludeBudgets: Boolean)

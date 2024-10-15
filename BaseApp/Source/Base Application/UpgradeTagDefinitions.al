@@ -1,5 +1,7 @@
 ﻿codeunit 9998 "Upgrade Tag Definitions"
 {
+    // Tag Structure - MS-[TFSID]-[Description]-[DateChangeWasDoneToSeeHowOldItWas]
+    // Tags must be the same in all branches
 
     trigger OnRun()
     begin
@@ -64,6 +66,8 @@
         PerCompanyUpgradeTags.Add(GetDimensionSetEntryUpgradeTag());
         PerCompanyUpgradeTags.Add(GetRemoveOldWorkflowTableRelationshipRecordsTag());
         PerCompanyUpgradeTags.Add(GetUserTaskDescriptionToUTF8UpgradeTag());
+        PerCompanyUpgradeTags.Add(GetClearTemporaryTablesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetAdvancedIntrastatBaseDemoDataUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -565,5 +569,15 @@
     procedure GetUserTaskDescriptionToUTF8UpgradeTag(): Code[250]
     begin
         exit('MS-385481-UserTaskDescriptionToUTF8-20210112');
+    end;
+
+    procedure GetClearTemporaryTablesUpgradeTag(): Code[250]
+    begin
+        exit('MS-396184-CleanTemporaryTables-20210427');
+    end;
+
+    procedure GetAdvancedIntrastatBaseDemoDataUpgradeTag(): Code[250]
+    begin
+        exit('MS-395476-AdvancedIntrastatChecklistSetup-20210525');
     end;
 }
