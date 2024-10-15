@@ -276,6 +276,12 @@
         {
             Caption = 'Vehicle Year';
         }
+        field(10003; "Vehicle Gross Weight"; Decimal)
+        {
+            Caption = 'Vehicle Gross Weight';
+            MinValue = 0.01;
+            DecimalPlaces = 0 : 2;
+        }
         field(10004; "SAT Federal Autotransport"; Code[10])
         {
             Caption = 'SAT Federal Autotransport';

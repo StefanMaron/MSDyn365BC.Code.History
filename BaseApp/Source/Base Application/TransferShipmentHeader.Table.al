@@ -292,6 +292,11 @@
             Caption = 'Date/Time Cancel Sent';
             Editable = false;
         }
+        field(10039; "Identifier IdCCP"; Text[50])
+        {
+            Caption = 'Identifier IdCCP';
+            Editable = false;
+        }
         field(10040; "PAC Web Service Name"; Text[50])
         {
             Caption = 'PAC Web Service Name';
@@ -369,6 +374,26 @@
         {
             Caption = 'SAT Weight Unit Of Measure';
             TableRelation = "SAT Weight Unit of Measure";
+        }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';
+            DecimalPlaces = 0 : 6;
+        }
+        field(10061; "SAT Customs Regime"; Code[10])
+        {
+            Caption = 'SAT Customs Regime';
+            TableRelation = "SAT Customs Regime";
+        }
+        field(10062; "SAT Transfer Reason"; Code[10])
+        {
+            Caption = 'SAT Transfer Reason';
+            TableRelation = "SAT Transfer Reason";
         }
         field(27002; "CFDI Cancellation Reason Code"; Code[10])
         {
@@ -513,20 +538,6 @@
         Area := TransHeader.Area;
         "Transaction Specification" := TransHeader."Transaction Specification";
         "Direct Transfer" := TransHeader."Direct Transfer";
-
-        "Transit-from Date/Time" := TransHeader."Transit-from Date/Time";
-        "Transit Hours" := TransHeader."Transit Hours";
-        "Transit Distance" := TransHeader."Transit Distance";
-        "Insurer Name" := TransHeader."Insurer Name";
-        "Insurer Policy Number" := TransHeader."Insurer Policy Number";
-        "Foreign Trade" := TransHeader."Foreign Trade";
-        "Vehicle Code" := TransHeader."Vehicle Code";
-        "Trailer 1" := TransHeader."Trailer 1";
-        "Trailer 2" := TransHeader."Trailer 2";
-        "Medical Insurer Name" := TransHeader."Medical Insurer Name";
-        "Medical Ins. Policy Number" := TransHeader."Medical Ins. Policy Number";
-        "SAT Weight Unit Of Measure" := TransHeader."SAT Weight Unit Of Measure";
-        "CFDI Export Code" := TransHeader."CFDI Export Code";
 
         OnAfterCopyFromTransferHeader(Rec, TransHeader);
     end;
