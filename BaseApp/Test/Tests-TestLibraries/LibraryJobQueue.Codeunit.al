@@ -12,6 +12,7 @@ codeunit 132458 "Library - Job Queue"
         DoNotHandleTableJobQueueEntryEvent: Boolean;
         TrackingJobQueueEntryID: Guid;
         MultipleTrackJobQueueEntryErr: Label 'Can''t track multiple job queue entries';
+        DoNotSkipProcessBatchInBackground: Boolean;
 
     [Scope('OnPrem')]
     procedure SetDoNotHandleCodeunitJobQueueEnqueueEvent(NewDoNotHandleCodeunitJobQueueEnqueueEvent: Boolean)
@@ -50,6 +51,11 @@ codeunit 132458 "Library - Job Queue"
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
         JobQueueEntry.Modify();
         Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+    end;
+
+    procedure SetDoNotSkipProcessBatchInBackground(NewDoNotSkipProcessBatchInBackground: Boolean)
+    begin
+        DoNotSkipProcessBatchInBackground := NewDoNotSkipProcessBatchInBackground;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', false, false)]
@@ -134,6 +140,12 @@ codeunit 132458 "Library - Job Queue"
         TempJobQueueEntry.TransferFields(Rec);
         TempJobQueueEntry.ID := CreateGuid;
         TempJobQueueEntry.Insert();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Batch Processing Mgt.", 'OnBeforeBatchShouldBeProcessedInBackground', '', false, false)]
+    local procedure OnBeforeBatchShouldBeProcessedInBackgroundHandler(var IsProcessed: Boolean)
+    begin
+        IsProcessed := not DoNotSkipProcessBatchInBackground;
     end;
 }
 

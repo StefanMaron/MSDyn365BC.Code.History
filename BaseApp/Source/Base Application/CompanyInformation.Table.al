@@ -376,6 +376,10 @@ table 79 "Company Information"
                         Error(GLNCheckDigitErr, FieldCaption(GLN));
             end;
         }
+        field(92; "EORI Number"; Text[40])
+        {
+            Caption = 'EORI Number';
+        }
         field(95; "Use GLN in Electronic Document"; Boolean)
         {
             Caption = 'Use GLN in Electronic Documents';

@@ -175,17 +175,6 @@ page 9081 "Sales Hist. Bill-to FactBox"
     {
     }
 
-    trigger OnFindRecord(Which: Text): Boolean
-    begin
-        if Find(Which) then begin
-            FilterGroup(4);
-            SetFilter("No.", GetBillToCustomerNo);
-            FilterGroup(0);
-        end;
-
-        exit(Find(Which));
-    end;
-
     var
         ShowCustomerNo: Boolean;
 

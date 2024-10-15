@@ -106,7 +106,7 @@ page 1384 "Item Templ. Card"
                     }
                     field("Tax Group Code"; "Tax Group Code")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = SalesTax;
                         Importance = Promoted;
                         ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                     }

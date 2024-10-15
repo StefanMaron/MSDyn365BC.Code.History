@@ -554,7 +554,13 @@ codeunit 57 "Document Totals"
     procedure PurchaseDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TotalPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal)
     var
         InvDiscountBaseAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchaseDeltaUpdateTotals(PurchaseLine, xPurchaseLine, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct, IsHandled);
+        if IsHandled then
+            exit;
+
         TotalPurchaseLine."Line Amount" += PurchaseLine."Line Amount" - xPurchaseLine."Line Amount";
         TotalPurchaseLine."Amount Including VAT" += PurchaseLine."Amount Including VAT" - xPurchaseLine."Amount Including VAT";
         TotalPurchaseLine.Amount += PurchaseLine.Amount - xPurchaseLine.Amount;
@@ -984,6 +990,11 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchUpdateTotalsControls(var PurchaseHeader: Record "Purchase Header"; var InvDiscAmountEditable: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TotalPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var IsHandled: Boolean)
     begin
     end;
 

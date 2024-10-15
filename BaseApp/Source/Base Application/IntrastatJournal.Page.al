@@ -170,6 +170,12 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the item''s shipment method.';
                 }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                    Visible = false;
+                }
             }
             group(Control40)
             {
