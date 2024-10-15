@@ -538,32 +538,6 @@ codeunit 144032 "ERM INTRASTAT"
     end;
 
     [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,BlankFileExportDEBDTIRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure BlankFileNameExportDEBDTIError()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        SalesHeader: Record "Sales Header";
-        SalesShipmentLine: Record "Sales Shipment Line";
-        IntrastatJournal: TestPage "Intrastat Journal";
-    begin
-        // Verify XML File Name mandatory fields behavior for DEB DTI +export Error.
-
-        // Setup: Create and Post Sales Order and Run Report - Get Item Ledger Entries on Intrastat Journal Line.
-        Initialize;
-        CreateAndPostSalesDocument(SalesShipmentLine, SalesHeader."Document Type"::Order, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
-        RunGetItemLedgerEntriesReportAndUpdate(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesShipmentLine."Document No.");
-        IntrastatJournal.OpenEdit;
-        Commit();  // Commit required for running report.
-
-        // Exercise.
-        asserterror IntrastatJournal."Export DEB DTI+".Invoke;  // Opens handler - BlankFileExportDEBDTIRequestPageHandler.
-
-        // Verify: Verify error message.
-        Assert.ExpectedError(DestinationFileErr);
-    end;
-
-    [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure GroupEntriesOnInGetItemLedgerEntriesReport()
@@ -895,14 +869,6 @@ codeunit 144032 "ERM INTRASTAT"
         LibraryXMLRead.VerifyNodeValue(EnvelopeIdTxt, EnvelopeId);
         LibraryXMLRead.VerifyNodeValue(FlowCodeTxt, FlowCode);
         LibraryXMLRead.VerifyNodeValue(PartyIDTxt, PartyID);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure BlankFileExportDEBDTIRequestPageHandler(var ExportDEBDTI: TestRequestPage "Export DEB DTI")
-    begin
-        ExportDEBDTI.FileName.SetValue('');
-        ExportDEBDTI.OK.Invoke;
     end;
 
     [RequestPageHandler]

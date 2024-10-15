@@ -9,19 +9,14 @@ codeunit 10821 "Export DEB DTI"
         CompanyInfo: Record "Company Information";
         TempIntrastatJnlBatch: Record "Intrastat Jnl. Batch" temporary;
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
-        FileMgt: Codeunit "File Management";
         XMLDomMgt: Codeunit "XML DOM Management";
-        OutputFile: File;
-        TempFileName: Text;
-        ClientFileName: Text;
         Text001: Label 'There is nothing to export.';
         Text002: Label 'must be positive';
         Text003: Label 'must not start with zero';
 
     [Scope('OnPrem')]
-    procedure ExportToXML(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ObligationLevel: Integer; FileName: Text): Boolean
+    procedure ExportToXML(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ObligationLevel: Integer; FileOutStream: OutStream): Boolean
     var
-        OutputStream: OutStream;
         LastDeclarationId: Integer;
     begin
         CompanyInfo.Get();
@@ -30,39 +25,12 @@ codeunit 10821 "Export DEB DTI"
         CheckJnlLines(IntrastatJnlLine);
         InsertTempJnlLines(IntrastatJnlLine);
 
-        ClientFileName := FileName;
-        CreateFile(OutputStream);
-
         LastDeclarationId := CompanyInfo."Last Intrastat Declaration ID";
-        GenerateXML(OutputStream, LastDeclarationId, ObligationLevel);
+        GenerateXML(FileOutStream, LastDeclarationId, ObligationLevel);
         UpdateLastDeclarationId(LastDeclarationId);
 
         UpdateBatchReported(IntrastatJnlLine);
-
-        CloseFile;
-
         exit(true);
-    end;
-
-    local procedure CreateFile(var OutputStream: OutStream)
-    var
-        TierAutoMgt: Codeunit "File Management";
-    begin
-        OutputFile.TextMode(true);
-        OutputFile.WriteMode(true);
-        TempFileName := TierAutoMgt.ServerTempFileName('.xml');
-        OutputFile.Create(TempFileName);
-        OutputFile.CreateOutStream(OutputStream);
-    end;
-
-    local procedure CloseFile()
-    begin
-        OutputFile.Close;
-#if not CLEAN17
-        FileMgt.DownloadToFile(TempFileName, ClientFileName);
-#else
-        FileMgt.DownloadHandler(TempFileName, '', '', '', ClientFileName)
-#endif
     end;
 
     local procedure CheckMandatoryCompanyInfo()
@@ -85,11 +53,11 @@ codeunit 10821 "Export DEB DTI"
         if IntrastatJnlLine.IsEmpty() then
             Error(Text001);
 
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         ValidateJnlBatch(IntrastatJnlLine);
 
         IntrastatJnlLine.SetCurrentKey(Type);
-        if IntrastatJnlLine.FindSet then
+        if IntrastatJnlLine.FindSet() then
             repeat
                 ValidateJnlLine(IntrastatJnlLine);
             until IntrastatJnlLine.Next() = 0;
@@ -132,7 +100,7 @@ codeunit 10821 "Export DEB DTI"
     begin
         Type := -1;
         IntrastatJnlLine.SetCurrentKey(Type);
-        if IntrastatJnlLine.FindSet then
+        if IntrastatJnlLine.FindSet() then
             repeat
                 if Type <> IntrastatJnlLine.Type then begin
                     FlowCode := GetFlowCode(IntrastatJnlLine.Type);
@@ -168,7 +136,7 @@ codeunit 10821 "Export DEB DTI"
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.Reported := true;
         IntrastatJnlBatch.Modify();
@@ -253,7 +221,7 @@ codeunit 10821 "Export DEB DTI"
 
     local procedure AddDeclarations(var XMLNode: DotNet XmlNode; var DeclarationId: Integer; ObligationLevel: Integer)
     begin
-        if TempIntrastatJnlBatch.FindSet then
+        if TempIntrastatJnlBatch.FindSet() then
             repeat
                 DeclarationId := DeclarationId + 1;
                 AddDeclaration(XMLNode, TempIntrastatJnlBatch, DeclarationId, ObligationLevel);
@@ -291,7 +259,7 @@ codeunit 10821 "Export DEB DTI"
         TempIntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         TempIntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         ItemNumberXML := 0;
-        if TempIntrastatJnlLine.FindSet then
+        if TempIntrastatJnlLine.FindSet() then
             repeat
                 ItemNumberXML += 1;
                 AddItem(XMLNode, TempIntrastatJnlLine, ItemNumberXML);

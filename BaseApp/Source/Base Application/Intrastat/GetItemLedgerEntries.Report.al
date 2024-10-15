@@ -385,9 +385,15 @@
 
             IsHandled := false;
             OnBeforeInsertItemJnlLine(IntrastatJnlLine, "Item Ledger Entry", IsHandled);
+
 #if not CLEAN19 
             "Partner VAT ID" := "Cust. VAT Registration No.";
 #endif
+            if ("Partner VAT ID" = '') and
+                ("Item Ledger Entry"."Document Type" = "Item Ledger Entry"."Document Type"::"Transfer Receipt")
+            then
+                "Partner VAT ID" := GetPartnerID();
+
             if not IsHandled then
                 Insert();
         end;
@@ -517,7 +523,6 @@
     var
         ItemLedgEntry2: Record "Item Ledger Entry";
         Location: Record Location;
-        Include: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -562,15 +567,10 @@
                             ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
                             ItemLedgEntry2.SetRange("Order Type", "Order Type"::Transfer);
                             ItemLedgEntry2.SetRange("Order No.", "Order No.");
+                            ItemLedgEntry2.SetRange("Document Type", ItemLedgEntry2."Document Type"::"Transfer Shipment");
                             ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
-                            ItemLedgEntry2.SetFilter("Location Code", '<>%1', '');
-                            if ItemLedgEntry2.FindSet then
-                                repeat
-                                    Location.Get(ItemLedgEntry2."Location Code");
-                                    if Location."Use As In-Transit" then
-                                        Include := true;
-                                until Include or (ItemLedgEntry2.Next() = 0);
-                            if not Include then
+                            ItemLedgEntry2.SetRange(Positive, true);
+                            if ItemLedgEntry2.IsEmpty() then
                                 exit(false);
                         end;
                     end;

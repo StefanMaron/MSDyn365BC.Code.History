@@ -81,7 +81,7 @@ page 7001 "Price List Lines"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update(true);
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Asset No."; Rec."Asset No.")
@@ -238,6 +238,8 @@ page 7001 "Price List Lines"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
+        if not GetHeader() then
+            exit;
         if PriceListHeader."Allow Updating Defaults" then begin
             Rec.CopySourceFrom(PriceListHeader);
             if Rec."Starting Date" = 0D then
@@ -247,8 +249,18 @@ page 7001 "Price List Lines"
             if Rec."Currency Code" = '' then
                 Rec."Currency Code" := PriceListHeader."Currency Code";
         end;
+        Rec.Validate("Asset Type", xRec."Asset Type");
         UpdateSourceType();
         Rec."Amount Type" := ViewAmountType;
+    end;
+
+    local procedure GetHeader(): Boolean
+    begin
+        if Rec."Price List Code" = '' then
+            exit(false);
+        if PriceListHeader.Code = Rec."Price List Code" then
+            exit(true);
+        exit(PriceListHeader.Get(Rec."Price List Code"));
     end;
 
     var
@@ -311,9 +323,10 @@ page 7001 "Price List Lines"
         PriceVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Price];
     end;
 
-    procedure SetHeader(Header: Record "Price List Header")
+    procedure SetHeader(NewPriceListHeader: Record "Price List Header")
     begin
-        PriceListHeader := Header;
+        PriceListHeader := NewPriceListHeader;
+        Rec.SetHeader(PriceListHeader);
 
         SetSubFormLinkFilter(PriceListHeader."Amount Type");
     end;

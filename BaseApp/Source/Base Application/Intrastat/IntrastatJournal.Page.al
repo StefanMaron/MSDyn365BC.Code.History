@@ -75,6 +75,7 @@
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by Partner VAT ID';
                     ObsoleteTag = '19.0';
+                    Visible = false;
                 }
 #endif
                 field("Shpt. Method Code"; "Shpt. Method Code")
@@ -123,7 +124,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transaction specification code for the item transaction on this journal line.';
-                    Visible = false;
                 }
                 field("Transport Method"; "Transport Method")
                 {

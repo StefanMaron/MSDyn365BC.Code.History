@@ -32,22 +32,6 @@ report 10821 "Export DEB DTI"
                         ApplicationArea = Basic, Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the path and file name to store your DEB data. Add the XML file name extension to the file name.';
-
-
-                        trigger OnAssistEdit()
-#if not CLEAN17
-                        var
-                            FileMgt: Codeunit "File Management";
-#endif
-                        begin
-#if not CLEAN17
-                            if FileName = '' then
-                                FileName := '.xml';
-                            FileName := FileMgt.SaveFileDialog(Text002, FileName, '');
-#else
-                            FileName := '';
-#endif
-                        end;
                     }
                     field("Obligation Level"; ObligationLevel)
                     {
@@ -74,35 +58,45 @@ report 10821 "Export DEB DTI"
         ObligationLevel := 1;
     end;
 
-    trigger OnPreReport()
-    begin
-        if FileName = '' then
-            Error(Text004);
-    end;
-
     var
+        IntrastatFileWriter: Codeunit "Intrastat File Writer";
+        ExportDEBDTI: Codeunit "Export DEB DTI";
         FileName: Text;
         Text001: Label 'The journal lines were successfully exported.';
         ObligationLevel: Option ,"1","2","3","4";
-        Text002: Label 'Export DEB DTI+ to XML.';
-        Text004: Label 'A destination file must be specified.';
 
+#if not CLEAN20
+    [Obsolete('Replaced by new InitializeRequest(OutStream)', '20.0')]
     [Scope('OnPrem')]
     procedure InitializeRequest(NewFileName: Text)
     begin
         FileName := NewFileName;
     end;
+#endif
+
+    procedure InitializeRequest(var newResultFileOutStream: OutStream)
+    begin
+        IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
+    end;
 
     local procedure ExportToXML(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ExportDEBDTI: Codeunit "Export DEB DTI";
     begin
+        IntrastatFileWriter.Initialize(false, false, 0);
+        if FileName = '' then
+            FileName := IntrastatFileWriter.GetDefaultXMLFileName();
+        IntrastatFileWriter.InitializeNextFile(FileName);
+        IntrastatFileWriter.SetStatisticsPeriod(IntrastatJnlBatch."Statistics Period");
+
         IntrastatJnlLine.SetCurrentKey(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method");
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        if ExportDEBDTI.ExportToXML(IntrastatJnlLine, ObligationLevel, FileName) then
+        if ExportDEBDTI.ExportToXML(IntrastatJnlLine, ObligationLevel, IntrastatFileWriter.GetCurrFileOutStream()) then
             Message(Text001);
+
+        IntrastatFileWriter.AddCurrFileToResultFile();
+        IntrastatFileWriter.CloseAndDownloadResultFile();
     end;
 }
 

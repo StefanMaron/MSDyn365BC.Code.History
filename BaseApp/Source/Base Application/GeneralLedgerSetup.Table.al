@@ -932,7 +932,11 @@
 
     [Scope('OnPrem')]
     procedure CheckPostingRange(DateToCheck: Date; FldCaption: Text[50])
+    var
+        AccountingPeriod: Record "Accounting Period";
     begin
+        if AccountingPeriod.IsEmpty() then
+            exit;
         CalcFields("Posting Allowed From", "Posting Allowed To");
         if ((DateToCheck < "Posting Allowed From") or (DateToCheck >= "Posting Allowed To")) then
             Error(Text10800, FldCaption,
