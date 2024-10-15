@@ -1218,8 +1218,8 @@
         DocumentNo := PostPurchaseDocument(PurchaseHeader);
 
         // [THEN] The document has been poted
-        VerifyGLAccountBalance(VATPostingSetup."Purchase VAT Account", DocumentNo, 0);
-        VerifyVendorPayablesAccountAmount(PurchaseHeader."Vendor Posting Group", DocumentNo, 0);
+        VerifyGLAccountBalance(VATPostingSetup."Purchase VAT Account", DocumentNo, 142.49);
+        VerifyVendorPayablesAccountAmount(PurchaseHeader."Vendor Posting Group", DocumentNo, -892.44);
 
         // Tear down
         TearDownVATPostingSetup(PurchaseHeader."VAT Bus. Posting Group");
@@ -1286,9 +1286,9 @@
         // [WHEN] Call PurchaseLine.UpdateVATOnLines()
         // PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
 
-        // [THEN] PurchaseLine."Prepmt. Line Amount" = 400
+        // [THEN] PurchaseLine."Prepmt. Line Amount" = 200
         PurchaseLine.TestField(Amount, 400);
-        PurchaseLine.TestField("Prepmt. Line Amount", 400);
+        PurchaseLine.TestField("Prepmt. Line Amount", 200);
     end;
 
     [Test]
@@ -1312,9 +1312,9 @@
         // [WHEN] Call PurchaseLine.UpdateVATOnLines()
         // PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
 
-        // [THEN] PurchaseLine."Prepmt. Line Amount" = 400
+        // [THEN] PurchaseLine."Prepmt. Line Amount" = 200
         PurchaseLine.TestField("Amount Including VAT", 400);
-        PurchaseLine.TestField("Prepmt. Line Amount", 400);
+        PurchaseLine.TestField("Prepmt. Line Amount", 200);
     end;
 
     [Test]

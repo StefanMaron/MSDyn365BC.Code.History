@@ -25,6 +25,7 @@ codeunit 144036 "ERM REP CNAE"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('NormalizedAccountScheduleRequestPageHandler')]
     [Scope('OnPrem')]
@@ -53,6 +54,7 @@ codeunit 144036 "ERM REP CNAE"
         UpdateCompanyInformationNameAndAddress(
           CompanyInformation, CompanyInformation.Name, CompanyInformation.Address, CompanyInformation."Address 2");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -79,6 +81,7 @@ codeunit 144036 "ERM REP CNAE"
         UpdateCompanyInformationCNAEDescription(OldCNAEDescription);
     end;
 
+#if not CLEAN22
     local procedure CreateAccountSchedule(): Code[10]
     var
         AccScheduleName: Record "Acc. Schedule Name";
@@ -95,6 +98,7 @@ codeunit 144036 "ERM REP CNAE"
         AccScheduleLine.Modify(true);
         exit(AccScheduleLine."Schedule Name");
     end;
+#endif
 
     local procedure GenerateRandomCode(NumberOfDigit: Integer) ElectronicCode: Text[1024]
     var

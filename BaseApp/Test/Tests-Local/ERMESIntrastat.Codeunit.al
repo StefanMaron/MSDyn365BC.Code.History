@@ -1,4 +1,5 @@
-﻿codeunit 144055 "ERM ES Intrastat"
+﻿#if not CLEAN22
+codeunit 144055 "ERM ES Intrastat"
 {
     // // [FEATURE] [Intrastat]
     // 
@@ -282,33 +283,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDeclarationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure MakeDeclarationForIntrastatJournalWithoutAmountError()
-    var
-        Item: Record Item;
-        SalesLine: Record "Sales Line";
-        IntrastatJnlBatchName: Code[10];
-    begin
-        // Test to verify error Amount must have a value in Intrastat Journal Line.
-
-        // Setup: Create and Post Sales Invoice.
-        Initialize();
-        CreateItem(Item);
-        CreateSalesInvoice(SalesLine, Item."No.", 0);  // Unit Price - 0.
-        PostSalesInvoice(SalesLine."Document No.");
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);
-        UpdateIntrastatJnlLine(IntrastatJnlBatchName, Item."No.");
-
-        // Exercise: Invoke Make Declaration from Intrastat Journal
-        asserterror MakeDeclarationIntrastatJournal(IntrastatJnlBatchName, Item."No.");
-
-        // Verify: Verify error, Amount must have a value in Intrastat Jnl. Line.
-        Assert.ExpectedError(AmountMustHaveValueErr);
-        Assert.ExpectedErrorCode(TestFieldErrCodeTxt);
-    end;
-
-    [Test]
     [HandlerFunctions('ItemChargeAssignmentPurchPageHandler,GetItemLedgerEntriesRequestPageHandler,AmountStrMenuHandler')]
     [Scope('OnPrem')]
     procedure IntrastatJournalForPurchaseOrderWithInvoiceDiscount()
@@ -443,85 +417,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('IntrastatMakeDeclarationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskErrorOnSecondRun()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        Item: Record Item;
-        IntrastatJournal: TestPage "Intrastat Journal";
-        Filename: Text;
-        "Count": Integer;
-    begin
-        // [SCENARIO] It should not to be possible to "Make Declaration" from one Intrastat Journal Batch having "Exported" flag
-        Initialize();
-
-        // [GIVEN] Intrastat Journal Batch having lines
-        CreateItem(Item);
-        IntrastatJnlBatch.SetFilter(Name, CreateIntrastatJournalBatch);
-        IntrastatJnlBatch.FindFirst();
-
-        for Count := 1 to 100 do
-            MakeIntrastatJnlLine(IntrastatJnlBatch, Item."No.");
-
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // [GIVEN] Run Make Declaration (Report 593) for Intrastat Journal Batch
-        IntrastatJnlBatch.SetFilter("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
-
-        OpenIntrastatJournal(IntrastatJournal, IntrastatJnlBatch.Name, Item."No.");
-        IntrastatJournal.Close();
-        Commit();
-
-        RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlBatch);
-
-        Assert.IsTrue(FileManagement.ServerFileExists(Filename), FileNotCreatedErr);
-
-        // [WHEN] Run Make Declaration (Report 593) for the 2nd time
-        asserterror RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlBatch);
-
-        // [THEN] "Reported must be equal to 'No' in Intrastat Jnl. Batch" error appears
-        Assert.ExpectedError(ReportedMustBeNoErr);
-        Assert.ExpectedErrorCode(TestFieldErrCodeTxt);
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatMakeDeclarationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskErrorOnBlankTransactionType()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Item: Record Item;
-        "Count": Integer;
-        Filename: Text;
-    begin
-        // [SCENARIO] "Make Declaration" action of Intrastat Journal should throw an error, while exporting lines having empty "Transaction Type"
-        Initialize();
-
-        // [GIVEN] Intrastat Journal Batch having lines with empty "Transaction Type"
-        CreateItem(Item);
-        IntrastatJnlBatch.SetFilter(Name, CreateIntrastatJournalBatch);
-        IntrastatJnlBatch.FindFirst();
-
-        for Count := 1 to 100 do
-            MakeIntrastatJnlLine(IntrastatJnlBatch, Item."No.");
-
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.ModifyAll("Transaction Type", '');
-
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // [WHEN] Making Declaration
-        Commit();
-        asserterror RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlBatch);
-
-        // [THEN] "Transaction Type must have a value in Intrastat Jnl. Line" error is thrown
-        Assert.ExpectedError(TransactionTypeMustHaveValueErr);
-        Assert.ExpectedErrorCode(TestFieldErrCodeTxt);
-    end;
-
-    [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IntrastatAmountIsUnitPriceAfterSalesOrder()
@@ -627,50 +522,6 @@
 
         // [THEN] Intrastat Journal Line Amount = "X"
         VerifyIntrastatJnlLineAmount(IntrastatJnlBatch, Item."No.", 1, Item."Last Direct Cost");
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatMakeDeclarationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure CheckForEmptylineIn1000LinesDeclarationFile()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        Item: Record Item;
-        Zipfile: DotNet ZipFile;
-        "Count": Integer;
-        ExtractDirectory: Text;
-        FileName: Text;
-    begin
-        // [FEATURE] [Intrastat Declaration]
-        // [SCENARIO 376056] Intrastat Declaration file of 1000 lines should not have empty line in the end (1001)
-
-        // [GIVEN] 2100 Intrastat Lines in the same Batch to be exported to 3 files (1000, 1000, 100)
-        Initialize();
-        CreateItem(Item);
-        IntrastatJnlBatch.SetFilter(Name, CreateIntrastatJournalBatch);
-        IntrastatJnlBatch.FindFirst();
-
-        for Count := 1 to 2100 do
-            MakeIntrastatJnlLine(IntrastatJnlBatch, Item."No.");
-
-        IntrastatJnlBatch.Reported := false;
-        IntrastatJnlBatch.Modify();
-
-        // [WHEN] Export Intrastat Declaration (Report 593)
-        Commit();
-        FileName := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(FileName, IntrastatJnlBatch);
-
-        // [THEN] File 1 has no empty line in the end
-        ExtractDirectory := FileManagement.ServerTempFileName('tmp');
-        Zipfile.ExtractToDirectory(FileName, ExtractDirectory);
-        VerifyLastSymbolOfFile(ExtractDirectory, IntrastatJnlBatch."Statistics Period", 1);
-
-        // [THEN] File 2 has no empty line in the end
-        VerifyLastSymbolOfFile(ExtractDirectory, IntrastatJnlBatch."Statistics Period", 2);
-
-        // [THEN] File 3 has no empty line in the end
-        VerifyLastSymbolOfFile(ExtractDirectory, IntrastatJnlBatch."Statistics Period", 3);
     end;
 
     [Test]
@@ -1261,18 +1112,6 @@
         IntrastatJournal.OpenEdit;
     end;
 
-    local procedure RunIntrastatMakeDiskTaxAuth(Filename: Text; var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatMakeDeclaration: Report "Intrastat - Make Declaration";
-    begin
-        IntrastatMakeDeclaration.InitializeRequest(Filename);
-        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatMakeDeclaration.SetTableView(IntrastatJnlLine);
-        IntrastatMakeDeclaration.Run();
-    end;
-
     local procedure CreateItemWithTariffNo(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
@@ -1478,4 +1317,4 @@
         Assert.AreEqual('One or more errors were found. You must resolve all the errors before you can proceed.', Message, '');
     end;
 }
-
+#endif

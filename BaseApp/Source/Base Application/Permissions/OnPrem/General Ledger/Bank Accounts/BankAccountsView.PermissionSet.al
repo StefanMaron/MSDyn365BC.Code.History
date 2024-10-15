@@ -1,3 +1,16 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Statement;
+using Microsoft.Bank.Check;
+using Microsoft.Finance.Dimension;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Purchases.History;
+using Microsoft.Sales.History;
+using Microsoft.Purchases.Payables;
+
 permissionset 1083 "Bank Accounts - View"
 {
     Access = Public;

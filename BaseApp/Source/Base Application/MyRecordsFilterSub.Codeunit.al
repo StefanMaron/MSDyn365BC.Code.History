@@ -1,3 +1,14 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.RoleCenters;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using System.Text;
+
 codeunit 9150 "My Records Filter Sub."
 {
 
@@ -44,7 +55,7 @@ codeunit 9150 "My Records Filter Sub."
         IsHandled := false;
         IsMyTable := MyTableNo in [DATABASE::"My Customer", DATABASE::"My Vendor", DATABASE::"My Item"];
         OnBeforeGetMyFilterText(TextFilterText, MyTableNo, IsMyTable, IsHandled);
-        if IsHandled then 
+        if IsHandled then
             exit;
 
         if not IsMyTable then

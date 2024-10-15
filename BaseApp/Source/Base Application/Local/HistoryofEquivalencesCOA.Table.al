@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using Microsoft.Finance.GeneralLedger.Account;
+
 table 10724 "History of Equivalences COA"
 {
     Caption = 'History of Equivalences COA';
@@ -19,7 +27,7 @@ table 10724 "History of Equivalences COA"
         }
         field(3; "Old G/L Account Name"; Text[30])
         {
-            CalcFormula = Lookup ("Historic G/L Account".Name WHERE("No." = FIELD("Old G/L Account No.")));
+            CalcFormula = Lookup("Historic G/L Account".Name where("No." = field("Old G/L Account No.")));
             Caption = 'Old G/L Account Name';
             FieldClass = FlowField;
         }
@@ -31,7 +39,7 @@ table 10724 "History of Equivalences COA"
         }
         field(5; "New G/L Account Name"; Text[30])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("New G/L Account No.")));
+            CalcFormula = Lookup("G/L Account".Name where("No." = field("New G/L Account No.")));
             Caption = 'New G/L Account Name';
             FieldClass = FlowField;
         }

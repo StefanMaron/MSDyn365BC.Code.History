@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
 table 5385 "CRM Annotation"
 {
     // Dynamics CRM Version: 9.1.0.643
@@ -26,19 +32,19 @@ table 5385 "CRM Annotation"
             ExternalAccess = Insert;
             ExternalName = 'objectid';
             ExternalType = 'Lookup';
-            TableRelation = IF (ObjectTypeCode = CONST(opportunity)) "CRM Opportunity".OpportunityId
-            ELSE
-            IF (ObjectTypeCode = CONST(product)) "CRM Product".ProductId
-            ELSE
-            IF (ObjectTypeCode = CONST(incident)) "CRM Incident".IncidentId
-            ELSE
-            IF (ObjectTypeCode = CONST(quote)) "CRM Quote".QuoteId
-            ELSE
-            IF (ObjectTypeCode = CONST(salesorder)) "CRM Salesorder".SalesOrderId
-            ELSE
-            IF (ObjectTypeCode = CONST(invoice)) "CRM Invoice".InvoiceId
-            ELSE
-            IF (ObjectTypeCode = CONST(contract)) "CRM Contract".ContractId;
+            TableRelation = if (ObjectTypeCode = const(opportunity)) "CRM Opportunity".OpportunityId
+            else
+            if (ObjectTypeCode = const(product)) "CRM Product".ProductId
+            else
+            if (ObjectTypeCode = const(incident)) "CRM Incident".IncidentId
+            else
+            if (ObjectTypeCode = const(quote)) "CRM Quote".QuoteId
+            else
+            if (ObjectTypeCode = const(salesorder)) "CRM Salesorder".SalesOrderId
+            else
+            if (ObjectTypeCode = const(invoice)) "CRM Invoice".InvoiceId
+            else
+            if (ObjectTypeCode = const(contract)) "CRM Contract".ContractId;
         }
         field(3; Subject; Text[250])
         {

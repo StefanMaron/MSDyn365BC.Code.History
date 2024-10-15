@@ -1,3 +1,9 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using System;
+using System.Reflection;
+using System.Xml;
+
 table 7700 "Miniform Header"
 {
     Caption = 'Miniform Header';
@@ -41,7 +47,7 @@ table 7700 "Miniform Header"
         field(20; "Handling Codeunit"; Integer)
         {
             Caption = 'Handling Codeunit';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Codeunit));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Codeunit));
         }
         field(21; "Next Miniform"; Code[20])
         {

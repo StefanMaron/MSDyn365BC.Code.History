@@ -85,6 +85,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('BillGroupExportN58RequestPageHandler,SuffixesPageHandler')]
     [Scope('OnPrem')]
@@ -147,6 +148,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
 
         LibraryVariableStorage.AssertEmpty;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('BillGroupExportN32RequestPageHandler,SuffixesPageHandler,ConfirmHandlerYes')]
@@ -588,6 +590,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Assert.AreEqual(AmountAsText, LibraryBillGroupExportN58.ReadCarteraDocAmount(Line), IncorrectAmountErr);
     end;
 
+#if not CLEAN22
     local procedure ValidateN58ExportPaymentInformation(Line: Text[1024]; SuffixValue: Code[3]; CustomerPmtAddress: Record "Customer Pmt. Address")
     var
         CompanyInformation: Record "Company Information";
@@ -614,6 +617,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Assert.AreEqual(PadStr(CompanyInformation.City, 35, ' '), LibraryBillGroupExportN58.ReadCompanyInfoCity(Line),
           StrSubstNo('%1 is wrong.', CustomerPmtAddress.FieldCaption("Post Code")));
     end;
+#endif
 
     local procedure ValidateN58ExportTotal(Line: Text[1024]; SuffixValue: Code[3]; TotalAmount: Decimal)
     var

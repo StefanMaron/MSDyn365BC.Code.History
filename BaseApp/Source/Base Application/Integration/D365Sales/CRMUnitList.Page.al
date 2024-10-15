@@ -1,3 +1,14 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.Foundation.UOM;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.Resources.Resource;
+
 page 5364 "CRM Unit List"
 {
     ApplicationArea = Suite;
@@ -5,7 +16,7 @@ page 5364 "CRM Unit List"
     Editable = false;
     PageType = List;
     SourceTable = "CRM Uom";
-    SourceTableView = SORTING(Name);
+    SourceTableView = sorting(Name);
     UsageCategory = Lists;
 
     layout
@@ -22,7 +33,7 @@ page 5364 "CRM Unit List"
                     StyleExpr = FirstColumnStyle;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field(BaseUoMName; BaseUoMName)
+                field(BaseUoMName; Rec.BaseUoMName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Base Unit Name';
@@ -57,7 +68,7 @@ page 5364 "CRM Unit List"
 
                 trigger OnAction()
                 begin
-                    MarkedOnly(true);
+                    Rec.MarkedOnly(true);
                 end;
             }
             action(ShowAll)
@@ -69,7 +80,7 @@ page 5364 "CRM Unit List"
 
                 trigger OnAction()
                 begin
-                    MarkedOnly(false);
+                    Rec.MarkedOnly(false);
                 end;
             }
         }
@@ -101,31 +112,31 @@ page 5364 "CRM Unit List"
         else
             MappedTableId := Database::"Unit of Measure";
 
-        if CRMIntegrationRecord.FindRecordIDFromID(UoMId, Database::"Item Unit of Measure", RecordID) then
-            if CurrentlyCoupledCRMUom.UoMId = UoMScheduleId then begin
+        if CRMIntegrationRecord.FindRecordIDFromID(Rec.UoMId, Database::"Item Unit of Measure", RecordID) then
+            if CurrentlyCoupledCRMUom.UoMId = Rec.UoMScheduleId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
-                Mark(true);
+                Rec.Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
-                Mark(false);
+                Rec.Mark(false);
             end
         else
-            if CRMIntegrationRecord.FindRecordIDFromID(UoMId, Database::"Resource Unit of Measure", RecordID) then
-                if CurrentlyCoupledCRMUom.UoMId = UoMScheduleId then begin
+            if CRMIntegrationRecord.FindRecordIDFromID(Rec.UoMId, Database::"Resource Unit of Measure", RecordID) then
+                if CurrentlyCoupledCRMUom.UoMId = Rec.UoMScheduleId then begin
                     Coupled := 'Current';
                     FirstColumnStyle := 'Strong';
-                    Mark(true);
+                    Rec.Mark(true);
                 end else begin
                     Coupled := 'Yes';
                     FirstColumnStyle := 'Subordinate';
-                    Mark(false);
+                    Rec.Mark(false);
                 end
             else begin
                 Coupled := 'No';
                 FirstColumnStyle := 'None';
-                Mark(true);
+                Rec.Mark(true);
             end;
     end;
 
@@ -138,9 +149,9 @@ page 5364 "CRM Unit List"
     var
         LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
-        FilterGroup(4);
-        SetView(LookupCRMTables.GetIntegrationTableMappingView(Database::"CRM Uom"));
-        FilterGroup(0);
+        Rec.FilterGroup(4);
+        Rec.SetView(LookupCRMTables.GetIntegrationTableMappingView(Database::"CRM Uom"));
+        Rec.FilterGroup(0);
     end;
 
     var

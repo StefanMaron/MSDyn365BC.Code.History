@@ -1,3 +1,9 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.Ledger;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.VAT.Ledger;
+
 permissionset 6912 "G/L Registers - Read"
 {
     Access = Public;

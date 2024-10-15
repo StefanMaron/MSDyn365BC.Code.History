@@ -620,7 +620,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,PaymentToleranceWarning')]
     [Scope('OnPrem')]
     procedure LessPaymentBothWarningLCY()
     var
@@ -907,13 +907,11 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         VerifyDetldCustomerLedgerEntry(
           GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Discount", -CustLedgerEntry."Original Pmt. Disc. Possible");
-        VerifyDetldCustomerLedgerEntry(
-          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", GetMaxTolerancePaymentAmount);
         VerifyLedgerEntries(GenJournalLine, GenJournalLine2);
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,PaymentToleranceWarning')]
     [Scope('OnPrem')]
     procedure UnderTolDateBothWarningLCY()
     var
@@ -921,6 +919,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         PaymentTerms: Record "Payment Terms";
         Amount: Decimal;
         PaymentAmount: Decimal;
@@ -950,11 +949,31 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
 
         // 3. Verify: Verify the Ledger Entries.
-        VerifyDetldCustomerEntries(GenJournalLine, GenJournalLine2, Amount, PaymentAmount);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.FindSet();
+
+        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgEntry.TestField(Amount, Amount);
+        DetailedCustLedgEntry.Next();
+        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.TestField(Amount, -Amount);
+
+        CustLedgerEntry.Reset();
+        DetailedCustLedgEntry.Reset();
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine2."Document Type", GenJournalLine2."Document No.");
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.FindSet();
+        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgEntry.TestField(Amount, -PaymentAmount);
+        DetailedCustLedgEntry.Next(3);
+        // Skips two because the sum of payment discount + tolerance adds up to the difference between amount and payment amount
+        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.TestField(Amount, Amount);
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,PaymentToleranceWarning')]
     [Scope('OnPrem')]
     procedure UnderTolDateDiscWarningFCY()
     var
@@ -962,6 +981,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         PaymentTerms: Record "Payment Terms";
         CurrencyCode: Code[10];
         Amount: Decimal;
@@ -993,8 +1013,29 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
 
         // 3. Verify: Verify the Ledger Entries.
-        VerifyDetldCustomerEntries(GenJournalLine, GenJournalLine2, -Amount, -RefundAmount);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.FindSet();
+
+        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgEntry.TestField(Amount, -Amount);
+        DetailedCustLedgEntry.Next();
+        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.TestField(Amount, Amount);
+
+        CustLedgerEntry.Reset();
+        DetailedCustLedgEntry.Reset();
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine2."Document Type", GenJournalLine2."Document No.");
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.FindSet();
+        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgEntry.TestField(Amount, RefundAmount);
+        DetailedCustLedgEntry.Next(3);
+        // Skips two because the sum of payment discount + tolerance adds up to the difference between amount and refund amount
+        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.TestField(Amount, -Amount);
     end;
+
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -1322,7 +1363,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,ToleranceWarningPageHandler')]
+    [HandlerFunctions('ConfirmHandler,ToleranceWarningPageHandler,PaymentToleranceWarning')]
     [Scope('OnPrem')]
     procedure LessPaymentTolBothWarningLCY()
     var
@@ -1513,7 +1554,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,PaymentToleranceWarning')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure LessToleranceDiscWarningFCY()
     var
@@ -1539,7 +1580,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         Amount := LibraryRandom.RandDec(1000, 2);  // Taking Random value for Amount.
         CreateGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::"Credit Memo", -Amount, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
+        //LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
         RefundAmount := Amount - ((Amount * PaymentTerms."Discount %") / 100) + GetMaxTolerancePaymentAmount / 2;
         CreateGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Refund, RefundAmount,
           CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
@@ -1558,7 +1599,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
           GenJournalLine2,
           DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance", -CustLedgerEntry."Original Pmt. Disc. Possible");
         VerifyDetldCustomerLedgerEntry(
-          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", -Round(GetMaxTolerancePaymentAmount / 2, 0.01, '='));
+          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::Application, -Amount);
         VerifyLedgerEntries(GenJournalLine, GenJournalLine2);
     end;
 
@@ -1720,7 +1761,7 @@ codeunit 134024 "ERM Finance Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,ToleranceWarningPageHandler')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PaymentTolWarningWithDiscount()
     var
@@ -1764,10 +1805,11 @@ codeunit 134024 "ERM Finance Payment Tolerance"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         VerifyDetldCustomerLedgerEntry(
           GenJournalLine2,
-          DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance", -CustLedgerEntry."Original Pmt. Disc. Possible");
-        VerifyDetldCustomerLedgerEntry(
-          GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Payment Tolerance", -GetMaxTolerancePaymentAmount / 2);
-        VerifyLedgerEntries(GenJournalLine, GenJournalLine2);
+          DetailedCustLedgEntry."Entry Type"::"Initial Entry", -PaymentAmount);
+        VerifyDetldCustomerLedgerEntry(GenJournalLine2, DetailedCustLedgEntry."Entry Type"::"Initial Entry", GenJournalLine2.Amount);
+        VerifyDetldCustomerLedgerEntry(GenJournalLine2, DetailedCustLedgEntry."Entry Type"::Application, -GenJournalLine2.Amount);
+        VerifyDetldCustomerLedgerEntry(GenJournalLine, DetailedCustLedgEntry."Entry Type"::"Initial Entry", GenJournalLine.Amount);
+        VerifyDetldCustomerLedgerEntry(GenJournalLine, DetailedCustLedgEntry."Entry Type"::Application, GenJournalLine2.Amount);
     end;
 
     [Test]

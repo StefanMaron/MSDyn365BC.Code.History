@@ -490,8 +490,17 @@ codeunit 144049 "ERM ES Check PMPE"
     end;
 
     local procedure Initialize()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryVariableStorage.Clear();
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure CreateAccountNumber(AccountType: Enum "Gen. Journal Account Type"; VATBusPostingGroup: Code[20]): Code[20]

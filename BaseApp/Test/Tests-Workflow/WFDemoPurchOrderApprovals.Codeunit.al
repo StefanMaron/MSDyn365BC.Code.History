@@ -27,7 +27,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         UnexpectedNoOfApprovalEntriesErr: Label 'Unexpected number of approval entries found.';
         LibraryJobQueue: Codeunit "Library - Job Queue";
         IsInitialized: Boolean;
-        DynamicRequestPageParametersTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Purchase Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Purchase Line">SORTING(Field1,Field3,Field4) WHERE(Field5=1(%1))</DataItem></DataItems></ReportParameters>', Locked = true;
+        DynamicRequestPageParametersTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Purchase Header">SORTING(Field1,Field3) WHERE(Field1=1(1),Field120=1(0))</DataItem><DataItem name="Purchase Line">SORTING(Field1,Field3,Field4) where(Field5=1(%1))</DataItem></DataItems></ReportParameters>', Locked = true;
 
     local procedure Initialize()
     var

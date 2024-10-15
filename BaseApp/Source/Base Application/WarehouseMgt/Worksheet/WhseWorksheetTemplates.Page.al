@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.Worksheet;
+
+using System.Reflection;
+
 page 7353 "Whse. Worksheet Templates"
 {
     ApplicationArea = Warehouse;
@@ -71,9 +75,16 @@ page 7353 "Whse. Worksheet Templates"
                     Caption = 'Names';
                     Image = Description;
                     RunObject = Page "Whse. Worksheet Names";
-                    RunPageLink = "Worksheet Template Name" = FIELD(Name);
+                    RunPageLink = "Worksheet Template Name" = field(Name);
                     ToolTip = 'View the list of available template names.';
                 }
+            }
+        }
+        area(Promoted)
+        {
+            actionref(Names_Promoted; Names)
+            {
+
             }
         }
     }

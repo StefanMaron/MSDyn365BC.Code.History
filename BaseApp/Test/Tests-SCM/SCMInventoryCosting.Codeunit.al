@@ -27,13 +27,12 @@ codeunit 137007 "SCM Inventory Costing"
         CalculatePerValues: Option "Item Ledger Entry",Item;
         CalculationBaseValues: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
         isInitialized: Boolean;
-        ErrMessageGLEntryNoRowExist: Label 'G/L Entry for WIP Account must not exist.';
-        ErrMessageInvAmountDoNotMatch: Label 'The Inventory amount totals must be equal.';
-        StandardCostRolledUpMessage: Label 'The standard costs have been rolled up successfully';
-        AutomaticCostPostingMessage: Label 'The field Automatic Cost Posting should not be set to Yes';
+        InvAmountDoNotMatchErr: Label 'The Inventory amount totals must be equal.';
+        StandardCostRolledUpMsg: Label 'The standard costs have been rolled up successfully';
+        AutomaticCostPostingMsg: Label 'The field Automatic Cost Posting should not be set to Yes';
         BOMStructureErr: Label 'The BOM Structure should contain only one line for Item';
         QtyPerTopItemErr: Label 'The field Qty. Per Top Item is not correct.';
-        PlanningComponentErr: Label 'Planning Component is not correct for Sales Order %1 ';
+        PlanningComponentErr: Label 'Planning Component is not correct for Sales Order %1', Comment = '%1: Sales order No.';
         IncorrectCostPostedToGLErr: Label 'Incorrect Cost Posted to G/L.';
         UnexpectedCostAmtErr: Label '%1 does not match %2 posted by Revaluation Journal.', Comment = '%1: Field(Cost Amount (Actual)), %2: Field(Inventory Value (Revalued))';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
@@ -260,7 +259,7 @@ codeunit 137007 "SCM Inventory Costing"
 
         // Create Standard Cost Worksheet Name. Run Suggest Item Standard Cost and update New Standard Cost value.
         StandardCostWkshName := CreateAndUpdateStandardCostWorksheet(Item);
-        LibraryVariableStorage.Enqueue(StandardCostRolledUpMessage);
+        LibraryVariableStorage.Enqueue(StandardCostRolledUpMsg);
 
         // Exercise: Run Roll Up Standard Cost.
         LibraryManufacturing.RunRollUpStandardCost(Item, StandardCostWkshName);
@@ -368,7 +367,8 @@ codeunit 137007 "SCM Inventory Costing"
     procedure PostCostToGLAfterDropExpectCostPostingToGL()
     var
         Item: Record Item;
-        CostAmount: Decimal;
+        UnitCostRevalued: Decimal;
+        Quantity: Integer;
     begin
         // Test expected cost is posted to G/L after implementing RFH 245349
 
@@ -379,8 +379,9 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.SetExpectedCostPosting(true);
         // create item and make a few incoming operations without posting cost to G/L
         CreateItemWithCostingMethod(Item, Item."Costing Method"::Standard);
-        CreatePostPositiveAdjustment(Item, LibraryRandom.RandInt(10));
-        CreatePostRevaluation(Item, CostAmount);
+        Quantity := LibraryRandom.RandInt(10);
+        CreatePostPositiveAdjustment(Item, Quantity);
+        UnitCostRevalued := CreatePostRevaluation(Item);
         LibraryInventory.SetExpectedCostPosting(false);
 
         // Exercise: run report Post Inventory Cost to G/L
@@ -388,7 +389,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify:
-        VerifyValueEntryCostPostedToGL(Item."No.", CostAmount);
+        VerifyValueEntryCostPostedToGL(Item."No.", UnitCostRevalued * Quantity);
     end;
 
     [Test]
@@ -603,7 +604,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryWarehouse.CreateInTransitLocation(Location[3]);
 
         // [GIVEN] Purchase 3 pcs of item "I" on location "L1". Unit cost = 2.4875. Receive only.
-        CreatePurchaseOrderPostReceipt(PurchaseHeader[1], LibraryPurchase.CreateVendorNo, Location[1].Code, Item."No.", 3, 2.4875);
+        CreatePurchaseOrderPostReceipt(PurchaseHeader[1], LibraryPurchase.CreateVendorNo(), Location[1].Code, Item."No.", 3, 2.4875);
         // [GIVEN] Purchase 3 pcs of item "I" on location "L2". Unit cost = 2.48827. Receive only.
         CreatePurchaseOrderPostReceipt(PurchaseHeader[2], PurchaseHeader[1]."Buy-from Vendor No.", Location[1].Code, Item."No.", 3, 2.48827);
 
@@ -652,12 +653,12 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.CreateStandardCostWorksheetName(StdCostWorksheetName);
 
         // [GIVEN] SCW Name is updated to "X" on the worksheet, and the page is closed.
-        StandardCostWorksheet.OpenEdit;
+        StandardCostWorksheet.OpenEdit();
         StandardCostWorksheet.CurrWkshName.SetValue(StdCostWorksheetName.Name);
         StandardCostWorksheet.Close();
 
         // [WHEN] Open SCW page again.
-        StandardCostWorksheet.OpenView;
+        StandardCostWorksheet.OpenView();
 
         // [THEN] SCW Name on the page = "X".
         StandardCostWorksheet.CurrWkshName.AssertEquals(StdCostWorksheetName.Name);
@@ -678,7 +679,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.CreateStandardCostWorksheetName(StdCostWorksheetName);
 
         // [GIVEN] SCW Name is updated to "X" on the worksheet, and the page is closed.
-        StandardCostWorksheet.OpenEdit;
+        StandardCostWorksheet.OpenEdit();
         StandardCostWorksheet.CurrWkshName.SetValue(StdCostWorksheetName.Name);
         StandardCostWorksheet.Close();
 
@@ -686,7 +687,7 @@ codeunit 137007 "SCM Inventory Costing"
         StdCostWorksheetName.Delete(true);
 
         // [WHEN] Open SCW page again.
-        StandardCostWorksheet.OpenView;
+        StandardCostWorksheet.OpenView();
 
         // [THEN] SCW Name on the page is equal to the first found SCW Name on the table.
         StdCostWorksheetName.FindFirst();
@@ -708,7 +709,7 @@ codeunit 137007 "SCM Inventory Costing"
         StdCostWorksheetName.DeleteAll(true);
 
         // [WHEN] Open SCW page.
-        StandardCostWorksheet.OpenEdit;
+        StandardCostWorksheet.OpenEdit();
 
         // [THEN] SCW Name on the page is equal to the default name.
         StdCostWorksheetName.FindFirst();
@@ -731,12 +732,12 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.CreateStandardCostWorksheetName(StdCostWorksheetName);
 
         // [GIVEN] "X" is selected on SCW Names page.
-        StandardCostWorksheetNames.OpenView;
+        StandardCostWorksheetNames.OpenView();
         StandardCostWorksheetNames.FILTER.SetFilter(Name, StdCostWorksheetName.Name);
 
         // [WHEN] Click "Edit Worksheet" on the page.
-        StandardCostWorksheet.Trap;
-        StandardCostWorksheetNames.EditWorksheet.Invoke;
+        StandardCostWorksheet.Trap();
+        StandardCostWorksheetNames.EditWorksheet.Invoke();
 
         // [THEN] SCW is opened. SCW Name on the worksheet is equal to "X".
         StandardCostWorksheet.CurrWkshName.AssertEquals(StdCostWorksheetName.Name);
@@ -773,9 +774,9 @@ codeunit 137007 "SCM Inventory Costing"
         Item.Modify(true);
 
         // [GIVEN] Purchase order for 10 pcs of item "I". Posting Date = 01/01/17. Post receipt without invoicing.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.SetHideValidationDialog(true);
-        PurchaseHeader.Validate("Posting Date", WorkDate + 1);
+        PurchaseHeader.Validate("Posting Date", WorkDate() + 1);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Quantity);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -794,12 +795,12 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // [WHEN] Calculate inventory value for item "I" on 31/12/16, set "Unit Cost (Revalued)" = 150, and post revaluation
-        CreatePostRevaluation(Item, UnitCostRevalued);
+        UnitCostRevalued := CreatePostRevaluation(Item);
 
         // [THEN] "Cost Amount (Actual)" on 31/12/16 is 150 * 10 = 1500 - revalued
         // [THEN] "Cost Amount (Actual)" on 01/01/17 is 100 * 10 = 1000 - not revalued
         VerifyActualCostAmount(ItemJournalLine."Item No.", WorkDate(), UnitCostRevalued * Quantity);
-        VerifyActualCostAmount(ItemJournalLine."Item No.", WorkDate + 1, UnitCostOriginal * Quantity);
+        VerifyActualCostAmount(ItemJournalLine."Item No.", WorkDate() + 1, UnitCostOriginal * Quantity);
     end;
 
     [Test]
@@ -923,12 +924,12 @@ codeunit 137007 "SCM Inventory Costing"
 
         LibraryVariableStorage.Enqueue(CalculatePerValues::Item);
         CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
-        Commit;
+        Commit();
         CalculateInventoryValue.Run();
 
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Update Standard Cost should be enabled');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Update Standard Cost should be enabled');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -947,12 +948,12 @@ codeunit 137007 "SCM Inventory Costing"
 
         LibraryVariableStorage.Enqueue(CalculatePerValues::"Item Ledger Entry");
         CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
-        Commit;
+        Commit();
         CalculateInventoryValue.Run();
 
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Update Standard Cost should be disabled');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Update Standard Cost should be disabled');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1185,7 +1186,6 @@ codeunit 137007 "SCM Inventory Costing"
     var
         ProdItem: Record Item;
         CompItem: array[2] of Record Item;
-        BOMComponent: Record "BOM Component";
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
@@ -1242,7 +1242,6 @@ codeunit 137007 "SCM Inventory Costing"
         InventorySetup: Record "Inventory Setup";
         Item: Record Item;
         ItemVariant: Record "Item Variant";
-        CostAmount: Decimal;
     begin
         // [FEATURE] [Standard Cost] [Variant Code] [Variant Mandatory if Exists] [Revaluation Journal]
         // [SCENARIO 468541] Revaluation Journal with Standard Cost can be posted when "Variant Mandatory if Exists" is enabled.
@@ -1267,7 +1266,7 @@ codeunit 137007 "SCM Inventory Costing"
 
         // [WHEN] Revaluation Journal is created and posted.
         // [THEN] No error is thrown.
-        CreatePostRevaluation(Item, CostAmount);
+        CreatePostRevaluation(Item);
     end;
 
     [Test]
@@ -1309,7 +1308,7 @@ codeunit 137007 "SCM Inventory Costing"
         Item2.Modify();
 
         // [WHEN] Calculate Inventory for the created Item & set a value in "Unit Cost (Revalued)", and Post Revaluation Entry.
-        CreatePostRevaluation(Item, UnitCostRevalued);
+        UnitCostRevalued := CreatePostRevaluation(Item);
 
         // [WHEN] Filter Value Entry with Item No & Entry Type Revaluation.
         ValueEntry.SetFilter("Item No.", Item."No.");
@@ -1523,40 +1522,32 @@ codeunit 137007 "SCM Inventory Costing"
 
     local procedure FIFOAutomaticCostPostToGL(AutomaticCostPosting: Boolean; CostExpected: Boolean; PartialRecvInv: Boolean; MultiplePartialRecvInv: Boolean)
     var
-        Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
-        ItemNo: Code[20];
-        ItemNo2: Code[20];
-        ItemNo3: Code[20];
+        ItemNos: array[3] of Code[20];
     begin
         // Steps describing the sequence of actions for Test Case.
 
         // 1. Create required Inventory setups.
         // Update Inventory Setup True if Automatic cost posting.
         Initialize();
-        LibraryVariableStorage.Enqueue(AutomaticCostPostingMessage);  // Enqueue for Message Handler.
+        LibraryVariableStorage.Enqueue(AutomaticCostPostingMsg);  // Enqueue for Message Handler.
 
         LibraryInventory.SetAutomaticCostPosting(AutomaticCostPosting);
         LibraryInventory.SetExpectedCostPosting(false);
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // Create Items with Costing Method FIFO, False if Cost is different from expected.
-        CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward, '', '', CostExpected);
-        ItemNo := Item."No.";
-        Clear(Item);
-        CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward, '', '', CostExpected);
-        ItemNo2 := Item."No.";
-        Clear(Item);
-        CreateItem(Item, Item."Costing Method"::FIFO, Item."Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward, '', '', CostExpected);
-        ItemNo3 := Item."No.";
+        ItemNos[1] := CreateItem(Enum::"Costing Method"::FIFO, CostExpected);
+        ItemNos[2] := CreateItem(Enum::"Costing Method"::FIFO, CostExpected);
+        ItemNos[3] := CreateItem(Enum::"Costing Method"::FIFO, CostExpected);
 
         // 2.1 Execute: Create and Post Purchase Order, True if partial receive and Invoice.
         // Post Inventory Cost to GL if Automatic Cost Posting True.
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, ItemNo3, LibraryRandom.RandInt(100) + 50, PartialRecvInv);
+            PurchaseHeader, PurchaseLine, ItemNos[1], ItemNos[2], ItemNos[3], LibraryRandom.RandInt(100) + 50, PartialRecvInv);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         if not AutomaticCostPosting then
             LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
@@ -1564,18 +1555,18 @@ codeunit 137007 "SCM Inventory Costing"
         // 3.1 Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
         PurchInvHeader.FindFirst();
-        VerifyInvtAmountGLEntry(PurchInvHeader."No.", ItemNo);
+        VerifyInvtAmountGLEntry(PurchInvHeader."No.", ItemNos[1]);
 
         // 2.2. Execute: Update and Post Purchase Order with Partial Quantity.
         // Post Inventory Cost to GL if Automatic Cost Posting True.
         // 3.2. Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals calculated amount.
         if MultiplePartialRecvInv then begin
-            UpdatePurchaseHeader(PurchaseHeader."No.", ItemNo, ItemNo2, ItemNo3);
+            UpdatePurchaseHeader(PurchaseHeader."No.", ItemNos[1], ItemNos[2], ItemNos[3]);
             if not AutomaticCostPosting then
                 LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
             PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
             PurchInvHeader.FindLast();
-            VerifyInvtAmountGLEntry(PurchInvHeader."No.", ItemNo);
+            VerifyInvtAmountGLEntry(PurchInvHeader."No.", ItemNos[1]);
         end;
     end;
 
@@ -1589,16 +1580,19 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.PostTransferHeader(TransferHeader, true, true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ItemReorderPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"; RoutingNo: Code[20]; ProductionBOMNo: Code[20]; CostExpected: Boolean)
+    local procedure CreateItem(ItemCostingMethod: Enum "Costing Method"; CostExpected: Boolean): Code[20]
+    var
+        Item: Record Item;
     begin
         // Create Item with required fields where random and other values are not important for test.
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, ItemCostingMethod, 0, ItemReorderPolicy, FlushingMethod, RoutingNo, ProductionBOMNo);
+        CreateItemWithCostingMethod(Item, ItemCostingMethod);
         Item.Validate("Overhead Rate", LibraryRandom.RandInt(5));
         Item.Validate("Indirect Cost %", LibraryRandom.RandInt(5));
         if not CostExpected then
             Item.Validate("Unit Cost", LibraryRandom.RandInt(10));
         Item.Modify(true);
+
+        exit(Item."No.");
     end;
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyfromVendorNo: Code[20]; LocationCode: Code[10])
@@ -1721,8 +1715,7 @@ codeunit 137007 "SCM Inventory Costing"
     begin
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasure);
         LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLineType, No, QuantityPer);
-        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
     end;
 
     local procedure CreateAndRefreshReleasedProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20])
@@ -1781,7 +1774,7 @@ codeunit 137007 "SCM Inventory Costing"
     begin
         SelectRevaluationItemJournalTemplate(ItemJournalTemplate);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
 
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
@@ -1866,7 +1859,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreatePostRevaluation(var Item: Record Item; var CostAmount: Decimal)
+    local procedure CreatePostRevaluation(var Item: Record Item) CostAmount: Decimal
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2064,17 +2057,12 @@ codeunit 137007 "SCM Inventory Costing"
         WorkCenter: Record "Work Center";
         RoutingLine: Record "Routing Line";
     begin
-        CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(
           RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(5)), RoutingLine.Type::"Work Center", WorkCenter."No.");
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
         RoutingHeader.Modify(true);
-    end;
-
-    local procedure CreateWorkCenter(var WorkCenter: Record "Work Center")
-    begin
-        LibraryManufacturing.CreateWorkCenter(WorkCenter);
     end;
 
     local procedure UpdateStatusOnRoutingVersion(RoutingVersion: Record "Routing Version"; Status: Enum "BOM Status")
@@ -2190,7 +2178,7 @@ codeunit 137007 "SCM Inventory Costing"
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."WIP Account");
 
         // Verify no row exist for WIP Account in G/L Entry.
-        Assert.IsFalse(GLEntry.FindFirst, ErrMessageGLEntryNoRowExist);
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyInvtAmountGLEntry(PurchaseInvoiceNo: Code[20]; ItemNo: Code[20])
@@ -2225,7 +2213,7 @@ codeunit 137007 "SCM Inventory Costing"
         CalculatedInventoryAmount := DirectIndirectItemCost(PurchaseInvoiceNo);
 
         // Verify Inventory Account amounts and calculated Inventory amounts are equal.
-        Assert.AreEqual(TotalAmount, CalculatedInventoryAmount, ErrMessageInvAmountDoNotMatch);
+        Assert.AreEqual(TotalAmount, CalculatedInventoryAmount, InvAmountDoNotMatchErr);
     end;
 
     local procedure VerifyUnitCostInProductionOrderLine(ProductionOrder: Record "Production Order"; UnitCost: Decimal)
@@ -2477,19 +2465,19 @@ codeunit 137007 "SCM Inventory Costing"
         with BOMStructure do begin
             FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
             Expand(true);
-            Next;
+            Next();
             "No.".AssertEquals(ItemNo);
         end;
-        Assert.IsFalse(BOMStructure.Next, BOMStructureErr);
+        Assert.IsFalse(BOMStructure.Next(), BOMStructureErr);
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalcInvValueRequestPagetHandler(var CalculateInventoryValue: TestRequestPage "Calculate Inventory Value")
     begin
-        CalculateInventoryValue.CalculatePer.SetValue(LibraryVariableStorage.DequeueInteger);
-        LibraryVariableStorage.Enqueue(CalculateInventoryValue.UpdStdCost.Enabled);
-        LibraryVariableStorage.Enqueue(CalculateInventoryValue.UpdStdCost.AsBoolean);
+        CalculateInventoryValue.CalculatePer.SetValue(LibraryVariableStorage.DequeueInteger());
+        LibraryVariableStorage.Enqueue(CalculateInventoryValue.UpdStdCost.Enabled());
+        LibraryVariableStorage.Enqueue(CalculateInventoryValue.UpdStdCost.AsBoolean());
     end;
 }
 

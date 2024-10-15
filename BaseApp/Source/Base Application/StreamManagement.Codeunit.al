@@ -1,3 +1,8 @@
+namespace System.IO;
+
+using Microsoft.Utilities;
+using System;
+
 codeunit 705 "Stream Management"
 {
 

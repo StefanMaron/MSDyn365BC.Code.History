@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Deferral;
+
+using Microsoft.Finance.Currency;
+
 table 5127 "Deferral Header Archive"
 {
     Caption = 'Deferral Header Archive';
@@ -29,7 +33,7 @@ table 5127 "Deferral Header Archive"
         }
         field(8; "Amount to Defer"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount to Defer';
         }
@@ -96,7 +100,7 @@ table 5127 "Deferral Header Archive"
     begin
         if Get(DeferralDocType, DocumentType, DocumentNo, LineNo) then begin
             Delete();
-            DeleteLines("Deferral Document Type".FromInteger(DeferralDocType), DocumentType, DocumentNo, DocNoOcurrence, VersionNo, LineNo);
+            DeleteLines(Enum::"Deferral Document Type".FromInteger(DeferralDocType), DocumentType, DocumentNo, DocNoOcurrence, VersionNo, LineNo);
         end;
     end;
 

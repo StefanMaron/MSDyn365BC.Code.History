@@ -446,7 +446,6 @@
         [RunOnClient]
         [WithEvents]
         PageNotifier: DotNet PageNotifier;
-        [InDataSet]
         HasCamera: Boolean;
         ShowDocumentsPendingDocExchService: Boolean;
         ShowAwaitingIncomingDoc: Boolean;

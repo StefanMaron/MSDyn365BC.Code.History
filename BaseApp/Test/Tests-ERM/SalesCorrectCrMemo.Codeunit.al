@@ -31,6 +31,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         InvtPeriodClosedErr: Label 'You cannot cancel this posted sales credit memo because the inventory period is already closed.';
         PostPeriodClosedErr: Label 'You cannot cancel this posted sales credit memo because it was posted in a posting period that is closed.';
         BlockedItemErr: Label 'You cannot cancel this posted sales credit memo because item %1 %2 is blocked.';
+        ItemVariantIsBlockedCancelErr: Label 'You cannot cancel this posted sales credit memo because item variant %1 for item %2 %3 is blocked.', Comment = '%1 - Item Variant Code, %2 = Item No. %3 = Item Description';
         NotCorrDocErr: Label 'You cannot cancel this posted sales invoice because it represents a correction of a credit memo.';
         NotAppliedCorrectlyErr: Label 'You cannot cancel this posted sales credit memo because it is not fully applied to an invoice.';
         CrMemoCancellationTxt: Label 'Cancellation of credit memo %1.', Comment = '%1 = Credit Memo No.';
@@ -187,6 +188,37 @@ codeunit 137026 "Sales Correct Cr. Memo"
 
         // [THEN] You cannot cancel this posted sales invoice because item X is blocked.
         Assert.ExpectedError(StrSubstNo(BlockedItemErr, Item."No.", Item.Description));
+    end;
+
+    [Test]
+    procedure CannotCancelCrMemoIfItemVariantIsBlocked()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        // [FEATURE] [Cancellation Not Allowed]
+        // [SCENARIO] It's not possible to cancel Posted Credit Memo if item variant is blocked
+
+        Initialize();
+        // [GIVEN] Posted Credit Memo cancelled Invoice with Item Variant = "X"
+        PostDocumentWithVariant(SalesHeader, SalesHeader."Document Type"::Invoice);
+        SalesInvHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
+        SalesInvHeader.FindLast();
+        CancelInvoice(SalesCrMemoHeader, SalesInvHeader);
+
+        // [GIVEN] Blocked Item Variant "X"
+        BlockItemVariantOfSalesCrMemo(ItemVariant, SalesCrMemoHeader);
+        LibraryLowerPermissions.SetSalesDocsPost();
+
+        // [WHEN] Cancel Posted Credit Memo
+        asserterror CancelCrMemo(SalesCrMemoHeader);
+
+        // [THEN] You cannot cancel this posted sales invoice because item X is blocked.
+        Item.Get(ItemVariant."Item No.");
+        Assert.ExpectedError(StrSubstNo(ItemVariantIsBlockedCancelErr, ItemVariant.Code, ItemVariant."Item No.", Item.Description));
     end;
 
     [Test]
@@ -1156,6 +1188,18 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
+    local procedure PostDocumentWithVariant(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
+    var
+        SalesLine: Record "Sales Line";
+        ItemVariant: Record "Item Variant";
+    begin
+        CreateDocument(SalesHeader, SalesLine, DocType, SalesLine.Type::Item, CreateItemNo);
+        LibraryInventory.CreateItemVariant(ItemVariant, SalesLine."No.");
+        SalesLine."Variant Code" := ItemVariant.Code;
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
     local procedure PostSalesOrderWithFixedAsset(var SalesInvHeader: Record "Sales Invoice Header"; FANo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -1274,6 +1318,18 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Item.Get(SalesCrMemoLine."No.");
         Item.Validate(Blocked, true);
         Item.Modify(true);
+    end;
+
+    local procedure BlockItemVariantOfSalesCrMemo(var ItemVariant: Record "Item Variant"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
+        SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
+        SalesCrMemoLine.FindFirst();
+        ItemVariant.Get(SalesCrMemoLine."No.", SalesCrMemoLine."Variant Code");
+        ItemVariant.Validate(Blocked, true);
+        ItemVariant.Modify(true);
     end;
 
     local procedure UnapplyDocument(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])

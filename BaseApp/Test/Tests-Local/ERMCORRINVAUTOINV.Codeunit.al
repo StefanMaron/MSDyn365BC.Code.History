@@ -54,7 +54,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         CorrectInvNoServCrMemoHdrCap: Label 'CorrectInvNo_ServCrMemoHdr';
         FieldsAreNotEqualMsg: Label 'Actual value %2 is not equal to the expected value, which is %1.';
         PurchCrMemoHeaderCopyCap: Label 'PurchCrMemoHeaderCopyText';
-        PurchaseCorrectiveInvoiceTxt: Label 'Purchase - Corrective invoice';
+        PurchaseCorrectiveInvoiceTxt: Label 'Purchase - Corrective invoice ';
         PurchCrMemoHdrNoCap: Label 'Purch__Cr__Memo_Hdr__No_';
         PurchCrMemoLineQuantityCap: Label 'Purch__Cr__Memo_Line_Quantity';
         SalesCorrectiveInvCopyCap: Label 'SalesCorrectiveInvCopy';

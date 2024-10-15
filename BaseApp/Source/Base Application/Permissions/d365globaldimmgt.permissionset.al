@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.ReceivablesPayables;
+
 permissionset 2332 "D365 GLOBAL DIM MGT"
 {
     Assignable = true;

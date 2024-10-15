@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.ReceivablesPayables;
+
 page 599 "Payment Disc Tolerance Warning"
 {
     Caption = 'Payment Discount Tolerance Warning';

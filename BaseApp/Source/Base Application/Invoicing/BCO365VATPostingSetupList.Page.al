@@ -58,17 +58,17 @@ page 2346 "BC O365 VAT Posting Setup List"
 
     trigger OnAfterGetRecord()
     begin
-        if Code = DefaultVATProductPostingGroupCode then
-            LongDescription := StrSubstNo(DefaultVATRateTxt, Description)
+        if Rec.Code = DefaultVATProductPostingGroupCode then
+            LongDescription := StrSubstNo(DefaultVATRateTxt, Rec.Description)
         else
-            LongDescription := Description;
+            LongDescription := Rec.Description;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
         DefaultVATProductPostingGroupCode := O365TemplateManagement.GetDefaultVATProdPostingGroup();
-        SetCurrentKey(Code);
-        exit(Find(Which));
+        Rec.SetCurrentKey(Code);
+        exit(Rec.Find(Which));
     end;
 
     var

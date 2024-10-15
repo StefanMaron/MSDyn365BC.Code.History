@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Reporting;
+
 page 364 "Select Sending Options"
 {
     Caption = 'Send Document to';
@@ -16,7 +22,7 @@ page 364 "Select Sending Options"
                 group(Control10)
                 {
                     ShowCaption = false;
-                    field(Printer; Printer)
+                    field(Printer; Rec.Printer)
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies if and how the document is printed when you choose the Post and Send button. If you choose the Yes (Prompt for Settings) option, the document is printed according to settings that you must make on the printer setup dialog.';
@@ -39,7 +45,7 @@ page 364 "Select Sending Options"
                     group(Control12)
                     {
                         ShowCaption = false;
-                        Visible = "E-Mail" <> "E-Mail"::No;
+                        Visible = Rec."E-Mail" <> Rec."E-Mail"::No;
                         field("E-Mail Attachment"; Rec."E-Mail Attachment")
                         {
                             ApplicationArea = Basic, Suite;
@@ -47,14 +53,14 @@ page 364 "Select Sending Options"
 
                             trigger OnValidate()
                             begin
-                                VerifySelectedOptionsValid();
-                                "E-Mail Format" := GetFormat();
+                                Rec.VerifySelectedOptionsValid();
+                                Rec."E-Mail Format" := GetFormat();
                             end;
                         }
                         group(Control14)
                         {
                             ShowCaption = false;
-                            Visible = "E-Mail Attachment" <> "E-Mail Attachment"::PDF;
+                            Visible = Rec."E-Mail Attachment" <> Rec."E-Mail Attachment"::PDF;
                             field("E-Mail Format"; Rec."E-Mail Format")
                             {
                                 ApplicationArea = Basic, Suite;
@@ -63,13 +69,13 @@ page 364 "Select Sending Options"
 
                                 trigger OnLookup(var Text: Text): Boolean
                                 begin
-                                    "E-Mail Format" := LookupFormat();
+                                    Rec."E-Mail Format" := LookupFormat();
                                 end;
 
                                 trigger OnValidate()
                                 begin
                                     SetSendMethodToCustom();
-                                    LastFormat := "E-Mail Format";
+                                    LastFormat := Rec."E-Mail Format";
                                 end;
                             }
                         }
@@ -97,22 +103,22 @@ page 364 "Select Sending Options"
                             }
                         }
                     }
-                    field(Disk; Disk)
+                    field(Disk; Rec.Disk)
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies if the document is saved as a PDF file when you choose the Post and Send button.';
 
                         trigger OnValidate()
                         begin
-                            VerifySelectedOptionsValid();
+                            Rec.VerifySelectedOptionsValid();
                             SetSendMethodToCustom();
-                            "Disk Format" := GetFormat();
+                            Rec."Disk Format" := GetFormat();
                         end;
                     }
                     group(Control16)
                     {
                         ShowCaption = false;
-                        Visible = (Disk <> Disk::No) AND (Disk <> Disk::PDF);
+                        Visible = (Rec.Disk <> Rec.Disk::No) and (Rec.Disk <> Rec.Disk::PDF);
                         field("Disk Format"; Rec."Disk Format")
                         {
                             ApplicationArea = Basic, Suite;
@@ -121,13 +127,13 @@ page 364 "Select Sending Options"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                "Disk Format" := LookupFormat();
+                                Rec."Disk Format" := LookupFormat();
                             end;
 
                             trigger OnValidate()
                             begin
                                 SetSendMethodToCustom();
-                                LastFormat := "Disk Format";
+                                LastFormat := Rec."Disk Format";
                             end;
                         }
                     }
@@ -143,15 +149,15 @@ page 364 "Select Sending Options"
 
                         trigger OnValidate()
                         begin
-                            VerifySelectedOptionsValid();
+                            Rec.VerifySelectedOptionsValid();
                             SetSendMethodToCustom();
-                            "Electronic Format" := GetFormat();
+                            Rec."Electronic Format" := GetFormat();
                         end;
                     }
                     group(Control18)
                     {
                         ShowCaption = false;
-                        Visible = "Electronic Document" <> "Electronic Document"::No;
+                        Visible = Rec."Electronic Document" <> Rec."Electronic Document"::No;
                         field("Electronic Format"; Rec."Electronic Format")
                         {
                             ApplicationArea = Basic, Suite;
@@ -160,13 +166,13 @@ page 364 "Select Sending Options"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                "Electronic Format" := LookupFormat();
+                                Rec."Electronic Format" := LookupFormat();
                             end;
 
                             trigger OnValidate()
                             begin
                                 SetSendMethodToCustom();
-                                LastFormat := "Electronic Format";
+                                LastFormat := Rec."Electronic Format";
                             end;
                         }
                     }
@@ -184,10 +190,10 @@ page 364 "Select Sending Options"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         DocumentSendingProfile: Record "Document Sending Profile";
     begin
-        SendElectronicallyVisible := not ElectronicDocumentFormat.IsEmpty() and "One Related Party Selected";
+        SendElectronicallyVisible := not ElectronicDocumentFormat.IsEmpty() and Rec."One Related Party Selected";
 
-        if DocumentSendingProfile.Get(Code) then
-            Copy(DocumentSendingProfile);
+        if DocumentSendingProfile.Get(Rec.Code) then
+            Rec.Copy(DocumentSendingProfile);
     end;
 
     trigger OnOpenPage()
@@ -196,22 +202,23 @@ page 364 "Select Sending Options"
     end;
 
     var
-        [InDataSet]
         SendElectronicallyVisible: Boolean;
+
+    protected var
         CustomTxt: Label 'Custom';
         LastFormat: Code[20];
 
-    local procedure SetSendMethodToCustom()
+    procedure SetSendMethodToCustom()
     begin
-        Code := CustomTxt;
+        Rec.Code := CustomTxt;
     end;
 
-    local procedure LookupFormat(): Code[20]
+    procedure LookupFormat(): Code[20]
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
         ElectronicDocumentFormats: Page "Electronic Document Formats";
     begin
-        ElectronicDocumentFormat.SetRange(Usage, Usage);
+        ElectronicDocumentFormat.SetRange(Usage, Rec.Usage);
         ElectronicDocumentFormats.SetTableView(ElectronicDocumentFormat);
         ElectronicDocumentFormats.LookupMode := true;
 
@@ -224,7 +231,7 @@ page 364 "Select Sending Options"
         exit(GetFormat());
     end;
 
-    local procedure GetFormat(): Code[20]
+    procedure GetFormat(): Code[20]
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
         FindNewFormat: Boolean;
@@ -235,14 +242,14 @@ page 364 "Select Sending Options"
             FindNewFormat := true
         else begin
             ElectronicDocumentFormat.SetRange(Code, LastFormat);
-            ElectronicDocumentFormat.SetRange(Usage, Usage);
+            ElectronicDocumentFormat.SetRange(Usage, Rec.Usage);
             if not ElectronicDocumentFormat.FindFirst() then
                 FindNewFormat := true;
         end;
 
         if FindNewFormat then begin
             ElectronicDocumentFormat.SetRange(Code);
-            ElectronicDocumentFormat.SetRange(Usage, Usage);
+            ElectronicDocumentFormat.SetRange(Usage, Rec.Usage);
             if not ElectronicDocumentFormat.FindFirst() then
                 LastFormat := ''
             else

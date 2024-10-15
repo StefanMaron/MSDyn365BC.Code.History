@@ -921,7 +921,7 @@
         LibraryVariableStorage.AssertEmpty;
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,PostBillGroupRequestPageHandler,CarteraJournalModalPageHandler,BillGroupDiscountPostedMessageHandler,SettlDocsPostedBillGroupsRequestPageHandler')]
     [Scope('OnPrem')]

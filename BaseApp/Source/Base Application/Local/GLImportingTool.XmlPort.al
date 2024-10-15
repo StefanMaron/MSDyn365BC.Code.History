@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using System.Utilities;
+
 xmlport 10720 "G/L Importing Tool"
 {
     Caption = 'G/L Importing Tool';
@@ -14,7 +22,7 @@ xmlport 10720 "G/L Importing Tool"
             tableelement(Integer; Integer)
             {
                 XmlName = 'Integer';
-                SourceTableView = SORTING(Number) WHERE(Number = CONST(1));
+                SourceTableView = sorting(Number) where(Number = const(1));
                 UseTemporary = true;
                 textelement(Header)
                 {
@@ -23,7 +31,7 @@ xmlport 10720 "G/L Importing Tool"
             tableelement(newglacct; "New G/L Account")
             {
                 XmlName = 'NewGLAcct';
-                SourceTableView = SORTING("No.");
+                SourceTableView = sorting("No.");
                 fieldelement(No; NewGLAcct."No.")
                 {
                 }

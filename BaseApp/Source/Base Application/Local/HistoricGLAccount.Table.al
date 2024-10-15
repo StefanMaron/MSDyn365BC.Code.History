@@ -1,3 +1,18 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using Microsoft.Finance.Consolidation;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Intercompany.GLAccount;
+
 table 10721 "Historic G/L Account"
 {
     Caption = 'Historic G/L Account';
@@ -37,14 +52,14 @@ table 10721 "Historic G/L Account"
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
             Editable = false;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(7; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
             Editable = false;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(9; "Income/Balance"; Option)
         {
@@ -115,7 +130,7 @@ table 10721 "Historic G/L Account"
             Caption = 'Global Dimension 1 Filter';
             Editable = false;
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(30; "Global Dimension 2 Filter"; Code[20])
         {
@@ -123,15 +138,15 @@ table 10721 "Historic G/L Account"
             Caption = 'Global Dimension 2 Filter';
             Editable = false;
             FieldClass = FlowFilter;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(31; "Balance at Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                        "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+            CalcFormula = sum("G/L Entry".Amount where("Business Unit Code" = field("Business Unit Filter"),
+                                                        "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                        "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                        "Posting Date" = field(UPPERLIMIT("Date Filter"))));
             Caption = 'Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -139,10 +154,10 @@ table 10721 "Historic G/L Account"
         field(32; "Net Change"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                        "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("G/L Entry".Amount where("Business Unit Code" = field("Business Unit Filter"),
+                                                        "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                        "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                        "Posting Date" = field("Date Filter")));
             Caption = 'Net Change';
             Editable = false;
             FieldClass = FlowField;
@@ -150,11 +165,11 @@ table 10721 "Historic G/L Account"
         field(33; "Budgeted Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Budget Entry".Amount WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                               Date = FIELD("Date Filter"),
-                                                               "Budget Name" = FIELD("Budget Filter")));
+            CalcFormula = sum("G/L Budget Entry".Amount where("Business Unit Code" = field("Business Unit Filter"),
+                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                               Date = field("Date Filter"),
+                                                               "Budget Name" = field("Budget Filter")));
             Caption = 'Budgeted Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -163,8 +178,6 @@ table 10721 "Historic G/L Account"
         {
             Caption = 'Totaling';
             TableRelation = "Historic G/L Account";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
         }
         field(35; "Budget Filter"; Code[10])
@@ -177,9 +190,9 @@ table 10721 "Historic G/L Account"
         field(36; Balance; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry".Amount WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter")));
+            CalcFormula = sum("G/L Entry".Amount where("Business Unit Code" = field("Business Unit Filter"),
+                                                        "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                        "Global Dimension 2 Code" = field("Global Dimension 2 Filter")));
             Caption = 'Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -187,11 +200,11 @@ table 10721 "Historic G/L Account"
         field(37; "Budget at Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Budget Entry".Amount WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                               Date = FIELD(UPPERLIMIT("Date Filter")),
-                                                               "Budget Name" = FIELD("Budget Filter")));
+            CalcFormula = sum("G/L Budget Entry".Amount where("Business Unit Code" = field("Business Unit Filter"),
+                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                               Date = field(UPPERLIMIT("Date Filter")),
+                                                               "Budget Name" = field("Budget Filter")));
             Caption = 'Budget at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -248,10 +261,10 @@ table 10721 "Historic G/L Account"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("G/L Entry"."Debit Amount" WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("G/L Entry"."Debit Amount" where("Business Unit Code" = field("Business Unit Filter"),
+                                                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                "Posting Date" = field("Date Filter")));
             Caption = 'Debit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -260,10 +273,10 @@ table 10721 "Historic G/L Account"
         {
             AutoFormatType = 1;
             BlankZero = true;
-            CalcFormula = Sum ("G/L Entry"."Credit Amount" WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                 "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("G/L Entry"."Credit Amount" where("Business Unit Code" = field("Business Unit Filter"),
+                                                                 "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                 "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                 "Posting Date" = field("Date Filter")));
             Caption = 'Credit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -277,11 +290,11 @@ table 10721 "Historic G/L Account"
         {
             AutoFormatType = 1;
             BlankNumbers = BlankNegAndZero;
-            CalcFormula = Sum ("G/L Budget Entry".Amount WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                               Date = FIELD("Date Filter"),
-                                                               "Budget Name" = FIELD("Budget Filter")));
+            CalcFormula = sum("G/L Budget Entry".Amount where("Business Unit Code" = field("Business Unit Filter"),
+                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                               Date = field("Date Filter"),
+                                                               "Budget Name" = field("Budget Filter")));
             Caption = 'Budgeted Debit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -290,11 +303,11 @@ table 10721 "Historic G/L Account"
         {
             AutoFormatType = 1;
             BlankNumbers = BlankNegAndZero;
-            CalcFormula = - Sum ("G/L Budget Entry".Amount WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                Date = FIELD("Date Filter"),
-                                                                "Budget Name" = FIELD("Budget Filter")));
+            CalcFormula = - sum("G/L Budget Entry".Amount where("Business Unit Code" = field("Business Unit Filter"),
+                                                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                Date = field("Date Filter"),
+                                                                "Budget Name" = field("Budget Filter")));
             Caption = 'Budgeted Credit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -331,10 +344,10 @@ table 10721 "Historic G/L Account"
         field(60; "Additional-Currency Net Change"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Additional-Currency Amount" WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                              "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("G/L Entry"."Additional-Currency Amount" where("Business Unit Code" = field("Business Unit Filter"),
+                                                                              "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                              "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                              "Posting Date" = field("Date Filter")));
             Caption = 'Additional-Currency Net Change';
             Editable = false;
             FieldClass = FlowField;
@@ -342,10 +355,10 @@ table 10721 "Historic G/L Account"
         field(61; "Add.-Currency Balance at Date"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Additional-Currency Amount" WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                              "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
+            CalcFormula = sum("G/L Entry"."Additional-Currency Amount" where("Business Unit Code" = field("Business Unit Filter"),
+                                                                              "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                              "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                              "Posting Date" = field(UPPERLIMIT("Date Filter"))));
             Caption = 'Add.-Currency Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -353,9 +366,9 @@ table 10721 "Historic G/L Account"
         field(62; "Additional-Currency Balance"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Additional-Currency Amount" WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter")));
+            CalcFormula = sum("G/L Entry"."Additional-Currency Amount" where("Business Unit Code" = field("Business Unit Filter"),
+                                                                              "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                              "Global Dimension 2 Code" = field("Global Dimension 2 Filter")));
             Caption = 'Additional-Currency Balance';
             Editable = false;
             FieldClass = FlowField;
@@ -370,10 +383,10 @@ table 10721 "Historic G/L Account"
         field(64; "Add.-Currency Debit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Add.-Currency Debit Amount" WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                              "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("G/L Entry"."Add.-Currency Debit Amount" where("Business Unit Code" = field("Business Unit Filter"),
+                                                                              "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                              "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                              "Posting Date" = field("Date Filter")));
             Caption = 'Add.-Currency Debit Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -381,10 +394,10 @@ table 10721 "Historic G/L Account"
         field(65; "Add.-Currency Credit Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("G/L Entry"."Add.-Currency Credit Amount" WHERE("Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                               "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("G/L Entry"."Add.-Currency Credit Amount" where("Business Unit Code" = field("Business Unit Filter"),
+                                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                               "Posting Date" = field("Date Filter")));
             Caption = 'Add.-Currency Credit Amount';
             Editable = false;
             FieldClass = FlowField;

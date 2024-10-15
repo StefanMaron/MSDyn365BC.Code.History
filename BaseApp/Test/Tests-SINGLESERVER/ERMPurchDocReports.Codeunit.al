@@ -389,7 +389,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('PurchOrderHeaderNo', PurchaseHeader."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No."));
+            Error(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No.");
         with PurchaseLine do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchaseLine', Quantity);
             LibraryReportDataset.AssertCurrentRowValueEquals('OutstandingQty_PurchLine', "Outstanding Quantity");
@@ -426,7 +426,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('PurchOrderHeaderNo', PurchaseHeader."No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No."));
+            Error(NoDatasetRowErr, 'PurchOrderHeaderNo', PurchaseHeader."No.");
         with PurchaseLine do begin
             LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_PurchaseLine', Quantity);
             LibraryReportDataset.AssertCurrentRowValueEquals('OutstandingQty_PurchLine', "Outstanding Quantity");
@@ -2014,7 +2014,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Outstanding Orders = Line Amount Incl. VAT(##0.00) / (1 + VAT%).
         // Total((##0.00)) = Round(Sum(Line Amount Incl. VAT / (1 + VAT%))
         // Using hardcode of Quantity to let the third decimal places of Line Amount Incl. VAT can be truncated when calculating Outstanding Orders.
-        // So when verify Total = Sum(Outstanding Orders) after creating two Purchase Lines, the issue can be Reproduced.
+        // So when verify Total = sum(Outstanding Orders) after creating two Purchase Lines, the issue can be Reproduced.
         DirectUnitCost := LibraryRandom.RandDec(100, 1) + LibraryRandom.RandIntInRange(3, 4) / 100;
         CreatePurchaseLine(PurchaseHeader, PurchaseLine1, DirectUnitCost, 1);
         CreatePurchaseLine(PurchaseHeader, PurchaseLine2, DirectUnitCost, 1);
@@ -2699,7 +2699,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
             LoadDataSetFile;
             SetRange('No_Vendor', VendorNo);
             if not GetNextRow then
-                Error(StrSubstNo(NoDatasetRowErr, 'No_Vendor', VendorNo));
+                Error(NoDatasetRowErr, 'No_Vendor', VendorNo);
             AssertCurrentRowValueEquals('PurchOrderAmount', PurchaseLine.Amount);
             GetNextRow;
             PurchaseLine.Next();

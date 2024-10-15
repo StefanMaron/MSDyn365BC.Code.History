@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+
 page 579 "Post Application"
 {
     Caption = 'Post Application';
@@ -75,48 +80,9 @@ page 579 "Post Application"
         ApplyUnapplyParameters := NewApplyUnapplyParameters;
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by procedure SetParameters()', '20.0')]
-    procedure SetValues(NewDocNo: Code[20]; NewPostingDate: Date)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeSetValues(NewDocNo, NewPostingDate, IsHandled);
-        if IsHandled then
-            exit;
-
-        ApplyUnapplyParameters."Document No." := NewDocNo;
-        ApplyUnapplyParameters."Posting Date" := NewPostingDate;
-    end;
-#endif
-
     procedure GetParameters(var NewApplyUnapplyParameters: Record "Apply Unapply Parameters")
     begin
         NewApplyUnapplyParameters := ApplyUnapplyParameters;
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by procedure GetParameters()', '20.0')]
-    procedure GetValues(var NewDocNo: Code[20]; var NewPostingDate: Date)
-    begin
-        OnBeforeGetValues(NewDocNo, NewPostingDate);
-
-        NewDocNo := ApplyUnapplyParameters."Document No.";
-        NewPostingDate := ApplyUnapplyParameters."Posting Date";
-    end;
-
-    [IntegrationEvent(true, false)]
-    [Obsolete('Obsolete as SetValues is replaced by procedure SetParameters()', '20.0')]
-    local procedure OnBeforeSetValues(var NewDocNo: Code[20]; var NewPostingDate: Date; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    [Obsolete('Obsolete as SetValues is replaced by procedure GetParameters()', '20.0')]
-    local procedure OnBeforeGetValues(var NewDocNo: Code[20]; var NewPostingDate: Date)
-    begin
-    end;
-#endif
 }
 

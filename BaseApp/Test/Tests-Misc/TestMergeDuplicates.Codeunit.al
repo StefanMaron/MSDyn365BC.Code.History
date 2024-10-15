@@ -1543,9 +1543,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         O365CouponClaim: Record "O365 Coupon Claim";
         O365PostedCouponClaim: Record "O365 Posted Coupon Claim";
 #endif
-#if not CLEAN20
-        NativePayment: Record "Native - Payment";
-#endif
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
@@ -1617,12 +1614,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         O365PostedCouponClaim."Customer Id" := Customer[1].SystemId;
         O365PostedCouponClaim.Insert();
 #endif
-#if not CLEAN20
-        // [GIVEN] Native Payment, where "Customer No." is 'A', "Customer Id" is 'AAA'
-        NativePayment."Applies-to Invoice Id" := CreateGuid();
-        NativePayment.Validate("Customer No.", Customer[1]."No.");
-        NativePayment.Insert();
-#endif
         // [GIVEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'A', "Customer Id" is 'AAA'
         SalesInvoiceEntityAggregate."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceEntityAggregate.Validate("Sell-to Customer No.", Customer[1]."No.");
@@ -1679,12 +1670,6 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         // [THEN] O365PostedCouponClaim, where "Customer Id" is 'BBB'
         O365PostedCouponClaim.Find();
         O365PostedCouponClaim.TestField("Customer Id", Customer[2].SystemId);
-#endif
-#if not CLEAN20
-        // [THEN] Native Payment, where "Customer No." is 'B', "Customer Id" is 'BBB'
-        NativePayment.Find();
-        NativePayment.TestField("Customer No.", Customer[2]."No.");
-        NativePayment.TestField("Customer Id", Customer[2].SystemId);
 #endif
         // [GIVEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
         SalesInvoiceEntityAggregate.Find();
@@ -1863,7 +1848,7 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         Assert.IsTrue(TempMergeDuplicatesLineBuffer.FindSet, 'there must be field lines');
         repeat
             if TempMergeDuplicatesLineBuffer."Current Value" = TempMergeDuplicatesLineBuffer."Duplicate Value" then
-                Error(StrSubstNo(SameValueErr, TempMergeDuplicatesLineBuffer.ID));
+                Error(SameValueErr, TempMergeDuplicatesLineBuffer.ID);
         until TempMergeDuplicatesLineBuffer.Next() = 0;
         Assert.RecordIsEmpty(TempMergeDuplicatesConflict);
     end;

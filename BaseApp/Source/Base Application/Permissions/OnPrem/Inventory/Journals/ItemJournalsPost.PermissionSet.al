@@ -1,3 +1,25 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.Dimension;
+using Microsoft.Inventory.Document;
+using Microsoft.Inventory.History;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Planning;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Location;
+using System.Security.User;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Foundation.Period;
+using Microsoft.Inventory.Costing;
+using Microsoft.Foundation.UOM;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+
 permissionset 8823 "Item Journals - Post"
 {
     Access = Public;

@@ -845,7 +845,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VerifyPaymentOrderGLEntryExists(PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Amount (LCY)");
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -941,7 +941,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1035,7 +1035,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtBank, -AmtBank);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1123,7 +1123,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtBank);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1209,7 +1209,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1301,7 +1301,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           PaymentOrder."No.", Vendor."Vendor Posting Group", PaymentOrder."Bank Account No.", AmtPay, -AmtPay);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountListPageHandler,CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -1458,7 +1458,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.RecordCount(GLEntry, 2);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CarteraDocumentsActionModalPageHandler,ConfirmHandler,MessageHandler,SettleDocsInPostedPOModalPageHandler')]
     [Scope('OnPrem')]
@@ -2043,7 +2043,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Assert.AreEqual(DueDate, Format(CarteraDoc."Due Date"), '');
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; PostingDate: Date)
     begin
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate, PostingDate);

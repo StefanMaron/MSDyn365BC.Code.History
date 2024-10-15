@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
 table 10723 "G/L Acc. Equiv. Tool Setup"
 {
     Caption = 'G/L Acc. Equiv. Tool Setup';

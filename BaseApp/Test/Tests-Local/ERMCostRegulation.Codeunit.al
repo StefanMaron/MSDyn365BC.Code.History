@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144038 "ERM Cost Regulation"
 {
     //  1. Verify Amount in Intrastat Journal when posting a purchase order with a invoice discount and payment discount shipping and invoicing in same month with Currency.
@@ -416,4 +417,5 @@ codeunit 144038 "ERM Cost Regulation"
         GetItemLedgerEntries.OK.Invoke;
     end;
 }
+#endif
 

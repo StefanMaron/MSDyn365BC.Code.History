@@ -1,4 +1,29 @@
-﻿table 55 "Invoice Posting Buffer"
+﻿namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Deferral;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.FixedAssets.Posting;
+using Microsoft.Foundation.Enums;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Document;
+using Microsoft.Service.Setup;
+
+table 55 "Invoice Posting Buffer"
 {
     Caption = 'Invoice Posting Buffer';
     ReplicateData = false;
@@ -27,14 +52,14 @@
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(5; "Global Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
         field(6; "Job No."; Code[20])
         {
@@ -778,7 +803,7 @@
 
     local procedure ApplyRoundingValueForFinalPosting(var Rounding: Decimal; var Value: Decimal)
     begin
-        IF (Rounding <> 0) and (Value <> 0) then begin
+        if (Rounding <> 0) and (Value <> 0) then begin
             Value += Rounding;
             Rounding := 0;
         end;

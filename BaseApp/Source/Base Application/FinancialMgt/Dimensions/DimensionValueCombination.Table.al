@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 table 351 "Dimension Value Combination"
 {
     Caption = 'Dimension Value Combination';
@@ -14,8 +16,8 @@ table 351 "Dimension Value Combination"
         {
             Caption = 'Dimension 1 Value Code';
             NotBlank = true;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension 1 Code"),
-                                                         Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension 1 Code"),
+                                                         Blocked = const(false));
         }
         field(3; "Dimension 2 Code"; Code[20])
         {
@@ -27,8 +29,8 @@ table 351 "Dimension Value Combination"
         {
             Caption = 'Dimension 2 Value Code';
             NotBlank = true;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension 2 Code"),
-                                                         Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension 2 Code"),
+                                                         Blocked = const(false));
         }
     }
 

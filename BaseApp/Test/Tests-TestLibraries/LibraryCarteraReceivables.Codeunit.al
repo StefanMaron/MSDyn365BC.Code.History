@@ -313,6 +313,7 @@ codeunit 143020 "Library - Cartera Receivables"
         CustLedgerEntry.FindSet();
     end;
 
+#if not CLEAN22
     procedure GenerateCustomerPmtAddress(CustomerNo: Code[20]; var CustomerPmtAddress: Record "Customer Pmt. Address")
     var
         PostCode: Record "Post Code";
@@ -343,6 +344,7 @@ codeunit 143020 "Library - Cartera Receivables"
 
         CustomerPmtAddress.Insert(true);
     end;
+#endif
 
     procedure GetPostedSalesInvoiceAmount(CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Decimal
     var
@@ -453,10 +455,12 @@ codeunit 143020 "Library - Cartera Receivables"
         PaymentMethod.Modify(true);
     end;
 
+#if not CLEAN22
     procedure UpdateSalesInvoiceWithCustomerPmtCode(var SalesHeader: Record "Sales Header"; CustomerPmtCode: Code[10])
     begin
         SalesHeader.Validate("Pay-at Code", CustomerPmtCode);
         SalesHeader.Modify(true);
     end;
+#endif
 }
 

@@ -255,6 +255,40 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         ValueEntry.TestField("Cost Amount (Actual)", PurchLine.Amount + PurchLine."Non-Deductible VAT Amount");
     end;
 
+    [Test]
+    procedure CannotPostPrepaymentIfPrepmtGLAccountHasNonDeductibleVATSetup()
+    var
+        GLAccount: Record "G/L Account";
+        Item: Record Item;
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 474028] Stan cannot post prepayment if prepayment G/L account has Non-Deductible VAT setup
+
+        Initialize();
+        // [GIVEN] Non-Deductible VAT Posting "DOMESTIC" - "VAT25"
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Purchase order with "Prepaymnent %" = 100 and "VAT Bus. Posting Group" = "DOMESTIC" and "Gen. Bus Posting Group" = "DOMESTIC"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Validate("Prepayment %", 100);
+        PurchaseHeader.Modify(true);
+        // [GIVEN] Item with "VAT Prod. Posting Group" = "VAT10" and "Gen Prod. Posting Group" = "RETAIL"
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] "Purch. Prepayments Account" in General Posting Setup "DOMESTIC" - "RETAIL" has VAT Setup "DOMESTIC" - "VAT25"
+        GeneralPostingSetup.Get(PurchaseHeader."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Validate("Purch. Prepayments Account",
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase));
+        GeneralPostingSetup.Modify(true);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, PurchaseHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
+        // [WHEN] Create purchase line
+        asserterror LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
+        // [THEN] An error message "You cannot post prepayment that contains Non-Deductible VAT." is thrown
+        Assert.ExpectedError(PrepaymentsWithNDVATErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

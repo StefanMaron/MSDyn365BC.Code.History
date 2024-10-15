@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Payroll;
+
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.GeneralLedger.Journal;
+
 table 1660 "Payroll Setup"
 {
     Caption = 'Payroll Setup';
@@ -14,8 +23,8 @@ table 1660 "Payroll Setup"
         field(2; "General Journal Template Name"; Code[10])
         {
             Caption = 'General Journal Template Name';
-            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(General),
-                                                           Recurring = CONST(false));
+            TableRelation = "Gen. Journal Template" where(Type = filter(General),
+                                                           Recurring = const(false));
 
             trigger OnValidate()
             var
@@ -44,7 +53,7 @@ table 1660 "Payroll Setup"
         field(3; "General Journal Batch Name"; Code[10])
         {
             Caption = 'General Journal Batch Name';
-            TableRelation = "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("General Journal Template Name"));
+            TableRelation = "Gen. Journal Batch".Name where("Journal Template Name" = field("General Journal Template Name"));
 
             trigger OnValidate()
             var

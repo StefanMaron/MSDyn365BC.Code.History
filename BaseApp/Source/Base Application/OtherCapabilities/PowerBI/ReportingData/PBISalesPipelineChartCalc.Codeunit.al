@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.PowerBI;
+
+using Microsoft.CRM.Opportunity;
+using Microsoft.Sales.Analysis;
+
 codeunit 6309 "PBI Sales Pipeline Chart Calc."
 {
 

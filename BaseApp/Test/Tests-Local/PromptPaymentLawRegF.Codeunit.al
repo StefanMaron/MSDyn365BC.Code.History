@@ -2645,6 +2645,8 @@ codeunit 147300 "Prompt Payment Law RegF"
     var
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         ConstDaysInMonth := 28; // The least common denominator for days per month.
         InitializeContractServiceOrders(0D, 0D, 0, '');
@@ -2652,6 +2654,13 @@ codeunit 147300 "Prompt Payment Law RegF"
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
 
         if IsInitialized then
             exit;

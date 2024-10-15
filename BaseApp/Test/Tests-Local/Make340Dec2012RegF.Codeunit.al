@@ -3036,10 +3036,20 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     end;
 
     local procedure Initialize()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
         IsInitialized := true;
         Commit();
     end;
@@ -3532,7 +3542,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         for Ascii := 65 to 90 do begin
             // If current character is not C, D, I, R
             ValidCharacter := Ascii;
-            if not (Ascii in [67, 68, 73, 82]) and not OperationCode.Get(ValidCharacter) then begin
+            if not (Ascii in [67, 68, 73, 82]) and not OperationCode.Get(Format(ValidCharacter)) then begin
                 ValidCharacters[Index] := Ascii;
                 Index += 1;
             end;

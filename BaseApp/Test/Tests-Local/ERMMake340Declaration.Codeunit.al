@@ -1431,6 +1431,8 @@ codeunit 144048 "ERM Make 340 Declaration"
     local procedure Initialize()
     var
         OperationCode: Record "Operation Code";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryVariableStorage.Clear();
         LibraryVariableStorageVerifyValues.Clear();
@@ -1440,6 +1442,12 @@ codeunit 144048 "ERM Make 340 Declaration"
         if IsInitialized then
             exit;
 
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -1943,8 +1951,8 @@ codeunit 144048 "ERM Make 340 Declaration"
         // make the unique name to simplify the search of file line
         Customer.Name := LibraryUtility.GenerateRandomCode(Customer.FieldNo(Name), DATABASE::Customer);
         Customer.Validate("Country/Region Code", CountryRegionCode);
-        Customer."VAT Registration No." := 
-            PadStr(LibraryERM.GenerateVATRegistrationNo(CountryRegionCode), 17, '0'); 
+        Customer."VAT Registration No." :=
+            PadStr(LibraryERM.GenerateVATRegistrationNo(CountryRegionCode), 17, '0');
         Customer.Modify(true);
         LibraryVariableStorage.Enqueue(Customer."No.");  // Enqueue value for handler - Make340DeclarationHandler.
 
@@ -1959,8 +1967,8 @@ codeunit 144048 "ERM Make 340 Declaration"
         // make the unique name to simplify the search of file line
         Vendor.Name := LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Name), DATABASE::Customer);
         Vendor.Validate("Country/Region Code", CountryRegionCode);
-        Vendor."VAT Registration No." := 
-            PadStr(LibraryERM.GenerateVATRegistrationNo(CountryRegionCode), 17, '0'); 
+        Vendor."VAT Registration No." :=
+            PadStr(LibraryERM.GenerateVATRegistrationNo(CountryRegionCode), 17, '0');
         Vendor.Modify(true);
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for handler - Make340DeclarationHandler.
 

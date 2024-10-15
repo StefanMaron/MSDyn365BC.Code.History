@@ -553,11 +553,21 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
     end;
 
     local procedure Initialize()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Same Ext. Doc. No. In FY");
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Same Ext. Doc. No. In FY");
         BindSubscription(LibraryJobQueue);

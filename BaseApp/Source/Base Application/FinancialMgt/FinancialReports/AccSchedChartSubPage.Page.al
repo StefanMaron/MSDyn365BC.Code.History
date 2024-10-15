@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 766 "Acc. Sched. Chart SubPage"
 {
     Caption = 'Acc. Sched. Chart SubPage';
@@ -44,7 +46,7 @@ page 766 "Acc. Sched. Chart SubPage"
 
                     trigger OnValidate()
                     begin
-                        if "Chart Type" = "Chart Type"::" " then
+                        if Rec."Chart Type" = Rec."Chart Type"::" " then
                             CurrPage.Update();
                     end;
                 }
@@ -104,7 +106,7 @@ page 766 "Acc. Sched. Chart SubPage"
                     AccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line";
                 begin
                     CurrPage.SetSelectionFilter(AccSchedChartSetupLine);
-                    AccSchedChartSetupLine.ModifyAll("Chart Type", "Chart Type"::" ");
+                    AccSchedChartSetupLine.ModifyAll("Chart Type", Rec."Chart Type"::" ");
                     CurrPage.Update();
                 end;
             }
@@ -126,7 +128,7 @@ page 766 "Acc. Sched. Chart SubPage"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         SetFilters(Rec);
-        exit(FindSet());
+        exit(Rec.FindSet());
     end;
 
     var

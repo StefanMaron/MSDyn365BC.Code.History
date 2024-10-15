@@ -1,17 +1,22 @@
+#if not CLEAN22
 report 593 "Intrastat - Make Declaration"
 {
     Caption = 'Intrastat - Make Declaration';
     ProcessingOnly = true;
-
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
     dataset
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
             dataitem(IntrastatJnlLine; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
                 RequestFilterFields = Type;
 
                 trigger OnAfterGetRecord()
@@ -219,22 +224,6 @@ report 593 "Intrastat - Make Declaration"
         IntrastatJnlBatch.Modify(true);
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
-    procedure InitializeRequest(newServerFileName: Text)
-    begin
-        IntrastatFileWriter.SetServerFileName(newServerFileName);
-    end;
-
-    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
-    procedure InitializeRequestWithExportFormat(newServerFileName: Text; NewExportFormat: Enum "Intrastat Export Format")
-    begin
-        IntrastatFileWriter.SetServerFileName(newServerFileName);
-        SpecifiedExportFormat := NewExportFormat;
-        ExportFormatIsSpecified := true;
-    end;
-#endif
-
     procedure InitializeRequest(var newResultFileOutStream: OutStream; NewExportFormat: Enum "Intrastat Export Format")
     begin
         IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
@@ -308,4 +297,4 @@ report 593 "Intrastat - Make Declaration"
         exit(Format(DecimalNumeral, 0, FormatText));
     end;
 }
-
+#endif

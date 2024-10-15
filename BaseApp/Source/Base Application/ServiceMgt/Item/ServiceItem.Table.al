@@ -1,3 +1,27 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.History;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Resources;
+using Microsoft.Service.Setup;
+using Microsoft.Utilities;
+using System.Utilities;
+
 table 5940 "Service Item"
 {
     Caption = 'Service Item';
@@ -182,7 +206,7 @@ table 5940 "Service Item"
         field(9; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
 
             trigger OnValidate()
             var
@@ -301,8 +325,8 @@ table 5940 "Service Item"
         field(11; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = IF ("Item No." = FILTER(<> '')) "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."))
-            ELSE
+            TableRelation = if ("Item No." = filter(<> '')) "Item Unit of Measure".Code where("Item No." = field("Item No."))
+            else
             "Unit of Measure";
         }
         field(12; "Location of Service Item"; Text[30])
@@ -538,8 +562,8 @@ table 5940 "Service Item"
         }
         field(28; "No. of Active Contracts"; Integer)
         {
-            CalcFormula = Count("Service Contract Line" WHERE("Service Item No." = FIELD("No."),
-                                                               "Contract Status" = FILTER(<> Cancelled)));
+            CalcFormula = count("Service Contract Line" where("Service Item No." = field("No."),
+                                                               "Contract Status" = filter(<> Cancelled)));
             Caption = 'No. of Active Contracts';
             FieldClass = FlowField;
         }
@@ -559,42 +583,42 @@ table 5940 "Service Item"
         }
         field(48; "Item Description"; Text[100])
         {
-            CalcFormula = Lookup(Item.Description WHERE("No." = FIELD("Item No.")));
+            CalcFormula = Lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Item Description';
             Editable = false;
             FieldClass = FlowField;
         }
         field(49; Name; Text[100])
         {
-            CalcFormula = Lookup(Customer.Name WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.Name where("No." = field("Customer No.")));
             Caption = 'Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(50; Address; Text[100])
         {
-            CalcFormula = Lookup(Customer.Address WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.Address where("No." = field("Customer No.")));
             Caption = 'Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(51; "Address 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Address 2" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Address 2" where("No." = field("Customer No.")));
             Caption = 'Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(52; "Post Code"; Code[20])
         {
-            CalcFormula = Lookup(Customer."Post Code" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Post Code" where("No." = field("Customer No.")));
             Caption = 'Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(53; City; Text[30])
         {
-            CalcFormula = Lookup(Customer.City WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.City where("No." = field("Customer No.")));
             Caption = 'City';
             Editable = false;
             FieldClass = FlowField;
@@ -603,14 +627,14 @@ table 5940 "Service Item"
         }
         field(54; Contact; Text[100])
         {
-            CalcFormula = Lookup(Customer.Contact WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.Contact where("No." = field("Customer No.")));
             Caption = 'Contact';
             Editable = false;
             FieldClass = FlowField;
         }
         field(55; "Phone No."; Text[30])
         {
-            CalcFormula = Lookup(Customer."Phone No." WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Phone No." where("No." = field("Customer No.")));
             Caption = 'Phone No.';
             Editable = false;
             ExtendedDatatype = PhoneNo;
@@ -618,40 +642,40 @@ table 5940 "Service Item"
         }
         field(56; "Ship-to Name"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Name WHERE("Customer No." = FIELD("Customer No."),
-                                                               Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address".Name where("Customer No." = field("Customer No."),
+                                                               Code = field("Ship-to Code")));
             Caption = 'Ship-to Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(57; "Ship-to Address"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Address WHERE("Customer No." = FIELD("Customer No."),
-                                                                  Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address".Address where("Customer No." = field("Customer No."),
+                                                                  Code = field("Ship-to Code")));
             Caption = 'Ship-to Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(58; "Ship-to Address 2"; Text[50])
         {
-            CalcFormula = Lookup("Ship-to Address"."Address 2" WHERE("Customer No." = FIELD("Customer No."),
-                                                                      Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address"."Address 2" where("Customer No." = field("Customer No."),
+                                                                      Code = field("Ship-to Code")));
             Caption = 'Ship-to Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(59; "Ship-to Post Code"; Code[20])
         {
-            CalcFormula = Lookup("Ship-to Address"."Post Code" WHERE("Customer No." = FIELD("Customer No."),
-                                                                      Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address"."Post Code" where("Customer No." = field("Customer No."),
+                                                                      Code = field("Ship-to Code")));
             Caption = 'Ship-to Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(60; "Ship-to City"; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address".City WHERE("Customer No." = FIELD("Customer No."),
-                                                               Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address".City where("Customer No." = field("Customer No."),
+                                                               Code = field("Ship-to Code")));
             Caption = 'Ship-to City';
             Editable = false;
             FieldClass = FlowField;
@@ -660,16 +684,16 @@ table 5940 "Service Item"
         }
         field(61; "Ship-to Contact"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Contact WHERE("Customer No." = FIELD("Customer No."),
-                                                                  Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address".Contact where("Customer No." = field("Customer No."),
+                                                                  Code = field("Ship-to Code")));
             Caption = 'Ship-to Contact';
             Editable = false;
             FieldClass = FlowField;
         }
         field(62; "Ship-to Phone No."; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address"."Phone No." WHERE("Customer No." = FIELD("Customer No."),
-                                                                      Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address"."Phone No." where("Customer No." = field("Customer No."),
+                                                                      Code = field("Ship-to Code")));
             Caption = 'Ship-to Phone No.';
             Editable = false;
             ExtendedDatatype = PhoneNo;
@@ -678,12 +702,12 @@ table 5940 "Service Item"
         field(63; "Usage (Cost)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Service Ledger Entry"."Cost Amount" WHERE("Entry Type" = CONST(Usage),
-                                                                          "Service Item No. (Serviced)" = FIELD("No."),
-                                                                          "Service Contract No." = FIELD("Contract Filter"),
-                                                                          "Service Order No." = FIELD("Service Order Filter"),
-                                                                          Type = FIELD("Type Filter"),
-                                                                          "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("Service Ledger Entry"."Cost Amount" where("Entry Type" = const(Usage),
+                                                                          "Service Item No. (Serviced)" = field("No."),
+                                                                          "Service Contract No." = field("Contract Filter"),
+                                                                          "Service Order No." = field("Service Order Filter"),
+                                                                          Type = field("Type Filter"),
+                                                                          "Posting Date" = field("Date Filter")));
             Caption = 'Usage (Cost)';
             Editable = false;
             FieldClass = FlowField;
@@ -691,12 +715,12 @@ table 5940 "Service Item"
         field(64; "Usage (Amount)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Service Ledger Entry"."Amount (LCY)" WHERE("Entry Type" = CONST(Usage),
-                                                                           "Service Item No. (Serviced)" = FIELD("No."),
-                                                                           "Service Contract No." = FIELD("Contract Filter"),
-                                                                           "Service Order No." = FIELD("Service Order Filter"),
-                                                                           Type = FIELD("Type Filter"),
-                                                                           "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("Service Ledger Entry"."Amount (LCY)" where("Entry Type" = const(Usage),
+                                                                           "Service Item No. (Serviced)" = field("No."),
+                                                                           "Service Contract No." = field("Contract Filter"),
+                                                                           "Service Order No." = field("Service Order Filter"),
+                                                                           Type = field("Type Filter"),
+                                                                           "Posting Date" = field("Date Filter")));
             Caption = 'Usage (Amount)';
             Editable = false;
             FieldClass = FlowField;
@@ -704,26 +728,26 @@ table 5940 "Service Item"
         field(65; "Invoiced Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Service Ledger Entry"."Amount (LCY)" WHERE("Entry Type" = CONST(Sale),
-                                                                            "Moved from Prepaid Acc." = CONST(true),
-                                                                            "Service Item No. (Serviced)" = FIELD("No."),
-                                                                            "Service Contract No." = FIELD("Contract Filter"),
-                                                                            "Service Order No." = FIELD("Service Order Filter"),
-                                                                            Type = FIELD("Type Filter"),
-                                                                            "Posting Date" = FIELD("Date Filter"),
-                                                                            Open = CONST(false)));
+            CalcFormula = - sum("Service Ledger Entry"."Amount (LCY)" where("Entry Type" = const(Sale),
+                                                                            "Moved from Prepaid Acc." = const(true),
+                                                                            "Service Item No. (Serviced)" = field("No."),
+                                                                            "Service Contract No." = field("Contract Filter"),
+                                                                            "Service Order No." = field("Service Order Filter"),
+                                                                            Type = field("Type Filter"),
+                                                                            "Posting Date" = field("Date Filter"),
+                                                                            Open = const(false)));
             Caption = 'Invoiced Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(66; "Total Quantity"; Decimal)
         {
-            CalcFormula = Sum("Service Ledger Entry".Quantity WHERE("Entry Type" = CONST(Usage),
-                                                                     "Service Item No. (Serviced)" = FIELD("No."),
-                                                                     "Service Contract No." = FIELD("Contract Filter"),
-                                                                     "Service Order No." = FIELD("Service Order Filter"),
-                                                                     Type = FIELD("Type Filter"),
-                                                                     "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = sum("Service Ledger Entry".Quantity where("Entry Type" = const(Usage),
+                                                                     "Service Item No. (Serviced)" = field("No."),
+                                                                     "Service Contract No." = field("Contract Filter"),
+                                                                     "Service Order No." = field("Service Order Filter"),
+                                                                     Type = field("Type Filter"),
+                                                                     "Posting Date" = field("Date Filter")));
             Caption = 'Total Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -731,12 +755,12 @@ table 5940 "Service Item"
         }
         field(67; "Total Qty. Invoiced"; Decimal)
         {
-            CalcFormula = - Sum("Service Ledger Entry"."Charged Qty." WHERE("Entry Type" = CONST(Sale),
-                                                                            "Service Item No. (Serviced)" = FIELD("No."),
-                                                                            "Service Contract No." = FIELD("Contract Filter"),
-                                                                            "Service Order No." = FIELD("Service Order Filter"),
-                                                                            Type = FIELD("Type Filter"),
-                                                                            "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = - sum("Service Ledger Entry"."Charged Qty." where("Entry Type" = const(Sale),
+                                                                            "Service Item No. (Serviced)" = field("No."),
+                                                                            "Service Contract No." = field("Contract Filter"),
+                                                                            "Service Order No." = field("Service Order Filter"),
+                                                                            Type = field("Type Filter"),
+                                                                            "Posting Date" = field("Date Filter")));
             Caption = 'Total Qty. Invoiced';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -745,10 +769,10 @@ table 5940 "Service Item"
         field(68; "Resources Used"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Service Ledger Entry"."Cost Amount" WHERE("Service Item No. (Serviced)" = FIELD("No."),
-                                                                           "Entry Type" = CONST(Sale),
-                                                                           Type = CONST(Resource),
-                                                                           "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = - sum("Service Ledger Entry"."Cost Amount" where("Service Item No. (Serviced)" = field("No."),
+                                                                           "Entry Type" = const(Sale),
+                                                                           Type = const(Resource),
+                                                                           "Posting Date" = field("Date Filter")));
             Caption = 'Resources Used';
             Editable = false;
             FieldClass = FlowField;
@@ -756,10 +780,10 @@ table 5940 "Service Item"
         field(69; "Parts Used"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Service Ledger Entry"."Cost Amount" WHERE("Service Item No. (Serviced)" = FIELD("No."),
-                                                                           "Entry Type" = CONST(Sale),
-                                                                           Type = CONST(Item),
-                                                                           "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = - sum("Service Ledger Entry"."Cost Amount" where("Service Item No. (Serviced)" = field("No."),
+                                                                           "Entry Type" = const(Sale),
+                                                                           Type = const(Item),
+                                                                           "Posting Date" = field("Date Filter")));
             Caption = 'Parts Used';
             Editable = false;
             FieldClass = FlowField;
@@ -767,17 +791,17 @@ table 5940 "Service Item"
         field(70; "Cost Used"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Service Ledger Entry"."Cost Amount" WHERE("Service Item No. (Serviced)" = FIELD("No."),
-                                                                           "Entry Type" = CONST(Sale),
-                                                                           Type = CONST("Service Cost"),
-                                                                           "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = - sum("Service Ledger Entry"."Cost Amount" where("Service Item No. (Serviced)" = field("No."),
+                                                                           "Entry Type" = const(Sale),
+                                                                           Type = const("Service Cost"),
+                                                                           "Posting Date" = field("Date Filter")));
             Caption = 'Cost Used';
             Editable = false;
             FieldClass = FlowField;
         }
         field(71; "Vendor Name"; Text[100])
         {
-            CalcFormula = Lookup(Vendor.Name WHERE("No." = FIELD("Vendor No.")));
+            CalcFormula = Lookup(Vendor.Name where("No." = field("Vendor No.")));
             Caption = 'Vendor Name';
             Editable = false;
             FieldClass = FlowField;
@@ -788,17 +812,17 @@ table 5940 "Service Item"
         }
         field(73; Comment; Boolean)
         {
-            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Item"),
-                                                              "Table Subtype" = CONST("0"),
-                                                              "No." = FIELD("No.")));
+            CalcFormula = exist("Service Comment Line" where("Table Name" = const("Service Item"),
+                                                              "Table Subtype" = const("0"),
+                                                              "No." = field("No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
         }
         field(74; "Service Item Components"; Boolean)
         {
-            CalcFormula = Exist("Service Item Component" WHERE("Parent Service Item No." = FIELD("No."),
-                                                                Active = CONST(true)));
+            CalcFormula = exist("Service Item Component" where("Parent Service Item No." = field("No."),
+                                                                Active = const(true)));
             Caption = 'Service Item Components';
             Editable = false;
             FieldClass = FlowField;
@@ -832,7 +856,7 @@ table 5940 "Service Item"
         field(76; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             begin
@@ -842,7 +866,7 @@ table 5940 "Service Item"
         }
         field(77; County; Text[30])
         {
-            CalcFormula = Lookup(Customer.County WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer.County where("No." = field("Customer No.")));
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
             Editable = false;
@@ -850,8 +874,8 @@ table 5940 "Service Item"
         }
         field(78; "Ship-to County"; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address".County WHERE("Customer No." = FIELD("Customer No."),
-                                                                 Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address".County where("Customer No." = field("Customer No."),
+                                                                 Code = field("Ship-to Code")));
             CaptionClass = '5,1,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
             Editable = false;
@@ -859,41 +883,41 @@ table 5940 "Service Item"
         }
         field(79; "Contract Cost"; Decimal)
         {
-            CalcFormula = - Sum("Service Ledger Entry"."Cost Amount" WHERE("Entry Type" = CONST(Sale),
-                                                                           "Service Item No. (Serviced)" = FIELD("No."),
-                                                                           "Service Contract No." = FIELD("Contract Filter"),
-                                                                           "Service Order No." = FIELD("Service Order Filter"),
-                                                                           Type = CONST("Service Contract"),
-                                                                           "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = - sum("Service Ledger Entry"."Cost Amount" where("Entry Type" = const(Sale),
+                                                                           "Service Item No. (Serviced)" = field("No."),
+                                                                           "Service Contract No." = field("Contract Filter"),
+                                                                           "Service Order No." = field("Service Order Filter"),
+                                                                           Type = const("Service Contract"),
+                                                                           "Posting Date" = field("Date Filter")));
             Caption = 'Contract Cost';
             FieldClass = FlowField;
         }
         field(81; "Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup(Customer."Country/Region Code" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Country/Region Code" where("No." = field("Customer No.")));
             Caption = 'Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(82; "Ship-to Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup("Ship-to Address"."Country/Region Code" WHERE("Customer No." = FIELD("Customer No."),
-                                                                                Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address"."Country/Region Code" where("Customer No." = field("Customer No."),
+                                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(83; "Name 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Name 2" WHERE("No." = FIELD("Customer No.")));
+            CalcFormula = Lookup(Customer."Name 2" where("No." = field("Customer No.")));
             Caption = 'Name 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(84; "Ship-to Name 2"; Text[50])
         {
-            CalcFormula = Lookup("Ship-to Address"."Name 2" WHERE("Customer No." = FIELD("Customer No."),
-                                                                   Code = FIELD("Ship-to Code")));
+            CalcFormula = Lookup("Ship-to Address"."Name 2" where("Customer No." = field("Customer No."),
+                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Name 2';
             Editable = false;
             FieldClass = FlowField;
@@ -912,14 +936,14 @@ table 5940 "Service Item"
         field(87; "Prepaid Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum("Service Ledger Entry"."Amount (LCY)" WHERE("Entry Type" = CONST(Sale),
-                                                                            "Moved from Prepaid Acc." = CONST(false),
-                                                                            "Service Item No. (Serviced)" = FIELD("No."),
-                                                                            "Service Contract No." = FIELD("Contract Filter"),
-                                                                            "Service Order No." = FIELD("Service Order Filter"),
-                                                                            Type = FIELD("Type Filter"),
-                                                                            "Posting Date" = FIELD("Date Filter"),
-                                                                            Open = CONST(false)));
+            CalcFormula = - sum("Service Ledger Entry"."Amount (LCY)" where("Entry Type" = const(Sale),
+                                                                            "Moved from Prepaid Acc." = const(false),
+                                                                            "Service Item No. (Serviced)" = field("No."),
+                                                                            "Service Contract No." = field("Contract Filter"),
+                                                                            "Service Order No." = field("Service Order Filter"),
+                                                                            Type = field("Type Filter"),
+                                                                            "Posting Date" = field("Date Filter"),
+                                                                            Open = const(false)));
             Caption = 'Prepaid Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -930,19 +954,19 @@ table 5940 "Service Item"
         }
         field(89; "Service Contracts"; Boolean)
         {
-            CalcFormula = Exist("Service Contract Line" WHERE("Service Item No." = FIELD("No.")));
+            CalcFormula = exist("Service Contract Line" where("Service Item No." = field("No.")));
             Caption = 'Service Contracts';
             Editable = false;
             FieldClass = FlowField;
         }
         field(90; "Total Qty. Consumed"; Decimal)
         {
-            CalcFormula = - Sum("Service Ledger Entry".Quantity WHERE("Entry Type" = CONST(Consume),
-                                                                      "Service Item No. (Serviced)" = FIELD("No."),
-                                                                      "Service Contract No." = FIELD("Contract Filter"),
-                                                                      "Service Order No." = FIELD("Service Order Filter"),
-                                                                      Type = FIELD("Type Filter"),
-                                                                      "Posting Date" = FIELD("Date Filter")));
+            CalcFormula = - sum("Service Ledger Entry".Quantity where("Entry Type" = const(Consume),
+                                                                      "Service Item No. (Serviced)" = field("No."),
+                                                                      "Service Contract No." = field("Contract Filter"),
+                                                                      "Service Order No." = field("Service Order Filter"),
+                                                                      Type = field("Type Filter"),
+                                                                      "Posting Date" = field("Date Filter")));
             Caption = 'Total Qty. Consumed';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -962,7 +986,7 @@ table 5940 "Service Item"
         {
             Caption = 'Contract Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Contract));
+            TableRelation = "Service Contract Header"."Contract No." where("Contract Type" = const(Contract));
         }
         field(103; "Service Order Filter"; Code[20])
         {
@@ -973,22 +997,20 @@ table 5940 "Service Item"
         field(104; "Sales/Serv. Shpt. Document No."; Code[20])
         {
             Caption = 'Sales/Serv. Shpt. Document No.';
-            TableRelation = IF ("Shipment Type" = CONST(Sales)) "Sales Shipment Line"."Document No."
-            ELSE
-            IF ("Shipment Type" = CONST(Service)) "Service Shipment Line"."Document No.";
+            TableRelation = if ("Shipment Type" = const(Sales)) "Sales Shipment Line"."Document No."
+            else
+            if ("Shipment Type" = const(Service)) "Service Shipment Line"."Document No.";
         }
         field(105; "Sales/Serv. Shpt. Line No."; Integer)
         {
             Caption = 'Sales/Serv. Shpt. Line No.';
-            TableRelation = IF ("Shipment Type" = CONST(Sales)) "Sales Shipment Line"."Line No." WHERE("Document No." = FIELD("Sales/Serv. Shpt. Document No."))
-            ELSE
-            IF ("Shipment Type" = CONST(Service)) "Service Shipment Line"."Line No." WHERE("Document No." = FIELD("Sales/Serv. Shpt. Document No."));
+            TableRelation = if ("Shipment Type" = const(Sales)) "Sales Shipment Line"."Line No." where("Document No." = field("Sales/Serv. Shpt. Document No."))
+            else
+            if ("Shipment Type" = const(Service)) "Service Shipment Line"."Line No." where("Document No." = field("Sales/Serv. Shpt. Document No."));
         }
-        field(106; "Shipment Type"; Option)
+        field(106; "Shipment Type"; Enum "Service Item Shipment Type")
         {
             Caption = 'Shipment Type';
-            OptionCaption = 'Sales,Service';
-            OptionMembers = Sales,Service;
         }
     }
 

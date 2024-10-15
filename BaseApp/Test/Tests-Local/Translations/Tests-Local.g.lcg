@@ -1501,7 +1501,7 @@
   </Item>
   <Item ItemId=";Codeunit 767305352 - NamedType 2036698610" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Purchase - Corrective invoice]]></Val>
+      <Val><![CDATA[Purchase - Corrective invoice ]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

@@ -9,7 +9,7 @@ report 134301 "Workflow Event Advanced Args"
             RequestFilterFields = "Buy-from Vendor No.", "Document Date", Amount;
             dataitem("Purchase Line"; "Purchase Line")
             {
-                DataItemLink = "Document Type" = FIELD("Document Type"), "Buy-from Vendor No." = FIELD("Buy-from Vendor No."), "Document No." = FIELD("No.");
+                DataItemLink = "Document Type" = field("Document Type"), "Buy-from Vendor No." = field("Buy-from Vendor No."), "Document No." = field("No.");
                 RequestFilterFields = Type, "No.", "Unit Cost";
             }
         }

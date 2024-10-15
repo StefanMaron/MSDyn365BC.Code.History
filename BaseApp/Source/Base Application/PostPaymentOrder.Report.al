@@ -13,11 +13,11 @@ report 7000080 "Post Payment Order"
     {
         dataitem(PmtOrd; "Payment Order")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             dataitem("Cartera Doc."; "Cartera Doc.")
             {
-                DataItemLink = "Bill Gr./Pmt. Order No." = FIELD("No.");
-                DataItemTableView = SORTING(Type, "Collection Agent", "Bill Gr./Pmt. Order No.") WHERE("Collection Agent" = CONST(Bank), Type = CONST(Payable));
+                DataItemLink = "Bill Gr./Pmt. Order No." = field("No.");
+                DataItemTableView = sorting(Type, "Collection Agent", "Bill Gr./Pmt. Order No.") where("Collection Agent" = const(Bank), Type = const(Payable));
 
                 trigger OnAfterGetRecord()
                 begin
@@ -266,8 +266,8 @@ report 7000080 "Post Payment Order"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Aux. Jnl. Template Name';
-                        TableRelation = "Gen. Journal Template".Name WHERE(Type = CONST(Cartera),
-                                                                            Recurring = CONST(false));
+                        TableRelation = "Gen. Journal Template".Name where(Type = const(Cartera),
+                                                                            Recurring = const(false));
                         ToolTip = 'Specifies the name of general journal template where the payment order is posted.';
 
                         trigger OnValidate()

@@ -1,4 +1,14 @@
-﻿xmlport 10700 "Hist. Consolid. Import/Export"
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Ledger;
+
+xmlport 10700 "Hist. Consolid. Import/Export"
 {
     Caption = 'Hist. Consolid. Import/Export';
     FormatEvaluate = Xml;
@@ -64,7 +74,7 @@
                 {
                     MinOccurs = Zero;
                     XmlName = 'exchRate';
-                    SourceTableView = SORTING("Currency Code", "Starting Date");
+                    SourceTableView = sorting("Currency Code", "Starting Date");
                     UseTemporary = true;
                     fieldattribute(currencyCode; "Currency Exchange Rate"."Currency Code")
                     {
@@ -92,7 +102,7 @@
                 tableelement("historic g/l account"; "Historic G/L Account")
                 {
                     XmlName = 'historicGLAccount';
-                    SourceTableView = SORTING("No.");
+                    SourceTableView = sorting("No.");
                     UseTemporary = true;
                     fieldattribute(no; "Historic G/L Account"."No.")
                     {
@@ -110,11 +120,11 @@
                     }
                     tableelement("G/L Entry"; "G/L Entry")
                     {
-                        LinkFields = "G/L Account No." = FIELD("No.");
+                        LinkFields = "G/L Account No." = field("No.");
                         LinkTable = "Historic G/L Account";
                         MinOccurs = Zero;
                         XmlName = 'glEntry';
-                        SourceTableView = SORTING("G/L Account No.", "Posting Date");
+                        SourceTableView = sorting("G/L Account No.", "Posting Date");
                         UseTemporary = true;
                         fieldattribute(postingDate; "G/L Entry"."Posting Date")
                         {
@@ -137,11 +147,11 @@
                         }
                         tableelement("Dimension Set Entry"; "Dimension Set Entry")
                         {
-                            LinkFields = "Dimension Set ID" = FIELD("Dimension Set ID");
+                            LinkFields = "Dimension Set ID" = field("Dimension Set ID");
                             LinkTable = "G/L Entry";
                             MinOccurs = Zero;
                             XmlName = 'dimension';
-                            SourceTableView = SORTING("Dimension Set ID", "Dimension Code");
+                            SourceTableView = sorting("Dimension Set ID", "Dimension Code");
                             UseTemporary = true;
                             fieldattribute(code; "Dimension Set Entry"."Dimension Code")
                             {

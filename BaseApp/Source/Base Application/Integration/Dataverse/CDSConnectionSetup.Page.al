@@ -1,3 +1,18 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Dataverse;
+
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.SyncEngine;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Security.Authentication;
+using System.Security.Encryption;
+using System.Telemetry;
+using System.Threading;
+
 page 7200 "CDS Connection Setup"
 {
     AccessByPermission = TableData "CDS Connection Setup" = IM;
@@ -28,7 +43,7 @@ page 7200 "CDS Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        if "Server Address" <> xRec."Server Address" then
+                        if Rec."Server Address" <> xRec."Server Address" then
                             InitializeDefaultBusinessUnit();
                     end;
 
@@ -38,7 +53,7 @@ page 7200 "CDS Connection Setup"
                     begin
                         CDSEnvironment.SelectTenantEnvironment(Rec, CDSEnvironment.GetGlobalDiscoverabilityToken(), false);
 
-                        if "Server Address" <> xRec."Server Address" then
+                        if Rec."Server Address" <> xRec."Server Address" then
                             InitializeDefaultBusinessUnit();
 
                         CurrPage.Update();
@@ -61,11 +76,11 @@ page 7200 "CDS Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        if not IsTemporary() then
+                        if not Rec.IsTemporary() then
                             if (UserPassword <> '') and (not EncryptionEnabled()) then
                                 if Confirm(EncryptionIsNotActivatedQst) then
                                     PAGE.RunModal(PAGE::"Data Encryption Management");
-                        SetPassword(UserPassword);
+                        Rec.SetPassword(UserPassword);
                     end;
                 }
                 field("Client Id"; Rec."Client Id")
@@ -73,7 +88,7 @@ page 7200 "CDS Connection Setup"
                     ApplicationArea = Suite;
                     Editable = IsEditable;
                     Visible = IsClientIdClientSecretVisible;
-                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the ID of the Microsoft Entra application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Microsoft Entra are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
                 field("Client Secret"; ClientSecret)
                 {
@@ -82,15 +97,15 @@ page 7200 "CDS Connection Setup"
                     Editable = IsEditable;
                     Visible = IsClientIdClientSecretVisible;
                     ExtendedDatatype = Masked;
-                    ToolTip = 'Specifies the secret of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the secret of the Microsoft Entra application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Microsoft Entra are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
 
                     trigger OnValidate()
                     begin
-                        if not IsTemporary() then
+                        if not Rec.IsTemporary() then
                             if (ClientSecret <> '') and (not EncryptionEnabled()) then
                                 if Confirm(EncryptionIsNotActivatedQst) then
                                     PAGE.RunModal(PAGE::"Data Encryption Management");
-                        SetClientSecret(ClientSecret);
+                        Rec.SetClientSecret(ClientSecret);
                     end;
                 }
                 field("Redirect URL"; Rec."Redirect URL")
@@ -98,7 +113,7 @@ page 7200 "CDS Connection Setup"
                     ApplicationArea = Suite;
                     Editable = IsEditable;
                     Visible = IsClientIdClientSecretVisible;
-                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory app registration that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the Redirect URL of the Microsoft Entra app registration that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Microsoft Entra are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
                 field("SDK Version"; Rec."Proxy Version")
                 {
@@ -128,14 +143,20 @@ page 7200 "CDS Connection Setup"
                         CRMIntegrationRecord: Record "CRM Integration Record";
                         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
                         FeatureTelemetry: Codeunit "Feature Telemetry";
+                        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
                     begin
                         RefreshStatuses := true;
                         CurrPage.Update(true);
-                        if "Is Enabled" then begin
+                        if Rec."Is Enabled" then begin
                             FeatureTelemetry.LogUptake('0000H7J', 'Dataverse', Enum::"Feature Uptake Status"::"Set up");
                             FeatureTelemetry.LogUptake('0000IIM', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CDE', CDSConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                            if "Ownership Model" = "Ownership Model"::Person then
+
+                            if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
+                                if CDSIntegrationImpl.MultipleCompaniesConnected() then
+                                    CDSIntegrationImpl.SendMultipleCompaniesNotification();
+
+                            if Rec."Ownership Model" = Rec."Ownership Model"::Person then
                                 if Confirm(DoYouWantToMakeSalesPeopleMappingQst, true) then
                                     CDSSetupDefaults.RunCoupleSalespeoplePage();
                         end else begin
@@ -174,7 +195,7 @@ page 7200 "CDS Connection Setup"
             group(Status)
             {
                 Caption = 'Integration Solution Settings';
-                Visible = "Is Enabled";
+                Visible = Rec."Is Enabled";
                 field("CDS Version"; CDSVersion)
                 {
                     ApplicationArea = Suite;
@@ -275,7 +296,7 @@ page 7200 "CDS Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        CDSIntegrationImpl.SetConnectionString(Rec, "Connection String");
+                        CDSIntegrationImpl.SetConnectionString(Rec, Rec."Connection String");
                     end;
                 }
             }
@@ -327,7 +348,7 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Assisted Setup';
                 Image = Setup;
-                Enabled = (not "Is Enabled") or (not BusinessEventsEnabled);
+                Enabled = (not Rec."Is Enabled") or (not BusinessEventsEnabled);
                 ToolTip = 'Start the Dataverse Connection Setup guide.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
@@ -372,15 +393,15 @@ page 7200 "CDS Connection Setup"
                     CRMConnectionSetup: Record "CRM Connection Setup";
                     CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
                 begin
-                    TempCDSConnectionSetup."Server Address" := "Server Address";
-                    TempCDSConnectionSetup."User Name" := "User Name";
+                    TempCDSConnectionSetup."Server Address" := Rec."Server Address";
+                    TempCDSConnectionSetup."User Name" := Rec."User Name";
                     TempCDSConnectionSetup."Proxy Version" := CDSIntegrationImpl.GetLastProxyVersionItem();
                     TempCDSConnectionSetup."Authentication Type" := TempCDSConnectionSetup."Authentication Type"::Office365;
                     TempCDSConnectionSetup.Insert();
 
                     CDSIntegrationImpl.SetupCertificateAuthentication(TempCDSConnectionSetup);
 
-                    if (TempCDSConnectionSetup."Connection String".IndexOf('{CERTIFICATE}') > 0) and (TempCDSConnectionSetup."User Name" <> "User Name") then begin
+                    if (TempCDSConnectionSetup."Connection String".IndexOf('{CERTIFICATE}') > 0) and (TempCDSConnectionSetup."User Name" <> Rec."User Name") then begin
                         if CRMConnectionSetup.IsEnabled() then begin
                             CRMConnectionSetup."User Name" := TempCDSConnectionSetup."User Name";
                             CRMConnectionSetup.SetPassword('');
@@ -388,14 +409,14 @@ page 7200 "CDS Connection Setup"
                             CRMConnectionSetup.SetConnectionString(TempCDSConnectionSetup."Connection String");
                         end;
 
-                        "User Name" := TempCDSConnectionSetup."User Name";
-                        SetPassword('');
-                        "Proxy Version" := TempCDSConnectionSetup."Proxy Version";
-                        "Connection String" := TempCDSConnectionSetup."Connection String";
-                        Modify();
+                        Rec."User Name" := TempCDSConnectionSetup."User Name";
+                        Rec.SetPassword('');
+                        Rec."Proxy Version" := TempCDSConnectionSetup."Proxy Version";
+                        Rec."Connection String" := TempCDSConnectionSetup."Connection String";
+                        Rec.Modify();
                         CurrPage.Update(false);
                         Session.LogMessage('0000FB4', CertificateConnectionSetupTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                        Message(StrSubstNo(CertificateConnectionSetupMsg, "User Name"));
+                        Message(StrSubstNo(CertificateConnectionSetupMsg, Rec."User Name"));
                     end;
                 end;
             }
@@ -403,7 +424,7 @@ page 7200 "CDS Connection Setup"
             {
                 ApplicationArea = Suite;
                 Caption = 'Use Default Synchronization Setup';
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 Image = ResetStatus;
                 ToolTip = 'Resets the integration table mappings and synchronization jobs to the default values for a connection with Dataverse. All current mappings are deleted.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
@@ -422,7 +443,7 @@ page 7200 "CDS Connection Setup"
             {
                 ApplicationArea = Suite;
                 Caption = 'Couple Salespersons';
-                Enabled = "Is Enabled" and ("Ownership Model" = "Ownership Model"::Person);
+                Enabled = Rec."Is Enabled" and (Rec."Ownership Model" = Rec."Ownership Model"::Person);
                 Image = CoupledUsers;
                 ToolTip = 'Open the list of users in Dataverse to manually couple them with salespersons in Business Central.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
@@ -438,7 +459,7 @@ page 7200 "CDS Connection Setup"
             {
                 ApplicationArea = Suite;
                 Caption = 'Add Coupled Users to Team';
-                Enabled = "Is Enabled" and ("Ownership Model" = "Ownership Model"::Person);
+                Enabled = Rec."Is Enabled" and (Rec."Ownership Model" = Rec."Ownership Model"::Person);
                 Image = LinkAccount;
                 ToolTip = 'Add the coupled Dataverse users to the default owning team.';
 
@@ -454,7 +475,7 @@ page 7200 "CDS Connection Setup"
             {
                 ApplicationArea = Suite;
                 Caption = 'Run Full Synchronization';
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 Image = RefreshLines;
                 ToolTip = 'Start all of the default integration jobs for synchronizing Business Central record types and Dataverse tables. Data is synchronized according to the mappings defined on the Integration Table Mappings page.';
 
@@ -467,7 +488,7 @@ page 7200 "CDS Connection Setup"
             {
                 ApplicationArea = Suite;
                 Caption = 'Synchronize Modified Records';
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 Image = Refresh;
                 ToolTip = 'Synchronize records that have been modified since the last time they were synchronized.';
 
@@ -478,7 +499,7 @@ page 7200 "CDS Connection Setup"
                     if not Confirm(SynchronizeModifiedQst) then
                         exit;
 
-                    SynchronizeNow(false);
+                    Rec.SynchronizeNow(false);
                     Message(SyncNowScheduledMsg, IntegrationSynchJobList.Caption());
                 end;
             }
@@ -550,7 +571,7 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Redeploy Integration Solution';
                 Image = Setup;
-                Enabled = not "Is Enabled";
+                Enabled = not Rec."Is Enabled";
                 ToolTip = 'Redeploy and reconfigure the base integration solution.';
 
                 trigger OnAction()
@@ -573,7 +594,7 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Integration Solutions';
                 Image = UserSetup;
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 ToolTip = 'View the integration solutions that help business apps synchronize data with Business Central through Dataverse.';
 
                 trigger OnAction()
@@ -587,7 +608,7 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Integration User Roles';
                 Image = UserSetup;
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 ToolTip = 'View the roles assigned to the integration user. The integration user is the user account in Dataverse that business apps use to synchronize data with Business Central through Dataverse.';
 
                 trigger OnAction()
@@ -601,7 +622,7 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Owning Team Roles';
                 Image = UserSetup;
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 ToolTip = 'View the roles assigned to the team in Dataverse that owns the coupled entities. This requires that you are using the Team ownership model.';
 
                 trigger OnAction()
@@ -615,7 +636,7 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Dataverse Integration User';
                 Image = UserSetup;
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 ToolTip = 'Open the Dataverse integration user.';
 
                 trigger OnAction()
@@ -628,7 +649,7 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Dataverse Owning Team';
                 Image = UserSetup;
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 ToolTip = 'Open the Dataverse owning team.';
 
                 trigger OnAction()
@@ -652,7 +673,7 @@ page 7200 "CDS Connection Setup"
             {
                 ApplicationArea = Suite;
                 Caption = 'Skipped Synch. Records';
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 Image = NegativeLines;
                 RunObject = Page "CRM Skipped Records";
                 RunPageMode = View;
@@ -681,7 +702,7 @@ page 7200 "CDS Connection Setup"
             {
                 ApplicationArea = Suite;
                 Caption = 'Integration Table Mappings';
-                Enabled = "Is Enabled";
+                Enabled = Rec."Is Enabled";
                 Image = MapAccounts;
                 ToolTip = 'View the list of integration table mappings.';
 
@@ -722,23 +743,16 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Available Virtual Tables';
                 Image = Setup;
                 Enabled = BusinessEventsSupported and IsConfigIdSpecified;
-                ToolTip = 'View the virtual tables in your Dataverse environment. You can specify which tables are visible.';
-
-                trigger OnAction()
-                var
-                    EntityListUrl: Text;
-                begin
-                    EntityListUrl := CDSIntegrationImpl.GetCRMEntityListUrl(Rec, VirtualTableEntityNameTxt);
-                    Hyperlink(EntityListUrl);
-                end;
+                ToolTip = 'View the available virtual tables. You can specify which tables are visible.';
+                RunObject = Page "CDS Available Virtual Tables";
             }
             action("Virtual Tables AAD app")
             {
                 ApplicationArea = Suite;
-                Caption = 'Virtual Tables AAD App';
+                Caption = 'Virtual Tables App';
                 Image = Setup;
                 Enabled = BusinessEventsSupported;
-                ToolTip = 'Open the Azure Active Directory Application page to view settings for the application registration for the Business Central Virtual Table app. The application registration is required for using Business Central virtual tables in your Dataverse environment.';
+                ToolTip = 'Open the Microsoft Entra Application page to view settings for the application registration for the Business Central Virtual Table app. The application registration is required for using Business Central virtual tables in your Dataverse environment.';
 
                 trigger OnAction()
                 var
@@ -889,19 +903,19 @@ page 7200 "CDS Connection Setup"
     begin
         FeatureTelemetry.LogUptake('0000H7K', 'Dataverse', Enum::"Feature Uptake Status"::Discovered);
         FeatureTelemetry.LogUptake('0000IIN', 'Dataverse Base Entities', Enum::"Feature Uptake Status"::Discovered);
-        if not Get() then begin
-            Init();
+        if not Rec.Get() then begin
+            Rec.Init();
             InitializeDefaultAuthenticationType();
             InitializeDefaultProxyVersion();
             InitializeDefaultOwnershipModel();
             InitializeDefaultBusinessUnit();
             InitializeDefaultRedirectUrl();
-            Insert();
-            LoadConnectionStringElementsFromCRMConnectionSetup();
+            Rec.Insert();
+            Rec.LoadConnectionStringElementsFromCRMConnectionSetup();
         end else begin
-            UserPassword := GetPassword();
-            ClientSecret := GetClientSecret();
-            if "Redirect URL" = '' then
+            UserPassword := Rec.GetPassword();
+            ClientSecret := Rec.GetClientSecret();
+            if Rec."Redirect URL" = '' then
                 InitializeDefaultRedirectUrl();
             if (not IsValidAuthenticationType()) or (not IsValidProxyVersion()) or (not IsValidOwnershipModel() or (not IsValidBusinessUnit())) then begin
                 CDSIntegrationImpl.UnregisterConnection();
@@ -913,15 +927,18 @@ page 7200 "CDS Connection Setup"
                     InitializeDefaultOwnershipModel();
                 if not IsValidBusinessUnit() then
                     InitializeDefaultBusinessUnit();
-                Modify();
+                Rec.Modify();
             end;
-            LoadConnectionStringElementsFromCRMConnectionSetup();
-            if "Is Enabled" then
-                CDSIntegrationImpl.RegisterConnection(Rec, true)
-            else begin
+            Rec.LoadConnectionStringElementsFromCRMConnectionSetup();
+            if Rec."Is Enabled" then begin
+                CDSIntegrationImpl.RegisterConnection(Rec, true);
+                if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
+                    if CDSIntegrationImpl.MultipleCompaniesConnected() then
+                        CDSIntegrationImpl.SendMultipleCompaniesNotification()
+            end else begin
                 CDSIntegrationImpl.UnregisterConnection();
-                if "Disable Reason" <> '' then
-                    CDSIntegrationImpl.SendConnectionDisabledNotification("Disable Reason");
+                if Rec."Disable Reason" <> '' then
+                    CDSIntegrationImpl.SendConnectionDisabledNotification(Rec."Disable Reason");
             end;
         end;
         BusinessEventsEnabled := Rec."Business Events Enabled";
@@ -930,7 +947,7 @@ page 7200 "CDS Connection Setup"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if not "Is Enabled" then
+        if not Rec."Is Enabled" then
             if not Confirm(StrSubstNo(EnableServiceQst, CurrPage.Caption()), true) then
                 exit(false);
     end;
@@ -947,7 +964,6 @@ page 7200 "CDS Connection Setup"
 #if not CLEAN23
         JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
 #endif
-        VirtualTableEntityNameTxt: Label 'mserp_businesscentralentity', Locked = true;
         ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Dataverse. All customizations to mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?';
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Dataverse Connection Setup)';
@@ -985,6 +1001,7 @@ page 7200 "CDS Connection Setup"
 #endif
         CertificateConnectionSetupTelemetryMsg: Label 'User has successfully set up the certificate connection to Dataverse.', Locked = true;
         CertificateConnectionSetupMsg: Label 'You have successfully upgraded the connection to Dataverse to use certificate-based OAuth 2.0 service-to-service authentication. Business Central has auto-generated a new integration user with user name %1 in your Dataverse environment. This user does not require a license.', Comment = '%1 - user name';
+        TestServerAddressTok: Label '@@test@@', Locked = true;
         IsEditable: Boolean;
         IsUserNamePasswordVisible: Boolean;
         IsClientIdClientSecretVisible: Boolean;
@@ -1014,7 +1031,7 @@ page 7200 "CDS Connection Setup"
 
     local procedure RefreshDataFromCDS()
     begin
-        if not "Is Enabled" then
+        if not Rec."Is Enabled" then
             exit;
 
         if not RefreshStatuses then
@@ -1056,7 +1073,7 @@ page 7200 "CDS Connection Setup"
     local procedure UpdateEnableFlags()
     begin
         BusinessEventsEnabled := Rec."Business Events Enabled";
-        IsEditable := (not "Is Enabled") and (not BusinessEventsEnabled);
+        IsEditable := (not Rec."Is Enabled") and (not BusinessEventsEnabled);
         IsConfigIdSpecified := not IsNullGuid(Rec."Virtual Tables Config Id");
     end;
 
@@ -1075,7 +1092,7 @@ page 7200 "CDS Connection Setup"
         if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then
             IsClientIdClientSecretVisible := false
         else
-            if not "Connection String".Contains(Office365AuthTxt) then
+            if not Rec."Connection String".Contains(Office365AuthTxt) then
                 IsUserNamePasswordVisible := false;
 
         IsConfigIdSpecified := not IsNullGuid(Rec."Virtual Tables Config Id");
@@ -1083,21 +1100,21 @@ page 7200 "CDS Connection Setup"
 
     local procedure InitializeDefaultProxyVersion()
     begin
-        Validate("Proxy Version", CDSIntegrationImpl.GetLastProxyVersionItem());
+        Rec.Validate("Proxy Version", CDSIntegrationImpl.GetLastProxyVersionItem());
     end;
 
     local procedure InitializeDefaultOwnershipModel()
     begin
-        Validate("Ownership Model", "Ownership Model"::Team);
+        Rec.Validate("Ownership Model", Rec."Ownership Model"::Team);
     end;
 
     local procedure InitializeDefaultBusinessUnit()
     begin
-        if "Server Address" = '' then
-            "Business Unit Name" := ''
+        if Rec."Server Address" = '' then
+            Rec."Business Unit Name" := ''
         else
-            "Business Unit Name" := CopyStr(DefaultBusinessUnitName, 1, MaxStrLen("Business Unit Name"));
-        Clear("Business Unit Id");
+            Rec."Business Unit Name" := CopyStr(DefaultBusinessUnitName, 1, MaxStrLen(Rec."Business Unit Name"));
+        Clear(Rec."Business Unit Id");
     end;
 
     local procedure InitializeDefaultRedirectUrl()
@@ -1106,34 +1123,34 @@ page 7200 "CDS Connection Setup"
         RedirectUrl: Text;
     begin
         OAuth2.GetDefaultRedirectUrl(RedirectUrl);
-        "Redirect URL" := CopyStr(RedirectUrl, 1, MaxStrLen("Redirect URL"));
+        Rec."Redirect URL" := CopyStr(RedirectUrl, 1, MaxStrLen(Rec."Redirect URL"));
     end;
 
     local procedure InitializeDefaultAuthenticationType()
     begin
-        Validate("Authentication Type", "Authentication Type"::Office365);
+        Rec.Validate("Authentication Type", Rec."Authentication Type"::Office365);
     end;
 
     local procedure IsValidAuthenticationType(): Boolean
     begin
         if SoftwareAsAService then
-            exit("Authentication Type" = "Authentication Type"::Office365);
+            exit(Rec."Authentication Type" = Rec."Authentication Type"::Office365);
         exit(true);
     end;
 
     local procedure IsValidBusinessUnit(): Boolean
     begin
-        exit(not IsNullGuid("Business Unit Id") and ("Business Unit Name" <> ''));
+        exit(not IsNullGuid(Rec."Business Unit Id") and (Rec."Business Unit Name" <> ''));
     end;
 
     local procedure IsValidProxyVersion(): Boolean
     begin
-        exit("Proxy Version" <> 0);
+        exit(Rec."Proxy Version" <> 0);
     end;
 
     local procedure IsValidOwnershipModel(): Boolean
     begin
-        exit("Ownership Model" in ["Ownership Model"::Person, "Ownership Model"::Team]);
+        exit(Rec."Ownership Model" in [Rec."Ownership Model"::Person, Rec."Ownership Model"::Team]);
     end;
 
     local procedure GetJobQueueEntriesObjectIDToRunFilter(): Text

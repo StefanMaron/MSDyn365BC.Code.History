@@ -69,7 +69,7 @@ codeunit 130231 "Test Proxy Notification Mgt."
             RemoveIgnoringNotifications;
             IsSuccess := not HasNotificationContextEntries;
             if not IsSuccess then
-                asserterror Error(StrSubstNo(NotificationErr, GetFirstRecordIDText));
+                asserterror Error(NotificationErr, GetFirstRecordIDText);
         end;
     end;
 

@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 page 6070 "Serv. Contract Account Groups"
 {
     ApplicationArea = Service;
@@ -13,7 +15,7 @@ page 6070 "Serv. Contract Account Groups"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code assigned to the service contract account group.';

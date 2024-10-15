@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.HumanResources.Setup;
+
 permissionset 366 "D365 HR, SETUP"
 {
     Assignable = true;

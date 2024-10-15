@@ -1,3 +1,26 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.HumanResources.Absence;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Sales.Archive;
+using System.Privacy;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.EServices.EDocument;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.History;
+using Microsoft.Purchases.Reports;
+using Microsoft.Purchases.Payables;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Purchases.History;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft;
+
 codeunit 1752 "Data Class. Eval. Data Country"
 {
 

@@ -1,3 +1,13 @@
+﻿namespace Microsoft.Integration.Entity;
+
+using Microsoft.CRM.Contact;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using System.Environment;
+using System.Reflection;
+
 table 5468 "Picture Entity"
 {
     Caption = 'Picture Entity';
@@ -467,7 +477,7 @@ table 5468 "Picture Entity"
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
         AllObjWithCaption.SetRange("Object ID", TableID);
         if AllObjWithCaption.FindFirst() then;
-        Error(StrSubstNo(RequestedRecordIsNotSupportedErr, AllObjWithCaption."Object Caption"));
+        Error(RequestedRecordIsNotSupportedErr, AllObjWithCaption."Object Caption");
     end;
 
     procedure GetDefaultMediaDescription(ParentRecord: Variant): Text
@@ -503,7 +513,7 @@ table 5468 "Picture Entity"
                 begin
                     ParentRecordRef.SetTable(Employee);
                     MediaDescription :=
-                     StrSubstNo(MediaExtensionWithNumFullNameTxt, Employee."No.", Employee.Name, Employee."First Family Name", Employee."Second Family Name",
+                      StrSubstNo(MediaExtensionWithNumFullNameTxt, Employee."No.", Employee.Name, Employee."First Family Name", Employee."Second Family Name",
                         GetDefaultExtension());
                 end;
             DATABASE::Contact:

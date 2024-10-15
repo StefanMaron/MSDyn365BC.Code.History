@@ -221,6 +221,15 @@
       <Cmt Name="Dev"><![CDATA[Cashflow is a name of Cash Flow Forecast No. Series.]D;]A;(LookupHint=Codeunit Job Batch Jobs - NamedType XJOBWIPTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3439585332 - Method 1989125798 - NamedType 3653099153" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is nothing to create.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consump. Whse. Handling - Method JobConsumpAsNoWhseHandling_ThrowsNothingToCreateMsg - NamedType ThereIsNothingToCreateMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3269525534 - NamedType 2256008624" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Qty. is not transfer to right field on Job Planning Line.]]></Val>

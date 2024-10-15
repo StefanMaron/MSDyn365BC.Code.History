@@ -45,7 +45,7 @@ page 2155 "O365 Sales Invoice Discount"
                     field("Invoice Discount Amount"; InvoiceDiscountAmount)
                     {
                         ApplicationArea = Invoicing, Basic, Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Rec."Currency Code";
                         AutoFormatType = 1;
                         Caption = 'Discount Amount';
                         ToolTip = 'Specifies a discount amount that is deducted from the value of the Total Incl. VAT field, based on sales lines where the Allow Invoice Disc. field is selected. You can enter or change the amount manually.';
@@ -67,7 +67,7 @@ page 2155 "O365 Sales Invoice Discount"
                     field(TotalAmount; TotalAmount)
                     {
                         ApplicationArea = Invoicing, Basic, Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Rec."Currency Code";
                         AutoFormatType = 1;
                         CaptionClass = GetCaptionClass();
                         ToolTip = 'Specifies the sum of the value in the Line Amount Excl. VAT field on all lines in the document minus any discount amount in the Invoice Discount Amount field.';
@@ -112,7 +112,7 @@ page 2155 "O365 Sales Invoice Discount"
 
     trigger OnOpenPage()
     begin
-        SetRecFilter();
+        Rec.SetRecFilter();
         CalculateTotals();
     end;
 
@@ -124,7 +124,7 @@ page 2155 "O365 Sales Invoice Discount"
         if (CloseAction in [ACTION::LookupOK, ACTION::OK]) and (OriginalInvoiceDiscount <> InvoiceDiscountPct) then
             Session.LogMessage('000023Y', InvoiceDiscountAppliedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvoiceDiscountCategoryLbl);
 
-        CalcInvDiscForHeader();
+        Rec.CalcInvDiscForHeader();
     end;
 
     var
@@ -162,15 +162,15 @@ page 2155 "O365 Sales Invoice Discount"
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
         GetTotalSalesHeader();
-        SalesLine.SetRange("Document Type", "Document Type");
-        SalesLine.SetRange("Document No.", "No.");
+        SalesLine.SetRange("Document Type", Rec."Document Type");
+        SalesLine.SetRange("Document No.", Rec."No.");
         if SalesLine.FindFirst() then begin
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
 
             DocumentTotals.CalculateSalesTotals(TotalSalesLine, VATAmount, SalesLine);
             SubTotalAmount := TotalSalesLine."Line Amount";
 
-            if "Prices Including VAT" then
+            if Rec."Prices Including VAT" then
                 TotalAmount := TotalSalesLine.Amount + VATAmount
             else
                 TotalAmount := TotalSalesLine.Amount;
@@ -179,13 +179,13 @@ page 2155 "O365 Sales Invoice Discount"
             InvoiceDiscountPct := SalesCalcDiscByType.GetCustInvoiceDiscountPct(SalesLine);
         end;
 
-        if CustInvoiceDisc.Get("Invoice Disc. Code", "Currency Code", 0) then;
+        if CustInvoiceDisc.Get(Rec."Invoice Disc. Code", Rec."Currency Code", 0) then;
         InvoiceDiscountPct := CustInvoiceDisc."Discount %";
     end;
 
     local procedure GetTotalSalesHeader()
     begin
-        if not TotalSalesHeader.Get("Document Type", "No.") then
+        if not TotalSalesHeader.Get(Rec."Document Type", Rec."No.") then
             Clear(TotalSalesHeader);
         if Currency.Code <> TotalSalesHeader."Currency Code" then
             if not Currency.Get(TotalSalesHeader."Currency Code") then
@@ -200,7 +200,7 @@ page 2155 "O365 Sales Invoice Discount"
 
     local procedure GetCaptionClass(): Text
     begin
-        if "Prices Including VAT" then
+        if Rec."Prices Including VAT" then
             exit('2,1,' + TotalTxt);
 
         exit('2,0,' + TotalTxt);
@@ -238,7 +238,7 @@ page 2155 "O365 Sales Invoice Discount"
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
-        if CustInvoiceDisc.Get("Invoice Disc. Code", "Currency Code", 0) then begin
+        if CustInvoiceDisc.Get(Rec."Invoice Disc. Code", Rec."Currency Code", 0) then begin
             CustInvoiceDisc."Discount %" := OldInvoiceDiscountPercent;
             CustInvoiceDisc.Modify(true);
         end;

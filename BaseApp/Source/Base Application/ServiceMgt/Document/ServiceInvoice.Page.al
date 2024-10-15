@@ -1,10 +1,26 @@
-﻿page 5933 "Service Invoice"
+﻿namespace Microsoft.Service.Document;
+
+using Microsoft.CRM.Contact;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.History;
+using Microsoft.Service.Posting;
+using Microsoft.Utilities;
+using System.Security.User;
+using Microsoft.EServices.EDocument;
+
+page 5933 "Service Invoice"
 {
     Caption = 'Service Invoice';
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Service Header";
-    SourceTableView = WHERE("Document Type" = FILTER(Invoice));
+    SourceTableView = where("Document Type" = filter(Invoice));
 
     layout
     {
@@ -20,7 +36,7 @@
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -41,9 +57,9 @@
 
                     trigger OnValidate()
                     begin
-                        if GetFilter("Contact No.") = xRec."Contact No." then
-                            if "Contact No." <> xRec."Contact No." then
-                                SetRange("Contact No.");
+                        if Rec.GetFilter("Contact No.") = xRec."Contact No." then
+                            if Rec."Contact No." <> xRec."Contact No." then
+                                Rec.SetRange("Contact No.");
                     end;
                 }
                 group("Sell-to")
@@ -54,7 +70,7 @@
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                     }
-                    field(Address; Address)
+                    field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -70,7 +86,7 @@
                     {
                         ShowCaption = false;
                         Visible = IsSellToCountyVisible;
-                        field(County; County)
+                        field(County; Rec.County)
                         {
                             ApplicationArea = Service;
                             QuickEntry = false;
@@ -82,7 +98,7 @@
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field(City; City)
+                    field(City; Rec.City)
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -96,7 +112,7 @@
 
                         trigger OnValidate()
                         begin
-                            IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                            IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                         end;
                     }
                     field("Contact Name"; Rec."Contact Name")
@@ -180,7 +196,7 @@
                 ApplicationArea = Service;
                 Enabled = IsServiceLinesEditable;
                 Editable = IsServiceLinesEditable;
-                SubPageLink = "Document No." = FIELD("No.");
+                SubPageLink = "Document No." = field("No.");
             }
             group(Invoicing)
             {
@@ -258,7 +274,7 @@
 
                         trigger OnValidate()
                         begin
-                            IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+                            IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
                         end;
                     }
                     field("Bill-to Contact"; Rec."Bill-to Contact")
@@ -366,9 +382,9 @@
                     trigger OnAssistEdit()
                     begin
                         Clear(ChangeExchangeRate);
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
@@ -419,10 +435,10 @@
                         var
                             SIIManagement: Codeunit "SII Management";
                         begin
-                            SIIManagement.SplitOperationDescription(OperationDescription, "Operation Description", "Operation Description 2");
-                            Validate("Operation Description");
-                            Validate("Operation Description 2");
-                            Modify(true);
+                            SIIManagement.SplitOperationDescription(OperationDescription, Rec."Operation Description", Rec."Operation Description 2");
+                            Rec.Validate("Operation Description");
+                            Rec.Validate("Operation Description 2");
+                            Rec.Modify(true);
                         end;
                     }
                     group(Control1100014)
@@ -458,8 +474,8 @@
 
                         trigger OnValidate()
                         begin
-                            SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
-                            SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
+                            SIIFirstSummaryDocNo := Copystr(Rec.GetSIIFirstSummaryDocNo(), 1, 35);
+                            SIILastSummaryDocNo := Copystr(Rec.GetSIILastSummaryDocNo(), 1, 35);
                         end;
                     }
                     field("ID Type"; Rec."ID Type")
@@ -484,7 +500,7 @@
                         ToolTip = 'Specifies the first number in the series of the summary entry. This field applies to F4-type invoices only.';
                         trigger OnValidate()
                         begin
-                            SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
+                            Rec.SetSIIFirstSummaryDocNo(SIIFirstSummaryDocNo);
                         end;
                     }
                     field("SII Last Summary Doc. No."; SIILastSummaryDocNo)
@@ -494,7 +510,7 @@
                         ToolTip = 'Specifies the last number in the series of the summary entry. This field applies to F4-type invoices only.';
                         trigger OnValidate()
                         begin
-                            SetSIILastSummaryDocNo(SIILastSummaryDocNo);
+                            Rec.SetSIILastSummaryDocNo(SIILastSummaryDocNo);
                         end;
                     }
                     field("Do Not Send To SII"; Rec."Do Not Send To SII")
@@ -575,7 +591,7 @@
 
                         trigger OnValidate()
                         begin
-                            IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                            IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                         end;
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
@@ -624,7 +640,7 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
-                field("Area"; Area)
+                field("Area"; Rec.Area)
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
@@ -658,34 +674,34 @@
                 ApplicationArea = All;
                 Caption = 'Document Check';
                 Visible = ServiceDocCheckFactboxVisible;
-                SubPageLink = "No." = FIELD("No."),
-                              "Document Type" = FIELD("Document Type");
+                SubPageLink = "No." = field("No."),
+                              "Document Type" = field("Document Type");
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                SubPageLink = "No." = field("Bill-to Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
+                SubPageLink = "No." = field("Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1907829707; "Service Hist. Sell-to FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
+                SubPageLink = "No." = field("Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1902613707; "Service Hist. Bill-to FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                SubPageLink = "No." = field("Bill-to Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
@@ -693,9 +709,9 @@
             {
                 ApplicationArea = Service;
                 Provider = ServLines;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("No."),
+                              "Line No." = field("Line No.");
                 Visible = false;
             }
             systempart(Control1900383207; Links)
@@ -729,7 +745,7 @@
 
                     trigger OnAction()
                     begin
-                        OpenStatistics();
+                        Rec.OpenStatistics();
                     end;
                 }
                 action(Card)
@@ -738,7 +754,7 @@
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Customer No.");
+                    RunPageLink = "No." = field("Customer No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
                 }
@@ -748,10 +764,10 @@
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Header"),
-                                  "Table Subtype" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  Type = CONST(General);
+                    RunPageLink = "Table Name" = const("Service Header"),
+                                  "Table Subtype" = field("Document Type"),
+                                  "No." = field("No."),
+                                  Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("&Dimensions")
@@ -759,14 +775,14 @@
                     AccessByPermission = TableData Dimension = R;
                     ApplicationArea = Dimensions;
                     Caption = '&Dimensions';
-                    Enabled = "No." <> '';
+                    Enabled = Rec."No." <> '';
                     Image = Dimensions;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -783,7 +799,7 @@
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice.AsInteger(), "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice.AsInteger(), Rec."No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
@@ -879,7 +895,7 @@
                         PreAssignedNo := Rec."No.";
                         xLastPostingNo := Rec."Last Posting No.";
 
-                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
+                        DocumentIsPosted := Rec.SendToPost(Codeunit::"Service-Post (Yes/No)");
 
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
                             ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
@@ -910,7 +926,7 @@
 
                     trigger OnAction()
                     begin
-                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post and Send");
+                        DocumentIsPosted := Rec.SendToPost(Codeunit::"Service-Post and Send");
                     end;
                 }
                 action("Post and &Print")
@@ -923,7 +939,7 @@
 
                     trigger OnAction()
                     begin
-                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post+Print");
+                        DocumentIsPosted := Rec.SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action("Post &Batch")
@@ -1022,7 +1038,7 @@
         SIIManagement: Codeunit "SII Management";
     begin
         SetControlAppearance();
-        SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
     end;
 
@@ -1063,7 +1079,7 @@
         if (Rec."No." <> '') and (Rec."Customer No." = '') then
             DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
 
-        SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
         ActivateFields();
         CheckShowBackgrValidationNotification();
@@ -1076,8 +1092,8 @@
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
         UpdateDocHasRegimeCode();
 
-        SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
-        SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
+        SIIFirstSummaryDocNo := Copystr(Rec.GetSIIFirstSummaryDocNo(), 1, 35);
+        SIILastSummaryDocNo := Copystr(Rec.GetSIILastSummaryDocNo(), 1, 35);
         OnAfterOnAfterGetRecord(Rec);
     end;
 
@@ -1105,16 +1121,14 @@
         ServiceDocCheckFactboxVisible: Boolean;
         SIIFirstSummaryDocNo: Text[35];
         SIILastSummaryDocNo: Text[35];
-        [InDataSet]
         IsServiceLinesEditable: Boolean;
-        [InDataSet]
         VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
     begin
-        IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-        IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
-        IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
     end;

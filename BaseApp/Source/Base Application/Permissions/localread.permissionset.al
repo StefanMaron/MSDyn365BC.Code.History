@@ -1,3 +1,17 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Sales.Receivables;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Purchases.Payables;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Sales.History;
+using Microsoft.Purchases.History;
+using Microsoft.EServices.EDocument;
+using Microsoft.Purchases.Reports;
+
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;
@@ -58,8 +72,10 @@ permissionset 1002 "LOCAL READ"
                   tabledata "SII Session" = R,
                   tabledata "SII Setup" = R,
                   tabledata "Statistical Code" = R,
-                  tabledata Suffix = R,
 #if not CLEAN22
+                  tabledata Suffix = R,
                   tabledata "Vendor Pmt. Address" = R;
+#else
+                  tabledata Suffix = R;
 #endif
 }

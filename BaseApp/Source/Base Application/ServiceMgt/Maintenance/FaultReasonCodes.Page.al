@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Maintenance;
+
+using Microsoft.Service.Document;
+
 page 5929 "Fault Reason Codes"
 {
     ApplicationArea = Service;
@@ -13,7 +17,7 @@ page 5929 "Fault Reason Codes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the fault reason.';
@@ -64,8 +68,8 @@ page 5929 "Fault Reason Codes"
                     Caption = 'Serv&ice Line List';
                     Image = ServiceLines;
                     RunObject = Page "Service Line List";
-                    RunPageLink = "Fault Reason Code" = FIELD(Code);
-                    RunPageView = SORTING("Fault Reason Code");
+                    RunPageLink = "Fault Reason Code" = field(Code);
+                    RunPageView = sorting("Fault Reason Code");
                     ToolTip = 'View the service lines that contain the fault code.';
                 }
                 action("Service Item Line List")
@@ -74,8 +78,8 @@ page 5929 "Fault Reason Codes"
                     Caption = 'Service Item Line List';
                     Image = ServiceItem;
                     RunObject = Page "Service Item Lines";
-                    RunPageLink = "Fault Reason Code" = FIELD(Code);
-                    RunPageView = SORTING("Fault Reason Code");
+                    RunPageLink = "Fault Reason Code" = field(Code);
+                    RunPageView = sorting("Fault Reason Code");
                     ToolTip = 'View the list of ongoing service item lines.';
                 }
             }

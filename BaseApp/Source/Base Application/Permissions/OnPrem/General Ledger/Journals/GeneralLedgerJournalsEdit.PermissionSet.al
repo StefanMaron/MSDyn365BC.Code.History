@@ -1,8 +1,34 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Currency;
+using System.IO;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Purchases.History;
+using Microsoft.Sales.History;
+using System.Xml;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Purchases.Payables;
+
 permissionset 4103 "General Ledger Journals - Edit"
 {
     Access = Public;
     Assignable = false;
     Caption = 'Create entries in G/L journals';
+
 
     Permissions = tabledata "Bank Account" = R,
                   tabledata "Bill Group" = R,
@@ -10,6 +36,9 @@ permissionset 4103 "General Ledger Journals - Edit"
                   tabledata "Closed Bill Group" = R,
                   tabledata "Closed Cartera Doc." = R,
                   tabledata "Closed Payment Order" = R,
+                  tabledata "Alloc. Acc. Manual Override" = R,
+                  tabledata "Alloc. Account Distribution" = R,
+                  tabledata "Allocation Account" = RIMD,
                   tabledata "Comment Line" = R,
                   tabledata Currency = R,
                   tabledata "Currency Exchange Rate" = R,
@@ -35,9 +64,6 @@ permissionset 4103 "General Ledger Journals - Edit"
                   tabledata "Gen. Product Posting Group" = R,
                   tabledata "General Posting Setup" = R,
                   tabledata "Intermediate Data Import" = Rimd,
-#if not CLEAN20
-                  tabledata "Native - Payment" = RIMD,
-#endif
                   tabledata "Payment Order" = R,
                   tabledata "Posted Bill Group" = R,
                   tabledata "Posted Cartera Doc." = R,

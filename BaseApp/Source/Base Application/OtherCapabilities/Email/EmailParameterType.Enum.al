@@ -1,3 +1,5 @@
+namespace System.Email;
+
 enum 9510 "Email Parameter Type"
 {
     Extensible = true;

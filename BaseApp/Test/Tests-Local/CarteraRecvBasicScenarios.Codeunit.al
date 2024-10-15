@@ -708,7 +708,7 @@
         VerifyBillGroupGLEntryExists(BillGroup."No.", Customer."Customer Posting Group", BillGroup."Amount (LCY)");
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -816,7 +816,7 @@
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -926,7 +926,7 @@
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1026,7 +1026,7 @@
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1128,7 +1128,7 @@
           BillGroup."No.", Customer."Customer Posting Group", BillGroup."Bank Account No.", -AmtPay, AmtInv);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('CurrenciesPageHandler,BankAccountSelectionPageHandler,ConfirmHandler,InsertDocModelHandler,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1808,7 +1808,7 @@
         PaymentRegistration.PostPayments.Invoke;
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]; PostingDate: Date)
     begin
         LibraryVariableStorage.Enqueue(ExchRateWasAdjustedTxt);

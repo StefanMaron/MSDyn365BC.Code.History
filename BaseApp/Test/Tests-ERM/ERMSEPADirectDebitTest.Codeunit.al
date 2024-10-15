@@ -725,6 +725,8 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM SEPA Direct Debit Test");
 
@@ -736,6 +738,12 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM SEPA Direct Debit Test");
 
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
         LibraryERMCountryData.CreateVATData();
         CreateEURCurrencyExchRatePreviousYear();
         Commit();
