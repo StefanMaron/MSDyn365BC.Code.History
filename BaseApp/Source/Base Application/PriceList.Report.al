@@ -257,6 +257,7 @@ report 715 "Price List"
 
                 trigger OnAfterGetRecord()
                 var
+                    SalesHeader: Record "Sales Header";
                     TempPriceListLine: Record "Price List Line" temporary;
                     SalesLine: Record "Sales Line";
                     CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
@@ -273,7 +274,8 @@ report 715 "Price List"
                     SalesLine."Variant Code" := Code;
                     SalesLine."Currency Code" := Currency.Code;
                     SalesLine."Posting Date" := DateReq;
-                    SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
+                    SetCurrencyFactorInHeader(SalesHeader);
+                    SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
                     SalesLinePrice.SetSources(PriceSourceList);
                     PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
                     PriceCalculation.FindPrice(TempPriceListLine, false);
@@ -285,6 +287,7 @@ report 715 "Price List"
 
             trigger OnAfterGetRecord()
             var
+                SalesHeader: Record "Sales Header";
                 TempPriceListLine: Record "Price List Line" temporary;
                 SalesLine: Record "Sales Line";
                 CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
@@ -300,7 +303,8 @@ report 715 "Price List"
                 SalesLine."No." := Item."No.";
                 SalesLine."Currency Code" := Currency.Code;
                 SalesLine."Posting Date" := DateReq;
-                SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
+                SetCurrencyFactorInHeader(SalesHeader);
+                SalesLinePrice.SetLine(PriceType::Sale, SalesHeader, SalesLine);
                 SalesLinePrice.SetSources(PriceSourceList);
                 PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
                 PriceCalculation.FindPrice(TempPriceListLine, false);
@@ -695,6 +699,13 @@ report 715 "Price List"
             else
                 UnitOfMeasure := "Unit of Measure Code";
         end;
+    end;
+
+    local procedure SetCurrencyFactorInHeader(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader."Posting Date" := DateReq;
+        SalesHeader."Currency Code" := Currency.Code;
+        SalesHeader.UpdateCurrencyFactor();
     end;
 
     procedure InitializeRequest(NewDateReq: Date; NewSalesType: Option; NewSalesCode: Code[20]; NewCurrencyCode: Code[10])

@@ -10969,7 +10969,7 @@
   </Item>
   <Item ItemId=";Codeunit 3862164203 - NamedType 1031713448" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Pick Qty. (Base) must be equal to '0']]></Val>
+      <Val><![CDATA[You cannot finish production order no. %1 because there is an outstanding pick for one or more components.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -11428,7 +11428,7 @@
   </Item>
   <Item ItemId=";Codeunit 1720286327 - NamedType 483925420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Pick Qty. (Base) must be equal to '0'  in Prod. Order Component]]></Val>
+      <Val><![CDATA[You cannot finish production order no. %1 because there is an outstanding pick for one or more components.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
