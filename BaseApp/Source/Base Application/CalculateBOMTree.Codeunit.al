@@ -12,7 +12,6 @@ codeunit 5870 "Calculate BOM Tree"
         TempItem: Record Item temporary;
         AvailableToPromise: Codeunit "Available to Promise";
         UOMMgt: Codeunit "Unit of Measure Management";
-        ZeroDF: DateFormula;
         Window: Dialog;
         WindowUpdateDateTime: DateTime;
         LocationSpecific: Boolean;
@@ -516,10 +515,12 @@ codeunit 5870 "Calculate BOM Tree"
     var
         BOMItem: Record Item;
         ParentBOMBuffer: Record "BOM Buffer";
+        ZeroDF: DateFormula;
     begin
         ParentBOMBuffer := BOMBuffer;
         TempItemAvailByDate.Reset();
         TempItemAvailByDate.DeleteAll();
+        Evaluate(ZeroDF, '<0D>');
 
         with BOMBuffer do
             repeat

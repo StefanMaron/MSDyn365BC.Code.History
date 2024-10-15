@@ -430,6 +430,7 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure RunReportWithCustomReportSelection(var DataRecRef: RecordRef; ReportID: Integer; var CustomReportSelection: Record "Custom Report Selection"; EmailPrintIfEmailIsMissing: Boolean)
     var
         CustomReportLayoutCode: Code[20];
+        SendToEmailID: Text[250];
         IsHandled: Boolean;
     begin
         OnBeforeRunReportWithCustomReportSelection(
@@ -447,16 +448,19 @@ codeunit 8800 "Custom Layout Reporting"
 
         case OutputType of
             OutputType::Email:
-                if CustomReportSelection.GetSendToEmail(true) = '' then begin
-                    if EmailPrintIfEmailIsMissing then
-                        if IsWordLayout(ReportID, CustomReportLayoutCode) then
-                            SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word)
+                begin
+                    GetSendToEmailID(CustomReportSelection, SendToEmailID);
+                    if SendToEmailID = '' then begin
+                        if EmailPrintIfEmailIsMissing then
+                            if IsWordLayout(ReportID, CustomReportLayoutCode) then
+                                SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word)
+                            else
+                                SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::PDF)
                         else
-                            SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::PDF)
-                    else
-                        CheckEmailSendTo(DataRecRef, CustomReportSelection);
-                end else
-                    EmailReport(DataRecRef, ReportID, CustomReportSelection);
+                            CheckEmailSendTo(DataRecRef, CustomReportSelection);
+                    end else
+                        EmailReport(DataRecRef, ReportID, CustomReportSelection);
+                end;
             OutputType::PDF:
                 SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Pdf);
             OutputType::Excel:
@@ -1232,6 +1236,7 @@ codeunit 8800 "Custom Layout Reporting"
         MailSent: Boolean;
         SourceTableIDs, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
+        SendToEmailID: Text[250];
     begin
         FileManagement.BLOBImportFromServerFile(TempBlob, TempFilePath);
         TempBlob.CreateInStream(AttachmentStream);
@@ -1246,10 +1251,11 @@ codeunit 8800 "Custom Layout Reporting"
         SourceTableIDs.Add(ReceiverRecord.Number());
         SourceIDs.Add(ReceiverRecord.Field(ReceiverRecord.SystemIdNo()).Value());
         SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+        GetSendToEmailID(CustomReportSelection, SendToEmailID);
 
         MailSent :=
             DocumentMailing.EmailFile(
-                AttachmentStream, FileName, TempEmailBodyFilePath, '', CustomReportSelection.GetSendToEmail(true),
+                AttachmentStream, FileName, TempEmailBodyFilePath, '', SendToEmailID,
                 StrSubstNo('%1', FieldRef2.Value), true, CustomReportSelection.Usage.AsInteger(), SourceTableIDs, SourceIDs, SourceRelationTypes);
         if Exists(TempFilePath) then begin
             TempEraseFileNameValueBuffer.AddNewEntry(TempFilePath, Format(FieldRef2.Value));
@@ -1617,6 +1623,33 @@ codeunit 8800 "Custom Layout Reporting"
         exit(RunReportOncePerFilter);
     end;
 
+    local procedure GetSendToEmailID(CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
+    begin
+        if CustomReportSelection.GetSendToEmail(true) = '' then
+            GetSendToEmailIDFromSource(CustomReportSelection, EmailID)
+        else
+            EmailID := CustomReportSelection.GetSendToEmail(true);
+
+        OnAfterGetSendToEmailID(CustomReportSelection, EmailID);
+    end;
+
+    local procedure GetSendToEmailIDFromSource(CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
+    var
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+    begin
+        case CustomReportSelection."Source Type" of
+            Database::Customer:
+                if (Customer.Get(CustomReportSelection."Source No.")) then
+                    EmailID := Customer."E-Mail";
+            Database::Vendor:
+                if (Vendor.Get(CustomReportSelection."Source No.")) then
+                    EmailID := Vendor."E-Mail";
+            else
+                OnAfterGetSendToEmailIDFromSource(CustomReportSelection, EmailID);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterProcessReport()
     begin
@@ -1669,6 +1702,16 @@ codeunit 8800 "Custom Layout Reporting"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetOutputTypeOnAfterSetOutputMethod(var OutputMethod: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSendToEmailID(CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSendToEmailIDFromSource(CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
     begin
     end;
 }

@@ -38,10 +38,18 @@ table 700 "Error Message"
             OptionCaption = 'Error,Warning,Information';
             OptionMembers = Error,Warning,Information;
         }
-        field(5; Description; Text[250])
+        field(5; "Description"; Text[250])
         {
             Caption = 'Description';
             Editable = false;
+#if not CLEAN22
+            // Description and Message fields are sync'd with database events in "Error Message Management"
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteTag = '22.0';
+            ObsoleteReason = 'Replaced by "Message" which has an increase in field length.';
         }
         field(6; "Additional Information"; Text[250])
         {
@@ -131,6 +139,14 @@ table 700 "Error Message"
         {
             Caption = 'Error Call Stack';
             DataClassification = SystemMetadata;
+        }
+        field(22; "Message"; Text[2048])
+        {
+            Caption = 'Description';
+            Editable = false;
+#if not CLEAN22
+            // Description and Message fields are sync'd with database events in "Error Message Management"
+#endif
         }
     }
 
@@ -361,7 +377,7 @@ table 700 "Error Message"
 
         Init();
         Validate("Message Type", MessageType);
-        Validate(Description, CopyStr(NewDescription, 1, MaxStrLen(Description)));
+        Validate("Message", CopyStr(NewDescription, 1, MaxStrLen("Message")));
         Validate("Context Record ID", ContextErrorMessage."Context Record ID");
         Validate("Context Field Number", ContextErrorMessage."Context Field Number");
         Validate("Additional Information", ContextErrorMessage."Additional Information");
@@ -430,7 +446,7 @@ table 700 "Error Message"
             if ErrorMessageMgt.GetLastContext(Rec) then begin
                 ID := FindLastMessageID() + 1;
                 Validate("Message Type", "Message Type"::Error);
-                Validate(Description, CopyStr(GetLastErrorText(), 1, MaxStrLen(Description)));
+                Validate("Message", CopyStr(GetLastErrorText(), 1, MaxStrLen("Message")));
                 SetErrorCallStack(GetLastErrorCallStack());
                 Insert(true);
             end else
@@ -594,7 +610,7 @@ table 700 "Error Message"
         end else begin
             SetRange("Message Type", "Message Type"::Error);
             if FindFirst() then
-                Error(Description);
+                Error("Message");
             IsPageOpen := false;
         end;
     end;
@@ -639,7 +655,7 @@ table 700 "Error Message"
             repeat
                 if ErrorString <> '' then
                     ErrorString += '\';
-                ErrorString += Format("Message Type") + ': ' + Description;
+                ErrorString += Format("Message Type") + ': ' + "Message";
             until Next() = 0;
         ClearFilters();
         exit(ErrorString);
@@ -680,7 +696,7 @@ table 700 "Error Message"
         SetRange("Record ID", RecordID);
         SetRange("Field Number", FieldNumber);
         SetRange("Message Type", MessageType);
-        SetRange(Description, CopyStr(NewDescription, 1, MaxStrLen(Description)));
+        SetRange("Message", CopyStr(NewDescription, 1, MaxStrLen("Message")));
         FoundID := 0;
         if FindFirst() then
             FoundID := ID;
@@ -713,7 +729,7 @@ table 700 "Error Message"
 
         TempID := TempErrorMessage.FindLastID();
         repeat
-            if TempErrorMessage.FindRecord("Record ID", "Field Number", "Message Type", Description) = 0 then begin
+            if TempErrorMessage.FindRecord("Record ID", "Field Number", "Message Type", "Message") = 0 then begin
                 TempID += 1;
                 TempErrorMessage := Rec;
                 TempErrorMessage.ID := TempID;

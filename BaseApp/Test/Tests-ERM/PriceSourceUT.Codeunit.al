@@ -10,12 +10,8 @@ codeunit 134120 "Price Source UT"
 
     var
         Assert: Codeunit Assert;
-        LibraryERM: Codeunit "Library - ERM";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryJob: Codeunit "Library - Job";
         LibraryMarketing: Codeunit "Library - Marketing";
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
-        LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
@@ -2465,7 +2461,7 @@ codeunit 134120 "Price Source UT"
         NewJobTaskNo := LibraryVariableStorage.DequeueText();
         JobNoFilter := LibraryVariableStorage.DequeueText();
         Assert.AreEqual(JobNoFilter, JobTaskList.Filter.GetFilter("Job No."), 'filter on Job in Job Task List');
-        JobTask.Get(JobTaskList."Job No.", NewJobTaskNo);
+        JobTask.Get(Format(JobTaskList."Job No.".Value()), NewJobTaskNo);
         JobTaskList.GoToRecord(JobTask);
         JobTaskList.OK().Invoke();
     end;
