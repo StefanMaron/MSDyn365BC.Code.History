@@ -81,11 +81,14 @@ report 509 "Change Log Entries"
             column(Change_Log_Entry_TimeCaption; FieldCaption(Time))
             {
             }
+            column(PrimaryKey; PrimaryKey)
+            {
+            }
 
             trigger OnAfterGetRecord()
             begin
                 CalcFields("Table Caption", "Field Caption");
-                "Primary Key" := GetPrimaryKeyFriendlyName;
+                PrimaryKey := GetFullPrimaryKeyFriendlyName();
             end;
         }
     }
@@ -111,5 +114,6 @@ report 509 "Change Log Entries"
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         FiltersCaptionLbl: Label 'Filters';
         DT2DATE__Date_and_Time__CaptionLbl: Label 'Date';
+        PrimaryKey: Text;
 }
 

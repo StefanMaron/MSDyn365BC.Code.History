@@ -37,6 +37,7 @@ codeunit 137408 "SCM Warehouse VI"
         QuantityBaseAvailableMustNotBeLessThanErr: Label 'Quantity (Base) available must not be less than';
         AbsoluteValueEqualToQuantityErr: Label 'Absolute value of %1.%2 must be equal to the test quantity.', Comment = '%1 - tablename, %2 - fieldname.';
         RegisteringPickInterruptedErr: Label 'Registering pick has been interrupted.';
+        LotNoNotAvailableInInvtErr: Label 'Lot No. %1 is not available in inventory, it has already been reserved for another document, or the quantity available is lower than the quantity to handle specified on the line.', Comment = '%1: Lot No.';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesHandler,ItemTrackingSummaryHandler,MessageHandler,WhseItemTrackingLinesHandler,ConfirmHandlerTrue')]
@@ -2564,6 +2565,146 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler')]
+    [Scope('OnPrem')]
+    procedure CheckAvailQtyOnValidateLotNoOnWhsePickLineWithReservation()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+        NewLotNo: Code[20];
+    begin
+        // [FEATURE] [Pick] [Item Tracking] [Reservation]
+        // [SCENARIO 377492] Lot availability is checked when a user validates Lot No. on warehouse pick line.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(50, 100);
+        NewLotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Lot-tracked item.
+        CreateItemWithItemTrackingCodeForLot(Item);
+
+        // [GIVEN] Location set up for required shipment and pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
+
+        // [GIVEN] Post 100 pcs of the item with lot "L1" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', Qty);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create sales order for 100 pcs.
+        // [GIVEN] Reserve the sales order from inventory.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create warehouse shipment and pick.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+
+        // [WHEN] Set a non-existent lot no. "L2" on the pick line.
+        asserterror WarehouseActivityLine.Validate("Lot No.", NewLotNo);
+
+        // [THEN] An error message is thrown.
+        // [THEN] "L2" is not available in inventory.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(LotNoNotAvailableInInvtErr, NewLotNo));
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler2')]
+    [Scope('OnPrem')]
+    procedure ItemTrackingOnPickAfterOrderToOrderPurchReceiptPosted()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        // [FEATURE] [Reservation] [Order-to-Order Binding] [Receipt] [Shipment] [Item Tracking] [Pick]
+        // [SCENARIO 374353] Posting warehouse pick for sales order after a warehouse receipt for the order-to-order bound purchase is posted in two iterations for a single lot no.
+        Initialize();
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        CreateFullWarehouseSetup(Location);
+
+        // [GIVEN] Lot-tracked item with Reordering Policy = Order.
+        CreateItemWithItemTrackingCodeForLot(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for 6 pcs.
+        // [GIVEN] Create warehouse shipment.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandIntInRange(5, 10), Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Calculate regenerative plan and carry out action message in order to create a supplying purchase order.
+        CalcRegenPlanAndCarryOutActionMsg(Item);
+
+        // [GIVEN] Release the purchase order and create warehouse receipt.
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Item."Vendor No.");
+        PurchaseHeader.FindFirst();
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Set "Qty. to Receipt" = 5 on the warehouse receipt line.
+        // [GIVEN] Assign lot no.
+        // [GIVEN] Post the receipt and warehouse put-away.
+        FindWarehouseReceiptLine(WarehouseReceiptLine, PurchaseHeader."No.");
+        WarehouseReceiptLine.Validate("Qty. to Receive", LibraryRandom.RandInt(SalesLine.Quantity - 1));
+        WarehouseReceiptLine.Modify(true);
+        LibraryVariableStorage.Enqueue(TrackingActionStr::AssignLotNo);
+        WarehouseReceiptLine.OpenItemTrackingLines();
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+        FindWarehouseActivityHeaderBySourceNo(WarehouseActivityHeader, Location.Code, PurchaseHeader."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Go back to the warehouse receipt.
+        // [GIVEN] Set Quantity = 6 on the item tracking line for the same lot no.
+        // [GIVEN] Post the receipt and warehouse put-away.
+        WarehouseReceiptLine.Find();
+        LibraryVariableStorage.Enqueue(TrackingActionStr::AssistEditLotNo);
+        LibraryVariableStorage.Enqueue(WarehouseReceiptLine."Qty. (Base)");
+        WarehouseReceiptLine.OpenItemTrackingLines();
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+        FindWarehouseActivityHeaderBySourceNo(WarehouseActivityHeader, Location.Code, PurchaseHeader."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Open warehouse shipment for the sales order and create pick.
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, SalesHeader."No.", WarehouseShipmentLine."Source Document"::"Sales Order");
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [WHEN] Register the pick.
+        FindWarehouseActivityHeaderBySourceNo(WarehouseActivityHeader, Location.Code, SalesHeader."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] The full quantity (6 pcs) have been picked.
+        Item.CalcFields("Qty. Picked");
+        Item.TestField("Qty. Picked", SalesLine.Quantity);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2642,6 +2783,22 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
         LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
         LibraryWarehouse.CalculateBinReplenishment(BinContent, WhseWorksheetName, LocationCode, true, false, false);
+    end;
+
+    local procedure CalcRegenPlanAndCarryOutActionMsg(Item: Record Item)
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify(true);
+
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
 
     local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo3: Code[20]; UnitOfMeasureCode: Code[10])
@@ -4514,6 +4671,8 @@ codeunit 137408 "SCM Warehouse VI"
                     ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
                     ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueInteger);
                 end;
+            TrackingActionStr::AssistEditLotNo:
+                ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
         end;
         ItemTrackingLines.OK.Invoke;
     end;

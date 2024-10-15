@@ -244,6 +244,11 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Partner VAT ID';
         }
+        field(31;"Location Code";Code[10])
+        {
+            Caption = 'Location Code';
+            TableRelation = Location;
+        }
         field(31060; "Additional Costs"; Boolean)
         {
             Caption = 'Additional Costs';

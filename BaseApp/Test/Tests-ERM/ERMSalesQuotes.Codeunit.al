@@ -1656,6 +1656,32 @@ codeunit 134379 "ERM Sales Quotes"
         UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderFromSalesQuoteWithTransactionType()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Order]
+        // [SCENARIO 379229] "Transaction Type" is populated from Customer on Sales Order from Sales Quote
+        Initialize();
+
+        // [GIVEN] Set Transaction Type on Customer and created Sales Quote
+        Customer.SetRange("No.", CreateCustomer());
+        Customer.FindFirst();
+        Customer.Validate("Transaction Type", LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Type"));
+        Customer.Modify(true);
+        CreateSalesQuote(SalesHeader, SalesLine, Customer."No.", LibraryRandom.RandInt(5));  // Take Randon value for Number of lines.
+
+        // [WHEN] Create Sales Order from Sales Quote.
+        CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
+
+        // [THEN] Verify that New Sales Order created from Sales Quote has Transaction Type on Header and Line
+        VerifyTransactionTypeOnOrder(SalesHeader, SalesHeader."No.", Customer."Transaction Type");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1676,6 +1702,18 @@ codeunit 134379 "ERM Sales Quotes"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Quotes");
+    end;
+
+    local procedure VerifyTransactionTypeOnOrder(SalesHeader: Record "Sales Header"; QuoteNo: Code[20]; TransactionType: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader.SetRange("Quote No.", QuoteNo);
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.FindFirst();
+        SalesHeader.TestField("Transaction Type", TransactionType);
+        FindSalesLine(SalesLine, QuoteNo);
+        SalesLine.TestField("Transaction Type", TransactionType);
     end;
 
     local procedure CreateSimpleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
