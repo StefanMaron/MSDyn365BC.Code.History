@@ -1,4 +1,4 @@
-codeunit 76 "Purch.-Get Drop Shpt."
+﻿codeunit 76 "Purch.-Get Drop Shpt."
 {
     Permissions = TableData "Sales Header" = m,
                   TableData "Sales Line" = m;
@@ -28,7 +28,6 @@ codeunit 76 "Purch.-Get Drop Shpt."
     local procedure "Code"()
     var
         PurchLine2: Record "Purchase Line";
-        ItemUnitofMeasure: Record "Item Unit of Measure";
         IsHandled: Boolean;
     begin
         with PurchHeader do begin
@@ -77,15 +76,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
 
             if SalesLine.Find('-') then
                 repeat
-                    if (SalesLine.Type = SalesLine.Type::Item) and ItemUnitofMeasure.Get(SalesLine."No.", SalesLine."Unit of Measure Code") then
-                        if SalesLine."Qty. per Unit of Measure" <> ItemUnitofMeasure."Qty. per Unit of Measure" then
-                            Error(Text001,
-                              SalesLine.FieldCaption("Qty. per Unit of Measure"),
-                              SalesLine.FieldCaption("Unit of Measure Code"),
-                              SalesLine."Unit of Measure Code",
-                              SalesLine."Qty. per Unit of Measure",
-                              ItemUnitofMeasure."Qty. per Unit of Measure",
-                              SalesLine.FieldCaption(Quantity));
+                    CheckSalesLineQtyPerUnitOfMeasure();
                     IsHandled := false;
                     OnCodeOnBeforeProcessPurchaseLine(SalesLine, IsHandled);
                     if not IsHandled then begin
@@ -107,8 +98,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
 
                         NextLineNo := NextLineNo + 10000;
 
-                        SalesLine."Unit Cost (LCY)" := PurchLine."Unit Cost (LCY)";
-                        SalesLine.Validate("Unit Cost (LCY)");
+                        UpdateSalesLineUnitCostLCY();
                         SalesLine."Purchase Order No." := PurchLine."Document No.";
                         SalesLine."Purch. Order Line No." := PurchLine."Line No.";
                         OnBeforeSalesLineModify(SalesLine, PurchLine);
@@ -147,6 +137,40 @@ codeunit 76 "Purch.-Get Drop Shpt."
             Modify; // Only version check
             SalesHeader.Modify(); // Only version check
         end;
+    end;
+
+    local procedure CheckSalesLineQtyPerUnitOfMeasure()
+    var
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSalesLineQtyPerUnitOfMeasure(PurchHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (SalesLine.Type = SalesLine.Type::Item) and ItemUnitofMeasure.Get(SalesLine."No.", SalesLine."Unit of Measure Code") then
+            if SalesLine."Qty. per Unit of Measure" <> ItemUnitofMeasure."Qty. per Unit of Measure" then
+                Error(Text001,
+                  SalesLine.FieldCaption("Qty. per Unit of Measure"),
+                  SalesLine.FieldCaption("Unit of Measure Code"),
+                  SalesLine."Unit of Measure Code",
+                  SalesLine."Qty. per Unit of Measure",
+                  ItemUnitofMeasure."Qty. per Unit of Measure",
+                  SalesLine.FieldCaption(Quantity));
+    end;
+
+    local procedure UpdateSalesLineUnitCostLCY()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateSalesLineUnitCostLCY(PurchHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine."Unit Cost (LCY)" := PurchLine."Unit Cost (LCY)";
+        SalesLine.Validate("Unit Cost (LCY)");
     end;
 
     procedure GetDescription(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
@@ -266,12 +290,22 @@ codeunit 76 "Purch.-Get Drop Shpt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLineQtyPerUnitOfMeasure(var PurchaseHeader: Record "Purchase Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseLineInsert(var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineModify(var SalesLine: Record "Sales Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesLineUnitCostLCY(var PurchaseHeader: Record "Purchase Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

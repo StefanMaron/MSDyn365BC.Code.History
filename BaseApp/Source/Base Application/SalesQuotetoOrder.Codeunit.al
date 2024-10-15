@@ -158,6 +158,7 @@ codeunit 86 "Sales-Quote to Order"
         ItemChargeAssgntSales.Reset();
         ItemChargeAssgntSales.SetRange("Document Type", FromDocType);
         ItemChargeAssgntSales.SetRange("Document No.", FromDocNo);
+        OnAssignItemChargesOnAfterItemChargeAssgntSalesSetFilters(ItemChargeAssgntSales, FromDocType, FromDocNo, ToDocType, ToDocNo);
         while ItemChargeAssgntSales.FindFirst() do begin
             ItemChargeAssgntSales.Delete();
             ItemChargeAssgntSales."Document Type" := SalesOrderHeader."Document Type";
@@ -338,6 +339,11 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var SalesHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignItemChargesOnAfterItemChargeAssgntSalesSetFilters(var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; FromDocType: Enum "Sales Document Type"; FromDocNo: Code[20]; ToDocType: Enum "Sales Document Type"; ToDocNo: Code[20])
     begin
     end;
 

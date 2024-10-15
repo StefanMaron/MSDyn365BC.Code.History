@@ -227,7 +227,13 @@
     procedure GetRecordAsText(): Text
     var
         RecordAsText: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetRecordAsText(Rec, RecordAsText, IsHandled);
+        if IsHandled then
+            exit(RecordAsText);
+
         RecordAsText := '';
 
         if ("Electronic Document" <> "Electronic Document"::No) and ("Electronic Format" <> '') then
@@ -920,6 +926,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultSendingProfileForVendorFromLookup(VendorNo: Code[20]; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetRecordAsText(DocumentSendingProfile: Record "Document Sending Profile"; var RecordAsText: Text; var Handled: Boolean)
     begin
     end;
 

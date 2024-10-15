@@ -120,6 +120,7 @@ page 790 "G/L Account Categories"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedOnly = true;
+                Scope = Repeater;
                 ToolTip = 'Change the sorting of the account categories.';
 
                 trigger OnAction()
@@ -136,6 +137,7 @@ page 790 "G/L Account Categories"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedOnly = true;
+                Scope = Repeater;
                 ToolTip = 'Change the sorting of the account categories.';
 
                 trigger OnAction()
@@ -181,7 +183,6 @@ page 790 "G/L Account Categories"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Generate Account Schedules';
-                Enabled = PageEditable;
                 Image = CreateLinesFromJob;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -217,9 +218,8 @@ page 790 "G/L Account Categories"
                 Caption = 'General Ledger Setup';
                 Image = GeneralLedger;
                 Promoted = true;
-                PromotedCategory = Category4;
+                PromotedCategory = Process;
                 PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "General Ledger Setup";
                 ToolTip = 'View or edit the way to handle certain accounting issues in your company.';
             }
@@ -229,9 +229,8 @@ page 790 "G/L Account Categories"
                 Caption = 'Account Schedules';
                 Image = Accounts;
                 Promoted = true;
-                PromotedCategory = Category4;
+                PromotedCategory = Process;
                 PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "Account Schedule Names";
                 ToolTip = 'Open your account schedules to analyze figures in general ledger accounts or to compare general ledger entries with general ledger budget entries.';
             }

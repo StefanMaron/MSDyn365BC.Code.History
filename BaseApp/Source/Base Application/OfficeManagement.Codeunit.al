@@ -1,10 +1,5 @@
 codeunit 1630 "Office Management"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
         OfficeHostType: DotNet OfficeHostType;
@@ -32,13 +27,13 @@ codeunit 1630 "Office Management"
     begin
         Session.LogMessage('0000ACT', StrSubstNo(AddinInitializedTelemetryTxt,
                 TypeHelper.NewLine(),
-                GetHostName,
-                GetHostType,
+                GetHostName(),
+                GetHostType(),
                 Format(TempNewOfficeAddinContext.Mode),
                 TempNewOfficeAddinContext.Command), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeAddinTelemetryCategoryTxt);
 
         OfficeHostManagement.InitializeContext(TempNewOfficeAddinContext);
-        OfficeHostManagement.InitializeExchangeObject;
+        OfficeHostManagement.InitializeExchangeObject();
         if AddinDeploymentHelper.CheckVersion(GetHostType, TempNewOfficeAddinContext.Version) then
             HandleRedirection(TempNewOfficeAddinContext);
     end;
@@ -59,13 +54,13 @@ codeunit 1630 "Office Management"
 
     procedure AttachAvailable(): Boolean
     begin
-        if not IsAvailable then
+        if not IsAvailable() then
             exit(false);
 
-        exit(GetHostType in [OfficeHostType.OutlookHyperlink,
-                             OfficeHostType.OutlookItemEdit,
-                             OfficeHostType.OutlookItemRead,
-                             OfficeHostType.OutlookTaskPane]);
+        exit(GetHostType() in [OfficeHostType.OutlookHyperlink(),
+                             OfficeHostType.OutlookItemEdit(),
+                             OfficeHostType.OutlookItemRead(),
+                             OfficeHostType.OutlookTaskPane()]);
     end;
 
     local procedure AttachAsBlob() AsBlob: Boolean
@@ -75,11 +70,12 @@ codeunit 1630 "Office Management"
         GetContext(OfficeAddinContext);
 
         // Attach as blob unless the item is a message in compose mode
-        AsBlob := OfficeAddinContext.IsAppointment;
+        AsBlob := OfficeAddinContext.IsAppointment();
         AsBlob := AsBlob or (OfficeAddinContext.Mode = OfficeAddinContext.Mode::Read);
-        AsBlob := AsBlob and (GetHostType <> OfficeHostType.OutlookItemEdit);
+        AsBlob := AsBlob and (GetHostType() <> OfficeHostType.OutlookItemEdit());
     end;
 
+    [Obsolete('Please use the overload with the stream parameter', '17.2')]
     procedure AttachDocument(ServerFilePath: Text; FileName: Text; BodyText: Text; Subject: Text)
     var
         MailMgt: Codeunit "Mail Management";
@@ -90,14 +86,45 @@ codeunit 1630 "Office Management"
             File := GetAuthenticatedUrlOrContent(ServerFilePath);
             with OfficeAttachmentManager do begin
                 Add(File, FileName, BodyText);
-                if Ready then begin
+                if Ready() then begin
                     Commit();
-                    InvokeExtension('sendAttachment', GetFiles, GetNames, GetBody, Subject);
-                    Done;
+                    InvokeExtension('sendAttachment', GetFiles(), GetNames(), GetBody(), Subject);
+                    Done();
                 end;
             end;
         end else
             InvokeExtension('sendAttachment', '', '', MailMgt.ImageBase64ToUrl(BodyText), Subject);
+    end;
+
+    procedure AttachDocument(AttachmentStream: Instream; AttachmentName: Text; BodyText: Text; Subject: Text)
+    var
+        OfficeAttachmentManager: Codeunit "Office Attachment Manager";
+        FileManagement: Codeunit "File Management";
+        OutStream: OutStream;
+        FileName: Text;
+        File: File;
+        ServerFilePath: Text;
+    begin
+        ServerFilePath := FileManagement.ServerTempFileName(FileManagement.GetExtension(AttachmentName));
+        File.Create(ServerFilePath);
+        File.CreateOutStream(OutStream);
+        CopyStream(OutStream, AttachmentStream);
+        File.Close();
+
+        FileName := GetAuthenticatedUrlOrContent(ServerFilePath);
+        OfficeAttachmentManager.Add(FileName, AttachmentName, BodyText);
+        if OfficeAttachmentManager.Ready() then begin
+            Commit();
+            InvokeExtension('sendAttachment', OfficeAttachmentManager.GetFiles(), OfficeAttachmentManager.GetNames(), OfficeAttachmentManager.GetBody(), Subject);
+            OfficeAttachmentManager.Done();
+        end;
+    end;
+
+    procedure AttachDocument(BodyText: Text; Subject: Text)
+    var
+        MailMgt: Codeunit "Mail Management";
+    begin
+        InvokeExtension('sendAttachment', '', '', MailMgt.ImageBase64ToUrl(BodyText), Subject);
     end;
 
     procedure ChangeCompany(NewCompany: Text)
@@ -123,13 +150,13 @@ codeunit 1630 "Office Management"
         OfficeInvoice: Record "Office Invoice";
         OfficeInvoiceSelection: Page "Office Invoice Selection";
     begin
-        if IsAvailable then begin
+        if IsAvailable() then begin
             GetContext(TempOfficeAddinContext);
             OfficeInvoice.SetRange("Item ID", TempOfficeAddinContext."Item ID");
             if not OfficeInvoice.IsEmpty() then begin
                 OfficeInvoiceSelection.SetTableView(OfficeInvoice);
                 OfficeInvoiceSelection.SetCustomerNo(CustNo);
-                OfficeInvoiceSelection.Run;
+                OfficeInvoiceSelection.Run();
                 exit(true);
             end;
         end;
@@ -139,7 +166,7 @@ codeunit 1630 "Office Management"
     var
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
-        OfficeHostManagement.CloseCurrentPage;
+        OfficeHostManagement.CloseCurrentPage();
     end;
 
     procedure DisplayOCRUploadSuccessMessage(UploadedDocumentCount: Integer)
@@ -152,18 +179,18 @@ codeunit 1630 "Office Management"
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        if IsAvailable then begin
+        if IsAvailable() then begin
             GetContext(TempOfficeAddinContext);
             Contact.SetCurrentKey("E-Mail");
             Contact.SetRange("E-Mail", TempOfficeAddinContext.Email);
             if not Contact.IsEmpty() and (LinkToNo <> '') then begin
                 ContactBusinessRelation.SetRange("No.", LinkToNo);
-                if ContactBusinessRelation.FindSet then
+                if ContactBusinessRelation.FindSet() then
                     repeat
                         Contact.SetRange("Company No.", ContactBusinessRelation."Contact No.");
-                    until (ContactBusinessRelation.Next = 0) or Contact.FindFirst;
+                    until (ContactBusinessRelation.Next() = 0) or Contact.FindFirst();
             end;
-            exit(Contact.FindFirst);
+            exit(Contact.FindFirst());
         end;
     end;
 
@@ -178,7 +205,7 @@ codeunit 1630 "Office Management"
     var
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
-        if not OfficeAddinContext.IsAppointment then
+        if not OfficeAddinContext.IsAppointment() then
             exit(OfficeHostManagement.GetEmailBody(OfficeAddinContext));
     end;
 
@@ -195,8 +222,8 @@ codeunit 1630 "Office Management"
     var
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
-        if OCRAvailable then
-            exit(OfficeHostManagement.EmailHasAttachments);
+        if OCRAvailable() then
+            exit(OfficeHostManagement.EmailHasAttachments());
     end;
 
     procedure InitiateSendToOCR(VendorNumber: Code[20])
@@ -211,7 +238,6 @@ codeunit 1630 "Office Management"
         TempExchangeObject.SetRange(IsInline, false);
         if not TempExchangeObject.IsEmpty() then begin
             Session.LogMessage('0000AD0', StrSubstNo(IncomingDocumentTelemetryTxt, TempExchangeObject.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeAddinTelemetryCategoryTxt);
-
             Page.Run(Page::"Office OCR Incoming Documents", TempExchangeObject);
         end;
     end;
@@ -237,7 +263,7 @@ codeunit 1630 "Office Management"
             IncomingDocumentAttachment."Document No. Filter" := PurchaseHeader."No.";
             OfficeOCRIncomingDocuments.InitializeIncomingDocumentAttachment(IncomingDocumentAttachment);
             OfficeOCRIncomingDocuments.InitializeExchangeObject(TempExchangeObject);
-            OfficeOCRIncomingDocuments.Run;
+            OfficeOCRIncomingDocuments.Run();
         end;
     end;
 
@@ -273,26 +299,26 @@ codeunit 1630 "Office Management"
     var
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
-        exit(OfficeHostManagement.IsAvailable);
+        exit(OfficeHostManagement.IsAvailable());
     end;
 
     procedure IsOutlookMobileApp(): Boolean
     begin
-        if IsAvailable then
-            exit(GetHostType = OfficeHostType.OutlookMobileApp);
+        if IsAvailable() then
+            exit(GetHostType() = OfficeHostType.OutlookMobileApp());
     end;
 
     procedure IsPopOut(): Boolean
     begin
-        if IsAvailable then
-            exit(GetHostType = OfficeHostType.OutlookPopOut);
+        if IsAvailable() then
+            exit(GetHostType() = OfficeHostType.OutlookPopOut());
     end;
 
     procedure OCRAvailable(): Boolean
     begin
-        if IsAvailable then
-            exit(not (GetHostType in [OfficeHostType.OutlookPopOut,
-                                      OfficeHostType.OutlookMobileApp]));
+        if IsAvailable() then
+            exit(not (GetHostType() in [OfficeHostType.OutlookPopOut(),
+                                      OfficeHostType.OutlookMobileApp()]));
     end;
 
     procedure SelectAndChangeCompany() NewCompany: Text
@@ -317,7 +343,7 @@ codeunit 1630 "Office Management"
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        IncomingDocument.TestReadyForApproval;
+        IncomingDocument.TestReadyForApproval();
         if ApprovalsMgmt.CheckIncomingDocApprovalsWorkflowEnabled(IncomingDocument) then
             ApprovalsMgmt.OnSendIncomingDocForApproval(IncomingDocument);
     end;
@@ -351,9 +377,9 @@ codeunit 1630 "Office Management"
             end;
 
             IncomingDocument.SetRange("Entry No.", IncomingDocumentAttachment."Incoming Document Entry No.");
-            if IncomingDocument.FindFirst then begin
+            if IncomingDocument.FindFirst() then begin
                 Vendor.SetRange("No.", TempExchangeObject.VendorNo);
-                if Vendor.FindFirst then begin
+                if Vendor.FindFirst() then begin
                     IncomingDocument.Validate("Vendor Name", Vendor.Name);
                     IncomingDocument.Modify();
                     exit(true);
@@ -393,10 +419,10 @@ codeunit 1630 "Office Management"
         OutputFile: File;
     begin
         OutputFile.WriteMode(true);
-        OutputFile.Create(OutputFileName, TEXTENCODING::UTF8);
+        OutputFile.Create(OutputFileName, TextEncoding::UTF8);
         OutputFile.CreateOutStream(OutStream);
         OutStream.Write(HTMLText, StrLen(HTMLText));
-        OutputFile.Close;
+        OutputFile.Close();
     end;
 
     local procedure GetAuthenticatedUrlOrContent(ServerFilePath: Text): Text
@@ -410,7 +436,7 @@ codeunit 1630 "Office Management"
         FileMgt.BLOBImportFromServerFile(TempBlob, ServerFilePath);
 
         TempBlob.CreateInStream(DocStream, TEXTENCODING::UTF8);
-        if AttachAsBlob then
+        if AttachAsBlob() then
             exit(Base64Convert.ToBase64(DocStream));
 
         MediaId := ImportStreamWithUrlAccess(DocStream, FileMgt.GetFileName(ServerFilePath));
@@ -426,16 +452,16 @@ codeunit 1630 "Office Management"
         if OfficeJobsHandler.IsJobsHostType(OfficeAddinContext) then
             exit(Codeunit::"Office Jobs Handler");
 
-        HostType := GetHostType;
+        HostType := GetHostType();
 
         OnGetExternalHandlerCodeunit(OfficeAddinContext, HostType, ExternalHandler);
         if ExternalHandler > 0 then
             exit(ExternalHandler);
 
         case HostType of
-            OfficeHostType.OutlookItemRead, OfficeHostType.OutlookItemEdit, OfficeHostType.OutlookTaskPane, OfficeHostType.OutlookMobileApp:
+            OfficeHostType.OutlookItemRead(), OfficeHostType.OutlookItemEdit(), OfficeHostType.OutlookTaskPane(), OfficeHostType.OutlookMobileApp():
                 exit(Codeunit::"Office Contact Handler");
-            OfficeHostType.OutlookHyperlink:
+            OfficeHostType.OutlookHyperlink():
                 exit(Codeunit::"Office Document Handler");
         end;
 
@@ -449,14 +475,14 @@ codeunit 1630 "Office Management"
     var
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
-        exit(OfficeHostManagement.GetHostName);
+        exit(OfficeHostManagement.GetHostName());
     end;
 
     local procedure GetHostType(): Text
     var
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
-        exit(OfficeHostManagement.GetHostType);
+        exit(OfficeHostManagement.GetHostType());
     end;
 
     local procedure InvokeExtension(FunctionName: Text; Parameter1: Variant; Parameter2: Variant; Parameter3: Variant; Parameter4: Variant)
@@ -464,7 +490,6 @@ codeunit 1630 "Office Management"
         OfficeHostManagement: Codeunit "Office Host Management";
     begin
         Session.LogMessage('0000ACV', StrSubstNo(ClientExtensionTelemetryTxt, FunctionName), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeAddinTelemetryCategoryTxt);
-
         OfficeHostManagement.InvokeExtension(FunctionName, Parameter1, Parameter2, Parameter3, Parameter4);
     end;
 
@@ -474,10 +499,10 @@ codeunit 1630 "Office Management"
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;
     begin
         // User has deleted the contact that was just created. Prevent user seeing a blank screen.
-        if not IsAvailable or Rec.IsTemporary then
+        if not IsAvailable() or Rec.IsTemporary() then
             exit;
         GetContext(TempOfficeAddinContext);
-        if (Rec."E-Mail" = TempOfficeAddinContext.Email) and (Rec.Type = Rec.Type::Person) and (not Rec.Find) then
+        if (Rec."E-Mail" = TempOfficeAddinContext.Email) and (Rec.Type = Rec.Type::Person) and (not Rec.Find()) then
             Page.Run(Page::"Office New Contact Dlg")
     end;
 

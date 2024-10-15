@@ -8,14 +8,17 @@ enum 7002 "Price Source Group" implements "Price Source Group"
     }
     value(11; Customer)
     {
+        Caption = 'Customer';
         Implementation = "Price Source Group" = "Price Source Group - Customer";
     }
     value(21; Vendor)
     {
+        Caption = 'Vendor';
         Implementation = "Price Source Group" = "Price Source Group - Vendor";
     }
     value(31; Job)
     {
+        Caption = 'Job';
         Implementation = "Price Source Group" = "Price Source Group - Job";
     }
 }

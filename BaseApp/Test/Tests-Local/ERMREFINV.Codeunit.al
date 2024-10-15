@@ -130,12 +130,15 @@ codeunit 144018 "ERM REFINV"
         SalesHeader2: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesLine2: Record "Sales Line";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
         DocumentNo: Code[20];
         DocumentNo2: Code[20];
     begin
         // Verify if new mandatory info is posted when running - Batch Post (2 Sales Invoices and 2 Credit Memos)
         // Setup.
         Initialize;
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         LibrarySales.SetPostWithJobQueue(true);
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
         DocumentNo2 := CreateAndPostSalesInvoice(SalesLine2);

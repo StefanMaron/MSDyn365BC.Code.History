@@ -85,6 +85,33 @@ page 383 "Bank Account Statement"
                 }
             }
         }
+        area(processing)
+        {
+            group(Functions)
+            {
+                Caption = 'Functions';
+                action(Undo)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Undo';
+                    Image = Undo;
+                    Promoted = true;
+                    PromotedOnly = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Reverse this bank statement and automatically create a new bank reconciliation with the same information so you can correct it before posting. This bank statement will be deleted.';
+
+                    trigger OnAction()
+                    var
+                        UndoBankStatementYesNo: Codeunit "Undo Bank Statement (Yes/No)";
+                    begin
+                        if UndoBankStatementYesNo.Run(Rec) then
+                            CurrPage.Close()
+                        else
+                            Error(GetLastErrorText);
+                    end;
+                }
+            }
+        }
     }
 }
 
