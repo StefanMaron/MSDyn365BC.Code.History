@@ -295,6 +295,7 @@ table 904 "Assemble-to-Order Link"
         QtyTrackedBase: Decimal;
     begin
         GetAsmHeader;
+        OnSynchronizeAsmFromSalesLineOnAfterGetAsmHeader(NewSalesLine, AsmHeader);
 
         Window.Open(GetWindowOpenTextSale(NewSalesLine));
 
@@ -1362,6 +1363,11 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnRollUpPriceOnBeforeModifySalesline(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeAsmFromSalesLineOnAfterGetAsmHeader(var NewSalesLine: Record "Sales Line"; var AssemblyHeader: Record "Assembly Header")
     begin
     end;
 

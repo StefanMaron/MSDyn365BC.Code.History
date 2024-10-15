@@ -874,6 +874,7 @@ table 121 "Purch. Rcpt. Line"
                 OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(Rec, PurchLine, IsHandled);
                 if not IsHandled then
                     PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
+                CalcBaseQuantities(PurchLine, "Quantity (Base)" / Quantity);
 
                 OnInsertInvLineFromRcptLineOnAfterCalcQuantities(PurchLine, PurchOrderLine);
 
@@ -1144,6 +1145,30 @@ table 121 "Purch. Rcpt. Line"
           Round("Job Line Discount Amount" * Factor, Currency."Amount Rounding Precision");
         "Job Line Disc. Amount (LCY)" :=
           Round("Job Line Disc. Amount (LCY)" * Factor, Currency."Amount Rounding Precision");
+    end;
+
+    local procedure CalcBaseQuantities(var PurchaseLine: Record "Purchase Line"; QtyFactor: Decimal)
+    begin
+        PurchaseLine."Quantity (Base)" :=
+          Round(PurchaseLine.Quantity * QtyFactor, UOMMgt.QtyRndPrecision());
+        PurchaseLine."Outstanding Qty. (Base)" :=
+          Round(PurchaseLine."Outstanding Quantity" * QtyFactor, UOMMgt.QtyRndPrecision());
+        PurchaseLine."Qty. to Receive (Base)" :=
+          Round(PurchaseLine."Qty. to Receive" * QtyFactor, UOMMgt.QtyRndPrecision());
+        PurchaseLine."Qty. Received (Base)" :=
+          Round(PurchaseLine."Quantity Received" * QtyFactor, UOMMgt.QtyRndPrecision());
+        PurchaseLine."Qty. Rcd. Not Invoiced (Base)" :=
+          Round(PurchaseLine."Qty. Rcd. Not Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision());
+        PurchaseLine."Qty. to Invoice (Base)" :=
+          Round(PurchaseLine."Qty. to Invoice" * QtyFactor, UOMMgt.QtyRndPrecision());
+        PurchaseLine."Qty. Invoiced (Base)" :=
+          Round(PurchaseLine."Quantity Invoiced" * QtyFactor, UOMMgt.QtyRndPrecision());
+        PurchaseLine."Return Qty. to Ship (Base)" :=
+          Round(PurchaseLine."Return Qty. to Ship" * QtyFactor, UOMMgt.QtyRndPrecision());
+        PurchaseLine."Return Qty. Shipped (Base)" :=
+          Round(PurchaseLine."Return Qty. Shipped" * QtyFactor, UOMMgt.QtyRndPrecision());
+        PurchaseLine."Ret. Qty. Shpd Not Invd.(Base)" :=
+          Round(PurchaseLine."Return Qty. Shipped Not Invd." * QtyFactor, UOMMgt.QtyRndPrecision());
     end;
 
     local procedure GetFieldCaption(FieldNumber: Integer): Text[100]

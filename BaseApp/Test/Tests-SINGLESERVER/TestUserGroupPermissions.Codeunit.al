@@ -82,6 +82,7 @@ codeunit 134610 "Test User Group Permissions"
         UserGroupMember: Record "User Group Member";
     begin
         // Verify that the OnDelete trigger of table 9000 prevents deletion if there are members.
+
         // Init
         LibraryPermissions.CreateUserGroup(UserGroup, '');
         LibraryPermissions.CreateUserGroupMember(UserGroup, UserGroupMember);
@@ -733,7 +734,7 @@ codeunit 134610 "Test User Group Permissions"
         UserGroups: TestPage "User Groups";
         RecordExists: Boolean;
     begin
-        // Test assignemt of members to a user group in different companies
+        // Test assignment of members to a user group in different companies
         // Init
         LibraryPermissions.CreateUserGroup(UserGroup, '');
         LibraryPermissions.GetMyUser(User);
@@ -1192,9 +1193,10 @@ codeunit 134610 "Test User Group Permissions"
 
     local procedure CreateUserGroupPermissionSet(var UserGroupPermissionSet: Record "User Group Permission Set"; UserGroupCode: Code[20]; RoleID: Code[20])
     begin
-        UserGroupPermissionSet.Init;
+        UserGroupPermissionSet.Init();
         UserGroupPermissionSet."User Group Code" := UserGroupCode;
         UserGroupPermissionSet."Role ID" := RoleID;
+        UserGroupPermissionSet."App ID" := CreateGuid();
         UserGroupPermissionSet.Insert(true);
     end;
 
@@ -1611,6 +1613,7 @@ codeunit 134610 "Test User Group Permissions"
         UserGroupPermissionSet.Init();
         UserGroupPermissionSet."Role ID" := TenantPermissionSet."Role ID";
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
+        UserGroupPermissionSet."App ID" := CreateGuid();
         UserGroupPermissionSet.Insert();
         Commit();
 

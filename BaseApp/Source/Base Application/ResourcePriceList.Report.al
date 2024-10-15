@@ -6,7 +6,7 @@ report 1115 "Resource - Price List"
     Caption = 'Resource - Price List';
     UsageCategory = ReportsAndAnalysis;
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: report 7054 "Res. Price List"';
     ObsoleteTag = '16.0';
 
     dataset

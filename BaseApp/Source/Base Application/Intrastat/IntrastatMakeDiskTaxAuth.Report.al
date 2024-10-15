@@ -16,7 +16,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                 trigger OnAfterGetRecord()
                 begin
-                    TestField("Transaction Type");
                     if IntraJnlLineType = 0 then
                         "Intrastat Jnl. Batch".TestField("Reported Receipt", false)
                     else
