@@ -395,12 +395,16 @@ report 2000021 "File Domiciliations"
                         ApplicationArea = Basic, Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the name of the domiciliation file that you want to submit.';
+#if CLEAN17
+                        Visible = false;
+#else
                         Visible = FileNameVisible;
 
                         trigger OnAssistEdit()
                         begin
                             FileName := FileMgt.SaveFileDialog(Text012, FileName, '');
                         end;
+#endif
                     }
                 }
             }
@@ -409,11 +413,13 @@ report 2000021 "File Domiciliations"
         actions
         {
         }
-
+#if not CLEAN17
         trigger OnInit()
         begin
             FileNameVisible := RBMgt.IsLocalFileSystemAccessible;
         end;
+#endif
+
     }
 
     labels
@@ -486,7 +492,9 @@ report 2000021 "File Domiciliations"
         Text009: Label 'There are no domiciliation records.';
         Text010: Label 'There are domiciliation lines with different posting dates.';
         Text011: Label 'EUR';
+#if not CLEAN17
         Text012: Label 'Export to text file';
+#endif
         CompanyInfo: Record "Company Information";
         EBSetup: Record "Electronic Banking Setup";
         Cust: Record Customer;
@@ -504,7 +512,9 @@ report 2000021 "File Domiciliations"
         FormatAddress: Codeunit "Format Address";
         EnterpriseNoCheck: Codeunit VATLogicalTests;
         NoSeriesMgt: Codeunit NoSeriesManagement;
+#if not CLEAN17
         FileMgt: Codeunit "File Management";
+#endif
         RBMgt: Codeunit "File Management";
         ClientTypeManagement: Codeunit "Client Type Management";
         xFile: File;
@@ -534,8 +544,10 @@ report 2000021 "File Domiciliations"
         TotalDomNoDecimal: array[2] of Decimal;
         AmtFactor: Decimal;
         AutomaticPosting: Boolean;
+#if not CLEAN17
         [InDataSet]
         FileNameVisible: Boolean;
+#endif
         FromFile: Text[250];
         ReceiptDateCaptionLbl: Label 'Receipt Date';
         EmptyStringCaptionLbl: Label '......  /  ......  /  ......';

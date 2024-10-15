@@ -492,7 +492,7 @@ codeunit 134384 "ERM Document Posting Error"
         LineAmount: Decimal;
     begin
         // [FEATURE] [Sales] [VAT]
-        // [SCENARIO 367912] Stan can post sales order with negative line when the total amount including VAT is 0
+        // [SCENARIO 367912] Stan can post sales order with negative line when the total "Amount Including VAT" is 0
         Initialize();
 
         CreateTwoVATPostingSetups(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20), 0);
@@ -522,7 +522,50 @@ codeunit 134384 "ERM Document Posting Error"
     end;
 
     [Test]
-    [Scope('OnPrem')]
+    procedure SalesOrderWithPositiveAndNegativeLinesPriceInclVAT()
+    var
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        LineAmount: Decimal;
+        VATBase: Decimal;
+    begin
+        // [FEATURE] [Sales] [VAT] [Price Including VAT]
+        // [SCENARIO 367912] Stan can post sales order with negative line when the total "Amount Including VAT" is 0 and "Price Incl. VAT" = TRUE
+        Initialize;
+
+        CreateTwoVATPostingSetups(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20), 0);
+
+        LineAmount := LibraryRandom.RandIntInRange(100, 200);
+
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Order,
+          LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup[1]."VAT Bus. Posting Group"));
+        SalesHeader.Validate("Prices Including VAT", true);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(
+          SalesLine[1], SalesHeader, SalesLine[1].Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup[1], GLAccount."Gen. Posting Type"::Sale), 1);
+        SalesLine[1].Validate("Unit Price", LineAmount);
+        SalesLine[1].Modify(true);
+
+        LibrarySales.CreateSalesLine(
+          SalesLine[2], SalesHeader, SalesLine[2].Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup[2], GLAccount."Gen. Posting Type"::Purchase), 1);
+        SalesLine[2].Validate("Unit Price", -(LineAmount / (1 + VATPostingSetup[1]."VAT %" / 100)));
+        SalesLine[2].Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VATBase := Round(LineAmount / (1 + VATPostingSetup[1]."VAT %" / 100));
+        VerifyVATEntryAmountByVATPostingSetup(
+          VATPostingSetup[1], -VATBase, -Round(VATBase * VATPostingSetup[1]."VAT %" / 100));
+        VerifyVATEntryAmountByVATPostingSetup(VATPostingSetup[2], -SalesLine[2]."Line Amount", 0);
+    end;
+
+    [Test]
     procedure PurchaseOrderWithPositiveAndNegativeLines()
     var
         VATPostingSetup: array[2] of Record "VAT Posting Setup";
@@ -551,7 +594,7 @@ codeunit 134384 "ERM Document Posting Error"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::"G/L Account",
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup[2], GLAccount."Gen. Posting Type"::Purchase), 1);
-        PurchaseLine[2].Validate("Direct Unit Cost", -(LineAmount * (100 + VATPostingSetup[1]."VAT %") / 100));
+        PurchaseLine[2].Validate("Direct Unit Cost", -(LineAmount * (1 + VATPostingSetup[1]."VAT %" / 100)));
         PurchaseLine[2].Modify(true);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -561,7 +604,6 @@ codeunit 134384 "ERM Document Posting Error"
         VerifyVATEntryAmountByVATPostingSetup(VATPostingSetup[2], PurchaseLine[2]."Line Amount", 0);
     end;
 
-    [Normal]
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

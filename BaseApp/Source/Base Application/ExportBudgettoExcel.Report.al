@@ -1,4 +1,4 @@
-report 82 "Export Budget to Excel"
+﻿report 82 "Export Budget to Excel"
 {
     Caption = 'Export Budget to Excel';
     ProcessingOnly = true;
@@ -241,16 +241,7 @@ report 82 "Export Budget to Excel"
                     until (SelectedDim.Next = 0) or (i = 8);
                 NoOfDimensions := i;
 
-                for i := 1 to NoOfPeriods do begin
-                    if i = 1 then
-                        TempPeriod."Period Start" := StartDate
-                    else
-                        TempPeriod."Period Start" := CalcDate(PeriodLength, TempPeriod."Period Start");
-                    TempPeriod."Period End" := CalcDate(PeriodLength, TempPeriod."Period Start");
-                    TempPeriod."Period End" := CalcDate('<-1D>', TempPeriod."Period End");
-                    TempPeriod."Period No." := i;
-                    TempPeriod.Insert();
-                end;
+                InsertTempPeriods();
 
                 SetRange(Date, StartDate, TempPeriod."Period End");
                 TempBudgetBuf2.DeleteAll();
@@ -377,6 +368,27 @@ report 82 "Export Budget to Excel"
         TempPeriod."Period Start" := EntryDate;
         TempPeriod.Find('=<');
         exit(TempPeriod."Period Start");
+    end;
+
+    local procedure InsertTempPeriods()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertTempPeriods(TempPeriod, StartDate, NoOfPeriods, PeriodLength, IsHandled);
+        if IsHandled then
+            exit;
+
+        for i := 1 to NoOfPeriods do begin
+            if i = 1 then
+                TempPeriod."Period Start" := StartDate
+            else
+                TempPeriod."Period Start" := CalcDate(PeriodLength, TempPeriod."Period Start");
+            TempPeriod."Period End" := CalcDate(PeriodLength, TempPeriod."Period Start");
+            TempPeriod."Period End" := CalcDate('<-1D>', TempPeriod."Period End");
+            TempPeriod."Period No." := i;
+            TempPeriod.Insert();
+        end;
     end;
 
     local procedure GetDimValueCode(DimCode: Code[20]): Code[20]
@@ -573,6 +585,11 @@ report 82 "Export Budget to Excel"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFilterGLAccount(var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTempPeriods(var TempPeriod: Record Date temporary; StartDate: Date; NoOfPeriods: Integer; PeriodLength: DateFormula; var IsHandled: Boolean)
     begin
     end;
 }

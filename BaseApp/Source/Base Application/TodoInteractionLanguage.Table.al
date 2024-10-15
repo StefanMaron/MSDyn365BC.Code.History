@@ -53,8 +53,6 @@ table 5196 "To-do Interaction Language"
     procedure CreateAttachment(PageNotEditable: Boolean): Boolean
     var
         Attachment: Record Attachment;
-        WordManagement: Codeunit WordManagement;
-        NewAttachNo: Integer;
     begin
         if PageNotEditable then
             Error(Text003);
@@ -65,14 +63,6 @@ table 5196 "To-do Interaction Language"
                 exit;
         end;
 
-        NewAttachNo := WordManagement.CreateWordAttachment("To-do No." + ' ' + Description, "Language Code");
-        if NewAttachNo <> 0 then begin
-            if "Attachment No." <> 0 then
-                RemoveAttachment(false);
-            "Attachment No." := NewAttachNo;
-            Modify;
-            exit(true);
-        end;
         Error(Text000);
     end;
 

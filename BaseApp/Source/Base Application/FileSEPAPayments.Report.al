@@ -160,6 +160,9 @@ report 2000005 "File SEPA Payments"
                         ApplicationArea = Basic, Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the name or path of the file that will be exported.';
+#if CLEAN17
+                        Visible = false;
+#else
                         Visible = FileNameVisible;
 
                         trigger OnAssistEdit()
@@ -167,6 +170,7 @@ report 2000005 "File SEPA Payments"
                             if RBMgt.IsLocalFileSystemAccessible then
                                 FileName := RBMgt.SaveFileDialog(SaveAsTxt, FileName, XmlFileNameTxt);
                         end;
+#endif
                     }
                 }
             }
@@ -179,7 +183,9 @@ report 2000005 "File SEPA Payments"
         trigger OnInit()
         begin
             IncludeDimTextEnable := true;
-            FileNameVisible := RBMgt.IsLocalFileSystemAccessible;
+#if not CLEAN17
+            FileNameVisible := RBMgt.IsLocalFileSystemAccessible();
+#endif
         end;
 
         trigger OnOpenPage()
@@ -267,10 +273,12 @@ report 2000005 "File SEPA Payments"
         IncludeDimTextEnable: Boolean;
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
         DefaultFileNameTxt: Label 'Export.xml';
+#if not CLEAN17
         SaveAsTxt: Label 'Save As';
         XmlFileNameTxt: Label 'XML Files (*.xml)|*.xml|All Files|*.*';
         [InDataSet]
         FileNameVisible: Boolean;
+#endif
 
     local procedure PostPmtLines(var PmtJnlLine: Record "Payment Journal Line")
     var

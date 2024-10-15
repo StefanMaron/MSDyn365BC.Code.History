@@ -383,6 +383,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
     var
         TempXMLFile: Text;
     begin
+#if not CLEAN17
         if (ClientFileName <> '') and FileManagement.IsLocalFileSystemAccessible then
             XMLDoc.Save(ClientFileName)
         else begin
@@ -390,6 +391,11 @@ report 593 "Intrastat - Make Disk Tax Auth"
             XMLDoc.Save(TempXMLFile);
             exit(FileManagement.DownloadHandler(TempXMLFile, '', Dir, FileManagement.GetToFilterText('', TempXMLFile), 'Intrastat.xml'));
         end;
+#else
+        TempXMLFile := FileManagement.ServerTempFileName('xml');
+        XMLDoc.Save(TempXMLFile);
+        exit(FileManagement.DownloadHandler(TempXMLFile, '', Dir, FileManagement.GetToFilterText('', TempXMLFile), 'Intrastat.xml'));
+#endif
     end;
 
     local procedure ConvertPeriodToDate(Period: Code[10]): Date

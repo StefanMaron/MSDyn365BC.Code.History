@@ -316,6 +316,9 @@ report 2000002 "File International Payments"
                         ApplicationArea = Basic, Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the name of the domiciliation file that you want to submit.';
+#if CLEAN17
+                        Visible = false;
+#else
                         Visible = FileNameVisible;
 
                         trigger OnAssistEdit()
@@ -323,6 +326,7 @@ report 2000002 "File International Payments"
                             if RBMgt.IsLocalFileSystemAccessible then
                                 FileName := RBMgt.SaveFileDialog(SaveAsTxt, FileName, XmlFileNameTxt);
                         end;
+#endif
                     }
                 }
             }
@@ -335,7 +339,9 @@ report 2000002 "File International Payments"
         trigger OnInit()
         begin
             IncludeDimTextEnable := true;
-            FileNameVisible := RBMgt.IsLocalFileSystemAccessible;
+#if not CLEAN17
+            FileNameVisible := RBMgt.IsLocalFileSystemAccessible();
+#endif
         end;
 
         trigger OnOpenPage()
@@ -485,10 +491,12 @@ report 2000002 "File International Payments"
         SalariesCaptionLbl: Label 'Salaries (*)';
         NonSalariesCaptionLbl: Label 'Non-Salaries';
         PmtTypeSpecificationCaptionLbl: Label '(*) Please specify payment type ("Salaries" or "Non-Salaries") in the upper right corner of the issue voucher.';
+#if not CLEAN17
         SaveAsTxt: Label 'Save As';
         XmlFileNameTxt: Label 'XML Files (*.xml)|*.xml|All Files|*.*';
         [InDataSet]
         FileNameVisible: Boolean;
+#endif
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
 
     [Scope('OnPrem')]

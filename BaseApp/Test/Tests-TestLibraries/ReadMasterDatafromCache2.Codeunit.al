@@ -30,7 +30,9 @@ codeunit 132566 "Read Master Data from Cache 2"
         DotNetExceptionHandler: Codeunit "DotNet Exception Handler";
         ReadFileInBase64Encoding: Codeunit "Read File in Base64 Encoding";
         FileNotFoundException: DotNet FileNotFoundException;
+#if not CLEAN17
         UnauthorizedAccessException: DotNet "System.UnauthorizedAccessException";
+#endif
     begin
         ReadFileInBase64Encoding.SetFileName(FileName);
 
@@ -40,8 +42,10 @@ codeunit 132566 "Read Master Data from Cache 2"
             case true of
                 DotNetExceptionHandler.TryCastToType(GetDotNetType(FileNotFoundException)):
                     ImportFile(TempBlob2);
+#if not CLEAN17
                 DotNetExceptionHandler.TryCastToType(GetDotNetType(UnauthorizedAccessException)):
                     UploadFileFromClient(TempBlob2, FileName);
+#endif
                 else
                     DotNetExceptionHandler.Rethrow;
             end;
@@ -57,6 +61,8 @@ codeunit 132566 "Read Master Data from Cache 2"
             FileMgt.BLOBImport(TempBlob2, '');
     end;
 
+#if not CLEAN17
+    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
     local procedure UploadFileFromClient(var TempBlob2: Codeunit "Temp Blob"; ClientFileName: Text)
     var
         FileMgt: Codeunit "File Management";
@@ -68,6 +74,7 @@ codeunit 132566 "Read Master Data from Cache 2"
             // Update the Master Data Setup table to point to the server copy.
         end;
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GetTempBlob(var TempBlob2: Codeunit "Temp Blob")

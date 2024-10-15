@@ -39,11 +39,7 @@ page 6320 "Upload Power BI Report"
                     end;
                 end;
 
-                trigger OnValidate()
-                begin
-                    if not FileManagement.ClientFileExists(FileName) then
-                        Error(FileExistErr, FileName);
-                end;
+                
             }
             field(ReportName; ReportName)
             {
@@ -128,7 +124,6 @@ page 6320 "Upload Power BI Report"
         ReportNameErr: Label 'You must enter a report name.';
         FileNameErr: Label 'You must enter a file name.';
         NotReadyErr: Label 'The Power BI Service is currently unavailable.';
-        FileExistErr: Label 'The file ''%1'' does not exist.', Comment = '%1 = a file path, for example C:\temp\MyFile.pbix';
         TempBlob: Codeunit "Temp Blob";
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         FileManagement: Codeunit "File Management";

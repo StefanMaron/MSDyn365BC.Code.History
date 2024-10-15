@@ -445,7 +445,7 @@
         if IsBackground() then
             exit;
 
-        if not GuiAllowed or (OfficeMgt.IsAvailable() and not OfficeMgt.IsPopOut()) then
+        if not TempEmailItem.HasAttachments() or not GuiAllowed or (OfficeMgt.IsAvailable() and not OfficeMgt.IsPopOut()) then
             Error(CannotSendMailThenDownloadErr);
 
         if not Confirm(StrSubstNo('%1\\%2', CannotSendMailThenDownloadErr, CannotSendMailThenDownloadQst)) then
@@ -465,11 +465,15 @@
 
     procedure DownloadPdfAttachment(var TempEmailItem: Record "Email Item" temporary)
     var
+        DataCompression: Codeunit "Data Compression";
         Attachments: Codeunit "Temp Blob List";
         Attachment: Codeunit "Temp Blob";
+        AttachmentArchiveTempBlob: Codeunit "Temp Blob";
         AttachmentNames: List of [Text];
-        AttachemntName: Text;
+        AttachmentName: Text;
         AttachmentStream: Instream;
+        AttachmentOutStream: Outstream;
+        AttachmentNumber: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -478,11 +482,25 @@
             exit;
 
         TempEmailItem.GetAttachments(Attachments, AttachmentNames);
-        if Attachments.Count() > 0 then begin
-            AttachemntName := AttachmentNames.Get(1);
+        if Attachments.Count() = 1 then begin
+            AttachmentName := AttachmentNames.Get(1);
             Attachments.Get(1, Attachment);
             Attachment.CreateInStream(AttachmentStream);
-            DownloadFromStream(AttachmentStream, SaveFileDialogTitleMsg, '', SaveFileDialogFilterMsg, AttachemntName);
+            DownloadFromStream(AttachmentStream, SaveFileDialogTitleMsg, '', SaveFileDialogFilterMsg, AttachmentName);
+        end else begin
+            DataCompression.CreateZipArchive();
+            for AttachmentNumber := 1 to Attachments.Count() do begin
+                AttachmentName := AttachmentNames.Get(AttachmentNumber);
+                Attachments.Get(AttachmentNumber, Attachment);
+                Attachment.CreateInStream(AttachmentStream);
+                DataCompression.AddEntry(AttachmentStream, AttachmentName);
+            end;
+            AttachmentName := 'Attachments.zip';
+            AttachmentArchiveTempBlob.CreateOutStream(AttachmentOutStream);
+            DataCompression.SaveZipArchive(AttachmentOutStream);
+            DataCompression.CloseZipArchive();
+            AttachmentArchiveTempBlob.CreateInStream(AttachmentStream);
+            DownloadFromStream(AttachmentStream, SaveFileDialogTitleMsg, '', SaveFileDialogFilterMsg, AttachmentName);
         end;
     end;
 

@@ -444,6 +444,7 @@
     var
         DeferralHeader: Record "Deferral Header";
         DeferralTemplate: Record "Deferral Template";
+        OldDeferralPostingDate: Date;
     begin
         if DeferralCode = '' then
             // If the user cleared the deferral code, we should remove the saved schedule...
@@ -455,6 +456,12 @@
             if LineNo <> 0 then
                 if DeferralTemplate.Get(DeferralCode) then begin
                     ValidateDeferralTemplate(DeferralTemplate);
+
+                    OldDeferralPostingDate := GetDeferralStartDate(DeferralDocType, DocumentType, DocumentNo, LineNo, DeferralCode, PostingDate);
+                    if AdjustStartDate and (OldDeferralPostingDate <> PostingDate) then begin
+                        AdjustStartDate := false;
+                        PostingDate := OldDeferralPostingDate;
+                    end;
 
                     CreateDeferralSchedule(DeferralCode, DeferralDocType,
                       GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo, Amount,
@@ -962,7 +969,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPostingDate(DeferralHeader: Record "Deferral Header"; DeferralLine: record "Deferral Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckPostingDate(DeferralHeader: Record "Deferral Header"; var DeferralLine: record "Deferral Line"; var IsHandled: Boolean)
     begin
     end;
 

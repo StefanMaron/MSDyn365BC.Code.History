@@ -60,8 +60,10 @@ codeunit 139016 "File Mgt. Tests"
         DeleteClientFile(ClientFileName);
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure BlobExportFileNameWithFolderAndCommonDialog()
     var
         TempBlob: Codeunit "Temp Blob";
@@ -89,6 +91,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure TestClientTempFileNameReturnsNonExistingFileInExistingDirectory()
     var
         ClientTempFile: Text;
@@ -105,6 +108,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure TestClientTempFileNameLeavesNoTraceOnServer()
     var
         ServerFile: File;
@@ -136,6 +140,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure TestClientTempFileNameLeavesNoTraceOnClient()
     var
         ClientTempFile: Text;
@@ -166,6 +171,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure TestClientTempFileNameHasRightExtension()
     var
         Extension: Text;
@@ -193,6 +199,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('CreateClientTempSubDirectory will always throw an error.', '17.3')]
     procedure TestCreateClientTempSubDirectoryReturnsExistingDirectory()
     var
         TempSubDir: Text;
@@ -208,6 +215,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('CreateClientTempSubDirectory will always throw an error.', '17.3')]
     procedure TestCreateClientTempSubDirectoryReturnsEmptyDirectory()
     var
         TempSubDir: Text;
@@ -234,6 +242,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('CreateClientTempSubDirectory will always throw an error.', '17.3')]
     procedure TestCreateClientTempSubDirectoryReturnsTempSubDirectory()
     var
         ClientTempDir: Text;
@@ -249,6 +258,7 @@ codeunit 139016 "File Mgt. Tests"
 
         ClientDirectoryHelper.Delete(TempSubDir);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -264,8 +274,10 @@ codeunit 139016 "File Mgt. Tests"
           'The directory does not exist.');
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientFileExists will always return false.', '17.3')]
     procedure ClientFileExist()
     var
         FileName: Text;
@@ -288,6 +300,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientDirectoryExists will always return false.', '17.3')]
     procedure ClientDirectoryExist()
     var
         DirectoryName: Text;
@@ -316,6 +329,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('CopyClientFile will always throw an error.', '17.3')]
     procedure CopyClientFile()
     var
         FileName: Text;
@@ -335,6 +349,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('DeleteClientFile will always throw an error.', '17.3')]
     procedure ClientFileDelete()
     var
         FileName: Text;
@@ -350,6 +365,7 @@ codeunit 139016 "File Mgt. Tests"
         FileExist := FileMgt.DeleteClientFile(FileName);
         Assert.IsFalse(FileExist, 'The client file does not exist.');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -396,8 +412,10 @@ codeunit 139016 "File Mgt. Tests"
         Assert.IsTrue(StrPos(Filter, '|*.rdl;*.rdlc') > 0, 'Filter for RDLC file type did not include both *.rdl and *.rdlc');
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('MoveAndRenameClientFile will always thrown an error.', '17.3')]
     procedure MoveAndRenameClientFile()
     var
         NewFileName: Text;
@@ -416,6 +434,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('MoveAndRenameClientFile will always thrown an error.', '17.3')]
     procedure MoveAndRenameClientFileBlankNewFileName()
     var
         OldFileName: Text;
@@ -431,6 +450,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('MoveAndRenameClientFile will always thrown an error.', '17.3')]
     procedure MoveAndRenameClientFileBlankOldFilePath()
     begin
         Initialize;
@@ -440,6 +460,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('MoveAndRenameClientFile will always thrown an error.', '17.3')]
     procedure MoveAndRenameClientFileOldFilePathDoNotExist()
     begin
         Initialize;
@@ -449,6 +470,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('MoveFile will always thrown an error.', '17.3')]
     procedure MoveFileToFileWithSameName()
     var
         OldFileName: Text;
@@ -472,6 +494,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('MoveFile will always thrown an error.', '17.3')]
     procedure MoveFileToFileWithSimilarName()
     var
         OldFileName: Text;
@@ -495,6 +518,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('UploadFileSilent will always thrown an error.', '17.3')]
     procedure UploadFileSilent()
     var
         ClientFileName: Text;
@@ -513,6 +537,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('UploadFileToServer will always request an upload and not take a filepath directly.', '17.3')]
     procedure UploadFileToServer()
     var
         ClientFileName: Text;
@@ -531,6 +556,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('DownloadToFile will always open a dialog for download with DownloadHandler.', '17.3')]
     procedure DownloadFile()
     var
         ClientFileName: Text;
@@ -554,6 +580,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('DownloadToFile will always open a dialog for download with DownloadHandler.', '17.3')]
     procedure TestDownloadFileThrowsErrorIfSourceNotSpecified()
     begin
         Initialize;
@@ -565,6 +592,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('DownloadToFile will always open a dialog for download with DownloadHandler.', '17.3')]
     procedure TestDownloadFileThrowsErrorIfTargetNotSpecified()
     begin
         Initialize;
@@ -576,6 +604,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('AppendAllTextToClientFile will always throw an error.', '17.3')]
     procedure TestErrorOnAppendToFileWhenServerFileNameIsBlank()
     var
         FileManagement: Codeunit "File Management";
@@ -589,6 +618,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('AppendAllTextToClientFile will always throw an error.', '17.3')]
     procedure TestErrorOnAppendToFileWhenClientFileNameIsBlank()
     var
         FileManagement: Codeunit "File Management";
@@ -599,6 +629,7 @@ codeunit 139016 "File Mgt. Tests"
         asserterror FileManagement.AppendAllTextToClientFile(ServerFileName, '');
         Assert.ExpectedError(ClientFileErr);
     end;
+#endif
 
     [Normal]
     local procedure CheckClientDirectoryExist(FileName: Text): Boolean
@@ -639,8 +670,10 @@ codeunit 139016 "File Mgt. Tests"
         BigStr.Write(OStream);
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
     procedure UploadNormalFile()
     var
         FileMgt: Codeunit "File Management";
@@ -665,6 +698,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('UploadFileSilent will always throw an error.', '17.3')]
     procedure UploadReadOnlyFile()
     var
         FileMgt: Codeunit "File Management";
@@ -689,6 +723,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientDirectoryExists will always return false.', '17.3')]
     procedure ServerDirectoryExist()
     var
         DirectoryName: Text;
@@ -715,6 +750,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientDirectoryExists will always return false.', '17.3')]
     procedure ServerCreateDirectory()
     var
         FileName: Text;
@@ -741,6 +777,7 @@ codeunit 139016 "File Mgt. Tests"
         FileMgt.DeleteClientDirectory(FileName);
         Assert.IsFalse(FileMgt.ClientDirectoryExists(FileName), 'The directory should not exist.');
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -763,8 +800,10 @@ codeunit 139016 "File Mgt. Tests"
         Assert.AreEqual('Default.docx', FileName, '');
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure UploadClientDirectorySilentWithLastSlashUT()
     var
         RelativeServerPath: Text;
@@ -790,6 +829,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure UploadClientDirectorySilentWithoutLastSlashUT()
     var
         RelativeServerPath: Text;
@@ -812,6 +852,7 @@ codeunit 139016 "File Mgt. Tests"
 
         FileMgt.DeleteClientFile(ClientFullPath);
     end;
+#endif
 
     [Normal]
     local procedure Initialize()
@@ -901,8 +942,10 @@ codeunit 139016 "File Mgt. Tests"
         Assert.AreEqual('', PathName, 'Path should be empty.');
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure GetClientDirectoryFilesListCount()
     var
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
@@ -936,6 +979,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure GetClientDirectoryFilesListName()
     var
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
@@ -968,6 +1012,7 @@ codeunit 139016 "File Mgt. Tests"
 
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure GetClientFileProperties()
     var
         TextArray: array[10] of Text[30];
@@ -1000,6 +1045,7 @@ codeunit 139016 "File Mgt. Tests"
         FileMgt.DeleteServerFile(ServerFileName);
         FileMgt.DeleteClientFile(ClientFileName);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1160,8 +1206,10 @@ codeunit 139016 "File Mgt. Tests"
         FileMgt.DeleteServerFile(DirectoryPath + '\file1.txt');
         FileMgt.DeleteServerFile(DirectoryPath + '\file2.txt');
         FileMgt.DeleteServerFile(DirectoryPath + '\file3.txt');
+#if not CLEAN17
         FileMgt.DeleteClientDirectory(DirectoryPath + '\Temp');
         FileMgt.DeleteClientDirectory(DirectoryPath);
+#endif
     end;
 
     local procedure CreateTextFileOnServerWithExtension(TextArray: array[10] of Text[30]; NoOfElements: Integer; FileExtension: Text[5]) FileName: Text
@@ -1253,8 +1301,10 @@ codeunit 139016 "File Mgt. Tests"
         Assert.IsFalse(FileMgt.IsValidFileName(FileName), 'File name with invalid char in the middle should not be valid.');
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('AppendAllTextToClientFile will always throw an error.', '17.3')]
     procedure AppendToFile()
     var
         ClientFileName: Text;
@@ -1270,6 +1320,7 @@ codeunit 139016 "File Mgt. Tests"
         FileMgt.AppendAllTextToClientFile(ServerFileName, ClientFileName);
         Assert.IsTrue(ValidateExportedClientFile(ClientFileName, TextArray, 2), AppendedFileErr); // check that both values are in the appended file
     end;
+#endif
 
     local procedure CreateExpectedTexts(var TextArray: array[10] of Text[30]; NoOfElements: Integer)
     var
@@ -1321,24 +1372,5 @@ codeunit 139016 "File Mgt. Tests"
         end;
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure SaveFileDialogWebClientUsage()
-    var
-        FileManagement: Codeunit "File Management";
-        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
-    begin
-        // [FEATURE] [UT] [Web Client]
-        // [SCENARIO 275156] SaveFileDialog returns empty value if called from Web Client
-        Initialize;
-
-        // [GIVEN] Web client
-        BindSubscription(TestClientTypeSubscriber);
-        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
-
-        // [WHEN] FileManagement.SaveFileDialog is called
-        // [THEN] Empty value is returned
-        Assert.AreEqual('', FileManagement.SaveFileDialog('', '', ''), '');
-    end;
 }
 

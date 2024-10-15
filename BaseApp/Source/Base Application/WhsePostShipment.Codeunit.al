@@ -70,8 +70,7 @@
                     CheckShippingAdviceComplete();
                     WhseRqst.Get(
                       WhseRqst.Type::Outbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
-                    if WhseRqst."Document Status" <> WhseRqst."Document Status"::Released then
-                        Error(Text000, "Source Document", "Source No.");
+                    CheckDocumentStatus();
                     GetLocation("Location Code");
                     if Location."Require Pick" and ("Shipping Advice" = "Shipping Advice"::Complete) then
                         CheckItemTrkgPicked(WhseShptLine);
@@ -146,6 +145,19 @@
         WhseShptLine.Reset();
     end;
 
+    local procedure CheckDocumentStatus()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDocumentStatus(WhseShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if WhseRqst."Document Status" <> WhseRqst."Document Status"::Released then
+            Error(Text000, WhseShptLine."Source Document", WhseShptLine."Source No.");
+    end;
+
     local procedure GetSourceDocument()
     var
         SourceHeader: Variant;
@@ -211,6 +223,7 @@
                                 SalesRelease.Reopen(SalesHeader);
                                 SalesRelease.SetSkipCheckReleaseRestrictions;
                                 SalesHeader.SetHideValidationDialog(true);
+                                SalesHeader.SetCalledFromWhseDoc(true);
                                 SalesHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
                                 OnInitSourceDocumentHeaderOnBeforeReleaseSalesHeader(SalesHeader, WhseShptHeader, WhseShptLine);
                                 SalesRelease.Run(SalesHeader);
@@ -262,6 +275,7 @@
                             PurchRelease.Reopen(PurchHeader);
                             PurchRelease.SetSkipCheckReleaseRestrictions;
                             PurchHeader.SetHideValidationDialog(true);
+                            PurchHeader.SetCalledFromWhseDoc(true);
                             PurchHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
                             PurchRelease.Run(PurchHeader);
                             ModifyHeader := true;
@@ -413,17 +427,9 @@
                         OnPostSourceDocumentOnBeforePostSalesHeader(SalesPost, SalesHeader, WhseShptHeader);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
-                                begin
-                                    OnPostSourceDocumentOnBeforeSalesPost(CounterSourceDocOK);
-                                    if SalesPost.Run(SalesHeader) then
-                                        CounterSourceDocOK := CounterSourceDocOK + 1;
-                                    OnPostSourceDocumentOnAfterSalesPost(CounterSourceDocOK);
-                                end;
+                                TryPostSourceSalesDocument(SalesPost);
                             WhseSetup."Shipment Posting Policy"::"Stop and show the first posting error":
-                                begin
-                                    SalesPost.Run(SalesHeader);
-                                    CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                PostSourceSalesDocument(SalesPost);
                         end;
 
                         OnPostSourceDocumentOnBeforePrintSalesDocuments(SalesHeader."Last Shipping No.");
@@ -438,7 +444,7 @@
                                 end;
                                 if Invoice then begin
                                     IsHandled := false;
-                                    OnPostSourceDocumentOnBeforePrintSalesInvoice(SalesHeader, IsHandled);
+                                    OnPostSourceDocumentOnBeforePrintSalesInvoice(SalesHeader, IsHandled, WhseShptLine);
                                     if not IsHandled then begin
                                         SalesInvHeader.Get(SalesHeader."Last Posting No.");
                                         SalesInvHeader.Mark(true);
@@ -460,15 +466,9 @@
                         PurchPost.SetWhseShptHeader(WhseShptHeader);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
-                                begin
-                                    if PurchPost.Run(PurchHeader) then
-                                        CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                TryPostSourcePurchDocument(PurchPost);
                             WhseSetup."Shipment Posting Policy"::"Stop and show the first posting error":
-                                begin
-                                    PurchPost.Run(PurchHeader);
-                                    CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                PostSourcePurchDocument(PurchPost);
                         end;
 
                         if Print then
@@ -497,15 +497,10 @@
                         TransferPostShipment.SetWhseShptHeader(WhseShptHeader);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
-                                begin
-                                    if TransferPostShipment.Run(TransHeader) then
-                                        CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                TryPostSourceTransferDocument(TransferPostShipment);
+
                             WhseSetup."Shipment Posting Policy"::"Stop and show the first posting error":
-                                begin
-                                    TransferPostShipment.Run(TransHeader);
-                                    CounterSourceDocOK := CounterSourceDocOK + 1;
-                                end;
+                                PostSourceTransferDocument(TransferPostShipment);
                         end;
 
                         if Print then begin
@@ -560,6 +555,58 @@
                     OnPostSourceDocument(WhseShptHeader, WhseShptLine, CounterSourceDocOK);
             end;
         end;
+    end;
+
+    local procedure TryPostSourceSalesDocument(var SalesPost: Codeunit "Sales-Post")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnPostSourceDocumentOnBeforeSalesPost(CounterSourceDocOK, SalesPost, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesPost.Run(SalesHeader) then
+            CounterSourceDocOK := CounterSourceDocOK + 1;
+        OnPostSourceDocumentOnAfterSalesPost(CounterSourceDocOK);
+    end;
+
+    local procedure PostSourceSalesDocument(var SalesPost: Codeunit "Sales-Post")
+    begin
+        SalesPost.Run(SalesHeader);
+        CounterSourceDocOK := CounterSourceDocOK + 1;
+    end;
+
+    local procedure TryPostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post")
+    begin
+        OnBeforeTryPostSourcePurchDocument(PurchPost, PurchHeader);
+
+        if PurchPost.Run(PurchHeader) then
+            CounterSourceDocOK := CounterSourceDocOK + 1;
+    end;
+
+    local procedure PostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post")
+    begin
+        OnBeforePostSourcePurchDocument(PurchPost, PurchHeader);
+
+        PurchPost.Run(PurchHeader);
+        CounterSourceDocOK := CounterSourceDocOK + 1;
+    end;
+
+    local procedure TryPostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
+    begin
+        OnBeforeTryPostSourceTransferDocument(TransferPostShipment, TransHeader);
+
+        if TransferPostShipment.Run(TransHeader) then
+            CounterSourceDocOK := CounterSourceDocOK + 1;
+    end;
+
+    local procedure PostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
+    begin
+        OnBeforePostSourceTransferDocument(TransferPostShipment, TransHeader);
+
+        TransferPostShipment.Run(TransHeader);
+        CounterSourceDocOK := CounterSourceDocOK + 1;
     end;
 
     procedure SetPrint(Print2: Boolean)
@@ -628,6 +675,7 @@
                         ItemTrackingMgt.DeleteWhseItemTrkgLines(
                           DATABASE::"Warehouse Shipment Line", 0, "No.", '', 0, "Line No.", "Location Code", true);
                         WhseShptLine2.Delete();
+                        OnPostUpdateWhseDocumentsOnAfterWhseShptLine2Delete(WhseShptLine2);
                     end else
                         UpdateWhseShptLine(WhseShptLine2, WhseShptHeaderParam);
                 until Next() = 0;
@@ -1048,6 +1096,7 @@
                           ((SalesLine."Qty. to Ship" <> 0) or
                            (SalesLine."Return Qty. to Receive" <> 0) or
                            (SalesLine."Qty. to Invoice" <> 0));
+                        OnHandleSalesLineOnNonWhseLineOnAfterCalcModifyLine(SalesLine, ModifyLine);
 
                         if ModifyLine then begin
                             if "Source Document" = "Source Document"::"Sales Order" then
@@ -1456,6 +1505,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDocumentStatus(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
@@ -1491,7 +1545,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRegisterWhseJnlLines(var TempWhseJnlLine: Record "Warehouse Journal Line"; var PostedWhseShptLine: Record "Posted Whse. Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTryPostSourcePurchDocument(var PurchPost: Codeunit "Purch.-Post"; var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTryPostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransHeader: Record "Transfer Header")
     begin
     end;
 
@@ -1541,7 +1615,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSourceDocumentOnBeforePrintSalesInvoice(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnPostSourceDocumentOnBeforePrintSalesInvoice(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var WhseShptLine: Record "Warehouse Shipment Line")
     begin
     end;
 
@@ -1576,6 +1650,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostUpdateWhseDocumentsOnAfterWhseShptLine2Delete(var WhseShptLine2: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostUpdateWhseDocumentsOnBeforeUpdateWhseShptHeader(var WhseShptHeaderParam: Record "Warehouse Shipment Header")
     begin
     end;
@@ -1601,7 +1680,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSourceDocumentOnBeforeSalesPost(var CounterSourceDocOK: Integer)
+    local procedure OnPostSourceDocumentOnBeforeSalesPost(var CounterSourceDocOK: Integer; var SalesPost: Codeunit "Sales-Post"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1632,6 +1711,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetResultMessageOnBeforeShowMessage(var CounterSourceDocOK: Integer; var CounterSourceDocTotal: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleSalesLineOnNonWhseLineOnAfterCalcModifyLine(var SalesLine: Record "Sales Line"; var ModifyLine: Boolean)
     begin
     end;
 

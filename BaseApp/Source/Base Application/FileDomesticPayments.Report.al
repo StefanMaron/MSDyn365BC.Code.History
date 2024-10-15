@@ -354,13 +354,17 @@ report 2000001 "File Domestic Payments"
                         ApplicationArea = Basic, Suite;
                         Caption = 'File Name';
                         ToolTip = 'Specifies the name of the domiciliation file that you want to submit.';
+#if CLEAN17
+                        Visible = false;
+#else
                         Visible = FileNameVisible;
 
                         trigger OnAssistEdit()
                         begin
-                            if RBMgt.IsLocalFileSystemAccessible then
+                            if RBMgt.IsLocalFileSystemAccessible() then
                                 FileName := RBMgt.SaveFileDialog(SaveAsTxt, FileName, XmlFileNameTxt);
                         end;
+#endif
                     }
                 }
             }
@@ -369,11 +373,12 @@ report 2000001 "File Domestic Payments"
         actions
         {
         }
-
+#if not CLEAN17
         trigger OnInit()
         begin
-            FileNameVisible := RBMgt.IsLocalFileSystemAccessible;
+            FileNameVisible := RBMgt.IsLocalFileSystemAccessible();
         end;
+#endif
 
         trigger OnOpenPage()
         var
@@ -505,10 +510,12 @@ report 2000001 "File Domestic Payments"
         SalariesCaptionLbl: Label 'Salaries (*)';
         NonSalariesCaptionLbl: Label 'Non-Salaries';
         PmtTypeTextCaptionLbl: Label '(*) Please specify payment type ("Salaries" or "Non-Salaries") in the upper right corner of the issue voucher.';
+#if not CLEAN17
         SaveAsTxt: Label 'Save As';
         XmlFileNameTxt: Label 'XML Files (*.xml)|*.xml|All Files|*.*';
         [InDataSet]
         FileNameVisible: Boolean;
+#endif
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
 
     [Scope('OnPrem')]
