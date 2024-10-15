@@ -342,67 +342,72 @@
         AdjustedCostElementBuf: Record "Cost Element Buffer" temporary;
         ItemApplnEntry: Record "Item Application Entry";
         StandardCostMirroring: Boolean;
+        ExpectedCost: Boolean;
     begin
         OutbndItemLedgEntry.Get(OutbndItemLedgEntryNo);
         if Item."Costing Method" = Item."Costing Method"::Standard then
             StandardCostMirroring := UseStandardCostMirroring(OutbndItemLedgEntry);
+
+        CalcOutbndCost(OutbndCostElementBuf, AdjustedCostElementBuf, OutbndItemLedgEntry, Recursion);
+
         with OutbndValueEntry do begin
-            CalcOutbndCost(OutbndCostElementBuf, AdjustedCostElementBuf, OutbndItemLedgEntry, Recursion);
-
-            // Adjust shipment
-            SetCurrentKey("Item Ledger Entry No.");
+            Reset();
+            SetCurrentKey("Item Ledger Entry No.", "Document No.", "Document Line No.");
             SetRange("Item Ledger Entry No.", OutbndItemLedgEntryNo);
-            FindSet;
-            repeat
-                if not (Adjustment or ExpCostIsCompletelyInvoiced(OutbndItemLedgEntry, OutbndValueEntry)) and
-                   Inventoriable
-                then begin
-                    SetRange("Document No.", "Document No.");
-                    SetRange("Document Line No.", "Document Line No.");
-                    CalcOutbndDocOldCost(
-                      OldCostElementBuf, OutbndValueEntry,
-                      OutbndItemLedgEntry.IsExactCostReversingPurchase or OutbndItemLedgEntry.IsExactCostReversingOutput);
+            for ExpectedCost := true downto false do begin
+                SetRange("Expected Cost", ExpectedCost);
+                if FindSet() then
+                    repeat
+                        if not (Adjustment or ExpCostIsCompletelyInvoiced(OutbndItemLedgEntry, OutbndValueEntry)) and
+                           Inventoriable
+                        then begin
+                            SetRange("Document No.", "Document No.");
+                            SetRange("Document Line No.", "Document Line No.");
+                            CalcOutbndDocOldCost(
+                              OldCostElementBuf, OutbndValueEntry,
+                              OutbndItemLedgEntry.IsExactCostReversingPurchase() or OutbndItemLedgEntry.IsExactCostReversingOutput());
 
-                    CalcCostPerUnit(OutbndValueEntry, OutbndCostElementBuf, OutbndItemLedgEntry.Quantity);
+                            CalcCostPerUnit(OutbndValueEntry, OutbndCostElementBuf, OutbndItemLedgEntry.Quantity);
 
-                    if not "Expected Cost" then begin
-                        OldCostElementBuf.GetElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ");
-                        "Invoiced Quantity" := OldCostElementBuf."Invoiced Quantity";
-                        "Valued Quantity" := OldCostElementBuf."Invoiced Quantity";
-                    end;
+                            if not "Expected Cost" then begin
+                                OldCostElementBuf.GetElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ");
+                                "Invoiced Quantity" := OldCostElementBuf."Invoiced Quantity";
+                                "Valued Quantity" := OldCostElementBuf."Invoiced Quantity";
+                            end;
 
-                    CalcOutbndDocNewCost(
-                      AdjustedCostElementBuf, OutbndCostElementBuf,
-                      OutbndValueEntry, OutbndItemLedgEntry.Quantity);
+                            CalcOutbndDocNewCost(
+                              AdjustedCostElementBuf, OutbndCostElementBuf,
+                              OutbndValueEntry, OutbndItemLedgEntry.Quantity);
 
-                    if "Expected Cost" then begin
-                        OldCostElementBuf.GetElement(OldCostElementBuf.Type::Total, OldCostElementBuf."Variance Type"::" ");
-                        AdjustedCostElementBuf."Actual Cost" := AdjustedCostElementBuf."Actual Cost" - OldCostElementBuf."Expected Cost";
-                        AdjustedCostElementBuf."Actual Cost (ACY)" :=
-                          AdjustedCostElementBuf."Actual Cost (ACY)" - OldCostElementBuf."Expected Cost (ACY)";
-                    end else begin
-                        OldCostElementBuf.GetElement("Entry Type"::"Direct Cost", "Cost Variance Type"::" ");
-                        AdjustedCostElementBuf."Actual Cost" := AdjustedCostElementBuf."Actual Cost" - OldCostElementBuf."Actual Cost";
-                        AdjustedCostElementBuf."Actual Cost (ACY)" :=
-                          AdjustedCostElementBuf."Actual Cost (ACY)" - OldCostElementBuf."Actual Cost (ACY)";
-                    end;
+                            if "Expected Cost" then begin
+                                OldCostElementBuf.GetElement(OldCostElementBuf.Type::Total, OldCostElementBuf."Variance Type"::" ");
+                                AdjustedCostElementBuf."Actual Cost" := AdjustedCostElementBuf."Actual Cost" - OldCostElementBuf."Expected Cost";
+                                AdjustedCostElementBuf."Actual Cost (ACY)" :=
+                                  AdjustedCostElementBuf."Actual Cost (ACY)" - OldCostElementBuf."Expected Cost (ACY)";
+                            end else begin
+                                OldCostElementBuf.GetElement("Entry Type"::"Direct Cost", "Cost Variance Type"::" ");
+                                AdjustedCostElementBuf."Actual Cost" := AdjustedCostElementBuf."Actual Cost" - OldCostElementBuf."Actual Cost";
+                                AdjustedCostElementBuf."Actual Cost (ACY)" :=
+                                  AdjustedCostElementBuf."Actual Cost (ACY)" - OldCostElementBuf."Actual Cost (ACY)";
+                            end;
 
-                    if StandardCostMirroring and not "Expected Cost" then
-                        CreateCostAdjmtBuf(
-                          OutbndValueEntry, AdjustedCostElementBuf, OutbndItemLedgEntry."Posting Date", "Entry Type"::Variance)
-                    else
-                        CreateCostAdjmtBuf(
-                          OutbndValueEntry, AdjustedCostElementBuf, OutbndItemLedgEntry."Posting Date", "Entry Type");
+                            if StandardCostMirroring and not "Expected Cost" then
+                                CreateCostAdjmtBuf(
+                                  OutbndValueEntry, AdjustedCostElementBuf, OutbndItemLedgEntry."Posting Date", "Entry Type"::Variance)
+                            else
+                                CreateCostAdjmtBuf(
+                                  OutbndValueEntry, AdjustedCostElementBuf, OutbndItemLedgEntry."Posting Date", "Entry Type");
 
-                    if not "Expected Cost" then begin
-                        CreateIndirectCostAdjmt(OldCostElementBuf, AdjustedCostElementBuf, OutbndValueEntry, "Entry Type"::"Indirect Cost");
-                        CreateIndirectCostAdjmt(OldCostElementBuf, AdjustedCostElementBuf, OutbndValueEntry, "Entry Type"::Variance);
-                    end;
-                    FindLast;
-                    SetRange("Document No.");
-                    SetRange("Document Line No.");
-                end;
-            until Next = 0;
+                            if not "Expected Cost" then begin
+                                CreateIndirectCostAdjmt(OldCostElementBuf, AdjustedCostElementBuf, OutbndValueEntry, "Entry Type"::"Indirect Cost");
+                                CreateIndirectCostAdjmt(OldCostElementBuf, AdjustedCostElementBuf, OutbndValueEntry, "Entry Type"::Variance);
+                            end;
+                            FindLast();
+                            SetRange("Document No.");
+                            SetRange("Document Line No.");
+                        end;
+                    until Next() = 0;
+            end;
 
             // Update transfers, consumptions
             if IsUpdateCompletelyInvoiced(
@@ -1259,6 +1264,8 @@
     local procedure CalcAvgCost(OutbndValueEntry: Record "Value Entry"; var CostElementBuf: Record "Cost Element Buffer"; var ExcludedValueEntry: Record "Value Entry"): Boolean
     var
         ValueEntry: Record "Value Entry";
+        RoundingError: Decimal;
+        RoundingErrorACY: Decimal;
     begin
         with ValueEntry do begin
             if OutbndValueEntry."Entry No." >= AvgCostBuf."Last Valid Value Entry No" then begin
@@ -1272,6 +1279,15 @@
                   "Cost Amount (Actual) (ACY)" + "Cost Amount (Expected) (ACY)" +
                   TempInvtAdjmtBuf."Cost Amount (Actual) (ACY)" + TempInvtAdjmtBuf."Cost Amount (Expected) (ACY)";
 
+                RoundingError := 0;
+                RoundingErrorACY := 0;
+                if CostElementBuf."Remaining Quantity" = 0 then begin
+                    if CostElementBuf."Actual Cost" = -GLSetup."Amount Rounding Precision" then
+                        RoundingError := -CostElementBuf."Actual Cost";
+                    if CostElementBuf."Actual Cost (ACY)" = -Currency."Amount Rounding Precision" then
+                        RoundingErrorACY := -CostElementBuf."Actual Cost (ACY)";
+                end;
+
                 ExcludeAvgCostOnValuationDate(CostElementBuf, OutbndValueEntry, ExcludedValueEntry);
                 AvgCostBuf.UpdateAvgCostBuffer(
                   CostElementBuf, GetLastValidValueEntry(OutbndValueEntry."Entry No."));
@@ -1279,6 +1295,8 @@
                 CostElementBuf.UpdateCostElementBuffer(AvgCostBuf);
 
             if CostElementBuf."Remaining Quantity" > 0 then begin
+                AvgCostBuf."Rounding Residual" := RoundingError;
+                AvgCostBuf."Rounding Residual (ACY)" := RoundingErrorACY;
                 RoundCost(
                   CostElementBuf."Actual Cost", AvgCostBuf."Rounding Residual", CostElementBuf."Actual Cost",
                   OutbndValueEntry."Valued Quantity" / CostElementBuf."Remaining Quantity",

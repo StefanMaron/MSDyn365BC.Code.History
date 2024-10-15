@@ -104,17 +104,18 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         SourceFieldCaption: Text;
         DestinationFieldName: Text;
         DestinationFieldCaption: Text;
+        IsDestinationDeleted: Boolean;
     begin
         // Find the coupled record or prepare a new one
         RecordState :=
           GetCoupledRecord(
-            IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, JobId, IntegrationTableConnectionType);
+            IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, IsDestinationDeleted, JobId, IntegrationTableConnectionType);
         if RecordState = RecordState::NotFound then begin
             if SynchAction = SynchActionType::Fail then begin
                 DeleteCouplingIfMappingIsUnidirectional(IntegrationTableMapping, SourceRecordRef);
                 exit;
             end;
-            if IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecords then begin
+            if IsDestinationDeleted or (IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecords) then begin
                 DeleteCouplingIfMappingIsUnidirectional(IntegrationTableMapping, SourceRecordRef);
                 SynchAction := SynchActionType::Skip;
                 exit;
@@ -290,9 +291,8 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         DestinationRecordRef.Get(DestinationRecordRef.RecordId());
     end;
 
-    local procedure GetCoupledRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var RecordRef: RecordRef; var CoupledRecordRef: RecordRef; var SynchAction: Option; JobId: Guid; IntegrationTableConnectionType: TableConnectionType): Integer
+    local procedure GetCoupledRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var RecordRef: RecordRef; var CoupledRecordRef: RecordRef; var SynchAction: Option; var IsDestinationMarkedAsDeleted: Boolean; JobId: Guid; IntegrationTableConnectionType: TableConnectionType): Integer
     var
-        IsDestinationMarkedAsDeleted: Boolean;
         DeletionConflictHandled: Boolean;
         RecordState: Option NotFound,Coupled,Decoupled;
     begin
@@ -311,7 +311,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             end;
 
         if SynchAction <> SynchActionType::ForceModify then
-            if IntegrationTableMapping."Synch. Only Coupled Records" and not IgnoreSynchOnlyCoupledRecordsContext then begin
+            if RecordState = RecordState::Coupled then begin
                 OnDeletionConflictDetected(IntegrationTableMapping, RecordRef, DeletionConflictHandled);
                 if not DeletionConflictHandled then begin
                     RecordState := RecordState::NotFound;

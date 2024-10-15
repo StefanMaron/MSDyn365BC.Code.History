@@ -3280,6 +3280,74 @@ codeunit 134106 "ERM Prepayment V"
         TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PrepaymentLineAmountIsRecalculatedIsSalesOrderWhenPriceIncludingVATIsActivated()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PrepLineAmountExclVAT: Decimal;
+        PrepLineAmountIclVAT: Decimal;
+    begin
+        // [FEATURE] [Sales] [Order] [Prices Including VAT]
+        // [SCENARIO 390381] Prepayment amount is recalculated after enabling "Prices Including VAT" in Sales Header
+        Initialize();
+
+        // [GIVEN] Created Sales Order with "Prepayment %"
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandInt(50));
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Calculated "Prepmt. Line Amount" and awaiting "Prepmt. Line Amount" including VAT
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        PrepLineAmountExclVAT := SalesLine."Prepmt. Line Amount";
+        PrepLineAmountIclVAT := Round(
+            SalesLine."Amount Including VAT" * SalesLine."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision);
+
+        // [WHEN] Unable "Prices Including VAT" in Sales Header
+        SalesHeader.Validate("Prices Including VAT", true);
+
+        // [THEN] SalesLine."Prepmt. Line Amount" is recalculated
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        Assert.AreNotEqual(SalesLine."Prepmt. Line Amount", PrepLineAmountExclVAT, '');
+        SalesLine.TestField("Prepmt. Line Amount", PrepLineAmountIclVAT);
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PrepaymentLineAmountIsRecalculatedInPurchaseOrderWhenPriceIncludingVATIsActivated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PrepLineAmountExclVAT: Decimal;
+        PrepLineAmountIclVAT: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Order] [Prices Including VAT]
+        // [SCENARIO 390381] Prepayment amount is recalculated after enabling "Prices Including VAT" in Purchasase Header
+        Initialize();
+
+        // [GIVEN] Created Purchase Order with "Prepayment %"
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandInt(50));
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Calculated "Prepmt. Line Amount" and awaiting "Prepmt. Line Amount" including VAT
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        PrepLineAmountExclVAT := PurchaseLine."Prepmt. Line Amount";
+        PrepLineAmountIclVAT := Round(
+            PurchaseLine."Amount Including VAT" * PurchaseLine."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision);
+
+        // [WHEN] Unable "Prices Including VAT" in Purchase Header
+        PurchaseHeader.Validate("Prices Including VAT", true);
+
+        // [THEN] Purchase."Prepmt. Line Amount" is recalculated
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        Assert.AreNotEqual(PurchaseLine."Prepmt. Line Amount", PrepLineAmountExclVAT, '');
+        PurchaseLine.TestField("Prepmt. Line Amount", PrepLineAmountIclVAT);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4540,6 +4608,13 @@ codeunit 134106 "ERM Prepayment V"
     procedure StrMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         Choice := 3; // Receive and Invoice
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure YesConfirmHandler(Message: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

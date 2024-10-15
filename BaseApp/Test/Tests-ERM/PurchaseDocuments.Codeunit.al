@@ -1039,6 +1039,245 @@ codeunit 134099 "Purchase Documents"
         PurchaseHeader.TestField("Location Code", Location.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchModalPageHandler')]
+    procedure GetReceiptLinesWithItemChargeNormalOrder()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineChargeItem: Record "Purchase Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Receipt Lines] [Order] [Invoice] [Item Charge]
+        // [SCENARIO 385039] "Get Receipt Lines" ignores the order of given receipt lines when it creates invoice with Item Charge
+        Initialize();
+
+        // [GIVEN] Purchase order with item and charge item for the vendor "X"
+        // [GIVEN] "Qty. To Assign" = 3 in sales lines with charge item
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreatePurchaseOrderWithItemAndChargeItem(PurchaseHeaderOrder, PurchaseLineItem, PurchaseLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        // [GIVEN] Purchase order shipped only
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderOrder, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        // [GIVEN] Purchase invoice for vendor "X"
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+
+        // [WHEN] Call "Get Receipt Lines" with reversed order
+        GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, true);
+
+        // [THEN] Charge Item line inserted with "Qty. To Assign" = 3
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderInvoice, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchModalPageHandler')]
+    procedure GetReceiptLinesWithItemChargeReversedOrder()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineChargeItem: Record "Purchase Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Receipt Lines] [Order] [Invoice] [Item Charge]
+        // [SCENARIO 385039] "Get Receipt Lines" ignores the order of given receipt lines when it creates invoice with Item Charge
+        Initialize();
+
+        // [GIVEN] Purchase order with item and charge item for the vendor "X"
+        // [GIVEN] "Qty. To Assign" = 3 in sales lines with charge item
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreatePurchaseOrderWithItemAndChargeItem(PurchaseHeaderOrder, PurchaseLineItem, PurchaseLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        // [GIVEN] Purchase order shipped only
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderOrder, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        // [GIVEN] Purchase invoice for vendor "X"
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+
+        // [WHEN] Call "Get Receipt Lines" with reversed order
+        GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, false);
+
+        // [THEN] Charge Item line inserted with "Qty. To Assign" = 3
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderInvoice, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchModalPageHandler')]
+    procedure GetReceiptLinesWithItemChargeFirstNormalOrder()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineChargeItem: Record "Purchase Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Receipt Lines] [Order] [Invoice] [Item Charge]
+        // [SCENARIO 385039] "Get Receipt Lines" ignores the order of given receipt lines when it creates invoice with Item Charge
+        Initialize();
+
+        // [GIVEN] Purchase order with charge item and item for the vendor "X"
+        // [GIVEN] "Qty. To Assign" = 3 in sales line with charge item
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreatePurchaseOrderWithChargeItemAndItem(PurchaseHeaderOrder, PurchaseLineItem, PurchaseLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        // [GIVEN] Purchase order shipped only
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderOrder, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        // [GIVEN] Purchase invoice for vendor "X"
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+
+        // [WHEN] Call "Get Receipt Lines" with reversed order
+        GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, true);
+
+        // [THEN] Charge Item line inserted with "Qty. To Assign" = 3
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderInvoice, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchModalPageHandler')]
+    procedure GetReceiptLinesWithItemChargeFirstReversedOrder()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineChargeItem: Record "Purchase Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Receipt Lines] [Order] [Invoice] [Item Charge]
+        // [SCENARIO 385039] "Get Receipt Lines" ignores the order of given receipt lines when it creates invoice with Item Charge
+        Initialize();
+
+        // [GIVEN] Purchase order with charge item and item for the vendor "X"
+        // [GIVEN] "Qty. To Assign" = 3 in sales line with charge item
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreatePurchaseOrderWithChargeItemAndItem(PurchaseHeaderOrder, PurchaseLineItem, PurchaseLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        // [GIVEN] Purchase order shipped only
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderOrder, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        // [GIVEN] Purchase invoice for vendor "X"
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+
+        // [WHEN] Call "Get Receipt Lines" with reversed order
+        GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, false);
+
+        // [THEN] Charge Item line inserted with "Qty. To Assign" = 3
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderInvoice, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchModalPageHandler,MessageHandler')]
+    procedure GetReceiptLinesFromEmptyFilteredRecord()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineChargeItem: Record "Purchase Line";
+        PurchaseLineInvoice: Record "Purchase Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Receipt Lines] [Order] [Invoice] [Item Charge] [FCY]
+        // [SCENARIO 385039] "Get Receipt Lines" does not insert lines into invoice when invoice's currency differs from receipt's currency
+        Initialize();
+
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreatePurchaseOrderWithChargeItemAndItem(PurchaseHeaderOrder, PurchaseLineItem, PurchaseLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderOrder, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, PurchaseHeaderOrder."Sell-to Customer No.");
+        PurchaseHeaderInvoice.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
+        PurchaseHeaderInvoice.Modify(true);
+
+        GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, false);
+
+        PurchaseLineInvoice.SetRange("Document Type", PurchaseHeaderInvoice."Document Type");
+        PurchaseLineInvoice.SetRange("Document No.", PurchaseHeaderInvoice."No.");
+        Assert.RecordIsEmpty(PurchaseLineInvoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchModalPageHandler,ConfirmHandlerTrue')]
+    procedure GetReceiptLinesWithItemCharge_Receipt_UndoReceipt_Receipt()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineChargeItem: Record "Purchase Line";
+        QtyToAssign: Decimal;
+    begin
+        // [FEATURE] [Get Receipt Lines] [Order] [Invoice] [Item Charge]
+        // [SCENARIO 385039] "Get Receipt Lines" doesn't pull item charge assignment from undone receipt lines
+        Initialize();
+
+        QtyToAssign := LibraryRandom.RandIntInRange(3, 10);
+
+        CreatePurchaseOrderWithChargeItemAndItem(PurchaseHeaderOrder, PurchaseLineItem, PurchaseLineChargeItem, QtyToAssign);
+
+        Commit();
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderOrder, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        UndoReceipt(PurchaseHeaderOrder);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderOrder, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderOrder, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderOrder."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+
+        GetReceiptLinesWithOrder(PurchaseHeaderOrder, PurchaseHeaderInvoice, false);
+
+        VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeaderInvoice, PurchaseLineChargeItem."No.", QtyToAssign);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -1131,6 +1370,48 @@ codeunit 134099 "Purchase Documents"
         PurchaseHeader.SetRecFilter;
     end;
 
+    local procedure CreatePurchaseOrderWithItemAndChargeItem(var PurchaseHeaderOrder: Record "Purchase Header"; var PurchaseLineItem: Record "Purchase Line"; var PurchaseLineChargeItem: Record "Purchase Line"; QtyToAssign: Decimal)
+    begin
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineItem, PurchaseHeaderOrder, PurchaseLineItem.Type::Item, LibraryInventory.CreateItemNo(), QtyToAssign + 1);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineChargeItem, PurchaseHeaderOrder,
+          PurchaseLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+
+        LibraryVariableStorage.Enqueue(QtyToAssign);
+        PurchaseLineChargeItem.ShowItemChargeAssgnt();
+        PurchaseLineChargeItem.Modify(true);
+
+        Commit();
+
+        PurchaseLineChargeItem.Find();
+        PurchaseLineChargeItem.CalcFields("Qty. to Assign");
+        PurchaseLineChargeItem.TestField("Qty. to Assign", QtyToAssign);
+    end;
+
+    local procedure CreatePurchaseOrderWithChargeItemAndItem(var PurchaseHeaderOrder: Record "Purchase Header"; var PurchaseLineItem: Record "Purchase Line"; var PurchaseLineChargeItem: Record "Purchase Line"; QtyToAssign: Decimal)
+    begin
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineChargeItem, PurchaseHeaderOrder,
+          PurchaseLineChargeItem.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), QtyToAssign);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineItem, PurchaseHeaderOrder, PurchaseLineItem.Type::Item, LibraryInventory.CreateItemNo(), QtyToAssign + 1);
+
+        LibraryVariableStorage.Enqueue(QtyToAssign);
+        PurchaseLineChargeItem.ShowItemChargeAssgnt();
+        PurchaseLineChargeItem.Modify(true);
+
+        Commit;
+
+        PurchaseLineChargeItem.Find();
+        PurchaseLineChargeItem.CalcFields("Qty. to Assign");
+        PurchaseLineChargeItem.TestField("Qty. to Assign", QtyToAssign);
+    end;
+
     local procedure GetLastVendorLedgerEntryNo(VendorNo: Code[20]): Integer
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1138,6 +1419,19 @@ codeunit 134099 "Purchase Documents"
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         if VendorLedgerEntry.FindLast then;
         exit(VendorLedgerEntry."Entry No.");
+    end;
+
+    local procedure GetReceiptLinesWithOrder(PurchaseHeaderOrder: Record "Purchase Header"; PurchaseHeaderInvoice: Record "Purchase Header"; ReversedOrder: Boolean)
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        PurchRcptLine.Ascending(ReversedOrder);
+        PurchRcptLine.SetCurrentKey("Document No.", "Line No.");
+        PurchRcptLine.SetRange("Order No.", PurchaseHeaderOrder."No.");
+
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
     end;
 
     local procedure EnableShowExternalDocAlreadyExistNotification()
@@ -1158,6 +1452,15 @@ codeunit 134099 "Purchase Documents"
         PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
         PurchasesPayablesSetup."Posted Return Shpt. Nos." := LibraryERM.CreateNoSeriesCode;
         PurchasesPayablesSetup.Modify();
+    end;
+
+    local procedure UndoReceipt(PurchaseHeaderOrder: Record "Purchase Header")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange("Order No.", PurchaseHeaderOrder."No.");
+
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
     end;
 
     local procedure VerifyTransactionTypeWhenInsertPurchaseDocument(DocumentType: Enum "Purchase Document Type")
@@ -1184,6 +1487,19 @@ codeunit 134099 "Purchase Documents"
           StrSubstNo(PurchaseAlreadyExistsTxt, DocumentType, ExternalDocumentNo),
           LibraryVariableStorage.DequeueText,
           'Unexpected notificaiton message');
+    end;
+
+    local procedure VerifyQtyToAssignInDocumentLineForChargeItem(PurchaseHeader: Record "Purchase Header"; ChargeItemNo: Code[20]; ExpectedQtyToAssign: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("No.", ChargeItemNo);
+
+        PurchaseLine.FindFirst();
+        PurchaseLine.CalcFields("Qty. to Assign");
+        PurchaseLine.TestField("Qty. to Assign", ExpectedQtyToAssign);
     end;
 
     [RecallNotificationHandler]
@@ -1226,9 +1542,23 @@ codeunit 134099 "Purchase Documents"
 
     [MessageHandler]
     [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
     procedure MessageCaptureHandler(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentPurchModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemChargeAssignmentPurch.OK.Invoke();
     end;
 }
 

@@ -18,6 +18,7 @@
 
         Customer.SetInsertFromTemplate(true);
         Customer.Init();
+        InitCustomerNo(Customer, CustomerTempl);
         Customer.Insert(true);
         Customer.SetInsertFromTemplate(false);
 
@@ -89,6 +90,7 @@
         Customer."Print Statements" := CustomerTempl."Print Statements";
         Customer."Customer Price Group" := CustomerTempl."Customer Price Group";
         Customer."Customer Disc. Group" := CustomerTempl."Customer Disc. Group";
+        Customer."Document Sending Profile" := CustomerTempl."Document Sending Profile";
         OnApplyTemplateOnBeforeCustomerModify(Customer, CustomerTempl);
         Customer.Modify(true);
     end;
@@ -282,6 +284,7 @@
         CustomerTempl."Print Statements" := Customer."Print Statements";
         CustomerTempl."Customer Price Group" := Customer."Customer Price Group";
         CustomerTempl."Customer Disc. Group" := Customer."Customer Disc. Group";
+        CustomerTempl."Document Sending Profile" := Customer."Document Sending Profile";
 
         CustomerTempl.Insert();
     end;
@@ -330,6 +333,16 @@
 
         IsHandled := true;
         Page.Run(Page::"Customer Templ. List");
+    end;
+
+    local procedure InitCustomerNo(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        if CustomerTempl."No. Series" = '' then
+            exit;
+
+        NoSeriesManagement.InitSeries(CustomerTempl."No. Series", '', 0D, Customer."No.", Customer."No. Series");
     end;
 
     [IntegrationEvent(false, false)]
