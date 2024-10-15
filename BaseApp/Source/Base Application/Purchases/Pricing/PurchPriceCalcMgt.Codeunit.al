@@ -375,7 +375,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcBestLineDisc(PurchLineDisc, Item, IsHandled);
+        OnBeforeCalcBestLineDisc(PurchLineDisc, Item, IsHandled, QtyPerUOM, Qty);
         if IsHandled then
             exit;
 
@@ -1022,7 +1022,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcBestLineDisc(var PurchLineDisc: Record "Purchase Line Discount"; Item: Record Item; var IsHandled: Boolean);
+    local procedure OnBeforeCalcBestLineDisc(var PurchLineDisc: Record "Purchase Line Discount"; Item: Record Item; var IsHandled: Boolean; QtyPerUOM: Decimal; Qty: Decimal);
     begin
     end;
 

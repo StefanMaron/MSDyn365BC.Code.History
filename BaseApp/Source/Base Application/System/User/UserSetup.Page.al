@@ -110,6 +110,12 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the user''s phone number.';
                 }
+                field(LicenseType; Rec."License Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the user''s License Type.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)

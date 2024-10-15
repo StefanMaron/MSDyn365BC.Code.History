@@ -32,6 +32,7 @@ codeunit 137413 "SCM Item Attributes"
         IsInitialized: Boolean;
         ItemAttributeValueNotFoundErr: Label 'Item Attribute Value of type %1 and value %2 was not found.';
         MissingAttributeNameErr: Label 'Name must have a value in Item Attribute: ID=0. It cannot be zero or empty.';
+        NumericValueShouldNotBeZeroErr: Label 'Numeric Value should not be zero.';
 
 
     local procedure CreateItemAndSetOfItemsAttributes(var Item: Record Item)
@@ -2517,6 +2518,38 @@ codeunit 137413 "SCM Item Attributes"
 
         // [THEN] Verify error for missing Name value
         Assert.AreEqual(GetLastErrorText(), MissingAttributeNameErr, 'Different error occur from expected.');
+    end;
+
+    [Test]
+    procedure NumericValueShouldNotBeZeroWhenCreateIntegerItemAttributeFromItemCategoryCard()
+    var
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        ItemCategory: Record "Item Category";
+        ItemCategoryCard: TestPage "Item Category Card";
+    begin
+        // [SCENARIO 492807] Integer attribute values not processed correctly if they are generated from the Item Category Card.
+        Initialize();
+
+        // [GIVEN] Create Item Category.
+        LibraryInventory.CreateItemCategory(ItemCategory);
+
+        // [GIVEN] Create Item Attribute.
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Integer, '');
+
+        // [GIVEN] Open Item Category Card page and enter Attribute Name and Value.
+        ItemCategoryCard.OpenEdit();
+        ItemCategoryCard.GoToRecord(ItemCategory);
+        ItemCategoryCard.Attributes."Attribute Name".SetValue(ItemAttribute.Name);
+        ItemCategoryCard.Attributes.Value.SetValue(Format(LibraryRandom.RandInt(4)));
+        ItemCategoryCard.Close();
+
+        // [WHEN] Find Item Attribute Value.
+        ItemAttributeValue.SetRange("Attribute ID", ItemAttribute.ID);
+        ItemAttributeValue.FindFirst();
+
+        // [VERIFY] Verify Numeric Value is not zero in Item Attribute Value.
+        Assert.AreNotEqual(0, ItemAttributeValue."Numeric Value", NumericValueShouldNotBeZeroErr);
     end;
 
     local procedure Initialize()

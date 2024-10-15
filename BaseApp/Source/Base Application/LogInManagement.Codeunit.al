@@ -138,6 +138,8 @@ codeunit 40 LogInManagement
         UserSetupFound: Boolean;
         RegisterTime: Boolean;
     begin
+        OnBeforeLogInEnd(LogInDate, LogInTime);
+
         if LogInDate = 0D then
             exit;
 
@@ -309,6 +311,11 @@ codeunit 40 LogInManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLoginEndOnBeforeInsert(var UserTimeRegister: Record "User Time Register"; LogInTime: Time; LogOutTime: Time; LogOutDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLogInEnd(var LogInDate: Date; var LogInTime: Time)
     begin
     end;
 }

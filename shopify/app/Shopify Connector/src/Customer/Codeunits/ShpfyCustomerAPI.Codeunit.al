@@ -201,10 +201,7 @@ codeunit 30114 "Shpfy Customer API"
     begin
         GraphQLType := GraphQLType::GetCustomerIds;
         LastSync := Shop.GetLastSyncTime("Shpfy Synchronization Type"::Customers);
-        if LastSync > 0DT then
-            Parameters.Add('LastSync', Format(LastSync, 0, 9))
-        else
-            Parameters.Add('LastSync', '');
+        Parameters.Add('LastSync', Format(LastSync, 0, 9));
         repeat
             JResponse := CommunicationMgt.ExecuteGraphQL(GraphQLType, Parameters);
             if JsonHelper.GetJsonArray(JResponse, JCustomers, 'data.customers.edges') then begin

@@ -2,17 +2,20 @@ namespace Microsoft.Intercompany.DataExchange;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.GeneralLedger.Setup;
+using System.Globalization;
 using Microsoft.Foundation.Company;
 using Microsoft.Intercompany;
 using Microsoft.Intercompany.Comment;
 using Microsoft.Intercompany.Dimension;
 using Microsoft.Intercompany.GLAccount;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Intercompany.Inbox;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Setup;
 using System.Threading;
 using Microsoft.Intercompany.Outbox;
 using System.Telemetry;
+using Microsoft.Intercompany.Journal;
 
 codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
 {
@@ -28,6 +31,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
 
     var
         CrossIntercompanyConnector: Codeunit "CrossIntercompany Connector";
+        CurrentGlobalLanguage: Integer;
         JsonResponse: JsonArray;
         SelectedToken: JsonToken;
         AttributeToken: JsonToken;
@@ -42,7 +46,6 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         PartnerMissingTableSetupErr: Label 'Partner %1 has not completed the information required at table %2 for using intercompany.', Comment = '%1 = Partner code, %2 = Table caption';
         WrongICPartnerInboxTypeErr: Label 'Partner %1 inbox type is not valid for this interaction. Only partners with database as Inbox Type can be used.', Comment = '%1 = IC Partner Code';
         WrongICDataExchangeTypeErr: Label 'Partner %1 does not support intercompany communication using APIs. Only partners setup to use API as their data exchange type can use this type of communication.', Comment = '%1 = IC Partner Code';
-        UnexpectedValueFromJsonValueErr: Label 'Unexpected value for field %1 in table %2. Value: %3', Comment = '%1 = Field caption, %2 = Table caption, %3 = Value';
         SendNotificationJobQueueTxt: Label 'API - Send notification to intercompany partner %1 for operation %2', Comment = '%1 = Partner Code, %2 = Operation Id';
         ReadOutgoingNotificationJobQueueTxt: Label 'API - Read outgoing notification from intercompany partner %1 for operation %2', Comment = '%1 = Partner Code, %2 = Operation Id';
         CleanUpOutgoingNotificationJobQueueTxt: Label 'API - Clean up notification to intercompany partner %1 for operation %2', Comment = '%1 = Partner Code, %2 = Operation Id';
@@ -415,30 +418,22 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
 #pragma warning disable AA0139 // Ignore warning about possible overflow from JSON Text
     local procedure PopulateICGLAccountFromJson(IndividualToken: JsonToken; var TempICPartnerICGLAccount: Record "IC G/L Account" temporary)
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempICPartnerICGLAccount.Init();
 
         TempICPartnerICGLAccount."No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'accountNumber');
         TempICPartnerICGLAccount.Name := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'name');
-        IndividualToken.AsObject().Get('accountType', AttributeToken);
-        Evaluate(TempICPartnerICGLAccount."Account Type", AttributeToken.AsValue().AsText());
-
-        IndividualToken.AsObject().Get('incomeBalance', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Income Statement':
-                TempICPartnerICGLAccount."Income/Balance" := TempICPartnerICGLAccount."Income/Balance"::"Income Statement";
-            'Balance Sheet':
-                TempICPartnerICGLAccount."Income/Balance" := TempICPartnerICGLAccount."Income/Balance"::"Balance Sheet";
-            else
-                Error(UnexpectedValueFromJsonValueErr, TempICPartnerICGLAccount.FieldCaption("Income/Balance"), TempICPartnerICGLAccount.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        TempICPartnerICGLAccount."Account Type" := Enum::"G/L Account Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'accountTypeOrdinal'));
+        TempICPartnerICGLAccount."Income/Balance" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'incomeBalanceIndex');
         TempICPartnerICGLAccount.Blocked := GetValueFromJsonTokenOrFalse(IndividualToken, 'blocked');
 
         TempICPartnerICGLAccount.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     local procedure PopulateICDimensionFromJson(IndividualToken: JsonToken; var TempICPartnerICDimension: Record "IC Dimension" temporary)
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempICPartnerICDimension.Init();
 
         TempICPartnerICDimension.Code := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'code');
@@ -446,48 +441,33 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         TempICPartnerICDimension.Blocked := GetValueFromJsonTokenOrFalse(IndividualToken, 'blocked');
 
         TempICPartnerICDimension.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     local procedure PopulateICDimensionValueFromJson(IndividualToken: JsonToken; var TempICPartnerICDimensionValue: Record "IC Dimension Value" temporary)
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempICPartnerICDimensionValue.Init();
 
         TempICPartnerICDimensionValue."Dimension Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'dimensionCode');
         TempICPartnerICDimensionValue.Code := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'code');
         TempICPartnerICDimensionValue.Name := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'name');
-
-        IndividualToken.AsObject().Get('dimensionValueType', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Begin-Total':
-                TempICPartnerICDimensionValue."Dimension Value Type" := TempICPartnerICDimensionValue."Dimension Value Type"::"Begin-Total";
-            'End-Total':
-                TempICPartnerICDimensionValue."Dimension Value Type" := TempICPartnerICDimensionValue."Dimension Value Type"::"End-Total";
-            'Heading':
-                TempICPartnerICDimensionValue."Dimension Value Type" := TempICPartnerICDimensionValue."Dimension Value Type"::Heading;
-            'Standard':
-                TempICPartnerICDimensionValue."Dimension Value Type" := TempICPartnerICDimensionValue."Dimension Value Type"::Standard;
-            'Total':
-                TempICPartnerICDimensionValue."Dimension Value Type" := TempICPartnerICDimensionValue."Dimension Value Type"::Total;
-            else
-                Error(UnexpectedValueFromJsonValueErr, TempICPartnerICDimensionValue.FieldCaption("Dimension Value Type"), TempICPartnerICDimensionValue.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        TempICPartnerICDimensionValue."Dimension Value Type" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'dimensionValueTypeIndex');
         TempICPartnerICDimensionValue.Blocked := GetValueFromJsonTokenOrFalse(IndividualToken, 'blocked');
 
         TempICPartnerICDimensionValue.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     local procedure PopulateICPartnerFromJson(IndividualToken: JsonToken; var TempRegisteredICPartner: Record "IC Partner" temporary)
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempRegisteredICPartner.Init();
 
         TempRegisteredICPartner.Code := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'partnerCode');
         TempRegisteredICPartner.Name := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'name');
         TempRegisteredICPartner."Currency Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'currencyCode');
-
-        IndividualToken.AsObject().Get('inboxType', AttributeToken);
-        Evaluate(TempRegisteredICPartner."Inbox Type", AttributeToken.AsValue().AsText());
-
+        TempRegisteredICPartner."Inbox Type" := Enum::"IC Partner Inbox Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'inboxTypeOrdinal'));
         TempRegisteredICPartner."Inbox Details" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'inboxDetails');
         TempRegisteredICPartner."Receivables Account" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'receivablesAccount');
         TempRegisteredICPartner."Payables Account" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'payablesAccount');
@@ -495,47 +475,34 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         TempRegisteredICPartner.Blocked := GetValueFromJsonTokenOrFalse(IndividualToken, 'blocked');
         TempRegisteredICPartner."Customer No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'customerNumber');
         TempRegisteredICPartner."Vendor No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'vendorNumber');
-
-        IndividualToken.AsObject().Get('outboundSalesItemNumberType', AttributeToken);
-        Evaluate(TempRegisteredICPartner."Outbound Sales Item No. Type", AttributeToken.AsValue().AsText());
-
-        IndividualToken.AsObject().Get('outboundPurchaseItemNumberType', AttributeToken);
-        Evaluate(TempRegisteredICPartner."Outbound Purch. Item No. Type", AttributeToken.AsValue().AsText());
-
+        TempRegisteredICPartner."Outbound Sales Item No. Type" := Enum::"IC Outb. Sales Item No. Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'outboundSalesItemNumberTypeOrdinal'));
+        TempRegisteredICPartner."Outbound Purch. Item No. Type" := Enum::"IC Outb. Purch. Item No. Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'outboundPurchaseItemNumberTypeOrdinal'));
         TempRegisteredICPartner."Cost Distribution in LCY" := GetValueFromJsonTokenOrFalse(IndividualToken, 'costDistributionInLCY');
         TempRegisteredICPartner."Auto. Accept Transactions" := GetValueFromJsonTokenOrFalse(IndividualToken, 'autoAcceptTransactions');
-
-        IndividualToken.AsObject().Get('dataExchangeType', AttributeToken);
-        Evaluate(TempRegisteredICPartner."Data Exchange Type", AttributeToken.AsValue().AsText());
+        TempRegisteredICPartner."Data Exchange Type" := Enum::"IC Data Exchange Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'dataExchangeTypeOrdinal'));
 
         TempRegisteredICPartner.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     local procedure PopulateICSetupFromJson(IndividualToken: JsonToken; var TempICPartnerICSetup: Record "IC Setup" temporary)
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempICPartnerICSetup.Init();
 
         TempICPartnerICSetup."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerCode');
-
-        IndividualToken.AsObject().Get('icInboxType', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Database':
-                TempICPartnerICSetup."IC Inbox Type" := TempICPartnerICSetup."IC Inbox Type"::Database;
-            'File Location':
-                TempICPartnerICSetup."IC Inbox Type" := TempICPartnerICSetup."IC Inbox Type"::"File Location";
-            else
-                Error(UnexpectedValueFromJsonValueErr, TempICPartnerICSetup.FieldCaption("IC Inbox Type"), TempICPartnerICSetup.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        TempICPartnerICSetup."IC Inbox Type" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icInboxTypeIndex');
         TempICPartnerICSetup."IC Inbox Details" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icInboxDetails');
         TempICPartnerICSetup."Default IC Gen. Jnl. Template" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'defaultICGeneralJournalTemplate');
         TempICPartnerICSetup."Default IC Gen. Jnl. Batch" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'defaultICGeneralJournalBatch');
 
         TempICPartnerICSetup.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     local procedure PopulateGeneralLedgerSetupFromJson(IndividualToken: JsonToken; var TempICPartnerGeneralLedgerSetup: Record "General Ledger Setup" temporary)
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempICPartnerGeneralLedgerSetup.Init();
 
         TempICPartnerGeneralLedgerSetup."Allow Posting From" := GetValueFromJsonTokenOrToday(IndividualToken, 'allowPostingFrom');
@@ -545,10 +512,12 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         TempICPartnerGeneralLedgerSetup."Local Currency Symbol" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'localCurrencySymbol');
 
         TempICPartnerGeneralLedgerSetup.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     local procedure PopulateCompanyInformationFromJson(IndividualToken: JsonToken; var TempICPartnerCompanyInformation: Record "Company Information" temporary)
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempICPartnerCompanyInformation.Init();
 
         TempICPartnerCompanyInformation.Name := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'displayName');
@@ -561,135 +530,59 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         TempICPartnerCompanyInformation."Phone No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'phoneNumber');
 
         TempICPartnerCompanyInformation.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     internal procedure PopulateICInboxTransactionFromJson(IndividualToken: JsonToken; var TempICPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary)
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempICPartnerICInboxTransaction.Init();
 
         TempICPartnerICInboxTransaction."Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionNumber');
         TempICPartnerICInboxTransaction."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerCode');
-
-        IndividualToken.AsObject().Get('sourceType', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Journal':
-                TempICPartnerICInboxTransaction."Source Type" := TempICPartnerICInboxTransaction."Source Type"::Journal;
-            'Purchase Document':
-                TempICPartnerICInboxTransaction."Source Type" := TempICPartnerICInboxTransaction."Source Type"::"Purchase Document";
-            'Sales Document':
-                TempICPartnerICInboxTransaction."Source Type" := TempICPartnerICInboxTransaction."Source Type"::"Sales Document";
-            else
-                Error(UnexpectedValueFromJsonValueErr, TempICPartnerICInboxTransaction.FieldCaption("Source Type"), TempICPartnerICInboxTransaction.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
-        IndividualToken.AsObject().Get('documentType', AttributeToken);
-        Evaluate(TempICPartnerICInboxTransaction."Document Type", AttributeToken.AsValue().AsText());
-
+        TempICPartnerICInboxTransaction."Source Type" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceTypeIndex');
+        TempICPartnerICInboxTransaction."Document Type" := Enum::"IC Transaction Document Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'documentTypeOrdinal'));
         TempICPartnerICInboxTransaction."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         TempICPartnerICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'postingDate');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Created by Partner':
-                TempICPartnerICInboxTransaction."Transaction Source" := TempICPartnerICInboxTransaction."Transaction Source"::"Created by Partner";
-            'Returned by Partner':
-                TempICPartnerICInboxTransaction."Transaction Source" := TempICPartnerICInboxTransaction."Transaction Source"::"Returned by Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, TempICPartnerICInboxTransaction.FieldCaption("Transaction Source"), TempICPartnerICInboxTransaction.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        TempICPartnerICInboxTransaction."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
         TempICPartnerICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
-
-        IndividualToken.AsObject().Get('lineAction', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Accept':
-                TempICPartnerICInboxTransaction."Line Action" := TempICPartnerICInboxTransaction."Line Action"::Accept;
-            'Cancel':
-                TempICPartnerICInboxTransaction."Line Action" := TempICPartnerICInboxTransaction."Line Action"::Cancel;
-            'No Action':
-                TempICPartnerICInboxTransaction."Line Action" := TempICPartnerICInboxTransaction."Line Action"::"No Action";
-            'Return to IC Partner':
-                TempICPartnerICInboxTransaction."Line Action" := TempICPartnerICInboxTransaction."Line Action"::"Return to IC Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, TempICPartnerICInboxTransaction.FieldCaption("Line Action"), TempICPartnerICInboxTransaction.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        TempICPartnerICInboxTransaction."Line Action" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineActionIndex');
         TempICPartnerICInboxTransaction."Original Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'originalDocumentNumber');
         TempICPartnerICInboxTransaction."Source Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceLineNumber');
-
-        IndividualToken.AsObject().Get('icAccountType', AttributeToken);
-        Evaluate(TempICPartnerICInboxTransaction."IC Account Type", AttributeToken.AsValue().AsText());
-
+        TempICPartnerICInboxTransaction."IC Account Type" := Enum::"IC Journal Account Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icAccountTypeOrdinal'));
         TempICPartnerICInboxTransaction."IC Account No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icAccountNumber');
 
         TempICPartnerICInboxTransaction.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     local procedure PopulateHandledICInboxTransactionFromJson(IndividualToken: JsonToken; var TempICPartnerHandledICInboxTransaction: Record "Handled IC Inbox Trans." temporary)
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempICPartnerHandledICInboxTransaction.Init();
 
         TempICPartnerHandledICInboxTransaction."Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionNumber');
         TempICPartnerHandledICInboxTransaction."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerCode');
-
-        IndividualToken.AsObject().Get('sourceType', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Journal':
-                TempICPartnerHandledICInboxTransaction."Source Type" := TempICPartnerHandledICInboxTransaction."Source Type"::Journal;
-            'Purchase Document':
-                TempICPartnerHandledICInboxTransaction."Source Type" := TempICPartnerHandledICInboxTransaction."Source Type"::"Purchase Document";
-            'Sales Document':
-                TempICPartnerHandledICInboxTransaction."Source Type" := TempICPartnerHandledICInboxTransaction."Source Type"::"Sales Document";
-            else
-                Error(UnexpectedValueFromJsonValueErr, TempICPartnerHandledICInboxTransaction.FieldCaption("Source Type"), TempICPartnerHandledICInboxTransaction.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
-        IndividualToken.AsObject().Get('documentType', AttributeToken);
-        Evaluate(TempICPartnerHandledICInboxTransaction."Document Type", AttributeToken.AsValue().AsText());
-
+        TempICPartnerHandledICInboxTransaction."Source Type" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceTypeIndex');
+        TempICPartnerHandledICInboxTransaction."Document Type" := Enum::"IC Transaction Document Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'documentTypeOrdinal'));
         TempICPartnerHandledICInboxTransaction."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         TempICPartnerHandledICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'postingDate');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Created by Partner':
-                TempICPartnerHandledICInboxTransaction."Transaction Source" := TempICPartnerHandledICInboxTransaction."Transaction Source"::"Created by Partner";
-            'Returned by Partner':
-                TempICPartnerHandledICInboxTransaction."Transaction Source" := TempICPartnerHandledICInboxTransaction."Transaction Source"::"Returned by Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, TempICPartnerHandledICInboxTransaction.FieldCaption("Transaction Source"), TempICPartnerHandledICInboxTransaction.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        TempICPartnerHandledICInboxTransaction."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
         TempICPartnerHandledICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
-
-        IndividualToken.AsObject().Get('status', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Accepted':
-                TempICPartnerHandledICInboxTransaction.Status := TempICPartnerHandledICInboxTransaction.Status::Accepted;
-            'Cancelled':
-                TempICPartnerHandledICInboxTransaction.Status := TempICPartnerHandledICInboxTransaction.Status::Cancelled;
-            'Posted':
-                TempICPartnerHandledICInboxTransaction.Status := TempICPartnerHandledICInboxTransaction.Status::Posted;
-            'Returned to IC Partner':
-                TempICPartnerHandledICInboxTransaction.Status := TempICPartnerHandledICInboxTransaction.Status::"Returned to IC Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, TempICPartnerHandledICInboxTransaction.FieldCaption(Status), TempICPartnerHandledICInboxTransaction.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        TempICPartnerHandledICInboxTransaction.Status := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'statusIndex');
         TempICPartnerHandledICInboxTransaction."Source Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceLineNumber');
-
-        IndividualToken.AsObject().Get('icAccountType', AttributeToken);
-        Evaluate(TempICPartnerHandledICInboxTransaction."IC Account Type", AttributeToken.AsValue().AsText());
-
+        TempICPartnerHandledICInboxTransaction."IC Account Type" := Enum::"IC Journal Account Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icAccountTypeOrdinal'));
         TempICPartnerHandledICInboxTransaction."IC Account No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icAccountNumber');
 
         TempICPartnerHandledICInboxTransaction.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     local procedure PopulateBankAccountFromJson(IndividualToken: JsonToken; var TempICPartnerBankAccount: Record "Bank Account" temporary; LCYCurrencyCode: Code[10])
     var
         CurrencyCode: Code[10];
     begin
+        ExtractCurrentUserAndChangeToEnglish();
         TempICPartnerBankAccount.Init();
 
         TempICPartnerBankAccount."No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'number');
@@ -708,6 +601,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         TempICPartnerBankAccount.IntercompanyEnable := GetValueFromJsonTokenOrFalse(IndividualToken, 'intercompanyEnabled');
 
         TempICPartnerBankAccount.Insert();
+        GlobalLanguage(CurrentGlobalLanguage);
     end;
 
     [CommitBehavior(CommitBehavior::Ignore)]
@@ -758,57 +652,16 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
 
         ICInboxTransaction."Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionNumber');
         ICInboxTransaction."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerCode');
-
-        IndividualToken.AsObject().Get('sourceType', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Journal':
-                ICInboxTransaction."Source Type" := ICInboxTransaction."Source Type"::Journal;
-            'Purchase Document':
-                ICInboxTransaction."Source Type" := ICInboxTransaction."Source Type"::"Purchase Document";
-            'Sales Document':
-                ICInboxTransaction."Source Type" := ICInboxTransaction."Source Type"::"Sales Document";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxTransaction.FieldCaption("Source Type"), ICInboxTransaction.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
-        IndividualToken.AsObject().Get('documentType', AttributeToken);
-        Evaluate(ICInboxTransaction."Document Type", AttributeToken.AsValue().AsText());
-
+        ICInboxTransaction."Source Type" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceTypeIndex');
+        ICInboxTransaction."Document Type" := Enum::"IC Transaction Document Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'documentTypeOrdinal'));
         ICInboxTransaction."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         ICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'postingDate');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Created by Partner':
-                ICInboxTransaction."Transaction Source" := ICInboxTransaction."Transaction Source"::"Created by Partner";
-            'Returned by Partner':
-                ICInboxTransaction."Transaction Source" := ICInboxTransaction."Transaction Source"::"Returned by Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxTransaction.FieldCaption("Transaction Source"), ICInboxTransaction.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICInboxTransaction."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
         ICInboxTransaction."Posting Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
-
-        IndividualToken.AsObject().Get('lineAction', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Accept':
-                ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::Accept;
-            'Cancel':
-                ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::Cancel;
-            'No Action':
-                ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"No Action";
-            'Return to IC Partner':
-                ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::"Return to IC Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxTransaction.FieldCaption("Line Action"), ICInboxTransaction.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICInboxTransaction."Line Action" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineActionIndex');
         ICInboxTransaction."Original Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'originalDocumentNumber');
         ICInboxTransaction."Source Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'sourceLineNumber');
-
-        IndividualToken.AsObject().Get('icAccountType', AttributeToken);
-        Evaluate(ICInboxTransaction."IC Account Type", AttributeToken.AsValue().AsText());
-
+        ICInboxTransaction."IC Account Type" := Enum::"IC Journal Account Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icAccountTypeOrdinal'));
         ICInboxTransaction."IC Account No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icAccountNumber');
 
         ICInboxTransaction.Insert();
@@ -823,23 +676,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxJnlLine."Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionNumber');
         ICInboxJnlLine."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerCode');
         ICInboxJnlLine."Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineNumber');
-
-        IndividualToken.AsObject().Get('accountType', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'G/L Account':
-                ICInboxJnlLine."Account Type" := ICInboxJnlLine."Account Type"::"G/L Account";
-            'Customer':
-                ICInboxJnlLine."Account Type" := ICInboxJnlLine."Account Type"::Customer;
-            'Vendor':
-                ICInboxJnlLine."Account Type" := ICInboxJnlLine."Account Type"::Vendor;
-            'IC Partner':
-                ICInboxJnlLine."Account Type" := ICInboxJnlLine."Account Type"::"IC Partner";
-            'Bank Account':
-                ICInboxJnlLine."Account Type" := ICInboxJnlLine."Account Type"::"Bank Account";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxJnlLine.FieldCaption("Account Type"), ICInboxJnlLine.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICInboxJnlLine."Account Type" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'accountTypeIndex');
         ICInboxJnlLine."Account No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'accountNumber');
         ICInboxJnlLine.Amount := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'amount');
         ICInboxJnlLine.Description := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'description');
@@ -849,17 +686,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxJnlLine."Payment Discount %" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'paymentDiscount');
         ICInboxJnlLine."Payment Discount Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'paymentDiscountDate');
         ICInboxJnlLine.Quantity := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'quantity');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Returned by Partner':
-                ICInboxJnlLine."Transaction Source" := ICInboxJnlLine."Transaction Source"::"Returned by Partner";
-            'Created by Partner':
-                ICInboxJnlLine."Transaction Source" := ICInboxJnlLine."Transaction Source"::"Created by Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxJnlLine.FieldCaption("Transaction Source"), ICInboxJnlLine.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICInboxJnlLine."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
         ICInboxJnlLine."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
 
         ICInboxJnlLine.Insert();
@@ -871,9 +698,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
     begin
         ICInboxPurchaseHeader.Init();
 
-        IndividualToken.AsObject().Get('documentType', AttributeToken);
-        Evaluate(ICInboxPurchaseHeader."Document Type", AttributeToken.AsValue().AsText());
-
+        ICInboxPurchaseHeader."Document Type" := Enum::"IC Purchase Document Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'documentTypeOrdinal'));
         ICInboxPurchaseHeader."Buy-from Vendor No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'buyFromVendorNumber');
         ICInboxPurchaseHeader."No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'number');
         ICInboxPurchaseHeader."Pay-to Vendor No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'payToVendorNumber');
@@ -898,17 +723,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxPurchaseHeader."Document Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
         ICInboxPurchaseHeader."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'intercompanyPartnerCode');
         ICInboxPurchaseHeader."IC Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'intercompanyTransactionNumber');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Returned by Partner':
-                ICInboxPurchaseHeader."Transaction Source" := ICInboxPurchaseHeader."Transaction Source"::"Returned by Partner";
-            'Created by Partner':
-                ICInboxPurchaseHeader."Transaction Source" := ICInboxPurchaseHeader."Transaction Source"::"Created by Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxPurchaseHeader.FieldCaption("Transaction Source"), ICInboxPurchaseHeader.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICInboxPurchaseHeader."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
         ICInboxPurchaseHeader."Requested Receipt Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'requestedReceiptDate');
         ICInboxPurchaseHeader."Promised Receipt Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'promisedReceiptDate');
 
@@ -921,9 +736,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
     begin
         ICInboxPurchaseLine.Init();
 
-        IndividualToken.AsObject().Get('documentType', AttributeToken);
-        Evaluate(ICInboxPurchaseLine."Document Type", AttributeToken.AsValue().AsText());
-
+        ICInboxPurchaseLine."Document Type" := Enum::"IC Inbox Purchase Document Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'documentTypeOrdinal'));
         ICInboxPurchaseLine."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         ICInboxPurchaseLine."Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineNumber');
         ICInboxPurchaseLine.Description := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'description');
@@ -942,36 +755,12 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxPurchaseLine."VAT Base Amount" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'vatBaseAmount');
         ICInboxPurchaseLine."Unit Cost" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'unitCost');
         ICInboxPurchaseLine."Line Amount" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'lineAmount');
-
-        IndividualToken.AsObject().Get('icPartnerReferenceType', AttributeToken);
-        Evaluate(ICInboxPurchaseLine."IC Partner Ref. Type", AttributeToken.AsValue().AsText());
-
+        ICInboxPurchaseLine."IC Partner Ref. Type" := Enum::"IC Partner Reference Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icPartnerReferenceTypeOrdinal'));
         ICInboxPurchaseLine."IC Partner Reference" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerReference');
         ICInboxPurchaseLine."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerCode');
         ICInboxPurchaseLine."IC Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icTransactionNumber');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Returned by Partner':
-                ICInboxPurchaseLine."Transaction Source" := ICInboxPurchaseLine."Transaction Source"::"Returned by Partner";
-            'Created by Partner':
-                ICInboxPurchaseLine."Transaction Source" := ICInboxPurchaseLine."Transaction Source"::"Created by Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxPurchaseLine.FieldCaption("Transaction Source"), ICInboxPurchaseLine.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
-        IndividualToken.AsObject().Get('itemReference', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Local Item No.':
-                ICInboxPurchaseLine."Item Ref." := ICInboxPurchaseLine."Item Ref."::"Local Item No.";
-            'Cross Reference':
-                ICInboxPurchaseLine."Item Ref." := ICInboxPurchaseLine."Item Ref."::"Cross Reference";
-            'Vendor Item No.':
-                ICInboxPurchaseLine."Item Ref." := ICInboxPurchaseLine."Item Ref."::"Vendor Item No.";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxPurchaseLine.FieldCaption("Item Ref."), ICInboxPurchaseLine.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICInboxPurchaseLine."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
+        ICInboxPurchaseLine."Item Ref." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'itemReferenceIndex');
         ICInboxPurchaseLine."IC Item Reference No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icItemReferenceNumber');
         ICInboxPurchaseLine."Unit of Measure Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'unitOfMeasureCode');
         ICInboxPurchaseLine."Requested Receipt Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'requestedReceiptDate');
@@ -991,10 +780,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxSalesHeader."Sell-to Customer No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'sellToCustomerNumber');
         ICInboxSalesHeader."No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'number');
         ICInboxSalesHeader."Bill-to Customer No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'billToCustomerNumber');
-
-        IndividualToken.AsObject().Get('documentType', AttributeToken);
-        Evaluate(ICInboxSalesHeader."Document Type", AttributeToken.AsValue().AsText());
-
+        ICInboxSalesHeader."Document Type" := Enum::"IC Sales Document Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'documentTypeOrdinal'));
         ICInboxSalesHeader."Ship-to Name" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToName');
         ICInboxSalesHeader."Ship-to Address" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToAddress');
         ICInboxSalesHeader."Ship-to Address 2" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToAddress2');
@@ -1012,17 +798,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxSalesHeader."External Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'externalDocumentNumber');
         ICInboxSalesHeader."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'intercompanyPartnerCode');
         ICInboxSalesHeader."IC Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'intercompanyTransactionNumber');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Returned by Partner':
-                ICInboxSalesHeader."Transaction Source" := ICInboxSalesHeader."Transaction Source"::"Returned by Partner";
-            'Created by Partner':
-                ICInboxSalesHeader."Transaction Source" := ICInboxSalesHeader."Transaction Source"::"Created by Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxSalesHeader.FieldCaption("Transaction Source"), ICInboxSalesHeader.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICInboxSalesHeader."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
         ICInboxSalesHeader."Requested Delivery Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'requestedDeliveryDate');
         ICInboxSalesHeader."Promised Delivery Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'promisedDeliveryDate');
 
@@ -1035,9 +811,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
     begin
         ICInboxSalesLine.Init();
 
-        IndividualToken.AsObject().Get('documentType', AttributeToken);
-        Evaluate(ICInboxSalesLine."Document Type", AttributeToken.AsValue().AsText());
-
+        ICInboxSalesLine."Document Type" := Enum::"IC Inbox Sales Document Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'documentTypeOrdinal'));
         ICInboxSalesLine."Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'documentNumber');
         ICInboxSalesLine."Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineNumber');
         ICInboxSalesLine.Description := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'description');
@@ -1052,36 +826,12 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxSalesLine."Currency Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'currencyCode');
         ICInboxSalesLine."VAT Base Amount" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'vatBaseAmount');
         ICInboxSalesLine."Line Amount" := GetValueFromJsonTokenOrDecimalZero(IndividualToken, 'lineAmount');
-
-        IndividualToken.AsObject().Get('icPartnerReferenceType', AttributeToken);
-        Evaluate(ICInboxSalesLine."IC Partner Ref. Type", AttributeToken.AsValue().AsText());
-
+        ICInboxSalesLine."IC Partner Ref. Type" := Enum::"IC Partner Reference Type".FromInteger(GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icPartnerReferenceTypeOrdinal'));
         ICInboxSalesLine."IC Partner Reference" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerReference');
         ICInboxSalesLine."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerCode');
         ICInboxSalesLine."IC Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'icTransactionNumber');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Returned by Partner':
-                ICInboxSalesLine."Transaction Source" := ICInboxSalesLine."Transaction Source"::"Returned by Partner";
-            'Created by Partner':
-                ICInboxSalesLine."Transaction Source" := ICInboxSalesLine."Transaction Source"::"Created by Partner";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxSalesLine.FieldCaption("Transaction Source"), ICInboxSalesLine.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
-        IndividualToken.AsObject().Get('itemReference', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Local Item No.':
-                ICInboxSalesLine."Item Ref." := ICInboxSalesLine."Item Ref."::"Local Item No.";
-            'Cross Reference':
-                ICInboxSalesLine."Item Ref." := ICInboxSalesLine."Item Ref."::"Cross Reference";
-            'Vendor Item No.':
-                ICInboxSalesLine."Item Ref." := ICInboxSalesLine."Item Ref."::"Vendor Item No.";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxSalesLine.FieldCaption("Item Ref."), ICInboxSalesLine.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICInboxSalesLine."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
+        ICInboxSalesLine."Item Ref." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'itemReferenceIndex');
         ICInboxSalesLine."IC Item Reference No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icItemReferenceNumber');
         ICInboxSalesLine."Unit of Measure Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'unitOfMeasureCode');
         ICInboxSalesLine."Requested Delivery Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'requestedDeliveryDate');
@@ -1102,16 +852,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxOutboxJnlLineDim."Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineNumber');
         ICInboxOutboxJnlLineDim."Dimension Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'dimensionCode');
         ICInboxOutboxJnlLineDim."Dimension Value Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'dimensionValueCode');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Rejected':
-                ICInboxOutboxJnlLineDim."Transaction Source" := ICInboxOutboxJnlLineDim."Transaction Source"::Rejected;
-            'Created':
-                ICInboxOutboxJnlLineDim."Transaction Source" := ICInboxOutboxJnlLineDim."Transaction Source"::Created;
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICInboxOutboxJnlLineDim.FieldCaption("Transaction Source"), ICInboxOutboxJnlLineDim.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
+        ICInboxOutboxJnlLineDim."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
 
         ICInboxOutboxJnlLineDim.Insert();
     end;
@@ -1125,17 +866,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICDocumentDimension."Table ID" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'tableId');
         ICDocumentDimension."Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionNumber');
         ICDocumentDimension."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerCode');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Rejected by Current Company':
-                ICDocumentDimension."Transaction Source" := ICDocumentDimension."Transaction Source"::"Rejected by Current Company";
-            'Created by Current Company':
-                ICDocumentDimension."Transaction Source" := ICDocumentDimension."Transaction Source"::"Created by Current Company";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICDocumentDimension.FieldCaption("Transaction Source"), ICDocumentDimension.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICDocumentDimension."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
         ICDocumentDimension."Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineNumber');
         ICDocumentDimension."Dimension Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'dimensionCode');
         ICDocumentDimension."Dimension Value Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'dimensionValueCode');
@@ -1149,36 +880,13 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
     begin
         ICCommentLine.Init();
 
-        IndividualToken.AsObject().Get('tableName', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'IC Inbox Transaction':
-                ICCommentLine."Table Name" := ICCommentLine."Table Name"::"IC Inbox Transaction";
-            'IC Outbox Transaction':
-                ICCommentLine."Table Name" := ICCommentLine."Table Name"::"IC Outbox Transaction";
-            'Handled IC Inbox Transaction':
-                ICCommentLine."Table Name" := ICCommentLine."Table Name"::"Handled IC Inbox Transaction";
-            'Handled IC Outbox Transaction':
-                ICCommentLine."Table Name" := ICCommentLine."Table Name"::"Handled IC Outbox Transaction";
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICCommentLine.FieldCaption("Table Name"), ICCommentLine.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICCommentLine."Table Name" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'tableNameIndex');
         ICCommentLine."Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionNumber');
         ICCommentLine."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'icPartnerCode');
         ICCommentLine."Line No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'lineNumber');
         ICCommentLine.Date := GetValueFromJsonTokenOrToday(IndividualToken, 'date');
         ICCommentLine.Comment := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'comment');
-
-        IndividualToken.AsObject().Get('transactionSource', AttributeToken);
-        case AttributeToken.AsValue().AsText() of
-            'Rejected':
-                ICCommentLine."Transaction Source" := ICCommentLine."Transaction Source"::Rejected;
-            'Created':
-                ICCommentLine."Transaction Source" := ICCommentLine."Transaction Source"::Created;
-            else
-                Error(UnexpectedValueFromJsonValueErr, ICCommentLine.FieldCaption("Transaction Source"), ICCommentLine.TableCaption(), AttributeToken.AsValue().AsText());
-        end;
-
+        ICCommentLine."Transaction Source" := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'transactionSourceIndex');
         ICCommentLine."Created By IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'createdByIcPartnerCode');
 
         ICCommentLine.Insert();
@@ -1217,6 +925,14 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         if IndividualToken.AsObject().Get(AttributeName, AttributeToken) then
             exit(AttributeToken.AsValue().AsDate());
         exit(Today);
+    end;
+
+    local procedure ExtractCurrentUserAndChangeToEnglish()
+    var
+        Language: Codeunit Language;
+    begin
+        CurrentGlobalLanguage := GlobalLanguage();
+        GlobalLanguage(Language.GetDefaultApplicationLanguageId());
     end;
 #pragma warning restore AA0139
     #endregion

@@ -19,6 +19,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         CalendarMgt: Codeunit "Shop Calendar Management";
         IsInitialized: Boolean;
         WorkCenterEfficiencyError: Label 'Efficiency must have a value in Work Center: No.=%1. It cannot be zero or empty.';
@@ -37,6 +38,9 @@ codeunit 137074 "SCM Capacity Requirements"
         BOMCostShareQtyErr: Label 'Wrong BOM Cost Share "Qty. per Parent" value';
         BOMCostShareCapCostErr: Label 'Wrong BOM Cost Share "Rolled-Up Capacity Cost"  value';
         TheGapErr: Label 'The gap for %1: %2 %3', Comment = '%1 - Work Center Code, %2 - Gap begin, %3 - Gap end.';
+        PutawayActivitiesCreatedMsg: Label 'Number of Invt. Put-away activities created';
+        InboundWhseRequestCreatedMsg: Label 'Inbound Whse. Requests are created.';
+        OutputQuantityMustMatchErr: Label 'Output Quantity muct match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4499,6 +4503,75 @@ codeunit 137074 "SCM Capacity Requirements"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure OutputJournalShouldPostCapacityLedgerEntryWithOutputQuantity()
+    var
+        Item: Record Item;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Location: Record Location;
+        Bin: Record Bin;
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        MachineCenter2: Record "Machine Center";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        ItemJournalLine: Record "Item Journal Line";
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+        OutputQuantity: Decimal;
+    begin
+        // [SCENARIO 494569] When posting a capacity entry in an output journal you receive the error Warehouse handling is required
+        Initialize();
+
+        // [GIVEN] Create Location with Bin and Warehouse Employee Setup.
+        CreateLocationWithBinAndWarehouseEmployeeSetup(Location, Bin, WarehouseEmployee);
+
+        // [GIVEN] Create Work Center with Work Center Group Code.
+        CreateWorkCenterWithWorkCenterGroupCode(WorkCenter);
+
+        // [GIVEN] Create Machine Center with Calendar.
+        CreateMachineCenterWithCalendar(MachineCenter, WorkCenter);
+
+        // [GIVEN] Create Machine Center 2 with Calendar.
+        CreateMachineCenterWithCalendar(MachineCenter2, WorkCenter);
+
+        // [GIVEN] Create Routing with two Machine Centers.
+        CreateRoutingWithTwoMachineCenters(MachineCenter, MachineCenter2, RoutingHeader);
+
+        // [GIVEN] Create Item with Routing.
+        CreateItemWithRouting(Item, RoutingHeader);
+
+        // [GIVEN] Create Released Production Order and Refresh it.
+        LibraryVariableStorage.Enqueue(InboundWhseRequestCreatedMsg);
+        LibraryVariableStorage.Enqueue(PutawayActivitiesCreatedMsg);
+        CreateReleasedProdOrderAndRefresh(ProductionOrder, Item, Location.Code, Bin.Code, 1);
+
+        // [GIVEN] Create Inbound Whse Request From Released Production Order.
+        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+
+        // [GIVEN] Create Inventory Put-Away from Inventory Put Pick Movement. 
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Output", ProductionOrder."No.", true, false, false);
+
+        // [GIVEN] Generate and save Output Quantity in a Variable.
+        OutputQuantity := LibraryRandom.RandInt(0);
+
+        // [GIVEN] Create Output Journal Line and Validate Output Quantity.
+        CreateOutputJnlLineWithSetupRunTime(ItemJournalLine, ProductionOrder."No.", Item."No.", Format(LibraryRandom.RandIntInRange(10, 10)), LibraryRandom.RandInt(0), LibraryRandom.RandIntInRange(10, 10));
+        ItemJournalLine.Validate("Output Quantity", OutputQuantity);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Find Capacity Ledger Entry.
+        CapacityLedgerEntry.SetRange("Item No.", Item."No.");
+        CapacityLedgerEntry.FindFirst();
+
+        // [VERIFY] Verify Output Quantity of Capacity Ledger Entry match with Output Quantity of Output Journal Line.
+        Assert.AreEqual(OutputQuantity, CapacityLedgerEntry."Output Quantity", OutputQuantityMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5610,6 +5683,145 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         BOMCostShares.InitItem(Item);
         BOMCostShares.Run();
+    end;
+
+    local procedure CreateLocationWithBinAndWarehouseEmployeeSetup(
+      var Location: Record Location;
+      var Bin: Record Bin;
+      var WarehouseEmployee: Record "Warehouse Employee")
+    begin
+        WarehouseEmployee.DeleteAll(true);
+        LibraryWarehouse.CreateLocation(Location);
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Require Pick", true);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Default Bin Selection", Location."Default Bin Selection"::"Last-Used Bin");
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
+        Location.Validate("Prod. Output Whse. Handling", Location."Prod. Output Whse. Handling"::"Inventory Put-away");
+        Location.Modify(true);
+
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Format(LibraryRandom.RandText(4)), '', '');
+
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+    end;
+
+    local procedure CreateShopCalendar(StartingTime: Time; EndingTime: Time): Code[10]
+    var
+        ShopCalendar: Record "Shop Calendar";
+        ShopCalendarCode: Code[10];
+    begin
+        ShopCalendarCode := LibraryManufacturing.CreateShopCalendarCode(ShopCalendar);
+        CreateShopCalendarWorkingDays(ShopCalendarCode, StartingTime, EndingTime);
+        exit(ShopCalendarCode);
+    end;
+
+    local procedure CreateShopCalendarWorkingDays(ShopCalendarCode: Code[10]; StartingTime: Time; EndingTime: Time)
+    var
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        WorkShift: Record "Work Shift";
+        WorkShiftCode: Code[10];
+    begin
+        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", ShopCalendarCode);
+        WorkShiftCode := LibraryManufacturing.CreateWorkShiftCode(WorkShift);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Monday, WorkShiftCode, StartingTime, EndingTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Tuesday, WorkShiftCode, StartingTime, EndingTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Wednesday, WorkShiftCode, StartingTime, EndingTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Thursday, WorkShiftCode, StartingTime, EndingTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Friday, WorkShiftCode, StartingTime, EndingTime);
+    end;
+
+    local procedure CreateReleasedProdOrderAndRefresh(
+      var ProductionOrder: Record "Production Order";
+      Item: Record Item;
+      LocationCode: Code[10];
+      BinCode: Code[20];
+      Qty: Integer)
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", Qty);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Validate("Bin Code", BinCode);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure CreateWorkCenterWithWorkCenterGroupCode(var WorkCenter: Record "Work Center")
+    var
+        WorkCenterGroup: Record "Work Center Group";
+    begin
+        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
+
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Work Center Group Code", WorkCenterGroup.Code);
+        WorkCenter.Validate("Shop Calendar Code", CreateShopCalendar(080000T, 160000T));
+        WorkCenter.Validate("Direct Unit Cost", LibraryRandom.RandDecInDecimalRange(1.20, 1.20, 2));
+        WorkCenter.Validate("Unit Cost", LibraryRandom.RandDecInDecimalRange(1.20, 1.20, 2));
+        WorkCenter.Validate("Unit Cost Calculation", WorkCenter."Unit Cost Calculation"::Time);
+        WorkCenter.Validate("Flushing Method", WorkCenter."Flushing Method"::Manual);
+        WorkCenter.Validate(Capacity, LibraryRandom.RandIntInRange(3, 3));
+        WorkCenter.Validate(Efficiency, LibraryRandom.RandIntInRange(100, 100));
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateMachineCenterWithCalendar(var MachineCenter: Record "Machine Center"; var WorkCenter: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateMachineCenterWithCalendar(MachineCenter, WorkCenter."No.", LibraryRandom.RandInt(0));
+        MachineCenter.Validate("Flushing Method", MachineCenter."Flushing Method"::Manual);
+        MachineCenter.Validate(Efficiency, LibraryRandom.RandIntInRange(100, 100));
+        MachineCenter.Modify(true);
+    end;
+
+    local procedure CreateRoutingWithTwoMachineCenters(
+      var MachineCenter: Record "Machine Center";
+      var MachineCenter2: Record "Machine Center";
+      var RoutingHeader: Record "Routing Header")
+    var
+        RoutingLine: Record "Routing Line";
+        RoutingLine2: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader,
+          RoutingLine,
+          '',
+          Format(LibraryRandom.RandIntInRange(10, 10)),
+          RoutingLine.Type::"Machine Center",
+          MachineCenter."No.");
+
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandIntInRange(20, 20));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandIntInRange(15, 15));
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader,
+          RoutingLine2,
+          '',
+          Format(LibraryRandom.RandIntInRange(20, 20)),
+          RoutingLine2.Type::"Machine Center",
+          MachineCenter2."No.");
+
+        RoutingLine2.Validate("Setup Time", LibraryRandom.RandIntInRange(20, 20));
+        RoutingLine2.Validate("Run Time", LibraryRandom.RandIntInRange(18, 18));
+        RoutingLine2.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateItemWithRouting(var Item: Record Item; var RoutingHeader: Record "Routing Header")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Stock");
+        Item.Validate("Flushing Method", Item."Flushing Method"::Manual);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
     end;
 
     [StrMenuHandler]
