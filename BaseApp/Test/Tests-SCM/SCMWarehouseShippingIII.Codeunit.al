@@ -1651,53 +1651,64 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     end;
 
     [Test]
-    procedure VerifyWhseRequestIsRemovedOnDeleteSalesOrderLines()
+    procedure VerifyOpenWhseRequestLinesIsRemovedOnReleasedSalesOrderLines()
     var
         Item: Record Item;
-        Location: Record Location;
+        Location, Location2 : Record Location;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        // [SCENARIO 459402] Verify Warehouse Request line is removed on delete Sales Line
+        // [SCENARIO 459402] Verify Open Warehouse Request lines are removed on Release Sales Line, after Sales Lines are removed and recreated
         Initialize();
 
         // [GIVEN] Create Item
         LibraryInventory.CreateItem(Item);
 
-        // [GIVEN] Create Location with Require Pick
-        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        // [GIVEN] Create Locations with Require Put Away and Pick
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
+        LibraryWarehouse.CreateLocationWMS(Location2, false, true, true, false, false);
 
         // [GIVEN] Create and Release Sales Order
-        CreateAndReleaseSalesOrderWithMultipleSalesLines(SalesHeader, '', Item."No.", Item."No.", 1, 1, Location.Code);
+        CreateAndReleaseSalesOrderWithMultipleSalesLines(SalesHeader, '', Item."No.", Item."No.", 1, -1, Location.Code);
 
         // [GIVEN] Reopen the Sales Order
         LibrarySales.ReopenSalesDocument(SalesHeader);
 
         // [THEN] Verify Warehouse Request rec exist
-        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 1);
+        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 2);
 
-        // [WHEN] Remove Sales Lines
+        // [GIVEN] Remove Sales Lines
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.DeleteAll(true);
 
-        // [THEN] Verify Warehouse Request removed
+        // [WHEN] Update Location on Sales Order, create new Sales Line and Release Sales Order
+        SalesHeader.Validate("Location Code", Location2.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [THEN] Verify Warehouse Request lines are removed
         VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 0);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure VerifyWhseRequestIsRemovedOnDeletePurchaseOrderLines()
+    procedure VerifyOpenWhseRequestLineIsRemovedOnReleasedPurchaseOrderLines()
     var
         Item: Record Item;
+        Location: Record Location;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        // [SCENARIO 459402] Verify Warehouse Request line is removed on delete Purchase Line
+        // [SCENARIO 459402] Verify Open Warehouse Request lines are removed on delete Purchase Line, after Purchase Lines are removed and recreated
         Initialize();
 
         // [GIVEN] Create Item
         LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Locations with Require Put Away and Pick
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
 
         // [GIVEN] Create and Release Purchase Order
         CreateAndReleasePurchaseOrderWithMultiplePurchaseLines(PurchaseHeader, '', Item."No.", Item."No.", 1, 1, LocationGreen.Code);
@@ -1708,12 +1719,18 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         // [THEN] Verify Warehouse Request rec exist
         VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 1);
 
-        // [WHEN] Remove Purchase Lines
+        // [GIVEN] Remove Purchase Lines
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.DeleteAll(true);
 
-        // [THEN] Verify Warehouse Request removed
+        // [WHEN] Update Location on Purchase Order, create new Purchase Line and Release Purchase Order
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [THEN] Verify Warehouse Request lines are removed
         VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 0);
     end;
 
