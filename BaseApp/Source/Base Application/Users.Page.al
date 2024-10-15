@@ -443,7 +443,7 @@ page 9800 Users
                     Page.RunModal(Page::"Azure AD User Update Wizard");
 
                     if Rec.Count() > UserCountBeforeUpdate then
-                        RefreshParts();
+                        CurrPage."Inherited Permission Sets".Page.Refresh(); // "User Security Groups" part is updated as part of this refresh as well
                 end;
             }
             action(Email)
@@ -593,6 +593,7 @@ page 9800 Users
     trigger OnOpenPage()
     var
         MyNotification: Record "My Notifications";
+        SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
         UserSelection: Codeunit "User Selection";
         UserManagement: Codeunit "User Management";
         EnvironmentInfo: Codeunit "Environment Information";
@@ -606,7 +607,10 @@ page 9800 Users
 #endif
         NoUserExists := IsEmpty;
         UserSelection.HideExternalUsers(Rec);
-        RefreshParts();
+
+        // Set "User Security Groups" to refresh as part of "Inherited Permission Sets" refresh (to avoid fetching security group memberships twice).
+        CurrPage."User Security Groups".Page.GetSourceRecord(SecurityGroupMemberBuffer);
+        CurrPage."Inherited Permission Sets".Page.SetRecordToRefresh(SecurityGroupMemberBuffer);
 
         if UserWithWebServiceKeyExist() then begin
             Usermanagement.BasicAuthDepricationNotificationDefault(true);
@@ -675,16 +679,6 @@ page 9800 Users
     procedure GetSelectionFilter(var User: Record User)
     begin
         CurrPage.SetSelectionFilter(User);
-    end;
-
-    local procedure RefreshParts()
-    var
-        SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
-        SecurityGroup: Codeunit "Security Group";
-    begin
-        SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
-        CurrPage."User Security Groups".Page.Refresh(SecurityGroupMemberBuffer);
-        CurrPage."Inherited Permission Sets".Page.Refresh(SecurityGroupMemberBuffer);
     end;
 
     local procedure UserWithWebServiceKeyExist(): Boolean

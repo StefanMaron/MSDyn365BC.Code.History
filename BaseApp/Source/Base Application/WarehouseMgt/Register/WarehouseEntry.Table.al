@@ -457,6 +457,23 @@ table 7312 "Warehouse Entry"
         if FindLast() then;
     end;
 
+    procedure SetTrackingFilterFromWhseEntryForSerialOrLotTrackedItem(FromWhseEntry: Record "Warehouse Entry")
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        SetRange("Package No.", FromWhseEntry."Package No.");
+
+        Item.Get("Item No.");
+        if not ItemTrackingCode.Get(Item."Item Tracking Code") then
+            exit;
+
+        if (ItemTrackingCode."SN Specific Tracking" and ItemTrackingCode."SN Warehouse Tracking") then
+            SetRange("Serial No.", FromWhseEntry."Serial No.");
+        if (ItemTrackingCode."Lot Specific Tracking" and ItemTrackingCode."Lot Warehouse Tracking") then
+            SetRange("Lot No.", FromWhseEntry."Lot No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearTrackingFilter(var WarehouseEntry: Record "Warehouse Entry")
     begin

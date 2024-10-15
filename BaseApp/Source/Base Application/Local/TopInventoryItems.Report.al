@@ -2,6 +2,7 @@ report 10162 "Top __ Inventory Items"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Local/TopInventoryItems.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Top __ Inventory Items';
     UsageCategory = ReportsAndAnalysis;
 

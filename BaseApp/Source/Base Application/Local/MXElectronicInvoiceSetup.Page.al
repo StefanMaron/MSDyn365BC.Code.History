@@ -24,6 +24,12 @@ page 10457 "MX Electronic Invoice Setup"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Download the XML document when sending a request to an electronic invoicing authority.';
             }
+            field("Download SaaS Request"; Rec."Download SaaS Request")
+            {
+                Visible = IsSaaS;
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Download the txt request.';
+            }
         }
     }
 
@@ -39,6 +45,7 @@ page 10457 "MX Electronic Invoice Setup"
         IsEmailEnabled: Boolean;
     begin
         IsEmailEnabled := MailManagement.IsEnabled();
+        IsSaaS := EnvironmentInfo.IsSaaS();
 
         if not IsEmailEnabled then begin
             Notify.Message(EmailSetupMissingMsg);
@@ -66,6 +73,8 @@ page 10457 "MX Electronic Invoice Setup"
     end;
 
     var
+        EnvironmentInfo: Codeunit "Environment Information";
+        IsSaaS: Boolean;
         EmailSetupMissingMsg: Label 'You must set up email in Business Central before you can send electronic invoices.';
         SetupEmailMsg: Label 'Go to Set Up Email.';
 }
