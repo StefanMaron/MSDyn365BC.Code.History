@@ -22,12 +22,18 @@ codeunit 99000886 "Capable to Promise"
 
         Text000: Label 'Calculation with date #1######';
 
-    local procedure ValidateCapableToPromise(var ReqLine: Record "Requisition Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; PeriodType: Enum "Analysis Period Type"; var DueDateOfReqLine: Date): Boolean
+    local procedure ValidateCapableToPromise(var ReqLine: Record "Requisition Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; PeriodType: Enum "Analysis Period Type"; var DueDateOfReqLine: Date) Result: Boolean
     var
         CumulativeATP: Decimal;
         ReqQty: Decimal;
         Ok: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateCapableToPromise(ReqLine, ItemNo, VariantCode, LocationCode, NeededDate, NeededQty, UnitOfMeasure, PeriodType, DueDateOfReqLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         Clear(ReqLine);
 
         CumulativeATP :=
@@ -63,7 +69,7 @@ codeunit 99000886 "Capable to Promise"
     end;
 #endif
 
-    procedure CalcCapableToPromiseDate(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; var LocOrderPromisingID: Code[20]; LocSourceLineNo: Integer; var LastValidLine: Integer; PeriodType: Enum "Analysis Line Type"; PeriodLengthFormula: DateFormula): Date
+    procedure CalcCapableToPromiseDate(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; var LocOrderPromisingID: Code[20]; LocSourceLineNo: Integer; var LastValidLine: Integer; PeriodType: Enum "Analysis Line Type"; PeriodLengthFormula: DateFormula) Result: Date
     var
         RequisitionLine: Record "Requisition Line";
         CalculationDialog: Dialog;
@@ -72,7 +78,13 @@ codeunit 99000886 "Capable to Promise"
         IsValid: Boolean;
         StopCalculation: Boolean;
         DueDateOfReqLine: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcCapableToPromiseDate(ItemNo, VariantCode, LocationCode, NeededDate, NeededQty, UnitOfMeasure, LocOrderPromisingID, LocSourceLineNo, LastValidLine, PeriodType, PeriodLengthFormula, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if NeededQty = 0 then
             exit(NeededDate);
         RemoveReqLines(LocOrderPromisingID, LocSourceLineNo, LastValidLine, false);
@@ -197,7 +209,7 @@ codeunit 99000886 "Capable to Promise"
         exit(CheckCompsCapableToPromise(ReqLine, PeriodType));
     end;
 
-    local procedure CheckCompsCapableToPromise(ReqLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type"): Boolean
+    local procedure CheckCompsCapableToPromise(ReqLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type") Result: Boolean
     var
         PlanningComponent: Record "Planning Component";
         ReqLine2: Record "Requisition Line";
@@ -205,7 +217,13 @@ codeunit 99000886 "Capable to Promise"
         PlngComponentReserve: Codeunit "Plng. Component-Reserve";
         IsValidDate: Boolean;
         DueDateOfReqLine: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCompsCapableToPromise(ReqLine, PeriodType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with PlanningComponent do begin
             SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
             SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
@@ -235,12 +253,18 @@ codeunit 99000886 "Capable to Promise"
         exit(true);
     end;
 
-    local procedure CheckTransferShptCTP(ReqLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type"): Boolean
+    local procedure CheckTransferShptCTP(ReqLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type") Result: Boolean
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
         DueDateOfReqLine: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckTransferShptCTP(ReqLine, PeriodType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with ReqLine do begin
             TestField("Replenishment System", "Replenishment System"::Transfer);
             Item.Get("No.");
@@ -309,13 +333,19 @@ codeunit 99000886 "Capable to Promise"
         end;
     end;
 
-    local procedure GetCumulativeATP(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UnitOfMeasureCode: Code[10]; PeriodType: Enum "Analysis Period Type"): Decimal
+    local procedure GetCumulativeATP(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UnitOfMeasureCode: Code[10]; PeriodType: Enum "Analysis Period Type") Result: Decimal
     var
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         AvailToPromise: Codeunit "Available to Promise";
         CumulativeATP: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCumulativeATP(ItemNo, VariantCode, LocationCode, DueDate, UnitOfMeasureCode, PeriodType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         Item.Get(ItemNo);
         Item.SetRange("Variant Filter", VariantCode);
         Item.SetRange("Location Filter", LocationCode);
@@ -387,6 +417,31 @@ codeunit 99000886 "Capable to Promise"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReqLineModify(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCumulativeATP(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UnitOfMeasureCode: Code[10]; PeriodType: Enum "Analysis Period Type"; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCompsCapableToPromise(RequisitionLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCapableToPromise(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; PeriodType: Enum "Analysis Period Type"; var DueDateOfReqLine: Date; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCapableToPromiseDate(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; NeededDate: Date; NeededQty: Decimal; UnitOfMeasure: Code[10]; var LocOrderPromisingID: Code[20]; LocSourceLineNo: Integer; var LastValidLine: Integer; PeriodType: Enum "Analysis Line Type"; PeriodLengthFormula: DateFormula; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTransferShptCTP(RequisitionLine: Record "Requisition Line"; PeriodType: Enum "Analysis Period Type"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

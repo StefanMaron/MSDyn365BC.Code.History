@@ -92,7 +92,7 @@ page 5010 "Service Declaration Setup"
     var
         ServiceDeclarationMgt: Codeunit "Service Declaration Mgt.";
     begin
-        if not ServiceDeclarationMgt.IsFeatureEnabled() then begin
+        if not ServiceDeclarationMgt.IsFeatureEnabledWithoutSetup() then begin
             ServiceDeclarationMgt.ShowNotEnabledMessage(CurrPage.Caption());
             Error('');
         end;

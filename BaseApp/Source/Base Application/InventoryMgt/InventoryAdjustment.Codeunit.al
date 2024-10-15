@@ -122,6 +122,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         InvtSetup.Get();
         GLSetup.Get();
         PostingDateForClosedPeriod := GLSetup.FirstAllowedPostingDate();
+        OnInitializeAdjmtOnAfterGetPostingDate(PostingDateForClosedPeriod);
+
         GetAddReportingCurrency();
 
         SourceCodeSetup.Get();
@@ -757,25 +759,26 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         InbndValueEntry.SetRange("Item Ledger Entry No.", InbndValueEntry."Item Ledger Entry No.");
         InbndValueEntry.SetRange("Document No.", InbndValueEntry."Document No.");
         InbndValueEntry.SetRange("Document Line No.", InbndValueEntry."Document Line No.");
-        with CostElementBuf do
-            repeat
-                if (InbndValueEntry."Entry Type" = InbndValueEntry."Entry Type"::"Direct Cost") and
-                   (InbndValueEntry."Item Charge No." = '')
-                then begin
-                    if TempInvtAdjmtBuf.Get(InbndValueEntry."Entry No.") then
-                        InbndValueEntry.AddCost(TempInvtAdjmtBuf);
-                    if InbndValueEntry."Expected Cost" then
-                        AddExpectedCostElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ", InbndValueEntry."Cost Amount (Expected)", InbndValueEntry."Cost Amount (Expected) (ACY)")
-                    else begin
-                        AddActualCostElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ", InbndValueEntry."Cost Amount (Actual)", InbndValueEntry."Cost Amount (Actual) (ACY)");
-                        if InbndValueEntry."Invoiced Quantity" <> 0 then begin
-                            "Invoiced Quantity" := "Invoiced Quantity" + InbndValueEntry."Invoiced Quantity";
-                            if not Modify() then
-                                Insert();
+        if InbndValueEntry.FindSet() then
+            with CostElementBuf do
+                repeat
+                    if (InbndValueEntry."Entry Type" = InbndValueEntry."Entry Type"::"Direct Cost") and
+                    (InbndValueEntry."Item Charge No." = '')
+                    then begin
+                        if TempInvtAdjmtBuf.Get(InbndValueEntry."Entry No.") then
+                            InbndValueEntry.AddCost(TempInvtAdjmtBuf);
+                        if InbndValueEntry."Expected Cost" then
+                            AddExpectedCostElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ", InbndValueEntry."Cost Amount (Expected)", InbndValueEntry."Cost Amount (Expected) (ACY)")
+                        else begin
+                            AddActualCostElement("Cost Entry Type"::"Direct Cost", "Cost Variance Type"::" ", InbndValueEntry."Cost Amount (Actual)", InbndValueEntry."Cost Amount (Actual) (ACY)");
+                            if InbndValueEntry."Invoiced Quantity" <> 0 then begin
+                                "Invoiced Quantity" := "Invoiced Quantity" + InbndValueEntry."Invoiced Quantity";
+                                if not Modify() then
+                                    Insert();
+                            end;
                         end;
                     end;
-                end;
-            until InbndValueEntry.Next() = 0;
+                until InbndValueEntry.Next() = 0;
     end;
 
     local procedure CalcInbndDocNewCost(var NewCostElementBuf: Record "Cost Element Buffer"; OldCostElementBuf: Record "Cost Element Buffer"; Expected: Boolean; ShareOfTotalCost: Decimal)
@@ -3046,6 +3049,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeSingleLevelAdjmtOnBeforeCollectAvgCostAdjmtEntryPointToUpdate(var TheItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitializeAdjmtOnAfterGetPostingDate(var PostingDateForClosedPeriod: Date)
     begin
     end;
 }

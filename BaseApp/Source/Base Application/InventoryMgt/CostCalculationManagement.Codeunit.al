@@ -358,7 +358,14 @@ codeunit 5836 "Cost Calculation Management"
         Item: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         OutstandingBaseQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OutstandingBaseQty := 0;
+        OnBeforeCalcOutputQtyBaseOnPurchOrder(ProdOrderLine, ProdOrderRtngLine, OutstandingBaseQty, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLine do begin
             SetCurrentKey(
               "Document Type", Type, "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.");
@@ -1402,6 +1409,11 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindRountingLineOnAfterRoutingLineSetFilters(var RoutingLine: Record "Routing Line"; ProdBOMLine: Record "Production BOM Line"; CalculationDate: Date; RoutingNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcOutputQtyBaseOnPurchOrder(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; var OutstandingBaseQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
