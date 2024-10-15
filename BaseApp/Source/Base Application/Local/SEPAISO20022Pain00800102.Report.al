@@ -59,6 +59,15 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
     {
     }
 
+    trigger OnPreReport()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SEPADDExportFile: Codeunit "SEPA DD-Export File";     
+    begin
+        FeatureTelemetry.LogUptake('0000N2L', SEPADDExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000N2M', SEPADDExportFile.FeatureName(), 'Report (NL) SEPA ISO20022 Pain 008.001.02');
+    end;
+
     var
         CompanyInfo: Record "Company Information";
         StringConversionMgt: Codeunit StringConversionManagement;

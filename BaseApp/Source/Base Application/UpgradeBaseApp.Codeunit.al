@@ -25,6 +25,8 @@
         SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral', Locked = true;
         ProductionOrderLbl: Label 'PRODUCTION', Locked = true;
         ProductionOrderTxt: Label 'Production Order', Locked = true;
+        XGenericSEPA09Txt: Label 'Generic SEPA09';
+        XGenericSEPADesc09Txt: Label 'SEPA CT pain.001.001.09', Locked = true;
 
     trigger OnCheckPreconditionsPerDatabase()
     begin
@@ -120,10 +122,12 @@
         UpdateProductionSourceCode();
         UpgradeICGLAccountNoInPostedGenJournalLine();
         UpgradeICGLAccountNoInStandardGeneralJournalLine();
+        UpgradeBankExportImportSetup();
         UpgradeVATSetup();
 #if not CLEAN22
         UpgradeTimesheetExperience();
 #endif
+        UpgradeCountryVATSchemeDK();
     end;
 
     local procedure ClearTemporaryTables()
@@ -166,6 +170,47 @@
         ParallelSessionEntry.DeleteAll();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetClearTemporaryTablesUpgradeTag());
+    end;
+
+    local procedure UpgradeBankExportImportSetup()
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        ExportProtocol: Record "Export Protocol";
+        CompanyInitialize: Codeunit "Company-Initialize";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag()) then
+            exit;
+
+        if not BankExportImportSetup.Get(CompanyInitialize.GetSEPACT09Code()) then
+            CompanyInitialize.InsertBankExportImportSetup(CompanyInitialize.GetSEPACT09Code(), CompanyInitialize.GetSEPACT09Name(), BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
+
+        if not BankExportImportSetup.Get(CompanyInitialize.GetSEPADD08Code()) then
+            CompanyInitialize.InsertBankExportImportSetup(CompanyInitialize.GetSEPADD08Code(), CompanyInitialize.GetSEPADD08Name(), BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA DD-Check Line");
+
+	if not ExportProtocol.Get(XGenericSEPA09Txt) then
+            CreateExportProtocol(XGenericSEPA09Txt, XGenericSEPADesc09Txt, Codeunit::"Check BTL91", Report::Docket, Report::"SEPA ISO20022 Pain 01.01.09", '');
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag());
+    end;
+
+    local procedure CreateExportProtocol("Code": Code[20]; Description: Text[30]; CheckID: Integer; DocketID: Integer; ExportID: Integer; FileNames: Text[80])
+    var
+        ExportProtocol: Record "Export Protocol";
+    begin
+        ExportProtocol.Init();
+        ExportProtocol.Validate(Code, Code);
+        ExportProtocol.Validate(Description, Description);
+        ExportProtocol.Validate("Check ID", CheckID);
+        ExportProtocol.Validate("Export ID", ExportID);
+        ExportProtocol.Validate("Docket ID", DocketID);
+        ExportProtocol.Validate("Default File Names", FileNames);
+
+        if not ExportProtocol.Insert() then
+            ExportProtocol.Modify();
     end;
 
     internal procedure UpgradeWordTemplateTables()
@@ -3306,4 +3351,20 @@
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewTimeSheetExperienceUpgradeTag());
     end;
 #endif
+
+    local procedure UpgradeCountryVATSchemeDK()
+    var
+        CountryRegion: Record "Country/Region";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryVATSchemeDKTag()) then
+            exit;
+
+        CountryRegion.SetRange("ISO Code", 'DK'); // ISO 3166 Country Codes
+        if not CountryRegion.IsEmpty() then
+            CountryRegion.ModifyAll("VAT Scheme", '0184'); // ISO 6523 ICD Codes
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryVATSchemeDKTag());
+    end;
 }
