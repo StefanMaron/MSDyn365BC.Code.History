@@ -193,6 +193,11 @@ codeunit 86 "Sales-Quote to Order"
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckInProgressOpportunities(Opp, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         Opp.Reset();
         Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
         Opp.SetRange("Sales Document Type", Opp."Sales Document Type"::Quote);
@@ -266,6 +271,8 @@ codeunit 86 "Sales-Quote to Order"
                     Opp."Sales Document No." := '';
                     Opp.Modify();
                 end;
+
+        OnAfterMoveWonLostOpportunites(SalesQuoteHeader, SalesOrderHeader);
     end;
 
     local procedure TransferQuoteToOrderLines(var SalesQuoteLine: Record "Sales Line"; var SalesQuoteHeader: Record "Sales Header"; var SalesOrderLine: Record "Sales Line"; var SalesOrderHeader: Record "Sales Header"; Customer: Record Customer)
@@ -316,6 +323,11 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInProgressOpportunities(Opp: Record Opportunity; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesQuote(var QuoteSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean; var SalesQuoteLine: Record "Sales Line")
     begin
     end;
@@ -342,6 +354,11 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertAllSalesOrderLines(var SalesOrderLine: Record "Sales Line"; SalesQuoteHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMoveWonLostOpportunites(var SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
     begin
     end;
 

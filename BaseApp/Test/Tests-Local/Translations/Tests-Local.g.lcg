@@ -3137,6 +3137,15 @@
       <Cmt Name="Dev"><![CDATA[%1=caption of a field, %2=key of record]D;]A;(LookupHint=Codeunit MX CFDI Unit Test - NamedType IfEmptyErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3879711719 - NamedType 690720733" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MX CFDI Unit Test - NamedType MustHaveValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3879711719 - NamedType 295355407" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No relation documents specified for the replacement of previous CFDIs.]]></Val>

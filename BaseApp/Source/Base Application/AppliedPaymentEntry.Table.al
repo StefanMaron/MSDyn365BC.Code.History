@@ -421,6 +421,8 @@
             "Account Type"::Vendor:
                 GetVendLedgEntryDiscInfo(PmtDiscDueDate, PmtDiscToleranceDate, RemPmtDiscPossible);
         end;
+
+        OnAfterGetDiscInfo(Rec, PmtDiscDueDate, PmtDiscToleranceDate, RemPmtDiscPossible);
     end;
 
     local procedure GetCustLedgEntryDiscInfo(var PmtDiscDueDate: Date; var PmtDiscToleranceDate: Date; var RemPmtDiscPossible: Decimal)
@@ -473,7 +475,7 @@
         OnAfterGetRemAmt(Rec, Result);
     end;
 
-    local procedure GetAcceptedPmtTolerance(): Decimal
+    local procedure GetAcceptedPmtTolerance() Result: Decimal
     begin
         if ("Account No." = '') or ("Applies-to Entry No." = 0) then
             exit(0);
@@ -483,6 +485,8 @@
             "Account Type"::Vendor:
                 exit(GetVendLedgEntryPmtTolAmt);
         end;
+
+        OnAfterGetAcceptedPmtTolerance(Rec, Result);
     end;
 
     local procedure GetCustLedgEntryRemAmt(): Decimal
@@ -583,7 +587,7 @@
         exit(OldAppliedPmtEntry."Applied Amount" - OldAppliedPmtEntry."Applied Pmt. Discount");
     end;
 
-    local procedure IsAcceptedPmtDiscTolerance(): Boolean
+    local procedure IsAcceptedPmtDiscTolerance() Result: Boolean
     begin
         if ("Account No." = '') or ("Applies-to Entry No." = 0) then
             exit(false);
@@ -593,6 +597,8 @@
             "Account Type"::Vendor:
                 exit(IsVendLedgEntryPmtDiscTol);
         end;
+
+        OnAfterIsAcceptedPmtDiscTolerance(rec, Result);
     end;
 
     local procedure IsCustLedgEntryPmtDiscTol(): Boolean
@@ -1037,6 +1043,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckCurrencyCombination(var AppliedPaymentEntry: Record "Applied Payment Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDiscInfo(var AppliedPaymentEntry: Record "Applied Payment Entry"; var PmtDiscDueDate: Date; var PmtDiscToleranceDate: Date; var RemPmtDiscPossible: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAcceptedPmtTolerance(AppliedPaymentEntry: Record "Applied Payment Entry"; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAcceptedPmtDiscTolerance(AppliedPaymentEntry: Record "Applied Payment Entry"; var Result: Boolean)
     begin
     end;
 

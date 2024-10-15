@@ -138,6 +138,20 @@ codeunit 5465 "Graph Mgt - General Tools"
             InsertedRecordRef := UpdatedRecRef.Duplicate;
     end;
 
+    [Scope('Cloud')]
+    procedure ProcessNewRecordFromAPI(var InsertedRecordRef: RecordRef; var TempFieldSet: Record "Field"; ModifiedDateTime: DateTime; var ConfigTemplateHeader: Record "Config. Template Header")
+    var
+        ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
+        ConfigTemplateManagement: Codeunit "Config. Template Management";
+        UpdatedRecRef: RecordRef;
+    begin
+        if not ConfigTmplSelectionRules.FindTemplateBasedOnRecordFields(InsertedRecordRef, ConfigTemplateHeader) then
+            exit;
+
+        if ConfigTemplateManagement.ApplyTemplate(InsertedRecordRef, TempFieldSet, UpdatedRecRef, ConfigTemplateHeader) then
+            InsertedRecordRef := UpdatedRecRef.Duplicate();
+    end;
+
     procedure ErrorIdImmutable()
     begin
         Error(CannotChangeIDErr);

@@ -1,4 +1,4 @@
-table 80 "Gen. Journal Template"
+﻿table 80 "Gen. Journal Template"
 {
     Caption = 'Gen. Journal Template';
     LookupPageID = "General Journal Template List";
@@ -210,7 +210,14 @@ table 80 "Gen. Journal Template"
             TableRelation = "No. Series";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeNoSeriesValidate(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "No. Series" <> '' then begin
                     if Recurring then
                         Error(
@@ -362,6 +369,11 @@ table 80 "Gen. Journal Template"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateType(var GenJournalTemplate: Record "Gen. Journal Template"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoSeriesValidate(var GenJournalTemplate: Record "Gen. Journal Template"; var IsHandled: Boolean)
     begin
     end;
 }

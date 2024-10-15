@@ -921,6 +921,8 @@ table 5080 "To-do"
             TempSegLine."Contact No." := "Contact No.";
             TempSegLine."To-do No." := "No.";
             TempSegLine."Salesperson Code" := "Salesperson Code";
+
+            OnCreateInteractionOnBeforeCreatePhoneCall(TempSegLine, Rec);
             TempSegLine.CreatePhoneCall;
         end else
             TempSegLine.CreateInteractionFromTask(Rec);
@@ -2231,8 +2233,14 @@ table 5080 "To-do"
     end;
 
     local procedure RunCreateTaskPage()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeRunCreateTaskPage(Rec);
+        IsHandled := false;
+        OnBeforeRunCreateTaskPage(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if PAGE.RunModal(PAGE::"Create Task", Rec) = ACTION::OK then;
     end;
 
@@ -2300,7 +2308,6 @@ table 5080 "To-do"
     [Scope('OnPrem')]
     procedure FinishWizard(SendExchangeAppointment: Boolean)
     var
-        SegLine: Record "Segment Line";
         SendOnFinish: Boolean;
     begin
         CreateExchangeAppointment := SendExchangeAppointment;
@@ -2316,28 +2323,8 @@ table 5080 "To-do"
                 TempAttendee.Reset();
             end;
             Validate("Contact No.", '');
-        end else begin
-            if Cont.Get("Contact No.") then
-                TempAttendee.CreateAttendee(
-                  TempAttendee,
-                  "No.", 10000, TempAttendee."Attendance Type"::Required,
-                  TempAttendee."Attendee Type"::Contact,
-                  Cont."No.", Cont."E-Mail" <> '');
-            if SegHeader.Get("Segment No.") then begin
-                SegLine.SetRange("Segment No.", "Segment No.");
-                SegLine.SetFilter("Contact No.", '<>%1', '');
-                if SegLine.Find('-') then
-                    repeat
-                        TempAttendee.CreateAttendee(
-                          TempAttendee,
-                          "No.", SegLine."Line No.", TempAttendee."Attendance Type"::Required,
-                          TempAttendee."Attendee Type"::Contact,
-                          SegLine."Contact No.",
-                          (Cont.Get(SegLine."Contact No.") and
-                           (Cont."E-Mail" <> '')));
-                    until SegLine.Next() = 0;
-            end;
-        end;
+        end else
+            CreateAttendeeFromFinishWizard();
 
         SendOnFinish := "Send on finish";
         "Wizard Step" := "Wizard Step"::" ";
@@ -2352,6 +2339,38 @@ table 5080 "To-do"
         Modify;
         InsertTask(Rec, TempRMCommentLine, TempAttendee, TempTaskInteractionLanguage, TempAttachment, '', SendOnFinish);
         Delete;
+    end;
+
+    local procedure CreateAttendeeFromFinishWizard()
+    var
+        SegLine: Record "Segment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateAttendeeFromFinishWizard(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Cont.Get("Contact No.") then
+            TempAttendee.CreateAttendee(
+              TempAttendee,
+              "No.", 10000, TempAttendee."Attendance Type"::Required,
+              TempAttendee."Attendee Type"::Contact,
+              Cont."No.", Cont."E-Mail" <> '');
+        if SegHeader.Get("Segment No.") then begin
+            SegLine.SetRange("Segment No.", "Segment No.");
+            SegLine.SetFilter("Contact No.", '<>%1', '');
+            if SegLine.Find('-') then
+                repeat
+                    TempAttendee.CreateAttendee(
+                      TempAttendee,
+                      "No.", SegLine."Line No.", TempAttendee."Attendance Type"::Required,
+                      TempAttendee."Attendee Type"::Contact,
+                      SegLine."Contact No.",
+                      (Cont.Get(SegLine."Contact No.") and
+                       (Cont."E-Mail" <> '')));
+                until SegLine.Next() = 0;
+        end;
     end;
 
     local procedure GetContactName(): Text[100]
@@ -2972,6 +2991,11 @@ table 5080 "To-do"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAttendeeFromFinishWizard(var ToTask: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSubTask(Attendee: Record Attendee; Task: Record "To-do"; var TaskNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -2997,7 +3021,7 @@ table 5080 "To-do"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunCreateTaskPage(var Task: Record "To-do")
+    local procedure OnBeforeRunCreateTaskPage(var Task: Record "To-do"; var IsHandled: Boolean)
     begin
     end;
 
@@ -3024,6 +3048,11 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateTaskFromInteractLogEntryOnBeforeStartWizard(var Task: Record "To-do"; InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInteractionOnBeforeCreatePhoneCall(var SegLine: Record "Segment Line"; var Task: Record "To-do")
     begin
     end;
 

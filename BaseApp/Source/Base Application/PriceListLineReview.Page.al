@@ -478,8 +478,6 @@ page 7005 "Price List Line Review"
         PriceEditable: Boolean;
         AmountTypeIsVisible: Boolean;
         AmountTypeIsEditable: Boolean;
-        HideProductControls: Boolean;
-        HideSourceControls: Boolean;
         LineExists: Boolean;
         LineToVerify: Boolean;
         DataCaptionSourceAssetTok: Label '%1 %2 - %3 %4 %5', Locked = true, Comment = '%1-%5 - Source Type, Source No., Product Type, Product No, Description';
@@ -489,6 +487,8 @@ page 7005 "Price List Line Review"
         DataCaptionExpr: Text;
         PriceType: Enum "Price Type";
         ViewAmountType: Enum "Price Amount Type";
+        HideProductControls: Boolean;
+        HideSourceControls: Boolean;
 
     local procedure GetStyle(Mandatory: Boolean): Text;
     begin

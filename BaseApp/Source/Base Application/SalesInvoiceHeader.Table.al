@@ -836,6 +836,16 @@ table 112 "Sales Invoice Header"
             Editable = false;
             TableRelation = "SAT Relationship Type";
         }
+        field(27002; "CFDI Cancellation Reason Code"; Code[10])
+        {
+            Caption = 'CFDI Cancellation Reason';
+            TableRelation = "CFDI Cancellation Reason";
+        }
+        field(27003; "Substitution Document No."; Code[20])
+        {
+            Caption = 'Substitution Document No.';
+            TableRelation = "Sales Invoice Header" WHERE ("Electronic Document Status" = FILTER ("Stamp Received"));
+        }
     }
 
     keys

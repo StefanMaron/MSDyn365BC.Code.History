@@ -27,6 +27,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralDocType: Option Purchase,Sales,"G/L";
         StartDate: Enum "Deferral Calculation Start Date";
         isInitialized: Boolean;
+        GLAccountOmitErr: Label 'When %1 is selected for';
         DecimalPlacesInDeferralPctErr: Label 'Wrong decimal places count in "Defferal %" field.';
         AccTypeMustBeGLAccountErr: Label 'Account Type must be equal to ''G/L Account''';
         PostedDeferralHeaderNumberErr: Label 'The number of Posted Deferral Headers with given parameters is not equal to expected.';
@@ -1220,6 +1221,99 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
             GenJournalBatch.Name, GenJournalBatch."Journal Template Name", 0, '', 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostGeneralJournalWithBlankDescriptionDeferralAndGLAccountWithOmitDefaultDescriptionEnabled()
+    var
+        GLAccountPosting: Record "G/L Account";
+        GLAccountDeferral: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 422767] Stan can't post Journal with Deferral setup when Deferral Account has enabled "Omit Default Descr. in Jnl." and blank Description Deferral Template
+        Initialize();
+
+        GLAccountPosting.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccountPosting."Default Deferral Template Code" := CreateEqual5Periods();
+        GLAccountPosting.Modify();
+
+        UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(
+            GLAccountDeferral, GLAccountPosting."Default Deferral Template Code", '', true);
+
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccountPosting."No.",
+            GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            LibraryRandom.RandDecInRange(100, 200, 2));
+
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        Assert.ExpectedError(StrSubstNo(GLAccountOmitErr, GLAccountDeferral.FieldCaption("Omit Default Descr. in Jnl.")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostGeneralJournalWithBlankDescriptionDeferralAndGLAccountWithOmitDefaultDescriptionDisabled()
+    var
+        GLAccountPosting: Record "G/L Account";
+        GLAccountDeferral: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 422767] Stan can post Journal with Deferral setup when Deferral Account has disabled "Omit Default Descr. in Jnl." and blank Description Deferral Template
+        Initialize();
+
+        GLAccountPosting.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccountPosting."Default Deferral Template Code" := CreateEqual5Periods();
+        GLAccountPosting.Modify();
+
+        UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(
+            GLAccountDeferral, GLAccountPosting."Default Deferral Template Code", '', false);
+
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccountPosting."No.",
+            GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            LibraryRandom.RandDecInRange(100, 200, 2));
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VerifyGLEntriesExistWithBlankDescription(GLAccountDeferral."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostGeneralJournalWithDescriptionDeferralAndGLAccountWithOmitDefaultDescriptionEnabled()
+    var
+        GLAccountPosting: Record "G/L Account";
+        GLAccountDeferral: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 422767] Stan can post Journal with Deferral setup when Deferral Account has enabled "Omit Default Descr. in Jnl." and specified Description Deferral Template
+        Initialize();
+
+        GLAccountPosting.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccountPosting."Default Deferral Template Code" := CreateEqual5Periods();
+        GLAccountPosting.Modify();
+
+        UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(
+            GLAccountDeferral, GLAccountPosting."Default Deferral Template Code", LibraryUtility.GenerateGUID(), true);
+
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccountPosting."No.",
+            GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+            LibraryRandom.RandDecInRange(100, 200, 2));
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VerifyGLEntriesDoNotExistWithBlankDescription(GLAccountDeferral."No.");
+    end;
+
     local procedure Initialize()
     var
         AccountingPeriod: Record "Accounting Period";
@@ -1568,6 +1662,20 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         SourceCodeSetup.Modify(true);
     end;
 
+    local procedure UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(var GLAccountDeferral: Record "G/L Account"; DeferralCode: Code[10]; NewDescription: Text[100]; NewOmit: Boolean)
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        DeferralTemplate.Get(DeferralCode);
+        DeferralTemplate.Validate("Period Description", NewDescription);
+        DeferralTemplate.Modify(true);
+
+        GLAccountDeferral.Get(DeferralTemplate."Deferral Account");
+        GLAccountDeferral.Validate(Name, NewDescription);
+        GLAccountDeferral.Validate("Omit Default Descr. in Jnl.", NewOmit);
+        GLAccountDeferral.Modify(true);
+    end;
+
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1735,6 +1843,26 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
             FindFirst;
             TestField(Amount, -PairAmount);
         end;
+    end;
+
+    local procedure VerifyGLEntriesExistWithBlankDescription(GLAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        Assert.RecordIsNotEmpty(GLEntry);
+        GLEntry.SetFilter(Description, '=%1', '');
+        Assert.RecordIsNotEmpty(GLEntry);
+    end;
+
+    local procedure VerifyGLEntriesDoNotExistWithBlankDescription(GLAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        Assert.RecordIsNotEmpty(GLEntry);
+        GLEntry.SetFilter(Description, '=%1', '');
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     [ModalPageHandler]

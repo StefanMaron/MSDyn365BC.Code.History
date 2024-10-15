@@ -1,4 +1,4 @@
-codeunit 370 "Bank Acc. Reconciliation Post"
+﻿codeunit 370 "Bank Acc. Reconciliation Post"
 {
     Permissions = TableData "Bank Account Ledger Entry" = rm,
                   TableData "Check Ledger Entry" = rm,
@@ -201,6 +201,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         with BankAccReconLine do begin
             LinesExist(BankAccRecon);
             CalcSums("Statement Amount", Difference);
+            OnCheckLinesMatchEndingBalanceOnAfterCalcSums(BankAccReconLine);
 
             if "Statement Amount" <>
                BankAccRecon."Statement Ending Balance" - BankAccRecon."Balance Last Statement"
@@ -463,6 +464,8 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                                             end;
                                     end;
                                 end;
+                            else
+                                OnPostPaymentApplicationsOnAccountTypeCaseElse(AppliedPmtEntry, GenJnlLine);
                         end;
                         IsApplied := true;
                     end;
@@ -782,6 +785,11 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckLinesMatchEndingBalanceOnAfterCalcSums(var BankAccReconLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCloseBankAccLedgEntryOnBeforeBankAccLedgEntryModify(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
@@ -813,6 +821,11 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostPaymentApplicationsOnBeforeValidateApplyRequirements(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var GenJournalLine: Record "Gen. Journal Line"; AppliedAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostPaymentApplicationsOnAccountTypeCaseElse(var AppliedPaymentEntry: Record "Applied Payment Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

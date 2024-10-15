@@ -2,6 +2,8 @@ table 27014 "SAT Country Code"
 {
     Caption = 'SAT Country Code';
     DataPerCompany = false;
+    DrillDownPageID = "SAT Country Codes";
+    LookupPageID = "SAT Country Codes";
 
     fields
     {

@@ -12,6 +12,7 @@ codeunit 142058 "UT PAG Sales Tax"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        Assert: Codeunit Assert;
 
     [Test]
     [HandlerFunctions('ServiceOrderStatsPageHandler')]
@@ -179,6 +180,34 @@ codeunit 142058 "UT PAG Sales Tax"
         PurchaseCreditMemo.FILTER.SetFilter("No.", DocumentNo);
         PurchaseCreditMemo.ApplyEntries.Invoke;  // ApplyVendorEntriesPageHandler
         PurchaseCreditMemo.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceLinesTaxLiableAreaCodeEditableVisible()
+    var
+        TaxDetail: Record "Tax Detail";
+        ServiceLine: Record "Service Line";
+        ServiceLines: TestPage "Service Lines";
+        TaxArea: Code[20];
+    begin
+        // [SCENARIO 422332] Tax Liable and Tax Area Code should be visible and editable on Service Lines page
+        Initialize();
+
+        // [GIVEN] Service Document with Service Lines
+        TaxArea := CreateTaxAreaWithTaxDetail(TaxDetail);
+        CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order, TaxArea, TaxDetail."Tax Group Code");
+
+        // [WHEN] Service Lines page is opened
+        ServiceLines.OpenEdit;
+        ServiceLines.FILTER.SetFilter("Document No.", ServiceLine."Document No.");
+
+        // [THEN] "Tax Liable" and "Tax Area Code" fields are visible and editable
+        Assert.IsTrue(ServiceLines."Tax Liable".Visible(), 'Tax Liable should be visible');
+        Assert.IsTrue(ServiceLines."Tax Liable".Editable(), 'Tax Liable should be editable');
+        Assert.IsTrue(ServiceLines."Tax Area Code".Visible(), 'Tax Area Code should be visible');
+        Assert.IsTrue(ServiceLines."Tax Area Code".Editable(), 'Tax Area Code should be editable');
+        ServiceLines.Close;
     end;
 
     local procedure Initialize()
