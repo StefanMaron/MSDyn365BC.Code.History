@@ -25,11 +25,11 @@
   </Item>
   <Item ItemId=";Codeunit 330807007 - NamedType 2330524054" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[G/L Entry %1: Select Dimension Value Code %2 for the Dimension Code %3 for G/L Account %4.]]></Val>
+      <Val><![CDATA[G/L Entry %1: The %2 must be %3 for %4 %5 for %6 %7. Currently it's %8.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = G/L Entry No., %2 = Expected Dimension Value, %3 = Dimension Code, %4 = G/L Account No.]D;]A;(LookupHint=Codeunit Company Consol. Wizard Tests - NamedType GLEntryDimensionErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = G/L Entry No., %2 = "Dimension value code" caption, %3 = expected "Dimension value code" value, %4 = "Dimension code" caption, %5 = "Dimension Code" value, %6 = Table caption (Vendor), %7 = Table value (XYZ), %8 = current "Dimension value code" value]D;]A;(LookupHint=Codeunit Company Consol. Wizard Tests - NamedType GLEntryDimensionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 330807007 - NamedType 2742703172" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

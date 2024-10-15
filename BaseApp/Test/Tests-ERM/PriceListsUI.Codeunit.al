@@ -26,7 +26,7 @@ codeunit 134117 "Price Lists UI"
         IsInitialized: Boolean;
         CreateNewTxt: Label 'Create New...';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
-        AllLinesVerifiedMsg: Label 'All price list lines are verified.';
+        AllLinesVerifiedMsg: Label 'All price list lines which were modified by you were verified.';
         AmountTypeNotAlowedErr: Label '%1 is not allowed for %2.', Comment = '%1 - Amount type, %2 - source type';
 
     [Test]
@@ -1127,14 +1127,14 @@ codeunit 134117 "Price Lists UI"
         SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Price);
 
         // [WHEN] Change "Amount Type" to 'Discount'
-        SalesPriceList.AmountType.SetValue("Price Amount Type"::Discount);
-        // [THEN] "Amount Type" is 'Discount'
-        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Discount);
+        asserterror SalesPriceList.AmountType.SetValue("Price Amount Type"::Discount);
+        // [THEN] "Amount Type" is 'Price'
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Price);
 
         // [WHEN] Change "Amount Type" to 'Price&Discount'
-        SalesPriceList.AmountType.SetValue("Price Amount Type"::Any);
-        // [THEN] "Amount Type" is 'Price&Discount'
-        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Any);
+        asserterror SalesPriceList.AmountType.SetValue("Price Amount Type"::Any);
+        // [THEN] "Amount Type" is 'Price'
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Price);
     end;
 
     [Test]
@@ -1195,14 +1195,14 @@ codeunit 134117 "Price Lists UI"
         SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Discount);
 
         // [WHEN] Change "Amount Type" to 'Price'
-        SalesPriceList.AmountType.SetValue("Price Amount Type"::Price);
-        // [THEN] "Amount Type" is 'Price'
-        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Price);
+        asserterror SalesPriceList.AmountType.SetValue("Price Amount Type"::Price);
+        // [THEN] "Amount Type" is 'Discount'
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Discount);
 
         // [WHEN] Change "Amount Type" to 'Price&Discount'
-        SalesPriceList.AmountType.SetValue("Price Amount Type"::Any);
-        // [THEN] "Amount Type" is 'Price&Discount'
-        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Any);
+        asserterror SalesPriceList.AmountType.SetValue("Price Amount Type"::Any);
+        // [THEN] "Amount Type" is 'Discount'
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Discount);
     end;
 
     [Test]

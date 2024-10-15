@@ -468,7 +468,6 @@ page 9271 "Qualification Overview Matrix"
     end;
 
     var
-        EmployeeQualification: Record "Employee Qualification";
         MatrixRecords: array[32] of Record Qualification;
         MATRIX_CellData: array[32] of Boolean;
         MATRIX_ColumnCaption: array[32] of Text[1024];
@@ -545,19 +544,23 @@ page 9271 "Qualification Overview Matrix"
     end;
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)
+    var
+        EmployeeQualification: Record "Employee Qualification";
     begin
         EmployeeQualification.SetRange("Employee No.", "No.");
         EmployeeQualification.SetRange("Qualification Code", MatrixRecords[ColumnID].Code);
+        OnMatrixOnDrillDownOnAfterEmployeeQualificationSetFilters(EmployeeQualification);
         PAGE.Run(PAGE::"Qualified Employees", EmployeeQualification);
     end;
 
     local procedure MATRIX_OnAfterGetRecord(ColumnID: Integer)
+    var
+        EmployeeQualification: Record "Employee Qualification";    
     begin
         EmployeeQualification.SetRange("Employee No.", "No.");
         EmployeeQualification.SetRange("Qualification Code", MatrixRecords[ColumnID].Code);
-        Qualified := EmployeeQualification.FindFirst();
-        EmployeeQualification.SetRange("Employee No.");
-        EmployeeQualification.SetRange("Qualification Code");
+        OnMatrixOnAfterGetRecordOnAfterEmployeeQualificationSetFilters(EmployeeQualification);
+        Qualified := not EmployeeQualification.IsEmpty();
         MATRIX_CellData[ColumnID] := Qualified;
         SetVisible();
     end;
@@ -596,6 +599,16 @@ page 9271 "Qualification Overview Matrix"
         Field30Visible := MATRIX_ColumnCaption[30] <> '';
         Field31Visible := MATRIX_ColumnCaption[31] <> '';
         Field32Visible := MATRIX_ColumnCaption[32] <> '';
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnMatrixOnDrillDownOnAfterEmployeeQualificationSetFilters(var EmployeeQualification: Record "Employee Qualification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatrixOnAfterGetRecordOnAfterEmployeeQualificationSetFilters(var EmployeeQualification: Record "Employee Qualification")
+    begin
     end;
 }
 

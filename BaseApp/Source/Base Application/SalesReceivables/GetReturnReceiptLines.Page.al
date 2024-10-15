@@ -52,6 +52,12 @@ page 6638 "Get Return Receipt Lines"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies a description of posted sales return receipts.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = SalesReturnOrder;

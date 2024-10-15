@@ -559,5 +559,13 @@ codeunit 46 SelectionFilterManagement
     begin
         exit(2000);
     end;
+
+    procedure GetSelectionFilterForServiceHeader(var ServiceHeader: Record "Service Header"): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(ServiceHeader);
+        exit(GetSelectionFilter(RecRef, ServiceHeader.FieldNo("No.")));
+    end;
 }
 

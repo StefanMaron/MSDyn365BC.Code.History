@@ -94,7 +94,7 @@ codeunit 1336 "Item Templ. Mgt."
                 EmptyItemFldRef := EmptyItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemTemplFldRef := EmptyItemTemplRecRef.Field(ItemTemplFldRef.Number);
                 if (not UpdateExistingValues and (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value)) or
-                   (UpdateExistingValues and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value))
+                   (UpdateExistingValues and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value) and (ItemFldRef.Value = EmptyItemFldRef.Value))
                 then begin
                     ItemFldRef.Value := ItemTemplFldRef.Value;
                     FieldValidationList.Add(ItemTemplFldRef.Number);

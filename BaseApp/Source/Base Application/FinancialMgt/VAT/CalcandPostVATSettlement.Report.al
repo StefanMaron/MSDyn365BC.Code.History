@@ -880,6 +880,7 @@
             "Source Curr. VAT Amount" := -VATEntry."Additional-Currency Amount";
             "Source Curr. VAT Base Amount" := -VATEntry."Additional-Currency Base";
         end;
+        OnAfterCopyAmounts(GenJournalLine, VATEntry);
     end;
 
     local procedure CreateGenJnlLine(var GenJnlLine2: Record "Gen. Journal Line"; AccountNo: Code[20])
@@ -1058,6 +1059,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyAmounts(var GenJournalLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry")
     begin
     end;
 }

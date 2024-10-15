@@ -622,6 +622,8 @@ codeunit 5920 ServItemManagement
         ReservEntry.SetRange("Source Prod. Order Line", 0);
         ReservEntry.SetFilter("Qty. to Handle (Base)", '<>%1', 0);
 
+        OnCopyReservationEntryLineOnBeforeReservationEntryFindSet(SalesLine, ReservEntry);
+
         if ReservEntry.FindSet() then
             repeat
                 TempReservEntry := ReservEntry;
@@ -734,6 +736,11 @@ codeunit 5920 ServItemManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateServItemOnSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyReservationEntryLineOnBeforeReservationEntryFindSet(SalesLine: Record "Sales Line"; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 }

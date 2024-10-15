@@ -676,6 +676,7 @@
             InbndItemLedgEntry.Get("Item Ledger Entry No.");
             InbndValueEntry.SetCurrentKey("Item Ledger Entry No.", "Document No.");
             InbndValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
+            OnAdjustAppliedInbndEntriesOnAfterSetFilter(InbndValueEntry);
             InbndValueEntry.FindSet();
             repeat
                 if (InbndValueEntry."Entry Type" = InbndValueEntry."Entry Type"::"Direct Cost") and
@@ -3058,6 +3059,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitializeAdjmtOnAfterGetPostingDate(var PostingDateForClosedPeriod: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustAppliedInbndEntriesOnAfterSetFilter(var InbndValueEntry: Record "Value Entry")
     begin
     end;
 }
