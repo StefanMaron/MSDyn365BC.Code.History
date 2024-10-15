@@ -357,7 +357,7 @@ codeunit 1381 "Customer Templ. Mgt."
         Page.Run(Page::"Customer Templ. List");
     end;
 
-    local procedure InitCustomerNo(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
+    procedure InitCustomerNo(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin

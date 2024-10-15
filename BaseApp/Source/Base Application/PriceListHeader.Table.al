@@ -10,6 +10,8 @@
             trigger OnValidate()
             begin
                 if Code <> xRec.Code then begin
+                    if xRec.Code <> '' then
+                        Error(CanotRenameErr, Rec.TableCaption());
                     NoSeriesMgt.TestManual(GetNoSeries());
                     "No. Series" := '';
                 end;
@@ -48,7 +50,7 @@
         field(5; "Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Assign-to';
+            Caption = 'Assign-to No.';
             trigger OnValidate()
             begin
                 if xRec."Source No." = "Source No." then
@@ -60,6 +62,7 @@
                     PriceSource.Validate("Source No.", "Source No.");
                 end;
                 CopyFrom(PriceSource);
+                "Assign-to No." := "Source No.";
             end;
 
             trigger OnLookup()
@@ -80,6 +83,7 @@
                 xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Parent Source No.", "Parent Source No.");
                 CopyFrom(PriceSource);
+                "Assign-to Parent No." := "Parent Source No.";
             end;
         }
         field(7; "Source ID"; Guid)
@@ -238,6 +242,42 @@
                     CheckIfLinesExist(Rec.FieldCaption("Allow Updating Defaults"));
             end;
         }
+        field(21; "Assign-to No."; Code[20])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = IF ("Source Type" = CONST(Campaign)) Campaign
+            ELSE
+            IF ("Source Type" = CONST(Contact)) Contact
+            ELSE
+            IF ("Source Type" = CONST(Customer)) Customer
+            ELSE
+            IF ("Source Type" = CONST("Customer Disc. Group")) "Customer Discount Group"
+            ELSE
+            IF ("Source Type" = CONST("Customer Price Group")) "Customer Price Group"
+            ELSE
+            IF ("Source Type" = CONST(Job)) Job
+            ELSE
+            IF ("Source Type" = CONST("Job Task")) "Job Task"."Job Task No." where("Job No." = field("Parent Source No."), "Job Task Type" = CONST(Posting))
+            ELSE
+            IF ("Source Type" = CONST(Vendor)) Vendor;
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                Validate("Source No.", "Assign-to No.");
+            end;
+        }
+        field(22; "Assign-to Parent No."; Code[20])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = IF ("Source Type" = CONST("Job Task")) Job;
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                Validate("Parent Source No.", "Assign-to Parent No.");
+            end;
+        }
     }
 
     keys
@@ -329,8 +369,7 @@
     begin
         if Rec."Allow Updating Defaults" then begin
             Rec."Source Type" := Rec."Source Type"::All;
-            Rec."Parent Source No." := '';
-            Rec."Source No." := '';
+            SetSourceNo('', '');
             Rec."Currency Code" := '';
             Rec."Starting Date" := 0D;
             Rec."Ending Date" := 0D;
@@ -394,8 +433,7 @@
                     "Source Group" := "Source Group"::Vendor;
             end;
         "Source Type" := PriceSource."Source Type";
-        "Source No." := PriceSource."Source No.";
-        "Parent Source No." := PriceSource."Parent Source No.";
+        SetSourceNo(PriceSource."Parent Source No.", PriceSource."Source No.");
         "Source ID" := PriceSource."Source ID";
         "Filter Source No." := PriceSource."Filter Source No.";
 
@@ -495,11 +533,26 @@
         PriceListLine.ModifyAll("Ending Date", "Ending Date");
     end;
 
+    local procedure SetSourceNo(ParentSourceNo: Code[20]; SourceNo: Code[20])
+    begin
+        "Parent Source No." := ParentSourceNo;
+        "Source No." := SourceNo;
+
+        "Assign-to Parent No." := ParentSourceNo;
+        "Assign-to No." := SourceNo;
+    end;
+
     local procedure SetStatusToDraft(var PriceListLine: Record "Price List Line")
     begin
         PriceListLine.SetFilter(Status, '<>%1', "Price Status"::Draft);
         PriceListLine.ModifyAll(Status, "Price Status"::Draft);
         PriceListLine.SetRange(Status);
+    end;
+
+    procedure SyncDropDownLookupFields()
+    begin
+        "Assign-to Parent No." := "Parent Source No.";
+        "Assign-to No." := "Source No.";
     end;
 
     local procedure TestStatusDraft()

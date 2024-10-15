@@ -1395,8 +1395,8 @@
             QtyToPost :=
               CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComp, OutputQtyBase) / ProdOrderComp."Qty. per Unit of Measure";
             if (ProdOrderLine."Remaining Qty. (Base)" = OutputQtyBase) and
-               (Abs(QtyToPost - ProdOrderComp."Remaining Quantity") < CompItem."Rounding Precision") and
-               (ProdOrderComp."Remaining Quantity" <> 0)
+               (ProdOrderComp."Remaining Quantity" <> 0) and
+               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") <= CompItem."Rounding Precision")
             then
                 QtyToPost := ProdOrderComp."Remaining Quantity";
         end else

@@ -423,6 +423,11 @@ page 5935 "Service Credit Memo"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the Credit Memo Type.';
                     }
+                    field("Do Not Send To SII"; "Do Not Send To SII")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the document must not be sent to SII.';
+                    }
                 }
             }
             group(Shipping)

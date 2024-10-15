@@ -20,4 +20,5 @@ enum 10702 "SII Sales Upload Scheme Code"
     value(14; "14 Invoice Work Certification") { Caption = '14 Invoice Work Certification'; }
     value(15; "15 Invoice of Consecutive Nature") { Caption = '15 Invoice of Consecutive Nature'; }
     value(16; "16 First Half 2017") { Caption = '16 First Half 2017'; }
+    value(17; "17 Operations Under The One-Stop-Shop Regime") { Caption = '17 Operations Under The One-Stop-Shop Regime'; }
 }

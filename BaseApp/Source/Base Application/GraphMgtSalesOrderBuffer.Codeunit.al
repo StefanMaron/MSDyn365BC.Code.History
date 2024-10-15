@@ -542,14 +542,14 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         CompletelyShipped: Boolean;
     begin
-        SearchSalesLine.Copy(SalesLine);
+        SearchSalesLine.CopyFilters(SalesLine);
         SearchSalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SearchSalesLine.SetRange("Document No.", SalesLine."Document No.");
         SearchSalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
         SearchSalesLine.SetRange("Location Code", SalesLine."Location Code");
         SearchSalesLine.SetRange("Completely Shipped", false);
 
-        CompletelyShipped := not SearchSalesLine.FindFirst;
+        CompletelyShipped := SearchSalesLine.IsEmpty();
 
         if not SalesOrderEntityBuffer.Get(SalesLine."Document No.") then
             exit;

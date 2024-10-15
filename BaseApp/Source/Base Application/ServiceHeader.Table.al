@@ -2489,6 +2489,10 @@
             OptionCaption = ' ,02-VAT Registration No.,03-Passport,04-ID Document,05-Certificate Of Residence,06-Other Probative Document,07-Not On The Census';
             OptionMembers = " ","02-VAT Registration No.","03-Passport","04-ID Document","05-Certificate Of Residence","06-Other Probative Document","07-Not On The Census";
         }
+        field(10724; "Do Not Send To SII"; Boolean)
+        {
+            Caption = 'Do Not Send To SII';
+        }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
             Caption = 'Applies-to Bill No.';
@@ -3019,7 +3023,7 @@
                         until ServDocReg.Next() = 0;
                 end;
                 StoreServiceCommentLineToTemp(TempServiceCommentLine);
-                ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header".AsInteger(), "Document Type".AsInteger(), "No.");
+                ServiceCommentLine.DeleteServiceInvoiceLinesRelatedComments(Rec);
                 IsHandled := false;
                 OnRecreateServLinesOnBeforeServLineDeleteAll(Rec, ServLine, CurrFieldNo, IsHandled);
                 if not IsHandled then
@@ -3049,6 +3053,7 @@
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("Table Subtype", "Document Type");
         ServiceCommentLine.SetRange("No.", "No.");
+        ServiceCommentLine.SetRange(Type, "Service Comment Line Type"::General);
         if ServiceCommentLine.FindSet() then
             repeat
                 TempServiceCommentLine := ServiceCommentLine;

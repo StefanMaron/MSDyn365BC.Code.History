@@ -97,7 +97,8 @@
                 IsHandled: Boolean;
             begin
                 if "Account No." <> xRec."Account No." then begin
-                    ClearAppliedAutomatically;
+                    ClearAppliedAutomatically();
+                    ClearApplication("Account Type");
                     BlankJobNo(FieldNo("Account No."));
                 end;
 
@@ -315,7 +316,10 @@
 
             trigger OnValidate()
             begin
-                BlankJobNo(FieldNo("Bal. Account No."));
+                if "Bal. Account No." <> xRec."Bal. Account No." then begin
+                    ClearApplication("Bal. Account Type");
+                    BlankJobNo(FieldNo("Bal. Account No."));
+                end;
 
                 if xRec."Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor,
                                                 "Bal. Account Type"::"IC Partner"]
@@ -2983,6 +2987,10 @@
         {
             Caption = 'ID Type';
         }
+        field(10724; "Do Not Send To SII"; Boolean)
+        {
+            Caption = 'Do Not Send To SII';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -3877,7 +3885,10 @@
         AccNo: Code[20];
     begin
         OnBeforeClearCustVendApplnEntry(Rec, xRec, AccType, AccNo);
-        GetAccTypeAndNo(Rec, AccType, AccNo);
+        if (xRec."Account No." <> "Account No.") or (xRec."Bal. Account No." <> "Bal. Account No.") then
+            GetAccTypeAndNo(xRec, AccType, AccNo)
+        else
+            GetAccTypeAndNo(Rec, AccType, AccNo);
         case AccType of
             AccType::Customer:
                 if xRec."Applies-to ID" <> '' then begin
@@ -5626,6 +5637,17 @@
             "Applied Automatically" := false;
     end;
 
+    local procedure ClearApplication(AccountType: Enum "Gen. Journal Account Type")
+    begin
+        if not (AccountType in [AccountType::Customer, AccountType::Vendor, AccountType::Employee]) then
+            exit;
+
+        if "Applies-to ID" <> '' then
+            Validate("Applies-to ID", '');
+        if "Applies-to Doc. No." <> '' then
+            Validate("Applies-to Doc. No.", '');
+    end;
+
     procedure SetPostingDateAsDueDate(DueDate: Date; DateOffset: DateFormula): Boolean
     var
         NewPostingDate: Date;
@@ -5934,6 +5956,7 @@
         "On Hold" := PurchHeader."On Hold";
         if "Account Type" = "Account Type"::Vendor then
             "Posting Group" := PurchHeader."Vendor Posting Group";
+        "Do Not Send To SII" := PurchHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromPurchHeader(PurchHeader, Rec);
     end;
@@ -6035,6 +6058,7 @@
         "On Hold" := SalesHeader."On Hold";
         if "Account Type" = "Account Type"::Customer then
             "Posting Group" := SalesHeader."Customer Posting Group";
+        "Do Not Send To SII" := SalesHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;
@@ -6131,6 +6155,7 @@
         "Sales Special Scheme Code" := ServiceHeader."Special Scheme Code";
         "Succeeded Company Name" := ServiceHeader."Succeeded Company Name";
         "Succeeded VAT Registration No." := ServiceHeader."Succeeded VAT Registration No.";
+        "Do Not Send To SII" := ServiceHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, Rec);
     end;

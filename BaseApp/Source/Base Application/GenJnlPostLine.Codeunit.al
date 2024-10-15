@@ -3031,16 +3031,12 @@
 
             TempOldCustLedgEntry.CopyFromCVLedgEntryBuffer(OldCVLedgEntryBuf);
             OldCustLedgEntry := TempOldCustLedgEntry;
+            FromClosedDoc := false;
             if (OldCustLedgEntry."Document Type" = OldCustLedgEntry."Document Type"::Bill) or
                (OldCustLedgEntry."Document Situation" <> 0)
             then begin
-                if (OldCustLedgEntry."Document Situation" in [
-                                                              OldCustLedgEntry."Document Situation"::"Closed Documents",
-                                                              OldCustLedgEntry."Document Situation"::"Closed BG/PO"])
-                then
-                    FromClosedDoc := true
-                else
-                    FromClosedDoc := false;
+                FromClosedDoc := GetCustomerFromClosedDoc(OldCustLedgEntry);
+
                 if (OldCustLedgEntry."Document Status" = OldCustLedgEntry."Document Status"::Rejected) or
                    (OldCustLedgEntry."Document Status" = OldCustLedgEntry."Document Status"::Redrawn)
                 then begin
@@ -3136,16 +3132,12 @@
     begin
         OnBeforeUpdateReceivableDocForNewCustLedgEntry(GenJnlLine, NewCVLedgEntryBuf, NewCustLedgEntry);
 
+        FromClosedDoc := false;
         if (NewCustLedgEntry."Document Type" = NewCustLedgEntry."Document Type"::Bill) or
            (NewCustLedgEntry."Document Situation" <> 0)
         then begin
-            if (NewCustLedgEntry."Document Situation" in [
-                                                          NewCustLedgEntry."Document Situation"::"Closed Documents",
-                                                          NewCustLedgEntry."Document Situation"::"Closed BG/PO"])
-            then
-                FromClosedDoc := true
-            else
-                FromClosedDoc := false;
+            FromClosedDoc := GetCustomerFromClosedDoc(NewCustLedgEntry);
+
             DocPost.UpdateReceivableDoc(
               NewCustLedgEntry, GenJnlLine, AppliedAmountLCY2 + DeltaUnrealAmount + DeltaAmountLCY,
               DocAmountLCY, RejDocAmountLCY, DiscDocAmountLCY, CollDocAmountLCY,
@@ -3400,29 +3392,29 @@
                         (DtldCVLedgEntryBuf."VAT Amount (LCY)" <> 0)) or
                        ((AddCurrencyCode <> '') and (DtldCVLedgEntryBuf."Additional-Currency Amount" <> 0))
                     then
-                    case DtldCVLedgEntryBuf."Entry Type" of
-                        DtldCVLedgEntryBuf."Entry Type"::"Initial Entry":
-                            if CheckCarteraPostDtldCustLE(
-                                 GenJnlLine, DtldCustLedgEntry, ReceivableAccAmtLCY, ReceivableAccAmtAddCurr, false)
-                            then
-                                DocAmountLCY := DtldCVLedgEntryBuf."Amount (LCY)";
-                        DtldCVLedgEntryBuf."Entry Type"::Application:
-                            if CheckCarteraPostDtldCustLE(
-                                 GenJnlLine, DtldCustLedgEntry, ReceivableAccAmtLCY, ReceivableAccAmtAddCurr, false)
-                            then begin
-                                GetCurrency(Currency, DtldCVLedgEntryBuf."Currency Code");
-                                CheckNonAddCurrCodeOccurred(Currency.Code);
-                                CreateGLEntry(
-                                  GenJnlLine, CustPostingGr.GetReceivablesAccount, -DtldCVLedgEntryBuf."Amount (LCY)", 0,
-                                  DtldCVLedgEntryBuf."Currency Code" = AddCurrencyCode);
-                            end;
-                        DtldCVLedgEntryBuf."Entry Type"::Redrawal:
-                            ;
-                        DtldCVLedgEntryBuf."Entry Type"::Rejection:
-                            ;
-                        else
-                            PostDtldCustLedgEntry(GenJnlLine, DtldCVLedgEntryBuf, CustPostingGr, AdjAmount);
-                    end;
+                        case DtldCVLedgEntryBuf."Entry Type" of
+                            DtldCVLedgEntryBuf."Entry Type"::"Initial Entry":
+                                if CheckCarteraPostDtldCustLE(
+                                     GenJnlLine, DtldCustLedgEntry, ReceivableAccAmtLCY, ReceivableAccAmtAddCurr, false)
+                                then
+                                    DocAmountLCY := DtldCVLedgEntryBuf."Amount (LCY)";
+                            DtldCVLedgEntryBuf."Entry Type"::Application:
+                                if CheckCarteraPostDtldCustLE(
+                                     GenJnlLine, DtldCustLedgEntry, ReceivableAccAmtLCY, ReceivableAccAmtAddCurr, false)
+                                then begin
+                                    GetCurrency(Currency, DtldCVLedgEntryBuf."Currency Code");
+                                    CheckNonAddCurrCodeOccurred(Currency.Code);
+                                    CreateGLEntry(
+                                      GenJnlLine, CustPostingGr.GetReceivablesAccount, -DtldCVLedgEntryBuf."Amount (LCY)", 0,
+                                      DtldCVLedgEntryBuf."Currency Code" = AddCurrencyCode);
+                                end;
+                            DtldCVLedgEntryBuf."Entry Type"::Redrawal:
+                                ;
+                            DtldCVLedgEntryBuf."Entry Type"::Rejection:
+                                ;
+                            else
+                                PostDtldCustLedgEntry(GenJnlLine, DtldCVLedgEntryBuf, CustPostingGr, AdjAmount);
+                        end;
             until DtldCVLedgEntryBuf.Next() = 0;
 
             ExistDtldCVLedgEntryBuf := not DtldCVLedgEntryBuf.IsEmpty;
@@ -3838,16 +3830,11 @@
             TempOldVendLedgEntry.CopyFromCVLedgEntryBuffer(OldCVLedgEntryBuf);
             OldVendLedgEntry := TempOldVendLedgEntry;
 
+            FromClosedDoc := false;
             if (OldVendLedgEntry."Document Type" = OldVendLedgEntry."Document Type"::Bill) or
                (OldVendLedgEntry."Document Situation" <> 0)
             then begin
-                if (OldVendLedgEntry."Document Situation" in [
-                                                              OldVendLedgEntry."Document Situation"::"Closed Documents",
-                                                              OldVendLedgEntry."Document Situation"::"Closed BG/PO"])
-                then
-                    FromClosedDoc := true
-                else
-                    FromClosedDoc := false;
+                FromClosedDoc := GetVendorFromClosedDoc(OldVendLedgEntry);
 
                 DocPost.UpdatePayableDoc(
                   OldVendLedgEntry, GenJnlLine, DocAmountLCY, AppliedAmountLCY2 + DeltaUnrealAmount + DeltaAmountLCY,
@@ -3933,18 +3920,31 @@
     begin
         OnBeforeUpdatePayableDocForNewVendLedgEntry(GenJnlLine, NewCVLedgEntryBuf, NewVendLedgEntry);
 
+        FromClosedDoc := false;
         if (NewVendLedgEntry."Document Type" = NewVendLedgEntry."Document Type"::Bill) or
            (NewVendLedgEntry."Document Situation" <> 0)
         then begin
-            FromClosedDoc :=
-              NewVendLedgEntry."Document Situation" in [NewVendLedgEntry."Document Situation"::"Closed Documents",
-                                                        NewVendLedgEntry."Document Situation"::"Closed BG/PO"];
+            FromClosedDoc := GetVendorFromClosedDoc(NewVendLedgEntry);
             DocPost.UpdatePayableDoc(
               NewVendLedgEntry, GenJnlLine, DocAmountLCY, AppliedAmountLCY2 + DeltaUnrealAmount + DeltaAmountLCY,
               DocLock, CollDocAmountLCY);
         end;
 
         OnAfterUpdatePayableDocForNewVendLedgEntry(GenJnlLine, NewCVLedgEntryBuf, NewVendLedgEntry);
+    end;
+
+    local procedure GetVendorFromClosedDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry") Result: Boolean
+    begin
+        Result :=
+            VendorLedgerEntry."Document Situation" in [VendorLedgerEntry."Document Situation"::"Closed Documents",
+                                                       VendorLedgerEntry."Document Situation"::"Closed BG/PO"];
+    end;
+
+    local procedure GetCustomerFromClosedDoc(var CustLedgerEntry: Record "Cust. Ledger Entry") Result: Boolean
+    begin
+        Result :=
+            CustLedgerEntry."Document Situation" in [CustLedgerEntry."Document Situation"::"Closed Documents",
+                                                     CustLedgerEntry."Document Situation"::"Closed BG/PO"];
     end;
 
     local procedure FindNextOldVendLedgEntryToApply(GenJnlLine: Record "Gen. Journal Line"; var TempOldVendLedgEntry: Record "Vendor Ledger Entry" temporary; NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer") Completed: Boolean
@@ -5263,15 +5263,15 @@
                 OnUnapplyCustLedgEntryOnAfterUpdateTotals(GenJnlLine, DtldCVLedgEntryBuf);
 
                 if DtldCVLedgEntryBuf."Entry Type" = DtldCVLedgEntryBuf."Entry Type"::Application then
-                  if DtldCVLedgEntryBuf."Amount (LCY)" >= 0 then begin
-                    PositiveLCYAppAmt := PositiveLCYAppAmt + DtldCVLedgEntryBuf."Amount (LCY)";
-                    PositiveACYAppAmt :=
-                      PositiveACYAppAmt + DtldCVLedgEntryBuf."Additional-Currency Amount";
-                  end else begin
-                    NegativeLCYAppAmt := NegativeLCYAppAmt + DtldCVLedgEntryBuf."Amount (LCY)";
-                    NegativeACYAppAmt :=
-                      NegativeACYAppAmt + DtldCVLedgEntryBuf."Additional-Currency Amount";
-                  end;
+                    if DtldCVLedgEntryBuf."Amount (LCY)" >= 0 then begin
+                        PositiveLCYAppAmt := PositiveLCYAppAmt + DtldCVLedgEntryBuf."Amount (LCY)";
+                        PositiveACYAppAmt :=
+                          PositiveACYAppAmt + DtldCVLedgEntryBuf."Additional-Currency Amount";
+                    end else begin
+                        NegativeLCYAppAmt := NegativeLCYAppAmt + DtldCVLedgEntryBuf."Amount (LCY)";
+                        NegativeACYAppAmt :=
+                          NegativeACYAppAmt + DtldCVLedgEntryBuf."Additional-Currency Amount";
+                    end;
 
                 if not (DtldCVLedgEntryBuf."Entry Type" in [
                                                             DtldCVLedgEntryBuf."Entry Type"::"Initial Entry",
@@ -5453,15 +5453,15 @@
                 UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
 
                 if DtldCVLedgEntryBuf."Entry Type" = DtldCVLedgEntryBuf."Entry Type"::Application then
-                  if DtldCVLedgEntryBuf."Amount (LCY)" >= 0 then begin
-                    PositiveLCYAppAmt := PositiveLCYAppAmt + DtldCVLedgEntryBuf."Amount (LCY)";
-                    PositiveACYAppAmt :=
-                      PositiveACYAppAmt + DtldCVLedgEntryBuf."Additional-Currency Amount";
-                  end else begin
-                    NegativeLCYAppAmt := NegativeLCYAppAmt + DtldCVLedgEntryBuf."Amount (LCY)";
-                    NegativeACYAppAmt :=
-                      NegativeACYAppAmt + DtldCVLedgEntryBuf."Additional-Currency Amount";
-                  end;
+                    if DtldCVLedgEntryBuf."Amount (LCY)" >= 0 then begin
+                        PositiveLCYAppAmt := PositiveLCYAppAmt + DtldCVLedgEntryBuf."Amount (LCY)";
+                        PositiveACYAppAmt :=
+                          PositiveACYAppAmt + DtldCVLedgEntryBuf."Additional-Currency Amount";
+                    end else begin
+                        NegativeLCYAppAmt := NegativeLCYAppAmt + DtldCVLedgEntryBuf."Amount (LCY)";
+                        NegativeACYAppAmt :=
+                          NegativeACYAppAmt + DtldCVLedgEntryBuf."Additional-Currency Amount";
+                    end;
 
                 if not (DtldCVLedgEntryBuf."Entry Type" in [
                                                             DtldCVLedgEntryBuf."Entry Type"::"Initial Entry",
@@ -6857,16 +6857,8 @@
 
             repeat
                 case PurchLine2.Type of
-                    PurchLine2.Type::Item:
-                        begin
-                            ProdPostingGroup := PurchLine2."VAT Prod. Posting Group";
-                            VATSetup.SetRange("VAT Prod. Posting Group", ProdPostingGroup);
-                            if VATSetup.Find('-') and (VATSetup."Unrealized VAT Type" >= VATSetup."Unrealized VAT Type"::Percentage) then
-                                if VATSetup."Unrealized VAT Type" > VATSetup."Unrealized VAT Type"::Percentage then
-                                    ErrorMessage := true
-                                else
-                                    ExistsVATNoReal := true;
-                        end;
+                    PurchLine2.Type::Item,
+                    PurchLine2.Type::"Fixed Asset",
                     PurchLine2.Type::"G/L Account":
                         begin
                             ProdPostingGroup := PurchLine2."VAT Prod. Posting Group";
@@ -9688,7 +9680,7 @@
     local procedure OnAfterGetVendUnrealizedVATAccounts(VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; var PurchVATAccount: Code[20]; var PurchVATUnrealAccount: Code[20]; var PurchReverseAccount: Code[20]; var PurchReverseUnrealAccount: Code[20])
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSellToBuyFrom(var VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin

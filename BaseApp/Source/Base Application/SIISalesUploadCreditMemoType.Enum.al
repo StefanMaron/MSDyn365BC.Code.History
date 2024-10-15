@@ -11,4 +11,5 @@ enum 10714 "SII Sales Upload Credit Memo Type"
     value(5; "R5 Corrected Invoice in Simplified Invoices") { Caption = 'R5 Corrected Invoice in Simplified Invoices'; }
     value(6; "F1 Invoice") { Caption = 'F1 Invoice'; }
     value(7; "F2 Simplified Invoice") { Caption = 'F2 Simplified Invoice'; }
+    value(8; "F3 Invoice issued to replace simplified invoices") { Caption = 'F3 Invoice issued to replace simplified invoices'; }
 }

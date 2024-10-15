@@ -525,6 +525,11 @@ page 51 "Purchase Invoice"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
                     }
+                    field("Do Not Send To SII"; "Do Not Send To SII")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the document must not be sent to SII.';
+                    }
                 }
             }
             group("Shipping and Payment")

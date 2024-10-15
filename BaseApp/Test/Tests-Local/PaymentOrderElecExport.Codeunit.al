@@ -15,12 +15,15 @@ codeunit 147508 "Payment Order Elec. Export"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
+        FileMgt: Codeunit "File Management";
         ConfirmTxt: Label 'Are you SURE you want to Void all of the Cartera Electronic Payments in Order';
         MessageTxt: Label 'has been voided';
         FileExportHasErrorsErr: Label 'The file export has one or more errors.';
         MustHaveIBANErr: Label 'must have a value in IBAN';
         ExportElecPaymentMustBeYesErr: Label 'Export Electronic Payment must be equal to ''Yes''  in Payment Order: No.=%1', Comment = '.';
+        DownloadEPayFileQst: Label 'Do you also want to download the E-Pay export file?';
 
     local procedure Initialize()
     begin
@@ -129,7 +132,7 @@ codeunit 147508 "Payment Order Elec. Export"
         PostedDocNo[2] := CreateAndPostPurchaseInvoice(VendorNo[2]); // good Doc must be posted last
 
         // [GIVEN] Payment Order with two lines: first one for Vendor 10000, second one for Vendor 20000
-        BankAccNo := CreateBankAccount;
+        BankAccNo := CreateBankAccount(FindSEPACTExportFormat);
         CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, BankAccNo, true);
         CarteraDocEntryNo[1] := AddDocToBillGroup(PaymentOrder."No.", PostedDocNo[1], VendorNo[1]);
         CarteraDocEntryNo[2] := AddDocToBillGroup(PaymentOrder."No.", PostedDocNo[2], VendorNo[2]);
@@ -170,16 +173,131 @@ codeunit 147508 "Payment Order Elec. Export"
         TempPaymentExportData.TestField("Document No.", CarteraDocNo);
     end;
 
-    local procedure CreateBankAccount(): Code[20]
+    [Test]
+    [HandlerFunctions('ExportElecPaymentsRequestPageHandler,ConfirmHandlerNo')]
+    procedure RunExportElectronicPaymentsReportConfirmEPayExportText()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        ConfirmText: Text;
+    begin
+        // [SCENARIO 427439] Confirm dialog when run "Export Electronic Payments" report from Payment Journal.
+        Initialize();
+
+        // [GIVEN] Bank Account "BA" with Payment Export Format "E-PAY".
+        // [GIVEN] Vendor "V" with Preferred Bank Account with Use For Electronic Payments = true.
+        // [GIVEN] Posted Purchase Invoice "PI" for Vendor "V". Payment for Vendor "V" with Bal. Account "BA". Payment is applied to Invoice "PI".
+        CreateVendorPayment(GenJournalLine);
+
+        // [WHEN] Open Payment Journal, run Bank - Export, select Save as PDF.
+        RunEPayExportFromPaymentJournal(GenJournalLine."Journal Batch Name", GenJournalLine."Bal. Account No.");
+
+        // [THEN] Confirm dialog with question "Do you also want to download E-Pay export file?" was shown.
+        LibraryVariableStorage.DequeueText();   // PdfFileName
+        ConfirmText := LibraryVariableStorage.DequeueText();
+        Assert.ExpectedConfirm(DownloadEPayFileQst, ConfirmText);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElecPaymentsRequestPageHandler,ConfirmHandlerNo')]
+    procedure RunExportElectronicPaymentsReportConfirmEPayExportNo()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
+        PdfFileName: Text;
+    begin
+        // [SCENARIO 427439] Reply No to confirm question about exporting E-Pay file when run "Export Electronic Payments" report from Payment Journal.
+        Initialize();
+
+        // [GIVEN] Bank Account "BA" with Payment Export Format "E-PAY".
+        // [GIVEN] Vendor "V" with Preferred Bank Account with Use For Electronic Payments = true.
+        // [GIVEN] Posted Purchase Invoice "PI" for Vendor "V". Payment for Vendor "V" with Bal. Account "BA". Payment is applied to Invoice "PI".
+        CreateVendorPayment(GenJournalLine);
+
+        // [WHEN] Open Payment Journal, run Bank - Export, select Save as PDF. Reply No to confirm question "Do you want to download E-Pay file?".
+        BindSubscription(LibraryFileMgtHandler);
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        RunEPayExportFromPaymentJournal(GenJournalLine."Journal Batch Name", GenJournalLine."Bal. Account No.");
+        UnbindSubscription(LibraryFileMgtHandler);
+
+        // [THEN] RDLC layout was saved as PDF and PDF file was downloaded.
+        PdfFileName := LibraryVariableStorage.DequeueText();
+        LibraryVariableStorage.DequeueText();   // confirm text
+        Assert.IsTrue(File.Exists(PdfFileName), '');
+
+        // [THEN] No more files were downloaded.
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        Assert.IsFalse(TempBlob.HasValue(), '');
+
+        // [THEN] Last Export File Name of "BA" was updated to "ABC002.txt", Last Remittance Advice No. was updated to "2" (this is bug).
+        BankAccount.Get(GenJournalLine."Bal. Account No.");
+        BankAccount.TestField("Last E-Pay Export File Name", 'ABC002.txt');
+        BankAccount.TestField("Last Remittance Advice No.", '2');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElecPaymentsRequestPageHandler,ConfirmHandlerYes')]
+    procedure RunExportElectronicPaymentsReportConfirmEPayExportYes()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
+        PdfFileName: Text;
+        TxtFileName: Text;
+        ExpectedTxtFileName: Text;
+    begin
+        // [SCENARIO 427439] Reply Yes to confirm question about exporting E-Pay file when run "Export Electronic Payments" report from Payment Journal.
+        Initialize();
+
+        // [GIVEN] Bank Account "BA" with Payment Export Format "E-PAY", Last E-Pay Export File Name = "ABC001.txt", Last Remittance Advice No. = "1".
+        // [GIVEN] Vendor "V" with Preferred Bank Account with Use For Electronic Payments = true.
+        // [GIVEN] Posted Purchase Invoice "PI" for Vendor "V". Payment for Vendor "V" with Bal. Account "BA". Payment is applied to Invoice "PI".
+        CreateVendorPayment(GenJournalLine);
+
+        // [WHEN] Open Payment Journal, run Bank - Export, select Save as PDF. Reply Yes to confirm question "Do you want to download E-Pay file?".
+        BindSubscription(LibraryFileMgtHandler);
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        RunEPayExportFromPaymentJournal(GenJournalLine."Journal Batch Name", GenJournalLine."Bal. Account No.");
+        UnbindSubscription(LibraryFileMgtHandler);
+
+        // [THEN] RDLC layout was saved as PDF and PDF file was downloaded.
+        PdfFileName := LibraryVariableStorage.DequeueText();
+        LibraryVariableStorage.DequeueText();   // confirm text
+        Assert.IsTrue(File.Exists(PdfFileName), '');
+
+        // [THEN] Non-empty text file "ABC002.txt" was downloaded.
+        ExpectedTxtFileName := 'ABC002.txt';
+        TxtFileName := LibraryFileMgtHandler.GetDownloadFromSreamToFileName();
+        Assert.AreEqual(ExpectedTxtFileName, TxtFileName, '');
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        Assert.IsTrue(TempBlob.HasValue(), '');
+
+        // [THEN] Last Export File Name of "BA" was updated to "ABC002.txt", Last Remittance Advice No. was updated to "2".
+        BankAccount.Get(GenJournalLine."Bal. Account No.");
+        BankAccount.TestField("Last E-Pay Export File Name", ExpectedTxtFileName);
+        BankAccount.TestField("Last Remittance Advice No.", '2');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    local procedure CreateBankAccount(PaymentExportFormat: Code[20]): Code[20]
     var
         BankAccount: Record "Bank Account";
     begin
         LibraryCarteraPayables.CreateBankAccount(BankAccount, ''); // blank currency code
         BankAccount.IBAN := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account");
         BankAccount."SWIFT Code" := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account");
-        BankAccount.Validate("Payment Export Format", FindSEPACTExportFormat);
+        BankAccount.Validate("Payment Export Format", PaymentExportFormat);
         BankAccount.Validate("Credit Transfer Msg. Nos.", CreateNoSeries);
         BankAccount.Validate("E-Pay Export File Path", '');
+        BankAccount.Validate("Last E-Pay Export File Name", 'ABC001.txt');
+        BankAccount.Validate("Last Remittance Advice No.", '1');
         BankAccount.Modify(true);
         exit(BankAccount."No.");
     end;
@@ -236,12 +354,42 @@ codeunit 147508 "Payment Order Elec. Export"
         VendorNo: Code[20];
         PostedDocNo: Code[20];
     begin
-        BankAccNo := CreateBankAccount;
+        BankAccNo := CreateBankAccount(FindSEPACTExportFormat);
         VendorNo := CreateVendorWithBankAccount(ExportElectronicPayment);
         PostedDocNo := CreateAndPostPurchaseInvoice(VendorNo);
         CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, BankAccNo, ExportElectronicPayment);
         AddDocToBillGroup(PaymentOrder."No.", PostedDocNo, VendorNo);
         exit(PostedDocNo);
+    end;
+
+    local procedure CreateVendorPayment(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccount: Record "Bank Account";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        BankAccNo: Code[20];
+        VendorNo: Code[20];
+        PostedDocNo: Code[20];
+    begin
+        BankAccNo := CreateBankAccount(FindEPayExportFormat);
+
+        VendorNo := CreateVendorWithBankAccount(true);
+        PostedDocNo := CreateAndPostPurchaseInvoice(VendorNo);
+        PurchInvHeader.Get(PostedDocNo);
+        PurchInvHeader.CalcFields("Amount Including VAT");
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate());
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccNo);
+        GenJournalBatch.Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::Payment,
+            "Gen. Journal Account Type"::Vendor, VendorNo, PurchInvHeader."Amount Including VAT");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedDocNo);
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreatePaymentOrderWithSpecificBankAccount(var PaymentOrder: Record "Payment Order"; BankAccNo: Code[20]; ExportElectronicPayment: Boolean)
@@ -280,6 +428,25 @@ codeunit 147508 "Payment Order Elec. Export"
         exit(BankExportImportSetup.Code);
     end;
 
+    local procedure FindEPayExportFormat(): Code[20]
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+    begin
+        BankExportImportSetup.SetRange("Processing Codeunit ID", Codeunit::"Create Electronic Payments");
+        BankExportImportSetup.FindFirst();
+        exit(BankExportImportSetup.Code);
+    end;
+
+    local procedure RunEPayExportFromPaymentJournal(GenJournalBatchName: Code[20]; BankAccountNo: Code[20])
+    var
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
+        PaymentJournal.Export.Invoke();
+    end;
+
     local procedure VerifyCarteraDocElecPmtExported(DocumentNo: Code[20]; Exported: Boolean)
     var
         CarteraDoc: Record "Cartera Doc.";
@@ -313,7 +480,6 @@ codeunit 147508 "Payment Order Elec. Export"
     end;
 
     [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure VoidPaymentOrderReqPageHandler(var VoidPOExport: TestRequestPage "Void PO - Export")
     var
         PaymentOrderNo: Variant;
@@ -323,8 +489,18 @@ codeunit 147508 "Payment Order Elec. Export"
         VoidPOExport.OK.Invoke;
     end;
 
+    [RequestPageHandler]
+    procedure ExportElecPaymentsRequestPageHandler(var ExportElecPayments: TestRequestPage "Export Electronic Payments")
+    var
+        PdfFileName: Text;
+    begin
+        PdfFileName := FileMgt.ServerTempFileName('pdf');
+        ExportElecPayments."""Gen. Journal Line"".""Bal. Account No.""".SetValue(LibraryVariableStorage.DequeueText());
+        ExportElecPayments.SaveAsPdf(PdfFileName);
+        LibraryVariableStorage.Enqueue(PdfFileName);
+    end;
+
     [ConfirmHandler]
-    [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     var
         ConfirmText: Variant;
@@ -334,8 +510,21 @@ codeunit 147508 "Payment Order Elec. Export"
             Reply := true;
     end;
 
+    [ConfirmHandler]
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
+    begin
+        LibraryVariableStorage.Enqueue(Question);
+        Reply := false;
+    end;
+
     [MessageHandler]
-    [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
     var
         MessageText: Variant;

@@ -358,6 +358,7 @@ codeunit 144097 "ERM Reports"
         // [THEN] Report Dataset has Payment Method Translation Description under tag '<PaymentMethodDescription>'
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementTagWithValueExists('PaymentMethodDescription', PaymentMethodTranslation.Description);
+        LibraryReportDataset.AssertElementTagWithValueExists('SalesPersonBlank_Lbl', '');
     end;
 
     [Test]

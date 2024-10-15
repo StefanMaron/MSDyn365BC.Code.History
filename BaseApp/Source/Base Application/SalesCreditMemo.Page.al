@@ -425,6 +425,11 @@ page 44 "Sales Credit Memo"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the ID Type.';
                     }
+                    field("Do Not Send To SII"; "Do Not Send To SII")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the document must not be sent to SII.';
+                    }
                 }
             }
             group(Payment)

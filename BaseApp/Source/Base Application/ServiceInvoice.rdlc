@@ -12377,6 +12377,12 @@ End Function
         <Field Name="CACCaption">
           <DataField>CACCaption</DataField>
         </Field>
+        <Field Name="CompanyBankBranchNo">
+          <DataField>CompanyBankBranchNo</DataField>
+        </Field>
+        <Field Name="CompanyBankBranchNo_Lbl">
+          <DataField>CompanyBankBranchNo_Lbl</DataField>
+        </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>
         </Field>

@@ -22,6 +22,7 @@ codeunit 147520 SIIDocumentTests
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibrarySII: Codeunit "Library - SII";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryJournals: Codeunit "Library - Journals";
         XmlType: Option Invoice,"Intra Community",Payment;
         IsInitialized: Boolean;
         GlobalCreditMemoType: Option " ",Replacement,Difference,Removal;
@@ -2571,6 +2572,276 @@ codeunit 147520 SIIDocumentTests
         LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
     end;
 
+    [Test]
+    procedure SalesNoFechaOperacionWhenPostingDateEqualDocDateWithDocDateOptionEnabled()
+    var
+        SIISetup: Record "SII Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Journal] [Sales] [Invoice]
+        // [SCENARIO 43303] No FechaOperacion xml node generates when the posting date equals the document date in the sales journal and the "Document Date" option enables for the "Operation Date"
+
+        Initialize();
+
+        // [GIVEN] Set "Document Date" option for "Operation Date" in the SII Setup
+        SetOperationDateInSIISetup(SIISetup."Operation Date"::"Document Date");
+
+        // [GIVEN] Sales invoice journal line
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Posted journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // [WHEN] Generate xml file for the posted sales invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag is not included in XML file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+    end;
+
+    [Test]
+    procedure PurchNoFechaOperacionWhenPostingDateEqualDocDateWithDocDateOptionEnabled()
+    var
+        SIISetup: Record "SII Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Journal] [Purchase] [Invoice]
+        // [SCENARIO 43303] No FechaOperacion xml node generates when the posting date equals the document date in the purchase journal and the "Document Date" option enables for the "Operation Date"
+
+        Initialize();
+
+        // [GIVEN] Set "Document Date" option for "Operation Date" in the SII Setup
+        SetOperationDateInSIISetup(SIISetup."Operation Date"::"Document Date");
+
+        // [GIVEN] Purchase invoice journal line
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Posted journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // [WHEN] Generate xml file for the posted purchase invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag is not included in XML file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+    end;
+
+    [Test]
+    procedure SalesJnlFechaOperacionWhenPostingDateNotEqualDocDateWithDocDateOptionEnabled()
+    var
+        SIISetup: Record "SII Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Journal] [Sales] [Invoice]
+        // [SCENARIO 43303] FechaOperacion xml node generates when the posting date is not equal the document date in the sales journal and the "Document Date" option enables for the "Operation Date"
+
+        Initialize();
+
+        // [GIVEN] Set "Document Date" option for "Operation Date" in the SII Setup
+        SetOperationDateInSIISetup(SIISetup."Operation Date"::"Document Date");
+
+        // [GIVEN] Sales invoice journal line with "Posting Date" = "X", "Document Date" = "Y"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandIntInRange(100, 200));
+        GenJournalLine.Validate("Document Date", GenJournalLine."Posting Date" + 1);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Posted journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // [WHEN] Generate xml file for the posted sales invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion xml node contains "Y"
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(GenJournalLine."Document Date"), 0);
+    end;
+
+    [Test]
+    procedure PurchJnlFechaOperacionWhenPostingDateNotEqualDocDateWithDocDateOptionEnabled()
+    var
+        SIISetup: Record "SII Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Journal] [Purchase] [Invoice]
+        // [SCENARIO 43303] FechaOperacion xml node generates when the posting date is not equal the document date in the purchase journal and the "Document Date" option enables for the "Operation Date"
+
+        Initialize();
+
+        // [GIVEN] Set "Document Date" option for "Operation Date" in the SII Setup
+        SetOperationDateInSIISetup(SIISetup."Operation Date"::"Document Date");
+
+        // [GIVEN] Purchase invoice journal line with "Posting Date" = "X", "Document Date" = "Y"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandIntInRange(100, 200));
+        GenJournalLine.Validate("Document Date", GenJournalLine."Posting Date" + 1);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Posted journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // [WHEN] Generate xml file for the posted purchase invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion xml node contains "Y"
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(GenJournalLine."Document Date"), 0);
+    end;
+
+    [Test]
+    procedure SalesInvFechaOperacionWhenPostingDateNotEqualDocDateWithDocDateOptionEnabled()
+    var
+        SIISetup: Record "SII Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 43303] FechaOperacion xml node generates when the posting date is not equal the document date in the sales invoice and the "Document Date" option enables for the "Operation Date"
+
+        Initialize();
+
+        // [GIVEN] Set "Document Date" option for "Operation Date" in the SII Setup
+        SetOperationDateInSIISetup(SIISetup."Operation Date"::"Document Date");
+
+        // [GIVEN] Sales invoice with "Posting Date" = "X", "Document Date" = "Y"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Document Date", SalesHeader."Posting Date" + 1);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice,
+          LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion xml node contains "Y"
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(CustLedgerEntry."Document Date"), 0);
+    end;
+
+    [Test]
+    procedure SalesCrMemoFechaOperacionWhenPostingDateNotEqualDocDateWithDocDateOptionEnabled()
+    var
+        SIISetup: Record "SII Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 43303] FechaOperacion xml node generates when the posting date is not equal the document date in the sales cr. memo and the "Document Date" option enables for the "Operation Date"
+
+        Initialize();
+
+        // [GIVEN] Set "Document Date" option for "Operation Date" in the SII Setup
+        SetOperationDateInSIISetup(SIISetup."Operation Date"::"Document Date");
+
+        // [GIVEN] Sales credit memo with "Posting Date" = "X", "Document Date" = "Y"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Document Date", SalesHeader."Posting Date" + 1);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo",
+          LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion xml node contains "Y"
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(CustLedgerEntry."Document Date"), 0);
+    end;
+
+    [Test]
+    procedure PurchInvFechaOperacionWhenPostingDateNotEqualDocDateWithDocDateOptionEnabled()
+    var
+        SIISetup: Record "SII Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 43303] FechaOperacion xml node generates when the posting date is not equal the document date in the purchase invoice and the "Document Date" option enables for the "Operation Date"
+
+        Initialize();
+
+        // [GIVEN] Set "Document Date" option for "Operation Date" in the SII Setup
+        SetOperationDateInSIISetup(SIISetup."Operation Date"::"Document Date");
+
+        // [GIVEN] Sales invoice with "Posting Date" = "X", "Document Date" = "Y"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Document Date", PurchaseHeader."Posting Date" + 1);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice,
+          LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion xml node contains "Y"
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(VendorLedgerEntry."Document Date"), 0);
+    end;
+
+    [Test]
+    procedure PurchCrMemoFechaOperacionWhenPostingDateNotEqualDocDateWithDocDateOptionEnabled()
+    var
+        SIISetup: Record "SII Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 43303] No FechaOperacion xml node generates when the posting date is not equal the document date in the purchase credit memo and the "Document Date" option enables for the "Operation Date"
+
+        Initialize();
+
+        // [GIVEN] Set "Document Date" option for "Operation Date" in the SII Setup
+        SetOperationDateInSIISetup(SIISetup."Operation Date"::"Document Date");
+
+        // [GIVEN] Sales invoice with "Posting Date" = "X", "Document Date" = "Y"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Document Date", PurchaseHeader."Posting Date" + 1);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo",
+          LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag is not included in XML file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -2911,6 +3182,15 @@ codeunit 147520 SIIDocumentTests
         ReturnRcptLine.SetRange("Document No.", ReturnRcptHeader."No.");
         SalesGetReturnReceipts.SetSalesHeader(SalesHeaderTo);
         SalesGetReturnReceipts.CreateInvLines(ReturnRcptLine);
+    end;
+
+    local procedure SetOperationDateInSIISetup(OperationDate: Enum "SII Operation Date Type")
+    var
+        SIISetup: Record "SII Setup";
+    begin
+        SIISetup.Get();
+        SIISetup.Validate("Operation Date", OperationDate);
+        SIISetup.Modify(true);
     end;
 
     local procedure PostPurchDocWithMultiplesLinesDiffVAT(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrectionType: Option)

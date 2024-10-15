@@ -1,4 +1,4 @@
-codeunit 131306 "Library - Journals"
+﻿codeunit 131306 "Library - Journals"
 {
     // Library containing functions related to various Journals.
 
@@ -201,10 +201,12 @@ codeunit 131306 "Library - Journals"
         // Bill-to Pay-to No. need to be filled in Gen. Journal Lines for Accounts other than Customer and Vendor in ES.
         if GenJournalLine."Bill-to/Pay-to No." = '' then begin
             if (GenJournalLine."Gen. Posting Type" = GenJournalLine."Gen. Posting Type"::Sale) or (GenJournalLine."Bal. Gen. Posting Type" = GenJournalLine."Bal. Gen. Posting Type"::Sale)
-              or (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer) then
+              or (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer) or (GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::Customer)
+            then
                 GenJournalLine.Validate("Bill-to/Pay-to No.", Customer."No.");
             if (GenJournalLine."Gen. Posting Type" = GenJournalLine."Gen. Posting Type"::Purchase) or (GenJournalLine."Bal. Gen. Posting Type" = GenJournalLine."Bal. Gen. Posting Type"::Purchase)
-              or (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor) then
+              or (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor) or (GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::Vendor)
+            then
                 GenJournalLine.Validate("Bill-to/Pay-to No.", LibraryPurchase.CreateVendorNo)
             else
                 GenJournalLine.Validate("Bill-to/Pay-to No.", Customer."No.");

@@ -5532,6 +5532,7 @@
             "Succeeded Company Name" := SalesHeader."Succeeded Company Name";
             "Succeeded VAT Registration No." := SalesHeader."Succeeded VAT Registration No.";
             "ID Type" := SalesHeader."ID Type";
+            "Do Not Send To SII" := SalesHeader."Do Not Send To SII";
 
             OnBeforePostCustomerEntry(GenJnlLine, SalesHeader, TotalSalesLine2, TotalSalesLineLCY2, SuppressCommit, PreviewMode, GenJnlPostLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);

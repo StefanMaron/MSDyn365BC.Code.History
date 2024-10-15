@@ -1447,6 +1447,9 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SIISalesDocumentSchemeCode.Next;
         SIISalesDocumentSchemeCode.TestField(
           "Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"02 Export");
+
+        // Tear down
+        VATPostingSetup.ModifyAll("Sales Special Scheme Code", 0, false);
     end;
 
     [Test]
@@ -1592,6 +1595,162 @@ codeunit 147562 "SII Special Scheme Code Tests"
         SIIPurchDocSchemeCode.TestField("Special Scheme Code", SIIPurchDocSchemeCode."Special Scheme Code"::"04 Gold");
     end;
 
+    [Test]
+    procedure SalesInvWithRegimeCode17()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 433362] Sales invoice with "Special Scheme Code" equals "17 Operations Under The One-Stop-Shop Regime" exports with ClaveRegimenEspecialOTrascendencia equals "17"
+
+        Initialize();
+
+        // [GIVEN] Sales invoice with "Special Scheme Code" = "17 Operations Under The One-Stop-Shop Regime"
+        PostSalesDocWithRegimeCode(
+          CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0,
+          SalesHeader."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+    end;
+
+    [Test]
+    procedure SalesCrMemoWithRegimeCode17()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 433362] Sales credit memo with "Special Scheme Code" equals "17 Operations Under The One-Stop-Shop Regime" exports with ClaveRegimenEspecialOTrascendencia equals "17"
+
+        Initialize();
+
+        // [GIVEN] Sales credit memo with "Special Scheme Code" = "17 Operations Under The One-Stop-Shop Regime"
+        PostSalesDocWithRegimeCode(
+          CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", 0,
+          SalesHeader."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+    end;
+
+    [Test]
+    procedure SalesReplacementCrMemoWithRegimeCode17()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 433362] Sales replacement  credit memo with "Special Scheme Code" equals "17 Operations Under The One-Stop-Shop Regime" exports with ClaveRegimenEspecialOTrascendencia equals "17"
+
+        Initialize();
+
+        // [GIVEN] Sales replacement credit memo with "Special Scheme Code" = "17 Operations Under The One-Stop-Shop Regime"
+        PostSalesDocWithRegimeCode(
+          CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", SalesHeader."Correction Type"::Replacement,
+          SalesHeader."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+    end;
+
+    [Test]
+    procedure ServInvWithRegimeCode17()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ServiceHeader: Record "Service Header";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Service] [Invoice]
+        // [SCENARIO 433362] Service invoice with "Special Scheme Code" equals "17 Operations Under The One-Stop-Shop Regime" exports with ClaveRegimenEspecialOTrascendencia equals "17"
+
+        Initialize();
+
+        // [GIVEN] Service invoice with "Special Scheme Code" = "17 Operations Under The One-Stop-Shop Regime"
+        PostServDocWithRegimeCode(
+          CustLedgerEntry, ServiceHeader."Document Type"::Invoice, 0,
+          ServiceHeader."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+    end;
+
+    [Test]
+    procedure ServCrMemoWithRegimeCode17()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ServiceHeader: Record "Service Header";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Service] [Invoice]
+        // [SCENARIO 433362] Service credit memo with "Special Scheme Code" equals "17 Operations Under The One-Stop-Shop Regime" exports with ClaveRegimenEspecialOTrascendencia equals "17"
+
+        Initialize();
+
+        // [GIVEN] Service credit memo with "Special Scheme Code" = "17 Operations Under The One-Stop-Shop Regime"
+        PostServDocWithRegimeCode(
+          CustLedgerEntry, ServiceHeader."Document Type"::"Credit Memo", 0,
+          ServiceHeader."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+    end;
+
+    [Test]
+    procedure ServReplacementCrMemoWithRegimeCode17()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ServiceHeader: Record "Service Header";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Service] [Invoice]
+        // [SCENARIO 433362] Service replacement credit memo with "Special Scheme Code" equals "17 Operations Under The One-Stop-Shop Regime" exports with ClaveRegimenEspecialOTrascendencia equals "17"
+
+        Initialize();
+
+        // [GIVEN] Service replacement credit memo with "Special Scheme Code" = "17 Operations Under The One-Stop-Shop Regime"
+        PostServDocWithRegimeCode(
+          CustLedgerEntry, ServiceHeader."Document Type"::"Credit Memo", ServiceHeader."Correction Type"::Replacement,
+          ServiceHeader."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        // [WHEN] Create xml for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SII Special Scheme Code Tests");
@@ -1656,6 +1815,31 @@ codeunit 147562 "SII Special Scheme Code Tests"
             InsertSIISalesDocSpecialSchemeCode(
               SIISalesDocumentSchemeCode, SIISalesDocumentSchemeCode."Entry Type"::Service,
               ServiceHeader."Document Type", ServiceHeader."No.", SchemeCode[i]);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        FindPostedCustLedgEntry(CustLedgerEntry, ServiceHeader."Bill-to Customer No.");
+    end;
+
+    local procedure PostSalesDocWithRegimeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        CreateSalesDoc(SalesHeader, DocType, CorrType);
+        SalesHeader.Validate("Correction Type", CorrType);
+        SalesHeader.Validate("Special Scheme Code", SpecialSchemeCode);
+        SalesHeader.Modify(true);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, SalesHeader."Document Type",
+          LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure PostServDocWithRegimeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        CreateServiceDoc(ServiceHeader, DocType);
+        ServiceHeader.Validate("Correction Type", CorrType);
+        ServiceHeader.Validate("Special Scheme Code", SpecialSchemeCode);
+        ServiceHeader.Modify(true);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         FindPostedCustLedgEntry(CustLedgerEntry, ServiceHeader."Bill-to Customer No.");
     end;

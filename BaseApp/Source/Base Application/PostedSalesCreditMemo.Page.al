@@ -359,6 +359,11 @@ page 134 "Posted Sales Credit Memo"
                         Editable = false;
                         ToolTip = 'Specifies the Correction Type.';
                     }
+                    field("Do Not Send To SII"; "Do Not Send To SII")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the document must not be sent to SII.';
+                    }
                 }
             }
             group(Payment)

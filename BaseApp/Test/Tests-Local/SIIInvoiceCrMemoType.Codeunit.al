@@ -14,6 +14,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryService: Codeunit "Library - Service";
         Assert: Codeunit Assert;
         LibrarySII: Codeunit "Library - SII";
         IsInitialized: Boolean;
@@ -677,6 +678,115 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:TipoFactura', 'LC');
     end;
 
+    [Test]
+    procedure SalesCrMemoWithF3TypeXML()
+    var
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 433347] Sales credit memo with "F3" type has correct xml to send to SII
+
+        Initialize();
+        // [GIVEN] Posted sales credit memo with "Cr. Memo Type" = "F3 Invoice issued to replace simplified invoices"
+        PostSalesDocWithInvOrCrMemoType(
+          CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0,
+          0, SalesHeader."Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices");
+
+        // [WHEN] Create xml for the document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has node "Contraparte"
+        LibrarySII.ValidateElementWithNameExists(XMLDoc, 'sii:Contraparte');
+
+        // [THEN] XML file has no node "TipoRectificativa"
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:TipoRectificativa');
+    end;
+
+    [Test]
+    procedure ServiceCrMemoWithF3TypeXML()
+    var
+        ServiceHeader: Record "Service Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Service] [Credit Memo]
+        // [SCENARIO 433347] Sales credit memo with "F3" type has correct xml to send to SII
+
+        Initialize;
+        // [GIVEN] Posted sales credit memo with "Cr. Memo Type" = "F3 Invoice issued to replace simplified invoices"
+        PostServiceCrMemoWithInvOrCrMemoType(
+          CustLedgerEntry, 0, ServiceHeader."Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices");
+
+        // [WHEN] Create xml for the document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has node "Contraparte"
+        LibrarySII.ValidateElementWithNameExists(XMLDoc, 'sii:Contraparte');
+
+        // [THEN] XML file has no node "TipoRectificativa"
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:TipoRectificativa');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReplacementsSalesCrMemoWithF3TypeXML()
+    var
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 433347] Sales replacement credit memo with "F3" type has correct xml to send to SII
+
+        Initialize();
+        // [GIVEN] Posted sales replacement credit memo with "Cr. Memo Type" = "F3 Invoice issued to replace simplified invoices"
+        PostSalesDocWithInvOrCrMemoType(
+          CustLedgerEntry, SalesHeader."Document Type"::Invoice, SalesHeader."Correction Type"::Replacement,
+          0, SalesHeader."Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices");
+
+        // [WHEN] Create xml for the document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has node "Contraparte"
+        LibrarySII.ValidateElementWithNameExists(XMLDoc, 'sii:Contraparte');
+
+        // [THEN] XML file has no node "Contraparte"
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:TipoRectificativa');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReplacementServiceCrMemoWithF3TypeXML()
+    var
+        ServiceHeader: Record "Service Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Service] [Credit Memo]
+        // [SCENARIO 433347] Sales replacement credit memo with "F3" type has correct xml to send to SII
+
+        Initialize();
+        // [GIVEN] Posted sales replacement credit memo with "Cr. Memo Type" = "F3 Invoice issued to replace simplified invoices"
+        PostServiceCrMemoWithInvOrCrMemoType(
+          CustLedgerEntry, ServiceHeader."Correction Type"::Replacement,
+          ServiceHeader."Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices");
+
+        // [WHEN] Create xml for the document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has node "Contraparte"
+        LibrarySII.ValidateElementWithNameExists(XMLDoc, 'sii:Contraparte');
+
+        // [THEN] XML file has no node "Contraparte"
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:TipoRectificativa');
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then
@@ -721,6 +831,31 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure PostServiceCrMemoWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; InvoiceType: Option; CrMemoType: Integer)
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        LibrarySII.CreateServiceHeader(
+          ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo(), '');
+        ServiceHeader.Validate("Invoice Type", InvoiceType);
+        ServiceHeader.Validate("Cr. Memo Type", CrMemoType);
+        ServiceHeader.Modify(true);
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLineWithQuantity(
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item,
+          LibrarySII.CreateItemWithSpecificVATSetup(ServiceHeader."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(10, 25)),
+          LibraryRandom.RandInt(100));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        LibrarySII.FindCustLedgEntryForPostedServCrMemo(
+          CustLedgerEntry, ServiceHeader."No.");
     end;
 }
 

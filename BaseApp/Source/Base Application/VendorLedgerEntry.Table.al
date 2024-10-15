@@ -642,6 +642,10 @@ table 25 "Vendor Ledger Entry"
         {
             Caption = 'ID Type';
         }
+        field(10724; "Do Not Send To SII"; Boolean)
+        {
+            Caption = 'Do Not Send To SII';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -1004,6 +1008,7 @@ table 25 "Vendor Ledger Entry"
         "Succeeded Company Name" := GenJnlLine."Succeeded Company Name";
         "Succeeded VAT Registration No." := GenJnlLine."Succeeded VAT Registration No.";
         "ID Type" := GenJnlLine."ID Type";
+        "Do Not Send To SII" := GenJnlLine."Do Not Send To SII";
 
         OnAfterCopyVendLedgerEntryFromGenJnlLine(Rec, GenJnlLine);
     end;

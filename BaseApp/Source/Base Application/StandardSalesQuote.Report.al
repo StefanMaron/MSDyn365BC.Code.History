@@ -296,7 +296,7 @@
             column(SalesPerson_Lbl; SalespersonLbl)
             {
             }
-            column(SalesPersonText_Lbl; SalesPersonText)
+            column(SalesPersonBlank_Lbl; SalesPersonText)
             {
             }
             column(SalesPersonName; SalespersonPurchaser.Name)
@@ -1141,7 +1141,7 @@
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
         TotalECAmount: Decimal;
-        ECAmountLCYLbl: Label 'EC Amount (LCY)';        
+        ECAmountLCYLbl: Label 'EC Amount (LCY)';
         CurrCode: Text[10];
         CurrSymbol: Text[10];
 

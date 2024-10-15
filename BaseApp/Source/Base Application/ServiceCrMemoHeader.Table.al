@@ -815,6 +815,10 @@ table 5994 "Service Cr.Memo Header"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(10724; "Do Not Send To SII"; Boolean)
+        {
+            Caption = 'Do Not Send To SII';
+        }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
             Caption = 'Applies-to Bill No.';
