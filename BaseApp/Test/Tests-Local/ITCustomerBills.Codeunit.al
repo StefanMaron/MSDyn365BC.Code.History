@@ -91,6 +91,43 @@ codeunit 144191 "IT - Customer Bills"
         VerifyAmountInCustomerBillListReport(SalesInvoiceHeader."Amount Including VAT", DocumentNo);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BillsListReportOnCustomerPartnerType()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomerBillHeader: Record "Customer Bill Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustomerNo: Code[20];
+        Amount: Decimal;
+        CustomerBillcard: TestPage "Customer Bill Card";
+    begin
+        // [SCENARIO 461752] The Partner Type filter is used when suggesting Customer Bills in the Italian version shows entries on Customer bill line
+        // [GIVEN] Create Customer and update Customer Partner Type.
+        CustomerNo := CreateCustomer;
+        UpdateCustomerPartnerType(CustomerNo);
+
+        // [GIVEN] Create sales invoice and post that invoice.
+        CreateSalesDocument(SalesHeader, CustomerNo);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Save the "Amount Including VAT" in variable. 
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+        Amount := SalesInvoiceHeader."Amount Including VAT";
+
+        // [WHEN] Run Issue Bank Receipt report 
+        RunIssueBankReceipt(CustomerNo);
+
+        // [THEN] Create Customer Bill and suggest bill to get the line for Customer "Partner Type"
+        CreateCustomerBillWithBillSubject(CustomerBillHeader, CustomerNo);
+
+        // [VERIFY] Open Customer Bill card and verify the amount on Customer Bill Line.
+        CustomerBillcard.OpenEdit();
+        CustomerBillcard.GoToRecord(CustomerBillHeader);
+        CustomerBillcard.CustomerBillLine.Amount.AssertEquals(Amount);
+    end;
+
     local procedure BillsListReportOnAppliedBillAndDishonoredPmt(OpenEntriesOnly: Boolean)
     var
         SalesHeader: Record "Sales Header";
@@ -307,6 +344,29 @@ codeunit 144191 "IT - Customer Bills"
         LibraryReportValidation.SetColumn(AppliedAmountLbl);
         Evaluate(ExpectedAmount, LibraryReportValidation.GetValue);
         Assert.AreEqual(Amount, ExpectedAmount, StrSubstNo(AmountErr, ExpectedAmount));
+    end;
+
+    local procedure CreateCustomerBillWithBillSubject(var CustomerBillHeader: Record "Customer Bill Header"; CustomerNo: Code[20])
+    var
+        Customer: Record Customer;
+        BillPostingGroup: Record "Bill Posting Group";
+    begin
+        // Find Bank Account No for the Payment Method and Create Customer Bill.
+        Customer.Get(CustomerNo);
+        BillPostingGroup.SetRange("Payment Method", Customer."Payment Method Code");
+        BillPostingGroup.FindFirst();
+        LibrarySales.CreateCustomerBillHeader(
+          CustomerBillHeader, BillPostingGroup."No.", BillPostingGroup."Payment Method", CustomerBillHeader.Type::"Bills Subject To Collection");
+        RunSuggestCustomerBill(CustomerBillHeader, CustomerNo);
+    end;
+
+    local procedure UpdateCustomerPartnerType(CustomerNo: Code[20])
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustomerNo);
+        Customer.Validate("Partner Type", Customer."Partner Type"::" ");
+        Customer.Modify();
     end;
 
     [ModalPageHandler]

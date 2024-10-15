@@ -127,7 +127,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     [Scope('OnPrem')]
     procedure SuggestCustomerBillLinesWithPartnerTypeBlank()
     begin
-        SuggestCustomerBillLinesWithPartnerType("Partner Type"::" ", 1, 0, 0);
+        SuggestCustomerBillLinesWithPartnerType("Partner Type"::" ", 1, 1, 1);
     end;
 
     [Test]

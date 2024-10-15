@@ -100,11 +100,14 @@ codeunit 1026 "Job Link Usage"
             PartialJobPlanningLineQuantityPosting := (JobLedgerEntry."Serial No." <> '') or (JobLedgerEntry."Lot No." <> '');
             HandleMatchUsageSpecifiedJobPlanningLineOnAfterCalcPartialJobPlanningLineQuantityPosting(JobPlanningLine, JobJournalLine, JobLedgerEntry, PartialJobPlanningLineQuantityPosting);
         end;
+
         if not PartialJobPlanningLineQuantityPosting then
-            JobPlanningLine.Validate(Quantity,
-                UOMMgt.CalcQtyFromBase(
-                    JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
-                    TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
+            if (TotalQtyBase > JobPlanningLine.Quantity) or (JobPlanningLine.Quantity = 0) then
+                JobPlanningLine.Validate(Quantity,
+                    UOMMgt.CalcQtyFromBase(
+                        JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
+                        TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
+
         JobPlanningLine.CopyTrackingFromJobLedgEntry(JobLedgerEntry);
         JobPlanningLine.Use(
             UOMMgt.CalcQtyFromBase(

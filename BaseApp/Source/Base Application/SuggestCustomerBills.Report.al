@@ -16,7 +16,8 @@ report 12176 "Suggest Customer Bills"
                 Customer.Get("Customer No.");
                 if Customer."Privacy Blocked" then
                     CurrReport.Skip();
-                if (Customer.Blocked in [Customer.Blocked::All]) or (Customer."Partner Type" <> PartnerType) then
+                if (Customer.Blocked in [Customer.Blocked::All]) or
+                   ((Customer."Partner Type" <> PartnerType) and (PartnerType <> PartnerType::" ")) then
                     CurrReport.Skip();
                 CalcFields("Remaining Amount");
 
