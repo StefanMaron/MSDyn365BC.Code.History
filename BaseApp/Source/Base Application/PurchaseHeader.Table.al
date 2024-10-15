@@ -3739,7 +3739,8 @@
                     if PurchaseLine.FindSet() then
                         repeat
                             PurchaseLine.Validate("Order Date", Rec."Order Date");
-                            PurchaseLine.Validate("No.");
+                            if PurchaseLine."No." <> '' then
+                                PurchaseLine.Validate("No.");
                             PurchaseLine.Modify();
                         until PurchaseLine.Next() = 0;
                 end;
