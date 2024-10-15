@@ -240,6 +240,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         Item: Record Item;
     begin
         Item.Get("Item No.");
+        OnGetUnroundedCostsFromItemOnAfterGetItem(Item, Rec);
 
         "Indirect Cost %" := Item."Indirect Cost %";
         "Overhead Rate" := Item."Overhead Rate";
@@ -582,6 +583,11 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCurrencyFactorOnAfterSetFilters(var OutputItemLedgEntry: Record "Item Ledger Entry"; InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUnroundedCostsFromItemOnAfterGetItem(var Item: Record Item; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
     begin
     end;
 }

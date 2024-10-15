@@ -169,6 +169,12 @@ codeunit 44 ReportManagement
         OnAfterSetupPrinters(Printers);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'OnIntermediateDocumentReady', '', false, false)]
+    local procedure OnIntermediateDocumentReady(ObjectId: Integer; ObjectPayload: JsonObject; DocumentStream: InStream; var TargetStream: OutStream; var Success: Boolean)
+    begin
+        OnAfterIntermediateDocumentReady(ObjectId, ObjectPayload, DocumentStream, TargetStream, Success);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'OnDocumentReady', '', false, false)]
     local procedure OnDocumentReady(ObjectId: Integer; ObjectPayload: JsonObject; DocumentStream: InStream; var TargetStream: OutStream; var Success: Boolean)
     begin
@@ -306,6 +312,11 @@ codeunit 44 ReportManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupPrinters(var Printers: Dictionary of [Text[250], JsonObject]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIntermediateDocumentReady(ObjectId: Integer; ObjectPayload: JsonObject; DocumentStream: InStream; var TargetStream: OutStream; var Success: Boolean)
     begin
     end;
 

@@ -173,26 +173,7 @@ report 846 "Cash Flow Date List"
 
                 trigger OnAfterGetRecord()
                 begin
-                    CashFlow.SetCashFlowDateFilter(CurrentDateFrom, CurrentDateTo);
-                    case Number of
-                        0:
-                            begin
-                                CurrentDateTo := UserInputDateFrom - 1;
-                                CurrentDateFrom := 0D;
-                            end;
-                        PeriodNumber + 1:
-                            begin
-                                CurrentDateFrom := CurrentDateTo + 1;
-                                CurrentDateTo := 0D;
-                            end;
-                        else begin
-                                CurrentDateFrom := CurrentDateTo + 1;
-                                CurrentDateTo := CalcDate(Interval, CurrentDateFrom) - 1;
-                            end
-                    end;
-
-                    CashFlow.CalculateAllAmounts(CurrentDateFrom, CurrentDateTo, Values, CFSumTotal);
-                    NewCFSumTotal := NewCFSumTotal + CFSumTotal;
+                    CalculatePeriodLine(CashFlow, Number, NewCFSumTotal);
                 end;
 
                 trigger OnPreDataItem()
@@ -263,7 +244,6 @@ report 846 "Cash Flow Date List"
         Values: array[15] of Decimal;
         BeforeSumTotal: Decimal;
         NewCFSumTotal: Decimal;
-        CFSumTotal: Decimal;
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         CashFlow_Date_ListCaptionLbl: Label 'Cash Flow Date List';
         Service_Orders__Control59CaptionLbl: Label 'Service Orders';
@@ -294,6 +274,32 @@ report 846 "Cash Flow Date List"
     begin
         DateFrom := CurrentDateFrom;
         DateTo := CurrentDateTo;
+    end;
+
+    local procedure CalculatePeriodLine(var CashFlowForecast: Record "Cash Flow Forecast"; Number: Integer; var NewCFSumTotal: Decimal)
+    var
+        CFSumTotal: Decimal;
+    begin
+        CashFlowForecast.SetCashFlowDateFilter(CurrentDateFrom, CurrentDateTo);
+        case Number of
+            0:
+                begin
+                    CurrentDateTo := UserInputDateFrom - 1;
+                    CurrentDateFrom := 0D;
+                end;
+            PeriodNumber + 1:
+                begin
+                    CurrentDateFrom := CurrentDateTo + 1;
+                    CurrentDateTo := 0D;
+                end;
+            else begin
+                    CurrentDateFrom := CurrentDateTo + 1;
+                    CurrentDateTo := CalcDate(Interval, CurrentDateFrom) - 1;
+                end
+        end;
+
+        CashFlowForecast.CalculateAllAmounts(CurrentDateFrom, CurrentDateTo, Values, CFSumTotal);
+        NewCFSumTotal := NewCFSumTotal + CFSumTotal;
     end;
 }
 

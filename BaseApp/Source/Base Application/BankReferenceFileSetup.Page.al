@@ -96,5 +96,13 @@ page 32000000 "Bank Reference File Setup"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        FIBankTok: Label 'FI Electronic Banking', Locked = true;
+    begin
+        FeatureTelemetry.LogUptake('1000HN4', FIBankTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
 }
 

@@ -234,9 +234,11 @@ page 32000006 "Bank Payments to send"
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('1000HN6', FIBankTok, Enum::"Feature Uptake Status"::"Used");
                         if Confirm(Text001) then
                             CreateLMPFile.Run();
                         Clear(CreateLMPFile);
+                        FeatureTelemetry.LogUsage('1000HN7', FIBankTok, 'FI Electronic Banking Domestic Payments Created');
                     end;
                 }
                 action("Foreign payments")
@@ -250,9 +252,11 @@ page 32000006 "Bank Payments to send"
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('1000HN8', FIBankTok, Enum::"Feature Uptake Status"::"Used");
                         if Confirm(Text001) then
                             CreateLUMFile.Run();
                         Clear(CreateLUMFile);
+                        FeatureTelemetry.LogUsage('1000HN9', FIBankTok, 'FI Electronic Banking Foreign Payments Created')
                     end;
                 }
                 action("SEPA Payments")
@@ -268,7 +272,9 @@ page 32000006 "Bank Payments to send"
                     var
                         RefPaymentExported: Record "Ref. Payment - Exported";
                     begin
+                        FeatureTelemetry.LogUptake('1000HO0', FIBankTok, Enum::"Feature Uptake Status"::"Used");
                         ExportToFile;
+                        FeatureTelemetry.LogUsage('1000HO1', FIBankTok, 'FI Electronic Banking SEPA Payments Created');
                     end;
                 }
             }
@@ -313,12 +319,14 @@ page 32000006 "Bank Payments to send"
         CreateLMPFile: Report "Export Ref. Payment -  LMP";
         CreateLUMFile: Report "Export Ref. Payment -  LUM";
         RefPmtMgt: Codeunit "Ref. Payment Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         CreateRefPmtSuggestion: Report "Suggest Bank Payments";
         TotalAmountLCY: Decimal;
         Text001: Label 'Do you want to create the payment file?';
         Text002: Label 'Do you want to combine foreign payments?';
         CreateSEPAFile: Report "Export SEPA Payment File";
         Text003: Label 'Do you want to combine SEPA payments?';
+        FIBankTok: Label 'FI Electronic Banking', Locked = true;
         PaymentType: Option Domestic,Foreign,SEPA;
 
     local procedure UpdateBalance()

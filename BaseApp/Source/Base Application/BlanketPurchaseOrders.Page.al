@@ -164,6 +164,12 @@ page 9310 "Blanket Purchase Orders"
                     ToolTip = 'Specifies the code of the currency of the amounts on the purchase lines.';
                     Visible = false;
                 }
+                field(Status; Status)
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
+                    StyleExpr = StatusStyleTxt;
+                }
             }
         }
         area(factboxes)
@@ -282,9 +288,10 @@ page 9310 "Blanket Purchase Orders"
 
                     trigger OnAction()
                     var
-                        ReleasePurchDoc: Codeunit "Release Purchase Document";
+                        PurchaseHeader: Record "Purchase Header";
                     begin
-                        ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        Rec.PerformManualRelease(PurchaseHeader);
                     end;
                 }
                 action(Reopen)
@@ -296,9 +303,10 @@ page 9310 "Blanket Purchase Orders"
 
                     trigger OnAction()
                     var
-                        ReleasePurchDoc: Codeunit "Release Purchase Document";
+                        PurchaseHeader: Record "Purchase Header";
                     begin
-                        ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        Rec.PerformManualReopen(PurchaseHeader);
                     end;
                 }
             }
@@ -402,6 +410,11 @@ page 9310 "Blanket Purchase Orders"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        StatusStyleTxt := Rec.GetStatusStyleText();
+    end;
+
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance;
@@ -418,6 +431,8 @@ page 9310 "Blanket Purchase Orders"
         DocPrint: Codeunit "Document-Print";
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
 
     local procedure SetControlAppearance()
     var

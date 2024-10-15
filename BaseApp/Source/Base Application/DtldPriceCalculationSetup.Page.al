@@ -39,14 +39,14 @@ page 7008 "Dtld. Price Calculation Setup"
                 }
                 field(AssetNo; Rec."Asset No.")
                 {
-                    Visible = IsAssetNoEditable and UseCustomLookup;
+                    Visible = AssetVisible;
                     Editable = IsAssetNoEditable;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a product number.';
                 }
                 field(ProductNo; Rec."Product No.")
                 {
-                    Visible = IsAssetNoEditable and not UseCustomLookup;
+                    Visible = ProductVisible;
                     Editable = IsAssetNoEditable;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a product number.';
@@ -98,6 +98,9 @@ page 7008 "Dtld. Price Calculation Setup"
         Rec.FilterGroup(2);
         Rec.SetRange("Group Id", CurrPriceCalculationSetup."Group Id");
         Rec.FilterGroup(0);
+
+        AssetVisible := IsAssetNoEditable and UseCustomLookup;
+        ProductVisible := IsAssetNoEditable and not UseCustomLookup;
         IsSetupCodeVisible := CurrPriceCalculationSetup.Code = '';
         IsAssetNoEditable := CurrPriceCalculationSetup."Asset Type" <> CurrPriceCalculationSetup."Asset Type"::" ";
         Heading :=
@@ -114,6 +117,10 @@ page 7008 "Dtld. Price Calculation Setup"
     var
         CurrPriceCalculationSetup: Record "Price Calculation Setup";
         PriceUXManagement: Codeunit "Price UX Management";
+        [InDataSet]
+        AssetVisible: Boolean;
+        [InDataSet]
+        ProductVisible: Boolean;
         [InDataSet]
         IsSetupCodeVisible: Boolean;
         [InDataSet]

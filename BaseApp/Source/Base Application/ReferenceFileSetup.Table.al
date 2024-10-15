@@ -135,8 +135,15 @@ table 32000000 "Reference File Setup"
     {
     }
 
+    trigger OnInsert()
+    begin
+        FeatureTelemetry.LogUptake('1000HN5', FIBankTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
+
     var
         RefFileSetup: Record "Reference File Setup";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        FIBankTok: Label 'FI Electronic Banking', Locked = true;
         Text13400: Label 'is not valid with respect to minimal length 8 and maximal length 13.';
 }
 

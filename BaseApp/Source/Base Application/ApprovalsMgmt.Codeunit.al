@@ -1745,10 +1745,16 @@ codeunit 1535 "Approvals Mgmt."
         exit(not ApprovalEntry.IsEmpty());
     end;
 
-    procedure HasOpenApprovalEntries(RecordID: RecordID): Boolean
+    procedure HasOpenApprovalEntries(RecordID: RecordID) Result: Boolean
     var
         ApprovalEntry: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasOpenApprovalEntries(RecordID, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
@@ -2282,6 +2288,11 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasOpenApprovalEntries(RecordID: RecordID; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeMakeApprovalEntry(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; ApproverId: Code[50]; var IsHandled: Boolean)
     begin
     end;
@@ -2417,7 +2428,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDelegateSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry"; CheckCurrentUser: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeDelegateSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry"; var CheckCurrentUser: Boolean; var IsHandled: Boolean)
     begin
     end;
 
