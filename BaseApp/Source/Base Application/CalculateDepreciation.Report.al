@@ -136,6 +136,7 @@
                     if TempGenJnlLine.Find('-') then
                         repeat
                             Init();
+                            OnBeforeGenJnlLineCreate(TempGenJnlLine, GenJnlLine);
                             "Line No." := 0;
                             FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                             LineNo := LineNo + 1;
@@ -495,6 +496,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostReportOnBeforeConfirmShowGenJournalLines(DeprBook: Record "Depreciation Book"; GenJnlLine: Record "Gen. Journal Line"; GenJnlLineCreatedCount: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlLineCreate(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }
