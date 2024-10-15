@@ -356,6 +356,19 @@ page 18000 "Detailed GST Ledger Entry"
                 RunObject = page "Detailed GST Ledger Entry Info";
                 RunPageLink = "Entry No." = field("Entry No.");
             }
+            action("Show Related Information By Document No.")
+            {
+                Image = Info;
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Display the additional information of detailed GST ledger entry by document number.';
+
+                trigger OnAction()
+                var
+                    GSTNavigate: Codeunit "GST Navigate";
+                begin
+                    GSTNavigate.ShowRelatedDetailedGSTLedgerInfoByDocumentNo(Rec);
+                end;
+            }
         }
     }
 }
