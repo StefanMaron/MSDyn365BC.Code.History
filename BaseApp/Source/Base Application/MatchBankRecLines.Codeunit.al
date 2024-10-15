@@ -13,7 +13,9 @@ codeunit 1252 "Match Bank Rec. Lines"
         ProgressBarMsg: Label 'Please wait while the operation is being completed.';
         ManyToManyNotSupportedErr: Label 'Many-to-Many matchings are not supported';
         OverwriteExistingMatchesTxt: Label 'There are lines in this statement that are already matched with ledger entries.\\ Do you want to overwrite the existing matches?';
+        BankAccountRecTotalAndMatchedLinesLbl: Label 'Total Bank Statement Lines: %1, of those applied: %2', Locked = true;
         AutomatchEventNameTelemetryTxt: Label 'Automatch', Locked = true;
+        BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
         Relation: Option "One-to-One","One-to-Many","Many-to-One";
         MatchLengthTreshold: Integer;
         NormalizingFactor: Integer;
@@ -645,6 +647,8 @@ codeunit 1252 "Match Bank Rec. Lines"
 
         BankAccReconciliationLine.SetFilter("Applied Entries", '<>%1', 0);
         MatchedCount := BankAccReconciliationLine.Count();
+
+        Session.LogMessage('0000KML', StrSubstNo(BankAccountRecTotalAndMatchedLinesLbl, TotalCount, MatchedCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
 
         if MatchedCount < TotalCount then
             AdditionalText := StrSubstNo(MissingMatchMsg, Format(GetMatchLengthTreshold()));
