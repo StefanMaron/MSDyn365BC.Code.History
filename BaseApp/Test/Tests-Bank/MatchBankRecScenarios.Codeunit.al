@@ -204,8 +204,8 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         // Verify.
         Assert.AreEqual('<>0', BankAccReconciliationPage.StmtLine.FILTER.GetFilter(Difference), 'Wrong filter.');
-        Assert.AreEqual('', BankAccReconciliationPage.ApplyBankLedgerEntries.FILTER.GetFilter("Statement No."), 'Wrong filter.');
-        Assert.AreEqual('', BankAccReconciliationPage.ApplyBankLedgerEntries.FILTER.GetFilter("Statement Line No."), 'Wrong filter.');
+        Assert.AreEqual('''''', BankAccReconciliationPage.ApplyBankLedgerEntries.FILTER.GetFilter("Statement No."), 'Wrong filter.');
+        Assert.AreEqual('0', BankAccReconciliationPage.ApplyBankLedgerEntries.FILTER.GetFilter("Statement Line No."), 'Wrong filter.');
     end;
 
     [Test]
