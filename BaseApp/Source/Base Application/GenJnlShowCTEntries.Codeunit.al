@@ -33,6 +33,7 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
                     begin
                         CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Vendor);
                         if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then begin
+                            VendorLedgerEntry.SetRange("Vendor No.", "Account No.");
                             if "Applies-to Doc. No." <> '' then begin
                                 VendorLedgerEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 VendorLedgerEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -49,6 +50,7 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
                     begin
                         CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Customer);
                         if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then begin
+                            CustLedgerEntry.SetRange("Customer No.", "Account No.");
                             if "Applies-to Doc. No." <> '' then begin
                                 CustLedgerEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 CustLedgerEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -65,6 +67,7 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
                     begin
                         CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Employee);
                         if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then begin
+                            EmployeeLedgerEntry.SetRange("Employee No.", "Account No.");
                             if "Applies-to Doc. No." <> '' then begin
                                 EmployeeLedgerEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 EmployeeLedgerEntry.SetRange("Document No.", "Applies-to Doc. No.");

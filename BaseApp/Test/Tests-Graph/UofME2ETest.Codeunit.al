@@ -174,7 +174,7 @@ codeunit 135516 "UofM E2E Test"
 
     local procedure GetServiceUrl() Url: Text
     begin
-        Url := LibraryGraphMgt.GetODataTargetURL(PAGE::"Units of Measure Entity")
+        Url := LibraryGraphMgt.GetODataTargetURL(ObjectType::Page, PAGE::"Units of Measure Entity")
     end;
 
     local procedure ValidateUnitOfMeasure(var UnitOfMeasure: Record "Unit of Measure"; Response: Text)

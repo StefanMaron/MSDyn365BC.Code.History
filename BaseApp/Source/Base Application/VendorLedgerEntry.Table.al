@@ -744,8 +744,15 @@ table 25 "Vendor Ledger Entry"
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
     end;
 
-    procedure SetStyle(): Text
+    procedure SetStyle() Result: Text
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetStyle(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Open then begin
             if WorkDate > "Due Date" then
                 exit('Unfavorable')
@@ -912,6 +919,11 @@ table 25 "Vendor Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDrillDownOnOverdueEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var DrillDownPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetStyle(var Result: Text; var IsHandled: Boolean)
     begin
     end;
 }

@@ -93,7 +93,14 @@ table 18 Customer
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateContact(IsHandled);
+                if IsHandled then
+                    exit;
+
                 if RMSetup.Get then
                     if RMSetup."Bus. Rel. Code for Customers" <> '' then
                         if (xRec.Contact = '') and (xRec."Primary Contact No." = '') and (Contact <> '') then begin
@@ -1911,10 +1918,13 @@ table 18 Customer
         OfficeContact: Record Contact;
         OfficeMgt: Codeunit "Office Management";
         ConfirmManagement: Codeunit "Confirm Management";
+        ContactPageID: Integer;
     begin
-        if OfficeMgt.GetContact(OfficeContact, "No.") and (OfficeContact.Count = 1) then
-            PAGE.Run(PAGE::"Contact Card", OfficeContact)
-        else begin
+        if OfficeMgt.GetContact(OfficeContact, "No.") and (OfficeContact.Count = 1) then begin
+            ContactPageID := PAGE::"Contact Card";
+            OnShowContactOnBeforeOpenContactCard(OfficeContact, ContactPageID);
+            PAGE.Run(ContactPageID, OfficeContact);
+        end else begin
             if "No." = '' then
                 exit;
 
@@ -1925,7 +1935,7 @@ table 18 Customer
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, TableCaption, "No."), true) then
                     exit;
                 UpdateContFromCust.InsertNewContact(Rec, false);
-                ContBusRel.FindFirst;
+                ContBusRel.FindFirst();
             end;
             Commit();
 
@@ -1935,7 +1945,9 @@ table 18 Customer
                 Cont.SetRange("Company No.");
                 Cont.SetRange("No.", ContBusRel."Contact No.");
             end;
-            PAGE.Run(PAGE::"Contact List", Cont);
+            ContactPageID := PAGE::"Contact List";
+            OnShowContactOnBeforeOpenContactList(Cont, ContactPageID);
+            PAGE.Run(ContactPageID, Cont);
         end;
     end;
 
@@ -2100,7 +2112,9 @@ table 18 Customer
 
     local procedure GetTotalAmountLCYCommon(): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         ServiceLine: Record "Service Line";
         SalesOutstandingAmountFromShipment: Decimal;
         ServOutstandingAmountFromShipment: Decimal;
@@ -3175,6 +3189,21 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustomerContactRelation(Cont: Record Contact; ContBusRel: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidateContact(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowContactOnBeforeOpenContactCard(var Contact: Record Contact; var ContactPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowContactOnBeforeOpenContactList(var Contact: Record Contact; var ContactPageID: Integer)
     begin
     end;
 }

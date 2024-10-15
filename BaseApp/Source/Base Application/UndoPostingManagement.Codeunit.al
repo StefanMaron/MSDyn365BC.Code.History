@@ -837,8 +837,12 @@ codeunit 5817 "Undo Posting Management"
         Clear(ItemJnlLine2);
         ItemJnlLine2 := ItemJnlLine;
 
-        if ItemJnlLine2."Job No." <> '' then
-            PostJobConsumptionBeforePurch := PostItemJnlLineForJob(ItemJnlLine, ItemJnlLine2);
+        if ItemJnlLine2."Job No." <> '' then begin
+            IsHandled := false;
+            OnPostItemJnlLineOnBeforePostItemJnlLineForJob(ItemJnlLine2, IsHandled);
+            if not IsHandled then
+                PostJobConsumptionBeforePurch := PostItemJnlLineForJob(ItemJnlLine, ItemJnlLine2);
+        end;
 
         ItemJnlPostLine.Run(ItemJnlLine);
 
@@ -1071,6 +1075,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnBeforePostJobConsumption(var ItemJnlLine2: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforePostItemJnlLineForJob(var ItemJnlLine2: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }
