@@ -304,6 +304,114 @@ codeunit 142057 "UT REP VATFUNC"
         // [THEN] No RDLC rendering errors
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure VATStatementLineNonDedVATBaseType()
+    var
+        VATEntry: Record "VAT Entry";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatementGermany: Report "VAT Statement Germany";
+        TotalAmount: Decimal;
+        TotalBase: Decimal;
+        TotalEmpty: Decimal;
+        TotalUnrealizedAmount: Decimal;
+        TotalUnrealizedBase: Decimal;
+    begin
+        // [SCENARIO 524882] The CalcLineTotal function of the VAT Statement Germany report calculates the Non-Deductible VAT Base correctly
+
+        // [GIVEN] VAT Statement Line with Amount Type = Non-Deductible Base
+        // [GIVEN] VAT Entry with Non-Deductible VAT Base = 100
+        CreateVATEntryForVATStatementLine(VATStatementLine, VATEntry, VATStatementLine."Amount Type"::"Non-Deductible Base");
+
+        // [[WHEN] Call the CalcLineTotal function for the VAT statement line
+        VATStatementGermany.CalcLineTotal(VATStatementLine, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, 0);  // Value 0 for Level.
+
+        // [[THEN] TotalBase is 100
+        Assert.AreEqual(-VATEntry."Non-Deductible VAT Base", TotalBase, ValueMustBeEqualMsg);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure VATStatementLineNonDedVATAmountType()
+    var
+        VATEntry: Record "VAT Entry";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatementGermany: Report "VAT Statement Germany";
+        TotalAmount: Decimal;
+        TotalBase: Decimal;
+        TotalEmpty: Decimal;
+        TotalUnrealizedAmount: Decimal;
+        TotalUnrealizedBase: Decimal;
+    begin
+        // [SCENARIO 524882] The CalcLineTotal function of the VAT Statement Germany report calculates the Non-Deductible VAT amount correctly
+
+        // [GIVEN] VAT Statement Line with Amount Type = Non-Deductible Amount
+        // [GIVEN] VAT Entry with Non-Deductible VAT Amount = 100
+        CreateVATEntryForVATStatementLine(VATStatementLine, VATEntry, VATStatementLine."Amount Type"::"Non-Deductible Amount");
+
+        // [[WHEN] Call the CalcLineTotal function for the VAT statement line
+        VATStatementGermany.CalcLineTotal(VATStatementLine, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, 0);  // Value 0 for Level.
+
+        // [[THEN] TotalAmount is 100
+        Assert.AreEqual(-VATEntry."Non-Deductible VAT Amount", TotalAmount, ValueMustBeEqualMsg);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure VATStatementLineFullBaseType()
+    var
+        VATEntry: Record "VAT Entry";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatementGermany: Report "VAT Statement Germany";
+        TotalAmount: Decimal;
+        TotalBase: Decimal;
+        TotalEmpty: Decimal;
+        TotalUnrealizedAmount: Decimal;
+        TotalUnrealizedBase: Decimal;
+    begin
+        // [SCENARIO 524882] The CalcLineTotal function of the VAT Statement Germany report calculates the sum of Base and Non-Deductible VAT Base correctly
+
+        // [GIVEN] VAT Statement Line with Amount Type = Full Base
+        // [GIVEN] VAT Entry with Base = 100 and Non-Deductible VAT Base = 50
+        CreateVATEntryForVATStatementLine(VATStatementLine, VATEntry, VATStatementLine."Amount Type"::"Full Base");
+
+        // [[WHEN] Call the CalcLineTotal function for the VAT statement line
+        VATStatementGermany.CalcLineTotal(VATStatementLine, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, 0);  // Value 0 for Level.
+
+        // [[THEN] TotalBase is 500
+        Assert.AreEqual(-VATEntry.Base - VATEntry."Non-Deductible VAT Base", TotalBase, ValueMustBeEqualMsg);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure VATStatementLineFullAmountType()
+    var
+        VATEntry: Record "VAT Entry";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatementGermany: Report "VAT Statement Germany";
+        TotalAmount: Decimal;
+        TotalBase: Decimal;
+        TotalEmpty: Decimal;
+        TotalUnrealizedAmount: Decimal;
+        TotalUnrealizedBase: Decimal;
+    begin
+        // [SCENARIO 524882] The CalcLineTotal function of the VAT Statement Germany report calculates the sum of Amount and Non-Deductible VAT Amount correctly
+
+        // [GIVEN] VAT Statement Line with Amount Type = Full Amount
+        // [GIVEN] VAT Entry with Base = 100 and Non-Deductible VAT Base = 50
+        CreateVATEntryForVATStatementLine(VATStatementLine, VATEntry, VATStatementLine."Amount Type"::"Full Amount");
+
+        // [[WHEN] Call the CalcLineTotal function for the VAT statement line
+        VATStatementGermany.CalcLineTotal(VATStatementLine, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, 0);  // Value 0 for Level.
+
+        // [[THEN] TotalAmount is 150
+        Assert.AreEqual(-VATEntry.Amount - VATEntry."Non-Deductible VAT Amount", TotalAmount, ValueMustBeEqualMsg);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -345,6 +453,20 @@ codeunit 142057 "UT REP VATFUNC"
                 VATEntry."Unrealized Amount" := LibraryRandom.RandDec(10, 2);
             VATStatementLine."Amount Type"::"Unrealized Base":
                 VATEntry."Unrealized Base" := LibraryRandom.RandDec(10, 2);
+            VATStatementLine."Amount Type"::"Non-Deductible Base":
+                VATEntry."Non-Deductible VAT Base" := LibraryRandom.RandDec(10, 2);
+            VATStatementLine."Amount Type"::"Non-Deductible Amount":
+                VATEntry."Non-Deductible VAT Amount" := LibraryRandom.RandDec(10, 2);
+            VATStatementLine."Amount Type"::"Full Base":
+                begin
+                    VATEntry.Base := LibraryRandom.RandDec(10, 2);
+                    VATEntry."Non-Deductible VAT Base" := LibraryRandom.RandDec(10, 2);
+                end;
+            VATStatementLine."Amount Type"::"Full Amount":
+                begin
+                    VATEntry.Amount := LibraryRandom.RandDec(10, 2);
+                    VATEntry."Non-Deductible VAT Amount" := LibraryRandom.RandDec(10, 2);
+                end;
         end;
         VATEntry.Insert();
     end;
