@@ -1839,6 +1839,8 @@
         PurchInvHeader: Record "Purch. Inv. Header";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
@@ -1848,6 +1850,8 @@
             exit;
 
         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -1869,13 +1873,16 @@
         case Navigate of
             "Navigate After Posting"::"Posted Document":
                 if IsOfficeAddin then begin
-                    PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
+                    if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+                        PurchInvHeader.SetRange("No.", Rec."Last Posting No.")
+                    else
+                        PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
                     PurchInvHeader.SetRange("Order No.", '');
                     if PurchInvHeader.FindFirst() then
                         PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
                 end else
                     if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                        ShowPostedConfirmationMessage();
+                        ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
             "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
@@ -1991,12 +1998,15 @@
         IsPostingGroupEditable := PurchSetup."Allow Multiple Posting Groups";
     end;
 
-    local procedure ShowPostedConfirmationMessage()
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            PurchInvHeader.SetRange("No.", Rec."Last Posting No.")
+        else
+            PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         PurchInvHeader.SetRange("Order No.", '');
         if PurchInvHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseInvQst, PurchInvHeader."No."),

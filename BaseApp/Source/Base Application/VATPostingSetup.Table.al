@@ -176,6 +176,16 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Blocked';
         }
+        field(25; "Sale VAT Reporting Code"; Code[20])
+        {
+            Caption = 'Sale VAT Reporting Code';
+            TableRelation = "VAT Reporting Code";
+        }
+        field(26; "Purch. VAT Reporting Code"; Code[20])
+        {
+            Caption = 'Purchase VAT Reporting Code';
+            TableRelation = "VAT Reporting Code";
+        }
     }
 
     keys
