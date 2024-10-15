@@ -656,6 +656,44 @@ codeunit 134020 "ERM Accounts"
         GLBalancebyDimension.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('GLBalancebyDimMatrixDrillDownAmount1Handler')]
+    procedure GLBalanceByDimDateFilterForBalanceAtDate()
+    var
+        AnalysisByDimParameters: Record "Analysis by Dim. Parameters";
+        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+        GeneralLedgerEntries: TestPage "General Ledger Entries";
+        StartDate: Date;
+        EndDate: Date;
+        DateFilter: Text;
+        ExpectedDateFilter: Text;
+    begin
+        // [FEATURE] [UI] [G/L Balance] [Date Filter]
+        // [SCENARIO 413277] G/L Balance by Dimension applies date filter for option "View as" = "Balance at Date"
+        Initialize();
+
+        // [GIVEN] G/L Balance by Dimension with parameters "Period Type" = Month, "Amount Type" = "Balance at Date"
+        GLBalancebyDimension.OpenEdit();
+        GLBalancebyDimension.PeriodType.SetValue(AnalysisByDimParameters."Period Type"::Month);
+        GLBalancebyDimension.AmountType.SetValue(AnalysisByDimParameters."Amount Type"::"Balance at Date");
+        GLBalancebyDimension.ClosingEntryFilter.SetValue(0);
+        // [GIVEN] Set "Date Filter" = "01.01.21..01.03.21"
+        StartDate := CalcDate('<-CM>', WorkDate());
+        EndDate := CalcDate('<-CM+2M', StartDate);
+        DateFilter := StrSubstNo('%1..%2', StartDate, EndDate);
+        GLBalancebyDimension.DateFilter.SetValue(DateFilter);
+
+        // [GIVEN] Show matrix
+        GeneralLedgerEntries.Trap();
+        GLBalancebyDimension.ShowMatrix.Invoke;
+
+        // [WHEN] DrillDown ammount for column 1 (in handler GLBalancebyDimMatrixDrillDownAmount1Handler)
+
+        // [THEN] General Ledger Entries page has Posting Date filter = "01.01.21..C31.01.21"
+        ExpectedDateFilter := StrSubstNo('%1..%2', StartDate, ClosingDate(CalcDate('<CM>', StartDate)));
+        Assert.AreEqual(ExpectedDateFilter, GeneralLedgerEntries.Filter.GetFilter("Posting Date"), 'Invalid date filter');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -937,6 +975,13 @@ codeunit 134020 "ERM Accounts"
     procedure GLBalancebyDimMatrixAmountHandler(var GLBalancebyDimMatrix: TestPage "G/L Balance by Dim. Matrix")
     begin
         VerifyAmountOnGLBalancebyDimMatrix(GLBalancebyDimMatrix, DimensionValueCode2, TotalAmount);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GLBalancebyDimMatrixDrillDownAmount1Handler(var GLBalancebyDimMatrix: TestPage "G/L Balance by Dim. Matrix")
+    begin
+        GLBalancebyDimMatrix.Field1.Drilldown();
     end;
 
     [ModalPageHandler]

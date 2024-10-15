@@ -1118,7 +1118,11 @@
             TableRelation = "Country/Region";
 
             trigger OnValidate()
+            var
+                FormatAddress: Codeunit "Format Address";
             begin
+                if not FormatAddress.UseCounty("Country/Region Code") then
+                    County := '';
                 UpdateShipToAddressFromGeneralAddress(FieldNo("Ship-to Country/Region Code"));
 
                 Validate("Ship-to Country/Region Code");

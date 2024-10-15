@@ -229,6 +229,7 @@ report 12 "VAT Statement"
         PrintInIntegers: Boolean;
         VATStmtLineFilter: Text;
         Heading: Text[50];
+        Base: Decimal;
         Amount: Decimal;
         TotalAmount: Decimal;
         RowNo: array[6] of Code[10];
@@ -254,9 +255,20 @@ report 12 "VAT Statement"
         TotalAmountCaptionLbl: Label 'Amount';
 
     procedure CalcLineTotal(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
+    var
+        DummyTotalBase: Decimal;
     begin
-        if Level = 0 then
+        exit(CalcLineTotalWithBase(VATStmtLine2, TotalAmount, DummyTotalBase, Level));
+    end;
+
+    procedure CalcLineTotalWithBase(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal; Level: Integer): Boolean
+    var
+        VATReportSetup: Record "VAT Report Setup";
+    begin
+        if Level = 0 then begin
+            TotalBase := 0;
             TotalAmount := 0;
+        end;
         case VATStmtLine2.Type of
             VATStmtLine2.Type::"Account Totaling":
                 begin
@@ -273,7 +285,7 @@ report 12 "VAT Statement"
                             Amount := ConditionalAdd(Amount, GLAcc."Net Change", GLAcc."Additional-Currency Net Change");
                         until GLAcc.Next() = 0;
                     OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
-                    CalcTotalAmount(VATStmtLine2, TotalAmount);
+                    CalcTotalAmount(VATStmtLine2, TotalAmount, TotalBase);
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
@@ -309,6 +321,9 @@ report 12 "VAT Statement"
                             begin
                                 VATEntry.CalcSums(Amount, "Additional-Currency Amount");
                                 Amount := ConditionalAdd(0, VATEntry.Amount, VATEntry."Additional-Currency Amount");
+                                if VATReportSetup.Get() then;
+                                if VATReportSetup."Report VAT Base" then
+                                    Base := ConditionalAdd(0, VATEntry.Base, VATEntry."Additional-Currency Base");
                             end;
                         VATStmtLine2."Amount Type"::Base:
                             begin
@@ -327,7 +342,7 @@ report 12 "VAT Statement"
                             end;
                     end;
                     OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
-                    CalcTotalAmount(VATStmtLine2, TotalAmount);
+                    CalcTotalAmount(VATStmtLine2, TotalAmount, TotalBase);
                 end;
             VATStmtLine2.Type::"Row Totaling":
                 begin
@@ -343,7 +358,7 @@ report 12 "VAT Statement"
                     VATStmtLine2.SetFilter("Row No.", VATStmtLine2."Row Totaling");
                     if VATStmtLine2.Find('-') then
                         repeat
-                            if not CalcLineTotal(VATStmtLine2, TotalAmount, Level) then begin
+                            if not CalcLineTotalWithBase(VATStmtLine2, TotalAmount, TotalBase, Level) then begin
                                 if Level > 1 then
                                     exit(false);
                                 for i := 1 to ArrayLen(RowNo) do
@@ -360,13 +375,18 @@ report 12 "VAT Statement"
         exit(true);
     end;
 
-    local procedure CalcTotalAmount(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal)
+    local procedure CalcTotalAmount(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; var TotalBase: Decimal)
     begin
         if VATStmtLine2."Calculate with" = 1 then
             Amount := -Amount;
         if (PrintInIntegers and VATStmtLine2.Print) or ElectronicVAT then
             Amount := Round(Amount, 1, '<');
         TotalAmount := TotalAmount + Amount;
+        if VATStmtLine2."Calculate with" = 1 then
+            Base := -Base;
+        if PrintInIntegers and VATStmtLine2.Print then
+            Base := Round(Base, 1, '<');
+        TotalBase := TotalBase + Base;
     end;
 
     procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
