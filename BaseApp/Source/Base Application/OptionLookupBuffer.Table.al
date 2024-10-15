@@ -188,6 +188,7 @@ table 1670 "Option Lookup Buffer"
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
         case LookupType of
             "Lookup Type"::Sales:
@@ -202,6 +203,10 @@ table 1670 "Option Lookup Buffer"
                             exit(true);
                     SalesLine.Type::Resource:
                         if ApplicationAreaMgmtFacade.IsJobsEnabled then
+                            exit(true);
+                    SalesLine.Type::"Begin-Total", SalesLine.Type::"End-Total",
+                    SalesLine.Type::"New Page", SalesLine.Type::Title:
+                        if EnvironmentInformation.IsOnPrem() then
                             exit(true);
                 end;
             "Lookup Type"::Purchases:
