@@ -442,14 +442,14 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Invoice_Post__Buffer__G_L_Account_.Value</Value>
+                                  <Value>=Fields!GL_Account_No.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
                               <Style>
-                                <TextAlign>=IIF(IsNumeric(Fields!Invoice_Post__Buffer__G_L_Account_.Value),"Right","Left")</TextAlign>
+                                <TextAlign>=IIF(IsNumeric(Fields!GL_Account_No.Value),"Right","Left")</TextAlign>
                               </Style>
                             </Paragraph>
                           </Paragraphs>
@@ -501,10 +501,10 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Invoice_Post__Buffer_Amount.Value</Value>
+                                  <Value>=Fields!GL_Account_Net_Change.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
-                                    <Format>=Fields!Invoice_Post__Buffer_AmountFormat.Value</Format>
+                                    <Format>=Fields!GL_Account_Net_ChangeFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2083,50 +2083,14 @@ End Function</Code>
         <Field Name="HavingNoDetail">
           <DataField>HavingNoDetail</DataField>
         </Field>
-        <Field Name="Invoice_Post__Buffer_Amount">
-          <DataField>Invoice_Post__Buffer_Amount</DataField>
+        <Field Name="GL_Account_Net_Change">
+          <DataField>GL_Account_Net_Change</DataField>
         </Field>
-        <Field Name="Invoice_Post__Buffer_AmountFormat">
-          <DataField>Invoice_Post__Buffer_AmountFormat</DataField>
+        <Field Name="GL_Account_Net_ChangeFormat">
+          <DataField>GL_Account_Net_ChangeFormat</DataField>
         </Field>
-        <Field Name="Invoice_Post__Buffer__G_L_Account_">
-          <DataField>Invoice_Post__Buffer__G_L_Account_</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Type">
-          <DataField>Invoice_Post__Buffer_Type</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Gen__Bus__Posting_Group">
-          <DataField>Invoice_Post__Buffer_Gen__Bus__Posting_Group</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Gen__Prod__Posting_Group">
-          <DataField>Invoice_Post__Buffer_Gen__Prod__Posting_Group</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_VAT_Bus__Posting_Group">
-          <DataField>Invoice_Post__Buffer_VAT_Bus__Posting_Group</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_VAT_Prod__Posting_Group">
-          <DataField>Invoice_Post__Buffer_VAT_Prod__Posting_Group</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Tax_Area_Code">
-          <DataField>Invoice_Post__Buffer_Tax_Area_Code</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Tax_Group_Code">
-          <DataField>Invoice_Post__Buffer_Tax_Group_Code</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Tax_Liable">
-          <DataField>Invoice_Post__Buffer_Tax_Liable</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Use_Tax">
-          <DataField>Invoice_Post__Buffer_Use_Tax</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Dimension_Set_ID">
-          <DataField>Invoice_Post__Buffer_Dimension_Set_ID</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Job_No_">
-          <DataField>Invoice_Post__Buffer_Job_No_</DataField>
-        </Field>
-        <Field Name="Invoice_Post__Buffer_Fixed_Asset_Line_No_">
-          <DataField>Invoice_Post__Buffer_Fixed_Asset_Line_No_</DataField>
+        <Field Name="GL_Account_No">
+          <DataField>GL_Account_No</DataField>
         </Field>
         <Field Name="General_amount_for_the_general_ledgerCaption">
           <DataField>General_amount_for_the_general_ledgerCaption</DataField>

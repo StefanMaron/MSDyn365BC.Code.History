@@ -24,6 +24,7 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         IsInitialized: Boolean;
         DimensionHeaderError: Label 'The dimensions used in %1 %2 are invalid', Locked = true;
         DimensionLineError: Label 'The dimensions used in %1 %2, line no. %3 are invalid', Locked = true;
@@ -32,6 +33,7 @@ codeunit 134476 "ERM Dimension Purchase"
         VendorLedgerEntryErr: Label 'Field Open in Vendor Ledger Entries should be %1 for Document No. = %2';
         UpdateFromHeaderLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         UpdateLineDimQst: Label 'You have changed one or more dimensions on the';
+        DimensionSetIDErr: Label 'Invalid Dimension Set ID';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
@@ -1610,6 +1612,56 @@ codeunit 134476 "ERM Dimension Purchase"
 
         // [THEN] Verify the confirmation triggered when custom address is selected 
         PurchaseQuotePage.ShippingOptionWithLocation.SetValue(ShipToOptions::"Custom Address");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,EditDimensionSetEntriesHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDimensionsInPurchaseOrderWhenShipToIsLocation()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        DimensionValue: Record "Dimension Value";
+        Location: Record Location;
+        DimensionSetEntry: Record "Dimension Set Entry";
+        PurchaseQuote: TestPage "Purchase Quote";
+        PurchaseOrder: TestPage "Purchase Order";
+        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
+    begin
+        // [SCENARIO 450839] Header Dimensions will be deleted in a purchase order when you select ship to location.
+        Initialize();
+
+        // [GIVEN] Create Purchase Quote and Dimension with Values
+        LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
+        LibraryVariableStorage.Enqueue(DimensionValue.Code);
+        LibraryVariableStorage.Enqueue(true);
+
+        // [GIVEN] Open the page, click on Dimensions and assign the dimension
+        PurchaseQuote.OpenEdit();
+        PurchaseQuote.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseQuote.Dimensions.Invoke();
+        PurchaseQuote.Close();
+        PurchaseHeader.Find();
+
+        // [GIVEN] Create Purchase Order form Purchase Quote
+        CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
+
+        // [GIVEN] Create Location
+        FindPurchaseOrder(PurchaseHeader, PurchaseHeader."No.");
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [WHEN] Open Purchase Order page and set "Ship to" as location
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.ShippingOptionWithLocation.SetValue(ShipToOptions::Location);
+        PurchaseOrder."Location Code".SetValue(Location.Code);
+        PurchaseOrder.Close();
+
+        // [THEN] Verify Header Dimensions are available.
+        DimensionSetEntry.SetRange("Dimension Set ID", PurchaseHeader."Dimension Set ID");
+        DimensionSetEntry.FindFirst();
+        Assert.AreEqual(PurchaseHeader."Dimension Set ID", DimensionSetEntry."Dimension Set ID", DimensionSetIDErr);
     end;
 
     local procedure Initialize()

@@ -148,9 +148,9 @@ report 10861 "GL/Cust. Ledger Reconciliation"
                             CurrReport.Skip();
                         TotalDebit := TotalDebit + "Debit Amount";
                         TotalCredit := TotalCredit + "Credit Amount";
-                        InvPostBuf.Get(InvPostBuf.Type::"G/L Account", "G/L Account No.");
-                        InvPostBuf.Amount := InvPostBuf.Amount + Amount;
-                        InvPostBuf.Modify();
+                        GLAccountNetChange.Get("G/L Account No.");
+                        GLAccountNetChange."Net Change in Jnl." += Amount;
+                        GLAccountNetChange.Modify();
                         HavingNoDetail := false;
                     end;
 
@@ -169,10 +169,9 @@ report 10861 "GL/Cust. Ledger Reconciliation"
                     PostingBuffer."Account No." := "Receivables Account";
                     if not PostingBuffer.Insert() then
                         CurrReport.Skip();
-                    Clear(InvPostBuf);
-                    InvPostBuf.Type := InvPostBuf.Type::"G/L Account";
-                    InvPostBuf."G/L Account" := "Receivables Account";
-                    if not InvPostBuf.Insert() then;
+                    Clear(GLAccountNetChange);
+                    GLAccountNetChange."No." := "Receivables Account";
+                    if not GLAccountNetChange.Insert() then;
                 end;
 
                 trigger OnPostDataItem()
@@ -198,52 +197,15 @@ report 10861 "GL/Cust. Ledger Reconciliation"
                 LastNo := "No.";
             end;
         }
-        dataitem("Invoice Post. Buffer"; "Invoice Post. Buffer")
+        dataitem("G/L Account Net Change"; "G/L Account Net Change")
         {
-            DataItemTableView = SORTING(Type, "G/L Account", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Area Code", "Tax Group Code", "Tax Liable", "Use Tax", "Dimension Set ID", "Job No.", "Fixed Asset Line No.") WHERE(Amount = FILTER(<> 0));
             column(HavingNoDetail; HavingNoDetail)
             {
             }
-            column(Invoice_Post__Buffer_Amount; Amount)
+            column(GL_Account_Net_Change; "Net Change in Jnl.")
             {
             }
-            column(Invoice_Post__Buffer__G_L_Account_; "G/L Account")
-            {
-            }
-            column(Invoice_Post__Buffer_Type; Type)
-            {
-            }
-            column(Invoice_Post__Buffer_Gen__Bus__Posting_Group; "Gen. Bus. Posting Group")
-            {
-            }
-            column(Invoice_Post__Buffer_Gen__Prod__Posting_Group; "Gen. Prod. Posting Group")
-            {
-            }
-            column(Invoice_Post__Buffer_VAT_Bus__Posting_Group; "VAT Bus. Posting Group")
-            {
-            }
-            column(Invoice_Post__Buffer_VAT_Prod__Posting_Group; "VAT Prod. Posting Group")
-            {
-            }
-            column(Invoice_Post__Buffer_Tax_Area_Code; "Tax Area Code")
-            {
-            }
-            column(Invoice_Post__Buffer_Tax_Group_Code; "Tax Group Code")
-            {
-            }
-            column(Invoice_Post__Buffer_Tax_Liable; "Tax Liable")
-            {
-            }
-            column(Invoice_Post__Buffer_Use_Tax; "Use Tax")
-            {
-            }
-            column(Invoice_Post__Buffer_Dimension_Set_ID; "Dimension Set ID")
-            {
-            }
-            column(Invoice_Post__Buffer_Job_No_; "Job No.")
-            {
-            }
-            column(Invoice_Post__Buffer_Fixed_Asset_Line_No_; "Fixed Asset Line No.")
+            column(GL_Account_No; "No.")
             {
             }
             column(General_amount_for_the_general_ledgerCaption; General_amount_for_the_general_ledgerCaptionLbl)
@@ -270,12 +232,12 @@ report 10861 "GL/Cust. Ledger Reconciliation"
 
     trigger OnPostReport()
     begin
-        InvPostBuf.DeleteAll();
+        GLAccountNetChange.DeleteAll();
     end;
 
     var
         PostingBuffer: Record "Payment Post. Buffer" temporary;
-        InvPostBuf: Record "Invoice Post. Buffer";
+        GLAccountNetChange: Record "G/L Account Net Change";
         TotalDebit: Decimal;
         TotalCredit: Decimal;
         FirstNo: Code[20];

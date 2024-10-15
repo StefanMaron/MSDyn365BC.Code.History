@@ -41,6 +41,9 @@ codeunit 3997 "Retention Policy JQ"
         if not ApplyAllRetentionPolicies then
             exit;
 
+        if (Time() >= 080000T) and (Time() <= 200000T) then
+            exit;
+
         if Database.SessionId() <> CurrSessionId then begin
             RetentionPolicyLog.LogWarning(RetentionPolicyLogCategory::"Retention Policy - Schedule", StrSubstNo(SkipRescheduleOnLimitExceededLbl, Database.SessionId(), CurrSessionId));
             exit;
@@ -48,7 +51,6 @@ codeunit 3997 "Retention Policy JQ"
 
         RetentionPolicyLog.LogInfo(RetentionPolicyLogCategory::"Retention Policy - Schedule", RescheduleOnLimitExceededLbl);
         JobQueueEntry.ScheduleJobQueueEntry(Codeunit::"Retention Policy JQ", BlankRecordId);
-
         Handled := true;
     end;
 
