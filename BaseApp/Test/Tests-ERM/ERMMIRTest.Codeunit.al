@@ -18,6 +18,7 @@ codeunit 134929 "ERM MIR Test"
         LibraryUTUtility: Codeunit "Library UT Utility";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        ReminderHeaderReminderTermsCodeErr: Label 'Reminder Terms Code must have a value in Reminder Header: No.=%1';
         FinChrgIntRateDateMsg: Label 'Create interest rate with start date prior to %1';
         InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
         DescrOnFinChrgMemoLineTxt: Label 'Additional Fee';
@@ -967,21 +968,118 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeMemoLine.TestField("Interest Rate", FinanceChargeTerms."Interest Rate");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure MakeReminderWithoutReminderTermsCodeOnHeader()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntryFeeLine: Record "Cust. Ledger Entry";
+        ReminderHeader: Record "Reminder Header";
+        ReminderMake: Codeunit "Reminder-Make";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 403561] Stan can't get suggested reminder lines when "Reminder Terms Code" is not specified on Reminder
+        Initialize();
+
+        CreateCustomerWithLedgerEntryAndReminderHeader(Customer, ReminderHeader, CustLedgerEntry);
+
+        ReminderHeader.Validate("Reminder Terms Code", '');
+        ReminderHeader.Modify(true);
+
+        ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgerEntryFeeLine);
+
+        asserterror ReminderMake.Code();
+
+        Assert.ExpectedError(StrSubstNo(ReminderHeaderReminderTermsCodeErr, ReminderHeader."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MakeReminderWithoutReminderTermsCodeOnCustomer()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntryFeeLine: Record "Cust. Ledger Entry";
+        ReminderHeader: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        ReminderMake: Codeunit "Reminder-Make";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 403561] Stan can get suggested reminder lines when "Reminder Terms Code" is not specified on customer, but specified on Reminder 
+        Initialize();
+
+        CreateCustomerWithLedgerEntryAndReminderHeader(Customer, ReminderHeader, CustLedgerEntry);
+
+        Customer.Validate("Reminder Terms Code", '');
+        Customer.Modify(true);
+
+        ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgerEntryFeeLine);
+
+        ReminderMake.Code();
+
+        ReminderLine.SetRange("Entry No.", CustLedgerEntry."Entry No.");
+        ReminderLine.FindFirst();
+        ReminderLine.TestField(Type, ReminderLine.Type::"Customer Ledger Entry");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MakeReminderWithoutReminderTermsCodeOnHeaderAndCustomer()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntryFeeLine: Record "Cust. Ledger Entry";
+        ReminderHeader: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        ReminderMake: Codeunit "Reminder-Make";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 403561] Stan can get suggested reminder lines when "Reminder Terms Code" is not specified on customer or on Reminder 
+        Initialize();
+
+        CreateCustomerWithLedgerEntryAndReminderHeader(Customer, ReminderHeader, CustLedgerEntry);
+
+        ReminderHeader.Validate("Reminder Terms Code", '');
+        ReminderHeader.Modify(true);
+
+        Customer.Validate("Reminder Terms Code", '');
+        Customer.Modify(true);
+
+        ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, false, false, CustLedgerEntryFeeLine);
+
+        asserterror ReminderMake.Code();
+
+        Assert.ExpectedError(StrSubstNo(ReminderHeaderReminderTermsCodeErr, ReminderHeader."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM MIR Test");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM MIR Test");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM MIR Test");
+    end;
+
+    local procedure CreateCustomerWithLedgerEntryAndReminderHeader(var Customer: Record Customer; var ReminderHeader: Record "Reminder Header"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+        CreateCustomer(Customer);
+        CreateReminderLevel(Customer."Reminder Terms Code");
+        MockCustomerLedgerEntry(CustLedgerEntry, Customer."No.");
+
+        ReminderHeader.Init();
+        ReminderHeader.Validate("Customer No.", Customer."No.");
+        ReminderHeader.Validate("Document Date", WorkDate());
+        ReminderHeader.Insert(true);
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; FinanceChargeTermsCode: Code[10]; PostingDate: Date; DueDate: Date; UnitPrice: Decimal): Code[20]
@@ -1011,8 +1109,8 @@ codeunit 134929 "ERM MIR Test"
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer."Reminder Terms Code" := CreateReminderTerms;
-        Customer."Fin. Charge Terms Code" := CreateFinanceChargeTermsCode;
+        Customer."Reminder Terms Code" := CreateReminderTerms();
+        Customer."Fin. Charge Terms Code" := CreateFinanceChargeTermsCode();
         Customer.Modify();
     end;
 
@@ -1027,7 +1125,7 @@ codeunit 134929 "ERM MIR Test"
     local procedure CreateFinanceChargeInterestRates(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; FinanceChargeTermsCode: Code[10]; StartDate: Date)
     begin
         with FinanceChargeInterestRate do begin
-            Init;
+            Init();
             Validate("Fin. Charge Terms Code", FinanceChargeTermsCode);
             Validate("Start Date", StartDate);
             Validate("Interest Rate", LibraryRandom.RandInt(10));
@@ -1050,7 +1148,7 @@ codeunit 134929 "ERM MIR Test"
         GLAccount: Record "G/L Account";
     begin
         GLAccount.Init();
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."VAT Prod. Posting Group" := CreateVATProductPostingGroup;
         GLAccount."Gen. Prod. Posting Group" := CreateGeneralProductPostingGroup;
         GLAccount.Insert();

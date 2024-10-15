@@ -395,8 +395,11 @@ page 1393 "Trial Balance"
                 var
                     TrialBalanceSetup: Page "Trial Balance Setup";
                 begin
-                    if TrialBalanceSetup.RunModal <> ACTION::Cancel then
+                    if TrialBalanceSetup.RunModal <> Action::Cancel then begin
+                        IsError := false;
+                        LoadTrialBalanceData(true);
                         CurrPage.Update();
+                    end;
                 end;
             }
             action(Information)
@@ -435,7 +438,7 @@ page 1393 "Trial Balance"
 
     trigger OnOpenPage()
     begin
-        LoadTrialBalanceData;
+        LoadTrialBalanceData(false);
     end;
 
     var
@@ -490,17 +493,18 @@ page 1393 "Trial Balance"
         TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, NoOfColumns);
     end;
 
-    local procedure LoadTrialBalanceData()
+    local procedure LoadTrialBalanceData(SkipCache: Boolean)
     var
         DataLoaded: Boolean;
     begin
         if not TrialBalanceMgt.SetupIsInPlace() then
             exit;
 
-        if (not TrialBalanceCacheMgt.IsCacheStale) and (NoOfColumns <> 1) then begin
-            DataLoaded := TrialBalanceCacheMgt.LoadFromCache(Descriptions, Values, PeriodCaptionTxt);
-            LoadedFromCache := true;
-        end;
+        if not SkipCache then
+            if (not TrialBalanceCacheMgt.IsCacheStale) and (NoOfColumns <> 1) then begin
+                DataLoaded := TrialBalanceCacheMgt.LoadFromCache(Descriptions, Values, PeriodCaptionTxt);
+                LoadedFromCache := true;
+            end;
 
         if not DataLoaded then begin
             DataLoaded := TryLoadTrialBalanceData;

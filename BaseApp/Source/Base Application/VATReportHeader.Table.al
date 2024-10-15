@@ -99,7 +99,13 @@
             var
                 LookupVATReportHeader: Record "VAT Report Header";
                 VATReportList: Page "VAT Report List";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupOriginalReportNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 LookupVATReportHeader.SetFilter("No.", '<>' + "No.");
                 LookupVATReportHeader.SetRange(Status, Status::Submitted);
                 LookupVATReportHeader.SetRange("VAT Report Type", "VAT Report Type"::Standard);
@@ -721,6 +727,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var VATReportHeader: Record "VAT Report Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupOriginalReportNo(var VATReportHeader: Record "VAT Report Header"; var IsHandled: Boolean)
     begin
     end;
 

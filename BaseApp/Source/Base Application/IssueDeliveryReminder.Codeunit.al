@@ -12,10 +12,7 @@ codeunit 5005270 "Issue Delivery Reminder"
                 "Posting Date" := PostingDate;
 
             // Test Header
-            TestField("No.");
-            TestField("Vendor No.");
-            TestField("Posting Date");
-            TestField("Document Date");
+            CheckDeliveryReminderHeader();
 
             DeliveryReminderLine.Reset();
             DeliveryReminderLine.SetRange("Document No.", "No.");
@@ -156,6 +153,23 @@ codeunit 5005270 "Issue Delivery Reminder"
         ReplacePostingDate: Boolean;
         PostingDate: Date;
 
+    local procedure CheckDeliveryReminderHeader()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDeliveryReminderHeader(DeliveryReminderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        with DeliveryReminderHeader do begin
+            TestField("No.");
+            TestField("Vendor No.");
+            TestField("Posting Date");
+            TestField("Document Date");
+        end;
+    end;
+
     [Scope('OnPrem')]
     procedure Set(var NewDelivReminHeader: Record "Delivery Reminder Header"; NewReplacementPostingDate: Boolean; NewPostingDate: Date)
     begin
@@ -192,6 +206,11 @@ codeunit 5005270 "Issue Delivery Reminder"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIssuedDeliveryReminderHeaderInsert(var IssuedDelivReminderHeader: Record "Issued Deliv. Reminder Header"; DeliveryReminderHeader: Record "Delivery Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDeliveryReminderHeader(var DeliveryReminderHeader: Record "Delivery Reminder Header"; var IsHandled: Boolean)
     begin
     end;
 

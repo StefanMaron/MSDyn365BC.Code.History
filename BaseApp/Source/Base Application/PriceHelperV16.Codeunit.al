@@ -56,7 +56,7 @@ codeunit 7006 "Price Helper - V16"
             repeat
                 NewPriceListLine := PriceListLine;
                 NewPriceListLine."Price List Code" := NewCode;
-                NewPriceListLine."Line No." := 0;
+                NewPriceListLine.SetNextLineNo();
                 if FilterParentSource then
                     NewPriceListLine."Parent Source No." := NewSourceNo
                 else

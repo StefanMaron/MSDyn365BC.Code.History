@@ -27,9 +27,11 @@ codeunit 2889 "SmartList Designer Sub Impl."
     begin
         SmartListDesignerSubscribers.OnBeforeDefaultCreateNewForTableAndView(Handled, TableId, ViewId);
 
+#if not CLEAN17
         // Fallback to old implementation for backwards compat
         if not Handled then
             SmartListDesignerSubscribers.OnBeforeDefaultOnCreateForTable(Handled, TableId);
+#endif
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"SmartList Designer Triggers", 'OnEditQuery', '', false, false)]

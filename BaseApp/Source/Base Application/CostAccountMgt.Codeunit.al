@@ -663,10 +663,16 @@ codeunit 1100 "Cost Account Mgt"
         end;
     end;
 
-    procedure GetCostCenterCodeFromDimSet(DimSetID: Integer): Code[20]
+    procedure GetCostCenterCodeFromDimSet(DimSetID: Integer) Result: Code[20]
     var
         DimSetEntry: Record "Dimension Set Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCostCenterCodeFromDimSet(DimSetID, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CostAccSetup.Get();
         if DimSetEntry.Get(DimSetID, CostAccSetup."Cost Center Dimension") then
             exit(DimSetEntry."Dimension Value Code");
@@ -705,10 +711,16 @@ codeunit 1100 "Cost Account Mgt"
         DimValue.LookupDimValue(CostAccSetup."Cost Center Dimension", CostCenterCode);
     end;
 
-    procedure GetCostObjectCodeFromDimSet(DimSetID: Integer): Code[20]
+    procedure GetCostObjectCodeFromDimSet(DimSetID: Integer) Result: Code[20]
     var
         DimSetEntry: Record "Dimension Set Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCostObjectCodeFromDimSet(DimSetID, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         CostAccSetup.Get();
         if DimSetEntry.Get(DimSetID, CostAccSetup."Cost Object Dimension") then
             exit(DimSetEntry."Dimension Value Code");
@@ -944,6 +956,16 @@ codeunit 1100 "Cost Account Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDimValueToCostObject(DimValue: Record "Dimension Value"; var CostObject: Record "Cost Object"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCostCenterCodeFromDimSet(DimSetID: Integer; var Result: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCostObjectCodeFromDimSet(DimSetID: Integer; var Result: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

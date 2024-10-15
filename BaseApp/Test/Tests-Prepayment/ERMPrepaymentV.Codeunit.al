@@ -33,6 +33,7 @@
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
+        PrepaymentInvoicesNotPaidErr: Label 'You cannot get lines until you have posted all related prepayment invoices to mark the prepayment as paid.';
 
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
@@ -3420,6 +3421,74 @@
         // [THEN] Error has been thrown: "Gen. Prod. Posting Group  is not set for the Prepayment G/L account with no. XXXXX."
         Assert.ExpectedError(
           StrSubstNo(GenProdPostingGroupErr, GLAccount.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
+    end;
+
+    [Test]
+    procedure ErrorOnGetShptLinesFromOrderWithUnpaidPrepmt()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Get Shipment Lines]
+        // [SCENARIO 400503] An error occurs trying to Get Shipment Lines from an order with unpaid prepayment
+        Initialize();
+
+        // [GIVEN] Sales order with 50% prepayment
+        CreateSalesOrderWithOneLine(SalesHeader);
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 40, 2));
+        SalesHeader.Modify(true);
+        // [GIVEN] Post prepayment invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        // [GIVEN] Ship the order
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        // [GIVEN] Reopen the order and change prepayment to 75%
+        SalesHeader.Find();
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        SalesHeader.Validate("Prepayment %", SalesHeader."Prepayment %" + LibraryRandom.RandDecInRange(10, 40, 2));
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create a new sales invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+
+        // [WHEN] Invoke Get Shipment Lines and use posted shipment
+        asserterror GetSalesShipmentLines(SalesHeader);
+
+        // [THEN] An error occurs: "You cannot get lines until you have posted all related prepayment invoices to mark the prepayment as paid."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(PrepaymentInvoicesNotPaidErr);
+    end;
+
+    [Test]
+    procedure ErrorOnGetRcptLinesFromOrderWithUnpaidPrepmt()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase] [Get Receipt Lines]
+        // [SCENARIO 400503] An error occurs trying to Get Receipt Lines from an order with unpaid prepayment
+        Initialize();
+
+        // [GIVEN] Purchase order with 50% prepayment
+        CreatePurchaseOrderWithOneLine(PurchaseHeader);
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandDecInRange(10, 40, 2));
+        PurchaseHeader.Modify(true);
+        // [GIVEN] Post prepayment invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+        // [GIVEN] Receipt the order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        // [GIVEN] Reopen the order and change prepayment to 75%
+        PurchaseHeader.Find();
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        PurchaseHeader.Validate("Prepayment %", PurchaseHeader."Prepayment %" + LibraryRandom.RandDecInRange(10, 40, 2));
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a new purchase invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
+
+        // [WHEN] Invoke Get Receipt Lines and use posted shipment
+        asserterror GetPurchaseReceiptLines(PurchaseHeader);
+
+        // [THEN] An error occurs: "You cannot get lines until you have posted all related prepayment invoices to mark the prepayment as paid."
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(PrepaymentInvoicesNotPaidErr);
     end;
 
     local procedure Initialize()
