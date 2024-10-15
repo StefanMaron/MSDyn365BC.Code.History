@@ -27,7 +27,7 @@ codeunit 134486 "Check Dimensions On Posting"
         DimensionBlockedErr: Label 'Dimension %1 is blocked.';
         DimensionMissingErr: Label 'Dimension %1 can''t be found.';
         DimValueBlockedErr: Label '%1 %2 - %3 is blocked.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value';
-        DimValueMissingErr: Label 'Dimension Value for %1 is missing.';
+        DimValueMissingErr: Label 'Dimension Value %1 - %2 is missing.', Comment = '%1 = Dim Code, %2 = Dim Value';
         DimValueNotAllowedErr: Label 'Dimension Value Type for Dimension Value %1 - %2 must not be %3.';
         DimValueMentionedForRecErr: Label '%1 %2 must not be mentioned for %3 %4.';
         DimValueSameCodeErr: Label 'Select %1 %2 for the %3 %4.';
@@ -127,7 +127,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         // [GIVEN] Dimension value 'Department','ADM' is deleted
         DimensionValue.Delete();
-        ExpectedErrorMessage[1] := StrSubstNo(DimValueMissingErr, DimensionValue."Dimension Code");
+        ExpectedErrorMessage[1] := StrSubstNo(DimValueMissingErr, DimensionValue."Dimension Code", DimensionValue.Code);
 
         // [WHEN] Post Sales Order '1002'
         PostSalesDocument(SalesHeader, CODEUNIT::"Sales-Post");
@@ -1047,7 +1047,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
         // [GIVEN] Dimension value 'Department','ADM' is deleted
         DimensionValue.Delete();
-        ExpectedErrorMessage[1] := StrSubstNo(DimValueMissingErr, DimensionValue."Dimension Code");
+        ExpectedErrorMessage[1] := StrSubstNo(DimValueMissingErr, DimensionValue."Dimension Code", DimensionValue.Code);
 
         // [WHEN] Post Purchase Order '1002'
         PostPurchDocument(PurchHeader, CODEUNIT::"Purch.-Post");

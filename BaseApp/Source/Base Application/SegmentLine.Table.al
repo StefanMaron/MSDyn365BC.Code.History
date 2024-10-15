@@ -1313,6 +1313,7 @@ table 5077 "Segment Line"
                         LoadTempAttachment(false);
 
                     Subject := Description;
+                    TempAttachment.OpenAttachment(Rec, Description);
                 end;
             InteractTmpl."Wizard Action"::Import:
                 begin

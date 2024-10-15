@@ -3016,6 +3016,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         RequisitionLine: Record "Requisition Line";
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
+        GlobalDimensionValue: Record "Dimension Value";
         DimensionSetID: Integer;
     begin
         // [FEATURE] [Dimension] [Transfer]
@@ -3045,6 +3046,10 @@ codeunit 137077 "SCM Supply Planning -IV"
         RequisitionLine.Validate("Starting Date", WorkDate());
         RequisitionLine.Validate("Action Message", RequisitionLine."Action Message"::New);
         RequisitionLine.Validate("Accept Action Message", true);
+        LibraryDimension.GetGlobalDimCodeValue(1, GlobalDimensionValue);
+        RequisitionLine.Validate("Shortcut Dimension 1 Code", GlobalDimensionValue.Code);
+        LibraryDimension.GetGlobalDimCodeValue(2, GlobalDimensionValue);
+        RequisitionLine.Validate("Shortcut Dimension 2 Code", GlobalDimensionValue.Code);
         RequisitionLine.Modify(true);
         DimensionSetID := RequisitionLine."Dimension Set ID";
 
@@ -3061,6 +3066,8 @@ codeunit 137077 "SCM Supply Planning -IV"
         // [THEN] Dimension Set ID = 0 on the transfer header.
         TransferHeader.Get(TransferLine."Document No.");
         TransferHeader.TestField("Dimension Set ID", 0);
+        TransferHeader.TestField("Shortcut Dimension 1 Code", '');
+        TransferHeader.TestField("Shortcut Dimension 2 Code", '');
     end;
 
     [Test]
@@ -3276,6 +3283,81 @@ codeunit 137077 "SCM Supply Planning -IV"
         // [THEN] "Order Date" on the purchase header = Workdate.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PurchaseHeader.TestField("Order Date", WorkDate());
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferLineDimensionsAfterDirectTransferHeaderValidate()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        InventorySetup: Record "Inventory Setup";
+        GlobalDimensionValue: Record "Dimension Value";
+        DimSetId: Integer;
+    begin
+        Initialize();
+
+        // [GIVEN] Transfer header, transfer line with filled shortcut dimensions
+        InventorySetup.Get();
+        InventorySetup."Direct Transfer Posting" := InventorySetup."Direct Transfer Posting"::"Direct Transfer";
+        InventorySetup.Modify();
+
+        CreateItem(Item);
+        UpdateInventory(Item."No.", 10, LocationBlue.Code);
+        CreateTransferOrderWithReceiptDate(TransferHeader, Item."No.", LocationBlue.Code, LocationRed.Code, 10);
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.FindFirst();
+        LibraryDimension.GetGlobalDimCodeValue(1, GlobalDimensionValue);
+        TransferLine.Validate("Shortcut Dimension 1 Code", GlobalDimensionValue.Code);
+        LibraryDimension.GetGlobalDimCodeValue(2, GlobalDimensionValue);
+        TransferLine.Validate("Shortcut Dimension 2 Code", GlobalDimensionValue.Code);
+        TransferLine.Modify(true);
+        DimSetId := TransferLine."Dimension Set ID";
+
+        // [WHEN] Validate "Direct Transfer" in transfer header
+        TransferHeader.Validate("Direct Transfer", true);
+
+        // [THEN] "Dimension Set ID" in transfer line remains the same
+        TransferLine.Get(TransferLine."Document No.", TransferLine."Line No.");
+        TransferLine.TestField("Dimension Set ID", DimSetId);
+    end;
+
+    [Test]
+    procedure DirectUnitCostSetOnPlanningLineGoesToPOUnlessPurchPricesAreSet()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 425945] Direct Unit Cost on planning line goes to a new purchase order unless purchase prices are set.
+        Initialize();
+
+        // [GIVEN] Lot-for-lot item with vendor, unit cost = "X".
+        CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] Sales order.
+        CreateSalesOrder(Item."No.", '');
+
+        // [GIVEN] Calculate regenerative plan.
+        // [GIVEN] Set Direct Unit Cost = "Y" on the planning line.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
+        RequisitionLine.Modify(true);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+
+        // [WHEN] Carry out action message.
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [THEN] "Direct Unit Cost" on a new purchase line = "Y".
+        FindPurchLine(PurchaseLine, Item."No.");
+        PurchaseLine.TestField("Direct Unit Cost", RequisitionLine."Direct Unit Cost");
     end;
 
     local procedure Initialize()

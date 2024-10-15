@@ -907,7 +907,7 @@
             VATPostingSetup.Init();
         with VATAmtLine do begin
             Init;
-            "VAT Identifier" := VATPostingSetup."VAT Identifier";
+            "VAT Identifier" := FORMAT(SalesLine."VAT %");
             "VAT Calculation Type" := SalesLine."VAT Calculation Type";
             "Tax Group Code" := SalesLine."Tax Group Code";
             "Tax Category" := VATPostingSetup."Tax Category";
@@ -946,6 +946,7 @@
 
     procedure GetTaxExemptionReason(var VATProductPostingGroupCategory: Record "VAT Product Posting Group"; var TaxExemptionReasonTxt: Text; TaxCategoryID: Text)
     begin
+        TaxExemptionReasonTxt := '';
         if not (TaxCategoryID in [GetTaxCategoryE(), GetTaxCategoryG(), GetTaxCategoryK(), GetTaxCategoryO(), GetTaxCategoryAE()]) then
             exit;
         if VATProductPostingGroupCategory.Get(TaxCategoryID) then

@@ -10,7 +10,7 @@ codeunit 4513 "SMTP Connector Impl." implements "Email Connector"
 
     var
         SMTPAccount: Record "SMTP Account";
-        SMTPMessage: Codeunit "SMTP Message";
+        SMTPMessage: Codeunit "Connector SMTP Message";
         SMTPClient: Interface "SMTP Client";
         SMTPClientInitialized: Boolean;
         SmtpCategoryLbl: Label 'Email SMTP', Locked = true;
@@ -214,7 +214,7 @@ codeunit 4513 "SMTP Connector Impl." implements "Email Connector"
     /// </summary>
     procedure Initialize(Account: Record "SMTP Account")
     var
-        Client: Codeunit "SMTP Client";
+        Client: Codeunit "Connector SMTP Client";
     begin
         SMTPAccount := Account;
         SMTPMessage.Initialize();

@@ -138,6 +138,8 @@ page 510 "Blanket Purchase Order Subform"
                     trigger OnValidate()
                     begin
                         DeltaUpdateTotals();
+                        if PurchasesPayablesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
@@ -876,6 +878,7 @@ page 510 "Blanket Purchase Order Subform"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
@@ -1073,7 +1076,8 @@ page 510 "Blanket Purchase Order Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line")
-    begin
+  
+  begin
     end;
 
 #if not CLEAN19
