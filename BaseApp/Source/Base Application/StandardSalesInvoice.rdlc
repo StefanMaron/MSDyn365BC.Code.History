@@ -8204,6 +8204,18 @@ End Function
         <Field Name="TotalAmountExclInclVATText">
           <DataField>TotalAmountExclInclVATText</DataField>
         </Field>
+        <Field Name="TotalVATBaseOnVATAmtLine">
+          <DataField>TotalVATBaseOnVATAmtLine</DataField>
+        </Field>
+        <Field Name="TotalVATBaseOnVATAmtLineFormat">
+          <DataField>TotalVATBaseOnVATAmtLineFormat</DataField>
+        </Field>
+        <Field Name="TotalVATAmountOnVATAmtLine">
+          <DataField>TotalVATAmountOnVATAmtLine</DataField>
+        </Field>
+        <Field Name="TotalVATAmountOnVATAmtLineFormat">
+          <DataField>TotalVATAmountOnVATAmtLineFormat</DataField>
+        </Field>
         <Field Name="CurrencyCode">
           <DataField>CurrencyCode</DataField>
         </Field>

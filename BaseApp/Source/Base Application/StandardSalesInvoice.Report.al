@@ -860,6 +860,8 @@
 
                     TotalVATBaseLCY += VATBaseLCY;
                     TotalVATAmountLCY += VATAmountLCY;
+                    TotalVATBaseOnVATAmtLine += "VAT Base";
+                    TotalVATAmountOnVATAmtLine += "VAT Amount";
 
                     if ShowVATClause("VAT Clause Code") then begin
                         VATClauseLine := VATAmountLine;
@@ -874,6 +876,8 @@
 
                     TotalVATBaseLCY := 0;
                     TotalVATAmountLCY := 0;
+                    TotalVATBaseOnVATAmtLine := 0;
+                    TotalVATAmountOnVATAmtLine := 0;
                 end;
             }
             dataitem(VATClauseLine; "VAT Amount Line")
@@ -1084,6 +1088,12 @@
                 {
                 }
                 column(TotalAmountExclInclVATText; TotalAmountExclInclVATTextValue)
+                {
+                }
+                column(TotalVATBaseOnVATAmtLine; TotalVATBaseOnVATAmtLine)
+                {
+                }
+                column(TotalVATAmountOnVATAmtLine; TotalVATAmountOnVATAmtLine)
                 {
                 }
                 column(CurrencyCode; CurrCode)
@@ -1393,6 +1403,8 @@
         VATAmountLCY: Decimal;
         TotalVATBaseLCY: Decimal;
         TotalVATAmountLCY: Decimal;
+        TotalVATBaseOnVATAmtLine: Decimal;
+        TotalVATAmountOnVATAmtLine: Decimal;
         PrevLineAmount: Decimal;
         NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
         TotalAmountExclInclVATValue: Decimal;

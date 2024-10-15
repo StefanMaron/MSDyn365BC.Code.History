@@ -1138,6 +1138,10 @@
         {
             Caption = 'Partner Type';
         }
+        field(133; "Intrastat Partner Type"; Enum "Partner Type")
+        {
+            Caption = 'Intrastat Partner Type';
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';
@@ -2229,6 +2233,13 @@
         exit(CustomerSalesYTD."Sales (LCY)");
     end;
 
+    procedure GetTopCustomerHeadlineQueryDocumentTypeFilter() DocumentTypeFilter: Text
+    begin
+        DocumentTypeFilter := '';
+
+        OnAfterGetTopCustomerHeadlineQueryDocumentTypeFilter(DocumentTypeFilter);
+    end;
+
     procedure CalcAvailableCredit(): Decimal
     begin
         exit(CalcAvailableCreditCommon(false));
@@ -3239,6 +3250,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromNewCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetTopCustomerHeadlineQueryDocumentTypeFilter(var DocumentTypeFilter: Text)
     begin
     end;
 
