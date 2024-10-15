@@ -119,6 +119,7 @@ report 7 "Trial Balance/Previous Year"
                 }
                 dataitem(BlankLineRepeater; "Integer")
                 {
+                    DataItemTableView = SORTING(Number);
                     column(BlankLineNo; BlankLineNo)
                     {
                     }
@@ -126,7 +127,7 @@ report 7 "Trial Balance/Previous Year"
                     trigger OnAfterGetRecord()
                     begin
                         if BlankLineNo = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         BlankLineNo -= 1;
                     end;

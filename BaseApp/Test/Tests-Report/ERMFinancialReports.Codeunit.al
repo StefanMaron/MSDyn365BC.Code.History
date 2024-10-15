@@ -1215,6 +1215,56 @@ codeunit 134982 "ERM Financial Reports"
             SellToCustomer.TableCaption, SellToCustomer.FieldCaption("No."), SellToCustomer."No."));
     end;
 
+    [Test]
+    [HandlerFunctions('RHDetailTrialBalanceExcel')]
+    procedure DetailTrialBalance_PrintOnlyOnePerPage_False()
+    var
+        AccountNoFilter: Text[50];
+    begin
+        // [SCENARIO 357809] If PrintOnlyOnePerPage is False, there should not be page breakes between G/L Accounts
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+
+        // [GIVEN] 2 G/L Accounts with posted GenJournalLine
+        AccountNoFilter := StrSubstNo('%1|%2', CreateGLAccountWithEntry(), CreateGLAccountWithEntry());
+
+        // [WHEN] Invoke Detail Trial Balance report for that 2 G/L Accounts only, PrintOnlyOnePerPage is no.
+        LibraryVariableStorage.Enqueue(AccountNoFilter);
+        LibraryVariableStorage.Enqueue(false);
+        Commit();
+        REPORT.Run(REPORT::"Detail Trial Balance");
+
+        // [THEN] There should be only 1 worksheet in excel 
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets(), '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('RHDetailTrialBalanceExcel')]
+    procedure DetailTrialBalance_PrintOnlyOnePerPage_True()
+    var
+        AccountNoFilter: Text[50];
+    begin
+        // [SCENARIO 357809] If PrintOnlyOnePerPage is True, there should be page breakes between G/L Accounts
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+
+        // [GIVEN] 2 G/L Accounts with posted GenJournalLine
+        AccountNoFilter := StrSubstNo('%1|%2', CreateGLAccountWithEntry(), CreateGLAccountWithEntry());
+
+        // [WHEN] Invoke Detail Trial Balance report for that 2 G/L Accounts only, PrintOnlyOnePerPage is yes.
+        LibraryVariableStorage.Enqueue(AccountNoFilter);
+        LibraryVariableStorage.Enqueue(true);
+        Commit();
+        REPORT.Run(REPORT::"Detail Trial Balance");
+
+        // [THEN] There should be 2 worksheet in excel - one per each account
+        LibraryReportValidation.OpenExcelFile();
+        Assert.AreEqual(2, LibraryReportValidation.CountWorksheets(), '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2042,6 +2092,17 @@ codeunit 134982 "ERM Financial Reports"
         LibraryReportValidation.VerifyCellValue(4, 12, UserId);
     end;
 
+    local procedure CreateGLAccountWithEntry(): Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 1);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GLAccount."No.");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -2285,6 +2346,23 @@ codeunit 134982 "ERM Financial Reports"
     procedure VATVIESDeclDiskRequestPageHandler(var VATVIESDeclarationDisk: TestRequestPage "VAT- VIES Declaration Disk")
     begin
         VATVIESDeclarationDisk.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHDetailTrialBalanceExcel(var DetailTrialBalance: TestRequestPage "Detail Trial Balance")
+    var
+        AccountNoFilter: Variant;
+        PrintOnlyOnePerPage: Variant;
+    begin
+        CurrentSaveValuesId := REPORT::"Detail Trial Balance";
+        LibraryVariableStorage.Dequeue(AccountNoFilter);
+        LibraryVariableStorage.Dequeue(PrintOnlyOnePerPage);
+
+        DetailTrialBalance."G/L Account".SetFilter("No.", AccountNoFilter);
+        DetailTrialBalance.NewPageperGLAcc.SetValue(PrintOnlyOnePerPage);
+
+        DetailTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 
