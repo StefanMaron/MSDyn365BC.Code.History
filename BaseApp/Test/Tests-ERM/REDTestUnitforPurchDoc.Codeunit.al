@@ -23,6 +23,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         StartDate: Enum "Deferral Calculation Start Date";
         PurchDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Shipment,"Posted Invoice","Posted Credit Memo","Posted Return Receipt";
         isInitialized: Boolean;
+        GLAccountOmitErr: Label 'When %1 is selected for';
         NoDeferralScheduleErr: Label 'You must create a deferral schedule because you have specified the deferral code %2 in line %1.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
         ZeroDeferralAmtErr: Label 'Deferral amounts cannot be 0. Line: %1, Deferral Template: %2.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
         ConfirmCallOnceErr: Label 'Confirm should be called once.';
@@ -2394,6 +2395,78 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchaseInvoice.PurchLines.DeferralSchedule.Invoke();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostDeferralsWithBlankDescriptionWhenOmitDefaultDescriptionEnabledOnDeferralGLAccount()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        GLAccountDeferral: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DeferralTemplateCode: Code[10];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 422767] Stan can't post Purchase document with Deferral setup when Deferral Account has enabled "Omit Default Descr. in Jnl." and blank Description Deferral Template
+        CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
+
+        UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(GLAccountDeferral, DeferralTemplateCode, '', true);
+
+        CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
+          PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
+
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        Assert.ExpectedError(StrSubstNo(GLAccountOmitErr, GLAccountDeferral.FieldCaption("Omit Default Descr. in Jnl.")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostDeferralsWithBlankDescriptionWhenOmitDefaultDescriptionDisabledOnDeferralGLAccount()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        GLAccountDeferral: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DeferralTemplateCode: Code[10];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 422767] Stan can post Purchase document with Deferral setup when Deferral Account has disabled "Omit Default Descr. in Jnl." and blank Description Deferral Template
+        CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
+
+        UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(GLAccountDeferral, DeferralTemplateCode, '', false);
+
+        CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
+          PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifyGLEntriesExistWithBlankDescription(GLAccountDeferral."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostDeferralsWithDescriptionWhenOmitDefaultDescriptionEnabledOnDeferralGLAccount()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        GLAccountDeferral: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DeferralTemplateCode: Code[10];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 422767] Stan can post Sales document with Deferral setup when Deferral Account has enabled "Omit Default Descr. in Jnl." and specified Description Deferral Template
+        CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
+
+        UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(GLAccountDeferral, DeferralTemplateCode, LibraryUtility.GenerateGUID(), true);
+
+        CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
+          PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        VerifyGLEntriesDoNotExistWithBlankDescription(GLAccountDeferral."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2555,6 +2628,20 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         // Use the workdate but set to a specific day of that month
         exit(DMY2Date(Day, Date2DMY(StartDate, 2), Date2DMY(StartDate, 3)));
+    end;
+
+    local procedure UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(var GLAccountDeferral: Record "G/L Account"; DeferralCode: Code[10]; NewDescription: Text[100]; NewOmit: Boolean)
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        DeferralTemplate.Get(DeferralCode);
+        DeferralTemplate.Validate("Period Description", NewDescription);
+        DeferralTemplate.Modify(true);
+
+        GLAccountDeferral.Get(DeferralTemplate."Deferral Account");
+        GLAccountDeferral.Validate(Name, NewDescription);
+        GLAccountDeferral.Validate("Omit Default Descr. in Jnl.", NewOmit);
+        GLAccountDeferral.Modify(true);
     end;
 
     local procedure DeferralLineSetRange(var DeferralLine: Record "Deferral Line"; DocType: Enum "Purchase Document Type"; DocNo: Code[20]; LineNo: Integer)
@@ -3366,6 +3453,26 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         PurchCrMemoHdr.Get(DocNo);
         PurchCrMemoHdr.TestField("Posting Date", PostingDate);
+    end;
+
+    local procedure VerifyGLEntriesExistWithBlankDescription(GLAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        Assert.RecordIsNotEmpty(GLEntry);
+        GLEntry.SetFilter(Description, '=%1', '');
+        Assert.RecordIsNotEmpty(GLEntry);
+    end;
+
+    local procedure VerifyGLEntriesDoNotExistWithBlankDescription(GLAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        Assert.RecordIsNotEmpty(GLEntry);
+        GLEntry.SetFilter(Description, '=%1', '');
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyInvoiceVATGLEntryForPostingAccount(PurchInvLine: Record "Purch. Inv. Line"; PartialDeferral: Boolean)

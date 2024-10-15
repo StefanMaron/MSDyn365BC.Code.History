@@ -353,6 +353,7 @@ codeunit 7018 "Price UX Management"
             exit;
         PriceAssetList.Init();
         PriceAssetList.Add(PriceAsset);
+        OnShowPriceListLinesOnAfterPriceAssetListAdd(PriceAsset, PriceType, PriceAssetList);
         PriceListLineReview.Set(PriceAssetList, PriceType, AmountType);
         PriceListLineReview.Run();
     end;
@@ -614,6 +615,11 @@ codeunit 7018 "Price UX Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPriceSource(FromRecord: Variant; var PriceSourceList: Codeunit "Price Source List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowPriceListLinesOnAfterPriceAssetListAdd(PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; var PriceAssetList: Codeunit "Price Asset List")
     begin
     end;
 }

@@ -301,6 +301,8 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Checklist DE");
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Form DE");
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Disk Tax Auth DE");
+
+        OnAfterCreateDefaultAdvancedIntrastatSetup();
     end;
 
     local procedure CreateAdvancedChecklistSetupCommonFields(ReportId: Integer)
@@ -353,6 +355,11 @@ codeunit 350 IntraJnlManagement
             exit(TotalWeight);
 
         exit(Round(TotalWeight, 1, '>'));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDefaultAdvancedIntrastatSetup()
+    begin
     end;
 
     [IntegrationEvent(false, false)]

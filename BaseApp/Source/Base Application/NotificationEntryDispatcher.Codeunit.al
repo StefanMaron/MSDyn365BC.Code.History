@@ -32,7 +32,8 @@ codeunit 1509 "Notification Entry Dispatcher"
     begin
         GetTempNotificationEntryFromTo(TempNotificationEntryFromTo);
         TempNotificationEntryFromTo.Reset();
-        if TempNotificationEntryFromTo.FindSet then begin
+
+        if TempNotificationEntryFromTo.FindSet() then begin
             ErrorMessageMgt.Activate(ErrorMessageHandler);
             ErrorMessageMgt.PushContext(ErrorContextElement, TempNotificationEntryFromTo, 0, '');
             repeat
@@ -54,10 +55,14 @@ codeunit 1509 "Notification Entry Dispatcher"
     var
         UserSetup: Record "User Setup";
         NotificationEntry: Record "Notification Entry";
+        EmailFeature: Codeunit "Email Feature";
     begin
         NotificationEntry.SetView(Parameter);
         UserSetup.Get(NotificationEntry.GetRangeMax("Recipient User ID"));
-        DispatchForNotificationType(NotificationEntry.GetRangeMax(Type), UserSetup, '');
+        if EmailFeature.IsEnabled() then
+            DispatchForNotificationType(NotificationEntry.GetRangeMax(Type), UserSetup, CopyStr(UserId(), 1, 50))
+        else
+            DispatchForNotificationType(NotificationEntry.GetRangeMax(Type), UserSetup, '');
     end;
 
     local procedure DispatchForNotificationType(NotificationType: Enum "Notification Entry Type"; UserSetup: Record "User Setup"; SenderUserID: Code[50])
@@ -329,8 +334,12 @@ codeunit 1509 "Notification Entry Dispatcher"
     local procedure GetTempNotificationEntryFromTo(var TempNotificationEntryFromTo: Record "Notification Entry" temporary)
     var
         NotificationEntry: Record "Notification Entry";
+        EmailFeature: Codeunit "Email Feature";
     begin
-        if NotificationEntry.FindSet then
+        if EmailFeature.IsEnabled() then
+            NotificationEntry.SetRange("Sender User ID", UserId());
+
+        if NotificationEntry.FindSet() then
             repeat
                 TempNotificationEntryFromTo.SetRange("Sender User ID", NotificationEntry."Sender User ID");
                 TempNotificationEntryFromTo.SetRange("Recipient User ID", NotificationEntry."Recipient User ID");

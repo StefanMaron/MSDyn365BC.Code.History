@@ -615,6 +615,11 @@
                   DATABASE::Campaign, "Campaign No.");
             end;
         }
+        field(28; "Pending Approval"; Boolean)
+        {
+            Caption = 'Pending Approval';
+            Editable = false;
+        }
         field(29; "Source Code"; Code[10])
         {
             Caption = 'Source Code';
@@ -704,6 +709,8 @@
                     then
                         CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", TempGenJnlLine);
 
+                    OnAppliesToDocNoOnValidateOnBeforeUpdAmtToEntries(Rec, TempGenJnlLine);
+
                     case TempGenJnlLine."Account Type" of
                         TempGenJnlLine."Account Type"::Customer:
                             begin
@@ -759,6 +766,7 @@
                                 end;
                             end;
                     end;
+                    OnAppliesToDocNoOnValidateOnAfterUpdAmtToEntries(Rec, TempGenJnlLine);
                 end;
 
                 if ("Applies-to Doc. No." <> xRec."Applies-to Doc. No.") and (Amount <> 0) then begin
@@ -778,6 +786,7 @@
                         GetEmplLedgerEntry;
                 end;
 
+                OnAppliesToDocNoOnValidateOnBeforeValidateApplyRequirements(Rec);
                 ValidateApplyRequirements(Rec);
                 SetJournalLineFieldsFromApplication;
 
@@ -2928,8 +2937,6 @@
         DontShowAgainActionTxt: Label 'Don''t show again.';
         SetDimFiltersActionTxt: Label 'Set dimension filters.';
         SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
-        TelemetryCategoryTxt: Label 'GenJournal', Locked = true;
-        GenJournalPostFailedTxt: Label 'General journal posting failed. Journal Template: %1, Journal Batch: %2', Locked = true;
 
     protected var
         Currency: Record Currency;
@@ -3012,8 +3019,9 @@
             "Posting Date" := LastGenJnlLine."Posting Date";
             "Document Date" := LastGenJnlLine."Posting Date";
             "Document No." := LastGenJnlLine."Document No.";
-            OnSetUpNewLineOnBeforeIncrDocNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine);
-            if BottomLine and
+            IsHandled := false;
+            OnSetUpNewLineOnBeforeIncrDocNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine, IsHandled);
+            if BottomLine and not IsHandled and
                (Balance - LastGenJnlLine."Balance (LCY)" = 0) and
                not LastGenJnlLine.EmptyLine
             then
@@ -3021,10 +3029,13 @@
         end else begin
             "Posting Date" := WorkDate;
             "Document Date" := WorkDate;
-            if GenJnlBatch."No. Series" <> '' then begin
-                Clear(NoSeriesMgt);
-                "Document No." := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", "Posting Date");
-            end;
+            IsHandled := false;
+            OnSetUpNewLineOnBeforeSetDocumentNo(GenJnlLine, LastGenJnlLine, Balance, BottomLine, IsHandled);
+            if not IsHandled then
+                if GenJnlBatch."No. Series" <> '' then begin
+                    Clear(NoSeriesMgt);
+                    "Document No." := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", "Posting Date");
+                end;
         end;
         if GenJnlTemplate.Recurring then
             "Recurring Method" := LastGenJnlLine."Recurring Method";
@@ -3042,15 +3053,20 @@
         "Source Code" := GenJnlTemplate."Source Code";
         "Reason Code" := GenJnlBatch."Reason Code";
         "Posting No. Series" := GenJnlBatch."Posting No. Series";
-        "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-        if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Fixed Asset"]) and
-           ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"Fixed Asset"])
-        then
-            "Account Type" := "Account Type"::"G/L Account";
-        Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-        Description := '';
-        if GenJnlBatch."Suggest Balancing Amount" then
-            SuggestBalancingAmount(LastGenJnlLine, BottomLine);
+
+        IsHandled := false;
+        OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled);
+        if not IsHandled then begin
+            "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+            if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Fixed Asset"]) and
+               ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"Fixed Asset"])
+            then
+                "Account Type" := "Account Type"::"G/L Account";
+            Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+            Description := '';
+            if GenJnlBatch."Suggest Balancing Amount" then
+                SuggestBalancingAmount(LastGenJnlLine, BottomLine);
+        end;
 
         UpdateJournalBatchID;
 
@@ -3258,6 +3274,7 @@
         AccType: Enum "Gen. Journal Account Type";
         AccNo: Code[20];
     begin
+        OnBeforeRenumberAppliesToID(GenJnlLine2, OriginalAppliesToID, NewAppliesToID, AccType, AccNo);
         GetAccTypeAndNo(GenJnlLine2, AccType, AccNo);
         case AccType of
             "Account Type"::Customer:
@@ -3534,6 +3551,7 @@
         AccType: Enum "Gen. Journal Account Type";
         AccNo: Code[20];
     begin
+        OnBeforeClearCustVendApplnEntry(Rec, xRec, AccType, AccNo);
         GetAccTypeAndNo(Rec, AccType, AccNo);
         case AccType of
             AccType::Customer:
@@ -3883,6 +3901,8 @@
             FADeprBook.Get(FANo, "Depreciation Book Code");
             "Posting Group" := FADeprBook."FA Posting Group";
         end;
+
+        OnAfterGetFADeprBook(Rec, FANo);
     end;
 
     procedure GetTemplate()
@@ -3903,6 +3923,8 @@
             if ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]) and ("Account No." <> '') then
                 "Sales/Purch. (LCY)" := -("Amount (LCY)" - "VAT Amount (LCY)");
         end;
+
+        OnAfterUpdateSalesPurchLCY(Rec);
     end;
 
     procedure LookUpAppliesToDocCust(AccNo: Code[20])
@@ -4115,6 +4137,7 @@
                         if CustLedgEntry."Amount to Apply" = 0 then begin
                             CustLedgEntry.CalcFields("Remaining Amount");
                             CustLedgEntry."Amount to Apply" := CustLedgEntry."Remaining Amount";
+                            OnSetApplyToAmountOnBeforeCustEntryEdit(Rec, CustLedgEntry);
                             CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry);
                         end;
                 end;
@@ -4128,6 +4151,7 @@
                         if VendLedgEntry."Amount to Apply" = 0 then begin
                             VendLedgEntry.CalcFields("Remaining Amount");
                             VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
+                            OnSetApplyToAmountOnBeforeVendEntryEdit(Rec, VendLedgEntry);
                             CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
                         end;
                 end;
@@ -4141,6 +4165,7 @@
                         if EmplLedgEntry."Amount to Apply" = 0 then begin
                             EmplLedgEntry.CalcFields("Remaining Amount");
                             EmplLedgEntry."Amount to Apply" := EmplLedgEntry."Remaining Amount";
+                            OnSetApplyToAmountOnBeforeEmplEntryEdit(Rec, EmplLedgEntry);
                             CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmplLedgEntry);
                         end;
                 end;
@@ -4851,7 +4876,7 @@
         exit(false);
     end;
 
-    procedure GetAppliesToDocEntryNo(): Integer
+    procedure GetAppliesToDocEntryNo() Result: Integer
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -4876,9 +4901,11 @@
                     exit(EmplLedgEntry."Entry No.");
                 end;
         end;
+
+        OnAfterGetAppliesToDocEntryNo(Rec, AccType, AccNo, Result);
     end;
 
-    procedure GetAppliesToDocDueDate(): Date
+    procedure GetAppliesToDocDueDate() Result: Date
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -4898,6 +4925,8 @@
                     exit(VendLedgEntry."Due Date");
                 end;
         end;
+
+        OnAfterGetAppliesToDocDueDate(Rec, AccType, AccNo, Result);
     end;
 
     local procedure GetAppliesToDocCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; AccNo: Code[20])
@@ -5001,7 +5030,14 @@
     end;
 
     procedure GetAccTypeAndNo(GenJnlLine2: Record "Gen. Journal Line"; var AccType: Enum "Gen. Journal Account Type"; var AccNo: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetAccTypeAndNo(GenJnlLine2, AccType, AccNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJnlLine2."Bal. Account Type" in
            [GenJnlLine2."Bal. Account Type"::Customer, GenJnlLine2."Bal. Account Type"::Vendor, GenJnlLine2."Bal. Account Type"::Employee]
         then begin
@@ -6676,6 +6712,8 @@
                             if Employee."Privacy Blocked" then
                                 Error(BlockedEmplErr, Employee."No.");
                         end;
+                    else
+                        OnCheckIfPrivacyBlockedCaseElse(Rec);
                 end;
             until Next <= 0;
         end;
@@ -6954,6 +6992,26 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnBeforeUpdAmtToEntries(var GenJournalLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnAfterUpdAmtToEntries(var GenJournalLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoOnValidateOnBeforeValidateApplyRequirements(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearCustVendApplnEntry(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateTempJobJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -6965,6 +7023,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdatePricesFromJobJnlLine(var GenJournalLine: Record "Gen. Journal Line"; JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateSalesPurchLCY(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -6989,6 +7052,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAppliesToDocDueDate(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; var Result: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAppliesToDocEntryNo(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; var Result: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
@@ -7000,6 +7073,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetEmplLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetFADeprBook(var GenJournalLine: Record "Gen. Journal Line"; FANo: Code[20])
     begin
     end;
 
@@ -7105,6 +7183,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAccTypeAndNo(GenJournalLine2: Record "Gen. Journal Line"; var AccType: Enum "Gen. Journal Account Type"; var AccNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralPostDate(GenJournalLine: Record "Gen. Journal Line"; var DeferralPostDate: Date; var IsHandled: Boolean)
     begin
     end;
@@ -7151,6 +7234,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRenumberDocNoOnLines(var DocNo: Code[20]; var GenJnlLine2: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRenumberAppliesToID(GenJournalLine: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]);
     begin
     end;
 
@@ -7340,7 +7428,32 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetUpNewLineOnBeforeIncrDocNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var BottomLine: Boolean)
+    local procedure OnSetApplyToAmountOnBeforeCustEntryEdit(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetApplyToAmountOnBeforeVendEntryEdit(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetApplyToAmountOnBeforeEmplEntryEdit(var GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUpNewLineOnBeforeIncrDocNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var BottomLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUpNewLineOnBeforeSetDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var BottomLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUpNewLineOnBeforeSetBalAccount(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -7866,30 +7979,9 @@
 
     procedure SendToPosting(PostingCodeunitID: Integer)
     var
-        ErrorMessageMgt: Codeunit "Error Message Management";
-        ErrorMessageHandler: Codeunit "Error Message Handler";
+        BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
     begin
-        Commit();
-        ErrorMessageMgt.Activate(ErrorMessageHandler);
-
-        if not Codeunit.Run(PostingCodeunitID, Rec) then begin
-            ErrorMessageHandler.ShowErrors();
-            LogFailurePostTelemetry();
-        end;
-    end;
-
-    local procedure LogFailurePostTelemetry()
-    var
-        ErrorMessage: Record "Error Message";
-        Dimensions: Dictionary of [Text, Text];
-        ErrorMessageTxt: Text;
-    begin
-        ErrorMessage.SetRange("Context Table Number", Database::"Gen. Journal Line");
-        if ErrorMessage.FindLast() then
-            ErrorMessageTxt := ErrorMessage.Description;
-        Dimensions.Add('Category', TelemetryCategoryTxt);
-        Dimensions.Add('Error', ErrorMessageTxt);
-        Session.LogMessage('0000F9J', StrSubstNo(GenJournalPostFailedTxt, Rec."Journal Template Name", Rec."Journal Batch Name"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+        BatchProcessingMgt.BatchProcessGenJournalLine(Rec, PostingCodeunitID);
     end;
 
     local procedure RecallSetDimFiltersNotification()
@@ -8033,6 +8125,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateJobTaskNo(xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckIfPrivacyBlockedCaseElse(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

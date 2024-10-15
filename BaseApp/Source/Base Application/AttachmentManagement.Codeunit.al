@@ -389,7 +389,7 @@ codeunit 5052 AttachmentManagement
         EmailBodyFilePath: Text;
         IsHandled: Boolean;
     begin
-        OnBeforeDeliverEmailWithAttachment(TempDeliverySorterOther, IsHandled);
+        OnBeforeDeliverEmailWithAttachment(TempDeliverySorterOther, IsHandled, InteractLogEntry);
         if IsHandled then
             exit;
 
@@ -688,7 +688,7 @@ codeunit 5052 AttachmentManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeliverEmailWithAttachment(var DeliverySorter: Record "Delivery Sorter"; var IsHandled: Boolean)
+    local procedure OnBeforeDeliverEmailWithAttachment(var DeliverySorter: Record "Delivery Sorter"; var IsHandled: Boolean; var InteractionLogEntry: Record "Interaction Log Entry")
     begin
     end;
 

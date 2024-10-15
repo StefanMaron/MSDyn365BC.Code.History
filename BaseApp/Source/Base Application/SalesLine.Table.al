@@ -278,7 +278,7 @@ table 37 "Sales Line"
 
                 UpdateUnitPriceByField(FieldNo("No."));
 
-                OnValidateNoOnAfterUpdateUnitPrice(Rec, xRec);
+                OnValidateNoOnAfterUpdateUnitPrice(Rec, xRec, TempSalesLine);
             end;
         }
         field(7; "Location Code"; Code[10])
@@ -393,13 +393,7 @@ table 37 "Sales Line"
                     then
                         CheckItemAvailable(FieldNo("Shipment Date"));
 
-                    if ("Shipment Date" < WorkDate) and HasTypeToFillMandatoryFields() then
-                        if not (GetHideValidationDialog or HasBeenShown) and GuiAllowed then begin
-                            Message(
-                              Text014,
-                              FieldCaption("Shipment Date"), "Shipment Date", WorkDate);
-                            HasBeenShown := true;
-                        end;
+                    CheckShipmentDateBeforeWorkDate();
                 end;
 
                 AutoAsmToOrder();
@@ -988,7 +982,6 @@ table 37 "Sales Line"
             trigger OnValidate()
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
-                ItemTrackingLines: Page "Item Tracking Lines";
             begin
                 if "Appl.-to Item Entry" <> 0 then begin
                     AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
@@ -998,8 +991,7 @@ table 37 "Sales Line"
                     CheckQuantitySign();
                     ItemLedgEntry.Get("Appl.-to Item Entry");
                     ItemLedgEntry.TestField(Positive, true);
-                    if ItemLedgEntry.TrackingExists then
-                        Error(Text040, ItemTrackingLines.Caption, FieldCaption("Appl.-to Item Entry"));
+                    ItemLedgEntry.CheckTrackingDoesNotExist(RecordId, FieldCaption("Appl.-to Item Entry"));
                     if Abs("Qty. to Ship (Base)") > ItemLedgEntry.Quantity then
                         Error(ShippingMoreUnitsThanReceivedErr, ItemLedgEntry.Quantity, ItemLedgEntry."Document No.");
 
@@ -2669,6 +2661,7 @@ table 37 "Sales Line"
                 end else begin
                     "Drop Shipment" := false;
                     "Special Order" := false;
+                    OnValidatePurchasingCodeOnAfterResetPurchasingFields(Rec, xRec);
                     SetReserveWithoutPurchasingCode;
                 end;
 
@@ -3285,10 +3278,7 @@ table 37 "Sales Line"
         if (Quantity <> 0) and ItemExists("No.") then begin
             SalesLineReserve.DeleteLine(Rec);
             CheckReservedQtyBase();
-            if "Shipment No." = '' then
-                TestField("Qty. Shipped Not Invoiced", 0);
-            if "Return Receipt No." = '' then
-                TestField("Return Qty. Rcd. Not Invd.", 0);
+            CheckNotInvoicedQty();
             WhseValidateSourceLine.SalesLineDelete(Rec);
         end;
 
@@ -3466,7 +3456,6 @@ table 37 "Sales Line"
         Text037: Label 'You cannot change %1 when %2 is %3 and %4 is positive.';
         Text038: Label 'You cannot change %1 when %2 is %3 and %4 is negative.';
         Text039: Label '%1 units for %2 %3 have already been returned. Therefore, only %4 units can be returned.';
-        Text040: Label 'You must use form %1 to enter %2, if item tracking is used.';
         Text042: Label 'When posting the Applied to Ledger Entry %1 will be opened first';
         ShippingMoreUnitsThanReceivedErr: Label 'You cannot ship more than the %1 units that you have received for document no. %2.';
         Text044: Label 'cannot be less than %1';
@@ -4130,15 +4119,26 @@ table 37 "Sales Line"
                 end;
         end;
 
-        if "Copied From Posted Doc." and IsCreditDocType() and ("Appl.-from Item Entry" <> 0) then
-            if xRec."Unit Price" <> "Unit Price" then
-                if GuiAllowed then
-                    ShowMessageOnce(StrSubstNo(UnitPriceChangedMsg, Type, "No."));
+        ShowUnitPriceChangedMsg();
 
         Validate("Unit Price");
 
         ClearFieldCausedPriceCalculation();
         OnAfterUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
+    end;
+
+    local procedure ShowUnitPriceChangedMsg()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowUnitPriceChangedMsg(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+        if "Copied From Posted Doc." and IsCreditDocType() and ("Appl.-from Item Entry" <> 0) then
+            if xRec."Unit Price" <> "Unit Price" then
+                if GuiAllowed then
+                    ShowMessageOnce(StrSubstNo(UnitPriceChangedMsg, Type, "No."));
     end;
 
     local procedure GetLineWithCalculatedPrice(var PriceCalculation: Interface "Price Calculation")
@@ -6163,6 +6163,8 @@ table 37 "Sales Line"
                 end;
             end;
         end;
+
+        OnAfterGetDefaultBin(Rec);
     end;
 
     procedure GetATOBin(Location: Record Location; var BinCode: Code[20]): Boolean
@@ -6405,7 +6407,6 @@ table 37 "Sales Line"
 
     local procedure CheckApplFromItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
     var
-        ItemTrackingLines: Page "Item Tracking Lines";
         QtyNotReturned: Decimal;
         QtyReturned: Decimal;
     begin
@@ -6430,8 +6431,7 @@ table 37 "Sales Line"
         ItemLedgEntry.TestField(Positive, false);
         ItemLedgEntry.TestField("Item No.", "No.");
         ItemLedgEntry.TestField("Variant Code", "Variant Code");
-        if ItemLedgEntry.TrackingExists then
-            Error(Text040, ItemTrackingLines.Caption, FieldCaption("Appl.-from Item Entry"));
+        ItemLedgEntry.CheckTrackingDoesNotExist(RecordId, FieldCaption("Appl.-from Item Entry"));
 
         if Abs("Quantity (Base)") > -ItemLedgEntry.Quantity then
             Error(
@@ -6628,7 +6628,14 @@ table 37 "Sales Line"
     end;
 
     procedure SetDefaultQuantity()
-    begin
+    var
+        IsHandled: Boolean;
+    Begin
+        IsHandled := false;
+        OnBeforeSetDefaultQuantity(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetSalesSetup();
         if SalesSetup."Default Quantity to Ship" = SalesSetup."Default Quantity to Ship"::Blank then begin
             if ("Document Type" = "Document Type"::Order) or ("Document Type" = "Document Type"::Quote) then begin
@@ -7098,6 +7105,24 @@ table 37 "Sales Line"
             Error(Text058, SalesShptLine."Document No.");
 
         OnAfterCheckShipmentRelation(Rec, SalesShptLine);
+    end;
+
+    local procedure CheckShipmentDateBeforeWorkDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckShipmentDateBeforeWorkDate(Rec, xRec, HasBeenShown, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Shipment Date" < WorkDate) and HasTypeToFillMandatoryFields() then
+            if not (GetHideValidationDialog or HasBeenShown) and GuiAllowed then begin
+                Message(
+                  Text014,
+                  FieldCaption("Shipment Date"), "Shipment Date", WorkDate);
+                HasBeenShown := true;
+            end;
     end;
 
     local procedure CheckRetRcptRelation()
@@ -7884,6 +7909,21 @@ table 37 "Sales Line"
         TestField("Reserved Qty. (Base)", 0);
     end;
 
+    local procedure CheckNotInvoicedQty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNotInvoicedQty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Shipment No." = '' then
+            TestField("Qty. Shipped Not Invoiced", 0);
+        if "Return Receipt No." = '' then
+            TestField("Return Qty. Rcd. Not Invd.", 0);
+    end;
+
     local procedure CheckInventoryPickConflict()
     var
         IsHandled: Boolean;
@@ -8166,6 +8206,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDefaultBin(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterHasTypeToFillMandatoryFields(var SalesLine: Record "Sales Line"; var ReturnValue: Boolean)
     begin
     end;
@@ -8425,6 +8470,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultItemQuantity(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultQuantity(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8855,7 +8905,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateNoOnAfterUpdateUnitPrice(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    local procedure OnValidateNoOnAfterUpdateUnitPrice(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
     begin
     end;
 
@@ -8970,7 +9020,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckWarehouseOnBeforeShowDialog(var SalesLine: Record "Sales Line"; Location: Record Location; ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
+    local procedure OnCheckWarehouseOnBeforeShowDialog(var SalesLine: Record "Sales Line"; Location: Record Location; var ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
     begin
     end;
 
@@ -9281,6 +9331,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidatePurchasingCodeOnAfterResetPurchasingFields(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Currency: Record Currency)
     begin
     end;
@@ -9302,6 +9357,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCreateDim(var IsHandled: Boolean; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowUnitPriceChangedMsg(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -9361,6 +9421,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckShipmentDateBeforeWorkDate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var HasBeenShown: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckRetRcptRelation(var IsHandled: Boolean; var SalesLine: Record "Sales Line")
     begin
     end;
@@ -9392,6 +9457,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReservedQtyBase(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNotInvoicedQty(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

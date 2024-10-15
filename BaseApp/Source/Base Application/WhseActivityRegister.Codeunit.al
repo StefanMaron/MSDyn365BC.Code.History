@@ -66,6 +66,7 @@
         TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary;
         TempWhseActivityLineGrouped: Record "Warehouse Activity Line" temporary;
         SkipDelete: Boolean;
+        ShouldDeleteOldLine: Boolean;
     begin
         OnBeforeCode(GlobalWhseActivLine);
 
@@ -130,10 +131,11 @@
                 GlobalWhseActivLine.SetRange("No.", "No.");
                 if GlobalWhseActivLine.Find('-') then
                     repeat
-                        if ((LineCount = 1) and
+                        ShouldDeleteOldLine := (LineCount = 1) and
                             ((OldWhseActivLine."Whse. Document Type" <> GlobalWhseActivLine."Whse. Document Type") or
-                             (OldWhseActivLine."Whse. Document No." <> GlobalWhseActivLine."Whse. Document No.")))
-                        then begin
+                             (OldWhseActivLine."Whse. Document No." <> GlobalWhseActivLine."Whse. Document No."));
+                        OnCodeOnAfterCalcShouldDeleteOldLine(OldWhseActivLine, GlobalWhseActivLine, ShouldDeleteOldLine);
+                        if ShouldDeleteOldLine then begin
                             LineCount := 0;
                             OldWhseActivLine.Delete();
                         end;
@@ -162,7 +164,7 @@
             if not HideDialog then
                 Window.Close();
 
-            OnCodeOnBeforeCommit(RegisteredWhseActivHeader, RegisteredWhseActivLine);
+            OnCodeOnBeforeCommit(RegisteredWhseActivHeader, RegisteredWhseActivLine, SuppressCommit);
             if not SuppressCommit then begin
                 OnBeforeCommit(GlobalWhseActivHeader);
                 Commit();
@@ -867,7 +869,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckBinContentQtyToHandle(TempBinContentBuffer, BinContent, Item, IsHandled);
+        OnBeforeCheckBinContentQtyToHandle(TempBinContentBuffer, BinContent, Item, IsHandled, BreakBulkQtyBaseToPlace);
         if IsHandled then
             exit;
 
@@ -1694,8 +1696,7 @@
                        (GlobalWhseActivLine."Destination Type" = GlobalWhseActivLine."Destination Type"::Customer)
                     then begin
                         GlobalWhseActivLine.TestField("Destination No.");
-                        Cust.Get(GlobalWhseActivLine."Destination No.");
-                        Cust.CheckBlockedCustOnDocs(Cust, "Source Document", false, false);
+                        CheckBlockedCustOnDocs();
                     end;
                     if Location."Bin Mandatory" then
                         CheckBinRelatedFields(GlobalWhseActivLine);
@@ -1720,12 +1721,26 @@
                 TestField("Registering No. Series");
                 "Registering No." := NoSeriesMgt.GetNextNo("Registering No. Series", "Assignment Date", true);
                 Modify;
+                OnCheckLinesOnBeforeCommit(RegisteredWhseActivHeader, RegisteredWhseActivLine, SuppressCommit);
                 if not SuppressCommit then
                     Commit();
             end;
         end;
 
         OnAfterCheckLines(GlobalWhseActivHeader, GlobalWhseActivLine);
+    end;
+
+    local procedure CheckBlockedCustOnDocs()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBlockedCustOnDocs(GlobalWhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        Cust.Get(GlobalWhseActivLine."Destination No.");
+        Cust.CheckBlockedCustOnDocs(Cust, GlobalWhseActivHeader."Source Document", false, false);
     end;
 
     local procedure CheckBinRelatedFields(WhseActivLine: Record "Warehouse Activity Line")
@@ -2090,6 +2105,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBlockedCustOnDocs(WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseActivLineDelete(var WarehouseActivityLine: Record "Warehouse Activity Line"; var SkipDelete: Boolean)
     begin
     end;
@@ -2440,6 +2460,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCalcShouldDeleteOldLine(OldWarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; var ShouldDeleteOldLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertRegWhseItemTrkgLineOnAfterCopyFields(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2485,7 +2510,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnBeforeCommit(RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr."; RegisteredWhseActivLine: Record "Registered Whse. Activity Line")
+    local procedure OnCodeOnBeforeCommit(RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr."; RegisteredWhseActivLine: Record "Registered Whse. Activity Line"; var SuppressCommit: Boolean)
     begin
     end;
 
@@ -2495,7 +2520,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckBinContentQtyToHandle(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; var BinContent: Record "Bin Content"; Item: Record Item; var IsHandled: Boolean)
+    local procedure OnBeforeCheckBinContentQtyToHandle(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; var BinContent: Record "Bin Content"; Item: Record Item; var IsHandled: Boolean; BreakBulkQtyBaseToPlace: Decimal)
     begin
     end;
 
@@ -2506,6 +2531,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBinContentOnAfterTempBinContentBufferLoop(var TempBinContentBuffer: Record "Bin Content Buffer"; var Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckLinesOnBeforeCommit(RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr."; RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; var SuppressCommit: Boolean)
     begin
     end;
 

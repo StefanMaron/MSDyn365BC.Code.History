@@ -455,6 +455,7 @@ codeunit 950 "Time Sheet Management"
                 ToTimeSheetDetail.Date := CalcDate('<+7D>', ToTimeSheetDetail.Date);
                 ToTimeSheetDetail.Status := "Time Sheet Status"::Open;
                 ToTimeSheetDetail.Posted := false;
+                ToTimeSheetDetail."Posted Quantity" := 0;
                 ToTimeSheetDetail.Insert();
             until FromTimeSheetDetail.Next() = 0;
     end;
