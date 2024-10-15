@@ -390,7 +390,10 @@ report 722 "Phys. Inventory List"
         end
         else begin
             ReservEntryBuffer."Quantity (Base)" += Qty;
-            ReservEntryBuffer.Modify();
+            if (ReservEntryBuffer."Quantity (Base)" = 0) and (ItemJournalLine."Qty. (Calculated)" <> 0) then
+                ReservEntryBuffer.Delete()
+            else
+                ReservEntryBuffer.Modify();
         end;
     end;
 

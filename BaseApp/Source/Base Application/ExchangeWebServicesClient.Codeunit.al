@@ -321,6 +321,8 @@ codeunit 5320 "Exchange Web Services Client"
     begin
         Clear(ServiceOnClient);
         Clear(ServiceOnServer);
+        Clear(TempExchangeFolder);
+        Clear(LongPathsDetected);
         SendTraceTag('0000D8Q', CategoryTxt, Verbosity::Normal, ServiceInvalidatedTxt, DataClassification::SystemMetadata);
     end;
 

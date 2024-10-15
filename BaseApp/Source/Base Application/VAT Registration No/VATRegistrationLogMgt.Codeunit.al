@@ -15,8 +15,7 @@ codeunit 249 "VAT Registration Log Mgt."
         StreetPathTxt: Label 'descendant::vat:traderStreet', Locked = true;
         CityPathTxt: Label 'descendant::vat:traderCity', Locked = true;
         DataTypeManagement: Codeunit "Data Type Management";
-        ValidVATNoQst: Label 'The VAT registration number is valid. Do you want us to update the name and address?';
-        ValidVATNoNoAddressQst: Label 'The VAT registration number is valid. Do you want us to update the name?';
+        ValidVATNoMsg: Label 'The VAT registration number is valid.';
         InvalidVatRegNoMsg: Label 'We didn''t find a match for this number. Verify that you entered the correct number.';
         NotVerifiedVATRegMsg: Label 'We couldn''t verify the VAT registration number. Try again later.';
         VATSrvDisclaimerUrlTok: Label 'https://go.microsoft.com/fwlink/?linkid=841741', Locked = true;
@@ -24,6 +23,11 @@ codeunit 249 "VAT Registration Log Mgt."
         UnexpectedResponseErr: Label 'The VAT registration number could not be verified because the VIES VAT Registration No. service may be currently unavailable for the selected EU state, %1.', Comment = '%1 - Country / Region Code';
         EUVATRegNoValidationServiceTok: Label 'EUVATRegNoValidationServiceTelemetryCategoryTok', Locked = true;
         ValidationFailureMsg: Label 'VIES service may be currently unavailable', Locked = true;
+        NameMatchPathTxt: Label 'descendant::vat:traderNameMatch', Locked = true;
+        StreetMatchPathTxt: Label 'descendant::vat:traderStreetMatch', Locked = true;
+        PostcodeMatchPathTxt: Label 'descendant::vat:traderPostcodeMatch', Locked = true;
+        CityMatchPathTxt: Label 'descendant::vat:traderCityMatch', Locked = true;
+        DetailsNotVerifiedMsg: Label 'VAT registration number is valid.\No details information was provided by VIES service.';
 
     procedure LogCustomer(Customer: Record Customer)
     var
@@ -69,6 +73,15 @@ codeunit 249 "VAT Registration Log Mgt."
     var
         XMLDOMMgt: Codeunit "XML DOM Management";
         FoundXmlNode: DotNet XmlNode;
+        ResponsedName: Text;
+        ResponsedPostCode: Text;
+        ResponsedCity: Text;
+        ResponsedStreet: Text;
+        ResponsedAddress: Text;
+        MatchName: Boolean;
+        MatchStreet: Boolean;
+        MatchPostCode: Boolean;
+        MatchCity: Boolean;
     begin
         if not XMLDOMMgt.FindNodeWithNamespace(XMLDoc.DocumentElement, ValidPathTxt, 'vat', Namespace, FoundXmlNode) then begin
             SendTraceTag('0000C4T', EUVATRegNoValidationServiceTok, VERBOSITY::Error, ValidationFailureMsg, DATACLASSIFICATION::SystemMetadata);
@@ -83,20 +96,27 @@ codeunit 249 "VAT Registration Log Mgt."
                     VATRegistrationLog."Verified Date" := CurrentDateTime;
                     VATRegistrationLog."User ID" := UserId;
 
-                    VATRegistrationLog."Verified Name" := CopyStr(ExtractValue(NamePathTxt, XMLDoc, Namespace), 1,
-                        MaxStrLen(VATRegistrationLog."Verified Name"));
-                    VATRegistrationLog."Verified Address" := CopyStr(ExtractValue(AddressPathTxt, XMLDoc, Namespace), 1,
-                        MaxStrLen(VATRegistrationLog."Verified Address"));
                     VATRegistrationLog."Request Identifier" := CopyStr(ExtractValue(RequestIdPathTxt, XMLDoc, Namespace), 1,
                         MaxStrLen(VATRegistrationLog."Request Identifier"));
-                    VATRegistrationLog."Verified Postcode" := CopyStr(ExtractValue(PostcodePathTxt, XMLDoc, Namespace), 1,
-                        MaxStrLen(VATRegistrationLog."Verified Postcode"));
-                    VATRegistrationLog."Verified Street" := CopyStr(ExtractValue(StreetPathTxt, XMLDoc, Namespace), 1,
-                        MaxStrLen(VATRegistrationLog."Verified Street"));
-                    VATRegistrationLog."Verified City" := CopyStr(ExtractValue(CityPathTxt, XMLDoc, Namespace), 1,
-                        MaxStrLen(VATRegistrationLog."Verified City"));
+
+                    ResponsedName := ExtractValue(NamePathTxt, XMLDoc, Namespace);
+                    ResponsedAddress := ExtractValue(AddressPathTxt, XMLDoc, Namespace);
+                    ResponsedStreet := ExtractValue(StreetPathTxt, XMLDoc, Namespace);
+                    ResponsedPostCode := ExtractValue(PostcodePathTxt, XMLDoc, Namespace);
+                    ResponsedCity := ExtractValue(CityPathTxt, XMLDoc, Namespace);
+                    VATRegistrationLog.SetResponseDetails(
+                      ResponsedName, ResponsedAddress, ResponsedStreet, ResponsedCity, ResponsedPostCode);
+
+                    MatchName := ExtractValue(NameMatchPathTxt, XMLDoc, Namespace) = '1';
+                    MatchStreet := ExtractValue(StreetMatchPathTxt, XMLDoc, Namespace) = '1';
+                    MatchPostCode := ExtractValue(PostcodeMatchPathTxt, XMLDoc, Namespace) = '1';
+                    MatchCity := ExtractValue(CityMatchPathTxt, XMLDoc, Namespace) = '1';
+                    VATRegistrationLog.SetResponseMatchDetails(MatchName, MatchStreet, MatchCity, MatchPostCode);
 
                     VATRegistrationLog.Insert(true);
+
+                    if VATRegistrationLog.LogDetails() then
+                        VATRegistrationLog.Modify();
                 end;
             'false':
                 begin
@@ -206,15 +226,9 @@ codeunit 249 "VAT Registration Log Mgt."
     var
         VATRegistrationLog: Record "VAT Registration Log";
     begin
-        with VATRegistrationLog do begin
-            SetRange("Account Type", "Account Type"::Customer);
-            SetRange("Account No.", Customer."No.");
-            if IsEmpty then
-                LogUnloggedVATRegistrationNumbers;
-
-            CheckIfCountryCodeIsSet(Customer);
-            PAGE.RunModal(PAGE::"VAT Registration Log", VATRegistrationLog);
-        end;
+        CheckAndLogUnloggedVATRegistrationNumbers(VATRegistrationLog, VATRegistrationLog."Account Type"::Customer, Customer."No.");
+        CheckIfCountryCodeIsSet(Customer);
+        Page.RunModal(Page::"VAT Registration Log", VATRegistrationLog);
     end;
 
     procedure CheckIfCountryCodeIsSet(Customer: Record Customer)
@@ -237,26 +251,32 @@ codeunit 249 "VAT Registration Log Mgt."
     var
         VATRegistrationLog: Record "VAT Registration Log";
     begin
-        with VATRegistrationLog do begin
-            SetRange("Account Type", "Account Type"::Vendor);
-            SetRange("Account No.", Vendor."No.");
-            if IsEmpty then
-                LogUnloggedVATRegistrationNumbers;
-            PAGE.RunModal(PAGE::"VAT Registration Log", VATRegistrationLog);
-        end;
+        CheckAndLogUnloggedVATRegistrationNumbers(VATRegistrationLog, VATRegistrationLog."Account Type"::Vendor, Vendor."No.");
+        Page.RunModal(Page::"VAT Registration Log", VATRegistrationLog);
     end;
 
     procedure AssistEditContactVATReg(Contact: Record Contact)
     var
         VATRegistrationLog: Record "VAT Registration Log";
     begin
-        with VATRegistrationLog do begin
-            SetRange("Account Type", "Account Type"::Contact);
-            SetRange("Account No.", Contact."No.");
-            if IsEmpty then
-                LogUnloggedVATRegistrationNumbers;
-            PAGE.RunModal(PAGE::"VAT Registration Log", VATRegistrationLog);
-        end;
+        CheckAndLogUnloggedVATRegistrationNumbers(VATRegistrationLog, VATRegistrationLog."Account Type"::Contact, Contact."No.");
+        Page.RunModal(Page::"VAT Registration Log", VATRegistrationLog);
+    end;
+
+    procedure AssistEditCompanyInfoVATReg()
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+    begin
+        CheckAndLogUnloggedVATRegistrationNumbers(VATRegistrationLog, VATRegistrationLog."Account Type"::"Company Information", '');
+        Page.RunModal(Page::"VAT Registration Log", VATRegistrationLog);
+    end;
+
+    local procedure CheckAndLogUnloggedVATRegistrationNumbers(var VATRegistrationLog: Record "VAT Registration Log"; AccountType: Option; AccountNo: Code[20])
+    begin
+        VATRegistrationLog.SetRange("Account Type", AccountType);
+        VATRegistrationLog.SetRange("Account No.", AccountNo);
+        if VATRegistrationLog.IsEmpty() then
+            LogUnloggedVATRegistrationNumbers();
     end;
 
     local procedure IsEUCountry(CountryCode: Code[10]): Boolean
@@ -319,51 +339,27 @@ codeunit 249 "VAT Registration Log Mgt."
     end;
 
     procedure UpdateRecordFromVATRegLog(var RecordRef: RecordRef; RecordVariant: Variant; VATRegistrationLog: Record "VAT Registration Log")
-    var
-        ConfirmManagement: Codeunit "Confirm Management";
-        ConfirmQst: Text;
     begin
         RecordRef.GetTable(RecordVariant);
         case VATRegistrationLog.Status of
             VATRegistrationLog.Status::Valid:
-                begin
-                    if HasAddress(VATRegistrationLog) then
-                        ConfirmQst := ValidVATNoQst
-                    else
-                        ConfirmQst := ValidVATNoNoAddressQst;
-
-                    if ConfirmManagement.GetResponseOrDefault(ConfirmQst, true) then
-                        PopulateFieldsFromVATRegLog(RecordRef, RecordVariant, VATRegistrationLog);
+                case VATRegistrationLog."Details Status" of
+                    VATRegistrationLog."Details Status"::"Not Verified":
+                        Message(DetailsNotVerifiedMsg);
+                    VATRegistrationLog."Details Status"::Valid:
+                        Message(ValidVATNoMsg);
+                    VATRegistrationLog."Details Status"::"Partially Valid",
+                    VATRegistrationLog."Details Status"::"Not Valid":
+                        begin
+                            DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
+                            VATRegistrationLog.OpenDetailsForRecRef(RecordRef);
+                        end;
                 end;
             VATRegistrationLog.Status::Invalid:
                 Message(InvalidVatRegNoMsg);
             else
                 Message(NotVerifiedVATRegMsg);
         end;
-    end;
-
-    local procedure PopulateFieldsFromVATRegLog(var RecordRef: RecordRef; RecordVariant: Variant; VATRegistrationLog: Record "VAT Registration Log")
-    var
-        Customer: Record Customer;
-        FieldRef: FieldRef;
-    begin
-        DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
-
-        if VATRegistrationLog."Verified Name" <> '' then
-            if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, Customer.FieldName(Name)) then
-                FieldRef.Validate(CopyStr(VATRegistrationLog."Verified Name", 1, FieldRef.Length));
-
-        if VATRegistrationLog."Verified Postcode" <> '' then
-            if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, Customer.FieldName("Post Code")) then
-                FieldRef.Value(CopyStr(VATRegistrationLog."Verified Postcode", 1, FieldRef.Length));
-
-        if VATRegistrationLog."Verified Street" <> '' then
-            if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, Customer.FieldName(Address)) then
-                FieldRef.Value(CopyStr(VATRegistrationLog."Verified Street", 1, FieldRef.Length));
-
-        if VATRegistrationLog."Verified City" <> '' then
-            if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, Customer.FieldName(City)) then
-                FieldRef.Value(CopyStr(VATRegistrationLog."Verified City", 1, FieldRef.Length));
     end;
 
     procedure InitServiceSetup()
@@ -416,7 +412,7 @@ codeunit 249 "VAT Registration Log Mgt."
         exit(VATSrvDisclaimerUrlTok);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     procedure HandleViesRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
@@ -434,17 +430,6 @@ codeunit 249 "VAT Registration Log Mgt."
         with VATRegNoSrvConfig do
             ServiceConnection.InsertServiceConnection(
               ServiceConnection, RecRef.RecordId, DescriptionLbl, "Service Endpoint", PAGE::"VAT Registration Config");
-    end;
-
-    local procedure HasAddress(VATRegistrationLog: Record "VAT Registration Log"): Boolean
-    begin
-        if (VATRegistrationLog."Verified Postcode" = '') and
-           (VATRegistrationLog."Verified Street" = '') and
-           (VATRegistrationLog."Verified City" = '')
-        then
-            exit(false);
-
-        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
