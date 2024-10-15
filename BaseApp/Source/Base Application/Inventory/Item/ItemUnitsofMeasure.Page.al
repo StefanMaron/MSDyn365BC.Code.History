@@ -323,7 +323,7 @@ page 5404 "Item Units of Measure"
         OnAfterSetStyle(StyleName, ItemBaseUOM, Item);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterSetStyle(var StyleName: Text; ItemBaseUOM: Code[10]; Item: Record Item)
     begin
     end;

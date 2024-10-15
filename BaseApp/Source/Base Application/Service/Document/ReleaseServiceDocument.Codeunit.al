@@ -57,16 +57,17 @@ codeunit 416 "Release Service Document"
         OnCodeOnBeforeCheckLocationCode(ServLine, IsHandled);
         if not IsHandled then begin
             InvtSetup.Get();
-            if InvtSetup."Location Mandatory" then begin
-                ServLine.SetCurrentKey(Type);
-                ServLine.SetRange(Type, ServLine.Type::Item);
-                ServLine.SetRange("Location Code", '');
-                if ServLine.FindSet() then
-                    repeat
-                        VerifyLocationCode(ServLine);
-                    until ServLine.Next() = 0;
-                ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
-            end;
+            ServLine.SetCurrentKey(Type);
+            ServLine.SetRange(Type, ServLine.Type::Item);
+            if ServLine.FindSet() then
+                repeat
+                    if InvtSetup."Location Mandatory" then
+                        if ServLine."Location Code" = '' then
+                            VerifyLocationCode(ServLine);
+                    if ServLine.IsInventoriableItem() then
+                        ServLine.TestField("Unit of Measure Code");
+                until ServLine.Next() = 0;
+            ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
         end;
 
         OnCodeOnAfterCheck(ServiceHeader, ServLine);

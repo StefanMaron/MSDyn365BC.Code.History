@@ -223,13 +223,13 @@ report 595 "Adjust Exchange Rates"
                     if not AdjCustVendBank and (not AdjEmpl) then
                         CurrReport.Break();
 
-                Window.Open(
-                  Text006Txt +
-                  Text007Txt +
-                  Text008Txt +
-                  Text009Txt +
-                  Text010Txt +
-                  Text018Txt);
+                    Window.Open(
+                      Text006Txt +
+                      Text007Txt +
+                      Text008Txt +
+                      Text009Txt +
+                      Text010Txt +
+                      Text018Txt);
 
 
                     CustNoTotal := Customer.Count();
@@ -522,86 +522,86 @@ report 595 "Adjust Exchange Rates"
                     Clear(DimMgt);
                 end;
             }
-        dataitem(Employee; Employee)
-        {
-            DataItemTableView = sorting("No.");
-            RequestFilterFields = "No.";
-            dataitem(EmployeeLedgerEntryLoop; "Integer")
+            dataitem(Employee; Employee)
             {
-                DataItemTableView = sorting(Number);
-                dataitem("Detailed Employee Ledger Entry"; "Detailed Employee Ledger Entry")
+                DataItemTableView = sorting("No.");
+                RequestFilterFields = "No.";
+                dataitem(EmployeeLedgerEntryLoop; "Integer")
                 {
-                    DataItemTableView = sorting("Employee Ledger Entry No.", "Posting Date");
+                    DataItemTableView = sorting(Number);
+                    dataitem("Detailed Employee Ledger Entry"; "Detailed Employee Ledger Entry")
+                    {
+                        DataItemTableView = sorting("Employee Ledger Entry No.", "Posting Date");
+
+                        trigger OnAfterGetRecord()
+                        begin
+                            AdjustEmployeeLedgerEntry(EmployeeLedgerEntry, "Posting Date");
+                        end;
+
+                        trigger OnPreDataItem()
+                        begin
+                            SetCurrentKey("Employee Ledger Entry No.");
+                            SetRange("Employee Ledger Entry No.", EmployeeLedgerEntry."Entry No.");
+                            SetFilter("Posting Date", '%1..', CalcDate('<+1D>', PostingDate));
+                        end;
+                    }
 
                     trigger OnAfterGetRecord()
                     begin
-                        AdjustEmployeeLedgerEntry(EmployeeLedgerEntry, "Posting Date");
+                        TempDtldEmplLedgEntrySums.DeleteAll();
+
+                        if FirstEntry then begin
+                            TempEmployeeLedgerEntry.Find('-');
+                            FirstEntry := false
+                        end else
+                            if TempEmployeeLedgerEntry.Next() = 0 then
+                                CurrReport.Break();
+                        EmployeeLedgerEntry.Get(TempEmployeeLedgerEntry."Entry No.");
+
+                        AdjustEmployeeLedgerEntry(EmployeeLedgerEntry, PostingDate);
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        SetCurrentKey("Employee Ledger Entry No.");
-                        SetRange("Employee Ledger Entry No.", EmployeeLedgerEntry."Entry No.");
-                        SetFilter("Posting Date", '%1..', CalcDate('<+1D>', PostingDate));
+                        if not TempEmployeeLedgerEntry.Find('-') then
+                            CurrReport.Break();
+                        FirstEntry := true;
                     end;
                 }
 
                 trigger OnAfterGetRecord()
                 begin
-                    TempDtldEmplLedgEntrySums.DeleteAll();
+                    EmplNo := EmplNo + 1;
+                    Window.Update(5, Round(EmplNo / EmplNoTotal * 10000, 1));
 
-                    if FirstEntry then begin
-                        TempEmployeeLedgerEntry.Find('-');
-                        FirstEntry := false
-                    end else
-                        if TempEmployeeLedgerEntry.Next() = 0 then
-                            CurrReport.Break();
-                    EmployeeLedgerEntry.Get(TempEmployeeLedgerEntry."Entry No.");
+                    PrepareTempEmplLedgEntry(Employee, TempEmployeeLedgerEntry);
 
-                    AdjustEmployeeLedgerEntry(EmployeeLedgerEntry, PostingDate);
+                    OnEmployeeAfterGetRecordOnAfterFindEmplLedgerEntriesToAdjust(TempEmployeeLedgerEntry);
+                end;
+
+                trigger OnPostDataItem()
+                begin
+                    if EmplNo <> 0 then
+                        HandlePostAdjmt(3); // Employee
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    if not TempEmployeeLedgerEntry.Find('-') then
+                    if not AdjEmpl then
                         CurrReport.Break();
-                    FirstEntry := true;
+
+                    DtldEmplLedgEntry.LockTable();
+                    EmployeeLedgerEntry.LockTable();
+
+                    VendNo := 0;
+                    if DtldEmplLedgEntry.Find('+') then
+                        NewEntryNo := DtldEmplLedgEntry."Entry No." + 1
+                    else
+                        NewEntryNo := 1;
+
+                    Clear(DimMgt);
                 end;
             }
-
-            trigger OnAfterGetRecord()
-            begin
-                EmplNo := EmplNo + 1;
-                Window.Update(5, Round(EmplNo / EmplNoTotal * 10000, 1));
-
-                PrepareTempEmplLedgEntry(Employee, TempEmployeeLedgerEntry);
-
-                OnEmployeeAfterGetRecordOnAfterFindEmplLedgerEntriesToAdjust(TempEmployeeLedgerEntry);
-            end;
-
-            trigger OnPostDataItem()
-            begin
-                if EmplNo <> 0 then
-                    HandlePostAdjmt(3); // Employee
-            end;
-
-            trigger OnPreDataItem()
-            begin
-                if not AdjEmpl then
-                    CurrReport.Break();
-
-                DtldEmplLedgEntry.LockTable();
-                EmployeeLedgerEntry.LockTable();
-
-                VendNo := 0;
-                if DtldEmplLedgEntry.Find('+') then
-                    NewEntryNo := DtldEmplLedgEntry."Entry No." + 1
-                else
-                    NewEntryNo := 1;
-
-                Clear(DimMgt);
-            end;
-        }
 
             dataitem("VAT Posting Setup"; "VAT Posting Setup")
             {
@@ -1528,7 +1528,7 @@ report 595 "Adjust Exchange Rates"
                     InsertVendLedgEntries(TempDtldVendLedgEntry, TempDtldCVLedgEntryBuf);
                 3: // Employee
                     InsertEmplLedgEntries(TempDtldEmplLedgEntry, TempDtldCVLedgEntryBuf);
-             end;
+            end;
 
         ResetTempAdjmtBuffer();
         ResetTempAdjmtBuffer2();
@@ -2224,7 +2224,7 @@ report 595 "Adjust Exchange Rates"
 
         case ValuationMethod of
             ValuationMethod::"Lowest Value":
-                if (CurrAdjAmount >= 0) and (not Application) then
+                 if (CurrAdjAmount >= Abs(CustLedgerEntry."Remaining Amt. (LCY)")) and (not Application) then
                     CurrReport.Skip();
             ValuationMethod::"BilMoG (Germany)":
                 if not Application then
@@ -2405,7 +2405,7 @@ report 595 "Adjust Exchange Rates"
 
         case ValuationMethod of
             ValuationMethod::"Lowest Value":
-                if (CurrAdjAmount >= 0) and (not Application) then
+                if (CurrAdjAmount >= Abs(VendLedgerEntry."Original Amt. (LCY)")) and (not Application) then
                     CurrReport.Skip();
             ValuationMethod::"BilMoG (Germany)":
                 if not Application then

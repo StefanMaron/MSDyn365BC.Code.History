@@ -58,6 +58,7 @@ codeunit 137400 "SCM Inventory - Orders"
         OrderPromisingUnavailQtyErr: Label 'Incorrect Unavailable Quantity on Order Promising Line';
         AmountToAssignItemChargeErr: Label 'Amount to Assign does not correspond to Qty. to Assign on item charge assignment.';
         QtyToInvoiceMustHaveValueErr: Label 'Qty. to Invoice must have a value';
+        DimensionErr: Label 'Dimension Value Code must be %1 in %2.', Comment = '%1 = Dimension Value Code, %2=Table Name';
 
     [Test]
     [Scope('OnPrem')]
@@ -2880,6 +2881,72 @@ codeunit 137400 "SCM Inventory - Orders"
         PurchaseHeader.Find();
         PurchaseHeader.TestField("Posting Date", SalesHeader."Posting Date");
         PurchaseHeader.TestField("Document Date", PurchaseHeader."Posting Date");
+    end;
+
+    [Test]
+    procedure DimensionMustBePulledFromItemAndLocationInPhysicalInventoryJournal()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        DefaultDimension: array[2] of Record "Default Dimension";
+        DimensionValue: array[2] of Record "Dimension Value";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        // [SCENARIO 539893] Default Location Dimensions should be passed to Physical Inventory Journal on Calculate Inventory.
+        Initialize(false);
+
+        // [GIVEN] Create an Item.
+        CreateItem(Item);
+
+        // [GIVEN] Create Dimension Value.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[1]);
+
+        // [GIVEN] Create Dimension for Item.
+        LibraryDimension.CreateDefaultDimensionItem(DefaultDimension[1], Item."No.", DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
+
+        // [GIVEN] Create Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Dimension Value for Location.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue[2]);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension[2], Database::Location, Location.Code, DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
+
+        // [GIVEN] Post Item in Postive Adjustment in the Location.
+        CreateAndPostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", LibraryRandom.RandDec(15, 2), Item."No.", LibraryRandom.RandDec(100, 2), Location.Code);
+
+        // [GIVEN] Create Item Journal Template for Physical Inventory and Validate No Series.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        ItemJournalBatch.Modify(true);
+
+        // [GIVEN] Calculate Inventory For an Item.
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, Item."No.", WorkDate(), false, false);
+
+        // [GIVEN] Find the Item Journal.
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.FindLast();
+
+        // [GIVEN] Find the Dimension Set Entry from Item Journal Line.
+        DimensionSetEntry.SetRange("Dimension Set ID", ItemJournalLine."Dimension Set ID");
+        DimensionSetEntry.SetRange("Dimension Code", DimensionValue[2]."Dimension Code");
+        DimensionSetEntry.FindFirst();
+
+        // [THEN] Dimension Value from Location must be passed into Item Journal Line.
+        Assert.AreEqual(
+            DimensionValue[2].Code,
+            DimensionSetEntry."Dimension Value Code",
+            StrSubstNo(
+                DimensionErr,
+                DimensionValue[2].Code,
+                ItemJournalLine.TableCaption()));
     end;
 
     local procedure Initialize(Enable: Boolean)

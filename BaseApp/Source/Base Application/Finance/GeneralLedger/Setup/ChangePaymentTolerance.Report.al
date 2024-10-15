@@ -303,6 +303,7 @@ report 34 "Change Payment Tolerance"
                                   Round(-NewMaxPmtToleranceAmount, AmountRoundingPrecision);
                         if Abs(CustLedgEntry."Remaining Amount") < Abs(CustLedgEntry."Max. Payment Tolerance") then
                             CustLedgEntry."Max. Payment Tolerance" := CustLedgEntry."Remaining Amount";
+                        OnChangeCustLedgEntriesOnBeforeModifyCustLedgEntry(CustLedgEntry);
                         CustLedgEntry.Modify();
                     until CustLedgEntry.Next() = 0;
             end;
@@ -355,6 +356,7 @@ report 34 "Change Payment Tolerance"
                                   Round(NewMaxPmtToleranceAmount, AmountRoundingPrecision);
                         if Abs(VendLedgEntry."Remaining Amount") < Abs(VendLedgEntry."Max. Payment Tolerance") then
                             VendLedgEntry."Max. Payment Tolerance" := VendLedgEntry."Remaining Amount";
+                        OnChangeVendLedgEntryOnBeforeModifyVendLedgEntry(VendLedgEntry);
                         VendLedgEntry.Modify();
                     until VendLedgEntry.Next() = 0;
             end;
@@ -391,6 +393,16 @@ report 34 "Change Payment Tolerance"
         CurrencyCode := CurrencyCodeFrom;
         PaymentTolerancePct := PaymentTolerancePctFrom;
         MaxPmtToleranceAmount := MaxPmtToleranceAmountFrom;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeCustLedgEntriesOnBeforeModifyCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeVendLedgEntryOnBeforeModifyVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
     end;
 }
 

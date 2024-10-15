@@ -98,6 +98,12 @@ page 7383 "Invt. Movement Subform"
                     ToolTip = 'Specifies the lot number is blocked, on its information card.';
                     Visible = false;
                 }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the package number to handle in the document.';
+                    Visible = false;
+                }
                 field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;

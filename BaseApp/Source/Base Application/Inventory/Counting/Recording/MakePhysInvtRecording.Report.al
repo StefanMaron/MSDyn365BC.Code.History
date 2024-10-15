@@ -108,14 +108,16 @@ report 5881 "Make Phys. Invt. Recording"
 
     trigger OnPreReport()
     begin
+        OnBeforeOnPreReport("Phys. Invt. Order Header");
+
         HeaderCount := 0;
     end;
 
     var
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
         NewOrderNotCreatedMsg: Label 'A physical inventory recording was not created because no valid physical inventory order lines exist.';
         NewOrderCreatedMsg: Label 'Physical inventory recording %1 %2 has been created.', Comment = '%1 = Order No. %2 = Recording No.';
         DifferentOrdersMsg: Label '%1 different orders has been created.', Comment = '%1 = counter';
-        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
 
     protected var
         PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
@@ -141,7 +143,7 @@ report 5881 "Make Phys. Invt. Recording"
             PhysInvtRecordLine2.SetRange("Location Code", PhysInvtOrderLine."Location Code");
             PhysInvtRecordLine2.SetRange("Bin Code", PhysInvtOrderLine."Bin Code");
             OnCheckOrderLineOnAfterSetFilters(PhysInvtRecordLine2, PhysInvtOrderLine);
-            if PhysInvtRecordLine2.FindFirst() then
+            if not PhysInvtRecordLine2.IsEmpty() then
                 exit(false);
         end;
         exit(true);
@@ -219,6 +221,11 @@ report 5881 "Make Phys. Invt. Recording"
 
     [IntegrationEvent(true, false)]
     local procedure OnPhysInvtOrderLineOnAfterInsertRecordingLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; var PhysInvtRecordLine: Record "Phys. Invt. Record Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
 }

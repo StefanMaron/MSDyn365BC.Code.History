@@ -25,6 +25,7 @@ codeunit 142068 "UT REP LOWVAL"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJournals: Codeunit "Library - Journals";
         RefValuationMethod: Option Standard,"Lowest Value","BilMoG (Germany)";
@@ -204,6 +205,192 @@ codeunit 142068 "UT REP LOWVAL"
         // [THEN] Invoice Adjusted amount printed in report
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VendLedgEntryAdjAmt', -163.04);
+    end;
+
+    [Test]
+    [HandlerFunctions('AdjustMessageHandler,AdjustExchangeRatesValuePerEndRequestPageHandler,ConfirmHandlerTRUE')]
+    procedure AdjustExchangeRatesOnLowestValueForUnrealizedGainForVendor()
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        TempCurrencyToAdjust: Record Currency temporary;
+        CurrAdjAmount: Decimal;
+        ExchangeDate: Date;
+        ExchangeRateAmount: Decimal;
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Vendor]
+        // [SCENARIO 522827] Adjust Exchange Rates should calculate Unrealized gain on Lowest Value on Currency gains original local currency value of the transaction.
+        Initialize();
+
+        // [GIVEN] Create a Currency.
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Set Gain and Loss Accounts in Currency.
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+
+        // [GIVEN] Validate Residual Gains Account, Residual Losses Account and Appln. Rounding Precision on Currency.
+        Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
+        Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
+        Currency.Validate("Appln. Rounding Precision", 0);
+        Currency.Modify(true);
+
+        // [GIVEN] Store Exchange Date and Exchange Amount.
+        ExchangeDate := LibraryRandom.RandDate(1) - LibraryRandom.RandIntInRange(1000, 1100);
+        ExchangeRateAmount := LibraryRandom.RandDec(1, 3);
+
+        // [GIVEN] Create Exchange Rate for Different Dates.
+        LibraryERM.CreateExchangeRate(Currency.Code, ExchangeDate + 6, 1, ExchangeRateAmount + 2);
+        LibraryERM.CreateExchangeRate(Currency.Code, ExchangeDate + 5, 1, ExchangeRateAmount + 1.05);
+        LibraryERM.CreateExchangeRate(Currency.Code, ExchangeDate + 3, 1, 1);
+        LibraryERM.CreateExchangeRate(Currency.Code, ExchangeDate, 1, ExchangeRateAmount + 0.856);
+
+        // [GIVEN] Create a Vendor and Validate Currency.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create a Purchase Invoice and Validate Posting Date to Exchange Date.
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+        PurchaseHeader.Validate("Posting Date", ExchangeDate);
+        PurchaseHeader.Validate("Currency Code", Currency.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice.
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Commit();
+
+        // [GIVEN] Store the value of Closing Date, Vendor No. and Currency Code.
+        LibraryVariableStorage.Enqueue(ExchangeDate + 5);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(Currency.Code);
+
+        // [GIVEN] Find the Vendor Ledger Entry of the posted Purchase Invoice.
+        VendorLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Remaining Amount");
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange("Document No.", InvoiceNo);
+        VendorLedgerEntry.FindLast();
+
+        // [GIVEN] Find the Currency Exchange Rate on the Starting Date.
+        CurrencyExchangeRate.SetRange("Starting Date", ExchangeDate + 5);
+        CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
+        CurrencyExchangeRate.FindFirst();
+
+        // [GIVEN] Insert The Currency into temporary table and Validate Adjustment Exch Rate Amount.
+        TempCurrencyToAdjust.Init();
+        TempCurrencyToAdjust.Copy(Currency);
+        TempCurrencyToAdjust.Validate("Currency Factor", CurrencyExchangeRate."Adjustment Exch. Rate Amount");
+        TempCurrencyToAdjust.Insert(true);
+
+        // [GIVEN] Calculate the Current Adjustment Amount.
+        CurrAdjAmount :=
+            Round(
+                CurrencyExchangeRate.ExchangeAmtFCYToLCYAdjmt(
+                    ExchangeDate + 5, TempCurrencyToAdjust.Code, VendorLedgerEntry."Remaining Amount", TempCurrencyToAdjust."Currency Factor")) -
+                VendorLedgerEntry."Remaining Amt. (LCY)";
+
+        // [GIVEN] Run Report Adjust Exchange Rates on Gain Date.
+        Report.Run(Report::"Adjust Exchange Rates");
+
+        // [THEN] Adjust Exchange Rates should calculate Unrealized gain on Lowest Value.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('VendLedgEntryAdjAmt', CurrAdjAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('AdjustMessageHandler,AdjustExchangeRatesValuePerEndRequestPageHandlerForCustomer,ConfirmHandlerTRUE')]
+    procedure AdjustExchangeRatesOnLowestValueForUnrealizedGainForCustomer()
+    var
+        Currency: Record Currency;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        CustomerLedgerEntry: Record "Cust. Ledger Entry";
+        TempCurrencyToAdjust: Record Currency temporary;
+        CurrAdjAmount: Decimal;
+        ExchangeDate: Date;
+        ExchangeRateAmount: Decimal;
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Customer]
+        // [SCENARIO 522827] Adjust Exchange Rates should calculate Unrealized gain on Lowest Value on Currency gains original local currency value of the transaction.
+        Initialize();
+
+        // [GIVEN] Create a Currency.
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Set Gain and Loss Accounts in Currency.
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+
+        // [GIVEN] Validate Residual Gains Account, Residual Losses Account and Appln. Rounding Precision on Currency.
+        Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
+        Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
+        Currency.Validate("Appln. Rounding Precision", 0);
+        Currency.Modify(true);
+
+        // [GIVEN] Store Exchange Date and Exchange Amount.
+        ExchangeDate := LibraryRandom.RandDate(1) - LibraryRandom.RandIntInRange(1000, 1100);
+        ExchangeRateAmount := LibraryRandom.RandDec(1, 3);
+
+        // [GIVEN] Create Exchange Rate for Different Dates.
+        LibraryERM.CreateExchangeRate(Currency.Code, ExchangeDate + 6, 1, ExchangeRateAmount + 2);
+        LibraryERM.CreateExchangeRate(Currency.Code, ExchangeDate + 5, 1, ExchangeRateAmount + 1.05);
+        LibraryERM.CreateExchangeRate(Currency.Code, ExchangeDate + 3, 1, 1);
+        LibraryERM.CreateExchangeRate(Currency.Code, ExchangeDate, 1, ExchangeRateAmount + 0.856);
+
+        // [GIVEN] Create a Customer and Validate Currency.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create a Sales Invoice and Validate Posting Date to Exchange Date.
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        SalesHeader.Validate("Posting Date", ExchangeDate);
+        SalesHeader.Validate("Currency Code", Currency.Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Post Sales Invoice.
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        Commit();
+
+        // [GIVEN] Store the value of Closing Date, Customer No. and Currency Code.
+        LibraryVariableStorage.Enqueue(ExchangeDate + 5);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue(Currency.Code);
+
+        // [GIVEN] Find the Customer Ledger Entry of the Posted Sales Invoice.
+        CustomerLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)", "Remaining Amount");
+        CustomerLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustomerLedgerEntry.SetRange("Document No.", InvoiceNo);
+        CustomerLedgerEntry.FindLast();
+
+        // [GIVEN] Find the Currency Exchange Rate on the Starting Date.
+        CurrencyExchangeRate.SetRange("Starting Date", ExchangeDate + 5);
+        CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
+        CurrencyExchangeRate.FindFirst();
+
+        // [GIVEN] Insert The Currency into temporary table and Validate Adjustment Exch Rate Amount.
+        TempCurrencyToAdjust.Init();
+        TempCurrencyToAdjust.Copy(Currency);
+        TempCurrencyToAdjust.Validate("Currency Factor", CurrencyExchangeRate."Adjustment Exch. Rate Amount");
+        TempCurrencyToAdjust.Insert(true);
+
+        // [GIVEN] Calculate the Current Adjustment Amount.
+        CurrAdjAmount :=
+            Round(
+                CurrencyExchangeRate.ExchangeAmtFCYToLCYAdjmt(
+                    ExchangeDate + 5, TempCurrencyToAdjust.Code, CustomerLedgerEntry."Remaining Amount", TempCurrencyToAdjust."Currency Factor")) -
+                CustomerLedgerEntry."Remaining Amt. (LCY)";
+
+        // [GIVEN] Run Report Adjust Exchange Rates on Gain Date.
+        Report.Run(Report::"Adjust Exchange Rates");
+
+        // [THEN] Adjust Exchange Rates should calculate Unrealized gain on Lowest Value.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('AdjAmt', CurrAdjAmount);
     end;
 
     [Test]
@@ -480,6 +667,32 @@ codeunit 142068 "UT REP LOWVAL"
         AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
+    [RequestPageHandler]
+    procedure AdjustExchangeRatesValuePerEndRequestPageHandler(var ExchRateAdjustment: TestRequestPage "Adjust Exchange Rates")
+    begin
+        ExchRateAdjustment.Method.SetValue(RefValuationMethod::"Lowest Value");
+        ExchRateAdjustment.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        ExchRateAdjustment.AdjVendors.SetValue(true);
+        ExchRateAdjustment.DocumentNo.SetValue(LibraryRandom.RandText(3));
+        ExchRateAdjustment.Post.SetValue(true);
+        ExchRateAdjustment.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ExchRateAdjustment.Currency.SetFilter("Code", LibraryVariableStorage.DequeueText());
+        ExchRateAdjustment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure AdjustExchangeRatesValuePerEndRequestPageHandlerForCustomer(var ExchRateAdjustment: TestRequestPage "Adjust Exchange Rates")
+    begin
+        ExchRateAdjustment.Method.SetValue(RefValuationMethod::"Lowest Value");
+        ExchRateAdjustment.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        ExchRateAdjustment.AdjustCustomer.SetValue(true);
+        ExchRateAdjustment.DocumentNo.SetValue(LibraryRandom.RandText(3));
+        ExchRateAdjustment.Post.SetValue(true);
+        ExchRateAdjustment.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ExchRateAdjustment.Currency.SetFilter("Code", LibraryVariableStorage.DequeueText());
+        ExchRateAdjustment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFALSE(Question: Text[1024]; var Reply: Boolean)
@@ -506,6 +719,11 @@ codeunit 142068 "UT REP LOWVAL"
     procedure AdjustedMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
+    end;
+
+    [MessageHandler]
+    procedure AdjustMessageHandler(Message: Text[1024])
+    begin
     end;
 }
 #endif
