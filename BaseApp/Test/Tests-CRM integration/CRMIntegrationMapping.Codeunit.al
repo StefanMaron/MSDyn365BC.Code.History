@@ -409,17 +409,17 @@ codeunit 139183 "CRM Integration Mapping"
         CurrDT: DateTime;
     begin
         // [FEATURE] [UT]
-        // [SCENARIO] CRM table record modified after the last sync, defined just by "Synch. Modified On Filter", should be all included into sync.
+        // [SCENARIO] CRM table record modified after the last sync, defined just by "Synch. Int. Tbl. Mod. On Fltr.", should be all included into sync.
         Initialize;
         // [GIVEN] CRM Account 'A', where "Modified On" = '10:29' and CRM Account 'B', where "Modified On" = '10:31'
         CurrDT := CreateTwoCRMAccountsModifiedIn(CRMAccount, 200);
 
-        // [GIVEN] the CRM Account mapping, where "Synch. Int. Tbl. Mod. On Fltr." is <blank> and "Synch. Modified On Filter" is '10:30'.
+        // [GIVEN] the CRM Account mapping, where "Synch. Modified On Filter" is <blank> and "Synch. Int. Tbl. Mod. On Fltr." is '10:30'.
         IntegrationTableMapping.Init();
         IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
         IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := CRMAccount.FieldNo(ModifiedOn);
-        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := 0DT;
-        IntegrationTableMapping."Synch. Modified On Filter" := CurrDT + 100;
+        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrDT + 100;
+        IntegrationTableMapping."Synch. Modified On Filter" := 0DT;
 
         // [WHEN] run SetIntRecordRefFilter()
         RecRef.Get(CRMAccount.RecordId);
@@ -441,17 +441,17 @@ codeunit 139183 "CRM Integration Mapping"
         CurrDT: DateTime;
     begin
         // [FEATURE] [UT]
-        // [SCENARIO] CRM table record modified after the last int. table sync, defined by "Synch. Int. Tbl. Mod. On Fltr.", should be included into sync.
+        // [SCENARIO] CRM table record modified after the last int. table sync, defined by "Synch. Modified On Filter", should be included into sync.
         Initialize;
         // [GIVEN] CRM Account 'A', where "Modified On" = '10:29' and CRM Account 'B', where "Modified On" = '10:31'
-        CurrDT := CreateTwoCRMAccountsModifiedIn(CRMAccount, 200);
+        CurrDT := CreateTwoCRMAccountsModifiedIn(CRMAccount, 3000);
 
-        // [GIVEN] the CRM Account mapping, where "Synch. Int. Tbl. Mod. On Fltr." is '10:30' and "Synch. Modified On Filter" is '10:28'.
+        // [GIVEN] the CRM Account mapping, where "Synch. Modified On Filter" is '10:28' and "Synch. Int. Tbl. Mod. On Fltr." is '10:30'.
         IntegrationTableMapping.Init();
         IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Account";
         IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := CRMAccount.FieldNo(ModifiedOn);
-        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrDT + 100;
-        IntegrationTableMapping."Synch. Modified On Filter" := CurrDT - 100;
+        IntegrationTableMapping."Synch. Modified On Filter" := CurrDT + 2000;
+        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrDT - 2000;
 
         // [WHEN] run SetIntRecordRefFilter()
         RecRef.Get(CRMAccount.RecordId);

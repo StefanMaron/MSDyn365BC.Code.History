@@ -481,8 +481,10 @@ page 5094 "Marketing Setup"
 
                     trigger OnAction()
                     var
+                        SetupEmailLogging: Codeunit "Setup Email Logging";
                         AssistedSetup: Codeunit "Assisted Setup";
                     begin
+                        SetupEmailLogging.RegisterAssistedSetup();
                         Commit(); // Make sure all data is committed before we run the wizard
                         AssistedSetup.Run(Page::"Setup Email Logging");
                         if Find() then
@@ -545,13 +547,9 @@ page 5094 "Marketing Setup"
     trigger OnInit()
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        SetupEmailLogging: Codeunit "Setup Email Logging";
     begin
         SoftwareAsAService := EnvironmentInfo.IsSaaS;
         ClientCredentialsVisible := not SoftwareAsAService;
-
-        if SoftwareAsAService then
-            SetupEmailLogging.RegisterAssistedSetup();
     end;
 
     trigger OnOpenPage()

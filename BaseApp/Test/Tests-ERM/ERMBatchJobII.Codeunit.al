@@ -23,6 +23,7 @@ codeunit 134919 "ERM Batch Job II"
         CopyToErrorMessage: Label 'You must specify a budget name to copy to.';
         BudgetName: Code[10];
         BudgetError: Label 'G/L Budget: %1 must not exist.', Comment = '%1=G/L Budget Name';
+        JobsCopyMsg: Label 'The job no. %1 was successfully copied to the new job no. %2 with the status Planning.';
 
     [Test]
     [Scope('OnPrem')]
@@ -279,6 +280,41 @@ codeunit 134919 "ERM Batch Job II"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('CopyJobModalPageHandler,CheckMessageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckCorrectMessageAfterJobsCopy()
+    var
+        Job: Record Job;
+        JobList: TestPage "Job List";
+        TargetJobNo: Code[20];
+        TargetJobDescription: Text;
+    begin
+        // [SCENARIO 363807] The correct message is shown after jobs copy
+        Initialize();
+
+        // [GIVEN] Created Job 
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Page Job List opened
+        JobList.OpenEdit();
+        JobList.Filter.SetFilter("No.", Job."No.");
+        JobList.First();
+
+        // [GIVEN] Create and Save for handler "Target Job No." and "Target Job Description"
+        TargetJobNo := CopyStr(LibraryRandom.RandText(20), 1, MaxStrLen(TargetJobNo));
+        TargetJobDescription := LibraryRandom.RandText(20);
+        LibraryVariableStorage.Enqueue(TargetJobNo);
+        LibraryVariableStorage.Enqueue(TargetJobDescription);
+
+        // [WHEN] Invoke Copy Jobs
+        JobList.CopyJob.Invoke();
+
+        // [THEN] The Message is correct
+        Assert.AreEqual(STRSUBSTNO(JobsCopyMsg, Job."No.", TargetJobNo), LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Batch Job II");
@@ -439,6 +475,22 @@ codeunit 134919 "ERM Batch Job II"
         JobTransfertoSalesInvoice.CreateNewInvoice.SetValue(false);
         JobTransfertoSalesInvoice.AppendToSalesInvoiceNo.SetValue(LibraryVariableStorage.DequeueText);
         JobTransfertoSalesInvoice.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyJobModalPageHandler(var CopyJob: TestPage "Copy Job")
+    begin
+        CopyJob.TargetJobNo.SetValue(LibraryVariableStorage.DequeueText);
+        CopyJob.TargetJobDescription.SetValue(LibraryVariableStorage.DequeueText);
+        CopyJob.OK.Invoke();
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure CheckMessageHandler(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
     end;
 }
 

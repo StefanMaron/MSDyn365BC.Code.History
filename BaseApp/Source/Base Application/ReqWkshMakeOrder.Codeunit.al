@@ -1,4 +1,4 @@
-codeunit 333 "Req. Wksh.-Make Order"
+﻿codeunit 333 "Req. Wksh.-Make Order"
 {
     Permissions = TableData "Sales Line" = m;
     TableNo = "Requisition Line";
@@ -31,6 +31,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         SalesOrderHeader: Record "Sales Header";
         SalesOrderLine: Record "Sales Line";
         TransHeader: Record "Transfer Header";
+        TempTransHeader: Record "Transfer Header" temporary;
         AccountingPeriod: Record "Accounting Period";
         TempFailedReqLine: Record "Requisition Line" temporary;
         PurchasingCode: Record Purchasing;
@@ -186,6 +187,7 @@ codeunit 333 "Req. Wksh.-Make Order"
 
                     ReqLine3.SetRange("Worksheet Template Name", "Worksheet Template Name");
                     ReqLine3.SetRange("Journal Batch Name", "Journal Batch Name");
+                    OnCodeOnAfterReqLine3SetFilters(ReqLine, ReqLine3);
                     if not ReqLine3.FindLast then
                         if IncStr("Journal Batch Name") <> '' then begin
                             ReqWkshName.Get("Worksheet Template Name", "Journal Batch Name");
@@ -359,7 +361,9 @@ codeunit 333 "Req. Wksh.-Make Order"
                         "Action Message"::New, "Action Message"::" ":
                             begin
                                 CarryOutAction.SetPrintOrder(PrintPurchOrders);
+                                GetTransferHeader(TransHeader, ReqLine);
                                 CarryOutAction.InsertTransLine(ReqLine, TransHeader);
+                                SetTransferHeader(TransHeader);
                                 OnCarryOutReqLineActionOnAfterInsertTransLine(TransHeader);
                                 OrderCounter := OrderCounter + 1;
                             end;
@@ -1076,7 +1080,7 @@ codeunit 333 "Req. Wksh.-Make Order"
               (PrevPurchCode <> "Purchasing Code") or
               CheckAddressDetails("Sales Order No.", "Sales Order Line No.", UpdateAddressDetails);
 
-        OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter);
+        OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode);
         exit(CheckInsert);
     end;
 
@@ -1159,6 +1163,20 @@ codeunit 333 "Req. Wksh.-Make Order"
         exit(true);
     end;
 
+    local procedure GetTransferHeader(var TransferHeader: Record "Transfer Header"; RequisitionLine: Record "Requisition Line")
+    begin
+        TempTransHeader.SetRange("Transfer-from Code", RequisitionLine."Transfer-from Code");
+        TempTransHeader.SetRange("Transfer-to Code", RequisitionLine."Location Code");
+        if TempTransHeader.FindFirst() then
+            TransferHeader.Get(TempTransHeader."No.");
+    end;
+
+    local procedure SetTransferHeader(TransferHeader: Record "Transfer Header")
+    begin
+        TempTransHeader := TransferHeader;
+        if TempTransHeader.Insert() then;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var ReqLine: Record "Requisition Line"; PlanningResiliency: Boolean; SuppressCommit: Boolean; PrintPurchOrders: Boolean)
     begin
@@ -1225,7 +1243,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer)
+    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer; PrevPurchCode: Code[10]; PrevLocationCode: Code[10])
     begin
     end;
 
@@ -1321,6 +1339,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckFurtherReplenishmentSystems(var RequisitionLine2: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterReqLine3SetFilters(ReqLine: Record "Requisition Line"; var ReqLine3: Record "Requisition Line")
     begin
     end;
 

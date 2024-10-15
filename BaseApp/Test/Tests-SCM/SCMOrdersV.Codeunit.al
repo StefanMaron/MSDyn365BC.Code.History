@@ -3409,6 +3409,42 @@ codeunit 137158 "SCM Orders V"
             PurchaseHeader."No.", DimensionValue."Dimension Code", VendorNo));
     end;
 
+    [Test]
+    [HandlerFunctions('SalesListPageHandler,GetShipmentLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesOrderNormalLinesAfterDropShipmentIsPosted()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeaderInvoice: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 364833] Post sales order with normal lines after drop shipment line is posted
+        Initialize();
+
+        // [GIVEN] Sales Order has one line with drop shipment and a normal line
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        CreateSalesLineWithPurchasingCode(
+          SalesHeader, SalesLine, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(5, 10), '', CreatePurchasingCode(false, true));
+        CreateSalesLine(SalesHeader, SalesLine, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(5, 10), '');
+
+        // [GIVEN] Drop shipment line is posted entirely: posted and invoiced with associated purchase order
+        CreatePurchaseOrderWithGetDropShipment(PurchaseHeader, SalesHeader."Sell-to Customer No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        CreateSalesInvoiceFromShipment(SalesHeaderInvoice, SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeaderInvoice, false, true);
+        PurchaseHeader.Find();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Sales Order is finally posted
+        SalesHeader.Find();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Sales shipment lines created for the second sales line
+        VerifySalesShipmentLine(SalesLine."No.", SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";

@@ -807,6 +807,39 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         VerifySalesLine(SalesHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoInsertTextStdCustSalesLinesWhenCreateNewSalesOrderFromCustomerList()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustomerList: TestPage "Customer List";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI] [Automatic mode] [Order]
+        // [SCENARIO 361171] Recurring text sales line created when new Sales Order is created from Customer List
+        Initialize();
+
+        // [GIVEN] Customer "C" with text Std. Sales Code where Insert Rec. Lines On Orders = Automatic
+        Customer.Get(
+            GetNewCustNoWithStandardSalesCodeForCode(RefDocType::Order, RefMode::Automatic, CreateStandardSalesCodeWithTextLine()));
+
+        // [GIVEN] Customer List on customer "C" record
+        CustomerList.OpenEdit();
+        CustomerList.GotoRecord(Customer);
+
+        // [GIVEN] Perform page action: New Sales Document -> Sales Order
+        SalesOrder.Trap();
+        CustomerList.NewSalesOrder.Invoke();
+
+        // [WHEN] Activate "Sell-to Customer No." field
+        SalesOrder."Sell-to Customer No.".Activate();
+
+        // [THEN] Text recurring sales line created
+        SalesHeader.get(SalesHeader."Document Type"::Order, SalesOrder."No.".Value);
+        VerifySalesLine(SalesHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -876,6 +909,17 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         exit(StandardSalesLine."Standard Sales Code")
     end;
 
+    local procedure CreateStandardSalesCodeWithTextLine(): Code[10]
+    var
+        StandardSalesLine: Record "Standard Sales Line";
+    begin
+        StandardSalesLine."Standard Sales Code" := CreateStandardSalesCode;
+        StandardSalesLine.Type := StandardSalesLine.Type::" ";
+        StandardSalesLine.Description := LibraryUTUtility.GetNewCode();
+        StandardSalesLine.Insert();
+        exit(StandardSalesLine."Standard Sales Code")
+    end;
+
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader."Document Type" := DocumentType;
@@ -924,9 +968,17 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
     var
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
+        exit(
+            GetNewCustNoWithStandardSalesCodeForCode(DocType, Mode, CreateStandardSalesCodeWithItemLine()));
+    end;
+
+    local procedure GetNewCustNoWithStandardSalesCodeForCode(DocType: Option; Mode: Integer; SalesCode: code[10]): Code[20]
+    var
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+    begin
         StandardCustomerSalesCode.Init();
         StandardCustomerSalesCode."Customer No." := LibrarySales.CreateCustomerNo;
-        StandardCustomerSalesCode.Code := CreateStandardSalesCodeWithItemLine;
+        StandardCustomerSalesCode.Code := SalesCode;
         case DocType of
             RefDocType::Quote:
                 StandardCustomerSalesCode."Insert Rec. Lines On Quotes" := Mode;
@@ -1023,6 +1075,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         FilterOnSalesLine(SalesLine, SalesHeader);
         Assert.IsTrue(SalesLine.FindFirst, StrSubstNo(ValueMustExistMsg, SalesLine.TableCaption));
         FindStandardSalesLine(StandardSalesLine, SalesLine."Sell-to Customer No.");
+        SalesLine.TestField(Type, StandardSalesLine.Type);
         SalesLine.TestField("No.", StandardSalesLine."No.");
         SalesLine.TestField(Quantity, StandardSalesLine.Quantity);
     end;

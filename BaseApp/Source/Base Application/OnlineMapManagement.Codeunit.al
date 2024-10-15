@@ -314,7 +314,7 @@ codeunit 802 "Online Map Management"
             Direction::"From my location":
                 begin
                     OnlineMapLocation.SetRecordTo(TableNo, RecPosition);
-                    OnlineMapLocation.RunModal;
+                    OnlineMapLocation.Run();
                 end;
         end;
     end;

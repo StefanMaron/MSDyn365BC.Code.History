@@ -17,6 +17,9 @@ codeunit 144052 "UT REP Purchase & Sales"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryJournals: Codeunit "Library - Journals";
         CompanyInfoPhoneNoCap: Label 'CompanyInfoPhoneNo';
         IssuedReminderHeaderCap: Label 'No_IssuedReminderHeader';
         CurrentSaveValuesId: Integer;
@@ -311,6 +314,125 @@ codeunit 144052 "UT REP Purchase & Sales"
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PrintRemittanceAdviceReportSelectionsNotExist()
+    var
+        ReportSelections: Record "Report Selections";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [Report Selections] [Purchase] [Remittance Advice]
+        // [SCENARIO 363853] Error is thrown when Stan selects "Print Remittance Advice" on Payment Journal page if Report Selections is not set.
+        Initialize();
+
+        // [GIVEN] No report is set for Report Selections "Vendor Remittance".
+        // [GIVEN] Payment for Vendor.
+        ReportSelections.FilterPrintUsage(ReportSelections.Usage::"V.Remittance");
+        Assert.RecordIsEmpty(ReportSelections);
+        CreatePaymentGenJournalBatch(GenJournalBatch);
+        CreateVendorPayment(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryRandom.RandDecInRange(100, 200, 2));
+        Commit();
+
+        // [WHEN] Open "Payment Journal" page with Payment, run "Print Remittance Advice".
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        PaymentJournal.Filter.SetFilter("Journal Batch Name", GenJournalBatch.Name);
+        asserterror PaymentJournal."Print Remi&ttance Advice".Invoke();
+
+        // [THEN] Error "The Report Selections table is empty" is thrown.
+        Assert.ExpectedError('The Report Selections table is empty');
+        Assert.ExpectedErrorCode('TestWrapped:CSideData');
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintRemittanceAdviceReportSelectionsGenJournalTest()
+    var
+        ReportSelections: Record "Report Selections";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PaymentJournal: TestPage "Payment Journal";
+        DocumentNos: List of [Code[20]];
+    begin
+        // [FEATURE] [Report Selections] [Purchase] [Remittance Advice]
+        // [SCENARIO 363853] Report "General Journal - Test" is run from Report Selections when Stan selects "Print Remittance Advice" on Payment Journal page.
+        Initialize();
+
+        // [GIVEN] Report "General Journal - Test" is set as the only report for Report Selections "Vendor Remittance".
+        // [GIVEN] Two Payments with Document No. "P1" and "P2" for different Vendors.
+        CreateReportSelections(ReportSelections, ReportSelections.Usage::"V.Remittance", '1', Report::"General Journal - Test");
+        CreatePaymentGenJournalBatch(GenJournalBatch);
+        CreateVendorPayment(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryRandom.RandDecInRange(100, 200, 2));
+        DocumentNos.Add(GenJournalLine."Document No.");
+        CreateVendorPayment(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryRandom.RandDecInRange(100, 200, 2));
+        DocumentNos.Add(GenJournalLine."Document No.");
+        Commit();
+
+        // [WHEN] Open "Payment Journal" page with Payments "P1" and "P2", run "Print Remittance Advice".
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        PaymentJournal.Filter.SetFilter("Journal Batch Name", GenJournalBatch.Name);
+        PaymentJournal."Print Remi&ttance Advice".Invoke();
+
+        // [THEN] Report "General Journal - Test" is run for Payments "P1" and "P2".
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('GeneralJnlTestCaption', 'General Journal - Test');
+        LibraryReportDataset.AssertElementWithValueExists('DocNo_GenJnlLine', DocumentNos.Get(1));
+        LibraryReportDataset.AssertElementWithValueExists('DocNo_GenJnlLine', DocumentNos.Get(2));
+
+        // Tear down
+        ReportSelections.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('RemittanceAdviceJournalRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintRemittanceAdviceReportSelectionsRemittanceAdviceJournal()
+    var
+        ReportSelections: Record "Report Selections";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        PaymentJournal: TestPage "Payment Journal";
+        DocumentNos: List of [Code[20]];
+    begin
+        // [FEATURE] [Report Selections] [Purchase] [Remittance Advice]
+        // [SCENARIO 363853] Report "Remittance Advice - Journal" is run from Report Selections when Stan selects "Print Remittance Advice" on Payment Journal page.
+        Initialize();
+
+        // [GIVEN] Report "Remittance Advice - Journal" is set as the only report for Report Selections "Vendor Remittance".
+        // [GIVEN] Two Payments with Document No. "P1" and "P2" for different Vendors.
+        CreateReportSelections(ReportSelections, ReportSelections.Usage::"V.Remittance", '1', Report::"Remittance Advice - Journal");
+        CreatePaymentGenJournalBatch(GenJournalBatch);
+        CreateVendorPayment(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryRandom.RandDecInRange(100, 200, 2));
+        DocumentNos.Add(GenJournalLine."Document No.");
+        CreateVendorPayment(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryRandom.RandDecInRange(100, 200, 2));
+        DocumentNos.Add(GenJournalLine."Document No.");
+        Commit();
+
+        // [WHEN] Open "Payment Journal" page with Payments "P1" and "P2", run "Print Remittance Advice".
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        PaymentJournal.Filter.SetFilter("Journal Batch Name", GenJournalBatch.Name);
+        PaymentJournal."Print Remi&ttance Advice".Invoke();
+
+        // [THEN] Report "Remittance Advice - Journal" is run for Payments "P1" and "P2".
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('RemittanceAdviceCaption', 'Remittance Advice');
+        LibraryReportDataset.AssertElementWithValueExists('DocNo_GenJnlLine', DocumentNos.Get(1));
+        LibraryReportDataset.AssertElementWithValueExists('DocNo_GenJnlLine', DocumentNos.Get(2));
+
+        // Tear down
+        ReportSelections.Delete();
+    end;
+
     local procedure OnAfterGetRecordCreateReminders(UseHeaderLevel: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -533,6 +655,23 @@ codeunit 144052 "UT REP Purchase & Sales"
         exit(GeneralPostingSetup."Gen. Prod. Posting Group");
     end;
 
+    local procedure CreatePaymentGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; LineAmount: Decimal)
+    begin
+        LibraryJournals.CreateGenJournalLine2(
+            GenJournalLine, JournalTemplateName, JournalBatchName, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), GenJournalLine."Bal. Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountNo(), LineAmount);
+    end;
+
     local procedure CreateDimensionSetEntry(var DimensionSetEntry: Record "Dimension Set Entry")
     var
         DimensionValue: Record "Dimension Value";
@@ -666,6 +805,17 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         CreateVATPostingSetup(VATPostingSetup);
         CustomerPostingGroupCode := CreateCustomerPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+    end;
+
+    local procedure CreateReportSelections(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage"; SequenceCode: Code[10]; ReportID: Integer)
+    begin
+        with ReportSelections do begin
+            Init();
+            Validate(Usage, ReportUsage);
+            Validate(Sequence, SequenceCode);
+            Validate("Report ID", ReportID);
+            Insert(true);
+        end;
     end;
 
     local procedure RunCreateRemindersReport(CustomerNo: Code[20]; UseHeaderLevel: Boolean)
@@ -864,6 +1014,18 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         Assert.IsTrue(ECSalesList."Create XML File".Visible, '');
         Assert.IsTrue(ECSalesList."Create XML File".Enabled, '');
+    end;
+
+    [RequestPageHandler]
+    procedure GeneralJournalTestRequestPageHandler(var GeneralJournalTest: TestRequestPage "General Journal - Test");
+    begin
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    procedure RemittanceAdviceJournalRequestPageHandler(var RemittanceAdviceJournal: TestRequestPage "Remittance Advice - Journal");
+    begin
+        RemittanceAdviceJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

@@ -15,7 +15,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
         Code;
         Rec := PhysInvtOrderHeader;
 
-        OnAfterOnRun(Rec,PstdPhysInvtOrderHdr);
+        OnAfterOnRun(Rec, PstdPhysInvtOrderHdr);
     end;
 
     var
@@ -61,6 +61,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
         InventorySetup: Record "Inventory Setup";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
     begin
+        OnBeforeCode(PhysInvtOrderHeader);
         with PhysInvtOrderHeader do begin
             TestField(Status, Status::Finished);
             TestField("Posting Date");
@@ -212,10 +213,11 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
             IsHandled := false;
             OnCheckOrderLineOnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, PhysInvtOrderLine2, ErrorText, IsHandled);
-            if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                 "Item No.", "Variant Code", "Location Code", "Bin Code", ErrorText, PhysInvtOrderLine2) > 1
-            then
-                Error(ErrorText);
+            if not IsHandled then
+                if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
+                     "Item No.", "Variant Code", "Location Code", "Bin Code", ErrorText, PhysInvtOrderLine2) > 1
+                then
+                    Error(ErrorText);
         end;
     end;
 
@@ -306,17 +308,21 @@ codeunit 5884 "Phys. Invt. Order-Post"
             "Phys Invt Counting Period Type" := PhysInvtOrderLine."Phys Invt Counting Period Type";
             PhysInvtTrackingMgt.TransferResEntryToItemJnlLine(PhysInvtOrderLine, ItemJnlLine, Qty, Positive);
 
-            OnBeforeItemJnlPostLine(ItemJnlLine,PhysInvtOrderLine);
+            OnBeforeItemJnlPostLine(ItemJnlLine, PhysInvtOrderLine);
             ItemJnlPostLine.RunWithCheck(ItemJnlLine);
         end;
     end;
 
     local procedure InsertPostedHeader(PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeInsertPostedHeader(PhysInvtOrderHeader);
         with PstdPhysInvtOrderHdr do begin
             LockTable();
             Init;
             TransferFields(PhysInvtOrderHeader);
+            OnInsertPostedHeaderOnAfterTransferfields(PhysInvtOrderHeader, PstdPhysInvtOrderHdr);
             "Pre-Assigned No." := PhysInvtOrderHeader."No.";
             if PhysInvtOrderHeader."Posting No." <> '' then begin
                 "No." := PhysInvtOrderHeader."Posting No.";
@@ -325,12 +331,21 @@ codeunit 5884 "Phys. Invt. Order-Post"
             end;
             "Source Code" := SourceCode;
             "User ID" := UserId;
-            Insert;
+            IsHandled := false;
+            OnInsertPostedHeaderOnBeforeInsert(PhysInvtOrderHeader, PstdPhysInvtOrderHdr, IsHandled);
+            if not IsHandled then
+                Insert;
         end;
     end;
 
     local procedure InsertPostedLine(PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertPostedLine(PstdPhysInvtOrderHdr, PhysInvtOrderLine, PstdPhysInvtOrderLine, IsHandled);
+        if IsHandled then
+            exit;
         PstdPhysInvtOrderLine.Init();
         PstdPhysInvtOrderLine.TransferFields(PhysInvtOrderLine);
         PstdPhysInvtOrderLine."Document No." := PstdPhysInvtOrderHdr."No.";
@@ -352,6 +367,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
     var
         PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr";
         PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line";
+        IsHandled: Boolean;
     begin
         PhysInvtRecordHeader.Reset();
         PhysInvtRecordHeader.SetRange("Order No.", DocNo);
@@ -360,7 +376,11 @@ codeunit 5884 "Phys. Invt. Order-Post"
                 PstdPhysInvtRecordHdr.Init();
                 PstdPhysInvtRecordHdr.TransferFields(PhysInvtRecordHeader);
                 PstdPhysInvtRecordHdr."Order No." := PostedDocNo;
-                PstdPhysInvtRecordHdr.Insert();
+
+                IsHandled := false;
+                OnInsertPostedRecordingsOnBeforeInsertHdr(PhysInvtRecordHeader, PstdPhysInvtRecordHdr, IsHandled);
+                if not IsHandled then
+                    PstdPhysInvtRecordHdr.Insert();
 
                 PhysInvtRecordLine.Reset();
                 PhysInvtRecordLine.SetRange("Order No.", PhysInvtRecordHeader."Order No.");
@@ -370,7 +390,11 @@ codeunit 5884 "Phys. Invt. Order-Post"
                         PstdPhysInvtRecordLine.Init();
                         PstdPhysInvtRecordLine.TransferFields(PhysInvtRecordLine);
                         PstdPhysInvtRecordLine."Order No." := PostedDocNo;
-                        PstdPhysInvtRecordLine.Insert();
+
+                        IsHandled := false;
+                        OnInsertPostedRecordingsOnBeforeInsertLine(PstdPhysInvtRecordHdr, PhysInvtRecordLine, PstdPhysInvtRecordLine, IsHandled);
+                        if not IsHandled then
+                            PstdPhysInvtRecordLine.Insert();
                     until PhysInvtRecordLine.Next = 0;
                 PhysInvtRecordLine.DeleteAll();
             until PhysInvtRecordHeader.Next = 0;
@@ -524,6 +548,11 @@ codeunit 5884 "Phys. Invt. Order-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeItemJnlPostLine(var ItemJournalLine: Record "Item Journal Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line");
     begin
     end;
@@ -535,6 +564,36 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertEntryRelationOnBeforeInsert(var ItemEntryRelation: Record "Item Entry Relation"; TrackingSpecification: Record "Tracking Specification"; PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertPostedHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertPostedLine(PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPostedHeaderOnAfterTransferfields(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPostedHeaderOnBeforeInsert(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPostedRecordingsOnBeforeInsertHdr(PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; var PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPostedRecordingsOnBeforeInsertLine(PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr"; PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line"; var IsHandled: Boolean);
     begin
     end;
 }
