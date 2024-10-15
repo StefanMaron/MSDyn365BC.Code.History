@@ -2371,6 +2371,11 @@
             Caption = 'CFDI Relation';
             TableRelation = "SAT Relationship Type";
         }
+        field(27004; "CFDI Export Code"; Code[10])
+        {
+            Caption = 'CFDI Export Code';
+            TableRelation = "CFDI Export Code";
+        }
     }
 
     keys
@@ -4281,9 +4286,11 @@
         if Customer.Get("Bill-to Customer No.") then begin
             "CFDI Purpose" := Customer."CFDI Purpose";
             "CFDI Relation" := Customer."CFDI Relation";
+            "CFDI Export Code" := Customer."CFDI Export Code";
         end else begin
             "CFDI Purpose" := '';
             "CFDI Relation" := '';
+            "CFDI Export Code" := '';
         end;
     end;
 

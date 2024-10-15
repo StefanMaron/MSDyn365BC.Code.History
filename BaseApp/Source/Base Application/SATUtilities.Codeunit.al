@@ -290,6 +290,7 @@
         SATTaxScheme: Record "SAT Tax Scheme";
         SATPaymentTerm: Record "SAT Payment Term";
         CFDICancellationReason: Record "CFDI Cancellation Reason";
+        CFDIExportCode: Record "CFDI Export Code";
         MediaResources: Record "Media Resources";
         SATFederalMotorTransport: Record "SAT Federal Motor Transport";
         SATTrailerType: Record "SAT Trailer Type";
@@ -310,6 +311,7 @@
         SATTaxSchemePort: XMLport "SAT Tax Scheme";
         SATPaymentTermPort: XMLport "SAT Payment Term";
         CFDICancellationReasonPort: XMLport "CFDI Cancellation Reason";
+        CFDIExportCodePort: XMLport "CFDI Export Code";
         SATFederalMotorTransportPort: XMLport "SAT Federal Motor Transport";
         SATTrailerTypePort: XMLport "SAT Trailer Type";
         SATPermissionTypePort: XMLport "SAT Permission Type";
@@ -386,13 +388,21 @@
             SATPaymentMethodPort.Import;
         end;
 
-        if CFDICancellationReason.IsEmpty() then begin
-            MediaResources.Get('CFDICancellationReasons.xml');
-            MediaResources.CalcFields(Blob);
-            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
-            CFDICancellationReasonPort.SetSource(IStr);
-            CFDICancellationReasonPort.Import();
-        end;
+        if CFDICancellationReason.IsEmpty() then
+            if MediaResources.Get('CFDICancellationReasons.xml') then begin
+                MediaResources.CalcFields(Blob);
+                MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+                CFDICancellationReasonPort.SetSource(IStr);
+                CFDICancellationReasonPort.Import();
+            end;
+
+        if CFDIExportCode.IsEmpty() then
+            if MediaResources.Get('CFDIExportCodes.xml') then begin
+                MediaResources.CalcFields(Blob);
+                MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+                CFDIExportCodePort.SetSource(IStr);
+                CFDIExportCodePort.Import();
+            end;
 
         if SATFederalMotorTransport.IsEmpty() then
             if MediaResources.Get('SATFederalMotorTransport.xml') then begin
@@ -491,7 +501,7 @@
                 MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
                 SATWeightUnitOfMeasurePort.SetSource(IStr);
                 SATWeightUnitOfMeasurePort.Import();
-        end;
+            end;
 
     end;
 

@@ -827,7 +827,12 @@ table 112 "Sales Invoice Header"
         field(27003; "Substitution Document No."; Code[20])
         {
             Caption = 'Substitution Document No.';
-            TableRelation = "Sales Invoice Header" WHERE ("Electronic Document Status" = FILTER ("Stamp Received"));
+            TableRelation = "Sales Invoice Header" WHERE("Electronic Document Status" = FILTER("Stamp Received"));
+        }
+        field(27004; "CFDI Export Code"; Code[10])
+        {
+            Caption = 'CFDI Export Code';
+            TableRelation = "CFDI Export Code";
         }
     }
 
