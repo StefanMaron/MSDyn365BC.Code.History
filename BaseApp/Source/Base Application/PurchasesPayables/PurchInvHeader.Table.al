@@ -679,7 +679,14 @@ table 122 "Purch. Inv. Header"
         UserSetupMgt: Codeunit "User Setup Management";
 
     procedure IsFullyOpen(): Boolean
+    var
+        FullyOpen: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforCheckIfPurchaseInvoiceFullyOpen(Rec, FullyOpen, IsHandled);
+        if IsHandled then
+            exit(FullyOpen);
+
         CalcFields("Amount Including VAT", "Remaining Amount");
         exit("Amount Including VAT" = "Remaining Amount");
     end;
@@ -822,6 +829,11 @@ table 122 "Purch. Inv. Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforCheckIfPurchaseInvoiceFullyOpen(var PurchInvHeader: Record "Purch. Inv. Header"; var FullyOpen: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

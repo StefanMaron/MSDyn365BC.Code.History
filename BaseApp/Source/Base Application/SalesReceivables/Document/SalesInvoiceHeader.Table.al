@@ -872,7 +872,14 @@ table 112 "Sales Invoice Header"
         PaymentReferenceLbl: Text;
 
     procedure IsFullyOpen(): Boolean
+    var
+        FullyOpen: Boolean;
+        IsHandled: Boolean;
     begin
+        OnPostedSalesInvoiceFullyOpen(Rec, FullyOpen, IsHandled);
+        if IsHandled then
+            exit(FullyOpen);
+
         CalcFields("Amount Including VAT", "Remaining Amount");
         exit("Amount Including VAT" = "Remaining Amount");
     end;
@@ -1296,6 +1303,11 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostedSalesInvoiceFullyOpen(var SalesInvoiceHeader: Record "Sales Invoice Header"; var FullyOpen: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
