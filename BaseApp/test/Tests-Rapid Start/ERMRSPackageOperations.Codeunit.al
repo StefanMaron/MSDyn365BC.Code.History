@@ -60,7 +60,6 @@ codeunit 136603 "ERM RS Package Operations"
         PackageCodeMustMatchErr: Label 'The package code in all sheets of the Excel file must match the selected package code, %1. Modify the package code in the Excel file or import this file from the Configuration Packages page to create a new package.', Comment = '%1 - package code';
         IntegrationRecordErr: Label 'Cannot import table %1 through a Configuration Package.', Comment = '%1 = The name of the table.';
 
-
     [Test]
     [Scope('OnPrem')]
     procedure T001_AutoincrementCannotBeSetForFieldInPK()
@@ -2252,6 +2251,49 @@ codeunit 136603 "ERM RS Package Operations"
         GlobalLanguage(LanguageId);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportImportConfigPackageWithPercentInColumn()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        ItemFilter: Text[250];
+        FilePath: Text;
+    begin
+        // [SCENARIO] Export and import of Config. Package with record that has similar columns differ by % symbol
+        Initialize();
+
+        // [GIVEN] 3 "Inventory Adjmt. Entry Order" lines
+        // 1st Line "Indirect Cost %" = 0, Indirect Cost = 1;
+        // 2nd Line "Indirect Cost %" = 0, Indirect Cost = 2;
+        // 3rd Line "Indirect Cost %" = 0, Indirect Cost = 3;
+        InventoryAdjmtEntryOrder.DeleteAll();
+        MockInventoryAdjmtEntryOrderLines(3);
+
+        // [GIVEN] Config. Package with Inventory Adjmt. Entry Order table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Inventory Adjmt. Entry (Order)");
+
+        // [GIVEN] Package "A" is exported to XML
+        ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
+
+        // [GIVEN] All Inventory Adjmt. Entry Order records are deleted;
+        InventoryAdjmtEntryOrder.DeleteAll();
+
+        // [WHEN] Package "A" is imported from XML
+        // [THEN] No error message appears 
+        ImportPackageXML(ConfigPackage.Code, FilePath);
+        Erase(FilePath);
+
+        // [WHEN] Apply the package 
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] The package is applied without errors
+        // [THEN] "Inventory Adjmt. Entry Order" has original values of "Indirect Cost %" and "Indirect Cost" 
+        VerifyNoConfigPackageErrors(ConfigPackage.Code);
+        VerifyInventoryAdjmtEntryOrderLines(3);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3403,6 +3445,35 @@ codeunit 136603 "ERM RS Package Operations"
             TmpConfigMediaBuffer.TransferFields(ConfigMediaBuffer, true);
             TmpConfigMediaBuffer.Insert;
         until ConfigMediaBuffer.Next = 0;
+    end;
+
+    local procedure MockInventoryAdjmtEntryOrderLines(NoOfLines: Integer)
+    var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        i: Integer;
+    begin
+        for i := 1 to NoOfLines do begin
+            InventoryAdjmtEntryOrder.Init();
+            InventoryAdjmtEntryOrder.Validate("Order Type", InventoryAdjmtEntryOrder."Order Type"::Production);
+            InventoryAdjmtEntryOrder.Validate("Order No.", Format(i));
+            InventoryAdjmtEntryOrder.Validate("Order Line No.", i);
+            InventoryAdjmtEntryOrder.Validate("Indirect Cost %", 0);
+            InventoryAdjmtEntryOrder.Validate("Indirect Cost", i);
+            InventoryAdjmtEntryOrder.Insert(TRUE);
+        end;
+    end;
+
+    local procedure VerifyInventoryAdjmtEntryOrderLines(NoOfLines: Integer)
+    var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        i: Integer;
+    begin
+        InventoryAdjmtEntryOrder.FindFirst();
+        for i := 1 to NoOfLines do begin
+            InventoryAdjmtEntryOrder.TestField("Indirect Cost %", 0);
+            InventoryAdjmtEntryOrder.TestField("Indirect Cost", i);
+            InventoryAdjmtEntryOrder.Next();
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 8618, 'OnImportExcelFile', '', false, false)]
