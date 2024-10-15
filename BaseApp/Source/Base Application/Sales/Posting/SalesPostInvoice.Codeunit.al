@@ -162,7 +162,8 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
             SalesPostInvoiceEvents.RunOnPrepareLineOnBeforeCalcLineDiscountPosting(
                TempInvoicePostingBuffer, InvoicePostingBuffer, SalesHeader, SalesLine, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, IsHandled);
             if not IsHandled then begin
-                CalcLineDiscountPosting(SalesHeader, SalesLine, SalesLineACY, InvoicePostingBuffer);
+                if SalesLine."Allocation Account No." = '' then
+                    CalcLineDiscountPosting(SalesHeader, SalesLine, SalesLineACY, InvoicePostingBuffer);
                 if (InvoicePostingBuffer.Amount <> 0) or (InvoicePostingBuffer."Amount (ACY)" <> 0) then begin
                     IsHandled := false;
                     LineDiscAccount := '';

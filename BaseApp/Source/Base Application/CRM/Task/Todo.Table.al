@@ -1121,9 +1121,10 @@ table 5080 "To-do"
 
                 Task2.Insert(true);
                 TaskNo := Task2."No.";
-                if Task2."System To-do Type" = "System To-do Type"::Team then
+                if Task2."System To-do Type" = "System To-do Type"::Team then begin
                     CreateOrganizerTask(Task2, TempAttendee, Task2."No.");
-                CreateAttendeesSubTask(Attendee, Task2);
+                    CreateAttendeesSubTask(Attendee, Task2);
+                end;
             end else
                 if Attendee.Find('-') then begin
                     Window.Open(Text036 + TaskNoMsg + Text038);

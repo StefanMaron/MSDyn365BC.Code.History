@@ -881,6 +881,7 @@ table 5050 Contact
         }
         key(Key3; "Company Name", "Company No.", Type, Name)
         {
+            IncludedFields = "Phone No.", "Territory Code", "Salesperson Code", "E-Mail";
         }
         key(Key4; "Company No.")
         {
@@ -920,6 +921,9 @@ table 5050 Contact
             ObsoleteTag = '23.0';
         }
 #endif
+        key(Key15; "Contact Business Relation")
+        {
+        }
     }
 
     fieldgroups

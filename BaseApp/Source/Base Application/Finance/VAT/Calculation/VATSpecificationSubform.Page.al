@@ -298,8 +298,7 @@ page 576 "VAT Specification Subform"
         Rec.Modify();
 
         if ((ParentControl = PAGE::"Service Order Statistics") and
-            (CurrentTabNo <> 1)) or
-           (ParentControl = PAGE::"Service Statistics")
+            (CurrentTabNo <> 1))
         then
             if Rec.GetAnyLineModified() then begin
                 ServLine.UpdateVATOnLines(0, ServHeader, ServLine, Rec);

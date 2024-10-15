@@ -36,12 +36,13 @@ codeunit 6135 "E-Document WorkFlow Processing"
         exit(true);
     end;
 
-    internal procedure SendEDocument(var EDocument: Record "E-Document"; WorkflowStepInstance: Record "Workflow Step Instance"): Boolean
+    internal procedure SendEDocument(var EDocument: Record "E-Document"; WorkflowStepInstance: Record "Workflow Step Instance")
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         EDocumentService: Record "E-Document Service";
     begin
-        ValidateFlowStep(EDocument, WorkflowStepArgument, WorkflowStepInstance);
+        if not ValidateFlowStep(EDocument, WorkflowStepArgument, WorkflowStepInstance) then
+            exit;
         EDocumentService.Get(WorkflowStepArgument."E-Document Service");
         SendEDocument(EDocument, EDocumentService);
     end;
@@ -187,19 +188,21 @@ codeunit 6135 "E-Document WorkFlow Processing"
             HandleNextEvent(EDocument);
     end;
 
-    local procedure ValidateFlowStep(var EDocument: Record "E-Document"; var WorkflowStepArgument: Record "Workflow Step Argument"; WorkflowStepInstance: Record "Workflow Step Instance")
+    local procedure ValidateFlowStep(var EDocument: Record "E-Document"; var WorkflowStepArgument: Record "Workflow Step Argument"; WorkflowStepInstance: Record "Workflow Step Instance"): Boolean
     var
         EDocErrorHelper: Codeunit "E-Document Error Helper";
     begin
         WorkflowStepArgument.Get(WorkflowStepInstance.Argument);
 
-        if WorkflowStepArgument."E-Document Service" = '' then
+        if WorkflowStepArgument."E-Document Service" = '' then begin
             EDocErrorHelper.LogErrorMessage(EDocument, WorkflowStepArgument, WorkflowStepArgument.FieldNo("E-Document Service"), 'E-Document Service must be specified in Workflow Argument');
-
+            exit(false);
+        end;
         if IsNullGuid(EDocument."Workflow Step Instance ID") then begin
             EDocument."Workflow Step Instance ID" := WorkflowStepInstance.ID;
             EDocument.Modify();
         end;
+        exit(true);
     end;
 
     local procedure IsEdocServiceUsingBatch(EDocumentService: Record "E-Document Service"): Boolean
