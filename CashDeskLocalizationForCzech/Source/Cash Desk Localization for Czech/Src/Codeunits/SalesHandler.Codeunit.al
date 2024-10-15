@@ -94,11 +94,12 @@ codeunit 11736 "Sales Handler CZP"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterFinalizePostingOnBeforeCommit', '', false, false)]
-    local procedure CreateCashDocumentOnAfterFinalizePostingOnBeforeCommit(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    local procedure CreateCashDocumentOnAfterFinalizePostingOnBeforeCommit(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; PreviewMode: Boolean)
     begin
         if (SalesHeader."Cash Desk Code CZP" = '') or not SalesHeader.Invoice then
             exit;
 
+        CashDeskManagementCZP.SetPreviewMode(PreviewMode);
         if SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice] then
             CashDeskManagementCZP.CreateCashDocumentFromSalesInvoice(SalesInvoiceHeader)
         else

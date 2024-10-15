@@ -16,13 +16,6 @@ codeunit 31392 "Default Dimension Handler CZA"
             Rec.TestField(Rec."Automatic Create CZA", false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"DimensionManagement", 'OnBeforeUpdateDefaultDim', '', false, false)]
-    local procedure AutoCreateValueOnBeforeUpdateDefaultDim(TableID: Integer; No: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; var IsHandled: Boolean);
-    var
-        DimensionAutoCreateMgt: Codeunit "Dimension Auto.Create Mgt. CZA";
-    begin
-        DimensionAutoCreateMgt.AutoCreateDimension(TableID, No);
-    end;
 #if not CLEAN19
 #pragma warning disable AL0432
 
@@ -102,26 +95,21 @@ codeunit 31392 "Default Dimension Handler CZA"
         BaseAppDuplicityErr: Label 'You cannot set %1 in %2 if the same field is set in Base Application.', Comment = '%1 = Field Caption, %2 = Application Name';
     begin
         NavApp.GetCurrentModuleInfo(CurrentModuleInfo);
-
         case CurrFieldNo of
             DefaultDimension.FieldNo("Automatic Create CZA"):
                 if DefaultDimension."Automatic Create CZA" and DefaultDimension."Automatic Create" then
                     Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Automatic Create CZA"), CurrentModuleInfo.Name);
-
             DefaultDimension.FieldNo("Dim. Description Field ID CZA"):
                 if (DefaultDimension."Dim. Description Field ID CZA" <> 0) and (DefaultDimension."Dimension Description Field ID" <> 0) then
                     Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Dim. Description Field ID CZA"), CurrentModuleInfo.Name);
-
             DefaultDimension.FieldNo("Dim. Description Update CZA"):
                 if (DefaultDimension."Dim. Description Update CZA" <> DefaultDimension."Dim. Description Update CZA"::" ") and
                     (DefaultDimension."Dimension Description Update" <> DefaultDimension."Dimension Description Update"::" ")
                 then
                     Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Dim. Description Update CZA"), CurrentModuleInfo.Name);
-
             DefaultDimension.FieldNo("Dim. Description Format CZA"):
                 if (DefaultDimension."Dim. Description Format CZA" <> '') and (DefaultDimension."Dimension Description Format" <> '') then
                     Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Dim. Description Format CZA"), CurrentModuleInfo.Name);
-
             DefaultDimension.FieldNo("Auto. Create Value Posting CZA"):
                 if (DefaultDimension."Auto. Create Value Posting CZA" <> DefaultDimension."Auto. Create Value Posting CZA"::" ") and
                     (DefaultDimension."Automatic Cr. Value Posting" <> DefaultDimension."Automatic Cr. Value Posting"::" ")
@@ -140,22 +128,18 @@ codeunit 31392 "Default Dimension Handler CZA"
         case CurrFieldNo of
             DefaultDimension.FieldNo("Automatic Create"):
                 if DefaultDimension."Automatic Create CZA" and DefaultDimension."Automatic Create" then
-                    Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Automatic Create"), CurrentModuleInfo.Name);
-
+                    Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Automatic Create"), CurrentModuleInfo.Name);            
             DefaultDimension.FieldNo("Dimension Description Field ID"):
                 if (DefaultDimension."Dim. Description Field ID CZA" <> 0) and (DefaultDimension."Dimension Description Field ID" <> 0) then
-                    Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Dimension Description Field ID"), CurrentModuleInfo.Name);
-
+                    Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Dimension Description Field ID"), CurrentModuleInfo.Name);            
             DefaultDimension.FieldNo("Dimension Description Update"):
                 if (DefaultDimension."Dim. Description Update CZA" <> DefaultDimension."Dim. Description Update CZA"::" ") and
                     (DefaultDimension."Dimension Description Update" <> DefaultDimension."Dimension Description Update"::" ")
                 then
-                    Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Dimension Description Update"), CurrentModuleInfo.Name);
-
+                    Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Dimension Description Update"), CurrentModuleInfo.Name);            
             DefaultDimension.FieldNo("Dimension Description Format"):
                 if (DefaultDimension."Dim. Description Format CZA" <> '') and (DefaultDimension."Dimension Description Format" <> '') then
-                    Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Dimension Description Format"), CurrentModuleInfo.Name);
-
+                    Error(BaseAppDuplicityErr, DefaultDimension.FieldCaption("Dimension Description Format"), CurrentModuleInfo.Name);          
             DefaultDimension.FieldNo("Automatic Cr. Value Posting"):
                 if (DefaultDimension."Auto. Create Value Posting CZA" <> DefaultDimension."Auto. Create Value Posting CZA"::" ") and
                     (DefaultDimension."Automatic Cr. Value Posting" <> DefaultDimension."Automatic Cr. Value Posting"::" ")

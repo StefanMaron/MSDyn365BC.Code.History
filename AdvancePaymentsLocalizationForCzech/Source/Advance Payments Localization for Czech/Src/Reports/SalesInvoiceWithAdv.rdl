@@ -5004,11 +5004,7 @@ Cstr(Fields!PageLbl.Value)</Value>
                                   </TablixMember>
                                   <TablixMember />
                                   <TablixMember>
-                                    <Group Name="Group1">
-                                      <GroupExpressions>
-                                        <GroupExpression>=Fields!VATAmtLineVATIdentifier.Value</GroupExpression>
-                                      </GroupExpressions>
-                                    </Group>
+                                    <Group Name="Group1" />
                                     <SortExpressions>
                                       <SortExpression>
                                         <Value>=Fields!VATAmtLineVATIdentifier.Value</Value>
