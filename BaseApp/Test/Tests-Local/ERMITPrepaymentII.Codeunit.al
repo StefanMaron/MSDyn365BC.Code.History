@@ -964,6 +964,40 @@ codeunit 144173 "ERM IT Prepayment II"
         VerifyGLBookEntry(GLAccount."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OperationTypeOnPurchaseCreditMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase] [Credit Memo]
+        // [SCENARIO 388656] Operation Type is correctly populated on new Purchase Credit Memos.
+
+        // [WHEN] Create Purchase Credit Memo
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] Operation Type on Purchase Header is populated and correct
+        PurchaseHeader.TestField(
+          "Operation Type", LibraryERM.GetDefaultOperationType(PurchaseHeader."Buy-from Vendor No.", DATABASE::Vendor));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OperationTypeOnSalesCreditMemo()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 388656] Operation Type is populated on new Sales Credit Memos.
+
+        // [WHEN] Create Sales Credit Memo
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+
+        // [THEN] Operation Type on Sales Header is populated and correct
+        SalesHeader.TestField(
+          "Operation Type", LibraryERM.GetDefaultOperationType(SalesHeader."Sell-to Customer No.", DATABASE::Customer));
+    end;
+
     local procedure ApplyAndPostGeneralJournalLine(AccountType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Option; AppliesToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";

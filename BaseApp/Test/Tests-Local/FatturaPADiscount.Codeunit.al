@@ -54,11 +54,14 @@ codeunit 144204 "FatturaPA Discount"
 
         // [THEN] Importo node under DatiGenerali has value 20
         // TFS ID: 308856
-        // [THEN] Prezzo Totale node has value 100.
+        // TFS ID 375065: PrezzoTotale has a value without invoice discount
+        // [THEN] Prezzo Totale node has value 96 (100 - 4)
         // [THEN] Importo node under DettaglioLinee has value 4 (Invoice Discount Amount / Quantity)
         // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
         // TFS ID 348540: Changes in the format of Italian electronic invoices
-        VerifyInvDiscAmount(ServerFileName, SalesLine.Quantity, SalesLine."Line Amount", SalesLine."Inv. Discount Amount");
+        VerifyInvDiscAmount(
+          ServerFileName, SalesLine.Quantity, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
+          SalesLine."Inv. Discount Amount");
     end;
 
     [Test]
@@ -94,11 +97,14 @@ codeunit 144204 "FatturaPA Discount"
 
         // [THEN] Importo node under DatiGenerali has value 20
         // TFS ID: 308856
-        // [THEN] Prezzo Totale node has value 100.
+        // TFS ID 375065: PrezzoTotale has a value without invoice discount
+        // [THEN] Prezzo Totale node has value 96 (100 - 4)
         // [THEN] Importo node under DettaglioLinee has value 4 (Invoice Discount Amount / Quantity)
         // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
         // TFS ID 348540: Changes in the format of Italian electronic invoices
-        VerifyInvDiscAmount(ServerFileName, SalesLine.Quantity, SalesLine."Line Amount", SalesLine."Inv. Discount Amount");
+        VerifyInvDiscAmount(
+          ServerFileName, SalesLine.Quantity, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
+          SalesLine."Inv. Discount Amount");
     end;
 
     [Test]
@@ -134,14 +140,17 @@ codeunit 144204 "FatturaPA Discount"
 
         // [THEN] Importo node under DatiGenerali has value 20
         // TFS ID: 308856
-        // [THEN] Prezzo Totale node has value 100.
+        // TFS ID 375065: PrezzoTotale has a value without invoice discount
+        // [THEN] Prezzo Totale node has value 96 (100 - 4)
         // [THEN] Importo node under DettaglioLinee has value 4 (Invoice Discount Amount / Quantity)
         // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
         // TFS ID 348540: Changes in the format of Italian electronic invoices
         ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.FindFirst();
-        VerifyInvDiscAmount(ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount", ServiceInvoiceLine."Inv. Discount Amount");
+        VerifyInvDiscAmount(
+          ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
+          ServiceLine."Inv. Discount Amount");
     end;
 
     [Test]
@@ -177,14 +186,17 @@ codeunit 144204 "FatturaPA Discount"
 
         // [THEN] Importo node under DatiGenerali has value 20
         // TFS ID: 308856
-        // [THEN] Prezzo Totale node has value 100.
+        // TFS ID 375065: PrezzoTotale has a value without invoice discount
+        // [THEN] Prezzo Totale node has value 96 (100 - 4)
         // [THEN] Importo node under DettaglioLinee has value 4 (Invoice Discount Amount / Quantity)
         // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
         // TFS ID 348540: Changes in the format of Italian electronic invoices
         ServiceCrMemoHeader.FindFirst();
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
         ServiceCrMemoLine.FindFirst();
-        VerifyInvDiscAmount(ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount", ServiceCrMemoLine."Inv. Discount Amount");
+        VerifyInvDiscAmount(
+          ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
+          ServiceLine."Inv. Discount Amount");
     end;
 
     [Test]
@@ -693,7 +705,7 @@ codeunit 144204 "FatturaPA Discount"
     begin
         FindServiceLine(ServiceLine, ServiceHeader);
         ServiceLine.Validate("Line Discount %", LineDiscPct);
-        ServiceLine.Validate("Inv. Discount Amount", ServiceLine.Amount * InvDiscFactor);
+        ServiceLine.Validate("Inv. Discount Amount", Round(ServiceLine.Amount * InvDiscFactor));
         ServiceLine.Modify(true);
     end;
 

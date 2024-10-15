@@ -455,6 +455,8 @@ report 12160 "Intrastat - Monthly Report"
                                 "Intra - form Buffer".Modify;
                             end else begin
                                 "Intra - form Buffer".TransferFields("Intrastat Jnl. Line");
+                                "Intra - form Buffer"."VAT Registration No." :=
+                                  CopyStr("Partner VAT ID", 1, MaxStrLen("Intra - form Buffer"."VAT Registration No."));
                                 "Intra - form Buffer"."Country/Region of Origin Code" := CountryOriginCode;
                                 "Intra - form Buffer".Quantity := SupplUnits;
                                 "Intra - form Buffer"."No." := 0;

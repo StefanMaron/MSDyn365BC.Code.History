@@ -18,6 +18,7 @@ codeunit 144062 "UT REP Intrastat"
         IntrastatJnlLineVATRegistrationNoCap: Label 'Intrastat_Jnl__Line__VAT_Registration_No__';
         IntraformBufferTotalWeightCap: Label 'Intra___form_Buffer__Total_Weight_';
         IntraFormBufferCorrectiveEntryCap: Label 'Intra___form_Buffer_Corrective_entry';
+        IntraFormBufferVATRegNoLbl: Label 'Intra___form_Buffer__VAT_Registration_No__';
         IntrastatJnlLinePaymentMethodCap: Label 'Intrastat_Jnl__Line__Payment_Method_';
         IntrastatPaymentMethodTxt: Label 'A', Comment = 'Single character string is required for the field Intrastat Payment Method which is of 1 character';
         IntraFormBufferCountryOfOriginCodeCap: Label 'Intra___form_Buffer__Country_of_Origin_Code_';
@@ -49,6 +50,7 @@ codeunit 144062 "UT REP Intrastat"
         LibraryReportDataset.AssertElementWithValueExists(
           IntraFormBufferCountryOfOriginCodeCap, IntrastatJnlLine."Country/Region of Origin Code");
         LibraryReportDataset.AssertElementWithValueExists(TotRoundAmountCap, Round(IntrastatJnlLine.Amount, 1));  // Using 1 for rounding Amount to whole value.
+        LibraryReportDataset.AssertElementWithValueExists(IntraFormBufferVATRegNoLbl, IntrastatJnlLine."Partner VAT ID"); // TFS ID 390961
     end;
 
     [Test]
@@ -72,6 +74,7 @@ codeunit 144062 "UT REP Intrastat"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineVATRegistrationNoCap, IntrastatJnlLine."Partner VAT ID");
         LibraryReportDataset.AssertElementWithValueExists(IntraFormBufferCorrectiveEntryCap, true);
+        LibraryReportDataset.AssertElementWithValueExists(IntraFormBufferVATRegNoLbl, IntrastatJnlLine."Partner VAT ID"); // TFS ID 390961
     end;
 
     [Test]

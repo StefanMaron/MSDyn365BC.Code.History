@@ -16,6 +16,8 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryTrees: Codeunit "Library - Trees";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
@@ -389,6 +391,55 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
             LibraryTrees.GetQtyPerInTree(QtyPerParent, QtyPerTopItem, Item."No.", Format(BOMCostShares."No."));
             Assert.AreEqual(QtyPerParent, BOMCostShares."Qty. per Parent".AsDEcimal, 'Qty. per Parent is invalid.');
         end;
+    end;
+
+    [Test]
+    procedure CostSharesIncludesComponentsWithNegativeQtyPer()
+    var
+        ProdItem: Record Item;
+        CompItem: array[2] of Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        BOMCostShares: TestPage "BOM Cost Shares";
+        QtyPer: Decimal;
+    begin
+        // [FEATURE] [Production BOM] [BOM Cost Share]
+        // [SCENARIO 387285] BOM Cost Shares Page shows production BOM components with negative Quantity Per.
+        Initialize();
+
+        // [GIVEN] Two component items "P" and "N".
+        LibraryInventory.CreateItem(CompItem[1]);
+        LibraryInventory.CreateItem(CompItem[2]);
+
+        // [GIVEN] Certified production BOM with two lines.
+        // [GIVEN] 1st line: No. = "P", Quantity Per = 20.
+        // [GIVEN] 2nd line: No. = "N", Quantity Per = -20 (negative).
+        QtyPer := LibraryRandom.RandIntInRange(10, 20);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItem[1]."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[1]."No.", QtyPer);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[2]."No.", -QtyPer);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Create a manufacturing item "A" and assign the production BOM to it.
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Run BOM Cost Shares page for item "A".
+        BOMCostShares.Trap();
+        RunBOMCostSharesPage(ProdItem);
+
+        // [THEN] A line exists for the component "P" with "Quantity Per Parent" = 20
+        BOMCostShares.Expand(true);
+        BOMCostShares.FILTER.SetFilter("No.", CompItem[1]."No.");
+        BOMCostShares."Qty. per Parent".AssertEquals(QtyPer);
+
+        // [THEN] A line exists for the component "N" with "Quantity Per Parent" = -20
+        BOMCostShares.FILTER.SetFilter("No.", CompItem[2]."No.");
+        BOMCostShares."Qty. per Parent".AssertEquals(-QtyPer);
     end;
 
     [Normal]

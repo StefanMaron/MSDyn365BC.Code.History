@@ -64,6 +64,7 @@ codeunit 144088 "Decl. of Intent Export Test"
         // [THEN] The content reflects the data in NAV
         // [THEN] Record B fields 11, 12 are blanked, 13 = "CRONUS Italia S.p.A.", 14 = "22222222222" (TFS 296019)
         // [THEN] Record B fields 41 and 42 = "44444444444", 45 = "London Postmaster" (TFS 296019)
+        // [THEN] Record B fields 38, 39 (pos 670, 686) are blanked from February 2021 (TFS 381364)
         LoadFile(FileName);
 
         // Verify line structure
@@ -240,8 +241,8 @@ codeunit 144088 "Decl. of Intent Export Test"
         LibrarySpesometro.VerifyValue(TextFile, '', LineNo, 554, 8, ConstFormat::DT); // B-35
         LibrarySpesometro.VerifyValue(TextFile, '', LineNo, 562, 8, ConstFormat::DT); // B-36
         LibrarySpesometro.VerifyValue(TextFile, 'DESCRIPTION OF GOODS', LineNo, 570, 100, ConstFormat::AN); // B-36
-        LibrarySpesometro.VerifyValue(TextFile, VATExemption."VAT Exempt. Int. Registry No.", LineNo, 670, 16, ConstFormat::AN); // B-38
-        LibrarySpesometro.VerifyValue(TextFile, Format(Date2DMY(Today, 3)), LineNo, 686, 4, ConstFormat::NU); // B-39
+        LibrarySpesometro.VerifyValue(TextFile, '', LineNo, 670, 16, ConstFormat::AN); // B-38
+        LibrarySpesometro.VerifyValue(TextFile, '', LineNo, 686, 4, ConstFormat::AN); // B-39
         LibrarySpesometro.VerifyValue(TextFile, Vendor."VAT Registration No.", LineNo, 691, 16, ConstFormat::CF); // B-41
         LibrarySpesometro.VerifyValue(TextFile, Vendor."VAT Registration No.", LineNo, 707, 11, ConstFormat::PI); // B-42
         LibrarySpesometro.VerifyValue(TextFile, Vendor.Name, LineNo, 762, 60, ConstFormat::AN); // B-45

@@ -1,4 +1,4 @@
-page 144 "Posted Sales Credit Memos"
+﻿page 144 "Posted Sales Credit Memos"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Sales Credit Memos';
@@ -533,8 +533,8 @@ page 144 "Posted Sales Credit Memos"
     begin
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
-        if HasFilters then
-            if FindFirst then;
+        if HasFilters and not Find() then
+            if FindFirst() then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
         SalesCrMemoHeader.CopyFilters(Rec);
         SalesCrMemoHeader.SetFilter("Document Exchange Status", '<>%1', "Document Exchange Status"::"Not Sent");

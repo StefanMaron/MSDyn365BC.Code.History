@@ -4022,12 +4022,11 @@ table 38 "Purchase Header"
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
     begin
-        if "Document Type" <> "Document Type"::"Credit Memo" then
-            if "VAT Bus. Posting Group" <> '' then begin
-                VATBusPostingGroup.Get("VAT Bus. Posting Group");
-                if VATBusPostingGroup."Default Purch. Operation Type" <> '' then
-                    Validate("Operation Type", VATBusPostingGroup."Default Purch. Operation Type");
-            end;
+        if "VAT Bus. Posting Group" <> '' then begin
+            VATBusPostingGroup.Get("VAT Bus. Posting Group");
+            if VATBusPostingGroup."Default Purch. Operation Type" <> '' then
+                Validate("Operation Type", VATBusPostingGroup."Default Purch. Operation Type");
+        end;
 
         OnAfterSetOperationType(Rec);
     end;

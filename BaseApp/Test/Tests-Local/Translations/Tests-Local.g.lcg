@@ -2957,6 +2957,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Datifattura Split VAT - NamedType CAPTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3731846284 - NamedType 35904916" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DatiFatturaHeader/Dichiarante/CodiceFiscale]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - Datifattura Split VAT - NamedType CodiceFiscaleTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3552075409 - NamedType 3544445597" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Final Print Message expected.]]></Val>
@@ -5115,6 +5124,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Intrastat - NamedType IntraFormBufferCorrectiveEntryCap)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2854594896 - NamedType 2763061890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Intra___form_Buffer__VAT_Registration_No__]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Intrastat - NamedType IntraFormBufferVATRegNoLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2854594896 - NamedType 3469048317" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -9,6 +9,7 @@
 codeunit 9057 "Plan Upgrade"
 {
     Subtype = Upgrade;
+    Permissions = tabledata Plan = rimd;
 
     trigger OnUpgradePerDatabase()
     begin

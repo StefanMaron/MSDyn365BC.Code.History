@@ -1,4 +1,4 @@
-page 147 "Posted Purchase Credit Memos"
+﻿page 147 "Posted Purchase Credit Memos"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Purchase Credit Memos';
@@ -415,8 +415,8 @@ page 147 "Posted Purchase Credit Memos"
     begin
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
-        if HasFilters then
-            if FindFirst then;
+        if HasFilters and not Find() then
+            if FindFirst() then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
     end;
 

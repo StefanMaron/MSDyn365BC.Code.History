@@ -59,7 +59,8 @@ codeunit 12179 "Export FatturaPA Document"
         CreateFatturaElettronicaBody(TempFatturaLine, TempFatturaHeader);
 
         // update Buffer
-        TempXMLBuffer.FindFirst;
+        FileManagement.DeleteServerFile(FileName);
+        TempXMLBuffer.FindFirst();
         TempXMLBuffer.Save(FileName);
         exit(CopyStr(FileName, 1, 250))
     end;

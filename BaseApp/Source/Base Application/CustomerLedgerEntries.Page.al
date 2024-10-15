@@ -706,8 +706,8 @@
     begin
         SetControlVisibility;
 
-        if GetFilters <> '' then
-            if FindFirst then;
+        if (GetFilters() <> '') and not Find() then
+            if FindFirst() then;
     end;
 
     var
