@@ -26,15 +26,17 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         SalesLine.SetAutoCalcFields("Alloc. Acc. Modified by User");
         SalesLine.GetBySystemId(ParentSystemId);
         AmountToAllocate := SalesLine.Amount;
-        PostingDate := SalesLine."Posting Date";
+
+        SalesHeader.ReadIsolation := IsolationLevel::ReadUncommitted;
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        PostingDate := SalesHeader."Posting Date";
 
         if SalesLine."Alloc. Acc. Modified by User" then
             LoadManualAllocationLines(SalesLine, AllocationLine)
         else begin
-            SalesHeader.ReadIsolation := IsolationLevel::ReadUncommitted;
-            SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
             GetAllocationAccount(SalesLine, AllocationAccount);
-            AllocationAccountMgt.GenerateAllocationLines(AllocationAccount, AllocationLine, SalesLine.Amount, SalesHeader."Posting Date", SalesLine."Dimension Set ID", SalesLine."Currency Code");
+            AllocationAccountMgt.GenerateAllocationLines(AllocationAccount, AllocationLine, SalesLine.Amount, PostingDate, SalesLine."Dimension Set ID", SalesLine."Currency Code");
+            AllocationAccountMgt.SplitQuantitiesIfNeeded(SalesLine.Quantity, AllocationLine, AllocationAccount);
             ReplaceInheritFromParent(AllocationLine, SalesLine);
         end;
     end;
@@ -58,6 +60,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
             AllocationLine."Allocation Account No." := AllocAccManualOverride."Allocation Account No.";
             AllocationLine."Dimension Set ID" := AllocAccManualOverride."Dimension Set ID";
             AllocationLine.Amount := AllocAccManualOverride.Amount;
+            AllocationLine.Quantity := AllocAccManualOverride.Quantity;
             AllocationLine.Insert();
         until AllocAccManualOverride.Next() = 0;
     end;
@@ -220,7 +223,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         until AllocationSalesLine.Next() = 0;
     end;
 
-    local procedure CreateLinesFromAllocationAccountLine(var AllocationAccountSalesLine: Record "Sales Line")
+    procedure CreateLinesFromAllocationAccountLine(var AllocationAccountSalesLine: Record "Sales Line")
     var
         ExistingAccountSalesLine: Record "Sales Line";
         AllocationLine: Record "Allocation Line";
@@ -228,6 +231,7 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         NextLineNo: Integer;
         LastLineNo: Integer;
         Increment: Integer;
+        CreatedLines: List of [Guid];
     begin
         if not GetAllocationAccount(AllocationAccountSalesLine, AllocationAccount) then
             Error(CannotGetAllocationAccountFromLineErr, AllocationAccountSalesLine."Line No.");
@@ -262,9 +266,10 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         ExistingAccountSalesLine.GetBySystemId(AllocationAccountSalesLine.SystemId);
 
         repeat
-            CreateSalesLine(ExistingAccountSalesLine, AllocationLine, LastLineNo, Increment);
+            CreatedLines.Add(CreateSalesLine(ExistingAccountSalesLine, AllocationLine, LastLineNo, Increment, AllocationAccount));
         until AllocationLine.Next() = 0;
 
+        FixQuantityRounding(CreatedLines, ExistingAccountSalesLine, AllocationAccount);
         DeleteManualOverrides(AllocationAccountSalesLine);
     end;
 
@@ -307,17 +312,28 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         end;
     end;
 
-    local procedure CreateSalesLine(var AllocationSalesLine: Record "Sales Line"; var AllocationLine: Record "Allocation Line"; var LastLineNo: Integer; Increment: Integer)
+    local procedure CreateSalesLine(var AllocationSalesLine: Record "Sales Line"; var AllocationLine: Record "Allocation Line"; var LastLineNo: Integer; Increment: Integer; var AllocationAccount: Record "Allocation Account"): Guid
     var
         SalesLine: Record "Sales Line";
+        AllocAccHandleDocPost: Codeunit "Alloc. Acc. Handle Doc. Post";
     begin
         SalesLine.TransferFields(AllocationSalesLine, true);
         SalesLine."Line No." := LastLineNo + Increment;
         SalesLine."Type" := SalesLine."Type"::"G/L Account";
+        if AllocationSalesLine."VAT Bus. Posting Group" <> '' then
+            AllocAccHandleDocPost.SetVATBusPostingGroupCode(AllocationSalesLine."VAT Bus. Posting Group");
+
+        if AllocationSalesLine."VAT Prod. Posting Group" <> '' then
+            AllocAccHandleDocPost.SetVATProdPostingGroupCode(AllocationSalesLine."VAT Prod. Posting Group");
+
+        BindSubscription(AllocAccHandleDocPost);
         SalesLine.Validate("No.", AllocationLine."Destination Account Number");
-        SalesLine.Quantity := AllocationSalesLine.Quantity;
-        SalesLine.Validate("Unit Price", AllocationLine.Amount);
-        SalesLine.Validate("Line Amount", AllocationLine.Amount);
+        UnbindSubscription(AllocAccHandleDocPost);
+
+        MoveAmounts(SalesLine, AllocationSalesLine, AllocationLine, AllocationAccount);
+        MoveQuantities(SalesLine, AllocationSalesLine);
+
+        SalesLine."Deferral Code" := AllocationSalesLine."Deferral Code";
 
         TransferDimensionSetID(SalesLine, AllocationLine, AllocationSalesLine."Alloc. Acc. Modified by User");
         SalesLine."Allocation Account No." := AllocationLine."Allocation Account No.";
@@ -325,6 +341,145 @@ codeunit 2678 "Sales Alloc. Acc. Mgt."
         OnBeforeCreateSalesLine(SalesLine, AllocationLine, AllocationSalesLine);
         SalesLine.Insert(true);
         LastLineNo := SalesLine."Line No.";
+        RedistributeQuantitiesIfNeededMoveQuantities(SalesLine, AllocationSalesLine, AllocationLine, AllocationAccount);
+        exit(SalesLine.SystemId);
+    end;
+
+    local procedure MoveQuantities(var SalesLine: Record "Sales Line"; var AllocationSalesLine: Record "Sales Line")
+    begin
+        SalesLine.Quantity := AllocationSalesLine.Quantity;
+        SalesLine."Outstanding Quantity" := AllocationSalesLine."Outstanding Quantity";
+        SalesLine."Quantity Shipped" := AllocationSalesLine."Quantity Shipped";
+        SalesLine."Quantity Invoiced" := AllocationSalesLine."Quantity Invoiced";
+        SalesLine."Qty. to Invoice" := AllocationSalesLine."Qty. to Invoice";
+        SalesLine."Qty. to Ship" := AllocationSalesLine."Qty. to Ship";
+        SalesLine."Quantity (Base)" := AllocationSalesLine."Quantity (Base)";
+        SalesLine."Outstanding Qty. (Base)" := AllocationSalesLine."Outstanding Qty. (Base)";
+        SalesLine."Qty. to Ship (Base)" := AllocationSalesLine."Qty. to Ship (Base)";
+        SalesLine."Return Qty. to Receive" := AllocationSalesLine."Return Qty. to Receive";
+        SalesLine."Return Qty. to Receive (Base)" := AllocationSalesLine."Return Qty. to Receive (Base)";
+    end;
+
+    local procedure RedistributeQuantitiesIfNeededMoveQuantities(var SalesLine: Record "Sales Line"; var AllocationSalesLine: Record "Sales Line"; var AllocationLine: Record "Allocation Line"; var AllocationAccount: Record "Allocation Account")
+    var
+        LinePercentage: Decimal;
+    begin
+        if AllocationAccount."Document Lines Split" <> AllocationAccount."Document Lines Split"::"Split Quantity" then
+            exit;
+
+        if AllocationLine.Percentage <> 0 then
+            LinePercentage := AllocationLine.Percentage
+        else
+            LinePercentage := Round(AllocationLine.Quantity / AllocationSalesLine.Quantity * 100, AllocationLine.GetQuantityPercision());
+
+        SalesLine.Quantity := 0;
+        SalesLine.Validate(Quantity, AllocationLine.Quantity);
+        SalesLine."Outstanding Quantity" := Round(AllocationSalesLine."Outstanding Quantity" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine."Quantity Shipped" := Round(AllocationSalesLine."Quantity Shipped" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine."Quantity Invoiced" := Round(AllocationSalesLine."Quantity Invoiced" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine."Qty. to Invoice" := Round(AllocationSalesLine."Qty. to Invoice" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine."Qty. to Ship" := Round(AllocationSalesLine."Qty. to Ship" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine."Quantity (Base)" := Round(AllocationSalesLine."Quantity (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine."Outstanding Qty. (Base)" := Round(AllocationSalesLine."Outstanding Qty. (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine."Qty. to Ship (Base)" := Round(AllocationSalesLine."Qty. to Ship (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine."Return Qty. to Receive" := Round(AllocationSalesLine."Return Qty. to Receive" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine."Return Qty. to Receive (Base)" := Round(AllocationSalesLine."Return Qty. to Receive (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        SalesLine.Modify();
+    end;
+
+    local procedure FixQuantityRounding(CreatedLines: List of [Guid]; var ExistingAccountSalesLine: Record "Sales Line"; var AllocationAccount: Record "Allocation Account")
+    var
+        SalesLine: Record "Sales Line";
+        LastLine: Record "Sales Line";
+        CreatedLineSystemID: Guid;
+        ModifyLine: Boolean;
+    begin
+        if AllocationAccount."Document Lines Split" <> AllocationAccount."Document Lines Split"::"Split Quantity" then
+            exit;
+
+        SalesLine.ReadIsolation := IsolationLevel::ReadCommitted;
+        foreach CreatedLineSystemID in CreatedLines do begin
+            SalesLine.GetBySystemId(CreatedLineSystemID);
+            SalesLine.Mark(true);
+        end;
+
+        SalesLine.MarkedOnly(true);
+        if not SalesLine.FindLast() then
+            exit;
+
+        LastLine.Copy(SalesLine);
+
+        SalesLine.CalcSums("Outstanding Quantity", "Quantity Shipped", "Quantity Invoiced", "Qty. to Invoice", "Qty. to Ship", "Quantity (Base)", "Outstanding Qty. (Base)", "Qty. to Ship (Base)", "Return Qty. to Receive", "Return Qty. to Receive (Base)");
+
+        if ExistingAccountSalesLine."Outstanding Quantity" - SalesLine."Outstanding Quantity" > 0 then begin
+            LastLine."Outstanding Quantity" += ExistingAccountSalesLine."Outstanding Quantity" - SalesLine."Outstanding Quantity";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountSalesLine."Quantity Shipped" - SalesLine."Quantity Shipped" > 0 then begin
+            LastLine."Quantity Shipped" += ExistingAccountSalesLine."Quantity Shipped" - SalesLine."Quantity Shipped";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountSalesLine."Quantity Invoiced" - SalesLine."Quantity Invoiced" > 0 then begin
+            LastLine."Quantity Invoiced" += ExistingAccountSalesLine."Quantity Invoiced" - SalesLine."Quantity Invoiced";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountSalesLine."Qty. to Invoice" - SalesLine."Qty. to Invoice" > 0 then begin
+            LastLine."Qty. to Invoice" += ExistingAccountSalesLine."Qty. to Invoice" - SalesLine."Qty. to Invoice";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountSalesLine."Qty. to Ship" - SalesLine."Qty. to Ship" > 0 then begin
+            LastLine."Qty. to Ship" += ExistingAccountSalesLine."Qty. to Ship" - SalesLine."Qty. to Ship";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountSalesLine."Quantity (Base)" - SalesLine."Quantity (Base)" > 0 then begin
+            LastLine."Quantity (Base)" += ExistingAccountSalesLine."Quantity (Base)" - SalesLine."Quantity (Base)";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountSalesLine."Outstanding Qty. (Base)" - SalesLine."Outstanding Qty. (Base)" > 0 then begin
+            LastLine."Outstanding Qty. (Base)" += ExistingAccountSalesLine."Outstanding Qty. (Base)" - SalesLine."Outstanding Qty. (Base)";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountSalesLine."Qty. to Ship (Base)" - SalesLine."Qty. to Ship (Base)" > 0 then begin
+            LastLine."Qty. to Ship (Base)" += ExistingAccountSalesLine."Qty. to Ship (Base)" - SalesLine."Qty. to Ship (Base)";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountSalesLine."Return Qty. to Receive" - SalesLine."Return Qty. to Receive" > 0 then begin
+            LastLine."Return Qty. to Receive" += ExistingAccountSalesLine."Return Qty. to Receive" - SalesLine."Return Qty. to Receive";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountSalesLine."Return Qty. to Receive (Base)" - SalesLine."Return Qty. to Receive (Base)" > 0 then begin
+            LastLine."Return Qty. to Receive (Base)" += ExistingAccountSalesLine."Return Qty. to Receive (Base)" - SalesLine."Return Qty. to Receive (Base)";
+            ModifyLine := true;
+        end;
+
+        if ModifyLine then
+            LastLine.Modify();
+    end;
+
+    local procedure MoveAmounts(var SalesLine: Record "Sales Line"; var AllocationSalesLine: Record "Sales Line"; var AllocationLine: Record "Allocation Line"; var AllocationAccount: Record "Allocation Account")
+    var
+        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
+        AmountRoundingPercision: Decimal;
+    begin
+        SalesLine."Unit Cost" := AllocationSalesLine."Unit Cost";
+
+        if AllocationAccount."Document Lines Split" = AllocationAccount."Document Lines Split"::"Split Amount" then begin
+            AmountRoundingPercision := AllocationAccountMgt.GetCurrencyRoundingPrecision(SalesLine."Currency Code");
+            SalesLine.Validate("Unit Price", Round(AllocationLine.Amount / SalesLine.Quantity, AmountRoundingPercision));
+            SalesLine.Validate("Line Amount", AllocationLine.Amount);
+        end else begin
+            SalesLine.Validate("Unit Price", AllocationSalesLine."Unit Price");
+            SalesLine."Line Amount" := AllocationSalesLine."Line Amount";
+        end;
     end;
 
     local procedure GetNextLine(var AllocationSalesLine: Record "Sales Line"): Integer

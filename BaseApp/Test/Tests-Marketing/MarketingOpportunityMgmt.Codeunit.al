@@ -57,6 +57,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         OppCampaignNoErr: Label 'Campaign No. must not be %1 in Opportunity No.=''%2''';
         OppCardSalesDocTypeErr: Label 'Validation error for Field: Sales Document Type,  Message = ''Your entry of ''%1'' is not an acceptable value for ''Sales Document Type''. (Select Refresh to discard errors)''';
         OppNoNotUpdatedOnSalesQuoteErr: Label 'Opportunity No. not updated on Sales Quote.';
+        ToDoCountShouldBeOneErr: Label 'To-do count should be one.';
 
     [Test]
     [HandlerFunctions('ModalFormHandlerOpportunity,FormHandlerUpdateOpportunity')]
@@ -1720,6 +1721,71 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Assert.AreEqual(Opportunity."No.", SalesHeader."Opportunity No.", OppNoNotUpdatedOnSalesQuoteErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler,FormHandlerUpdateOpportunity')]
+    [Scope('OnPrem')]
+    procedure SalesCycleStageWithOnlyOneActivityStepOfTypePhoneCallCreatesOnlyOneTask()
+    var
+        Contact: Record Contact;
+        Activity: Record Activity;
+        ActivityStep: Record "Activity Step";
+        Opportunity: Record Opportunity;
+        SalesCycle: Record "Sales Cycle";
+        SalesCycleStage: Record "Sales Cycle Stage";
+        SalesHeader: Record "Sales Header";
+        ToDo: Record "To-do";
+        OpportunityCard: TestPage "Opportunity Card";
+    begin
+        // [SCENARIO 495997] When stan runs Update action from an Opportunity of Sales Cycle Stage having only one Activity Step of Type Phone Call then only one Task Line is created in Task List.
+        Initialize();
+
+        // [GIVEN] Create Contact of Type Person.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] Create Activity with Activity Step Type Phone Call.
+        CreateActivityWithActivityStepTypePhoneCall(Activity, ActivityStep);
+
+        // [GIVEN] Create Sales Cycle.
+        LibraryMarketing.CreateSalesCycle(SalesCycle);
+
+        // [GIVEN] Create Sales Cycle Stage with blank Activity Code.
+        CreateSalesCycleStageWithActivityCode(SalesCycle, SalesCycleStage, '');
+
+        // [GIVEN] Create Sales Cycle Stage 2 with Activity Code.
+        CreateSalesCycleStageWithActivityCode(SalesCycle, SalesCycleStage2, Activity.Code);
+
+        // [GIVEN] Create Sales Quote with Contact.
+        CreateSalesQuoteWithContact(SalesHeader, Contact);
+
+        // [GIVEN] Create Opportunity and Validate Sales Cycle Code.
+        LibraryMarketing.CreateOpportunity(Opportunity, Contact."No.");
+        Opportunity.Validate("Sales Cycle Code", SalesCycle.Code);
+        Opportunity.Modify(true);
+
+        // [GIVEN] Open Opportunity Card page and run Activate the First Stage action.
+        OpportunityCard.OpenEdit();
+        OpportunityCard.GoToRecord(Opportunity);
+        OpportunityCard."Activate the First Stage".Invoke();
+        OpportunityCard.Close();
+
+        // [GIVEN] Enter Sales Document Type and Sales Document No in Opportunity.
+        Opportunity."Sales Document Type" := Opportunity."Sales Document Type"::Quote;
+        Opportunity."Sales Document No." := SalesHeader."No.";
+        Opportunity.Modify(true);
+
+        // [GIVEN] Find and Update Opportunity.
+        AssignGlobalVariables(ActionType::Next, SalesCycleStage2."Sales Cycle Code", SalesCycleStage2.Stage);
+        Opportunity.SetRange("Contact No.", Contact."No.");
+        Opportunity.FindFirst();
+        Opportunity.UpdateOpportunity();
+
+        // [WHEN] Find Task.
+        ToDo.SetRange("Opportunity No.", Opportunity."No.");
+
+        // [VERIFY] Only one Task is created.
+        Assert.IsTrue(ToDo.Count() = 1, ToDoCountShouldBeOneErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Opportunity Mgmt");
@@ -2200,6 +2266,51 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
         SalesHeader.Insert(true);
+    end;
+
+    local procedure CreateActivityWithActivityStepTypePhoneCall(var Activity: Record Activity; var ActivityStep: Record "Activity Step")
+    begin
+        LibraryMarketing.CreateActivity(Activity);
+        LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
+        ActivityStep.Validate(Type, ActivityStep.Type::"Phone Call");
+        ActivityStep.Validate(Priority, ActivityStep.Priority::Normal);
+        ActivityStep.Modify(true);
+    end;
+
+    local procedure CreateSalesCycleStageWithActivityCode(
+        var SalesCycle: Record "Sales Cycle";
+        var SalesCycleStage: Record "Sales Cycle Stage";
+        ActivityCode: Code[10])
+    begin
+        LibraryMarketing.CreateSalesCycleStage(SalesCycleStage, SalesCycle.Code);
+        SalesCycleStage.Validate("Completed %", LibraryRandom.RandInt(50));
+        SalesCycleStage.Validate("Chances of Success %", LibraryRandom.RandInt(25));
+        SalesCycleStage.Validate("Activity Code", ActivityCode);
+        SalesCycleStage.Modify(true);
+    end;
+
+    local procedure CreateSalesQuoteWithContact(var SalesHeader: Record "Sales Header"; Contact: Record Contact)
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate(Contact, Contact."No.");
+        Customer.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+
+        CreateSalesQuoteWithCustomer(SalesHeader, Customer."No.");
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandInt(0));
+
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(20, 2));
+        SalesLine.Modify(true);
     end;
 
     [ConfirmHandler]

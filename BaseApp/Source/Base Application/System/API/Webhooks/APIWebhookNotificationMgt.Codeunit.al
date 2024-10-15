@@ -642,7 +642,7 @@ codeunit 6153 "API Webhook Notification Mgt."
             exit;
         end;
 
-        JobQueueEntry.SetLoadFields(ID, "Earliest Start Date/Time", Scheduled);
+        JobQueueEntry.SetLoadFields(ID, "Earliest Start Date/Time", Scheduled, "System Task ID");
         JobQueueEntry.ReadIsolation := JobQueueEntry.ReadIsolation::ReadUnCommitted;
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"API Webhook Notification Send");

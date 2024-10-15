@@ -53,6 +53,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
             AllocationLine."Global Dimension 1 Code" := AllocAccManualOverride."Global Dimension 1 Code";
             AllocationLine."Global Dimension 2 Code" := AllocAccManualOverride."Global Dimension 2 Code";
             AllocationLine."Allocation Account No." := AllocAccManualOverride."Allocation Account No.";
+            AllocationLine.Quantity := AllocAccManualOverride.Quantity;
             AllocationLine."Dimension Set ID" := AllocAccManualOverride."Dimension Set ID";
             AllocationLine.Amount := AllocAccManualOverride.Amount;
             AllocationLine.Insert();
@@ -226,7 +227,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
         AllocationAccountGenJournalLine.DeleteAll();
     end;
 
-    local procedure CreateLines(var AllocationAccountGenJournalLine: Record "Gen. Journal Line")
+    procedure CreateLines(var AllocationAccountGenJournalLine: Record "Gen. Journal Line")
     begin
         AllocationAccountGenJournalLine.ReadIsolation := IsolationLevel::ReadCommitted;
         if AllocationAccountGenJournalLine.IsEmpty() then

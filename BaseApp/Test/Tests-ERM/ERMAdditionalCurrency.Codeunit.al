@@ -1079,6 +1079,44 @@ codeunit 134043 "ERM Additional Currency"
         GLEntry.TestField("Transaction No.", TransactionNo);
     end;
 
+    [Test]
+    [HandlerFunctions('FiscalYearConfirmHandler,StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRateOnlyWithGLAccountsAdjustment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        CurrencyFCY: Code[10];
+        CurrencyACY: Code[10];
+        BankAccountNo: Code[20];
+        AddnlReportingCurrencyAmount: Decimal;
+    begin
+        // [SCENARIO 493211] Adjust Exchange Rates -> Adjust G/L Accounts for Add.-Reporting Currency not working
+        Initialize();
+
+        // [GIVEN] Setup: Update Additional Currency in General Ledger Setup. Run Additional Currency Reporting Report.
+        CreateCurrencies(CurrencyACY, CurrencyFCY);
+        UpdateRunAddnReportingCurrency(CurrencyACY, CurrencyACY);
+
+        // [THEN] Create and Post General Journal Line with Random Values.
+        BankAccountNo := CreateBankAccountWithCurrency(CurrencyFCY);
+        CreateJournalLineForInvoice(
+          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", BankAccountNo, LibraryRandom.RandDec(100, 2) + 100);
+        ModifyGeneralJournalLine(GenJournalLine, GenJournalLine."Bal. Gen. Posting Type"::Purchase, CurrencyFCY);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [When] Exercise: Modify Exchange Rate for Foreign Currency and Run Adjust Exchange Rate Batch.
+        AddnlReportingCurrencyAmount := CalculateAdditionalAmount(CurrencyExchangeRate, CurrencyACY, GenJournalLine."Amount (LCY)");
+        CurrencyExchangeRate.Get(CurrencyFCY, LibraryERM.FindEarliestDateForExhRate());
+        ModifyCurrencyExchangeRate(CurrencyExchangeRate);
+
+        // [THEN] Run Adjust Exchange Rate with Adjust G/L Account and without other Adjustments
+        RunAdjustExchangeRatesWithAdjGLAccOnly(CurrencyExchangeRate, BankAccountNo);
+
+        // [VERIFY] Verify: Verify G/L Entry for Additional Currency Amount
+        VerifyGLEntryForACY(GenJournalLine, AddnlReportingCurrencyAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1809,6 +1847,35 @@ codeunit 134043 "ERM Additional Currency"
         Assert.AreNearlyEqual(
           BaseAmount, VATEntry.Base, GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), BaseAmount, VATEntry.TableCaption()));
+    end;
+
+    local procedure RunAdjustExchangeRatesWithAdjGLAccOnly(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
+    var
+        Currency: Record Currency;
+#if not CLEAN23
+        AdjustExchangeRates: Report "Adjust Exchange Rates";
+#else
+        ExchRateAdjustment: Report "Exch. Rate Adjustment";
+#endif
+    begin
+        Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
+#if not CLEAN23
+        Clear(AdjustExchangeRates);
+        AdjustExchangeRates.SetTableView(Currency);
+        AdjustExchangeRates.InitializeRequest2(
+            CurrencyExchangeRate."Starting Date", WorkDate(), LibraryRandom.RandText(100),
+            CurrencyExchangeRate."Starting Date", DocumentNo, false, true);
+        AdjustExchangeRates.UseRequestPage(false);
+        AdjustExchangeRates.Run();
+#else
+        Clear(ExchRateAdjustment);
+        ExchRateAdjustment.SetTableView(Currency);
+        ExchRateAdjustment.InitializeRequest2(
+            CurrencyExchangeRate."Starting Date", WorkDate(), LibraryRandom.RandText(100),
+            CurrencyExchangeRate."Starting Date", DocumentNo, false, true);
+        ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.Run();
+#endif
     end;
 
     [ModalPageHandler]
