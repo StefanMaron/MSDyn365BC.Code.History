@@ -14,6 +14,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Elster Tables UT - NamedType SameValueMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 543560743 - NamedType 1904452951" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Places of %1 in area %2 must be %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Elster Tables UT - NamedType WrongPlaceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3541477653 - NamedType 2111744261" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ENU=Converted Germanic umlaut text expected.]]></Val>
