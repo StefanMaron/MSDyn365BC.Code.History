@@ -362,6 +362,11 @@
             group("Electronic Document")
             {
                 Caption = 'Electronic Document';
+                field("SAT Classification Code"; Rec."SAT Classification Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the classification code required for reporting to the Mexican tax authorities (SAT)';
+                }
                 field("Vehicle Licence Plate"; "Vehicle Licence Plate")
                 {
                     ApplicationArea = FixedAssets, BasicMX;
