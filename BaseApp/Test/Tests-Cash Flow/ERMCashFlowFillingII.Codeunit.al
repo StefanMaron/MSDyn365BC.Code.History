@@ -1034,6 +1034,52 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     end;
 
     [Test]
+    [HandlerFunctions('SuggestWorksheetLinesReqLiquidFundsPageHandler')]
+    [Scope('OnPrem')]
+    procedure CatchCircularReferencesInCashFlowAccountTotals()
+    var
+        CashFlowAccount: Record "Cash Flow Account";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        GLAccount: array[3] of Record "G/L Account";
+        AnalysisView: Record "Analysis View";
+    begin
+        // [SCENARIO 416767] "Suggest Cashflow Worksheet Lines" catches circular references.
+        Initialize();
+
+        // [GIVEN] Three Total G/L Accounts:
+        // [GIVEN] G/L Account 100, where Totaling 101..150
+        GLAccount[1]."No." := 'LF100';
+        GLAccount[1].Totaling := 'LF101..LF150';
+        GLAccount[1]."Account Type" := GLAccount[1]."Account Type"::Total;
+        GLAccount[1].Insert();
+        // [GIVEN] G/L Account 150, where Totaling 151..199
+        GLAccount[2]."No." := 'LF150';
+        GLAccount[2].Totaling := 'LF151..LF199';
+        GLAccount[2]."Account Type" := GLAccount[2]."Account Type"::Total;
+        GLAccount[2].Insert();
+        // [GIVEN] G/L Account 199, where Totaling 100..110
+        GLAccount[3]."No." := 'LF199';
+        GLAccount[3].Totaling := 'LF100..LF110';
+        GLAccount[3]."Account Type" := GLAccount[3]."Account Type"::Total;
+        GLAccount[3].Insert();
+        // [GIVEN] Cash Flow Account 'LF', where "G/L Account Filter" is 199
+        CashFlowAccount.Init();
+        CashFlowAccount."No." := 'LF';
+        CashFlowAccount."Account Type" := CashFlowAccount."Account Type"::Entry;
+        CashFlowAccount."Source Type" := CashFlowAccount."Source Type"::"Liquid Funds";
+        CashFlowAccount."G/L Integration" := CashFlowAccount."G/L Integration"::Balance;
+        CashFlowAccount."G/L Account Filter" := 'LF199';
+        CashFlowAccount.Insert();
+
+        // [WHEN] Create Cash Flow Forecast, suggest Cash Flow Worksheet Line 
+        asserterror CreateAndPostCashFlowForecast(CashFlowForecast);
+
+        // [THEN] Error message:"There are one or more circular references ..."
+        Assert.ExpectedError(
+            StrSubstNo('%3, (%1, %2, %3) ', GLAccount[1]."No.", GLAccount[2]."No.", GLAccount[3]."No."));
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ForecastingFCYAmountConsideringDiscountOnCustLE()
     var
@@ -2604,6 +2650,30 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(true);  // G/L Budget.
         SuggestWorksheetLines.OK.Invoke;
     end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestWorksheetLinesReqLiquidFundsPageHandler(var SuggestWorksheetLines: TestRequestPage "Suggest Worksheet Lines")
+    var
+        CashFlowNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CashFlowNo);
+        SuggestWorksheetLines.CashFlowNo.SetValue(CashFlowNo);
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Liquid Funds""]".SetValue(true);  // Liquid Funds.
+
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Service Orders""]".SetValue(false);
+        SuggestWorksheetLines."ConsiderSource[SourceType::Receivables]".SetValue(false);  // Receivables.
+        SuggestWorksheetLines."ConsiderSource[SourceType::Payables]".SetValue(false);  // Payables.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Purchase Order""]".SetValue(false);  // Purchase Order.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Revenue""]".SetValue(false);  // Cash Flow Manual Revenue.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sales Order""]".SetValue(false);  // Sales Order.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Budgeted Fixed Asset""]".SetValue(false);  // Budgeted Fixed Asset.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Cash Flow Manual Expense""]".SetValue(false);  // Cash Flow Manual Expense.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""Sale of Fixed Asset""]".SetValue(false);  // Sale of Fixed Asset.
+        SuggestWorksheetLines."ConsiderSource[SourceType::""G/L Budget""]".SetValue(false);  // G/L Budget.
+        SuggestWorksheetLines.OK.Invoke;
+    end;
+
 
     [PageHandler]
     [Scope('OnPrem')]

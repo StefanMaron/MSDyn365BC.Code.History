@@ -33,6 +33,7 @@ codeunit 144022 "UT Intrastat SE"
         TypeFilterTxt: Label '%1|%2';
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
 
     [Test]
     [HandlerFunctions('CreateFileMessageHandler')]
@@ -372,6 +373,7 @@ codeunit 144022 "UT Intrastat SE"
 
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlTemplate.Name;
         IntrastatJnlBatch.Name := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlBatch."Statistics Period" := Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod());
         IntrastatJnlBatch.Reported := false;
         IntrastatJnlBatch.Insert();
     end;
@@ -497,7 +499,7 @@ codeunit 144022 "UT Intrastat SE"
         Type: Variant;
     begin
         LibraryVariableStorage.Dequeue(Type);
-        IntrastatMakeDiskTaxAuth."Intrastat Jnl. Line".SetFilter(Type, Type);
+        IntrastatMakeDiskTaxAuth.IntrastatJnlLine.SetFilter(Type, Type);
         IntrastatMakeDiskTaxAuth.OK.Invoke;
     end;
 

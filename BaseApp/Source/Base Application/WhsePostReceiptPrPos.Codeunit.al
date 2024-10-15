@@ -36,6 +36,13 @@ codeunit 5766 "Whse.-Post Receipt + Pr. Pos."
 
             Clear(WhsePostReceipt);
         end;
+
+        OnAfterCode(WhseReceiptLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCode(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

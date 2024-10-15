@@ -118,6 +118,9 @@ codeunit 5330 "CRM Integration Management"
         NoBrokenCouplingsFoundTxt: Label 'No broken couplings were found.', Locked = true;
         UnitGroupMappingFeatureIdTok: Label 'UnitGroupMapping', Locked = true;
         CurrencySymbolMappingFeatureIdTok: Label 'CurrencySymbolMapping', Locked = true;
+        SuccessfullyScheduledMarkingOfInvoiceAsCoupledTxt: Label 'Successfully scheduled marking of invoice %1 as coupled to Dynamics 365 Sales invoice.', Locked = true;
+        SetCouplingFlagJQEDescriptionTxt: Label 'Marking record %1 as coupled to Dataverse.', Comment = '%1 - a Guid, record identifier; Dataverse is a name of a Microsoft service and must not be translated.';
+        JobQueueCategoryLbl: Label 'BCI CPLFLG', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
     var
@@ -3316,7 +3319,13 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     procedure SetCoupledFlag(CRMIntegrationRecord: Record "CRM Integration Record"; NewValue: Boolean): Boolean
+    begin
+        SetCoupledFlag(CRMIntegrationRecord, NewValue, true);
+    end;
+
+    procedure SetCoupledFlag(CRMIntegrationRecord: Record "CRM Integration Record"; NewValue: Boolean; ScheduleTask: Boolean): Boolean
     var
+        JobQueueEntry: Record "Job Queue Entry";
         RecRef: RecordRef;
         CoupledToCRMFieldRef: FieldRef;
         CoupledToCRMFieldNo: Integer;
@@ -3333,6 +3342,25 @@ codeunit 5330 "CRM Integration Management"
 
         if not FindCoupledToCRMField(RecRef, CoupledToCRMFieldRef) then
             exit(false);
+
+        if RecRef.Number = Database::"Sales Invoice Header" then
+            if NewValue = true then
+                if ScheduleTask then
+                    if UserCanRescheduleJob() then begin
+                        JobQueueEntry.Init();
+                        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime() + 10000;
+                        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+                        JobQueueEntry."Object ID to Run" := CODEUNIT::"CDS Set Coupled Flag";
+                        JobQueueEntry."Record ID to Process" := CRMIntegrationRecord.RecordId();
+                        JobQueueEntry."Maximum No. of Attempts to Run" := 3;
+                        JobQueueEntry."Rerun Delay (sec.)" := 60;
+                        JobQueueEntry."Run in User Session" := false;
+                        JobQueueEntry."Job Queue Category Code" := CopyStr(JobQueueCategoryLbl, 1, MaxStrLen(JobQueueEntry."Job Queue Category Code"));
+                        JobQueueEntry.Description := StrSubstNo(SetCouplingFlagJQEDescriptionTxt, Format(CRMIntegrationRecord."Integration ID"));
+                        Codeunit.RUN(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
+                        Session.LogMessage('0000GB8', StrSubstNo(SuccessfullyScheduledMarkingOfInvoiceAsCoupledTxt, CRMIntegrationRecord."Integration ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        exit(true);
+                    end;
 
         CoupledToCRMFieldNo := CoupledToCRMFieldRef.Number();
         if not RecRef.GetBySystemId(CRMIntegrationRecord."Integration ID") then

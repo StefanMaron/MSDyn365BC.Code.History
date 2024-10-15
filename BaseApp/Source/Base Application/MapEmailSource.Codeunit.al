@@ -97,5 +97,5 @@ codeunit 8898 "Map Email Source"
     end;
 
     var
-        FileFormatTxt: Label '%1.%2', Comment='%1=File Name, %2=File Extension', Locked = true;
+        FileFormatTxt: Label '%1.%2', Comment = '%1=File Name, %2=File Extension', Locked = true;
 }

@@ -23,6 +23,7 @@ codeunit 6503 "Item Tracking Doc. Management"
             OnAddTempRecordToSetOnAfterApplySignFactor(TempItemLedgEntry, SignFactor);
         end;
         ItemTrackingMgt.RetrieveAppliedExpirationDate(TempItemLedgEntry);
+        OnAddTempRecordToSetOnAfterRetrieveAppliedExpirationDate(TempItemLedgEntry);
         TempItemLedgEntry2 := TempItemLedgEntry;
         TempItemLedgEntry.Reset();
         TempItemLedgEntry.SetTrackingFilterFromItemLedgEntry(TempItemLedgEntry2);
@@ -903,6 +904,11 @@ codeunit 6503 "Item Tracking Doc. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAddTempRecordToSetOnBeforeTempItemLedgEntryModify(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; TempItemLedgEntry2: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddTempRecordToSetOnAfterRetrieveAppliedExpirationDate(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
 

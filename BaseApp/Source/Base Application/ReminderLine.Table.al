@@ -122,7 +122,14 @@ table 296 "Reminder Line"
             Caption = 'Document Type';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDocumentType(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Type, Type::"Customer Ledger Entry");
                 Validate("Document No.");
             end;
@@ -1001,6 +1008,11 @@ table 296 "Reminder Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDocumentNo(var ReminderLine: Record "Reminder Line"; var xReminderLine: Record "Reminder Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDocumentType(var ReminderLine: Record "Reminder Line"; var IsHandled: Boolean)
     begin
     end;
 

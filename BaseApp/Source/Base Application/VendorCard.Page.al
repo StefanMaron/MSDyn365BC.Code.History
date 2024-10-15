@@ -665,10 +665,10 @@ page 26 "Vendor Card"
 #endif
                 action("Item References")
                 {
+                    AccessByPermission = TableData "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item References';
                     Image = Change;
-                    Visible = ItemReferenceVisible;
                     Promoted = true;
                     PromotedCategory = Category9;
                     RunObject = Page "Item References";
@@ -1710,7 +1710,6 @@ page 26 "Vendor Card"
         IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         EmailFeature: Codeunit "Email Feature";
     begin
@@ -1727,7 +1726,6 @@ page 26 "Vendor Card"
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
 
         SetOverReceiptControlsVisibility();
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
@@ -1764,8 +1762,6 @@ page 26 "Vendor Card"
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
         OverReceiptAllowed: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
         EmailImprovementFeatureEnabled: Boolean;
 
     local procedure ActivateFields()

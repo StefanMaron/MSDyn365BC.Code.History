@@ -119,6 +119,9 @@
                 OnValidateSellToCustomerNoOnBeforeRecallModifyAddressNotification(Rec, xRec);
                 if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> "Sell-to Customer No.") then
                     RecallModifyAddressNotification(GetModifyCustomerAddressNotificationId);
+
+                if xRec."Sell-to Customer No." <> "Sell-to Customer No." then
+                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
             end;
         }
         field(3; "No."; Code[20])
@@ -210,6 +213,9 @@
                 OnValidateBillToCustomerNoOnBeforeRecallModifyAddressNotification(Rec, xRec);
                 if (xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> "Bill-to Customer No.") then
                     RecallModifyAddressNotification(GetModifyBillToCustomerAddressNotificationId);
+
+                if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
+                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
             end;
         }
         field(5; "Bill-to Name"; Text[100])
@@ -477,6 +483,8 @@
                 then
                     PriceMessageIfSalesLinesExist(FieldCaption("Posting Date"));
 
+                ResetInvoiceDiscountValue();
+
                 NeedUpdateCurrencyFactor := "Currency Code" <> '';
                 OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(Rec, Confirmed, NeedUpdateCurrencyFactor);
                 if NeedUpdateCurrencyFactor then begin
@@ -662,6 +670,9 @@
             begin
                 if not (CurrFieldNo in [0, FieldNo("Posting Date")]) or ("Currency Code" <> xRec."Currency Code") then
                     TestStatusOpen;
+
+                ResetInvoiceDiscountValue();
+
                 if (CurrFieldNo <> FieldNo("Currency Code")) and ("Currency Code" = xRec."Currency Code") then
                     UpdateCurrencyFactor
                 else
@@ -676,6 +687,9 @@
 
                 if ("No." <> '') and ("Currency Code" <> xRec."Currency Code") then
                     StandardCodesMgt.CheckShowSalesRecurringLinesNotification(Rec);
+
+                if "Currency Code" <> xRec."Currency Code" then
+                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
             end;
         }
         field(33; "Currency Factor"; Decimal)
@@ -687,6 +701,8 @@
 
             trigger OnValidate()
             begin
+                ResetInvoiceDiscountValue();
+
                 if "Currency Factor" <> xRec."Currency Factor" then
                     UpdateSalesLinesByFieldNo(FieldNo("Currency Factor"), false);
             end;
@@ -735,10 +751,8 @@
                         OnAfterConfirmSalesPrice(Rec, SalesLine, RecalculatePrice);
                         SalesLine.SetSalesHeader(Rec);
 
-                        if "Currency Code" = '' then
-                            Currency.InitRoundingPrecision
-                        else
-                            Currency.Get("Currency Code");
+                        InitializeRoundingPrecision(Currency);
+
                         SalesLine.LockTable();
                         LockTable();
                         SalesLine.FindSet();
@@ -1639,8 +1653,10 @@
             trigger OnValidate()
             begin
                 TestStatusOpen;
-                if xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group" then
+                if xRec."VAT Bus. Posting Group" <> "VAT Bus. Posting Group" then begin
                     RecreateSalesLines(FieldCaption("VAT Bus. Posting Group"));
+                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                end;
             end;
         }
         field(117; Reserve; Enum "Reserve Method")
@@ -3011,6 +3027,7 @@
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         PostingSetupMgt: Codeunit PostingSetupManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         CurrencyDate: Date;
         Confirmed: Boolean;
         Text035: Label 'You cannot Release Quote or Make Order unless you specify a customer on the quote.\\Do you want to create customer(s) now?';
@@ -3159,6 +3176,16 @@
            ("Posting Date" = 0D)
         then
             "Posting Date" := WorkDate();
+    end;
+
+    local procedure InitializeRoundingPrecision(var Currency: Record Currency)
+    begin
+        if "Currency Code" = '' then
+            Currency.InitRoundingPrecision()
+        else
+            Currency.Get("Currency Code");
+
+        OnAfterInitializeRoundingPrecision(Rec, Currency);
     end;
 
     local procedure InitNoSeries()
@@ -3411,6 +3438,15 @@
         exit(not SalesLine.IsEmpty);
     end;
 
+    local procedure ResetInvoiceDiscountValue()
+    begin
+        if "Invoice Discount Value" <> 0 then begin
+            CalcFields("Invoice Discount Amount");
+            if "Invoice Discount Amount" = 0 then
+                "Invoice Discount Value" := 0;
+        end;
+    end;
+
     procedure RecreateSalesLines(ChangedFieldName: Text[100])
     var
         TempSalesLine: Record "Sales Line" temporary;
@@ -3488,6 +3524,8 @@
                         TempATOLink.Delete();
                     end;
                 until TempSalesLine.Next() = 0;
+
+                OnRecreateSalesLinesOnAfterProcessTempSalesLines(TempSalesLine, Rec, xRec, ChangedFieldName);
 
                 RestoreSalesCommentLine(TempSalesCommentLine, 0, 0);
 
@@ -4269,7 +4307,13 @@
         ContBusRel: Record "Contact Business Relation";
         Cust: Record Customer;
         Contact: Record Contact;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateBillToCont(Rec, CustomerNo, SkipBillToContact, IsHandled);
+        if IsHandled then
+            exit;
+
         if Cust.Get(CustomerNo) then begin
             if Cust."Primary Contact No." <> '' then
                 "Bill-to Contact No." := Cust."Primary Contact No."
@@ -5485,7 +5529,6 @@
 
     procedure ShowDocumentStatisticsPage()
     var
-        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         StatisticsPageId: Integer;
     begin
         StatisticsPageId := GetStatisticsPageID();
@@ -5658,8 +5701,8 @@
         SalesLine.Validate(Type, TempSalesLine.Type);
         OnCreateSalesLineOnAfterAssignType(SalesLine, TempSalesLine);
         if TempSalesLine."No." = '' then begin
-            SalesLine.Validate(Description, TempSalesLine.Description);
-            SalesLine.Validate("Description 2", TempSalesLine."Description 2");
+            SalesLine.Description := TempSalesLine.Description;
+            SalesLine."Description 2" := TempSalesLine."Description 2";
         end else begin
             SalesLine.Validate("No.", TempSalesLine."No.");
             if SalesLine.Type <> SalesLine.Type::" " then begin
@@ -5974,7 +6017,10 @@
         "Sell-to Customer Name 2" := Cust."Name 2";
         "Sell-to Phone No." := Cust."Phone No.";
         "Sell-to E-Mail" := Cust."E-Mail";
-        if SellToCustomerIsReplaced or ShouldCopyAddressFromSellToCustomer(SellToCustomer) then begin
+        if SellToCustomerIsReplaced() or
+            ShouldCopyAddressFromSellToCustomer(SellToCustomer) or
+            (HasDifferentSellToAddress(SellToCustomer) and SellToCustomer.HasAddress())
+        then begin
             "Sell-to Address" := SellToCustomer.Address;
             "Sell-to Address 2" := SellToCustomer."Address 2";
             "Sell-to City" := SellToCustomer.City;
@@ -6010,7 +6056,10 @@
 
         "Ship-to Name" := SellToCustomer.Name;
         "Ship-to Name 2" := SellToCustomer."Name 2";
-        if SellToCustomerIsReplaced or ShipToAddressEqualsOldSellToAddress then begin
+        if SellToCustomerIsReplaced() or
+            ShipToAddressEqualsOldSellToAddress or
+            (HasDifferentShipToAddress(SellToCustomer) and SellToCustomer.HasAddress())
+        then begin
             "Ship-to Address" := SellToCustomer.Address;
             "Ship-to Address 2" := SellToCustomer."Address 2";
             "Ship-to City" := SellToCustomer.City;
@@ -6087,7 +6136,10 @@
         "Bill-to Customer Templ. Code" := '';
         "Bill-to Name" := BillToCustomer.Name;
         "Bill-to Name 2" := BillToCustomer."Name 2";
-        if BillToCustomerIsReplaced or ShouldCopyAddressFromBillToCustomer(BillToCustomer) then begin
+        if BillToCustomerIsReplaced() or
+            ShouldCopyAddressFromBillToCustomer(BillToCustomer) or
+            (HasDifferentBillToAddress(BillToCustomer) and BillToCustomer.HasAddress())
+        then begin
             "Bill-to Address" := BillToCustomer.Address;
             "Bill-to Address 2" := BillToCustomer."Address 2";
             "Bill-to City" := BillToCustomer.City;
@@ -7132,6 +7184,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeRoundingPrecision(var SalesHeader: Record "Sales Header"; var Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIsBillToAddressEqualToSellToAddress(SellToSalesHeader: Record "Sales Header"; BillToSalesHeader: Record "Sales Header"; var Result: Boolean)
     begin
     end;
@@ -7665,6 +7722,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateBillToCont(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; var SkipBillToContact: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBillToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
@@ -8032,6 +8094,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateSalesLinesOnAfterProcessTempSalesLines(var TempSalesLine: Record "Sales Line" temporary; var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; ChangedFieldName: Text[100])
     begin
     end;
 

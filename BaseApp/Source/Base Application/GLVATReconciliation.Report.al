@@ -300,6 +300,7 @@ report 11 "G/L - VAT Reconciliation"
                         CurrReport.Skip();
                     VATStmtLine2.Get("Statement Template Name", "Statement Name", "Line No.");
                     VATStmtLine2.SetRange("Row No.", "Row No.");
+                    VATStmtLine2.SetRange("Gen. Posting Type", "Gen. Posting Type");
                     VATStmtLine2.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                     VATStmtLine2.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
                     if VATStmtLine2.Find('<') then

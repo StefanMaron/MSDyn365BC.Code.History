@@ -5,7 +5,7 @@ codeunit 456 "Job Queue Management"
         ExecuteBeginMsg: label 'Executing job queue entry...';
         ExecuteEndSuccessMsg: label 'Job finished executing.\Status: %1', Comment = '%1 is a status value, e.g. Success';
         ExecuteEndErrorMsg: label 'Job finished executing.\Status: %1\Error: %2', Comment = '%1 is a status value, e.g. Success, %2=Error message';
-        JobTerminatedUnknownReasonMsg: Label 'The job terminated for an unknown reason.';
+        JobSomethingWentWrongMsg: Label 'Something went wrong and the job has stopped. Likely causes are system updates or routine maintenance processes. To restart the job, set the status to Ready.';
         JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Locked = true;
         JobQueueStatusChangeTxt: Label 'The status for Job Queue Entry: %1 has changed.', Comment = '%1 is the Job Queue Entry Id', Locked = true;
         StaleJobQueueEntryTxt: Label 'Stale Job Queue Entry', Locked = true;
@@ -232,7 +232,7 @@ codeunit 456 "Job Queue Management"
                     // Check if job is still running or stale
                     // If stale, set to error
                     if not TaskScheduler.TaskExists(JobQueueEntry."System Task ID") then begin
-                        JobQueueEntry.SetError(JobTerminatedUnknownReasonMsg);
+                        JobQueueEntry.SetError(JobSomethingWentWrongMsg);
 
                         StaleJobQueueEntryTelemetry(JobQueueEntry);
                     end;
@@ -250,7 +250,7 @@ codeunit 456 "Job Queue Management"
                         // If stale, set to error
                         if not TaskScheduler.TaskExists(JobQueueLogEntry."System Task ID") then begin
                             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
-                            JobQueueLogEntry."Error Message" := JobTerminatedUnknownReasonMsg;
+                            JobQueueLogEntry."Error Message" := JobSomethingWentWrongMsg;
                             JobQueueLogEntry.Modify();
 
                             StaleJobQueueLogEntryTelemetry(JobQueueLogEntry);
