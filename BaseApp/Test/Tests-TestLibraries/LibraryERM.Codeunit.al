@@ -2479,6 +2479,17 @@
         IntrastatSetup.Modify();
     end;
 
+    [Scope('OnPrem')]
+    procedure SetDefaultTransactionSpecificationInIntrastatSetup()
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+    begin
+        IntrastatSetup.Get();
+        IntrastatSetup."Default Trans. Spec. Code" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Specification");
+        IntrastatSetup."Default Trans. Spec. Ret. Code" := LibraryUtility.CreateCodeRecord(DATABASE::"Transaction Specification");
+        IntrastatSetup.Modify();
+    end;
+
     procedure SetAppliestoIdCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
         // Set Applies-to ID.
