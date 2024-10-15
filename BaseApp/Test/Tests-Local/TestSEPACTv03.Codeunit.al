@@ -886,6 +886,40 @@ codeunit 144101 "Test SEPA CT v03"
     [Test]
     [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler,SEPAExportReqPageHandler')]
     [Scope('OnPrem')]
+    procedure GenericSEPA_GLSetupEUR_BankDefault_InvDefault_WorldPaymentMode()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        DummyGLSetup: Record "General Ledger Setup";
+        TransactionMode: Record "Transaction Mode";
+        BankAccountNo: Code[20];
+        ExportProtocolCode: Code[20];
+        TotalAmount: Decimal;
+        FileName: Text;
+    begin
+        // [FEATURE] [XML]
+        // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Euro", "Currency Euro" = "",
+        // [SCENARIO 294684] "LCY Code" = "EUR", bank currency = "", vendor currrency = "", "Transaction Mode".WorldPayment = TRUE
+        Initialize();
+
+        // [GIVEN] Generic payment SEPA export protocol setup, "Transaction Mode".WorldPayment = TRUE
+        // [GIVEN] GLSetup."Local Curency" = "Euro", "Currency Euro" = "", "LCY Code" = "EUR"
+        // [GIVEN] Vendor bank account with a default currency code = "", "Account Holder Address" = "X"
+        // [GIVEN] Posted purchase invoice with a default currency code = "", total amount including vat = 1000
+        PrepareGenericSEPAScenario(
+          VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, '', '');
+        UpdateTransactionMode(TransactionMode."Account Type"::Vendor, BankAccountNo, true);
+
+        // [WHEN] Export payment for the generated proposal for the given vendor
+        FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
+
+        // [THEN] Payment is exported in WorldPayment format
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, GetEuroCurrencyCode());
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler,SEPAExportReqPageHandler')]
+    [Scope('OnPrem')]
     procedure GenericSEPA_GLSetupEUR_BankUSD_InvDefault()
     var
         VendorBankAccount: Record "Vendor Bank Account";
@@ -1186,6 +1220,44 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine = "X"
         // [THEN] Vendor Bank Account's IBAN is exported into CdtrAcct/Id/IBAN (TFS 311461)
         VerifyStandardEuroXML(VendorBankAccount, FileName, TotalAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler,SEPAExportReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure GenericSEPA_GLSetupGBP_BankEUR_InvEUR_WorldPaymentMode()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        DummyGLSetup: Record "General Ledger Setup";
+        TransactionMode: Record "Transaction Mode";
+        BankAccountNo: Code[20];
+        ExportProtocolCode: Code[20];
+        TotalAmount: Decimal;
+        FileName: Text;
+        EuroCurrencyCode: Code[10];
+        LclCurrencyCode: Code[10];
+    begin
+        // [FEATURE] [XML]
+        // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
+        // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "EUR", vendor currrency = "EUR", "Transaction Mode".WorldPayment = TRUE
+        Initialize();
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+
+        // [GIVEN] Generic payment SEPA export protocol setup, "Transaction Mode".WorldPayment = TRUE
+        // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
+        // [GIVEN] Vendor bank account with currency code = "EUR", "Account Holder Address" = "X"
+        // [GIVEN] Posted purchase invoice with currency code = "EUR", total amount including vat = 1000 EUR
+        PrepareGenericSEPAScenario(
+          VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
+          DummyGLSetup."Local Currency"::Other, EuroCurrencyCode, LclCurrencyCode, EuroCurrencyCode, EuroCurrencyCode);
+        UpdateTransactionMode(TransactionMode."Account Type"::Vendor, BankAccountNo, true);
+
+        // [WHEN] Export payment for the generated proposal for the given vendor
+        FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
+
+        // [THEN] Payment is exported in WorldPayment format
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, EuroCurrencyCode);
     end;
 
     [Test]
@@ -2317,6 +2389,15 @@ codeunit 144101 "Test SEPA CT v03"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Local SEPA Instr. Priority", NewLocalInstrPrty);
         GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure UpdateTransactionMode(AccountType: Option; BankCode: Code[20]; WorldPayment: Boolean)
+    var
+        TransactionMode: Record "Transaction Mode";
+    begin
+        TransactionMode.Get(AccountType, BankCode);
+        TransactionMode.Validate(WorldPayment, WorldPayment);
+        TransactionMode.Modify(true);
     end;
 
     local procedure FormatIBAN(IBAN: Text): Text

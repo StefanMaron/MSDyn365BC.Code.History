@@ -1174,6 +1174,45 @@ codeunit 144037 "ERM Telebank"
         Assert.AreEqual(Customer.Name, SourceName, 'Source name not retrieved');
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure UpdateProposalLineFromCustomerBankAccount()
+    var
+        ProposalLine: Record "Proposal Line";
+        Customer: Record Customer;
+        BankAccount: Record "Bank Account";
+        BankAccountNo: Code[20];
+        CustomerBankAccount: Record "Customer Bank Account";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 420340] Fields IBAN, SWIFT, "Bank Account No.", "Direct Debit Mandate ID" updated in "Proposal Line" from "Customer Bank Account"
+        Initialize();
+        // [GIVEN] Customer Bank Account 
+        // [GIVEN] Value of "Bank Account No." = "BAN1", "Direct Debit Mandate ID" = "DD1", IBAN = "I1", SWIFT = "S1"
+        CreateCustomerAndBankAccount(Customer, BankAccountNo, CustomerBankAccount);
+        // [GIVEN] "Proposal Line" - "PL"
+        CreateProposalLineCustomerBankAccount(ProposalLine, CustomerBankAccount, BankAccountNo);
+
+        // [WHEN] Validate "Customer Bank Account" "Bank Account No." = "BAN2", "Direct Debit Mandate ID" = "DD2", IBAN = "I2", SWIFT = "S2"
+        LibraryERM.CreateBankAccount(BankAccount);
+        CustomerBankAccount.Validate("Bank Account No.", BankAccount."No.");
+        CustomerBankAccount.Validate("Direct Debit Mandate ID", MockSEPADirectDebitMandate(CustomerBankAccount));
+        CustomerBankAccount.Validate(
+            IBAN,
+            LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo(IBAN), DATABASE::"Customer Bank Account"));
+        CustomerBankAccount.Validate(
+            "SWIFT Code",
+            LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("SWIFT Code"), DATABASE::"Customer Bank Account"));
+
+        // [THEN] Proposal line has "Bank Account No." = "BAN2", "Direct Debit Mandate ID" = "DD2", IBAN = "I2", SWIFT = "S2"
+        ProposalLine.Find();
+        ProposalLine.TestField("Bank Account No.", CustomerBankAccount."Bank Account No.");
+        ProposalLine.TestField("Direct Debit Mandate ID", CustomerBankAccount."Direct Debit Mandate ID");
+        ProposalLine.TestField(IBAN, CustomerBankAccount.IBAN);
+        ProposalLine.TestField("SWIFT Code", CustomerBankAccount."SWIFT Code");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Telebank");
@@ -1808,6 +1847,18 @@ codeunit 144037 "ERM Telebank"
         end;
     end;
 
+    local procedure CreateProposalLineCustomerBankAccount(var ProposalLine: Record "Proposal Line"; CustomerBankAccount: Record "Customer Bank Account"; BankAccountNo: Code[20])
+    begin
+        with ProposalLine do begin
+            Init();
+            Validate("Our Bank No.", BankAccountNo);
+            Validate("Account Type", "Account Type"::Customer);
+            Validate("Account No.", CustomerBankAccount."Customer No.");
+            Validate(Bank, CustomerBankAccount.Code);
+            Insert();
+        end;
+    end;
+
     local procedure CreateCustomerAndBankAccountWithDefaultDimension(var Customer: Record Customer; var BankAccountNo: Code[20]; var CustomerBankAccountCode: Code[20]; var DefaultDimension1Code: Code[20]; var DefaultDimension2Code: Code[20])
     var
         BankAccount: Record "Bank Account";
@@ -1837,6 +1888,36 @@ codeunit 144037 "ERM Telebank"
         CustomerBankAccount.Validate("Bank Account No.", BankAccount."No.");
         CustomerBankAccount.Modify(true);
         CustomerBankAccountCode := CustomerBankAccount.Code;
+    end;
+
+    local procedure CreateCustomerAndBankAccount(var Customer: Record Customer; var BankAccountNo: Code[20]; var CustomerBankAccount: Record "Customer Bank Account")
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccountNo := BankAccount."No.";
+        CustomerBankAccount.Validate("Bank Account No.", BankAccount."No.");
+        CustomerBankAccount.IBAN := Format(LibraryRandom.RandInt(100));
+        CustomerBankAccount."SWIFT Code" :=
+          LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("SWIFT Code"), DATABASE::"Customer Bank Account");
+        CustomerBankAccount."Direct Debit Mandate ID" := MockSEPADirectDebitMandate(CustomerBankAccount);
+        CustomerBankAccount.Modify(true);
+    end;
+
+    local procedure MockSEPADirectDebitMandate(CustomerBankAccount: Record "Customer Bank Account"): Code[35]
+    var
+        SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+    begin
+        with SEPADirectDebitMandate do begin
+            Init();
+            ID := LibraryUtility.GenerateGUID();
+            "Customer No." := CustomerBankAccount."Customer No.";
+            "Customer Bank Account Code" := CustomerBankAccount.Code;
+            Insert();
+            exit(ID);
+        end;
     end;
 
     local procedure CreateProposalLineEmployee(var ProposalLine: Record "Proposal Line"; EmployeeNo: Code[20]; BankAccountNo: Code[20])
@@ -1959,6 +2040,13 @@ codeunit 144037 "ERM Telebank"
     begin
         if StrPos(Question, ProposalLinesQst) > 0 then
             Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [MessageHandler]
