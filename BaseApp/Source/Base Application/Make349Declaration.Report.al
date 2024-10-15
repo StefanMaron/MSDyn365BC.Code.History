@@ -299,23 +299,16 @@ report 10710 "Make 349 Declaration"
 
                                         if CustVendWarning349_2.FindSet() then begin
                                             InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
-                                            if CustVendWarning349_2.Count > 1 then begin
-                                                repeat
-                                                    if "VAT Registration No." <> '' then begin
-                                                        AccPrevDeclAmount[MapDeliveryOperationCode(VATEntry."Delivery Operation Code")] :=
-                                                          CustVendWarning349_2."Previous Declared Amount";
-                                                        SummarizeBaseAmount(VATEntry, CustVendWarning349_2."Original Declared Amount", AccOrigDeclAmount);
-                                                        CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify();
-                                                    end;
-                                                until CustVendWarning349_2.Next() = 0;
-                                            end else begin
+                                            if "VAT Registration No." <> '' then
+                                                SummarizeBaseAmount(VATEntry, Abs(CustVendWarning349_2."Previous Declared Amount"), AccPrevDeclAmount);
+                                            repeat
                                                 if "VAT Registration No." <> '' then begin
-                                                    SummarizeBaseAmount(VATEntry, Abs(CustVendWarning349."Previous Declared Amount"), AccPrevDeclAmount);
                                                     AccOrigDeclAmount[MapDeliveryOperationCode(VATEntry."Delivery Operation Code")] +=
-                                                      CustVendWarning349."Original Declared Amount";
+                                                      CustVendWarning349_2."Original Declared Amount";
+                                                    CustVendWarning349_2.Exported := true;
+                                                    CustVendWarning349_2.Modify();
                                                 end;
-                                            end;
+                                            until CustVendWarning349_2.Next() = 0;
                                         end else
                                             AlreadyExported := true;
 
@@ -325,51 +318,34 @@ report 10710 "Make 349 Declaration"
                                         // EU Service
                                         CustVendWarning349_2.Reset();
                                         FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
-                                        if CustVendWarning349_2.FindSet() then
-                                            if CustVendWarning349_2.Count > 1 then begin
-                                                if "VAT Registration No." <> '' then
-                                                    AccumPrevDeclAmountEUService :=
-                                                      AccumPrevDeclAmountEUService + Abs(CustVendWarning349_2."Previous Declared Amount");
-                                                repeat
-                                                    if "VAT Registration No." <> '' then begin
-                                                        AccumOrigDeclAmountEUService :=
-                                                          AccumOrigDeclAmountEUService + CustVendWarning349_2."Original Declared Amount";
-                                                        CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify();
-                                                    end;
-                                                until CustVendWarning349_2.Next() = 0;
-                                            end else begin
+                                        if CustVendWarning349_2.FindSet() then begin
+                                            if "VAT Registration No." <> '' then
+                                                AccumPrevDeclAmountEUService := GetPrevDeclaredAmount(CustVendWarning349_2);
+                                            repeat
                                                 if "VAT Registration No." <> '' then begin
-                                                    AccumPrevDeclAmountEUService := Abs(CustVendWarning349."Previous Declared Amount");
-                                                    AccumOrigDeclAmountEUService := CustVendWarning349."Original Declared Amount";
+                                                    AccumOrigDeclAmountEUService += CustVendWarning349_2."Original Declared Amount";
+                                                    CustVendWarning349_2.Exported := true;
+                                                    CustVendWarning349_2.Modify();
                                                 end;
-                                            end
-                                        else
+                                            until CustVendWarning349_2.Next() = 0;
+                                        end else
                                             EUServiceAlreadyExported := true;
 
                                         // EU 3-party trade
                                         CustVendWarning349_2.Reset();
                                         FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
-                                        if CustVendWarning349_2.FindSet() then
-                                            if CustVendWarning349_2.Count > 1 then begin
-                                                if "VAT Registration No." <> '' then
-                                                    AccumPrevDeclAmountTri :=
-                                                      AccumPrevDeclAmountTri + Abs(CustVendWarning349_2."Previous Declared Amount");
-                                                repeat
-                                                    if "VAT Registration No." <> '' then begin
-                                                        AccumOrigDeclAmountTri := AccumOrigDeclAmountTri + CustVendWarning349_2."Original Declared Amount";
-                                                        CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify();
-                                                    end;
-                                                until CustVendWarning349_2.Next() = 0;
-                                            end else begin
+                                        if CustVendWarning349_2.FindSet() then begin
+                                            if "VAT Registration No." <> '' then
+                                                AccumPrevDeclAmountTri := GetPrevDeclaredAmount(CustVendWarning349_2);
+                                            repeat
                                                 if "VAT Registration No." <> '' then begin
-                                                    AccumPrevDeclAmountTri := Abs(CustVendWarning349."Previous Declared Amount");
-                                                    AccumOrigDeclAmountTri := CustVendWarning349."Original Declared Amount";
+                                                    AccumOrigDeclAmountTri += CustVendWarning349_2."Original Declared Amount";
+                                                    CustVendWarning349_2.Exported := true;
+                                                    CustVendWarning349_2.Modify();
                                                 end;
-                                            end
-                                        else
+                                            until CustVendWarning349_2.Next() = 0;
+                                        end else
                                             ThirdPartyAlreadyExported := true;
 
                                         Sign := CustVendWarning349.Sign;
@@ -602,22 +578,15 @@ report 10710 "Make 349 Declaration"
                                         AlreadyExported := false;
 
                                         if CustVendWarning349_2.FindSet() then begin
-                                            if CustVendWarning349_2.Count > 1 then begin
-                                                if "VAT Registration No." <> '' then
-                                                    AccumPrevDeclAmount := AccumPrevDeclAmount + Abs(CustVendWarning349_2."Previous Declared Amount");
-                                                repeat
-                                                    if "VAT Registration No." <> '' then begin
-                                                        AccumOrigDeclAmount := AccumOrigDeclAmount + CustVendWarning349_2."Original Declared Amount";
-                                                        CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify();
-                                                    end;
-                                                until CustVendWarning349_2.Next() = 0;
-                                            end else begin
+                                            if "VAT Registration No." <> '' then
+                                                AccumPrevDeclAmount := GetPrevDeclaredAmount(CustVendWarning349_2);
+                                            repeat
                                                 if "VAT Registration No." <> '' then begin
-                                                    AccumPrevDeclAmount := Abs(CustVendWarning349_2."Previous Declared Amount");
-                                                    AccumOrigDeclAmount := CustVendWarning349."Original Declared Amount";
+                                                    AccumOrigDeclAmount += CustVendWarning349_2."Original Declared Amount";
+                                                    CustVendWarning349_2.Exported := true;
+                                                    CustVendWarning349_2.Modify();
                                                 end;
-                                            end;
+                                            until CustVendWarning349_2.Next() = 0;
                                         end else
                                             AlreadyExported := true;
 
@@ -627,50 +596,34 @@ report 10710 "Make 349 Declaration"
                                         // EU Service
                                         CustVendWarning349_2.Reset();
                                         FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
-                                        if CustVendWarning349_2.FindSet() then
-                                            if CustVendWarning349_2.Count > 1 then begin
-                                                if "VAT Registration No." <> '' then
-                                                    AccumPrevDeclAmountEUService :=
-                                                      AccumPrevDeclAmountEUService + Abs(CustVendWarning349_2."Previous Declared Amount");
-                                                repeat
-                                                    if "VAT Registration No." <> '' then begin
-                                                        AccumOrigDeclAmountEUService := AccumOrigDeclAmountEUService + CustVendWarning349_2."Original Declared Amount";
-                                                        CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify();
-                                                    end;
-                                                until CustVendWarning349_2.Next() = 0;
-                                            end else begin
+                                        if CustVendWarning349_2.FindSet() then begin
+                                            if "VAT Registration No." <> '' then
+                                                AccumPrevDeclAmountEUService := GetPrevDeclaredAmount(CustVendWarning349_2);
+                                            repeat
                                                 if "VAT Registration No." <> '' then begin
-                                                    AccumPrevDeclAmountEUService := Abs(CustVendWarning349."Previous Declared Amount");
-                                                    AccumOrigDeclAmountEUService := CustVendWarning349."Original Declared Amount";
+                                                    AccumOrigDeclAmountEUService += CustVendWarning349_2."Original Declared Amount";
+                                                    CustVendWarning349_2.Exported := true;
+                                                    CustVendWarning349_2.Modify();
                                                 end;
-                                            end
-                                        else
+                                            until CustVendWarning349_2.Next() = 0;
+                                        end else
                                             EUServiceAlreadyExported := true;
 
                                         // EU 3-party trade
                                         CustVendWarning349_2.Reset();
                                         FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
-                                        if CustVendWarning349_2.FindSet() then
-                                            if CustVendWarning349_2.Count > 1 then begin
-                                                if "VAT Registration No." <> '' then
-                                                    AccumPrevDeclAmountTri :=
-                                                      AccumPrevDeclAmountTri + Abs(CustVendWarning349_2."Previous Declared Amount");
-                                                repeat
-                                                    if "VAT Registration No." <> '' then begin
-                                                        AccumOrigDeclAmountTri := AccumOrigDeclAmountTri + CustVendWarning349_2."Original Declared Amount";
-                                                        CustVendWarning349_2.Exported := true;
-                                                        CustVendWarning349_2.Modify();
-                                                    end;
-                                                until CustVendWarning349_2.Next() = 0;
-                                            end else begin
+                                        if CustVendWarning349_2.FindSet() then begin
+                                            if "VAT Registration No." <> '' then
+                                                AccumPrevDeclAmountTri := GetPrevDeclaredAmount(CustVendWarning349_2);
+                                            repeat
                                                 if "VAT Registration No." <> '' then begin
-                                                    AccumPrevDeclAmountTri := Abs(CustVendWarning349."Previous Declared Amount");
-                                                    AccumOrigDeclAmountTri := CustVendWarning349."Original Declared Amount";
+                                                    AccumOrigDeclAmountTri += CustVendWarning349_2."Original Declared Amount";
+                                                    CustVendWarning349_2.Exported := true;
+                                                    CustVendWarning349_2.Modify();
                                                 end;
-                                            end
-                                        else
+                                            until CustVendWarning349_2.Next() = 0;
+                                        end else
                                             ThirdPartyAlreadyExported := true;
 
                                         Sign := CustVendWarning349.Sign;
@@ -1734,6 +1687,17 @@ report 10710 "Make 349 Declaration"
 
         PeriodInt := Period;
         exit(Format(PeriodInt, 2, '<Integer,2><Filler Character,0>'));
+    end;
+
+    local procedure GetPrevDeclaredAmount(var CustomerVendorWarning349: Record "Customer/Vendor Warning 349"): Decimal
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        if CustomerVendorWarning349."Previous Declared Amount" <> 0 then
+            exit(Abs(CustomerVendorWarning349."Previous Declared Amount"));
+
+        InitVATEntry(VATEntry, CustomerVendorWarning349."VAT Entry No.");
+        exit(Abs(VATEntry.Base));
     end;
 
     local procedure FilterVATInvPurchEntries(var VATEntry: Record "VAT Entry"; BillToPayNo: Code[20]; FromDate: Date; ToDate: Date; EUService: Boolean; GenProdPostingGroupFilter: Text)

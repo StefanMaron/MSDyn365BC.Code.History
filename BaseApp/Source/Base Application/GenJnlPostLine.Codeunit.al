@@ -1216,6 +1216,9 @@
         DtldLedgEntryInserted: Boolean;
     begin
         with GenJnlLine do begin
+            DocAmountLCY := 0;
+            CollDocAmountLCY := 0;
+
             Employee.Get("Account No.");
             Employee.CheckBlockedEmployeeOnJnls(true);
 
