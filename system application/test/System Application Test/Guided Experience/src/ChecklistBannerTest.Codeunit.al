@@ -10,6 +10,7 @@ codeunit 132605 "Checklist Banner Test"
     Permissions = tabledata "All Profile" = r,
                 tabledata "User Personalization" = rm;
 
+
     var
         Any: Codeunit Any;
         Assert: Codeunit "Library Assert";
@@ -47,6 +48,10 @@ codeunit 132605 "Checklist Banner Test"
         Link2: Text[250];
     begin
         BindSubscription(ChecklistBannerTest);
+
+        PermissionsMock.Start();
+        PermissionsMock.Set('SUPER');
+
         Initialize(true);
 
         // [GIVEN] Lists of profiles
@@ -59,7 +64,6 @@ codeunit 132605 "Checklist Banner Test"
         SetCompanyTypeToEvaluation(false);
 
         PermissionsMock.Set('Guided Exp Edit');
-
         // [GIVEN] 2 links
         GetLink(Link1);
         GetLink(Link2);

@@ -1,4 +1,4 @@
-codeunit 1232 "SEPA DD-Prepare Source"
+﻿codeunit 1232 "SEPA DD-Prepare Source"
 {
     TableNo = "Direct Debit Collection Entry";
 
@@ -31,7 +31,13 @@ codeunit 1232 "SEPA DD-Prepare Source"
     var
         DirectDebitCollection: Record "Direct Debit Collection";
         DomiciliationJournalLine: Record "Domiciliation Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         DirectDebitCollection.Get(FromDirectDebitCollectionEntry.GetRangeMin("Direct Debit Collection No."));
         DomiciliationJournalLine.SetRange("Journal Template Name", DirectDebitCollection.Identifier);
         DomiciliationJournalLine.SetRange("Journal Batch Name", DirectDebitCollection."Domiciliation Batch Name");
@@ -62,6 +68,11 @@ codeunit 1232 "SEPA DD-Prepare Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempCollectionEntries(var FromDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempCollectionEntries(var FromDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; isHandled: Boolean)
     begin
     end;
 }

@@ -18,6 +18,7 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         RESTimeSheetsCreation: Codeunit "RES Time Sheets Creation";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Text001Err: Label 'Rolling back changes...';
         NonExistentUserErr: Label 'NON EXISTENT USER ID';
         ErrorGeneratedIncorrectErr: Label 'Incorrect Error Message';
@@ -2260,6 +2261,55 @@ codeunit 136503 "RES Time Sheets Creation"
         Assert.ExpectedError(StrSubstNo(IncorrectHRUnitOfMeasureTableRelationErr, UnitOfMeasure.Code));
     end;
 
+    [Test]
+    [HandlerFunctions('ValidateTimeSheetLineJobDetailHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure JobWithStatusCompletedNotShowingInTimeSheetJobNoList()
+    var
+        Resource: Record Resource;
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetLine: Record "Time Sheet Line";
+        Date: Record Date;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        LibraryJob: Codeunit "Library - Job";
+        TimeSheet: TestPage "Time Sheet";
+        JobCard: TestPage "Job Card";
+    begin
+        // [SCENARIO 439193] It is possible to select a Job in the Time Sheet even if the status of the Job is completed.
+        Initialize();
+
+        // [GIVEN] Create User setup, Resource, 1 Time Sheet
+        GenerateResourceTimeSheet(Resource, Date, TimeSheetHeader, true);
+        // [GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
+        // [GIVEN] Set Person Responsible = created Resource
+        Job.Validate("Person Responsible", Resource."No.");
+        Job.Modify();
+        // [GIVEN] Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+        // [GIVEN] Add Job Task Custom Description
+        JobTask.Validate(Description, 'Job Task Description Test');
+        JobTask.Modify();
+
+        // [THEN] Update the Job Status to Completed.
+        JobCard.OpenEdit;
+        JobCard.GotoRecord(Job);
+        JobCard.Status.SetValue(Job.Status::Completed);
+        JobCard.Close();
+
+        // [GIVEN] Open TimeSheet and create Job type line
+        TimeSheetPageOpen(Resource, TimeSheetHeader, TimeSheet);
+        TimeSheet.Type.Value := GetTSLineTypeOption(TSLineType::Job);
+
+        GlobalJobNo := Job."No.";
+        GlobalJobTaskNo := JobTask."Job Task No.";
+        // [VERIFY] Open TimeSheet LineJob Detail page and validate the Completed job.
+        TimeSheet.Description.AssistEdit;
+
+        TearDown;
+    end;
+
     local procedure FindResourceJournalBatch(var ResJournalBatch: Record "Res. Journal Batch")
     var
         ResJournalTemplate: Record "Res. Journal Template";
@@ -2842,6 +2892,14 @@ codeunit 136503 "RES Time Sheets Creation"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure ValidateTimeSheetLineJobDetailHandler(var TimeSheetLineJobDetail: TestPage "Time Sheet Line Job Detail")
+    begin
+        asserterror TimeSheetLineJobDetail."Job No.".Value := GlobalJobNo;
+        TimeSheetLineJobDetail.Cancel().Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure TimeSheetAllocationHandler(var TimeSheetAllocation: TestPage "Time Sheet Allocation")
     begin
         // Handles Time Sheet Allocation page and fills Global values for verification
@@ -2961,6 +3019,13 @@ codeunit 136503 "RES Time Sheets Creation"
     begin
         // Handles Navigate Page
         Navigate.OK.Invoke;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
     end;
 
     local procedure GetMyTimeSheetRecordCount(): Integer

@@ -674,11 +674,15 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
         DocNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Reverse Charge VAT]
         // [SCENARIO 380850] VAT Entries of posted Purchase Invoice with partial deferral and reverse charge VAT match VAT Posting Setup
         Initialize();
+
+        // We remove any existing VAT entries, as this test modifies the VAT posting SETUP.
+        VATEntry.DeleteAll();
 
         // [GIVEN] Purchase Invoice with Deferral % = 50 and Reverse Charge VAT 25% has Amount = 1000
         CreatePurchDocWithLineRevCharge(
@@ -692,6 +696,9 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [THEN] VAT Entry has Base = 1000, Amount = 250
         VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         VerifyVATEntry(PurchaseLine.Amount, Round(PurchaseLine.Amount * VATPostingSetup."VAT %" / 100), DocNo);
+        
+        // We remove any existing VAT entries, as this test modifies the VAT posting SETUP.
+        VATEntry.DeleteAll();
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
         VATPostingSetup.Modify();
     end;
@@ -703,12 +710,16 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
         DocNo: Code[20];
     begin
         // [FEATURE] [Sales] [Reverse Charge VAT]
         // [SCENARIO 380850] VAT Entries of posted Sales Invoice with partial deferral and reverse charge VAT match VAT Posting Setup
         Initialize();
 
+        // We remove any existing VAT entries, as this test modifies the VAT posting SETUP.
+        VATEntry.DeleteAll();
+        
         // [GIVEN] Sales Invoice with Deferral % = 50 and Reverse Charge VAT 25% has Amount = 1000
         CreateSalesDocWithLineRevCharge(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
@@ -721,6 +732,9 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [THEN] VAT Entry has Base = -1000, Amount = 0
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
         VerifyVATEntry(-SalesLine.Amount, 0, DocNo);
+        
+        // We remove any existing VAT entries, as this test modifies the VAT posting SETUP.
+        VATEntry.DeleteAll();
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
         VATPostingSetup.Modify();
     end;
@@ -1169,6 +1183,62 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         FindDeferralLine(DeferralLine, SalesLine);
 
         DeferralLine.TestField("Posting Date", WorkDate + 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('VerifyDeferralScheduleTotalPageHandlerOK')]
+    procedure PurchaseInvoiceDeferralWitnNonDeductibleVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DeferralTemplate: Record "Deferral Template";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DeferralTemplateCode: Code[10];
+        DocNo: Code[20];
+        CurrencyCode: Code[10];
+        ExchRate: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Currency]
+        // [SCENARIO XXXXXX] Change of VAT Prod. Posting Group in Purchase Invoice for G/L Account with non deductible VAT
+        Initialize();
+
+        // [GIVEN] User-defined Deferral Template for 3 periods
+        DeferralTemplateCode :=
+          LibraryERM.CreateDeferralTemplateCode(
+            DeferralTemplate."Calc. Method"::"User-Defined", DeferralTemplate."Start Date"::"Posting Date", 3);
+
+        // [GIVEN] Purchase Invoice with G/L Account with Non Deductible VAT
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Purchase Line 1 with Amount = 200, VAT 21% Non Deductible VAT 50%
+        CreateGLAccountWithVATPostSetup(GLAccount, PurchaseHeader."VAT Bus. Posting Group", 21);
+        GLAccount.Validate("% Non deductible VAT", 50);
+        GLAccount.Validate("Default Deferral Template Code", DeferralTemplateCode);
+        GLAccount.Modify();
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Unit Cost", 200);
+        PurchaseLine.Modify();
+
+        // Verify that totals in deferral schedule equal to amount excluding VAT in purchase line
+        LibraryVariableStorage.Enqueue(PurchaseLine.GetLineAmountExclVAT());
+        PurchaseLine.ShowDeferralSchedule();
+
+        // Create VAT Prod. Posting Group with another VAT % and change it in purchase line
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, PurchaseLine."VAT Bus. Posting Group", VATProdPostingGroup.Code);
+        VATPostingSetup."VAT %" := PurchaseLine."VAT %" + 1;
+        VATPostingSetup.Modify();
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup.Code);
+
+        // Verify that totals in deferral schedule equal to amount excluding VAT in purchase line after change
+        LibraryVariableStorage.Enqueue(PurchaseLine.GetLineAmountExclVAT());
+        PurchaseLine.ShowDeferralSchedule();
     end;
 
     local procedure Initialize()
@@ -1635,6 +1705,17 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     procedure DeferralScheduleUpdateNoOfPeriodslModalPageHandler(var DeferralSchedule: TestPage "Deferral Schedule")
     begin
         DeferralSchedule."No. of Periods".SetValue(LibraryVariableStorage.DequeueInteger);
+        DeferralSchedule.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VerifyDeferralScheduleTotalPageHandlerOK(var DeferralSchedule: TestPage "Deferral Schedule")
+    var
+        AmountExclVATVar: Variant;
+        AmountExclVATDec: Decimal;
+    begin
+        DeferralSchedule."Amount to Defer".AssertEquals(LibraryVariableStorage.DequeueDecimal);
         DeferralSchedule.OK.Invoke;
     end;
 

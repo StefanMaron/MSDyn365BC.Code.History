@@ -1209,7 +1209,7 @@ codeunit 5763 "Whse.-Post Shipment"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeHandlePurchaseLine(WhseShptLine, PurchLine, WhseShptHeader, ModifyLine, IsHandled);
+        OnBeforeHandlePurchaseLine(WhseShptLine, PurchLine, WhseShptHeader, ModifyLine, IsHandled, Invoice);
         if IsHandled then
             exit;
 
@@ -1661,7 +1661,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeHandlePurchaseLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var PurchLine: Record "Purchase Line"; WhseShptHeader: Record "Warehouse Shipment Header"; var ModifyLine: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeHandlePurchaseLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var PurchLine: Record "Purchase Line"; WhseShptHeader: Record "Warehouse Shipment Header"; var ModifyLine: Boolean; var IsHandled: Boolean; Invoice: Boolean)
     begin
     end;
 
