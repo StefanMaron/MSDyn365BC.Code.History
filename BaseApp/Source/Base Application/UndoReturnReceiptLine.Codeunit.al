@@ -280,6 +280,7 @@ codeunit 5816 "Undo Return Receipt Line"
     begin
         with ReturnRcptLine do begin
             SalesLine.Get(SalesLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.");
+            OnUpdateOrderLineOnBeforeUpdateSalesLine(ReturnRcptLine);
             UndoPostingMgt.UpdateSalesLine(SalesLine, Quantity, "Quantity (Base)", TempGlobalItemLedgEntry);
             OnAfterUpdateSalesLine(ReturnRcptLine, SalesLine);
         end;
@@ -365,6 +366,11 @@ codeunit 5816 "Undo Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReturnRcptLineModify(var ReturnReceiptLine: Record "Return Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOrderLineOnBeforeUpdateSalesLine(var ReturnReceiptLine: Record "Return Receipt Line")
     begin
     end;
 }

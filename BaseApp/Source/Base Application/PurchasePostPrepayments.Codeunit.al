@@ -947,6 +947,7 @@
                 "Line No." := PrevLineNo + 10000;
                 "Invoice Rounding" := true;
                 "G/L Account No." := PurchLine."No.";
+                Description := PurchLine.Description;
 
                 CopyFromPurchLine(PurchLine);
 

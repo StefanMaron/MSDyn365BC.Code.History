@@ -22,7 +22,7 @@ codeunit 1636 "Office Contact Handler"
         AssistedCompanySetup: Codeunit "Assisted Company Setup";
         OfficeMgt: Codeunit "Office Management";
     begin
-        AssistedCompanySetup.GetAllowedCompaniesForCurrnetUser(TempCompany);
+        AssistedCompanySetup.GetAllowedCompaniesForCurrentUser(TempCompany);
         if TempOfficeAddinContext.Company <> '' then
             TempCompany.SetRange(Name, CopyStr(TempOfficeAddinContext.Company, 1, 30));
         if TempOfficeAddinContext."Contact No." <> '' then

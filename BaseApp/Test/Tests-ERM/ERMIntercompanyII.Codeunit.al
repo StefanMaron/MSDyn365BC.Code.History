@@ -64,14 +64,14 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Import Transaction File]
         // [SCENARIO 375225] IC Transaction file should be imported when IC Partner Codes of two companies are different
-        Initialize;
+        Initialize();
         BindSubscription(TestClientType);
         TestClientType.SetClientType(ClientType::Windows);
 
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
         ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
-        ICPartnerCode[2] := CreateICPartner;
+        ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company Information "B", where "IC Partner Code" = "B"
         SetCompanyICPartner(ICPartnerCode[2]);
@@ -133,13 +133,13 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Import Transaction File]
         // [SCENARIO 375225] IC Transaction file should not be imported to Company with wrong IC Partner Code
-        Initialize;
+        Initialize();
         BindSubscription(TestClientType);
         TestClientType.SetClientType(ClientType::Windows);
 
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
         ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
-        ICPartnerCode[2] := CreateICPartner;
+        ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company, where "IC Partner Code" is "B"
         SetCompanyICPartner(ICPartnerCode[2]);
@@ -172,7 +172,7 @@ codeunit 134152 "ERM Intercompany II"
     procedure ICPartnerUsedByAnotherCustomerError()
     begin
         // Check that error message appears while using same IC Partner Code on two different Customers.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         ICPartnerForCustomerAndVendorError(CreateICPartner);
@@ -189,10 +189,10 @@ codeunit 134152 "ERM Intercompany II"
         // Check that same IC Partner Code can be used by a Customer and Vendor.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateICVendor(ICPartnerCode);
 
         // Exercise: Create Customer and update same IC Partner Code to it.
@@ -210,10 +210,10 @@ codeunit 134152 "ERM Intercompany II"
         ICPartnerCode: Code[20];
     begin
         // Check error message while updating same IC Partner Code on Customer that is already used for a Customer and Vendor.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateICVendor(ICPartnerCode);
         ICPartnerForCustomerAndVendorError(ICPartnerCode);
     end;
@@ -229,7 +229,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // Check IC Outbox Journal Entries after posting IC Journal Line with Account Type as IC Partner and used 1 for sign factor.
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         CreateICGLAccount(ICGLAccount);
@@ -254,7 +254,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // Check IC Outbox Journal Entries after posting IC Journal Line with Bal. Account Type as IC Partner used -1 for sign factor.
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetO365Setup;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
         CreateICGLAccount(ICGLAccount);
@@ -281,7 +281,7 @@ codeunit 134152 "ERM Intercompany II"
         // Check General Ledger Entries after posting a General Journal Line with Account type as Customer.
 
         // Setup: Create G/L Account, Customer and post an General Journal Line for Customer with IC Partner Code, used blank for IC Partner G/L Account No. and 1 for sign factor.
-        Initialize;
+        Initialize();
         SelectGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
         CustomerNo := CreateICCustomer(CreateICPartner);
@@ -317,7 +317,7 @@ codeunit 134152 "ERM Intercompany II"
         // Check General Ledger Entries after posting a General Journal Line with Bal. Account type as Customer.
 
         // Setup: Create G/L Account, Customer and post an General Journal Line for Customer with IC Partner Code, used blank for IC Partner G/L Account No. and -1 for sign factor.
-        Initialize;
+        Initialize();
         SelectGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
         CustomerNo := CreateICCustomer(CreateICPartner);
@@ -352,7 +352,7 @@ codeunit 134152 "ERM Intercompany II"
         // Check General Ledger Entries after posting a General Journal Line with Account Type Vendor.
 
         // Setup: Create G/L Account, Vendor and post an General Journal Line for Vendor with IC Partner Code, used blank for IC Partner G/L Account No. and -1 for sign factor.
-        Initialize;
+        Initialize();
         SelectGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
         VendorNo := CreateICVendor(CreateICPartner);
@@ -387,7 +387,7 @@ codeunit 134152 "ERM Intercompany II"
         // Check General Ledger Entries after posting a General Journal Line with Bal. Account type as Vendor.
 
         // Setup: Create G/L Account, Vendor and post an General Journal Line for Vendor with IC Partner Code, used blank for IC Partner G/L Account No. and 1 for sign factor.
-        Initialize;
+        Initialize();
         SelectGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateGLAccount(GLAccount);
         VendorNo := CreateICVendor(CreateICPartner);
@@ -423,10 +423,10 @@ codeunit 134152 "ERM Intercompany II"
         // Check Sales Line existence in IC Outbox Transaction after renaming IC Partner Code.
 
         // Setup: Create Item, IC Customer, create and post Sales Order for Customer with random Quantity.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         ItemNo := LibraryInventory.CreateItem(Item);  // Assigning value to global variable.
         LibraryVariableStorage.Enqueue(ItemNo);
         LibraryLowerPermissions.AddSalesDocsPost;
@@ -456,7 +456,7 @@ codeunit 134152 "ERM Intercompany II"
         // Check values on the IC Outbox Transaction for unblocked IC Partner and unblocked Vendor.
 
         // Setup: Create IC General Journal Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateICVendor(CreateICPartner), -1);
@@ -485,10 +485,10 @@ codeunit 134152 "ERM Intercompany II"
         // Check error while posting IC General Journal Line for Blocked IC Partner and unblocked Vendor.
 
         // Setup: Create IC General Journal Line and block IC Partner after creating IC General Journal Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateICVendor(ICPartnerCode), -1);
         BlockICPartner(ICPartnerCode);
 
@@ -510,10 +510,10 @@ codeunit 134152 "ERM Intercompany II"
         // Check error while creating IC General Journal Line for Blocked IC Partner and unblocked Vendor.
 
         // Setup: Create and block IC Partner, create Vendor.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         BlockICPartner(ICPartnerCode);
         VendorNo := CreateICVendor(ICPartnerCode);
 
@@ -533,7 +533,7 @@ codeunit 134152 "ERM Intercompany II"
         // Check error while posting IC General Journal Line for Blocked IC G/L Account.
 
         // Setup: Create IC General Journal Line and block the IC G/L Account.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner, -1);
@@ -558,7 +558,7 @@ codeunit 134152 "ERM Intercompany II"
         // Check error while creating IC General Journal Line for Blocked IC G/L Account.
 
         // Setup: Create and block IC G/L Account and create IC Journal Batch.
-        Initialize;
+        Initialize();
         CreateICGLAccount(ICGLAccount);
         BlockICGLAccount(ICGLAccount."No.");
         CreateICJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Intercompany);
@@ -620,8 +620,8 @@ codeunit 134152 "ERM Intercompany II"
         ICPartnerCode: Code[20];
     begin
         // Setup: Create IC Parter, create Sales Document, update Bill-to Customer No. and Send it for IC and post.
-        Initialize;
-        ICPartnerCode := CreateICPartner;
+        Initialize();
+        ICPartnerCode := CreateICPartner();
         CreateSalesDocument(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode), CreateItem);
         UpdateSalesDocument(SalesHeader, BillToCustomerNo);
         ICInboxOutboxMgt.SendSalesDoc(SalesHeader, false);
@@ -692,8 +692,8 @@ codeunit 134152 "ERM Intercompany II"
         ICPartnerCode: Code[20];
     begin
         // Setup: Create IC Parter, create Sales Document and block IC Partner.
-        Initialize;
-        ICPartnerCode := CreateICPartner;
+        Initialize();
+        ICPartnerCode := CreateICPartner();
         CreateSalesDocument(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode), CreateItem);
         BlockICPartner(ICPartnerCode);
 
@@ -717,10 +717,10 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // Verify IC Outbox Journal Entries after posting IC Journal Line with Account Type as IC Partner which is attached on Customer and Vendor are Blocked with All.
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateAndUpdateICCustomer(ICPartnerCode, Customer.Blocked::All);
         CreateAndUpdateICVendor(ICPartnerCode);
         CreateICGLAccount(ICGLAccount);
@@ -749,8 +749,8 @@ codeunit 134152 "ERM Intercompany II"
         // Verify IC Outbox Journal Entries after posting Multiple IC Journal Line with Account Type as IC Partner and GL Account with Document Type Invoice and blank respectively.
 
         // Setup: Create IC Partner, GL Account, IC GL Account, IC Gen. Journal Line with account type GL (Document Type is Invoice) and IC Partner (Document Type is blank).
-        Initialize;
-        ICPartnerCode := CreateICPartner;
+        Initialize();
+        ICPartnerCode := CreateICPartner();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateICGLAccount(ICGLAccount);
         CreateICJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Intercompany);
@@ -825,9 +825,9 @@ codeunit 134152 "ERM Intercompany II"
         ICPartnerCode: Code[20];
     begin
         // Setup: Create IC Partner, create Purchase Return Order, change Pay-to Vendor and send it to IC.
-        Initialize;
+        Initialize();
 
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateICVendor(ICPartnerCode), CreateItem);
         if OtherVendor then
             UpdatePurchaseDocument(PurchaseHeader, PayToVendorNo);
@@ -880,12 +880,12 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [IC Partner]
         // [SCENARIO 123601] Posting Purchase Invoice when Default IC Partner G/L Acc. No. is defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account = 'X', IC G/L Account = 'Y', 'X'."Default IC Partner G/L Acc. No." = 'Y'
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateICGLAccountWithDefaultICPartnerGLAccNo(GLAccount);
         // [GIVEN] Purchase Invoice for "G/L Account X"
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
@@ -911,12 +911,12 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [IC Partner]
         // [SCENARIO 123601] Posting Sales Invoice when Default IC Partner G/L Acc. No. is defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account = 'X', IC G/L Account = 'Y', 'X'."Default IC Partner G/L Acc. No." = 'Y'
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateICGLAccountWithDefaultICPartnerGLAccNo(GLAccount);
         // [GIVEN] Sales Invoice for G/L Account 'X'
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
@@ -962,8 +962,8 @@ codeunit 134152 "ERM Intercompany II"
         ICPartnerCode: Code[20];
     begin
         // Setup: Create IC Parter, create Purchase Document and blocked IC Partner.
-        Initialize;
-        ICPartnerCode := CreateICPartner;
+        Initialize();
+        ICPartnerCode := CreateICPartner();
         CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateICVendor(ICPartnerCode), CreateItem);
         BlockICPartner(ICPartnerCode);
 
@@ -994,7 +994,7 @@ codeunit 134152 "ERM Intercompany II"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup: Create General Journal Batch and create IC Customer with All Blocked.
-        Initialize;
+        Initialize();
         CreateICJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Intercompany);
 
         // Exercise.
@@ -1018,12 +1018,12 @@ codeunit 134152 "ERM Intercompany II"
         // Verify Sales Order IC Outbox Transactions after post Sales Order with partial Quantity.
 
         // Setup: Create IC Parter, create Sales Order, update partial Quantity to Invoice in Sales Line.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddSalesDocsPost;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, CreateICCustomer(ICPartnerCode), CreateItem);
         FindAndUpdateSalesLine(SalesLine, SalesHeader);  // Update partial Quantity on Qty. to Invoice.
 
@@ -1044,7 +1044,7 @@ codeunit 134152 "ERM Intercompany II"
         Customer: Record Customer;
     begin
         // Verify error while create General Journal Line with Blocked Invoice IC Customer.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddJournalsPost;
@@ -1061,7 +1061,7 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxTransaction: Record "IC Outbox Transaction";
     begin
         // Verify Sales Return Order in IC Outbox Transactions after send it for IC with IC Bill to Customer.
-        Initialize;
+        Initialize();
 
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
@@ -1081,7 +1081,7 @@ codeunit 134152 "ERM Intercompany II"
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
@@ -1119,7 +1119,7 @@ codeunit 134152 "ERM Intercompany II"
         PurchaseLine: Record "Purchase Line";
     begin
         // Verify DirectUnitCost when sending SalesDoc
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
@@ -1146,7 +1146,7 @@ codeunit 134152 "ERM Intercompany II"
         PurchaseLine: Record "Purchase Line";
     begin
         // Verify UnitPrice when sending PurchDoc
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
@@ -1445,7 +1445,7 @@ codeunit 134152 "ERM Intercompany II"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 120476.1] Verify Sales Invoice rounding line is not transfered to IC Outbox
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup with Invoice Rounding Presicion = 1
         LibraryERM.SetInvRoundingPrecisionLCY(1);
@@ -1483,7 +1483,7 @@ codeunit 134152 "ERM Intercompany II"
         DocumentNo: Code[20];
     begin
         // [SCENARIO 120476.2] Verify Sales Credit Memo rounding line is not transfered to IC Outbox
-        Initialize;
+        Initialize();
 
         // [GIVEN] GLSetup with Invoice Rounding Presicion = 1
         LibraryERM.SetInvRoundingPrecisionLCY(1);
@@ -1526,7 +1526,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 363243] IC Sales Line where Type = "G/L Account" and "No." is empty should not be put into IC Outbox during posting.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account and IC Customer
         CreateVATPostingSetup(VATPostingSetup);
@@ -1566,7 +1566,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 363243] IC Cr.Memo Line where Type = "G/L Account" and "No." is empty should not be put into IC Outbox during posting.
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account and IC Customer
         CreateVATPostingSetup(VATPostingSetup);
@@ -1602,7 +1602,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Prices Incl. VAT] [Sales]
         // [SCENARIO 371724] Received PurchaseLine."Direct Unit Cost" = sent SalesLine."Unit Price",  PurchaseLine."Line Amount" = SalesLine."Amount Including VAT" when sending Sales Order with "Prices Incl. VAT" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order with "Prices Incl. VAT" = TRUE, "Unit Price" = 'X', "Amount Including VAT" = 'Y'. Send to IC Partner.
         // [WHEN] Receive IC Partner's Purchase Order
@@ -1638,7 +1638,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Prices Incl. VAT] [Purchase]
         // [SCENARIO 371724] Received SalesLine."Unit Price" = sent PurchaseLine."Direct Unit Cost",  SalesLine."Line Amount" = PurchaseLine."Amount Including VAT" when sending Purchase Order with "Prices Incl. VAT" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Order with "Prices Incl. VAT" = TRUE, "Direct Unit Cost" = 'X', "Amount Including VAT" = 'Y'. Send to IC Partner.
         // [WHEN] Receive IC Partner's Sales Order
@@ -1675,7 +1675,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Prices Excl. VAT] [Sales]
         // [SCENARIO 371724] Received PurchaseLine."Direct Unit Cost" = sent SalesLine."Unit Price",  PurchaseLine."Line Amount" = SalesLine."Line Amount" when sending Sales Order with "Prices Incl. VAT" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order with "Prices Incl. VAT" = FALSE, "Unit Price" = 'X', "Line Amount" = 'Y'. Send to IC Partner.
         // [WHEN] Receive IC Partner's Purchase Order
@@ -1711,7 +1711,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Prices Excl. VAT] [Purchase]
         // [SCENARIO 371724] Received SalesLine."Unit Price" = sent PurchaseLine."Direct Unit Cost",  SalesLine."Line Amount" = PurchaseLine."Line Amount" when sending Purchase Order with "Prices Incl. VAT" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Order with "Prices Incl. VAT" = FALSE, "Direct Unit Cost" = 'X', "Line Amount" = 'Y'. Send to IC Partner.
         // [WHEN] Receive IC Partner's Sales Order
@@ -1755,8 +1755,8 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Sales] [Get Shipment Lines]
         // [SCENARIO 371939] Purchase Order get invoiced Quantity after posting of received Purchase Invoice
-        Initialize;
-        ICPartnerCodeVendor := CreateICPartner;
+        Initialize();
+        ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
         CustomerNo := CreateICCustomer(CreateICPartner);
 
@@ -1802,8 +1802,8 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Sales] [Get Return Receipt Lines]
         // [SCENARIO 371939] Purchase Return Order get invoiced Quantity after posting of received Purchase Credit Memo
-        Initialize;
-        ICPartnerCodeVendor := CreateICPartner;
+        Initialize();
+        ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
         CustomerNo := CreateICCustomer(CreateICPartner);
 
@@ -1851,8 +1851,8 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Sales] [Get Shipment Lines]
         // [SCENARIO 371939] Two Purchase Orders get invoiced Quantity after posting of received Purchase Invoice
-        Initialize;
-        ICPartnerCodeVendor := CreateICPartner;
+        Initialize();
+        ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
         CustomerNo := CreateICCustomer(CreateICPartner);
 
@@ -1903,8 +1903,8 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Sales] [Get Return Receipt Lines]
         // [SCENARIO 371939] Two Purchase Return Orders get invoiced Quantity after posting of received Purchase Credit Memo
-        Initialize;
-        ICPartnerCodeVendor := CreateICPartner;
+        Initialize();
+        ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
         CustomerNo := CreateICCustomer(CreateICPartner);
 
@@ -1944,7 +1944,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Common Item]
         // [SCENARIO 372241] Sales document error is shown when using item with empty "Common Item No." for IC Partner with Common Item Outbnd Type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales document for IC Partner with Common Item Outbnd Type
         // [WHEN] Validate Sales Line Item "No."='X', where 'X' - item with Item."Common Item No."=''
@@ -1969,7 +1969,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Common Item]
         // [SCENARIO 372241] Purchase document error is shown when using item with empty "Common Item No." for IC Partner with Common Item Outbnd Type
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase document for IC Partner with Common Item Outbnd Type
         // [WHEN] Validate Purchase Line Item "No."='X', where 'X' - item with Item."Common Item No."=''
@@ -1995,7 +1995,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Common Item]
         // [SCENARIO 372241] IC Outbox Sales Line has "IC Partner Reference"=Item."Common Item No." when send Sales document for IC Partner with Common Item Outbnd Type
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         CommonItemNo := LibraryUtility.GenerateGUID;
 
@@ -2027,7 +2027,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Common Item]
         // [SCENARIO 372241] IC Outbox Purchase Line has "IC Partner Reference"=Item."Common Item No." when send Purchase document for IC Partner with Common Item Outbnd Type
-        Initialize;
+        Initialize();
         ItemNo := CreateItem;
         CommonItemNo := LibraryUtility.GenerateGUID;
 
@@ -2065,7 +2065,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Purchases] [Common Item]
         // [SCENARIO 372241] Error occurs when receiving Purchase document from IC Partner with Common Item Outbnd Type and there is no Item related to the Common Item No.
-        Initialize;
+        Initialize();
         ICPartnerCode := CreateICPartnerWithCommonItemOutbndType;
         VendorNo := CreateICVendor(ICPartnerCode);
         ItemNo := CreateItem;
@@ -2114,7 +2114,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Sales] [Common Item]
         // [SCENARIO 372241] Error occurs when receiving Sales document from IC Partner with Common Item Outbnd Type and there is no Item related to the Common Item No.
-        Initialize;
+        Initialize();
         ICPartnerCode := CreateICPartnerWithCommonItemOutbndType;
         CustomerNo := CreateICCustomer(ICPartnerCode);
         ItemNo := CreateItem;
@@ -2165,7 +2165,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Purchases] [Common Item]
         // [SCENARIO 372241] Received Purchase Line's Item has Common Item No. when using IC Partner with Common Item Outbnd Type
-        Initialize;
+        Initialize();
         ICPartnerCode := CreateICPartnerWithCommonItemOutbndType;
         VendorNo := CreateICVendor(ICPartnerCode);
         ItemNo := CreateItem;
@@ -2212,7 +2212,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Sales] [Common Item]
         // [SCENARIO 372241] Received Sales Line's Item has Common Item No. when using IC Partner with Common Item Outbnd Type
-        Initialize;
+        Initialize();
         ICPartnerCode := CreateICPartnerWithCommonItemOutbndType;
         CustomerNo := CreateICCustomer(ICPartnerCode);
         ItemNo := CreateItem;
@@ -2258,7 +2258,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Sales]
         // [SCENARIO 375057] Import IC Transaction file for IC Partner with Inbox Type = "File Location"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor and Customer with IC Partner Code with Inbox Type = "File Location"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
@@ -2266,7 +2266,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddO365Setup;
         ICPartnerCodeVendor := CreateICPartnerWithInboxTypeFileLocation;
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
-        ICPartnerCodeCustomer := CreateICPartner;
+        ICPartnerCodeCustomer := CreateICPartner();
         CustomerNo := CreateICCustomer(ICPartnerCodeCustomer);
 
         // [GIVEN] Company Information IC Partner Code = Vendor IC Partner Code
@@ -2309,7 +2309,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddPurchDocsCreate;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateICGLAccountWithDefaultICPartnerGLAccNo(GLAccount);
         CreatePurchInvWithGLAccount(PurchaseHeader, GLAccount, ICPartnerCode);
         PurchaseHeader."Send IC Document" := true;
@@ -2340,7 +2340,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.AddSalesDocsCreate;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddIntercompanyPostingsSetup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateICGLAccountWithDefaultICPartnerGLAccNo(GLAccount);
         CreateSalesInvWithGLAccount(SalesHeader, GLAccount, ICPartnerCode);
         SalesHeader."Bill-to IC Partner Code" := ICPartnerCode;
@@ -2373,8 +2373,8 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Sales]
         // [SCENARIO 378146] Received purchase invoice posted after sending sales invoice with external document number
-        Initialize;
-        ICPartnerCodeVendor := CreateICPartner;
+        Initialize();
+        ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
         CustomerNo := CreateICCustomer(CreateICPartner);
 
@@ -2419,8 +2419,8 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases] [Sales]
         // [SCENARIO 378146] Received purchase credit memo posted after sending sales credit memo with external document number
-        Initialize;
-        ICPartnerCodeVendor := CreateICPartner;
+        Initialize();
+        ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
         CustomerNo := CreateICCustomer(CreateICPartner);
 
@@ -2462,7 +2462,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddSalesDocsCreate;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Opened Customer Ledger Entry within current Accounting Period
@@ -2493,7 +2493,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddSalesDocsCreate;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         LibrarySales.CreateCustomer(Customer);
         CustomerICPartnerCode := Customer."IC Partner Code";
 
@@ -2524,7 +2524,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddPurchDocsPost;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Opened Vendor Ledger Entry within current Accounting Period
@@ -2555,7 +2555,7 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddPurchDocsPost;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         LibraryPurchase.CreateVendor(Vendor);
         VendorICPartnerCode := Vendor."IC Partner Code";
 
@@ -2581,7 +2581,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Purchases]
         // [SCENARIO 379411] There is no error when accept Purchase Invoice in case of long "External Document No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with 35 char length of "External Document No."
         // [GIVEN] Post, send Sales Invoice. Receive Purchase Invoice
@@ -2610,7 +2610,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Purchases]
         // [SCENARIO 379411] There is no error when reject Purchase Invoice in case of long "External Document No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with 35 char length of "External Document No."
         // [GIVEN] Post, send Sales Invoice. Receive Purchase Invoice
@@ -2647,7 +2647,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Purchases]
         // [SCENARIO 379411] Message is shown when receive Purchase Invoice the second time in case of long "External Document No."
 
-        Initialize;
+        Initialize();
 
         CreatePartnerCustomerVendor(ICPartnerVendorCode, VendorNo, CustomerNo);
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, CreateItem);
@@ -2685,7 +2685,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchases]
         // [SCENARIO 379748] Purchase Document "IC Status" = "New" after copy of sent Purchase Document to IC Partner
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase document
         CreatePurchaseDocument(
@@ -2789,7 +2789,7 @@ codeunit 134152 "ERM Intercompany II"
         CustomerNo: Code[20];
     begin
         // [SCENARIO 380888] Received Purchase "Receipt No." and "Receipt Line No." are blank after send Sales Invoice from get shipment lines
-        Initialize;
+        Initialize();
 
         CreatePartnerCustomerVendor(ICPartnerCode, VendorNo, CustomerNo);
 
@@ -2833,7 +2833,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 204189] Shipped purchase "Return Shipment No." and "Return Shipment Line No." fields should be blank after Sales Credit Memo created by Get Receipt Lines is sent.
-        Initialize;
+        Initialize();
         CreatePartnerCustomerVendor(ICPartnerCode, VendorNo, CustomerNo);
 
         // [GIVEN] Sales Return Order is received.
@@ -2871,7 +2871,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Sales] [Currency] [Invoice]
         // [SCENARIO 382323] Currency code is blank in IC Outbox Sales Header for Sales Order if "LCY Code" in General Ledger Setup is defined
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
         UpdateLCYCodeInGLSetup;
@@ -2879,7 +2879,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
         ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
-        ICPartnerCode[2] := CreateICPartner;
+        ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company Information "B", where "IC Partner Code" = "B"
         SetCompanyICPartner(ICPartnerCode[2]);
@@ -2914,7 +2914,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Sales] [Currency] [Credit Memo]
         // [SCENARIO 382323] Currency code is blank in IC Outbox Sales Header for Posted Credit Memo if "LCY Code" in General Ledger Setup is defined
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
         UpdateLCYCodeInGLSetup;
@@ -2922,7 +2922,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
         ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
-        ICPartnerCode[2] := CreateICPartner;
+        ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company Information "B", where "IC Partner Code" = "B"
         SetCompanyICPartner(ICPartnerCode[2]);
@@ -2953,7 +2953,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Purchase] [Currency] [Order]
         // [SCENARIO 382323] Currency code is blank in IC Outbox Purchase Header for Purchase Order if "LCY Code" in General Ledger Setup is defined
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
         UpdateLCYCodeInGLSetup;
@@ -2961,7 +2961,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
         ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation;
-        ICPartnerCode[2] := CreateICPartner;
+        ICPartnerCode[2] := CreateICPartner();
 
         // [GIVEN] Company Information "B", where "IC Partner Code" = "B"
         SetCompanyICPartner(ICPartnerCode[2]);
@@ -2991,7 +2991,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Currency] [General Journal]
         // [SCENARIO 382323] Currency code is blank in IC Outbox General Journal Line if "LCY Code" in General Ledger Setup is defined
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
         UpdateLCYCodeInGLSetup;
@@ -3029,7 +3029,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 204189] Posting the Sales Order should make IC Outbox Sales invoice line with "Shipment No." field populated with "External Document No." and "Shipment Line No." field equal to "Line No.".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with External Document No. 'X' for IC Customer.
         CreateSalesDocumentWithExternalDocNoForICCustomer(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
@@ -3056,7 +3056,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Return Order]
         // [SCENARIO 204189] Posting the Sales Return Order should make IC Outbox Sales credit memo line with "Return Receipt No." field populated with "External Document No." and "Return Receipt Line No." field equal to "Line No.".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Return Order with External Document No. 'X' for IC Customer.
         CreateSalesDocumentWithExternalDocNoForICCustomer(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
@@ -3192,7 +3192,7 @@ codeunit 134152 "ERM Intercompany II"
         ReceiptNo: Code[20];
     begin
         // [SCENARIO 120476.3] Verify Reservation exists for received Purchase Invoice with related receipt and tracking
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Order. Post Receipt.
         ReceiptNo :=
@@ -3210,7 +3210,8 @@ codeunit 134152 "ERM Intercompany II"
           SalesHeader, SalesHeader."Document Type"::Order,
           ICOutboxTransaction, ICInboxTransaction, ICPartnerCodeVendor, ICInboxPurchaseHeader);
 
-        LibraryLowerPermissions.AddPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
         // [WHEN] Receive Purchase Invoice
         ReceiveICPurchaseDocument(
           PurchaseHeaderToInvoice, SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader,
@@ -3223,6 +3224,9 @@ codeunit 134152 "ERM Intercompany II"
           ReceiptNo,
           PurchaseLine."Receipt No.",
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Receipt No.")));
+        
+        // Cleanup
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ItemEntryRelation.DeleteAll();
         TrackingSpecification.DeleteAll();
     end;
@@ -3244,7 +3248,7 @@ codeunit 134152 "ERM Intercompany II"
         ReturnShipmentNo: Code[20];
     begin
         // [SCENARIO 120476.4] Verify Reservation exists for received Purchase Credit Memo with related Return Shipment and tracking
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Return Order. Post Receipt.
         ReturnShipmentNo :=
@@ -3298,7 +3302,7 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Item Tracking]
         // [SCENARIO 210417] Purchase Invoice received from Sales Invoice after "Get Shipment Lines" action performed has correct quantity in Item Tracking
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Receipt Purchase Order with Quantity = 100 and Item Tracking
         ReceiptNo :=
@@ -3344,7 +3348,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Intercompany] [Sales Order] [Assembly]
         // [SCENARIO 364376] Assembly Order with reservation should be created for Sales Order with Assembly Item created from an Intercompany Transaction
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandInt(100);
         CreateAssembledItem(Item);
@@ -3370,7 +3374,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [IC Partner] [Purchase] [G/L Account]
         // [SCENARIO 251711] IC Outbox Purchase Line has IC Partner Reference after Purchase Order with G/L Account Line posting.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddPurchDocsPost;
@@ -3406,7 +3410,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [IC Partner] [Purchase] [Item]
         // [SCENARIO 251711] IC Outbox Purchase Line has IC Partner Reference after Purchase Order with Item Line posting.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddPurchDocsPost;
@@ -3447,7 +3451,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [IC Partner] [Purchase] [Sales] [G/L Account]
         // [SCENARIO 255423] Sales Line "IC Partner Reference" = "Default IC Partner G/L Acc. No" after Purchase Order with G/L Account Line received.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddPurchDocsPost;
@@ -3507,7 +3511,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [IC Partner] [Purchase] [Sales] [G/L Account]
         // [SCENARIO 255423] Purchase Line "IC Partner Reference" = "Default IC Partner G/L Acc. No" after Sales Order with G/L Account Line received.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddPurchDocsCreate;
@@ -3562,7 +3566,7 @@ codeunit 134152 "ERM Intercompany II"
         VendorNo: Code[20];
     begin
         // [SCENARIO 255051] IC received Purchase Header values in "Ship-to Country/Region Code" and "Ship-to County" are equal to IC sent Sales Header values "Ship-to Country/Region Code" and "Ship-to County"
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddeRead;
@@ -3595,7 +3599,7 @@ codeunit 134152 "ERM Intercompany II"
         CustNo: Code[20];
     begin
         // [SCENARIO 255051] IC received Sales Header values in "Ship-to Country/Region Code" and "Ship-to County" are equal to IC sent Purchase Header values "Ship-to Country/Region Code" and "Ship-to County"
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddeRead;
@@ -3630,7 +3634,7 @@ codeunit 134152 "ERM Intercompany II"
         VendorNo: Code[20];
     begin
         // [SCENARIO 255051] IC Outbox Sales Header values in "Ship-to Country/Region Code" and "Ship-to County" are populated when Outbox Transaction is recreated in codeunit ICInboxOutboxMgt
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddSalesDocsCreate;
@@ -3668,7 +3672,7 @@ codeunit 134152 "ERM Intercompany II"
         DummyCustNo: Code[20];
     begin
         // [SCENARIO 255051] IC Outbox Purchase Header values in  "Ship-to Country/Region Code" and "Ship-to County" are populated when Outbox Transaction is recreated in codeunit ICInboxOutboxMgt
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddPurchDocsCreate;
@@ -3706,7 +3710,7 @@ codeunit 134152 "ERM Intercompany II"
         CustNo: Code[20];
     begin
         // [SCENARIO 255051] IC Inbox Sales Header values in  "Ship-to Country/Region Code" and "Ship-to County" are populated when Inbox Transaction is recreated in codeunit ICInboxOutboxMgt
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddSalesDocsCreate;
@@ -3748,7 +3752,7 @@ codeunit 134152 "ERM Intercompany II"
         VendorNo: Code[20];
     begin
         // [SCENARIO 255051] IC Inbox Purchase Header values in  "Ship-to Country/Region Code" and "Ship-to County" are populated when Inbox Transaction is recreated in codeunit ICInboxOutboxMgt
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddSalesDocsCreate;
@@ -3786,7 +3790,7 @@ codeunit 134152 "ERM Intercompany II"
         Customer: Record Customer;
     begin
         // [SCENARIO 255051] Handled IC Inbox Sales Header values in "Ship-to Country/Region Code" and "Ship-to County" are populated when Sales Document is created in codeunit ICInboxOutboxMgt
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
@@ -3822,7 +3826,7 @@ codeunit 134152 "ERM Intercompany II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 255051] Handled IC Inbox Purchase Header values in  "Ship-to Country/Region Code" and "Ship-to County" are populated when Purchase Document is created in codeunit ICInboxOutboxMgt
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
@@ -3860,7 +3864,7 @@ codeunit 134152 "ERM Intercompany II"
         DummyVendorNo: Code[20];
     begin
         // [SCENARIO 255051] Handled IC Outbox Sales Header values in "Ship-to Country/Region Code" and "Ship-to County" are populated when Outbox Transaction is handled in codeunit ICInboxOutboxMgt
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
@@ -3894,7 +3898,7 @@ codeunit 134152 "ERM Intercompany II"
         DummyCustNo: Code[20];
     begin
         // [SCENARIO 255051] Handled IC Outbox Purch. Hdr values in "Ship-to Country/Region Code" and "Ship-to County" are populated when Outbox Transaction is handled in codeunit ICInboxOutboxMgt
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
@@ -4028,7 +4032,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Invoice]
         // [SCENARIO 264389] Item tracking in purchase invoice received via IC matches item tracking in purchase receipt lines, same as if you had run Get Receipt Lines. The line order in receipt and invoice is the same.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company "A":
         // [GIVEN] Create purchase order with one line for 5 pcs of lot-tracked item.
@@ -4039,7 +4043,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Receive sales order for 5 pcs.
         // [GIVEN] Post the shipment in the same two steps - first 3 pcs, then 2 pcs.
         // [GIVEN] Create and post sales invoice using "Get Shipment Lines".
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCode);
         CreateAndPostMultipleReceiptsWithTrackingAndPrepareInvoiceFromVendor(
           InvoiceNo, VendorNo, ICPartnerCode, '3,2', '3,2');
@@ -4072,7 +4076,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Invoice]
         // [SCENARIO 264389] Item tracking in purchase invoice received via IC matches item tracking in purchase receipt lines, same as if you had run Get Receipt Lines. The line order in receipt and invoice is different.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company "A":
         // [GIVEN] Create purchase order with one line for 5 pcs of lot-tracked item.
@@ -4083,7 +4087,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Receive sales order for 5 pcs.
         // [GIVEN] Post the shipment in reversed order - first 2 pcs, then 3 pcs.
         // [GIVEN] Create and post sales invoice using "Get Shipment Lines".
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCode);
         CreateAndPostMultipleReceiptsWithTrackingAndPrepareInvoiceFromVendor(
           InvoiceNo, VendorNo, ICPartnerCode, '3,2', '2,3');
@@ -4116,7 +4120,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Invoice]
         // [SCENARIO 264389] Item tracking is not assigned on purchase invoice received via IC, if the quantity to invoice on the line is greater than quantity of any purchase receipts.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company "A":
         // [GIVEN] Create purchase order with one line for 5 pcs of lot-tracked item.
@@ -4127,7 +4131,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Receive sales order for 5 pcs.
         // [GIVEN] Post the shipment in the new order - first 4 pcs, then 1 pcs.
         // [GIVEN] Create and post sales invoice using "Get Shipment Lines".
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCode);
         CreateAndPostMultipleReceiptsWithTrackingAndPrepareInvoiceFromVendor(
           InvoiceNo, VendorNo, ICPartnerCode, '3,2', '4,1');
@@ -4160,7 +4164,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Credit Memo]
         // [SCENARIO 264389] Item tracking in purchase credit-memo received via IC matches item tracking in return shipment lines, same as if you had run Get Shipment Lines. The line order in shipment and credit-memo is the same.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company "A":
         // [GIVEN] Create purchase return order with one line for 5 pcs of lot-tracked item.
@@ -4171,7 +4175,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Receive sales return order for 5 pcs.
         // [GIVEN] Post the receipt in the same two steps - first 3 pcs, then 2 pcs.
         // [GIVEN] Create and post sales credit-memo using "Get Receipt Lines".
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCode);
         CreateAndPostMultipleRetShipmentsWithTrackingAndPrepareInvoiceFromVendor(
           CreditMemoNo, VendorNo, ICPartnerCode, '3,2', '3,2');
@@ -4204,7 +4208,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Credit Memo]
         // [SCENARIO 264389] Item tracking in purchase credit-memo received via IC matches item tracking in return shipment lines, same as if you had run Get Shipment Lines. The line order in shipment and credit-memo is different.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company "A":
         // [GIVEN] Create purchase return order with one line for 5 pcs of lot-tracked item.
@@ -4215,7 +4219,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Receive sales return order for 5 pcs.
         // [GIVEN] Post the receipt in reversed order - first 2 pcs, then 3 pcs.
         // [GIVEN] Create and post sales credit-memo using "Get Receipt Lines".
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCode);
         CreateAndPostMultipleRetShipmentsWithTrackingAndPrepareInvoiceFromVendor(
           CreditMemoNo, VendorNo, ICPartnerCode, '3,2', '2,3');
@@ -4248,7 +4252,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Item Tracking] [Purchase] [Credit Memo]
         // [SCENARIO 264389] Item tracking is not assigned on purchase credit-memo received via IC, if the quantity to invoice on the line is greater than quantity of any return shipments.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company "A":
         // [GIVEN] Create purchase return order with one line for 5 pcs of lot-tracked item.
@@ -4259,7 +4263,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Receive sales return order for 5 pcs.
         // [GIVEN] Post the receipt in the new order - first 4 pcs, then 1 pcs.
         // [GIVEN] Create and post sales credit-memo using "Get Receipt Lines".
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCode);
         CreateAndPostMultipleRetShipmentsWithTrackingAndPrepareInvoiceFromVendor(
           CreditMemoNo, VendorNo, ICPartnerCode, '3,2', '4,1');
@@ -4286,7 +4290,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchase] [Receipt]
         // [SCENARIO 271063] "IC Partner Ref. Type" and "IC Partner Reference" are transferred from Purchase Line to Purchase Receipt Line when posting Purchase Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order for IC Vendor and Item "I"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -4298,7 +4302,7 @@ codeunit 134152 "ERM Intercompany II"
 
         // [THEN] Purchase Receipt Line has "IC Partner Ref. Type" = Item and "IC Partner Reference" = "I"
         PurchRcptLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         PurchRcptLine.TestField("IC Partner Ref. Type", PurchRcptLine."IC Partner Ref. Type"::Item);
         PurchRcptLine.TestField("IC Partner Reference", PurchaseLine."No.");
     end;
@@ -4313,7 +4317,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 271063] "IC Partner Ref. Type" and "IC Partner Reference" are transferred from Sales Line to Sales Shipment Line when posting Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order for IC Customer and Item "I"
         LibrarySales.CreateSalesDocumentWithItem(
@@ -4341,11 +4345,11 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Purchase] [Receipt] [Return Order]
         // [SCENARIO 271063] "IC Partner Ref. Type" and "IC Partner Reference" are transferred from Purchase Receipt Line to Purchase Line when copying via Copy Document Mgt.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order for IC Vendor and Item "I"
         VendorNo := CreateICVendor(CreateICPartner);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2),
           '', WorkDate);
@@ -4379,11 +4383,11 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Shipment] [Return Order]
         // [SCENARIO 271063] "IC Partner Ref. Type" and "IC Partner Reference" are transferred from Sales Shipment Line to Sales Line when copying via Copy Document Mgt.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order for IC Customer and Item "I"
         CustNo := CreateICCustomer(CreateICPartner);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustNo, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2),
           '', WorkDate);
@@ -4419,14 +4423,15 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Sales] [Dimension]
         // [SCENARIO 280681] "Dimension Set ID" inherits from sales Line when post G/L Entry with IC Partner
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with default dimension set id 1000 which contains "Global Dimension 1 Code" = 'X', "Global Dimension 2 Code" = 'Y'
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         UpdateCustomerWithDefaultGlobalDimensionSet(CustomerNo);
 
-        LibraryLowerPermissions.AddSalesDocsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetSalesDocsPost();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
 
         // [GIVEN] Sales invoice with Customer
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
@@ -4459,14 +4464,15 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Purchase] [Dimension]
         // [SCENARIO 280681] "Dimension Set ID" inherits from purchase Line when post G/L Entry with IC Partner
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with default dimension set id 1000 which contains "Global Dimension 1 Code" = 'X', "Global Dimension 2 Code" = 'Y'
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         UpdateVendorWithDefaultGlobalDimensionSet(VendorNo);
 
-        LibraryLowerPermissions.AddPurchDocsPost;
-        LibraryLowerPermissions.AddIntercompanyPostingsEdit;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddIntercompanyPostingsSetup();
 
         // [GIVEN] Purchase invoice with Vendor
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
@@ -4505,7 +4511,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 297356] New sales order created from intercompany inbox gets the same unit prices as the sales document in the inbox.
-        Initialize;
+        Initialize();
 
         UnitPrice := 41.62;
         VAT := 20;
@@ -4564,7 +4570,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // [FEATURE] [Sales] [Order] [Sales Price]
         // [SCENARIO 322680] Sales price on a sales order line created from intercompany inbox is not overridden by sales price settings in the receiving company.
-        Initialize;
+        Initialize();
         UnitPrice := LibraryRandom.RandDec(100, 2);
         Qty := LibraryRandom.RandInt(10);
 
@@ -4959,7 +4965,7 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure CreatePartnerCustomerVendor(var ICPartnerCodeVendor: Code[20]; var VendorNo: Code[20]; var CustomerNo: Code[20])
     begin
-        ICPartnerCodeVendor := CreateICPartner;
+        ICPartnerCodeVendor := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCodeVendor);
         CustomerNo := CreateICCustomer(CreateICPartner);
     end;
@@ -5009,7 +5015,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         SalesLine: Record "Sales Line";
     begin
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         UpdateICPartnerWithOutboundType(ICPartnerCode, OutboundType);
         VendorNo := CreateICVendor(ICPartnerCode);
 
@@ -5040,7 +5046,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         ICPartnerCode: Code[20];
     begin
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateSalesDocument(SalesHeader, DocumentType, CreateICCustomer(ICPartnerCode), CreateItem);
         UpdateSalesDocumentExternalDocumentNo(SalesHeader, LibraryUtility.GenerateGUID);
         FindSalesLine(SalesLine, SalesHeader);
@@ -5074,7 +5080,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         UpdateICPartnerWithOutboundType(ICPartnerCode, OutboundType);
         CustomerNo := CreateICCustomer(ICPartnerCode);
 
@@ -5114,7 +5120,7 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure CreatePostPurchaseReceiptForNewVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; var ICPartnerCodeVendor: Code[20]): Code[20]
     begin
-        ICPartnerCodeVendor := CreateICPartner;
+        ICPartnerCodeVendor := CreateICPartner();
         exit(CreatePostPurchaseReceipt(PurchaseHeader, DocumentType, CreateICVendor(ICPartnerCodeVendor)));
     end;
 
@@ -5449,7 +5455,7 @@ codeunit 134152 "ERM Intercompany II"
         VendorNo: Code[20];
         ICPartnerCode: Code[20];
     begin
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         VendorNo := CreateICVendor(ICPartnerCode);
         ICInboxPurchaseHeader.Init();
         ICInboxPurchaseHeader."IC Transaction No." :=
@@ -6214,7 +6220,7 @@ codeunit 134152 "ERM Intercompany II"
         ICPartnerNo: Code[20];
     begin
         LibraryERM.CreateICGLAccount(ICGLAccount);
-        ICPartnerNo := CreateICPartner;
+        ICPartnerNo := CreateICPartner();
         UpdateSalesLineICPartnerInfo(
           SalesLine, ICPartnerNo, SalesLine."IC Partner Ref. Type"::"G/L Account", ICGLAccount."No.");
         exit(ICPartnerNo);
@@ -6226,7 +6232,7 @@ codeunit 134152 "ERM Intercompany II"
         ICPartnerNo: Code[20];
     begin
         LibraryERM.CreateICGLAccount(ICGLAccount);
-        ICPartnerNo := CreateICPartner;
+        ICPartnerNo := CreateICPartner();
         UpdatePurchaseLineICPartnerInfo(
           PurchaseLine, ICPartnerNo, PurchaseLine."IC Partner Ref. Type"::"G/L Account", ICGLAccount."No.");
         exit(ICPartnerNo);
@@ -6745,10 +6751,10 @@ codeunit 134152 "ERM Intercompany II"
     begin
         // Verify IC Outbox Journal Entries after posting IC Journal Line with Account Type as IC Partner which is attached on Customer and Vendor are Privacy Blocked.
 
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetIntercompanyPostingsSetup;
         LibraryLowerPermissions.AddO365Setup;
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateAndUpdateICCustomerPrivacyBlocked(ICPartnerCode);
         CreateAndUpdateICVendorPrivacyBlocked(ICPartnerCode);
         CreateICGLAccount(ICGLAccount);

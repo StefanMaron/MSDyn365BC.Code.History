@@ -632,10 +632,16 @@ codeunit 11000006 "CBG Statement Reconciliation"
                     end;
             end;
         end;
+        OnAfterUpdateAccount(CBGStatementLine, NumberOfLinesChanged, RecChanged);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMatchCBGStatement(var CBGStatement: Record "CBG Statement")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAccount(var CBGStatementLine: Record "CBG Statement Line"; var NumberOfLinesChanged: Integer; var RecChanged: Boolean)
     begin
     end;
 

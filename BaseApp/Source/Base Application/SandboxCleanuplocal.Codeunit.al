@@ -5,18 +5,15 @@ codeunit 1883 "Sandbox Cleanup local"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sandbox Deploymt. Cleanup", 'OnClearConfiguration', '', false, false)]
-    local procedure OnClearConfiguration(CompanyToBlock: Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sandbox Cleanup", 'OnClearCompanyConfiguration', '', false, false)]
+    local procedure OnClearConfiguration(CompanyName: Text)
     var
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
     begin
-        if CompanyToBlock <> '' then begin
-            ElecTaxDeclarationSetup.ChangeCompany(CompanyToBlock);
-            ElecTaxDeclarationSetup.ModifyAll("Digipoort Client Cert. Name", '');
-            ElecTaxDeclarationSetup.ModifyAll("Digipoort Service Cert. Name", '');
-            ElecTaxDeclarationSetup.ModifyAll("Digipoort Delivery URL", '');
-            ElecTaxDeclarationSetup.ModifyAll("Digipoort Status URL", '');
-        end;
+        ElecTaxDeclarationSetup.ModifyAll("Digipoort Client Cert. Name", '');
+        ElecTaxDeclarationSetup.ModifyAll("Digipoort Service Cert. Name", '');
+        ElecTaxDeclarationSetup.ModifyAll("Digipoort Delivery URL", '');
+        ElecTaxDeclarationSetup.ModifyAll("Digipoort Status URL", '');
     end;
 }
 

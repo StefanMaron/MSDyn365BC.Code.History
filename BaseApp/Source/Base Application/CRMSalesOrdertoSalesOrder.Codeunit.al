@@ -179,7 +179,13 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         LineDescriptionInStream: InStream;
         CRMSalesOrderLineDescription: Text;
         ExtendedDescription: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetLineDescription(SalesHeader, SalesLine, CRMSalesorderdetail, IsHandled);
+        if IsHandled then
+            exit;
+
         CRMSalesorderdetail.CalcFields(Description);
         CRMSalesorderdetail.Description.CreateInStream(LineDescriptionInStream, TEXTENCODING::UTF16);
         LineDescriptionInStream.ReadText(CRMSalesOrderLineDescription);
@@ -270,6 +276,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
             SetCompanyId(CrmSalesOrder);
             SetLastBackOfficeSubmit(CRMSalesorder, Today);
+            OnCreateNAVSalesOrderOnAfterSetLastBackOfficeSubmit(SalesHeader, CRMSalesorder);
             Session.LogMessage('000083B', StrSubstNo(SuccessfullyCoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId, CRMSalesOrder.OrderNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         end else begin
             if CoupledSalesHeaderExists(CRMSalesorder, SalesHeader) then begin
@@ -568,13 +575,19 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         Error(ZombieCouplingErr, PRODUCTNAME.Short, CRMProductName.CDSServiceName());
     end;
 
-    procedure GetCoupledCustomer(CRMSalesorder: Record "CRM Salesorder"; var Customer: Record Customer): Boolean
+    procedure GetCoupledCustomer(CRMSalesorder: Record "CRM Salesorder"; var Customer: Record Customer) Result: Boolean
     var
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
         NAVCustomerRecordId: RecordID;
         CRMAccountId: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCoupledCustomer(CRMSalesorder, Customer, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if IsNullGuid(CRMSalesorder.CustomerId) then
             Error(NoCustomerErr, CannotCreateSalesOrderInNAVTxt, CRMSalesorder.Description, CRMProductName.CDSServiceName());
 
@@ -767,6 +780,16 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCoupledCustomer(CRMSalesorder: Record "CRM Salesorder"; var Customer: Record Customer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var CRMSalesorderdetail: Record "CRM Salesorderdetail"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateSalesOrderHeaderOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; CRMSalesorder: Record "CRM Salesorder")
     begin
     end;
@@ -778,6 +801,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateInNAVOnBeforeCheckState(CRMSalesorder: Record "CRM Salesorder"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNAVSalesOrderOnAfterSetLastBackOfficeSubmit(var SalesHeader: Record "Sales Header"; CRMSalesorder: Record "CRM Salesorder")
     begin
     end;
 

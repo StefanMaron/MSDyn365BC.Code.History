@@ -664,6 +664,17 @@
             Caption = 'Local SEPA Instr. Priority';
             InitValue = true;
         }
+        field(11401; "Use New Apply G/L Entries Page"; Boolean)
+        {
+            Caption = 'Use New Apply G/L Entries Page';
+            ObsoleteTag = '19.0';
+            ObsoleteReason = 'New page 11310 will unconditionally replace the old 11309.';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+        }
         field(11000000; "Local Currency"; Option)
         {
             Caption = 'Local Currency';

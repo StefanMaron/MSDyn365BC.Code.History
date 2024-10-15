@@ -24,7 +24,6 @@ codeunit 1220 "SEPA CT-Export File"
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
         OutStr: OutStream;
-        TempClientFileName: Text;
         UseCommonDialog: Boolean;
         FileCreated: Boolean;
         IsHandled: Boolean;
@@ -34,30 +33,20 @@ codeunit 1220 "SEPA CT-Export File"
 
         CreditTransferRegister.FindLast;
 
-        if FileName = '' then begin
-            UseCommonDialog := not ExportToServerFile;
-            OnBeforeBLOBExport(TempBlob, CreditTransferRegister, UseCommonDialog, FileCreated, IsHandled);
-            if not IsHandled then
-                FileCreated :=
-                  FileManagement.BLOBExport(TempBlob, StrSubstNo('%1.XML', CreditTransferRegister.Identifier), UseCommonDialog) <> '';
-            if FileCreated then
-                SetCreditTransferRegisterToFileCreated(CreditTransferRegister, TempBlob);
+        if FileName = '' then
+            FileName := StrSubstNo('%1.XML', CreditTransferRegister.Identifier)
+        else
+            FileName := FileManagement.GetFileName(FileName);
 
-            exit(CreditTransferRegister.Status = CreditTransferRegister.Status::"File Created");
-        end;
-
+        UseCommonDialog := not ExportToServerFile;
         OnBeforeBLOBExport(TempBlob, CreditTransferRegister, UseCommonDialog, FileCreated, IsHandled);
-        if not IsHandled then begin
-            TempClientFileName := FileManagement.BLOBExport(TempBlob, FileName, false);
-            FileCreated := TempClientFileName <> '';
-            if FileCreated then begin
-#if not CLEAN17
-                FileManagement.MoveFile(TempClientFileName, FileName);
-#endif
-                SetCreditTransferRegisterToFileCreated(CreditTransferRegister, TempBlob);
-            end;
-        end;
-        exit(true);
+        if not IsHandled then
+            FileCreated :=
+              FileManagement.BLOBExport(TempBlob, FileName, UseCommonDialog) <> '';
+        if FileCreated then
+            SetCreditTransferRegisterToFileCreated(CreditTransferRegister, TempBlob);
+
+        exit(CreditTransferRegister.Status = CreditTransferRegister.Status::"File Created");
     end;
 
     local procedure SetCreditTransferRegisterToFileCreated(var CreditTransferRegister: Record "Credit Transfer Register"; var TempBlob: Codeunit "Temp Blob")

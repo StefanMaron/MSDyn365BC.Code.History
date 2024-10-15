@@ -1,4 +1,4 @@
-codeunit 134382 "ERM Dimension Journals"
+﻿codeunit 134382 "ERM Dimension Journals"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd,
                   TableData "Vendor Ledger Entry" = rimd;
@@ -36,6 +36,7 @@ codeunit 134382 "ERM Dimension Journals"
         CurrentSaveValuesId: Integer;
         RecurringMethodsDimFilterErr: Label 'Recurring method B  Balance cannot be used for the line with dimension filter setup.';
         RecurringMethodsLineDimdErr: Label 'Recurring method BD Balance by Dimension cannot be used for the line with dimension setup.';
+        DimConsistencyErr: Label 'A setting for one or more global or shortcut dimensions is incorrect.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1477,6 +1478,304 @@ codeunit 134382 "ERM Dimension Journals"
         Assert.IsTrue(RecurringGeneralJournal.Dimensions.Enabled(), 'Control should be enabled.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure DimConsistencyGlobalDim1CodeForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [SCENARIO 398221] Recurring journal cannot be posted in the case of corrupted dim. set entry for "BD Balance By Dimension" type
+        Initialize();
+
+        // [GIVEN] Corrupted dimension set entry (for "Global Dimension 1 Code")
+        CreateCorruptedDimSetEntry(1);
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke post recurring journal line
+        Commit();
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.Post.Invoke();
+
+        // [THEN] Error message page contains error for consistency Dimension Set Entry
+        Assert.ExpectedMessage(DimConsistencyErr, ErrorMessages.Description.Value);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure DimConsistencyGlobalDim2CodeForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [SCENARIO 398221] Recurring journal cannot be posted in the case of corrupted dim. set entry for "BD Balance By Dimension" type
+        Initialize();
+
+        // [GIVEN] Corrupted dimension set entry (for "Global Dimension 2 Code")
+        CreateCorruptedDimSetEntry(2);
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke post recurring journal line
+        Commit();
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.Post.Invoke();
+
+        // [THEN] Error message page contains error for consistency Dimension Set Entry
+        Assert.ExpectedMessage(DimConsistencyErr, ErrorMessages.Description.Value);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure DimConsistencyGlobalDim3CodeForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [SCENARIO 398221] Recurring journal cannot be posted in the case of corrupted dim. set entry for "BD Balance By Dimension" type
+        Initialize();
+
+        // [GIVEN] Corrupted dimension set entry (for "Shortcut Dimension 3 Code")
+        CreateCorruptedDimSetEntry(3);
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke post recurring journal line
+        Commit();
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.Post.Invoke();
+
+        // [THEN] Error message page contains error for consistency Dimension Set Entry
+        Assert.ExpectedMessage(DimConsistencyErr, ErrorMessages.Description.Value);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure DimConsistencyGlobalDim4CodeForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [SCENARIO 398221] Recurring journal cannot be posted in the case of corrupted dim. set entry for "BD Balance By Dimension" type
+        Initialize();
+
+        // [GIVEN] Corrupted dimension set entry (for "Shortcut Dimension 4 Code")
+        CreateCorruptedDimSetEntry(4);
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke post recurring journal line
+        Commit();
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.Post.Invoke();
+
+        // [THEN] Error message page contains error for consistency Dimension Set Entry
+        Assert.ExpectedMessage(DimConsistencyErr, ErrorMessages.Description.Value);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure DimConsistencyGlobalDim5CodeForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [SCENARIO 398221] Recurring journal cannot be posted in the case of corrupted dim. set entry for "BD Balance By Dimension" type
+        Initialize();
+
+        // [GIVEN] Corrupted dimension set entry (for "Shortcut Dimension 5 Code")
+        CreateCorruptedDimSetEntry(5);
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke post recurring journal line
+        Commit();
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.Post.Invoke();
+
+        // [THEN] Error message page contains error for consistency Dimension Set Entry
+        Assert.ExpectedMessage(DimConsistencyErr, ErrorMessages.Description.Value);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure DimConsistencyGlobalDim6CodeForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [SCENARIO 398221] Recurring journal cannot be posted in the case of corrupted dim. set entry for "BD Balance By Dimension" type
+        Initialize();
+
+        // [GIVEN] Corrupted dimension set entry (for "Shortcut Dimension 6 Code")
+        CreateCorruptedDimSetEntry(6);
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke post recurring journal line
+        Commit();
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.Post.Invoke();
+
+        // [THEN] Error message page contains error for consistency Dimension Set Entry
+        Assert.ExpectedMessage(DimConsistencyErr, ErrorMessages.Description.Value);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure DimConsistencyGlobalDim7CodeForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [SCENARIO 398221] Recurring journal cannot be posted in the case of corrupted dim. set entry for "BD Balance By Dimension" type
+        Initialize();
+
+        // [GIVEN] Corrupted dimension set entry (for "Shortcut Dimension 7 Code")
+        CreateCorruptedDimSetEntry(7);
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke post recurring journal line
+        Commit();
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.Post.Invoke();
+
+        // [THEN] Error message page contains error for consistency Dimension Set Entry
+        Assert.ExpectedMessage(DimConsistencyErr, ErrorMessages.Description.Value);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure DimConsistencyGlobalDim8CodeForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [SCENARIO 398221] Recurring journal cannot be posted in the case of corrupted dim. set entry for "BD Balance By Dimension" type
+        Initialize();
+
+        // [GIVEN] Corrupted dimension set entry (for "Shortcut Dimension 8 Code")
+        CreateCorruptedDimSetEntry(8);
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke post recurring journal line
+        Commit();
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.Post.Invoke();
+
+        // [THEN] Error message page contains error for consistency Dimension Set Entry
+        Assert.ExpectedMessage(DimConsistencyErr, ErrorMessages.Description.Value);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue,UpdateDimSetGlblDimNoHandler')]
+    procedure RunFixReportFromErrorMessagesForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+        ErrorMessages: TestPage "Error Messages";
+        DimensionSetEntries: TestPage "Dimension Set Entries";
+    begin
+        // [SCENARIO 400674] "Fix" report run from Dimension Set Entries page run from Error Message page when click on the Source field
+        Initialize();
+
+        // [GIVEN] Corrupted dimension set entry
+        CreateCorruptedDimSetEntry(1);
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [GIVEN] Invoke posting
+        Commit();
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+        ErrorMessages.Trap();
+        RecurringGeneralJournal.Post.Invoke();
+
+        // [WHEN] "Drilldown" Source field on the Error Message page and run action from opened "Dimension Set Entries" page
+        Commit();
+        DimensionSetEntries.Trap();
+        ErrorMessages.Source.Drilldown();
+        DimensionSetEntries.UpdDimSetGlblDimNo.Invoke();
+
+        // [THEN] "Fix" report run (verified in UpdateDimSetGlblDimNoHandler)
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FixReportActionNotVisibleOnDimSetEntriesPageRunNormallyUT()
+    var
+        DimensionSetEntries: TestPage "Dimension Set Entries";
+    begin
+        // [SCENARIO 400674] "Update Shortcut Dimension No." action is not visible on the Dimension Set Entries page when the page run not from Error Messages
+        Initialize();
+
+        DimensionSetEntries.OpenView();
+        Assert.IsFalse(DimensionSetEntries.UpdDimSetGlblDimNo.Visible(), 'Action should not be visible');
+    end;
+
     local procedure Initialize()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
@@ -2601,6 +2900,66 @@ codeunit 134382 "ERM Dimension Journals"
         GenJournalLine.Modify(true);
     end;
 
+    local procedure CreateCorruptedDimSetEntry(DimNo: Integer)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionValue: Record "Dimension Value";
+    begin
+        GeneralLedgerSetup.Get();
+        DimensionSetEntry.DeleteAll(false);
+
+        case DimNo of
+            1:
+                LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
+            2:
+                LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
+            3:
+                begin
+                    LibraryDimension.CreateDimWithDimValue(DimensionValue);
+                    GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", DimensionValue."Dimension Code");
+                    GeneralLedgerSetup.Modify(true);
+                end;
+            4:
+                begin
+                    LibraryDimension.CreateDimWithDimValue(DimensionValue);
+                    GeneralLedgerSetup.Validate("Shortcut Dimension 4 Code", DimensionValue."Dimension Code");
+                    GeneralLedgerSetup.Modify(true);
+                end;
+            5:
+                begin
+                    LibraryDimension.CreateDimWithDimValue(DimensionValue);
+                    GeneralLedgerSetup.Validate("Shortcut Dimension 5 Code", DimensionValue."Dimension Code");
+                    GeneralLedgerSetup.Modify(true);
+                end;
+            6:
+                begin
+                    LibraryDimension.CreateDimWithDimValue(DimensionValue);
+                    GeneralLedgerSetup.Validate("Shortcut Dimension 6 Code", DimensionValue."Dimension Code");
+                    GeneralLedgerSetup.Modify(true);
+                end;
+            7:
+                begin
+                    LibraryDimension.CreateDimWithDimValue(DimensionValue);
+                    GeneralLedgerSetup.Validate("Shortcut Dimension 7 Code", DimensionValue."Dimension Code");
+                    GeneralLedgerSetup.Modify(true);
+                end;
+            8:
+                begin
+                    LibraryDimension.CreateDimWithDimValue(DimensionValue);
+                    GeneralLedgerSetup.Validate("Shortcut Dimension 8 Code", DimensionValue."Dimension Code");
+                    GeneralLedgerSetup.Modify(true);
+                end;
+        end;
+
+        DimensionSetEntry.Init();
+        DimensionSetEntry."Dimension Code" := DimensionValue."Dimension Code";
+        DimensionSetEntry."Dimension Value Code" := DimensionValue.Code;
+        DimensionSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
+        DimensionSetEntry."Global Dimension No." := LibraryRandom.RandIntInRange(10, 100);
+        DimensionSetEntry.Insert(false);
+    end;
+
     local procedure VerifyDimensionSetEntry(DimensionSetID: Integer; DefaultDimension: Record "Default Dimension")
     var
         DimensionSetEntry: Record "Dimension Set Entry";
@@ -3031,6 +3390,13 @@ codeunit 134382 "ERM Dimension Journals"
         GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
     begin
         GenJnlDimFilterMgt.HideNotification(SetDimFiltersNotification);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure UpdateDimSetGlblDimNoHandler(var UpdateDimSetGlblDimNo: TestRequestPage "Update Dim. Set Glbl. Dim. No.")
+    begin
+        UpdateDimSetGlblDimNo.Cancel().Invoke();
     end;
 }
 

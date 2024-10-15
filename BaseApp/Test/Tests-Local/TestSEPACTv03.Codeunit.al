@@ -125,7 +125,6 @@ codeunit 144101 "Test SEPA CT v03"
 
     [Test]
     [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
-    [Scope('OnPrem')]
     procedure ExportByXMLPort()
     var
         BankAccount: Record "Bank Account";
@@ -145,16 +144,16 @@ codeunit 144101 "Test SEPA CT v03"
         SetupForExport(BankAccount, VendorBankAccount, ExportProtocolCode, TotalAmount, NoOfDocuments);
 
         // [WHEN] Run xml export
-        FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
+        GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
 
         // [THEN] Xml file is exported with namespace 'xmlns:xsi=http://www.w3.org/2001/XMLSchemainstance'
+        FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
         VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, false, NoOfDocuments);
         VerifyGrouping;
     end;
 
     [Test]
     [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
-    [Scope('OnPrem')]
     procedure ExportByXMLPortForEmployee()
     var
         BankAccount: Record "Bank Account";
@@ -166,9 +165,10 @@ codeunit 144101 "Test SEPA CT v03"
         TotalAmount: Decimal;
         NoOfDocuments: Integer;
     begin
+        // [SCENARIO] Export SEPA CT using xml port
         Initialize;
 
-        // setup
+        // [GIVEN]
         ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol;
         EmployeeName := LibraryUtility.GenerateRandomAlphabeticText(10, 0);
         SetUpTransactionModeForEmployee(CreateSEPABankAccount(BankAccount, ''), ExportProtocolCode);
@@ -178,10 +178,11 @@ codeunit 144101 "Test SEPA CT v03"
             TotalAmount += CreateAndPostEmployeeExpense(Employee);
         end;
 
-        // exercise
-        FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
+        // [WHEN]
+        GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
 
-        // verify
+        // [THEN]
+        FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
         VerifySEPACreditTransferFileForEmployee(FileName, TotalAmount, Employee, false, NoOfDocuments);
         VerifyGrouping;
     end;
@@ -302,22 +303,41 @@ codeunit 144101 "Test SEPA CT v03"
     var
         PaymentHistoryLine: Record "Payment History Line";
         AddrLine: array[3] of Text[70];
+        AccHoldCountryRegionCode: Code[10];
+        AccountHolderAddress: Text[100];
+        AccountHolderPostCode: Code[20];
+        AccountHolderCity: Text[30];
     begin
+        // [FEATURE] [UT][SEPA]
+        // [SCENARIO 401029] "Payment History Line".GetAccHolderPostalAddr must return correct values
         PaymentHistoryLine.Init();
         Assert.IsFalse(PaymentHistoryLine.GetAccHolderPostalAddr(AddrLine), '0');
 
         PaymentHistoryLine.Init();
-        PaymentHistoryLine."Acc. Hold. Country/Region Code" := 'X';
-        VerifyAccHolderAddr(PaymentHistoryLine, 1, 'X');
+        AccHoldCountryRegionCode := LibraryUtility.GenerateRandomCode(
+            PaymentHistoryLine.FieldNo("Acc. Hold. Country/Region Code"),
+            Database::"Payment History Line");
+        PaymentHistoryLine."Acc. Hold. Country/Region Code" := AccHoldCountryRegionCode;
+        VerifyAccHolderAddr(PaymentHistoryLine, 1, CopyStr(AccHoldCountryRegionCode, 1, 2));
 
         PaymentHistoryLine.Init();
-        PaymentHistoryLine."Account Holder Address" := 'A';
-        VerifyAccHolderAddr(PaymentHistoryLine, 2, 'A');
+        AccountHolderAddress := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(
+            MaxStrLen(PaymentHistoryLine."Account Holder Address"), 1),
+            1, MaxStrLen(PaymentHistoryLine."Account Holder Address"));
+        PaymentHistoryLine."Account Holder Address" := AccountHolderAddress;
+        VerifyAccHolderAddr(PaymentHistoryLine, 2, CopyStr(AccountHolderAddress, 1, 70));
 
         PaymentHistoryLine.Init();
-        PaymentHistoryLine."Account Holder Post Code" := 'Y';
-        PaymentHistoryLine."Account Holder City" := 'Z';
-        VerifyAccHolderAddr(PaymentHistoryLine, 3, 'Y Z');
+        AccountHolderPostCode := LibraryUtility.GenerateRandomCode20(
+            PaymentHistoryLine.FieldNo("Account Holder Post Code"),
+            Database::"Payment History Line");
+        AccountHolderCity := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(
+            MaxStrLen(PaymentHistoryLine."Account Holder City"), 1),
+            1, MaxStrLen(PaymentHistoryLine."Account Holder City"));
+        PaymentHistoryLine."Account Holder Post Code" := AccountHolderPostCode;
+        PaymentHistoryLine."Account Holder City" := AccountHolderCity;
+        VerifyAccHolderAddr(PaymentHistoryLine, 3,
+            CopyStr(StrSubstNo('%1 %2', AccountHolderPostCode, AccountHolderCity), 1, 70));
     end;
 
     [Test]
@@ -1466,7 +1486,6 @@ codeunit 144101 "Test SEPA CT v03"
 
     [Test]
     [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
-    [Scope('OnPrem')]
     procedure ExportByXMLPortWithNormalPriority()
     var
         BankAccount: Record "Bank Account";
@@ -1479,7 +1498,6 @@ codeunit 144101 "Test SEPA CT v03"
     begin
         // [FEATURE] [Normal Instruction Priority]
         // [SCENARIO 365960] Export SEPA CT using xml port with normal instruction priority
-
         Initialize();
         BindSubscription(TestSepaCtV03);
 
@@ -1490,9 +1508,10 @@ codeunit 144101 "Test SEPA CT v03"
         SetupForExport(BankAccount, VendorBankAccount, ExportProtocolCode, TotalAmount, NoOfDocuments);
 
         // [WHEN] Run xml export
-        FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
+        GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
 
         // [THEN] Xml file is exported with InstrPrty = NORM
+        FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
         XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace);
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'NORM', 2);
 
@@ -1527,7 +1546,6 @@ codeunit 144101 "Test SEPA CT v03"
 
     [Test]
     [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
-    [Scope('OnPrem')]
     procedure InstrPrtyValueWHenLocalSEPAInstrPrtyIsEnabled()
     var
         BankAccount: Record "Bank Account";
@@ -1537,7 +1555,6 @@ codeunit 144101 "Test SEPA CT v03"
         TotalAmount: Decimal;
     begin
         // [SCENARIO 381529] SEPA CT xml file has InstrPrty equals "HIGH" when when export with "Local SEPA Instr. Prioririty" option is enabled in the General Ledger Setup
-
         Initialize();
 
         // [GIVEN] "Local SEPA Instr. Priority" is enabled in General Ledger Setup
@@ -1550,9 +1567,10 @@ codeunit 144101 "Test SEPA CT v03"
         SetupForExportByNumberOfDocuments(BankAccount, VendorBankAccount, ExportProtocolCode, 1, TotalAmount);
 
         // [WHEN] Run xml export
-        FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
+        GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
 
         // [THEN] Xml file is exported with InstrPrty = HIGH
+        FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
         XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace());
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'HIGH', 1);
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'NORM', 0);
@@ -1560,7 +1578,6 @@ codeunit 144101 "Test SEPA CT v03"
 
     [Test]
     [HandlerFunctions('ProposalLineConfirmHandler,ProposalProcessedMsgHandler')]
-    [Scope('OnPrem')]
     procedure InstrPrtyValueWHenLocalSEPAInstrPrtyIsDisabled()
     var
         BankAccount: Record "Bank Account";
@@ -1570,7 +1587,6 @@ codeunit 144101 "Test SEPA CT v03"
         TotalAmount: Decimal;
     begin
         // [SCENARIO 381529] SEPA CT xml file has InstrPrty equals "NORM" when when export with "Local SEPA Instr. Prioririty" option is enabled in the General Ledger Setup
-
         Initialize();
 
         // [GIVEN] "Local SEPA Instr. Priority" is disabled in General Ledger Setup
@@ -1583,9 +1599,10 @@ codeunit 144101 "Test SEPA CT v03"
         SetupForExportByNumberOfDocuments(BankAccount, VendorBankAccount, ExportProtocolCode, 1, TotalAmount);
 
         // [WHEN] Run xml export
-        FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
+        GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
 
         // [THEN] Xml file is exported with InstrPrty = NORM
+        FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
         XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace());
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'NORM', 1);
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'HIGH', 0);
@@ -1894,6 +1911,17 @@ codeunit 144101 "Test SEPA CT v03"
             ExportProtocolReportID, TemporaryPath + LibraryUtility.GenerateGUID + '.xml');
         PaymentHistory."Export Protocol" := ExportProtocolCode;
         PaymentHistory.Modify();
+    end;
+
+    local procedure CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccountNo: Code[20]) FileName: Text
+    var
+        CreditTransferRegister: Record "Credit Transfer Register";
+        FileManagement: Codeunit "File Management";
+    begin
+        CreditTransferRegister.SetRange("From Bank Account No.", BankAccountNo);
+        CreditTransferRegister.FindLast();
+        CreditTransferRegister.CalcFields("Exported File");
+        FileName := CreditTransferRegister."Exported File".Export(FileManagement.ServerTempFileName('.xml'));
     end;
 
     local procedure MockPaymentHistoryWithLine(var PaymentHistory: Record "Payment History"; ExportProtocolReportID: Integer)
@@ -2305,7 +2333,7 @@ codeunit 144101 "Test SEPA CT v03"
         exit(DelChr(IBAN));
     end;
 
-    local procedure VerifyAccHolderAddr(PaymentHistoryLine: Record "Payment History Line"; No: Integer; Value: Text[70])
+    local procedure VerifyAccHolderAddr(PaymentHistoryLine: Record "Payment History Line"; No: Integer; Value: Text)
     var
         AddrLine: array[3] of Text[70];
         i: Integer;

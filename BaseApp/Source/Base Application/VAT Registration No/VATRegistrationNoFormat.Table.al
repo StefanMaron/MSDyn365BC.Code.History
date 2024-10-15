@@ -261,7 +261,13 @@ table 381 "VAT Registration No. Format"
         Digit: Integer;
         Weight: Integer;
         Total: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCompanyInfo(VATRegNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CompanyInformation.Get then
             exit;
 
@@ -291,6 +297,11 @@ table 381 "VAT Registration No. Format"
 
         if Digit <> Total then
             Error(Text11400 + Text11403);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCompanyInfo(VATRegNo: Text[20]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

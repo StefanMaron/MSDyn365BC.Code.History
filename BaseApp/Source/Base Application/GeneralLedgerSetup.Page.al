@@ -204,6 +204,16 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to use the local SEPA functionality to generate the InstrPrty XML element in documents. Otherwise, the generic functionality will be used';
                 }
+#if not CLEAN19
+                field("Use New Apply G/L Entries Page"; Rec."Use New Apply G/L Entries Page")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want to use the new page to apply general ledger entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ObsoleteReason = 'New page 11310 will unconditionally replace the old 11309.';
+                }
+#endif
             }
             group(Control1900309501)
             {

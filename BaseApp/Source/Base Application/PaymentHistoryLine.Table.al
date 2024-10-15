@@ -526,9 +526,10 @@ table 11000002 "Payment History Line"
     begin
         Clear(AddrLine);
         AddrLine[1] := CopyStr(DelChr("Acc. Hold. Country/Region Code", '<>'), 1, 2);
-        AddrLine[2] := DelChr("Account Holder Address", '<>');
+        AddrLine[2] := CopyStr(DelChr("Account Holder Address", '<>'), 1, MaxStrLen(AddrLine[2]));
         AddrLine[3] :=
-          DelChr(DelChr("Account Holder Post Code", '<>') + ' ' + DelChr("Account Holder City", '<>'), '<>');
+          CopyStr(DelChr(DelChr("Account Holder Post Code", '<>') + ' ' + DelChr("Account Holder City", '<>'), '<>'),
+            1, MaxStrLen(AddrLine[3]));
         exit((AddrLine[1] + AddrLine[2] + AddrLine[3]) <> '');
     end;
 

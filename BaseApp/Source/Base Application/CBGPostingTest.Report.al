@@ -280,6 +280,8 @@ report 11400 "CBG Posting - Test"
                     }
 
                     trigger OnPreDataItem()
+                    var
+                        AppliesToID: Code[50];
                     begin
                         if not ApplyInformation then
                             CurrReport.Break();
@@ -295,10 +297,13 @@ report 11400 "CBG Posting - Test"
 
                         case "CBG Statement".Type of
                             "CBG Statement".Type::Cash:
-                                SetRange("Applies-to ID", "CBG Statement Line"."Document No.");
+                                AppliesToID := "CBG Statement Line"."Document No.";
                             "CBG Statement".Type::"Bank/Giro":
-                                SetRange("Applies-to ID", "CBG Statement Line"."Applies-to ID");
+                                AppliesToID := "CBG Statement Line"."Applies-to ID";
                         end;
+                        if AppliesToID = '' then
+                            CurrReport.Break();
+                        SetRange("Applies-to ID", AppliesToID);
                     end;
                 }
                 dataitem(CustEntryApplyNo; "Cust. Ledger Entry")
@@ -388,6 +393,8 @@ report 11400 "CBG Posting - Test"
                     }
 
                     trigger OnPreDataItem()
+                    var
+                        AppliesToID: Code[50];
                     begin
                         if not ApplyInformation then
                             CurrReport.Break();
@@ -403,10 +410,13 @@ report 11400 "CBG Posting - Test"
 
                         case "CBG Statement".Type of
                             "CBG Statement".Type::Cash:
-                                SetRange("Applies-to ID", "CBG Statement Line"."Document No.");
+                                AppliesToID := "CBG Statement Line"."Document No.";
                             "CBG Statement".Type::"Bank/Giro":
-                                SetRange("Applies-to ID", "CBG Statement Line"."Applies-to ID");
+                                AppliesToID := "CBG Statement Line"."Applies-to ID";
                         end;
+                        if AppliesToID = '' then
+                            CurrReport.Break();
+                        SetRange("Applies-to ID", AppliesToID);
                     end;
                 }
                 dataitem(VendEntryApplyNo; "Vendor Ledger Entry")
@@ -493,6 +503,8 @@ report 11400 "CBG Posting - Test"
                     }
 
                     trigger OnPreDataItem()
+                    var
+                        AppliesToID: Code[50];
                     begin
                         if not ApplyInformation then
                             CurrReport.Break();
@@ -507,10 +519,13 @@ report 11400 "CBG Posting - Test"
 
                         case "CBG Statement".Type of
                             "CBG Statement".Type::Cash:
-                                SetRange("Applies-to ID", "CBG Statement Line"."Document No.");
+                                AppliesToID := "CBG Statement Line"."Document No.";
                             "CBG Statement".Type::"Bank/Giro":
-                                SetRange("Applies-to ID", "CBG Statement Line"."Applies-to ID");
+                                AppliesToID := "CBG Statement Line"."Applies-to ID";
                         end;
+                        if AppliesToID = '' then
+                            CurrReport.Break();
+                        SetRange("Applies-to ID", AppliesToID);
                     end;
                 }
                 dataitem(EmplEntryApplyNo; "Employee Ledger Entry")

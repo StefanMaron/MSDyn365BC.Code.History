@@ -1,5 +1,6 @@
 codeunit 131330 "Library - Fixed Asset"
 {
+    Permissions = tabledata "FA Depreciation Book" = rimd;
 
     trigger OnRun()
     begin

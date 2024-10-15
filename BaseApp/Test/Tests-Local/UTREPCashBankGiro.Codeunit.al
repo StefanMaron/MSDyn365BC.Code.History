@@ -186,7 +186,6 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CBGStatementLine."Applies-to ID", WorkDate);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit();
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -232,7 +231,6 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CBGStatementLine."Applies-to ID", WorkDate);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit();
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -279,7 +277,6 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CBGStatementLine."Applies-to ID", WorkDate);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit();
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -325,7 +322,6 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CBGStatementLine."Applies-to ID", WorkDate);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit();
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -371,7 +367,6 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CBGStatementLine."Applies-to ID", WorkDate);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit();
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -416,7 +411,6 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CBGStatementLine."Applies-to ID", WorkDate);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit();
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -470,7 +464,6 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CBGStatementLine."Applies-to ID", WorkDate);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit();
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -524,7 +517,6 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CBGStatementLine."Applies-to ID", WorkDate);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit();
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -577,7 +569,6 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CBGStatementLine."Applies-to ID", WorkDate);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit();
 
         // [WHEN] Run "CBG Posting - Test" report.
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
@@ -609,6 +600,111 @@ codeunit 144010 "UT REP Cash Bank Giro"
         // Verify: Verify CBG Statement.
         VerifyCBGDataOnReport(CBGStatement, AccountNo);
     end;
+
+    [Test]
+    [HandlerFunctions('CBGPostingTestXmlRequestPageHandler')]
+    PROCEDURE CustLedgerEntriesAreNotShownForBlankedAppliesToID()
+    VAR
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    BEGIN
+        // [FEATURE] [Customer]
+        // [SCENARIO 395874] CBG Posting - Test report doesn't show opened customer ledger entries for blanked Applies-To ID
+        Initialize();
+
+        // [GIVEN] Customer with opened ledger entry
+        MockCustLedgerEntry(CustLedgerEntry);
+        UpdateCustLedgerEntryForCBGReport(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::" ", '', 'dummy', true, 'dummy', '', WorkDate());
+
+        // [GIVEN] CBG Statement with customer line with blanked Applies-To ID
+        MockCBGStatement(CBGStatement, CBGStatement.Type::"Bank/Giro", LibraryUtility.GenerateGUID());
+        MockCBGStatementLine(
+          CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.",
+          CBGStatementLine."Account Type"::Customer, CustLedgerEntry."Customer No.",
+          '', '', '', LibraryRandom.RandInt(10), false);
+
+        // [WHEN] Run "CBG Posting - Test" report
+        RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
+
+        // [THEN] There is no customer "Applied" section
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('AccType_CBGStmtLine', 'Customer');
+        LibraryReportDataset.AssertElementWithValueExists('AccNo_CBGStmtLine', CustLedgerEntry."Customer No.");
+        LibraryReportDataset.AssertElementWithValueNotExist('CustNo_CustEntryApplyID', CustLedgerEntry."Customer No.");
+        LibraryVariableStorage.AssertEmpty();
+    END;
+
+    [Test]
+    [HandlerFunctions('CBGPostingTestXmlRequestPageHandler')]
+    PROCEDURE VendLedgerEntriesAreNotShownForBlankedAppliesToID()
+    VAR
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    BEGIN
+        // [FEATURE] [Vendor]
+        // [SCENARIO 395874] CBG Posting - Test report doesn't show opened vendor ledger entries for blanked Applies-To ID
+        Initialize();
+
+        // [GIVEN] Vendor with opened ledger entry
+        MockVendLedgerEntry(VendorLedgerEntry);
+        UpdateVendorLedgerEntryForCBGReport(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::" ", '', 'dummy', true, 'dummy', '', WorkDate());
+
+        // [GIVEN] CBG Statement with vendor line with blanked Applies-To ID
+        MockCBGStatement(CBGStatement, CBGStatement.Type::"Bank/Giro", LibraryUtility.GenerateGUID());
+        MockCBGStatementLine(
+          CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.",
+          CBGStatementLine."Account Type"::Vendor, VendorLedgerEntry."Vendor No.",
+          '', '', '', LibraryRandom.RandInt(10), false);
+
+        // [WHEN] Run "CBG Posting - Test" report
+        RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
+
+        // [THEN] There is no vendor "Applied" section
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('AccType_CBGStmtLine', 'Vendor');
+        LibraryReportDataset.AssertElementWithValueExists('AccNo_CBGStmtLine', VendorLedgerEntry."Vendor No.");
+        LibraryReportDataset.AssertElementWithValueNotExist('VendorNo_VendEntryApplyID', VendorLedgerEntry."Vendor No.");
+        LibraryVariableStorage.AssertEmpty();
+    END;
+
+    [Test]
+    [HandlerFunctions('CBGPostingTestXmlRequestPageHandler')]
+    PROCEDURE EmplLedgerEntriesAreNotShownForBlankedAppliesToID()
+    VAR
+        CBGStatement: Record "CBG Statement";
+        CBGStatementLine: Record "CBG Statement Line";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    BEGIN
+        // [FEATURE] [Employee]
+        // [SCENARIO 395874] CBG Posting - Test report doesn't show opened employee ledger entries for blanked Applies-To ID
+        Initialize();
+
+        // [GIVEN] Employee with opened ledger entry
+        MockEmplLedgerEntry(EmployeeLedgerEntry);
+        UpdateEmplLedgerEntryForCBGReport(
+          EmployeeLedgerEntry, EmployeeLedgerEntry."Document Type"::" ", '', 'dummy', true, '', WorkDate());
+
+        // [GIVEN] CBG Statement with employee line with blanked Applies-To ID
+        MockCBGStatement(CBGStatement, CBGStatement.Type::"Bank/Giro", LibraryUtility.GenerateGUID());
+        MockCBGStatementLine(
+          CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.",
+          CBGStatementLine."Account Type"::Employee, EmployeeLedgerEntry."Employee No.",
+          '', '', '', LibraryRandom.RandInt(10), false);
+
+        // [WHEN] Run "CBG Posting - Test" report
+        RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
+
+        // [THEN] There is no employee "Applied" section
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('AccType_CBGStmtLine', 'Employee');
+        LibraryReportDataset.AssertElementWithValueExists('AccNo_CBGStmtLine', EmployeeLedgerEntry."Employee No.");
+        LibraryReportDataset.AssertElementWithValueNotExist('EmployeeNo_EmplEntryApplyID', EmployeeLedgerEntry."Employee No.");
+        LibraryVariableStorage.AssertEmpty();
+    END;
 
     local procedure Initialize()
     begin
@@ -757,6 +853,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
 
     local procedure RunCBGPostingTestReport(CBGStatementNo: Integer; JnlTemplateName: Code[10]; ShowAppliedEntries: Boolean)
     begin
+        Commit();
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
         LibraryVariableStorage.Enqueue(CBGStatementNo);
         LibraryVariableStorage.Enqueue(JnlTemplateName);
@@ -974,6 +1071,16 @@ codeunit 144010 "UT REP Cash Bank Giro"
         CBGPostingTest."Gen. Journal Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
         CBGPostingTest."Show Applied Entries".SetValue(LibraryVariableStorage.DequeueBoolean);
         CBGPostingTest.SaveAsExcel(FileName);
+    end;
+
+    [RequestPageHandler]
+    procedure CBGPostingTestXmlRequestPageHandler(VAR CBGPostingTest: TestRequestPage "CBG Posting - Test")
+    begin
+        LibraryVariableStorage.DequeueText(); // dummy
+        CBGPostingTest."CBG Statement".SetFilter("No.", Format(LibraryVariableStorage.DequeueInteger()));
+        CBGPostingTest."Gen. Journal Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        CBGPostingTest."Show Applied Entries".SetValue(LibraryVariableStorage.DequeueBoolean());
+        CBGPostingTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -1,4 +1,4 @@
-report 7306 "Get Inbound Source Documents"
+﻿report 7306 "Get Inbound Source Documents"
 {
     Caption = 'Get Inbound Source Documents';
     ProcessingOnly = true;
@@ -25,6 +25,7 @@ report 7306 "Get Inbound Source Documents"
 
                     trigger OnAfterGetRecord()
                     begin
+                        OnBeforeWhsePutAwayRequestOnAfterGetRecord("Posted Whse. Receipt Line");
                         CalcFields("Put-away Qty.", "Put-away Qty. (Base)");
                         if "Qty. (Base)" > "Qty. Put Away (Base)" + "Put-away Qty. (Base)" then begin
                             if WhseWkshCreate.FromWhseRcptLine(
@@ -122,6 +123,11 @@ report 7306 "Get Inbound Source Documents"
         WhseWkshTemplateName := WhseWkshTemplateName2;
         WhseWkshName := WhseWkshName2;
         LocationCode := LocationCode2;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWhsePutAwayRequestOnAfterGetRecord(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

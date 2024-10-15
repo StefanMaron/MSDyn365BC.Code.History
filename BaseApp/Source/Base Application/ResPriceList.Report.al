@@ -30,7 +30,7 @@ report 7054 "Res. Price List"
             column(CompanyAddr6; CompanyAddr[6])
             {
             }
-            column(StrsubsnoAsofFormatWorkDt; StrSubstNo(AsOfTok, Format(WorkDate(), 0, 4)))
+            column(StrsubsnoAsofFormatWorkDt; StrSubstNo(AsOfTok, Format(DateReq, 0, 4)))
             {
             }
             column(PhoneNo_CompanyInfo; CompanyInfo."Phone No.")
@@ -115,11 +115,7 @@ report 7054 "Res. Price List"
                 }
 
                 trigger OnAfterGetRecord()
-                var
-                    TempPriceListLine: Record "Price List Line" temporary;
                 begin
-                    PriceInCurrency := false;
-
                     if Number = 1 then
                         Ok := TempWorkTypePriceListLine.FindSet()
                     else
@@ -127,18 +123,19 @@ report 7054 "Res. Price List"
                     if not Ok then
                         CurrReport.Break();
 
-                    FindPrice(TempWorkTypePriceListLine."Work Type Code", TempPriceListLine);
+                    if not FindPrice(TempWorkTypePriceListLine."Work Type Code") then
+                        CurrReport.Skip();
+
                     WorkType.Get(TempPriceListLine."Work Type Code");
-                    PriceInCurrency := TempPriceListLine."Currency Code" <> '';
 
                     UnitPrice := TempPriceListLine."Unit Price";
-                    if (Currency.Code <> '') and (not PriceInCurrency) then
+                    if (Currency.Code <> '') and (TempPriceListLine."Currency Code" = '') then
                         UnitPrice :=
                           Round(
                             CurrExchRate.ExchangeAmtLCYToFCY(
-                              WorkDate(), Currency.Code, UnitPrice,
+                              DateReq, Currency.Code, UnitPrice,
                               CurrExchRate.ExchangeRate(
-                                WorkDate(), Currency.Code)),
+                                DateReq, Currency.Code)),
                             Currency."Unit-Amount Rounding Precision");
                 end;
 
@@ -158,19 +155,16 @@ report 7054 "Res. Price List"
             trigger OnAfterGetRecord()
             var
                 PriceListLine: Record "Price List Line";
-                TempPriceListLine: Record "Price List Line" temporary;
             begin
-                PriceInCurrency := false;
-                FindPrice('', TempPriceListLine);
-                "Unit Price" := TempPriceListLine."Unit Price";
-                PriceInCurrency := TempPriceListLine."Currency Code" <> '';
-                if (Currency.Code <> '') and (not PriceInCurrency) then
+                if FindPrice('') then
+                    "Unit Price" := TempPriceListLine."Unit Price";
+                if (Currency.Code <> '') and (TempPriceListLine."Currency Code" = '') then
                     "Unit Price" :=
                       Round(
                         CurrExchRate.ExchangeAmtLCYToFCY(
-                          WorkDate(), Currency.Code, "Unit Price",
+                          DateReq, Currency.Code, "Unit Price",
                           CurrExchRate.ExchangeRate(
-                            WorkDate(), Currency.Code)),
+                            DateReq, Currency.Code)),
                         Currency."Unit-Amount Rounding Precision");
 
                 PriceListLine.SetRange("Asset Type", "Price Asset Type"::Resource);
@@ -348,21 +342,23 @@ report 7054 "Res. Price List"
         PriceSource."Currency Code" := Currency.Code;
     end;
 
+    protected var
+        Currency: Record Currency;
+        PriceSource: Record "Price Source";
+        WorkType: Record "Work Type";
+        TempPriceListLine: Record "Price List Line" temporary;
+        TempWorkTypePriceListLine: Record "Price List Line" temporary;
+        DateReq: Date;
+
     var
         CompanyInfo: Record "Company Information";
-        Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
-        PriceSource: Record "Price Source";
-        TempWorkTypePriceListLine: Record "Price List Line" temporary;
-        WorkType: Record "Work Type";
         FormatAddr: Codeunit "Format Address";
         PriceCalcMethod: Enum "Price Calculation Method";
         PriceCalculationHandler: Enum "Price Calculation Handler";
         SourceType: Enum "Job Price Source Type";
         CompanyAddr: array[8] of Text[100];
-        DateReq: Date;
         LookupIsComplete: Boolean;
-        PriceInCurrency: Boolean;
         Ok: Boolean;
         CurrencyText: Text[30];
         [InDataSet]
@@ -383,7 +379,7 @@ report 7054 "Res. Price List"
         WorkTypeDescriptionCaptionLbl: Label 'Work Type Description';
         MissSourceNoErr: Label 'You must specify an Applies-to No., if the Applies-to Type is different from All Jobs.';
 
-    local procedure FindPrice(WorkTypeCode: Code[10]; var TempPriceListLine: Record "Price List Line" temporary)
+    local procedure FindPrice(WorkTypeCode: Code[10]): Boolean;
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -407,7 +403,11 @@ report 7054 "Res. Price List"
         GetSourceList(PriceSourceList);
         LineWithPrice.SetSources(PriceSourceList);
         PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
-        PriceCalculation.FindPrice(TempPriceListLine, false);
+
+        TempPriceListLine.Reset();
+        TempPriceListLine.DeleteAll();
+        Clear(TempPriceListLine);
+        exit(PriceCalculation.FindPrice(TempPriceListLine, false));
     end;
 
     local procedure GetSourceList(var PriceSourceList: Codeunit "Price Source List")

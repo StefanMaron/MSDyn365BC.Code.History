@@ -333,7 +333,8 @@ codeunit 11000000 "Process Proposal Lines"
             exit(false);
         end;
 
-        exit(true);
+        res := true;
+        OnAfterCheckAProposalLine(CheckRecord, Errortext, Warningstext, res);
     end;
 
     local procedure CheckOurBank(var ProposalLine: Record "Proposal Line"; var BankAccount: Record "Bank Account"): Boolean
@@ -622,6 +623,11 @@ codeunit 11000000 "Process Proposal Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckLedgerEntries(ProposalLine: Record "Proposal Line"; var WarningsText: Text[125]; var ErrorText: Text[125]; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckAProposalLine(ProposalLine: Record "Proposal Line"; var ErrorText: Text[125]; var WarningsText: Text[125]; var Result: Boolean)
     begin
     end;
 
