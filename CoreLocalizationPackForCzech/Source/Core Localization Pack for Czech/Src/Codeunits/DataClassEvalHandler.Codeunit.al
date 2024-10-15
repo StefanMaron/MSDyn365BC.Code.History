@@ -295,6 +295,7 @@ codeunit 11710 "Data Class. Eval. Handler CZL"
         DataClassificationMgt.SetFieldToPersonal(Database::"Registration Log CZL", RegistrationLog.FieldNo("Verified VAT Registration No."));
         DataClassificationMgt.SetFieldToPersonal(Database::"Registration Log CZL", RegistrationLog.FieldNo("Verified Address"));
         DataClassificationMgt.SetFieldToPersonal(Database::"Registration Log CZL", RegistrationLog.FieldNo("Verified Name"));
+        DataClassificationMgt.SetFieldToPersonal(Database::"Registration Log CZL", RegistrationLog.FieldNo("Verified Country/Region Code"));
         DataClassificationMgt.SetFieldToPersonal(Database::"Registration Log CZL", RegistrationLog.FieldNo("User ID"));
         DataClassificationMgt.SetFieldToPersonal(Database::"Registration Log CZL", RegistrationLog.FieldNo("Registration No."));
         DataClassificationMgt.SetFieldToPersonal(Database::"Registration Log Detail CZL", RegistrationLogDetail.FieldNo(Response));

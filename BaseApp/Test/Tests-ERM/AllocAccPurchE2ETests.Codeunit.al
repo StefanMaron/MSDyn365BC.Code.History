@@ -8,9 +8,9 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPurchase: Codeunit "Library - Purchase";
+        TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryERM: Codeunit "Library - ERM";
-        TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         Any: Codeunit Any;
         Assert: Codeunit Assert;
         Initialized: Boolean;
@@ -318,6 +318,408 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
 
         Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
         Assert.IsTrue(AllocAccManualOverride.IsEmpty(), 'The manual override was not deleted');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,HandleEditDimensionSetEntriesPage,OverrideGLDistributionsPerQuantity')]
+    procedure TestOverrideGLAllocationSplitPerQuantity()
+    var
+        FirstDimensionValue: Record "Dimension Value";
+        SecondDimensionValue: Record "Dimension Value";
+        ThirdDimensionValue: Record "Dimension Value";
+        OverrideFirstDimensionValue: Record "Dimension Value";
+        OverrideSecondDimensionValue: Record "Dimension Value";
+        OverrideThirdDimensionValue: Record "Dimension Value";
+        DestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        AllocationAccount: Record "Allocation Account";
+        AllocAccManualOverride: Record "Alloc. Acc. Manual Override";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] A dimension that is defined as a department with three values
+        CreateDimensionsWithValues(FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue);
+        CreateDimensionsWithValues(OverrideFirstDimensionValue, OverrideSecondDimensionValue, OverrideThirdDimensionValue);
+
+        // [GIVEN] Three GL accounts with dimensions and balances and one Balancing G/L Account
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        DestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions and split per quantity
+        CreateAllocationAccountwithVariableGLDistributions(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, DestinationGLAccount, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Modify();
+
+        // [GIVEN] The Purchase Invoice with Item and Allocation account
+        CreatePurchaseInvoice(AllocationAccount."No.", PurchaseInvoice, PurchaseHeader);
+
+        // [GIVEN] User defines an override manually
+        LibraryVariableStorage.Enqueue(OverrideFirstDimensionValue.SystemId);
+        LibraryVariableStorage.Enqueue(OverrideSecondDimensionValue.SystemId);
+        LibraryVariableStorage.Enqueue(OverrideThirdDimensionValue.SystemId);
+        PurchaseInvoice.PurchLines.RedistributeAccAllocations.Invoke();
+
+        // [WHEN] The Purchase Invoice is posted
+        PurchaseInvoice.Post.Invoke();
+        PurchInvHeader.SetRange("Draft Invoice SystemId", PurchaseHeader.SystemId);
+        PurchInvHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::"G/L Account");
+        Assert.AreEqual(3, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines created for the destination account');
+        PurchInvLine.CalcSums(Quantity);
+        Assert.AreEqual(1, PurchInvLine.Quantity, 'The quantity was not calculated correctly');
+
+        // [THEN] Override values are used
+        FirstDimensionValue.SetRecFilter();
+        OverrideFirstDimensionValue.SetFilter(SystemId, '%1|%2', FirstDimensionValue.SystemId, OverrideFirstDimensionValue.SystemId);
+        PurchInvLine.SetRange("Dimension Set ID", CreateDimensionSetID(OverrideFirstDimensionValue));
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines for the first breakdown account');
+
+        PurchInvLine.FindFirst();
+        Assert.AreEqual(Round(GetLineAmountToForceRounding() * GetOverrideQuantity(), AllocationAccountMgt.GetCurrencyRoundingPrecision(PurchInvLine.GetCurrencyCode())), PurchInvLine."Line Amount", 'The override amount was not used');
+        PostedAmount := PurchInvLine."Line Amount";
+
+        SecondDimensionValue.SetRecFilter();
+        OverrideSecondDimensionValue.SetFilter(SystemId, '%1|%2', SecondDimensionValue.SystemId, OverrideSecondDimensionValue.SystemId);
+        PurchInvLine.SetRange("Dimension Set ID", CreateDimensionSetID(OverrideSecondDimensionValue));
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines for the second breakdown account');
+        PurchInvLine.FindFirst();
+        Assert.AreEqual(Round(GetLineAmountToForceRounding() * GetOverrideQuantity(), AllocationAccountMgt.GetCurrencyRoundingPrecision(PurchInvLine.GetCurrencyCode())), PurchInvLine."Line Amount", 'The override amount was not used');
+        PostedAmount += PurchInvLine."Line Amount";
+
+        ThirdDimensionValue.SetRecFilter();
+        OverrideThirdDimensionValue.SetFilter(SystemId, '%1|%2', ThirdDimensionValue.SystemId, OverrideThirdDimensionValue.SystemId);
+        PurchInvLine.SetRange("Dimension Set ID", CreateDimensionSetID(OverrideThirdDimensionValue));
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines for the third breakdown account');
+        PurchInvLine.FindFirst();
+        PostedAmount += PurchInvLine."Line Amount";
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+        Assert.IsTrue(AllocAccManualOverride.IsEmpty(), 'The manual override was not deleted');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure TestAllocateToDifferentAccountsPerQuantityGLAllocation()
+    var
+        FirstDestinationGLAccount: Record "G/L Account";
+        SecondDestinationGLAccount: Record "G/L Account";
+        ThirdDestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        AllocationAccountPage: TestPage "Allocation Account";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] Three GL accounts with dimensions and balances, one Balancing G/L Account and three Destination G/L Accounts
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        FirstDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        SecondDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        ThirdDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions
+        AllocationAccount.Get(CreateAllocationAccountWithVariableDistribution(AllocationAccountPage));
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Modify();
+
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, FirstDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, FirstBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, SecondDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, SecondBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, ThirdDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, ThirdBreakdownGLAccount);
+        AllocationAccountPage.Close();
+
+        // [GIVEN] The Purchase Invoice with an Item and a Allocation Account
+        CreatePurchaseInvoice(AllocationAccount."No.", PurchaseInvoice, PurchaseHeader);
+
+        // [WHEN] The Purchase Invoice is posted
+        PurchaseInvoice.Post.Invoke();
+        PurchInvHeader.SetRange("Draft Invoice SystemId", PurchaseHeader.SystemId);
+        PurchInvHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.SetRange("No.", FirstDestinationGLAccount."No.");
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines created for the first destination account');
+        PurchInvLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchInvLine, GetLineAmountToForceRounding(), 6);
+        PostedAmount := PurchInvLine.Amount;
+
+        PurchInvLine.SetRange("No.", SecondDestinationGLAccount."No.");
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines for the second destination account');
+        PurchInvLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchInvLine, GetLineAmountToForceRounding(), 3);
+        PostedAmount += PurchInvLine.Amount;
+
+        PurchInvLine.SetRange("No.", ThirdDestinationGLAccount."No.");
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines for the second destination account');
+        PurchInvLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchInvLine, GetLineAmountToForceRounding(), 2);
+        PostedAmount += PurchInvLine.Amount;
+
+        PurchInvLine.CalcSums(Quantity);
+        Assert.AreEqual(1, PurchInvLine.Quantity, 'The quantity was not calculated correctly');
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure TestReplaceAllocationAccountWithLinesPerQuantityGLAllocation()
+    var
+        FirstDestinationGLAccount: Record "G/L Account";
+        SecondDestinationGLAccount: Record "G/L Account";
+        ThirdDestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        AllocationAccountPage: TestPage "Allocation Account";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] Three GL accounts with dimensions and balances, one Balancing G/L Account and three Destination G/L Accounts
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        FirstDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        SecondDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        ThirdDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions
+        AllocationAccount.Get(CreateAllocationAccountWithVariableDistribution(AllocationAccountPage));
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Modify();
+
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, FirstDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, FirstBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, SecondDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, SecondBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, ThirdDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, ThirdBreakdownGLAccount);
+        AllocationAccountPage.Close();
+
+        // [GIVEN] The Purchase Invoice with an Item and a Allocation Account
+        CreatePurchaseInvoice(AllocationAccount."No.", PurchaseInvoice, PurchaseHeader);
+
+        // [WHEN] The Purchase Invoice is posted
+        PurchaseInvoice.PurchLines.ReplaceAllocationAccountWithLines.Invoke();
+        PurchaseInvoice.Post.Invoke();
+        PurchInvHeader.SetRange("Draft Invoice SystemId", PurchaseHeader.SystemId);
+        PurchInvHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.SetRange("No.", FirstDestinationGLAccount."No.");
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines created for the first destination account');
+        PurchInvLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchInvLine, GetLineAmountToForceRounding(), 6);
+        PostedAmount := PurchInvLine.Amount;
+
+        PurchInvLine.SetRange("No.", SecondDestinationGLAccount."No.");
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines for the second destination account');
+        PurchInvLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchInvLine, GetLineAmountToForceRounding(), 3);
+        PostedAmount += PurchInvLine.Amount;
+
+        PurchInvLine.SetRange("No.", ThirdDestinationGLAccount."No.");
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines for the second destination account');
+        PurchInvLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchInvLine, GetLineAmountToForceRounding(), 2);
+        PostedAmount += PurchInvLine.Amount;
+
+        PurchInvLine.CalcSums(Quantity);
+        Assert.AreEqual(1, PurchInvLine.Quantity, 'The quantity was not calculated correctly');
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure TestReplaceAllocationAccountWithLinesPerAmountGLAllocation()
+    var
+        FirstDestinationGLAccount: Record "G/L Account";
+        SecondDestinationGLAccount: Record "G/L Account";
+        ThirdDestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        AllocationAccountPage: TestPage "Allocation Account";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] Three GL accounts with dimensions and balances, one Balancing G/L Account and three Destination G/L Accounts
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        FirstDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        SecondDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        ThirdDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions
+        AllocationAccount.Get(CreateAllocationAccountWithVariableDistribution(AllocationAccountPage));
+
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, FirstDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, FirstBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, SecondDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, SecondBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, ThirdDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, ThirdBreakdownGLAccount);
+        AllocationAccountPage.Close();
+
+        // [GIVEN] The Purchase Invoice with an Item and a Allocation Account
+        CreatePurchaseInvoice(AllocationAccount."No.", PurchaseInvoice, PurchaseHeader);
+
+        // [WHEN] The Purchase Invoice is posted
+        PurchaseInvoice.PurchLines.ReplaceAllocationAccountWithLines.Invoke();
+        PurchaseInvoice.Post.Invoke();
+        PurchInvHeader.SetRange("Draft Invoice SystemId", PurchaseHeader.SystemId);
+        PurchInvHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.SetRange(Type, PurchInvLine.Type::"G/L Account");
+        PurchInvLine.CalcSums(Quantity);
+        Assert.AreEqual(3, PurchInvLine.Quantity, 'The quantity was not calculated correctly');
+
+        PurchInvLine.SetRange("No.", FirstDestinationGLAccount."No.");
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines created for the first destination account');
+
+        PurchInvLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchInvLine, GetLineAmountToForceRounding(), 6);
+        PostedAmount := PurchInvLine.Amount;
+
+        PurchInvLine.SetRange("No.", SecondDestinationGLAccount."No.");
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines for the second destination account');
+        PurchInvLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchInvLine, GetLineAmountToForceRounding(), 3);
+        PostedAmount += PurchInvLine.Amount;
+
+        PurchInvLine.SetRange("No.", ThirdDestinationGLAccount."No.");
+        Assert.AreEqual(1, PurchInvLine.Count(), 'Wrong number of Purchase Invoice Lines for the second destination account');
+        PurchInvLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchInvLine, GetLineAmountToForceRounding(), 2);
+        PostedAmount += PurchInvLine.Amount;
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,HandleEditDimensionSetEntriesPage')]
+    procedure TestAllocateToSameAccountFixedPerQuantityGLAllocation()
+    var
+        FirstDimensionValue: Record "Dimension Value";
+        SecondDimensionValue: Record "Dimension Value";
+        ThirdDimensionValue: Record "Dimension Value";
+        DestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseInvoiceLine: Record "Purch. Inv. Line";
+        AllocationAccount: Record "Allocation Account";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] A dimension that is defined as a department with three values
+        CreateDimensionsWithValues(FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue);
+
+        // [GIVEN] Three GL accounts with dimensions and balances and one Balancing G/L Account
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        DestinationGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions
+        CreateAllocationAccountwithFixedGLDistributions(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, DestinationGLAccount);
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Modify();
+
+        // [GIVEN] The Purchase Invoice with Item and Allocation account
+        CreatePurchaseInvoice(AllocationAccount."No.", PurchaseInvoice, PurchaseHeader);
+
+        // [WHEN] The Purchase Invoice is posted
+        PurchaseInvoice.Post.Invoke();
+        PurchaseInvoiceHeader.SetRange("Draft Invoice SystemId", PurchaseHeader.SystemId);
+        PurchaseInvoiceHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        PurchaseInvoiceLine.SetRange("Document No.", PurchaseInvoiceHeader."No.");
+        PurchaseInvoiceLine.SetRange(Type, PurchaseInvoiceLine.Type::"G/L Account");
+        Assert.AreEqual(3, PurchaseInvoiceLine.Count(), 'Wrong number of Purchase Invoice Lines created for the destination account');
+        PurchaseInvoiceLine.CalcSums(Quantity);
+        Assert.AreEqual(1, PurchaseInvoiceLine.Quantity, 'The quantity was not calculated correctly');
+
+        FirstDimensionValue.SetRecFilter();
+        PurchaseInvoiceLine.SetRange("Dimension Set ID", CreateDimensionSetID(FirstDimensionValue));
+        Assert.AreEqual(1, PurchaseInvoiceLine.Count(), 'Wrong number of Purchase Invoice Lines for the first line');
+        PurchaseInvoiceLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchaseInvoiceLine, GetLineAmountToForceRounding(), 6);
+        PostedAmount := PurchaseInvoiceLine.Amount;
+
+        SecondDimensionValue.SetRecFilter();
+        PurchaseInvoiceLine.SetRange("Dimension Set ID", CreateDimensionSetID(SecondDimensionValue));
+        Assert.AreEqual(1, PurchaseInvoiceLine.Count(), 'Wrong number of Purchase Invoice Lines for the second line');
+        PurchaseInvoiceLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchaseInvoiceLine, GetLineAmountToForceRounding(), 3);
+        PostedAmount += PurchaseInvoiceLine.Amount;
+
+        ThirdDimensionValue.SetRecFilter();
+        PurchaseInvoiceLine.SetRange("Dimension Set ID", CreateDimensionSetID(ThirdDimensionValue));
+        Assert.AreEqual(1, PurchaseInvoiceLine.Count(), 'Wrong number of Purchase Invoice Lines for the third line');
+        PurchaseInvoiceLine.FindFirst();
+        VerifyPurchaseLineAmount(PurchaseInvoiceLine, GetLineAmountToForceRounding(), 2);
+        PostedAmount += PurchaseInvoiceLine.Amount;
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
     end;
 
     [Test]
@@ -972,6 +1374,11 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         exit(100.11);
     end;
 
+    local procedure GetOverrideQuantity(): Decimal
+    begin
+        exit(0.33);
+    end;
+
     [ModalPageHandler]
     procedure HandleEditDimensionSetEntriesPage(var EditDimensionSetEntriesPage: TestPage "Edit Dimension Set Entries")
     var
@@ -1021,6 +1428,25 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
 
         RedistributeAccAllocations.Next();
         RedistributeAccAllocations.Amount.SetValue(TotalAmount);
+        RedistributeAccAllocations.Dimensions.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OverrideGLDistributionsPerQuantity(var RedistributeAccAllocations: TestPage "Redistribute Acc. Allocations")
+    begin
+        RedistributeAccAllocations.First();
+        RedistributeAccAllocations.Quantity.SetValue(GetOverrideQuantity());
+
+        RedistributeAccAllocations.Dimensions.Invoke();
+
+        RedistributeAccAllocations.Next();
+        RedistributeAccAllocations.Quantity.SetValue(GetOverrideQuantity());
+
+        RedistributeAccAllocations.Dimensions.Invoke();
+
+        RedistributeAccAllocations.Next();
+        RedistributeAccAllocations.Quantity.SetValue(1 - GetOverrideQuantity() * 2);
         RedistributeAccAllocations.Dimensions.Invoke();
     end;
 }

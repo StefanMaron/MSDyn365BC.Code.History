@@ -392,6 +392,8 @@ codeunit 99000778 OrderTrackingManagement
     var
         Window: Dialog;
     begin
+        OnBeforeFindRecordsInner(SuppressMessages);
+
         TempReservEntryList.DeleteAll();
         TempOrderTrackingEntry.DeleteAll();
         EntryNo := 1;
@@ -976,6 +978,11 @@ codeunit 99000778 OrderTrackingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOrderTrackingEntryOnBeforeTempOrderTrackingEntryInsert(var TempOrderTrackingEntry: Record "Order Tracking Entry"; var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindRecordsInner(var SuppressMessages: Boolean)
     begin
     end;
 }

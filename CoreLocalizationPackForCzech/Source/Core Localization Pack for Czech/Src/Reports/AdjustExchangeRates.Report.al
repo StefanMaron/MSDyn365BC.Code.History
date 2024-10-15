@@ -1883,6 +1883,7 @@ report 31004 "Adjust Exchange Rates CZL"
         end;
 
         if Post then begin
+            OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlPostLine, GenJournalLine, DimensionSetEntry);
             GenJnlPostLine.Run(GenJournalLine);
             exit(GenJnlPostLine.GetNextTransactionNo());
         end;
@@ -2669,4 +2670,9 @@ report 31004 "Adjust Exchange Rates CZL"
     begin
     end;
 #endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var GenJournalLine: Record "Gen. Journal Line"; var DimensionSetEntry: Record "Dimension Set Entry")
+    begin
+    end;
 }

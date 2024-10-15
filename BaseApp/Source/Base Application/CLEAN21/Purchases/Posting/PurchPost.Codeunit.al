@@ -1,4 +1,4 @@
-﻿#if CLEAN21
+#if CLEAN21
 namespace Microsoft.Purchases.Posting;
 
 using Microsoft.CRM.Contact;
@@ -3197,7 +3197,8 @@ codeunit 90 "Purch.-Post"
             [PurchSetup."Discount Posting"::"Line Discounts", PurchSetup."Discount Posting"::"All Discounts"];
         OnFillInvoicePostBufferOnAfterSetShouldCalcDiscounts(PurchHeader, PurchLine, ShouldCalcDiscounts);
         if ShouldCalcDiscounts then begin
-            CalcLineDiscountPosting(PurchHeader, PurchLine, PurchLineACY, InvoicePostBuffer);
+            if PurchLine."Allocation Account No." = '' then
+                CalcLineDiscountPosting(PurchHeader, PurchLine, PurchLineACY, InvoicePostBuffer);
 
             if PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Sales Tax" then
                 InvoicePostBuffer.SetSalesTaxForPurchLine(PurchLine);

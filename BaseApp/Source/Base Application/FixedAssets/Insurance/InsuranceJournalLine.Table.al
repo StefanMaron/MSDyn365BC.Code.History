@@ -223,6 +223,7 @@ table 5635 "Insurance Journal Line"
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         IsHandled: Boolean;
+        OldDimSetID: Integer;
     begin
         IsHandled := false;
         OnBeforeCreateDim(Rec, IsHandled);
@@ -231,10 +232,11 @@ table 5635 "Insurance Journal Line"
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
+        OldDimSetID := Rec."Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
-        OnAfterCreateDim(Rec, CurrFieldNo);
+        OnAfterCreateDim(Rec, CurrFieldNo, xRec, OldDimSetID);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -312,7 +314,7 @@ table 5635 "Insurance Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDim(var InsuranceJournalLine: Record "Insurance Journal Line"; CurrFieldNo: Integer)
+    local procedure OnAfterCreateDim(var InsuranceJournalLine: Record "Insurance Journal Line"; CurrFieldNo: Integer; xInsuranceJournalLine: Record "Insurance Journal Line"; OldDimSetID: Integer)
     begin
     end;
 

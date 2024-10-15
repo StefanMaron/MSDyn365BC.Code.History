@@ -52,9 +52,6 @@
       "path": "./EDocument/Test/E-Document Core Tests"
     },
     {
-      "path": "./EDocument/Test/E-Document Core Tests/src/TestImplementations"
-    },
-    {
       "path": "./testframework/TestLibraries"
     },
     {

@@ -2,15 +2,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
-namespace Microsoft.Inventory.Intrastat;
+namespace System.AI;
 
-reportextension 31300 "Intrastat Report Get Lines CZ" extends "Intrastat Report Get Lines"
+codeunit 7776 "Copilot Capability Upgrade"
 {
-    requestpage
-    {
-        trigger OnOpenPage()
-        begin
-            ShowItemCharges := true;
-        end;
-    }
+    Subtype = Upgrade;
+    InherentEntitlements = X;
+    InherentPermissions = X;
+
+    trigger OnUpgradePerDatabase()
+    var
+        CopilotCapabilityInstall: Codeunit "Copilot Capability Install";
+    begin
+        CopilotCapabilityInstall.RegisterCapabilities();
+    end;
 }

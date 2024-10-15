@@ -1,4 +1,4 @@
-namespace Microsoft.Bank.Reconciliation;
+﻿namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Check;
@@ -428,6 +428,8 @@ table 1293 "Payment Application Proposal"
 
         "Stmt To Rem. Amount Difference" := Abs(BankAccReconciliationLine."Statement Amount" - "Remaining Amount");
         "Applied Amt. Incl. Discount" := "Applied Amount" - "Applied Pmt. Discount";
+
+        OnAfterCreateFromBankStmtMacthingBuffer(Rec, TempBankStmtMatchingBuffer, BankAccReconciliationLine, BankAccount);
     end;
 
     procedure UpdateDefaultCalculatedFields(var BankAccount: Record "Bank Account"; AppliesToEntryNo: Integer)
@@ -858,6 +860,11 @@ table 1293 "Payment Application Proposal"
                     if AppliesToIDHasDifferentPrefixAndItsNotEmpty(EmployeeLedgerEntry."Applies-to ID", AppliesToIDPrefix) then
                         Error(EntryAlreadyHasAnApplicationErr, EmployeeLedgerEntry."Applies-to ID");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateFromBankStmtMacthingBuffer(var PaymentApplicationProposal: Record "Payment Application Proposal"; TempBankStmtMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; BankAccount: Record "Bank Account")
+    begin
     end;
 }
 

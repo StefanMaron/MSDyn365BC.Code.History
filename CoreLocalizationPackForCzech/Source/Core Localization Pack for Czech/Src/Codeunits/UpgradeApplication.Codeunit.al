@@ -271,6 +271,7 @@ codeunit 31017 "Upgrade Application CZL"
         UpgradeReportSelectionDirectTransfer();
         UpgradeEU3PartyTradePurchase();
         UpgradeStatutoryReportingSetupCity();
+        UpgradeSubstCustVendPostingGroup();
     end;
 
     local procedure UpgradeGeneralLedgerSetup();
@@ -2566,6 +2567,41 @@ codeunit 31017 "Upgrade Application CZL"
         StatutoryReportingSetupCZL.Modify();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetStatutoryReportingSetupCityUpgradeTag());
+    end;
+
+    local procedure UpgradeSubstCustVendPostingGroup()
+    var
+        AltCustomerPostingGroup: Record "Alt. Customer Posting Group";
+        AltVendorPostingGroup: Record "Alt. Vendor Posting Group";
+        SubstCustPostingGroupCZL: Record "Subst. Cust. Posting Group CZL";
+        SubstVendPostingGroupCZL: Record "Subst. Vend. Posting Group CZL";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitionsCZL.GetSubstCustVendPostingGroupUpgradeTag()) then
+            exit;
+
+        if SubstCustPostingGroupCZL.FindSet() then
+            repeat
+                if not AltCustomerPostingGroup.Get(SubstCustPostingGroupCZL."Parent Customer Posting Group", SubstCustPostingGroupCZL."Customer Posting Group") then begin
+                    AltCustomerPostingGroup.Init();
+                    AltCustomerPostingGroup."Customer Posting Group" := SubstCustPostingGroupCZL."Parent Customer Posting Group";
+                    AltCustomerPostingGroup."Alt. Customer Posting Group" := SubstCustPostingGroupCZL."Customer Posting Group";
+                    AltCustomerPostingGroup.SystemId := SubstCustPostingGroupCZL.SystemId;
+                    AltCustomerPostingGroup.Insert(false, true);
+                end;
+            until SubstCustPostingGroupCZL.Next() = 0;
+
+        if SubstVendPostingGroupCZL.FindSet() then
+            repeat
+                if not AltVendorPostingGroup.Get(SubstVendPostingGroupCZL."Parent Vendor Posting Group", SubstVendPostingGroupCZL."Vendor Posting Group") then begin
+                    AltVendorPostingGroup.Init();
+                    AltVendorPostingGroup."Vendor Posting Group" := SubstVendPostingGroupCZL."Parent Vendor Posting Group";
+                    AltVendorPostingGroup."Alt. Vendor Posting Group" := SubstVendPostingGroupCZL."Vendor Posting Group";
+                    AltVendorPostingGroup.SystemId := SubstVendPostingGroupCZL.SystemId;
+                    AltVendorPostingGroup.Insert(false, true);
+                end;
+            until SubstVendPostingGroupCZL.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitionsCZL.GetSubstCustVendPostingGroupUpgradeTag());
     end;
 
     local procedure InsertRepSelection(ReportUsage: Enum "Report Selection Usage"; Sequence: Code[10]; ReportID: Integer)

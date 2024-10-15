@@ -1,4 +1,4 @@
-﻿#if CLEAN21
+#if CLEAN21
 namespace Microsoft.Sales.Posting;
 
 using Microsoft.Assembly.Document;
@@ -3175,7 +3175,8 @@ codeunit 80 "Sales-Post"
             OnBeforeCalcLineDiscountPosting(
               TempInvoicePostBuffer, InvoicePostBuffer, SalesHeader, SalesLine, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, IsHandled);
             if not IsHandled then begin
-                CalcLineDiscountPosting(SalesHeader, SalesLine, SalesLineACY, InvoicePostBuffer);
+                if SalesLine."Allocation Account No." = '' then
+                    CalcLineDiscountPosting(SalesHeader, SalesLine, SalesLineACY, InvoicePostBuffer);
                 if (InvoicePostBuffer.Amount <> 0) or (InvoicePostBuffer."Amount (ACY)" <> 0) then begin
                     IsHandled := false;
                     OnFillInvoicePostingBufferOnBeforeSetLineDiscAccount(SalesLine, GenPostingSetup, LineDiscAccount, IsHandled);
@@ -7078,6 +7079,7 @@ codeunit 80 "Sales-Post"
         with SalesHeader do begin
             if not IsHandled then begin
                 ReturnRcptHeader.Init();
+                OnInsertReturnReceiptHeaderOnBeforeReturnReceiptHeaderTransferFields(SalesHeader);
                 ReturnRcptHeader.TransferFields(SalesHeader);
                 ReturnRcptHeader."No." := "Return Receipt No.";
                 if "Document Type" = "Document Type"::"Return Order" then begin
@@ -12198,6 +12200,11 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReturnRcptLine(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReturnReceiptHeaderOnBeforeReturnReceiptHeaderTransferFields(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

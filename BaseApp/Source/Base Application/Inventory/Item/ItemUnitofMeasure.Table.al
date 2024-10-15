@@ -316,6 +316,8 @@ table 5404 "Item Unit of Measure"
         CheckNoOutstandingQtyServiceLine();
         CheckNoRemQtyAssemblyHeader();
         CheckNoRemQtyAssemblyLine();
+
+        OnAfterCheckNoOutstandingQty(Rec, xRec);
     end;
 
     local procedure CheckNoOutstandingQtyPurchLine()
@@ -560,6 +562,11 @@ table 5404 "Item Unit of Measure"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoWhseAdjmtEntriesExist(ItemUnitOfMeasure: Record "Item Unit of Measure"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckNoOutstandingQty(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure")
     begin
     end;
 }
