@@ -496,7 +496,8 @@ page 118 "General Ledger Setup"
                     field("Round Amount for WHT Calc"; "Round Amount for WHT Calc")
                     {
                         ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies if WHT is calculated on the rounded amount.';
+                        ToolTip = 'Specifies if payments applied to withholding tax entries will be rounded. The original withholding tax entries will not be modified.';
+                        Caption = 'Round Payment Amount for Withholding Tax';
                     }
                     field("Full GST on Prepayment"; "Full GST on Prepayment")
                     {

@@ -7,7 +7,6 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
-      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>d56a4d20-e547-49b8-bb8d-f3c0b8b8dab8</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -98,6 +97,61 @@
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
+                                  <TablixRow>
+                                    <Height>0.35278cm</Height>
+                                    <TablixCells>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox2">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!Desc_IssuedReminderLine.Value</Value>
+                                                    <Style>
+                                                      <FontStyle>Normal</FontStyle>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox2</rd:DefaultName>
+                                            <Style>
+                                              <VerticalAlign>Bottom</VerticalAlign>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                          <ColSpan>21</ColSpan>
+                                          <rd:Selected>true</rd:Selected>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                    </TablixCells>
+                                  </TablixRow>
                                   <TablixRow>
                                     <Height>0.35278cm</Height>
                                     <TablixCells>
@@ -457,60 +511,6 @@
                                           <ColSpan>2</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
-                                    </TablixCells>
-                                  </TablixRow>
-                                  <TablixRow>
-                                    <Height>0.35278cm</Height>
-                                    <TablixCells>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="textbox290">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Desc_IssuedReminderLine.Value</Value>
-                                                    <Style>
-                                                      <FontStyle>Normal</FontStyle>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>textbox290</rd:DefaultName>
-                                            <ZIndex>134</ZIndex>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                          <ColSpan>21</ColSpan>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
                                       <TablixCell />
                                     </TablixCells>
                                   </TablixRow>
@@ -1980,6 +1980,13 @@
                                             <TablixMembers>
                                               <TablixMember>
                                                 <Visibility>
+                                                  <Hidden>=iif(Fields!Type_IssuedReminderLine.Value = "0",FALSE,TRUE)</Hidden>
+                                                </Visibility>
+                                                <KeepWithGroup>After</KeepWithGroup>
+                                                <RepeatOnNewPage>true</RepeatOnNewPage>
+                                              </TablixMember>
+                                              <TablixMember>
+                                                <Visibility>
                                                   <Hidden>=iif(Fields!DocNo_IssuedReminderLineCaption.Value&lt;&gt;"",FALSE,TRUE)</Hidden>
                                                 </Visibility>
                                                 <KeepWithGroup>After</KeepWithGroup>
@@ -2005,11 +2012,6 @@
                                                   <DataElementName>Detail</DataElementName>
                                                 </Group>
                                                 <TablixMembers>
-                                                  <TablixMember>
-                                                    <Visibility>
-                                                      <Hidden>=iif(Fields!Type_IssuedReminderLine.Value = "0",FALSE,TRUE)</Hidden>
-                                                    </Visibility>
-                                                  </TablixMember>
                                                   <TablixMember />
                                                   <TablixMember>
                                                     <Visibility>
@@ -4013,7 +4015,7 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>4.5053cm</Top>
+                              <Top>10.8553cm</Top>
                               <Left>0.00287cm</Left>
                               <Height>0.35278cm</Height>
                               <Width>7.06092in</Width>

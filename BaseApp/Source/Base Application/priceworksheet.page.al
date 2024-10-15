@@ -202,6 +202,34 @@ page 7022 "Price Worksheet"
                     Editable = PriceLineEditable and AmountTypeIsEditable;
                     ToolTip = 'Specifies whether the price list line defines prices, discounts, or both.';
                 }
+                field("Published Price"; Rec."Published Price")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = PriceVisible and SalesVisible;
+                    ToolTip = 'Specifies that the unit price of the item is assigned here from the item table.';
+                }
+                field(Cost; Rec.Cost)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = PriceVisible and SalesVisible;
+                    ToolTip = 'Specifies that the Unit cost of the item is assigned here from the item table.';
+                }
+                field("Cost-plus %"; Rec."Cost-plus %")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Enabled = ItemAsset;
+                    Editable = ItemAsset and PriceLineEditable and PriceEditable;
+                    Visible = PriceVisible and SalesVisible;
+                    ToolTip = 'Specifies the percentage that is applied to the unit cost to calculate the unit price for the customer.';
+                }
+                field("Discount Amount"; Rec."Discount Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Enabled = ItemAsset;
+                    Editable = ItemAsset and PriceLineEditable and PriceEditable;
+                    Visible = PriceVisible and SalesVisible;
+                    ToolTip = 'Specifies the amount to deduct from the unit price to calculate the price for the customer.';
+                }
                 field("Existing Unit Price"; Rec."Existing Unit Price")
                 {
                     ApplicationArea = Basic, Suite;

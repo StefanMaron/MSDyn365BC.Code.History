@@ -142,6 +142,36 @@ page 7001 "Price List Lines"
                         SetMandatoryAmount();
                     end;
                 }
+                field("Published Price"; Rec."Published Price")
+                {
+                    ApplicationArea = All;
+                    Visible = PriceVisible;
+                    ToolTip = 'Specifies that the unit price of the item is assigned here from the item table.';
+                }
+                field(Cost; Rec.Cost)
+                {
+                    ApplicationArea = All;
+                    Visible = PriceVisible;
+                    ToolTip = 'Specifies that the Unit cost of the item is assigned here from the item table.';
+                }
+                field("Cost-plus %"; Rec."Cost-plus %")
+                {
+                    AccessByPermission = tabledata "Sales Price Access" = R;
+                    ApplicationArea = All;
+                    Enabled = ItemAsset and PriceMandatory;
+                    Editable = ItemAsset and AmountEditable;
+                    Visible = PriceVisible;
+                    ToolTip = 'Specifies the percentage that is applied to the unit cost to calculate the unit price for the customer.';
+                }
+                field("Discount Amount"; Rec."Discount Amount")
+                {
+                    AccessByPermission = tabledata "Sales Price Access" = R;
+                    ApplicationArea = All;
+                    Enabled = ItemAsset and PriceMandatory;
+                    Editable = ItemAsset and AmountEditable;
+                    Visible = PriceVisible;
+                    ToolTip = 'Specifies the amount to deduct from the unit price to calculate the price for the customer.';
+                }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     AccessByPermission = tabledata "Sales Price Access" = R;

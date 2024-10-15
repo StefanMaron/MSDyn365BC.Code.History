@@ -45,17 +45,11 @@ table 5998 "Standard Service Item Gr. Code"
         OnBeforeOnDelete(Rec, IsHandled);
         if IsHandled then
             exit;
-
-        StdServiceLine.Reset();
-        StdServiceLine.SetRange("Standard Service Code", Code);
-        if not StdServiceLine.IsEmpty() then
-            StdServiceLine.DeleteAll(true);
     end;
 
     var
         Text001: Label '%1 of the standard service code must be equal to %2 on the %3.';
         StdServCode: Record "Standard Service Code";
-        StdServiceLine: Record "Standard Service Line";
 
     procedure InsertServiceLines(ServItemLine: Record "Service Item Line")
     var

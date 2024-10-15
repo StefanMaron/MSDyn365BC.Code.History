@@ -507,12 +507,18 @@ page 343 "Check Credit Limit"
         RcdNotInvdRetOrdersLCY2 := SalesLine."Return Rcd. Not Invd. (LCY)";
     end;
 
-    local procedure CalcTotalOutstandingAmt(): Decimal
+    local procedure CalcTotalOutstandingAmt() Result: Decimal
     var
         SalesLine: Record "Sales Line";
         SalesOutstandingAmountFromShipment: Decimal;
         ServOutstandingAmountFromShipment: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcTotalOutstandingAmt(Rec, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         CalcFields(
           "Outstanding Invoices (LCY)", "Outstanding Orders (LCY)", "Outstanding Serv.Invoices(LCY)", "Outstanding Serv. Orders (LCY)");
         SalesOutstandingAmountFromShipment := SalesLine.OutstandingInvoiceAmountFromShipment("No.");
@@ -572,6 +578,11 @@ page 343 "Check Credit Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcCreditLimitLCY(var Customer: Record Customer; var CustCreditAmountLCY: Decimal; var ExtensionAmounts: List of [Decimal])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTotalOutstandingAmt(var Customer: Record Customer; var IsHandled: Boolean; var Result: Decimal)
     begin
     end;
 

@@ -4220,7 +4220,7 @@ codeunit 28040 WHTManagement
                                     CurrFactor);
                                 TotalWHTAmount := (TotalWHTAmount + TotalWHTAmount4);
                             end else begin
-                                WHTAmount1 := CalcAppliedWHTAmount(TempVendLedgEntry, GenJnlLine, WHTEntry."WHT %", ExitLoop);
+                                WHTAmount1 := CalcAppliedWHTAmount(TempVendLedgEntry, AppldAmount, WHTEntry."WHT %", ExitLoop);
                                 TotalWHTAmount := Round(TotalWHTAmount + WHTAmount1);
                             end;
                             TotalWHTAmount2 := TotalWHTAmount;
@@ -7547,7 +7547,7 @@ codeunit 28040 WHTManagement
     end;
 
     [Scope('OnPrem')]
-    procedure CalcAppliedWHTAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; WHTPercent: Decimal; ExitLoop: Boolean): Decimal
+    procedure CalcAppliedWHTAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedAmountWHT: Decimal; WHTPercent: Decimal; ExitLoop: Boolean): Decimal
     var
         Result: Decimal;
         EntryNo: Integer;
@@ -7558,7 +7558,7 @@ codeunit 28040 WHTManagement
             // Here we can have several Vendor Ledger Entries to be applied.
             // So we need iterate through remaining entries to calculate WHT amount per entry
             EntryNo := VendorLedgerEntry."Entry No.";
-            TotalAmountToApply := GenJournalLine.Amount;
+            TotalAmountToApply := AppliedAmountWHT;
             repeat
                 AppliedAmount := ABSMin(-VendorLedgerEntry."Amount to Apply", TotalAmountToApply);
                 Result += CalcWHTAmount(AppliedAmount, WHTPercent);
@@ -7568,7 +7568,7 @@ codeunit 28040 WHTManagement
             exit(Result);
         end;
 
-        exit(Round(GenJournalLine.Amount * WHTPercent / 100));
+        exit(CalcWHTAmount(AppliedAmountWHT, WHTPercent));
     end;
 
     local procedure CalcWHTAmount(Amount: Decimal; WHTPercent: Decimal): Decimal

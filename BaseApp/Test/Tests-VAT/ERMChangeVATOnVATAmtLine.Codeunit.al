@@ -375,6 +375,30 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         Assert.AreEqual(DefaultVATAmountLineTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATAmountTextOnNonTempVATAmountLine()
+    var
+        VATAmountLine: Record "VAT Amount Line";
+        VATPostingSetupNormalVAT: Record "VAT Posting Setup";
+        VATPostingSetupReverseChargeVAT: Record "VAT Posting Setup";
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetupNormalVAT,
+          VATPostingSetupNormalVAT."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetupReverseChargeVAT,
+          VATPostingSetupNormalVAT."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 20));
+
+        VATAmountLine.Init();
+        with VATPostingSetupNormalVAT do
+            VATAmountLine.InsertNewLine("VAT Identifier", "VAT Calculation Type", '', false, "VAT %", true, false, false);
+        with VATPostingSetupReverseChargeVAT do
+            VATAmountLine.InsertNewLine("VAT Identifier", "VAT Calculation Type", '', false, "VAT %", true, false, false);
+
+        Assert.ExpectedMessage(DefaultVATAmountLineTxt, VATAmountLine.VATAmountText);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -779,9 +779,7 @@ codeunit 141007 "ERM GST APAC"
         CreateSalesCreditMemoForCustomer(SalesHeaderCreditMemo, CustLedgerEntry."Customer No.");
 
         // [GIVEN] Created Cust. Ledger Entry
-        LibraryLowerPermissions.SetSellReturnPost;
-        LibraryLowerPermissions.AddSellReturn;
-        LibraryLowerPermissions.AddPermissionSet('BASIC');
+        LibraryLowerPermissions.SetSalesDocsCreate();
 
         // [WHEN] Open Sales Credit Memo page and change the value in 'Adjustment Applies-to' field
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Entry No.");

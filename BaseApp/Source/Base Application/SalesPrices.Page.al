@@ -345,7 +345,10 @@ page 7002 "Sales Prices"
     end;
 
     trigger OnInit()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
         SalesCodeFilterCtrlEnable := true;
         SalesCodeControlEditable := true;
         IsLookupMode := CurrPage.LookupMode;

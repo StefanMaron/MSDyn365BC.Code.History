@@ -536,7 +536,7 @@ page 9027 "Accountant Role Center"
                 action(Action171)
                 {
                     ApplicationArea = Intercompany;
-                    Caption = 'Chart of Accounts';
+                    Caption = 'IC Chart of Accounts';
                     Promoted = true;
                     PromotedCategory = Process;
                     RunObject = Page "IC Chart of Accounts";
@@ -551,6 +551,7 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "IC Dimensions";
                     ToolTip = 'Enable companies within a group to exchange transactions with dimensions and to perform financial analysis by dimensions across the group. The parent company of the group can create a simplified version of their own set of dimensions and export them to an XML file that each subsidiary can import into the intercompany Dimensions window and then map them to their own dimensions.';
                 }
+#if not CLEAN19
                 action(Action38)
                 {
                     ApplicationArea = Suite;
@@ -558,14 +559,24 @@ page 9027 "Accountant Role Center"
                     Image = Currency;
                     RunObject = Page Currencies;
                     ToolTip = 'View the different currencies that you trade in or update the exchange rates by getting the latest rates from an external service provider.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Duplicated action use action(Currencies)';
+                    ObsoleteTag = '19.0';
                 }
+#endif
+#if not CLEAN19
                 action(Action144)
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Employees';
+                    Visible = false;
                     RunObject = Page "Employee List";
                     ToolTip = 'Manage employees'' details and related information, such as qualifications and pictures, or register and analyze employee absence. Keeping up-to-date records about your employees simplifies personnel tasks. For example, if an employee''s address changes, you register this on the employee card.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Duplicated action use action(Employees)';
+                    ObsoleteTag = '19.0';
                 }
+#endif                
                 action("Accounting Periods")
                 {
                     ApplicationArea = Basic, Suite;
@@ -581,13 +592,18 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "No. Series";
                     ToolTip = 'View or edit the number series that are used to organize transactions';
                 }
+#if not CLEAN19
                 action(Action116)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'G/L Account Categories';
                     RunObject = Page "G/L Account Categories";
                     ToolTip = 'Personalize the structure of your financial statements by mapping general ledger accounts to account categories. You can create category groups by indenting subcategories under them. Each grouping shows a total balance. When you choose the Generate Account Schedules action, the account schedules for the underlying financial reports are updated. The next time you run one of these reports, such as the balance statement, new totals and subentries are added, based on your changes.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Duplicated action use action("G/L Account Categories")';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 action("Bank Account Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;

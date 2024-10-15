@@ -12,7 +12,9 @@ codeunit 141011 "ERM WHT - AU"
         Assert: Codeunit Assert;
         LibraryAPACLocalization: Codeunit "Library - APAC Localization";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
         ABNTxt: Label '53001003000';
@@ -20,6 +22,7 @@ codeunit 141011 "ERM WHT - AU"
         ValueMustBeSameMsg: Label 'Value must be same.';
         ValueMustNotExistMsg: Label '%1 must not exist.';
         LibraryUtility: Codeunit "Library - Utility";
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -28,7 +31,7 @@ codeunit 141011 "ERM WHT - AU"
         GenJournalLine: array[2] of Record "Gen. Journal Line";
     begin
         // [SCENARIO 287724] Post FCY payment with updated currency factor and applied to FCY invoice
-        Initialize;
+        Initialize();
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);
 
         // [GIVEN] FCY invoice general journal
@@ -1206,10 +1209,175 @@ codeunit 141011 "ERM WHT - AU"
         VerifyPurchaseUnrealizedWHTAmountCreditMemo(CreditMemoNo, PurchaseLine, WHTPostingSetup);
     end;
 
-    local procedure Initialize()
+    [Test]
+    procedure PaymentInvoiceAppliesToID_WHT_GST_Disabled()
     var
-        LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        IsInitialized: Boolean;
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GLEntry: Record "G/L Entry";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Applies-to ID] [VAT] [Application]
+        // [SCENARIO 402106] Stan can post payment applied to invoice with "Applies-to ID" having VAT amounts in invoice and payment including WHT 
+        Initialize();
+
+        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(false, true, true);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
+
+        CreateWHTPostingSetupWithPercentAndZeroMinAmount(WHTPostingSetup);
+
+        Vendor.Get(CreateVendor(VATPostingSetup."VAT Bus. Posting Group", ''));
+        Vendor.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        GLAccount.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        GLAccount.Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
+        GLAccount.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, Vendor."No.", PurchaseLine."Amount Including VAT");
+
+        GenJournalLine.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        GenJournalLine.Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
+        GenJournalLine.Modify(true);
+
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+
+        GenJournalLine."Applies-to ID" := VendorLedgerEntry."Applies-to ID";
+        GenJournalLine.Modify();
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VendorLedgerEntry.Find();
+        VendorLedgerEntry.TestField(Open, false);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+
+        VendorLedgerEntry.TestField(Open, false);
+
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type");
+        GLEntry.SetRange("Bal. Account No.", GenJournalLine."Bal. Account No.");
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, PurchaseLine."Amount Including VAT");
+
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::Vendor);
+        GLEntry.SetRange("Bal. Account No.", Vendor."No.");
+        GLEntry.FindFirst();
+        GLEntry.TestField(
+          Amount, -(PurchaseLine."Amount Including VAT" - ROUND(PurchaseLine."Direct Unit Cost" * WHTPostingSetup."WHT %" / 100)));
+
+        GLEntry.SetRange("Bal. Account Type");
+        GLEntry.SetRange("Bal. Account No.");
+        GLEntry.SetRange("G/L Account No.", WHTPostingSetup."Payable WHT Account Code");
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, -ROUND(PurchaseLine."Direct Unit Cost" * WHTPostingSetup."WHT %" / 100));
+    end;
+
+    [Test]
+    procedure PaymentInvoiceAppliesToID_WHT_GST_Enabled()
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GLEntry: Record "G/L Entry";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Applies-to Doc. No] [VAT] [Application]
+        // [SCENARIO 402106] Stan can post payment applied to invoice with "Applies-to Doc. No" having VAT amounts in invoice and payment including WHT 
+        Initialize();
+
+        UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
+
+        UpdateGSTProdPostingGroupOnPurchasesSetup(VATPostingSetup."VAT Prod. Posting Group");
+
+        CreateWHTPostingSetupWithPercentAndZeroMinAmount(WHTPostingSetup);
+
+        Vendor.Get(CreateVendor(VATPostingSetup."VAT Bus. Posting Group", ''));
+        Vendor.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        Vendor."Foreign Vend" := true;
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        GLAccount.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        GLAccount.Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
+        GLAccount.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, Vendor."No.", PurchaseLine."Amount Including VAT");
+
+        GenJournalLine.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
+        GenJournalLine.Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
+        GenJournalLine.Modify(true);
+
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+
+        GenJournalLine."Applies-to ID" := VendorLedgerEntry."Applies-to ID";
+        GenJournalLine.Modify();
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VendorLedgerEntry.Find();
+        VendorLedgerEntry.TestField(Open, false);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+
+        VendorLedgerEntry.TestField(Open, false);
+
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type");
+        GLEntry.SetRange("Bal. Account No.", GenJournalLine."Bal. Account No.");
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, PurchaseLine."Amount Including VAT");
+
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::Vendor);
+        GLEntry.SetRange("Bal. Account No.", Vendor."No.");
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, -PurchaseLine."Amount Including VAT");
+    end;
+
+    local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
 
@@ -1217,6 +1385,7 @@ codeunit 141011 "ERM WHT - AU"
             exit;
 
         IsInitialized := true;
+
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.SavePurchasesSetup();
     end;
@@ -1477,6 +1646,26 @@ codeunit 141011 "ERM WHT - AU"
         WHTPostingSetup.Validate("Payable WHT Account Code", WHTPostingSetup."Prepaid WHT Account Code");
         WHTPostingSetup.Validate("Purch. WHT Adj. Account No.", WHTPostingSetup."Prepaid WHT Account Code");
         WHTPostingSetup.Validate("Sales WHT Adj. Account No.", WHTPostingSetup."Prepaid WHT Account Code");
+        WHTPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateWHTPostingSetupWithPercentAndZeroMinAmount(var WHTPostingSetup: Record "WHT Posting Setup")
+    var
+        WHTBusinessPostingGroup: Record "WHT Business Posting Group";
+        WHTProductPostingGroup: Record "WHT Product Posting Group";
+    begin
+        LibraryAPACLocalization.CreateWHTBusinessPostingGroup(WHTBusinessPostingGroup);
+        LibraryAPACLocalization.CreateWHTProductPostingGroup(WHTProductPostingGroup);
+
+        LibraryAPACLocalization.CreateWHTPostingSetup(WHTPostingSetup, WHTBusinessPostingGroup.Code, WHTProductPostingGroup.Code);
+
+        WHTPostingSetup.Validate("WHT %", LibraryRandom.RandDecInRange(5, 10, 2));
+        WHTPostingSetup.Validate("WHT Minimum Invoice Amount", 0);
+        WHTPostingSetup.Validate("Realized WHT Type", WHTPostingSetup."Realized WHT Type"::Payment);
+        WHTPostingSetup.Validate("Prepaid WHT Account Code", LibraryERM.CreateGLAccountNo());
+        WHTPostingSetup.Validate("Payable WHT Account Code", LibraryERM.CreateGLAccountNo());
+        WHTPostingSetup.Validate("Purch. WHT Adj. Account No.", LibraryERM.CreateGLAccountNo());
+        WHTPostingSetup.Validate("Sales WHT Adj. Account No.", LibraryERM.CreateGLAccountNo());
         WHTPostingSetup.Modify(true);
     end;
 

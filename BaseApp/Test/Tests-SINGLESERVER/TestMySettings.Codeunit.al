@@ -139,20 +139,20 @@ codeunit 139006 "Test My Settings"
     begin
         // [FEATURE] [My Notifications]
         // [SCENARIO 169269] "My Notifications" page enforces the setting for filters as exemplified in the credit limit warning check
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opened page "My Settings"
-        MySettings.OpenEdit;
+        MySettings.OpenEdit();
 
         // [WHEN] Set Credit limit warning for a certain customer
         LibrarySales.CreateCustomer(Customer);
         CustomerNum := Customer."No.";
         EnabledValue := true;
         RemoveFilterValues := false;
-        MySettings.MyNotificationsLbl.DrillDown;
+        MySettings.MyNotificationsLbl.DrillDown();
 
         // [WHEN] Create sales invoice for the customer
-        LibraryLowerPermissions.SetSalesDocsCreate;
+        LibraryLowerPermissions.SetSalesDocsCreate();
         CrCheckEnabled := CustCheckCrLimit.IsCreditLimitNotificationEnabled(Customer);
 
         // [THEN] The credit check should be enabled for this customer
@@ -169,7 +169,7 @@ codeunit 139006 "Test My Settings"
 
         // [WHEN] Disable Credit limit warning
         EnabledValue := false;
-        MySettings.MyNotificationsLbl.DrillDown;
+        MySettings.MyNotificationsLbl.DrillDown();
 
         // [WHEN] Create sales invoice for the customer
         CrCheckEnabled := CustCheckCrLimit.IsCreditLimitNotificationEnabled(Customer);

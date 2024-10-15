@@ -49,6 +49,8 @@ Codeunit 7009 CopyFromToPriceListLine
                             PriceListLine.Validate("Variant Code", SalesPrice."Variant Code");
                             PriceListLine.Validate("Unit of Measure Code", SalesPrice."Unit of Measure Code");
                             PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+                            PriceListLine."Cost-plus %" := SalesPrice."Cost-plus %";
+                            PriceListLine."Discount Amount" := SalesPrice."Discount Amount";
                             PriceListLine."Unit Price" := SalesPrice."Unit Price";
                             PriceListLine."Allow Invoice Disc." := SalesPrice."Allow Invoice Disc.";
                             PriceListLine."Allow Line Disc." := SalesPrice."Allow Line Disc.";
@@ -201,6 +203,8 @@ Codeunit 7009 CopyFromToPriceListLine
                 TempSalesPrice."Item No." := PriceListLine."Asset No.";
                 TempSalesPrice."Variant Code" := PriceListLine."Variant Code";
                 TempSalesPrice."Unit of Measure Code" := PriceListLine."Unit of Measure Code";
+                TempSalesPrice."Cost-plus %" := PriceListLine."Cost-plus %";
+                TempSalesPrice."Discount Amount" := PriceListLine."Discount Amount";
                 TempSalesPrice."Unit Price" := PriceListLine."Unit Price";
                 TempSalesPrice."Allow Invoice Disc." := PriceListLine."Allow Invoice Disc.";
                 TempSalesPrice."Allow Line Disc." := PriceListLine."Allow Line Disc.";
