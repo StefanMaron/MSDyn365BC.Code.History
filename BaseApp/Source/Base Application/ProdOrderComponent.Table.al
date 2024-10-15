@@ -1055,13 +1055,15 @@
         CostCalcMgt: Codeunit "Cost Calculation Management";
         OutputQtyBase: Decimal;
         CompQtyBase: Decimal;
+        RoundingPrecision: Decimal;
         IsHandled: Boolean;
     begin
         Item.Get("Item No.");
-        if Item."Rounding Precision" = 0 then
-            Item."Rounding Precision" := UOMMgt.QtyRndPrecision;
+        RoundingPrecision := Item."Rounding Precision";
+        if RoundingPrecision = 0 then
+            RoundingPrecision := UOMMgt.QtyRndPrecision;
 
-        OnGetNeededQtyOnBeforeCalcBasedOn(Rec);
+        OnGetNeededQtyOnBeforeCalcBasedOn(Rec, RoundingPrecision);
         if CalcBasedOn = CalcBasedOn::"Actual Output" then begin
             ProdOrderLine.Get(Status, "Prod. Order No.", "Prod. Order Line No.");
 
@@ -1102,12 +1104,12 @@
                 exit(
                   UOMMgt.RoundToItemRndPrecision(
                     (CompQtyBase - "Act. Consumption (Qty)") / "Qty. per Unit of Measure",
-                    Item."Rounding Precision"));
+                    RoundingPrecision));
             end;
-            exit(UOMMgt.RoundToItemRndPrecision(CompQtyBase / "Qty. per Unit of Measure", Item."Rounding Precision"));
+            exit(UOMMgt.RoundToItemRndPrecision(CompQtyBase / "Qty. per Unit of Measure", RoundingPrecision));
         end;
         OnGetNeededQtyOnAfterCalcBasedOn(Rec);
-        exit(Round("Remaining Quantity", Item."Rounding Precision"));
+        exit(Round("Remaining Quantity", RoundingPrecision));
     end;
 
     procedure ShowReservation()
@@ -1892,7 +1894,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetNeededQtyOnBeforeCalcBasedOn(var ProdOrderComponent: Record "Prod. Order Component")
+    local procedure OnGetNeededQtyOnBeforeCalcBasedOn(var ProdOrderComponent: Record "Prod. Order Component"; var RoundingPrecision: Decimal)
     begin
     end;
 

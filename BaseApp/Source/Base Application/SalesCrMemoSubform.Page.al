@@ -173,6 +173,12 @@
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
+                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
+                    Visible = false;
+                }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -928,6 +934,32 @@
                     end;
                 }
             }
+            group("Page")
+            {
+                Caption = 'Page';
+
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        ODataUtility: Codeunit ODataUtility;
+                    begin
+                        ODataUtility.EditWorksheetInExcel('Sales_Cr_Memo_Line', CurrPage.ObjectId(false), StrSubstNo(EditInExcelFilterTxt, Rec."Document No."));
+                    end;
+
+                }
+            }
         }
     }
 
@@ -990,6 +1022,8 @@
 
     trigger OnOpenPage()
     begin
+        SetOpenPage();
+
         SetDimensionsVisibility();
         SetItemReferenceVisibility();
     end;
@@ -1007,8 +1041,10 @@
         UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
+        EditInExcelFilterTxt: Label 'Document_No eq ''%1''', Locked = true;
 
     protected var
         TotalSalesHeader: Record "Sales Header";
@@ -1030,6 +1066,13 @@
         [InDataSet]
         ItemReferenceVisible: Boolean;
         VATAmount: Decimal;
+
+    local procedure SetOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
+    begin
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+    end;
 
     procedure ApproveCalcInvDisc()
     begin

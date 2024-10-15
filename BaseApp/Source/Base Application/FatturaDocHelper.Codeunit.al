@@ -206,6 +206,7 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaHeader."Transmission Type" := NonPublicCompanyLbl;
         TempFatturaHeader."Fattura Document Type" :=
           CopyStr(TempVATEntry."Fattura Document Type", 1, MaxStrLen(TempFatturaHeader."Fattura Document Type"));
+        TempFatturaHeader."External Document No." := TempVATEntry."External Document No.";
         if TempFatturaHeader."Fattura Document Type" = '' then begin
             VATPostingSetup.Get(TempVATEntry."VAT Bus. Posting Group", TempVATEntry."VAT Prod. Posting Group");
             if VATPostingSetup."Fattura Document Type" = '' then
@@ -216,6 +217,7 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
         TempVATEntry.CalcSums(Amount, Base);
         TempFatturaHeader."Total Amount" := Abs(TempVATEntry.Amount) + Abs(TempVATEntry.Base);
+        TempFatturaHeader."Self-Billing Document" := true;
         TempFatturaHeader.Insert();
         CollectSelfBillingDocLinesInformation(TempFatturaLine, TempVATEntry);
     end;

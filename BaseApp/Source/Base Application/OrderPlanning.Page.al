@@ -203,7 +203,7 @@ page 5522 "Order Planning"
                 field("Purchasing Code"; "Purchasing Code")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies which purchaser is assigned to the vendor.';
+                    ToolTip = 'Specifies the code for a special procurement method, such as drop shipment.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")

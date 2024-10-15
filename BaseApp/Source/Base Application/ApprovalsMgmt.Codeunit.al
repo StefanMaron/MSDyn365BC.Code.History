@@ -489,6 +489,7 @@
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetFilter(Status, '<>%1&<>%2', ApprovalEntry.Status::Rejected, ApprovalEntry.Status::Canceled);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
+        OnCancelApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef);
         if ApprovalEntry.FindSet() then
             repeat
                 OldStatus := ApprovalEntry.Status;
@@ -518,6 +519,7 @@
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetFilter(Status, '<>%1&<>%2', ApprovalEntry.Status::Rejected, ApprovalEntry.Status::Canceled);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
+        OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef);
         if ApprovalEntry.FindSet() then begin
             repeat
                 OldStatus := ApprovalEntry.Status;
@@ -541,6 +543,7 @@
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Created);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
+        OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef);
 
         if ApprovalEntry.FindFirst then begin
             ApprovalEntry2.CopyFilters(ApprovalEntry);
@@ -585,6 +588,7 @@
         ApprovalEntry2.SetCurrentKey("Table ID", "Document Type", "Document No.", "Sequence No.");
         ApprovalEntry2.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         ApprovalEntry2.SetRange(Status, ApprovalEntry2.Status::Created);
+        OnSendApprovalRequestFromApprovalEntryOnAfterSetApprovalEntry2Filters(ApprovalEntry2, ApprovalEntry);
 
         if ApprovalEntry2.FindFirst then begin
             ApprovalEntry3.CopyFilters(ApprovalEntry2);
@@ -758,6 +762,7 @@
             SetRange("Record ID to Approve", ApprovalEntryArgument."Record ID to Approve");
             SetRange("Workflow Step Instance ID", ApprovalEntryArgument."Workflow Step Instance ID");
             SetRange(Status, Status::Created);
+            OnCreateApprovalRequestForApproverChainOnAfterSetApprovalEntryFilters(ApprovalEntry, ApprovalEntryArgument);
             if FindLast then
                 ApproverId := "Approver ID"
             else
@@ -851,7 +856,13 @@
     procedure CreateApprovalRequestForUser(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     var
         SequenceNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateApprovalRequestForUser(WorkflowStepArgument, ApprovalEntryArgument, IsHandled);
+        if IsHandled then
+            exit;
+
         SequenceNo := GetLastSequenceNo(ApprovalEntryArgument);
 
         SequenceNo += 1;
@@ -880,6 +891,11 @@
         ApprovalEntry: Record "Approval Entry";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeApprovalEntry(ApprovalEntry, ApprovalEntryArgument, WorkflowStepArgument, ApproverId, IsHandled);
+        if IsHandled then
+            exit;
+
         with ApprovalEntry do begin
             "Table ID" := ApprovalEntryArgument."Table ID";
             "Document Type" := ApprovalEntryArgument."Document Type";
@@ -1650,6 +1666,7 @@
             else
                 SetCommonApprovalCommentLineFilters(RecRef, ApprovalEntry, ApprovalCommentLine);
         end;
+        OnShowApprovalCommentsOnAfterSetApprovalCommentLineFilters(ApprovalCommentLine, ApprovalEntry, RecRef);
 
         if IsNullGuid(WorkflowStepInstanceID) and (not IsNullGuid(ApprovalEntry."Workflow Step Instance ID")) then
             WorkflowStepInstanceID := ApprovalEntry."Workflow Step Instance ID";
@@ -1953,6 +1970,7 @@
             SetRange("Table ID", ApprovalEntryArgument."Table ID");
             SetRange("Record ID to Approve", ApprovalEntryArgument."Record ID to Approve");
             SetRange("Workflow Step Instance ID", ApprovalEntryArgument."Workflow Step Instance ID");
+            OnGetLastSequenceNoOnAfterSetApprovalEntryFilters(ApprovalEntry, ApprovalEntryArgument);
             if FindLast then
                 exit("Sequence No.");
         end;
@@ -2132,6 +2150,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateApprovalRequestForUser(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateApprovalRequestForApproverChain(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; SufficientApproverOnly: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -2148,6 +2171,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckUserAsApprovalAdministrator(ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeApprovalEntry(ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; ApproverId: Code[50]; var IsHandled: Boolean)
     begin
     end;
 
@@ -2237,6 +2265,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCancelApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     begin
     end;
@@ -2257,6 +2290,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestForApproverChainOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDelegateSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry"; CheckCurrentUser: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -2273,6 +2311,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFindOpenApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetLastSequenceNoOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry")
     begin
     end;
 
@@ -2307,7 +2350,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendApprovalRequestFromApprovalEntryOnAfterSetApprovalEntry2Filters(var ApprovalEntry2: Record "Approval Entry"; ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSetStatusToPendingApproval(RecRef: RecordRef; var Variant: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowApprovalCommentsOnAfterSetApprovalCommentLineFilters(var ApprovalCommentLine: Record "Approval Comment Line"; ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
     begin
     end;
 

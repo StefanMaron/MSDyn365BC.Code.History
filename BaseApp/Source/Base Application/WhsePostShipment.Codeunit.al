@@ -103,6 +103,7 @@ codeunit 5763 "Whse.-Post Shipment"
 
             WhseShptHeader."Create Posted Header" := true;
             WhseShptHeader.Modify();
+            OnCodeOnAfterWhseShptHeaderModify(WhseShptHeader, Print);
 
             ClearRecordsToPrint();
 
@@ -1629,6 +1630,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterGetWhseShptHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterWhseShptHeaderModify(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; Print: Boolean)
     begin
     end;
 

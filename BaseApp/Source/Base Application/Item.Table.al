@@ -2290,9 +2290,7 @@
                 if xRec."Order Tracking Policy" = "Order Tracking Policy" then
                     exit;
                 if "Order Tracking Policy".AsInteger() > xRec."Order Tracking Policy".AsInteger() then begin
-                    Message(Text99000000 +
-                      Text99000001,
-                      SelectStr("Order Tracking Policy".AsInteger(), Text99000002));
+                    Message(Text99000000 + Text99000001,"Order Tracking Policy");
                 end else begin
                     ActionMessageEntry.SetCurrentKey("Reservation Entry");
                     ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
@@ -2550,7 +2548,6 @@
         Text99000001: Label 'If you want to generate %1 for existing entries, you must run a regenerative planning.';
         ItemVend: Record "Item Vendor";
         ItemReference: Record "Item Reference";
-        Text99000002: Label 'tracking,tracking and action messages';
         SalesPrepmtPct: Record "Sales Prepayment %";
         PurchPrepmtPct: Record "Purchase Prepayment %";
         ItemTranslation: Record "Item Translation";

@@ -581,7 +581,14 @@
             TableRelation = "Shipment Method";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShipmentMethodCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
 
                 if "Shipment Method Code" <> '' then begin
@@ -6215,6 +6222,14 @@
         end;
     end;
 
+    procedure GetUseDate(): Date
+    begin
+        if "Posting Date" = 0D then
+            exit(WorkDate());
+
+        exit("Posting Date");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var PurchaseHeader: Record "Purchase Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
@@ -6697,6 +6712,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeValidateShipmentMethodCode(var PurchaseHeader: Record "Purchase Header"; var IsHandled: boolean)
     begin
     end;
 

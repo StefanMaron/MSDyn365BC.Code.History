@@ -10,7 +10,6 @@ codeunit 6620 "Copy Document Mgt."
         Text001: Label '%1 %2 cannot be copied onto itself.';
         DeleteLinesQst: Label 'The existing lines for %1 %2 will be deleted.\\Do you want to continue?', Comment = '%1=Document type, e.g. Invoice. %2=Document No., e.g. 001';
         Text006: Label 'NOTE: A Payment Discount was Granted by %1 %2.';
-        Text007: Label 'Quote,Blanket Order,Order,Invoice,Credit Memo,Posted Shipment,Posted Invoice,Posted Credit Memo,Posted Return Receipt';
         Currency: Record Currency;
         Item: Record Item;
         AsmHeader: Record "Assembly Header";
@@ -2332,7 +2331,7 @@ codeunit 6620 "Copy Document Mgt."
                 if (CustLedgEntry."Pmt. Disc. Given (LCY)" <> 0) and
                    (CustLedgEntry."Journal Batch Name" = '')
                 then
-                    Message(Text006, SelectStr(FromDocType.AsInteger(), Text007), FromDocNo);
+                    Message(Text006, FromDocType, FromDocNo);
             end;
         end;
 
@@ -2349,7 +2348,7 @@ codeunit 6620 "Copy Document Mgt."
                 if (CustLedgEntry."Pmt. Disc. Given (LCY)" <> 0) and
                    (CustLedgEntry."Journal Batch Name" = '')
                 then
-                    Message(Text006, SelectStr(FromDocType.AsInteger() - 1, Text007), FromDocNo);
+                    Message(Text006, FromDocType, FromDocNo);
             end;
         end;
     end;
@@ -2372,7 +2371,7 @@ codeunit 6620 "Copy Document Mgt."
                 if (VendLedgEntry."Pmt. Disc. Rcd.(LCY)" <> 0) and
                    (VendLedgEntry."Journal Batch Name" = '')
                 then
-                    Message(Text009, SelectStr(FromDocType.AsInteger(), Text007), FromDocNo);
+                    Message(Text009, FromDocType, FromDocNo);
             end;
         end;
 
@@ -2389,7 +2388,7 @@ codeunit 6620 "Copy Document Mgt."
                 if (VendLedgEntry."Pmt. Disc. Rcd.(LCY)" <> 0) and
                    (VendLedgEntry."Journal Batch Name" = '')
                 then
-                    Message(Text006, SelectStr(FromDocType.AsInteger() - 1, Text007), FromDocNo);
+                    Message(Text006, FromDocType, FromDocNo);
             end;
         end;
     end;

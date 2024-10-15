@@ -1371,7 +1371,7 @@
             until GenJnlLine.Next() = 0;
     end;
 
-    local procedure PostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrentICPartner: Code[20]; ICTransactionNo: Integer): Boolean
+    local procedure PostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrentICPartner: Code[20]; ICTransactionNo: Integer) Result: Boolean
     var
         TmpWithholdingContribution: Record "Tmp Withholding Contribution";
         WithholdingContribution: Codeunit "Withholding - Contribution";
@@ -1406,6 +1406,7 @@
                 SavedPostingDate := "Posting Date";
                 "Posting Date" := CalcReversePostingDate(GenJournalLine);
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
                 MultiplyAmounts(GenJournalLine, -1);
                 TempGenJnlLine4 := GenJournalLine;
                 TempGenJnlLine4."Reversing Entry" := true;
@@ -1413,12 +1414,14 @@
                 NoOfReversingRecords := NoOfReversingRecords + 1;
                 "Posting Date" := SavedPostingDate;
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
             end;
             PostAllocations(GenJournalLine, false);
             if TmpWithholdingContribution.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
                 WithholdingContribution.PostPayments(TmpWithholdingContribution, GenJournalLine, false);
         end;
-        exit(true);
+        Result := true;
+        OnAfterPostGenJournalLine(GenJournalLine, Result);
     end;
 
     local procedure CheckLine(var GenJnlLine: Record "Gen. Journal Line"; var PostingAfterCurrentFiscalYearConfirmed: Boolean)
@@ -1763,6 +1766,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean)
     begin
     end;
 

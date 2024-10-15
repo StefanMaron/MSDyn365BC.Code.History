@@ -43,7 +43,13 @@ table 8616 "Config. Package Field"
             trigger OnValidate()
             var
                 ShouldRunCheck: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateValidateField(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 ShouldRunCheck := not Dimension;
                 OnValidateFieldOnValidateOnAfterCalcShouldRunCheck(Rec, ShouldRunCheck);
                 if ShouldRunCheck then begin
@@ -62,7 +68,13 @@ table 8616 "Config. Package Field"
             trigger OnValidate()
             var
                 ShouldRunCheck: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateIncludeField(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 ShouldRunCheck := not Dimension;
                 OnIncludeFieldOnValidateOnAfterCalcShouldRunCheck(Rec, ShouldRunCheck);
                 if ShouldRunCheck then begin
@@ -311,6 +323,16 @@ table 8616 "Config. Package Field"
 
     [IntegrationEvent(false, false)]
     local procedure OnIncludeFieldOnValidateOnAfterCalcShouldRunCheck(var ConfigPackageField: Record "Config. Package Field"; var ShouldRunCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateIncludeField(var ConfigPackageField: Record "Config. Package Field"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateValidateField(var ConfigPackageField: Record "Config. Package Field"; var IsHandled: Boolean)
     begin
     end;
 

@@ -874,6 +874,7 @@
 
     local procedure InsertVATForGLEntry(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; TaxJurisdiction: Record "Tax Jurisdiction"; GLEntryVATAmount: Decimal; SrcCurrGLEntryVATAmt: Decimal; SrcCurrCode: Code[10]; UnrealizedVAT: Boolean; VATAmount: Decimal; SrcCurrVATAmount: Decimal; NondeducVATAmount: Decimal; SrcCurrNondeducVATAmount: Decimal)
     var
+        TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary;
         FAJnlPostLine: Codeunit "FA Jnl.-Post Line";
         GLEntryVATAmountNotEmpty: Boolean;
         IsHandled: Boolean;
@@ -910,7 +911,13 @@
                                                   NondeducVATAmount, SrcCurrNondeducVATAmount, true)
                                             else begin
                                                 CreateGLEntry(GenJnlLine, FAUndGlAccNo, NondeducVATAmount, SrcCurrNondeducVATAmount, true);
-                                                FAJnlPostLine.GenJnlPostLine(GenJnlLine, NondeducVATAmount, 0, NextTransactionNo, NextEntryNo, GLReg."No.");
+                                                FAJnlPostLine.GenJnlPostLine(
+                                                    GenJnlLine, NondeducVATAmount, 0, NextTransactionNo, TempGLEntryBuf."Entry No.", GLReg."No.");
+                                                if FAJnlPostLine.FindFirstGLAcc(TempFAGLPostingBuffer) then begin
+                                                    TempGLEntryBuf."FA Entry Type" := TempFAGLPostingBuffer."FA Entry Type";
+                                                    TempGLEntryBuf."FA Entry No." := TempFAGLPostingBuffer."FA Entry No.";
+                                                    TempGLEntryBuf.Modify();
+                                                end;
                                             end;
                                         end else begin
                                             VATPostingSetup.TestField("Nondeductible VAT Account");
@@ -2708,7 +2715,7 @@
             TempVATEntry."Add.-Currency Unrealized Base" := 0;
         end;
         CheckVATPlafond(TempVATEntry, true);
-        OnBeforeInsertTempVATEntry(TempVATEntry, GenJnlLine, VATEntry2);
+        OnBeforeInsertTempVATEntry(TempVATEntry, GenJnlLine, VATEntry2, VATAmount, VATBase);
         TempVATEntry.Insert();
     end;
 
@@ -2720,13 +2727,13 @@
             DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Excl.)":
                 DtldCVLedgEntryBuf."Entry Type" :=
                   DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Adjustment)";
-        DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
                 DtldCVLedgEntryBuf."Entry Type" :=
                   DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)";
-        DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)":
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)":
                 DtldCVLedgEntryBuf."Entry Type" :=
                   DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Adjustment)";
-    end;
+        end;
         DtldCVLedgEntryBuf."Posting Date" := GenJnlLine."Posting Date";
         DtldCVLedgEntryBuf."Document Type" := GenJnlLine."Document Type";
         DtldCVLedgEntryBuf."Document No." := GenJnlLine."Document No.";
@@ -7330,10 +7337,10 @@
            (TempCVLedgerEntryBufferDocOccurrence."CV No." <> CVNo)
         then begin
             TempCVLedgerEntryBufferDocOccurrence."Document Type" := DocumentType;
-                                                                                                                                                                                    TempCVLedgerEntryBufferDocOccurrence."Document No." := DocumentNo;
-                                                                                                                                                                                    TempCVLedgerEntryBufferDocOccurrence."Posting Date" := PostingDate;
-                                                                                                                                                                                    TempCVLedgerEntryBufferDocOccurrence."CV No." := CVNo;
-                                                                                                                                                                                    TempCVLedgerEntryBufferDocOccurrence."Amount to Apply" := AppliedAmount;
+            TempCVLedgerEntryBufferDocOccurrence."Document No." := DocumentNo;
+            TempCVLedgerEntryBufferDocOccurrence."Posting Date" := PostingDate;
+            TempCVLedgerEntryBufferDocOccurrence."CV No." := CVNo;
+            TempCVLedgerEntryBufferDocOccurrence."Amount to Apply" := AppliedAmount;
         end else
             TempCVLedgerEntryBufferDocOccurrence."Amount to Apply" += AppliedAmount;
     end;
@@ -7619,7 +7626,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTempVATEntry(var TempVATEntry: Record "VAT Entry" temporary; GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry")
+    local procedure OnBeforeInsertTempVATEntry(var TempVATEntry: Record "VAT Entry" temporary; GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal)
     begin
     end;
 

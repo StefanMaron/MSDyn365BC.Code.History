@@ -828,6 +828,7 @@ codeunit 144143 "ERM FA Deprciation"
         // [THEN] - 'Amount At' (disposal date) shows 0
         // [THEN] - Total 'Book Value' shows 0
         // [THEN] - Class and SubClass 'Book Value' show 0
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
         FindFALedgerEntry(
           FALedgerEntry, FADepreciationBook[2]."FA No.", DepreciationBookCode,
           FALedgerEntry."Document Type"::Invoice, FALedgerEntry."FA Posting Category"::Disposal);
@@ -837,6 +838,15 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryReportDataset.AssertElementWithValueExists('TotalClass_4_', 0);
         VerifyValuesOnDepreciationBookReport(
           false, 'TotalSubclass_14_', 'TotalClass_14_', 'TotalInventoryYear_14_', 'BookValueAtEndingDate', 0, 0, 0, 0);
+
+        // [THEN] - #404695 - Disposed reclassified depreciation is reflected in Disposal column (increment) and Accumulated Depreciation (decrement)
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
+        FindFALedgerEntry(
+          FALedgerEntry, FADepreciationBook[2]."FA No.", DepreciationBookCode,
+          FALedgerEntry."Document Type"::Invoice, FALedgerEntry."FA Posting Category"::Disposal);
+
+        LibraryReportDataset.AssertElementWithValueExists('TotalClass_6_', FALedgerEntry.Amount);
+        LibraryReportDataset.AssertElementWithValueExists('ABS_TotalClass_13__', 0);
 
         LibraryVariableStorage.AssertEmpty();
     end;
