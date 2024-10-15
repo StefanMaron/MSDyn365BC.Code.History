@@ -612,9 +612,12 @@ codeunit 8800 "Custom Layout Reporting"
         // If we're iterating through Customer or Vendor, get the appropriate name
         if not ReportDataAndIteratorDiffer then begin
             if GetNameFieldRef(DataRecRef, NameFieldRef) then
-                ObjectName := StrSubstNo('%1', NameFieldRef.Value);
+                ObjectName := Format(NameFieldRef.Value);
         end else
-            ObjectName := StrSubstNo('%1', IteratorJoinFieldRef.Value);
+            if GetNameFieldRef(IteratorRecordRef, NameFieldRef) then
+                ObjectName := Format(NameFieldRef.Value)
+            else
+                ObjectName := Format(IteratorJoinFieldRef.Value);
 
         exit(GenerateFileName(ObjectName, ReportID, Extension, FilePath));
     end;
