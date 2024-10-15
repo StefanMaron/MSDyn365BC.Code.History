@@ -323,6 +323,11 @@
             group(ElectronicDocument)
             {
                 Caption = 'Electronic Document';
+                field("CFDI Export Code"; "CFDI Export Code")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                }
                 field("Transport Operators"; "Transport Operators")
                 {
                     ApplicationArea = Location, BasicMX;

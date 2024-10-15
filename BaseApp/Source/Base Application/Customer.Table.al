@@ -1638,7 +1638,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("No."),
                                                                          "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -1650,7 +1650,7 @@
         field(10022; "Balance on Date (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("No."),
                                                                                  "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
@@ -1709,6 +1709,16 @@
         {
             Caption = 'CFDI Relation';
             TableRelation = "SAT Relationship Type";
+        }
+        field(27002; "SAT Tax Regime Classification"; Code[10])
+        {
+            Caption = 'SAT Tax Regime Classification';
+            TableRelation = "SAT Tax Scheme";
+        }
+        field(27004; "CFDI Export Code"; Code[10])
+        {
+            Caption = 'CFDI Export Code';
+            TableRelation = "CFDI Export Code";
         }
     }
 
