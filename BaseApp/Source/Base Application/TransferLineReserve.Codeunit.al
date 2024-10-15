@@ -1,4 +1,4 @@
-codeunit 99000836 "Transfer Line-Reserve"
+﻿codeunit 99000836 "Transfer Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Planning Assignment" = rimd;
@@ -131,7 +131,13 @@ codeunit 99000836 "Transfer Line-Reserve"
         ShowErrorOutbnd: Boolean;
         HasErrorInbnd: Boolean;
         HasErrorOutbnd: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyChange(NewTransLine, OldTransLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if Blocked then
             exit;
         if NewTransLine."Line No." = 0 then
@@ -150,11 +156,7 @@ codeunit 99000836 "Transfer Line-Reserve"
             else
                 HasErrorOutbnd := true;
 
-        if NewTransLine."Receipt Date" = 0D then
-            if ShowErrorInbnd then
-                NewTransLine.FieldError("Receipt Date", Text002)
-            else
-                HasErrorInbnd := true;
+        CheckTransLineReceiptDate(NewTransLine, ShowErrorInbnd, HasErrorInbnd);
 
         if NewTransLine."Item No." <> OldTransLine."Item No." then
             if ShowErrorInbnd or ShowErrorOutbnd then
@@ -238,6 +240,22 @@ codeunit 99000836 "Transfer Line-Reserve"
         end;
     end;
 
+    local procedure CheckTransLineReceiptDate(var NewTransLine: Record "Transfer Line"; var ShowErrorInbnd: Boolean; var HasErrorInbnd: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckTransLineReceiptDate(NewTransLine, ShowErrorInbnd, HasErrorInbnd, IsHandled);
+        if IsHandled then
+            exit;
+
+        if NewTransLine."Receipt Date" = 0D then
+            if ShowErrorInbnd then
+                NewTransLine.FieldError("Receipt Date", Text002)
+            else
+                HasErrorInbnd := true;
+    end;
+
     procedure VerifyQuantity(var NewTransLine: Record "Transfer Line"; var OldTransLine: Record "Transfer Line")
     var
         TransLine: Record "Transfer Line";
@@ -285,6 +303,7 @@ codeunit 99000836 "Transfer Line-Reserve"
     var
         OldReservEntry: Record "Reservation Entry";
         TransferLocation: Code[10];
+        IsHandled: Boolean;
     begin
         if not FindReservEntry(TransLine, OldReservEntry, Direction) then
             exit;
@@ -315,13 +334,14 @@ codeunit 99000836 "Transfer Line-Reserve"
                 if not IsReclass then
                     OldReservEntry.CopyNewTrackingFromReservEntry(OldReservEntry);
 
-                OnTransferTransferToItemJnlLineTransferFields(OldReservEntry, TransLine, ItemJnlLine, TransferQty, Direction);
-
-                TransferQty :=
-                  CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
-                    ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
-                    ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
-                    ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                IsHandled := false;
+                OnTransferTransferToItemJnlLineTransferFields(OldReservEntry, TransLine, ItemJnlLine, TransferQty, Direction, IsHandled);
+                if not IsHandled then
+                    TransferQty :=
+                      CreateReservEntry.TransferReservEntry(DATABASE::"Item Journal Line",
+                        ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
+                        ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.",
+                        ItemJnlLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
             until (ReservEngineMgt.NEXTRecord(OldReservEntry) = 0) or (TransferQty = 0);
     end;
@@ -862,12 +882,22 @@ codeunit 99000836 "Transfer Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTransLineReceiptDate(var NewTransLine: REcord "Transfer Line"; var ShowErrorInbnd: Boolean; var HasErrorInbnd: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyChange(var NewTransferLine: Record "Transfer Line"; var OldfTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyReserved(var NewTransferLine: Record "Transfer Line"; OldfTransferLine: Record "Transfer Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferTransferToItemJnlLineTransferFields(var ReservationEntry: Record "Reservation Entry"; var TransferLine: Record "Transfer Line"; var ItemJournalLine: Record "Item Journal Line"; TransferQty: Decimal; Direction: Enum "Transfer Direction")
+    local procedure OnTransferTransferToItemJnlLineTransferFields(var ReservationEntry: Record "Reservation Entry"; var TransferLine: Record "Transfer Line"; var ItemJournalLine: Record "Item Journal Line"; TransferQty: Decimal; Direction: Enum "Transfer Direction"; var IsHandled: Boolean)
     begin
     end;
 

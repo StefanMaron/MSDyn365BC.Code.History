@@ -14,7 +14,7 @@ table 7022 "Price Worksheet Line"
         }
         field(3; "Source Type"; Enum "Price Source Type")
         {
-            Caption = 'Applies-to Type';
+            Caption = 'Assign-to Type';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -33,7 +33,7 @@ table 7022 "Price Worksheet Line"
         }
         field(4; "Source No."; Code[20])
         {
-            Caption = 'Applies-to No.';
+            Caption = 'Assign-to';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -58,7 +58,7 @@ table 7022 "Price Worksheet Line"
         }
         field(5; "Parent Source No."; Code[20])
         {
-            Caption = 'Applies-to Parent No.';
+            Caption = 'Assign-to Parent No.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -85,7 +85,7 @@ table 7022 "Price Worksheet Line"
         }
         field(6; "Source ID"; Guid)
         {
-            Caption = 'Applies-to ID';
+            Caption = 'Assign-to ID';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -100,9 +100,13 @@ table 7022 "Price Worksheet Line"
         {
             Caption = 'Product Type';
             DataClassification = CustomerContent;
+            InitValue = Item;
 
             trigger OnValidate()
             begin
+                if "Asset Type" = "Asset Type"::" " then
+                    "Asset Type" := "Asset Type"::Item;
+
                 CopyRecTo(PriceAsset);
                 PriceAsset.Validate("Asset Type", "Asset Type");
                 CopyFrom(PriceAsset);

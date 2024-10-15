@@ -218,7 +218,7 @@
                 Validate("Creditor No.", Vend."Creditor No.");
 
                 OnValidatePurchaseHeaderPayToVendorNo(Vend, Rec);
-                OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vend, Rec, xRec);
+                OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vend, Rec, xRec, SkipPayToContact);
 
                 if "Document Type" = "Document Type"::Order then
                     Validate("Prepayment %", Vend."Prepayment %");
@@ -504,9 +504,11 @@
                         SkipJobCurrFactorUpdate := not ConfirmCurrencyFactorUpdate();
                 end;
 
-                if "Posting Date" <> xRec."Posting Date" then
+                if "Posting Date" <> xRec."Posting Date" then begin
                     if DeferralHeadersExist then
                         ConfirmUpdateDeferralDate();
+                    UpdateACYAmountInLines();
+                end;
 
                 if PurchLinesExist then
                     JobUpdatePurchLines(SkipJobCurrFactorUpdate);
@@ -2658,9 +2660,9 @@
         DontShowAgainActionLbl: Label 'Don''t show again';
         ModifyVendorAddressNotificationMsg: Label 'The address you entered for %1 is different from the Vendor''s existing address.', Comment = '%1=Vendor name';
         ModifyBuyFromVendorAddressNotificationNameTxt: Label 'Update Buy-from Vendor Address';
-        ModifyBuyFromVendorAddressNotificationDescriptionTxt: Label 'Warn if the Buy-from address on sales documents is different from the Vendor''s existing address.';
+        ModifyBuyFromVendorAddressNotificationDescriptionTxt: Label 'Warn if the Buy-from address on purchase documents is different from the Vendor''s existing address.';
         ModifyPayToVendorAddressNotificationNameTxt: Label 'Update Pay-to Vendor Address';
-        ModifyPayToVendorAddressNotificationDescriptionTxt: Label 'Warn if the Pay-to address on sales documents is different from the Vendor''s existing address.';
+        ModifyPayToVendorAddressNotificationDescriptionTxt: Label 'Warn if the Pay-to address on purchase documents is different from the Vendor''s existing address.';
         PurchaseAlreadyExistsTxt: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
         ShowVendLedgEntryTxt: Label 'Show the vendor ledger entry.';
         ShowDocAlreadyExistNotificationNameTxt: Label 'Purchase document with same external document number already exists.';
@@ -3288,6 +3290,7 @@
         SalesLine.Validate("Unit Cost (LCY)", DestinationPurchaseLine."Unit Cost (LCY)");
         SalesLine."Special Order Purchase No." := DestinationPurchaseLine."Document No.";
         SalesLine."Special Order Purch. Line No." := DestinationPurchaseLine."Line No.";
+        OnTransferSavedFieldsSpecialOrderOnBeforeSalesLineModify(DestinationPurchaseLine, SourcePurchaseLine, SalesLine);
         SalesLine.Modify();
     end;
 
@@ -3977,6 +3980,7 @@
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        OnShowDocDimOnAfterSetDimensionSetID(Rec, xRec);
 
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify;
@@ -4076,7 +4080,7 @@
             "Location Code" := '';
         end;
 
-        OnAfterSetShipToForSpecOrder(Rec);
+        OnAfterSetShipToForSpecOrder(Rec, Location, CompanyInfo);
     end;
 
     local procedure JobUpdatePurchLines(SkipJobCurrFactorUpdate: Boolean)
@@ -4199,7 +4203,7 @@
                 OrderAddr.City, OrderAddr."Post Code", OrderAddr.County, OrderAddr."Country/Region Code");
             "Ship-to Contact" := OrderAddr.Contact;
         end;
-        OnAfterCopyAddressInfoFromOrderAddress(OrderAddr);
+        OnAfterCopyAddressInfoFromOrderAddress(OrderAddr, Rec);
     end;
 
     procedure DropShptOrderExists(SalesHeader: Record "Sales Header"): Boolean
@@ -5937,6 +5941,20 @@
 
         exit("Posting Date");
     end;
+    
+    local procedure UpdateACYAmountInLines()
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", "Document Type");
+        PurchaseLine.SetRange("Document No.", "No.");
+        if PurchaseLine.FindSet(true) then
+            repeat
+                PurchaseLine.UpdateACYAmounts(Rec);
+                PurchaseLine.UpdateAmounts();
+                PurchaseLine.Modify();
+            until PurchaseLine.Next() = 0;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var PurchaseHeader: Record "Purchase Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
@@ -5959,7 +5977,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterCopyAddressInfoFromOrderAddress(var OrderAddress: Record "Order Address")
+    local procedure OnAfterCopyAddressInfoFromOrderAddress(var OrderAddress: Record "Order Address"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 
@@ -6064,7 +6082,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetShipToForSpecOrder(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnAfterSetShipToForSpecOrder(var PurchaseHeader: Record "Purchase Header"; Location: Record Location; CompanyInformation: Record "Company Information")
     begin
     end;
 
@@ -6154,7 +6172,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header")
+    local procedure OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; SkipPayToContact: Boolean)
     begin
     end;
 
@@ -6484,6 +6502,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnShowDocDimOnAfterSetDimensionSetID(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateBuyFromVendorNoOnAfterRecreateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer)
     begin
     end;
@@ -6595,6 +6618,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTestStatusIsNotReleased(PurchaseHeader: Record "Purchase Header"; var NotReleased: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferSavedFieldsSpecialOrderOnBeforeSalesLineModify(var DestinationPurchaseLine: Record "Purchase Line"; var SourcePurchaseLine: Record "Purchase Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 

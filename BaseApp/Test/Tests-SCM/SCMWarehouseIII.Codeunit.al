@@ -4419,6 +4419,94 @@ codeunit 137051 "SCM Warehouse - III"
         ReservationEntry.TestField(Quantity, -Qty);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,MessageHandler')]
+    procedure PartialPostingOfInvtMovementForAssemblyComponentWithEnabledFEFO()
+    var
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [FEFO] [Item Tracking] [Inventory Movement] [Assembly]
+        // [SCENARIO 408800] Second inventory movement created for assembly consumption for lot-tracked component respects FEFO.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Location with Pick According To FEFO, Require Pick, Put-away and Bin Mandatory.
+        CreateAndUpdateLocation(Location, true, true, true, false, false, true);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', '', '');
+        Location.Validate("To-Assembly Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Lot-tracked item "COMP".
+        CreateTrackedItem(Item, true, false, false, false, true);
+
+        // [GIVEN] Post 1 pc of item "COMP", lot "L1", expiration date = WorkDate + 10 to inventory.
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin[1].Code, LotNos[1], 1, LibraryRandom.RandDate(10));
+
+        // [GIVEN] Post 10 pcs of item "COMP", lot "L2", expiration date = WorkDate + 20 to inventory.
+        LotNos[2] := LibraryUtility.GenerateGUID();
+        PostItemJournalLineWithLotNoExpiration(
+          Item."No.", Location.Code, Bin[1].Code, LotNos[2], Qty, LibraryRandom.RandDateFromInRange(WorkDate(), 11, 20));
+
+        // [GIVEN] Assembly order to make a new item from 10 pcs of "COMP".
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), Location.Code, 1, '');
+        LibraryAssembly.CreateAssemblyLine(
+          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", Qty, Qty, '');
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        // [GIVEN] Create inventory movement for the assembly.
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseActivityHeader."Source Document"::"Assembly Consumption", AssemblyHeader."No.", false, false, true);
+
+        // [GIVEN] Partially register the inventory movement - 0 pcs of lot "L1", 5 pcs of lot "L2".
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.SetRange("Lot No.", LotNos[1]);
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", 0);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+        WarehouseActivityLine.SetRange("Lot No.", LotNos[2]);
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", Qty / 2);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Delete the inventory movement.
+        WarehouseActivityHeader.Find();
+        WarehouseActivityHeader.Delete(true);
+
+        // [WHEN] Create another inventory movement for the assembly.
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseActivityHeader."Source Document"::"Assembly Consumption", AssemblyHeader."No.", false, false, true);
+
+        // [THEN] The inventory movement for 1 pc of lot "L1" and 4 pcs of lot "L2" has been created.
+        WarehouseActivityLine.SetRange("Lot No.", LotNos[1]);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField(Quantity, 1);
+
+        WarehouseActivityLine.SetRange("Lot No.", LotNos[2]);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField(Quantity, Qty / 2 - 1);
+
+        // [THEN] The inventory movement can be registered.
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

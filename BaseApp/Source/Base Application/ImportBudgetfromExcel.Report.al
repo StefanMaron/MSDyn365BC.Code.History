@@ -254,7 +254,8 @@ report 81 "Import Budget from Excel"
         Text008: Label 'You cannot specify more than 8 dimensions in your Excel worksheet.';
         Text010: Label 'G/L Account No.';
         Text011: Label 'The text G/L Account No. can only be specified once in the Excel worksheet.';
-        Text012: Label 'The dimensions specified by worksheet must be placed in the lines before the table.';
+        DimensionValueCodeEqualToDimensionCodeTelemetryMsg: Label 'Detected dimension value code in the Excel budget that is equal to the code of a dimension.', Locked = true;
+        TelemetryCategoryTxt: Label 'AL Import Budget', Locked = true;
         Text013: Label 'Dimension ';
         Text014: Label 'Date';
         Text015: Label 'Dimension 1';
@@ -342,10 +343,9 @@ report 81 "Import Budget from Excel"
                                 Error(Text011);
                         end;
                     TempDim.FindFirst and (ExcelBuf."Row No." <> HeaderRowNo):
-                        begin
-                            if HeaderRowNo <> 0 then
-                                Error(Text012);
-
+                        if HeaderRowNo <> 0 then
+                            Session.LogMessage('0000G7G', DimensionValueCodeEqualToDimensionCodeTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt)
+                        else begin
                             IncreaseAndCheckCountDim(CountDim);
                             DimCode[CountDim] := TempDim.Code;
                             DimRowNo := ExcelBuf."Row No.";

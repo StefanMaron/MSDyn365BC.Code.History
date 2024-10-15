@@ -14,7 +14,7 @@
         }
         field(3; "Source Type"; Enum "Price Source Type")
         {
-            Caption = 'Applies-to Type';
+            Caption = 'Assign-to Type';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -33,7 +33,7 @@
         }
         field(4; "Source No."; Code[20])
         {
-            Caption = 'Applies-to No.';
+            Caption = 'Assign-to';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -58,7 +58,7 @@
         }
         field(5; "Parent Source No."; Code[20])
         {
-            Caption = 'Applies-to Parent No.';
+            Caption = 'Assign-to Parent No.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -85,7 +85,7 @@
         }
         field(6; "Source ID"; Guid)
         {
-            Caption = 'Applies-to ID';
+            Caption = 'Assign-to ID';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -100,9 +100,13 @@
         {
             Caption = 'Product Type';
             DataClassification = CustomerContent;
+            InitValue = Item;
 
             trigger OnValidate()
             begin
+                if "Asset Type" = "Asset Type"::" " then
+                    "Asset Type" := "Asset Type"::Item;
+
                 CopyRecTo(PriceAsset);
                 PriceAsset.Validate("Asset Type", "Asset Type");
                 CopyFrom(PriceAsset);
@@ -896,6 +900,8 @@
     begin
         VerifySource();
         TestField("Asset Type");
+
+        OnAfterVerify(Rec);
     end;
 
     local procedure VerifyParentSource() Result: Boolean;
@@ -959,6 +965,11 @@
 
     [IntegrationEvent(false, false)]
     procedure OnAfterIsUOMSupported(PriceListLine: Record "Price List Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterVerify(var PriceListLine: Record "Price List Line")
     begin
     end;
 }
