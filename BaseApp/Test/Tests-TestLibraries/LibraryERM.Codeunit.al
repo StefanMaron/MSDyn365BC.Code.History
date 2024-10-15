@@ -3531,6 +3531,15 @@
 
         OnAfterFillSalesHeaderExcludedFieldList(FieldListToExclude);
     end;
+    
+    procedure SetEnableDataCheck(EnableDataCheck: Boolean)
+    begin
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Enable Data Check" <> EnableDataCheck then begin
+            GeneralLedgerSetup."Enable Data Check" := EnableDataCheck;
+            GeneralLedgerSetup.Modify();
+        end;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
