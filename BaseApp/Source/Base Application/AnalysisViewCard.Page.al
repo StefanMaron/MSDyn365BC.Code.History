@@ -206,12 +206,35 @@ page 555 "Analysis View Card"
                     SetUpdateOnPosting(false);
                 end;
             }
+            action(ResetAnalysisView)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Reset';
+                Image = DeleteRow;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Delete existing entries so you can recreate them. Use this action after a dimension correction was done or if entries are missing. To recreate the entries, choose Update or run the Update Analysis View report.';
+
+                trigger OnAction()
+                begin
+                    if Confirm(ResetAnalysisViewQst) then
+                        Rec.AnalysisViewReset();
+                end;
+            }
         }
     }
 
     trigger OnAfterGetRecord()
     begin
-        SetGLAccountSource;
+        SetGLAccountSource();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        if CurrentRecordId <> Rec.RecordId then begin
+            Rec.ShowResetNeededNotification();
+            CurrentRecordId := Rec.RecordId;
+        end;
     end;
 
     trigger OnOpenPage()
@@ -226,5 +249,9 @@ page 555 "Analysis View Card"
     begin
         GLAccountSource := "Account Source" = "Account Source"::"G/L Account";
     end;
+
+    var
+        CurrentRecordId: RecordId;
+        ResetAnalysisViewQst: Label 'This action will delete all existing entries. It should be used only if there are missing entries or if the dimension corection was done. Invoke Update or run the Update Analysis View Report to create new set of entries.\\Do you want to continue?';
 }
 

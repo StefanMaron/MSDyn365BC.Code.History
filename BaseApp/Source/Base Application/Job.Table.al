@@ -1117,6 +1117,7 @@
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
         SellToCustomerTxt: Label 'Sell-to Customer';
         BillToCustomerTxt: Label 'Bill-to Customer';
+        StatusCompletedErr: Label 'You cannot select the Job %1, its status set to %2.', Comment = '%1= The Job no. field; %2 = Status of that job.';
 
     procedure AssistEdit(OldJob: Record Job) Result: Boolean
     var
@@ -1484,6 +1485,20 @@
                 JobPlanningLine.Validate("Currency Date");
                 JobPlanningLine.Modify();
             until JobPlanningLine.Next() = 0;
+    end;
+
+    procedure TestStatusCompleted()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestStatusCompleted(Rec, IsHandled);
+        If IsHandled then
+            exit;
+
+        if not (Status = Status::Completed) then
+            exit;
+        Error(StatusCompletedErr, "No.", Status);
     end;
 
     local procedure CurrencyUpdatePurchLines()
@@ -2162,6 +2177,13 @@
         If IsHandled then
             exit;
 #endif
+        if Job."Sell-to Customer No." <> '' then begin
+            SellToCustomer.Get(Job."Sell-to Customer No.");
+            IsHandled := false;
+            OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(Rec, SellToCustomer, IsHandled);
+            if not IsHandled then
+                SellToCustomer.CheckBlockedCustOnDocs(SellToCustomer, "Sales Document Type"::Order, false, false);
+        end;
 
         if (Job."Sell-to Customer No." = '') or (Job."Sell-to Customer No." <> xJob."Sell-to Customer No.") then
             if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
@@ -2390,7 +2412,7 @@
     end;
     
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBillToCustomerNoUpdated(var Job: Record Job; xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeBillToCustomerNoUpdated(var Job: Record Job; var xJob: Record Job; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -2574,5 +2596,14 @@
     local procedure OnUpdateCustOnBeforeAssignIncoiceCurrencyCode(var Job: Record Job; xJob: Record Job; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Job: Record Job; var Cust: Record Customer; var IsHandled: Boolean)
+    begin
+    end;    
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestStatusCompleted(var Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+}

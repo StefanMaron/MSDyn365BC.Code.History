@@ -103,13 +103,6 @@ page 9042 "Team Member Activities"
     {
     }
 
-    trigger OnAfterGetCurrRecord()
-    var
-        RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
-    begin
-        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial;
-    end;
-
     trigger OnOpenPage()
     var
         TimeSheetHeader: Record "Time Sheet Header";

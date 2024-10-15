@@ -1562,11 +1562,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify outstanding transactions are included and report totals correct
+        BankAccRecon.CalcFields("Total Difference");
         VerifyBankAccReconTestReport(
           CustLedgerAmount - 10,
           VendLedgerAmount,
           BankAccRecon."Statement Ending Balance",
-          CustLedgerAmount + VendLedgerAmount);
+          CustLedgerAmount + VendLedgerAmount,
+          BankAccRecon."Total Difference");
     end;
 
     [Test]
@@ -1619,11 +1621,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify outstanding transactions are included and report totals correct
+        BankAccRecon.CalcFields("Total Difference");
         VerifyBankAccReconTestReport(
           CustLedgerAmount,
           VendLedgerAmount + 10,
           BankAccRecon."Statement Ending Balance",
-          CustLedgerAmount + VendLedgerAmount);
+          CustLedgerAmount + VendLedgerAmount,
+          BankAccRecon."Total Difference");
     end;
 
     [Test]
@@ -1669,11 +1673,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify outstanding transactions are included and report totals correct
+        BankAccRecon.CalcFields("Total Difference");
         VerifyBankAccReconTestReport(
           CustLedgerAmount,
           VendLedgerAmount,
           BankAccRecon."Statement Ending Balance",
-          CustLedgerAmount + VendLedgerAmount);
+          CustLedgerAmount + VendLedgerAmount,
+          BankAccRecon."Total Difference");
     end;
 
     [Test]
@@ -1722,11 +1728,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         REPORT.Run(REPORT::"Bank Acc. Recon. - Test");
 
         // [THEN] Verify outstanding transactions are included and report totals correct for multiple transactions
+        BankAccRecon.CalcFields("Total Difference");
         VerifyBankAccReconTestReport(
           CustLedgerAmount + CustLedgerAmount2,
           VendLedgerAmount + VendLedgerAmount2,
           BankAccRecon."Statement Ending Balance",
-          CustLedgerAmount + CustLedgerAmount2 + VendLedgerAmount + VendLedgerAmount2);
+          CustLedgerAmount + CustLedgerAmount2 + VendLedgerAmount + VendLedgerAmount2,
+          BankAccRecon."Total Difference");
     end;
 
     [Test]
@@ -1777,9 +1785,11 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify no outstanding transactions included as they are applied, verify totals on report
+        BankAccRecon.CalcFields("Total Difference");
         VerifyBankAccReconTestReport(0, 0,
           BankAccRecon."Statement Ending Balance",
-          CustLedgerAmount + CustLedgerAmount2 + VendLedgerAmount + VendLedgerAmount2);
+          CustLedgerAmount + CustLedgerAmount2 + VendLedgerAmount + VendLedgerAmount2,
+          BankAccRecon."Total Difference");
     end;
 
     [Test]
@@ -1833,11 +1843,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl.TestReport.Invoke;
 
         // [THEN] Verify outstanding transactions that are not applied are included, verify totals on report
+        BankAccRecon.CalcFields("Total Difference");
         VerifyBankAccReconTestReport(
           CustLedgerAmount2,
           VendLedgerAmount + VendLedgerAmount2,
           BankAccRecon."Statement Ending Balance",
-          CustLedgerAmount + CustLedgerAmount2 + VendLedgerAmount + VendLedgerAmount2);
+          CustLedgerAmount + CustLedgerAmount2 + VendLedgerAmount + VendLedgerAmount2,
+          BankAccRecon."Total Difference");
     end;
 
     [Test]
@@ -3194,7 +3206,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         BankAcc.Modify(true);
     end;
 
-    local procedure VerifyBankAccReconTestReport(OutstdTransactions: Decimal; OutstdPayments: Decimal; StatementEndingBalance: Decimal; GLBalance: Decimal)
+    local procedure VerifyBankAccReconTestReport(OutstdTransactions: Decimal; OutstdPayments: Decimal; StatementEndingBalance: Decimal; GLBalance: Decimal; SumOfDifferences: Decimal)
     begin
         LibraryReportDataset.LoadDataSetFile;
 
@@ -3202,8 +3214,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryReportDataset.AssertElementWithValueExists('Ending_GL_Balance', GLBalance);
         LibraryReportDataset.AssertElementWithValueExists('Adjusted_Statement_Ending_Balance',
           StatementEndingBalance + OutstdTransactions + OutstdPayments);
-        LibraryReportDataset.AssertElementWithValueExists('Difference',
-          (GLBalance - (StatementEndingBalance + OutstdTransactions + OutstdPayments)));
+        LibraryReportDataset.AssertElementWithValueExists('Sum_Of_Differences', SumOfDifferences);
         // Warning HeaderError1 does not exist for Payment Reconciliation (TFS 398635)
         LibraryReportDataset.AssertElementWithValueNotExist(
             'HeaderError1', 'Statement Ending Balance is not equal to Total Balance.');
