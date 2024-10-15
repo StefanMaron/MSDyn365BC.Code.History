@@ -152,7 +152,6 @@ codeunit 104000 "Upgrade - BaseApp"
 
         ClearTemporaryTables();
 
-        UpdateDefaultDimensionsReferencedIds();
         UpdateGenJournalBatchReferencedIds();
         UpdateJobs();
         UpdateItemTrackingCodes();
@@ -320,86 +319,6 @@ codeunit 104000 "Upgrade - BaseApp"
         BankPmtApplRule.ModifyAll("Review Required", true);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSetReviewRequiredOnBankPmtApplRulesTag());
-    end;
-
-    local procedure UpdateDefaultDimensionsReferencedIds()
-    var
-        DefaultDimension: Record "Default Dimension";
-        Dimension: Record Dimension;
-        DimensionValue: Record "Dimension Value";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        DefaultDimensionDataTransfer: DataTransfer;
-        BlankGuid: Guid;
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionAPIUpgradeTag()) then
-            exit;
-
-        DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
-        DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Table ID"), '=%1', Database::Item);
-        DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::Item, DefaultDimension.FieldNo("Parent Type"));
-        DefaultDimensionDataTransfer.UpdateAuditFields := false;
-        DefaultDimensionDataTransfer.CopyFields();
-        Clear(DefaultDimensionDataTransfer);
-
-        DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
-        DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Table ID"), '=%1', Database::Customer);
-        DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::Customer, DefaultDimension.FieldNo("Parent Type"));
-        DefaultDimensionDataTransfer.UpdateAuditFields := false;
-        DefaultDimensionDataTransfer.CopyFields();
-        Clear(DefaultDimensionDataTransfer);
-
-        DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
-        DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Table ID"), '=%1', Database::Vendor);
-        DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::Vendor, DefaultDimension.FieldNo("Parent Type"));
-        DefaultDimensionDataTransfer.UpdateAuditFields := false;
-        DefaultDimensionDataTransfer.CopyFields();
-        Clear(DefaultDimensionDataTransfer);
-
-        DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
-        DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Table ID"), '=%1', Database::Employee);
-        DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::Employee, DefaultDimension.FieldNo("Parent Type"));
-        DefaultDimensionDataTransfer.UpdateAuditFields := false;
-        DefaultDimensionDataTransfer.CopyFields();
-        Clear(DefaultDimensionDataTransfer);
-
-        DefaultDimensionDataTransfer.SetTables(Database::"Default Dimension", Database::"Default Dimension");
-        DefaultDimensionDataTransfer.AddSourceFilter(DefaultDimension.FieldNo("Table ID"), '<>%1&<>%2&<>%3&<>%4', Database::Item, Database::Customer, Database::Vendor, Database::Employee);
-        DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::" ", DefaultDimension.FieldNo("Parent Type"));
-        DefaultDimensionDataTransfer.UpdateAuditFields := false;
-        DefaultDimensionDataTransfer.CopyFields();
-        Clear(DefaultDimensionDataTransfer);
-
-        DefaultDimension.SetFilter(DimensionId, '%1', BlankGuid);
-        if not DefaultDimension.IsEmpty() then begin
-            DefaultDimensionDataTransfer.SetTables(Database::Dimension, Database::"Default Dimension");
-            DefaultDimensionDataTransfer.AddFieldValue(Dimension.FieldNo(SystemId), DefaultDimension.FieldNo(DimensionId));
-            DefaultDimensionDataTransfer.AddJoin(Dimension.FieldNo(Code), DefaultDimension.FieldNo("Dimension Code"));
-            DefaultDimensionDataTransfer.UpdateAuditFields := false;
-            DefaultDimensionDataTransfer.CopyFields();
-            Clear(DefaultDimensionDataTransfer);
-        end;
-
-        Clear(DefaultDimension);
-        DefaultDimension.SetFilter(DimensionValueId, '%1', BlankGuid);
-        if not DefaultDimension.IsEmpty() then begin
-            DefaultDimensionDataTransfer.SetTables(Database::"Dimension Value", Database::"Default Dimension");
-            DefaultDimensionDataTransfer.AddFieldValue(DimensionValue.FieldNo(SystemId), DefaultDimension.FieldNo(DimensionValueId));
-            DefaultDimensionDataTransfer.AddJoin(DimensionValue.FieldNo("Dimension Code"), DefaultDimension.FieldNo("Dimension Code"));
-            DefaultDimensionDataTransfer.AddJoin(DimensionValue.FieldNo(Code), DefaultDimension.FieldNo("Dimension Value Code"));
-            DefaultDimensionDataTransfer.UpdateAuditFields := false;
-            DefaultDimensionDataTransfer.CopyFields();
-        end;
-
-        Clear(DefaultDimension);
-        DefaultDimension.SetFilter(ParentId, '%1', BlankGuid);
-        if DefaultDimension.FindSet() then
-            repeat
-                if DefaultDimension.UpdateParentId() then
-                    DefaultDimension.Modify();
-            until DefaultDimension.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionAPIUpgradeTag());
     end;
 
     local procedure UpdateGenJournalBatchReferencedIds()
@@ -706,7 +625,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSalesCrMemoEntityBuffer();
         UpgradeSalesOrderShipmentMethod();
         UpgradeSalesCrMemoShipmentMethod();
-
         UpgradeSalesShipmentLineDocumentId();
         UpdateItemVariants();
         UpgradeDefaultDimensions();
@@ -1614,9 +1532,13 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpgradeDefaultDimensions()
     var
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
         DefaultDimension: Record "Default Dimension";
+        ModifyDefaultDimension: Record "Default Dimension";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
+        BlankGuid: Guid;
         DefaultDimensionDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionParentTypeUpgradeTag()) then
@@ -1662,7 +1584,39 @@ codeunit 104000 "Upgrade - BaseApp"
             DefaultDimensionDataTransfer.AddConstantValue("Default Dimension Parent Type"::Employee, DefaultDimension.FieldNo("Parent Type"));
             DefaultDimensionDataTransfer.UpdateAuditFields := false;
             DefaultDimensionDataTransfer.CopyFields();
+            Clear(DefaultDimensionDataTransfer);
         end;
+
+        Clear(DefaultDimension);
+        DefaultDimension.SetFilter(DimensionId, '%1', BlankGuid);
+        if not DefaultDimension.IsEmpty() then begin
+            DefaultDimensionDataTransfer.SetTables(Database::Dimension, Database::"Default Dimension");
+            DefaultDimensionDataTransfer.AddFieldValue(Dimension.FieldNo(SystemId), DefaultDimension.FieldNo(DimensionId));
+            DefaultDimensionDataTransfer.AddJoin(Dimension.FieldNo(Code), DefaultDimension.FieldNo("Dimension Code"));
+            DefaultDimensionDataTransfer.UpdateAuditFields := false;
+            DefaultDimensionDataTransfer.CopyFields();
+            Clear(DefaultDimensionDataTransfer);
+        end;
+
+        Clear(DefaultDimension);
+        DefaultDimension.SetFilter(DimensionValueId, '%1', BlankGuid);
+        if not DefaultDimension.IsEmpty() then begin
+            DefaultDimensionDataTransfer.SetTables(Database::"Dimension Value", Database::"Default Dimension");
+            DefaultDimensionDataTransfer.AddFieldValue(DimensionValue.FieldNo(SystemId), DefaultDimension.FieldNo(DimensionValueId));
+            DefaultDimensionDataTransfer.AddJoin(DimensionValue.FieldNo("Dimension Code"), DefaultDimension.FieldNo("Dimension Code"));
+            DefaultDimensionDataTransfer.AddJoin(DimensionValue.FieldNo(Code), DefaultDimension.FieldNo("Dimension Value Code"));
+            DefaultDimensionDataTransfer.UpdateAuditFields := false;
+            DefaultDimensionDataTransfer.CopyFields();
+        end;
+
+        Clear(DefaultDimension);
+        DefaultDimension.SetFilter(ParentId, '%1', BlankGuid);
+        if DefaultDimension.FindSet() then
+            repeat
+                ModifyDefaultDimension := DefaultDimension;
+                if ModifyDefaultDimension.UpdateParentId() then
+                    ModifyDefaultDimension.Modify();
+            until DefaultDimension.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionParentTypeUpgradeTag());
     end;

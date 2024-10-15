@@ -21,6 +21,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
         XPathSalesFacturaExpedidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/';
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
+        XPathSalesBaseImponibleTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseTipoOperacion/sii:Entrega/sii:Sujeta/sii:NoExenta/sii:DesgloseIVA/sii:DetalleIVA';
         UploadType: Option Regular,Intracommunity,RetryAccepted;
 
     [Test]
@@ -787,6 +788,45 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:TipoRectificativa');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceWithForeignCustomerAndInvTypeR4()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VATEntry: Record "VAT Entry";
+        SIIXMLCreator: Codeunit "SII XML Creator";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 502669] Stan can post the sales invoice with a foreign customer and "Invoice Type" = "R4 Corrected Invoice (Other)"
+
+        Initialize();
+
+        // [GIVEN] Foreign customer "X"
+        LibrarySII.CreateCustWithCountryAndVATReg(Customer, LibrarySII.GetForeignCountry(), LibrarySII.GetForeignVATRegNo());
+        // [GIVEN] Posted Sales Invoice with a customer "X" and "Invoice Type" = "R4 Corrected Invoice (Other)"
+        PostSalesDocWithInvOrCrMemoType(
+          CustLedgerEntry, SalesHeader."Document Type"::Invoice, Customer."No.", 0,
+          SalesHeader."Invoice Type"::"R4 Corrected Invoice (Other)",
+          "SII Sales Credit Memo Type"::"R1 Corrected Invoice");
+
+        // [WHEN] Create xml for Posted Sales Invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has TipoFactura = "R4"
+        LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:TipoFactura', 'R4');
+
+        // [THEN] The structure of the line part of the XML is the following:
+        // [THEN] sii:DesgloseTipoOperacion/sii:Entrega/sii:Sujeta/sii:NoExenta/sii:DesgloseIVA/sii:DetalleIVA/
+        VATEntry.SetRange("Posting Date", CustLedgerEntry."Posting Date");
+        VATEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
+        VATEntry.FindFirst();
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathSalesBaseImponibleTok, '/sii:BaseImponible', SIIXMLCreator.FormatNumber(-VATEntry.Base));
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then
@@ -799,11 +839,16 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
     end;
 
     local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; InvoiceType: Enum "SII Sales Invoice Type"; CrMemoType: Enum "SII Sales Credit Memo Type")
+    begin
+        PostSalesDocWithInvOrCrMemoType(CustLedgerEntry, DocType, LibrarySales.CreateCustomerNo(), CorrType, InvoiceType, CrMemoType);
+    end;
+
+    local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CustNo: Code[20]; CorrType: Option; InvoiceType: Enum "SII Sales Invoice Type"; CrMemoType: Enum "SII Sales Credit Memo Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
         SalesHeader.Validate("Correction Type", CorrType);
         SalesHeader.Validate("Invoice Type", InvoiceType);
         SalesHeader.Validate("Cr. Memo Type", CrMemoType);

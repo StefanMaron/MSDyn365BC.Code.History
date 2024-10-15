@@ -321,11 +321,6 @@ table 81 "Gen. Journal Line"
         field(7; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-
-            trigger OnValidate()
-            begin
-                CheckOpenApprovalEntryExistForCurrentUser();
-            end;
         }
         field(8; Description; Text[100])
         {
@@ -4028,7 +4023,7 @@ table 81 "Gen. Journal Line"
                     end;
                     GenJnlLine3.Get("Journal Template Name", "Journal Batch Name", "Line No.");
                     CheckJobQueueStatus(GenJnlLine3);
-                    GenJnlLine3.Validate("Document No.", DocNo);
+                    GenJnlLine3."Document No." := DocNo;
                     GenJnlLine3.Modify();
                     OnRenumberDocNoOnLinesOnAfterModifyGenJnlLine3(DocNo, GenJnlLine3);
                     First := false;
@@ -4573,7 +4568,7 @@ table 81 "Gen. Journal Line"
             if (xRec.Amount <> 0) or (xRec."Applies-to Doc. No." <> '') or (xRec."Applies-to ID" <> '') then
                 PaymentToleranceMgt.PmtTolGenJnl(Rec);
         end;
-        if (CurrFieldNo = fieldno(Amount)) and (Amount = 0) and (("Applies-to ID" <> '') or ("Applies-to Doc. No." <> '')) then begin
+        if ((CurrFieldNo = fieldno(Amount)) or (CurrFieldNo = FieldNo("Amount (LCY)"))) and (Amount = 0) and (("Applies-to ID" <> '') or ("Applies-to Doc. No." <> '')) then begin
             if ("Applies-to ID" <> '') then
                 Validate("Applies-to ID", '');
             if ("Applies-to Doc. No." <> '') then

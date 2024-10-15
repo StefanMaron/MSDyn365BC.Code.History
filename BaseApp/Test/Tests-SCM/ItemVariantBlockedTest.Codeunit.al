@@ -23,6 +23,7 @@ codeunit 134817 "Item Variant Blocked Test"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         IsInitialized: Boolean;
+        InvalidTableRelationErr: Label 'The field %1 of table %2 contains a value (%3) that cannot be found in the related table (%4).', Comment = '%1 - Validating Field Caption, %2 - Validating Table Caption, %3 - Validating Value, %4 - Related Table Caption';
 
     [Test]
     procedure ItemVariantBlockedForSaleOnInvoice()
@@ -47,8 +48,8 @@ codeunit 134817 "Item Variant Blocked Test"
         // [WHEN] Create a line on the sales invoice with the item that is blocked for sale
         asserterror CreateItemSalesLineWithItemVariant(SalesLine, SalesHeader, ItemVariant);
 
-        // [THEN] An error appears: 'You cannot sell this item'
-        Assert.ExpectedError(StrSubstNo(SalesBlockedErr, ItemVariant.TableCaption(), ItemVariant.FieldCaption("Sales Blocked")));
+        // [THEN] An error appears: 'The field %1 of table %2 contains a value (%3) that cannot be found in the related table (%4).'
+        Assert.ExpectedError(StrSubstNo(InvalidTableRelationErr, SalesLine.FieldCaption("Variant Code"), SalesLine.TableCaption(), ItemVariant.Code, ItemVariant.TableCaption()));
     end;
 
     [Test]
@@ -208,8 +209,8 @@ codeunit 134817 "Item Variant Blocked Test"
         // [WHEN] Create a line on the purchase invoice with the item variant that is blocked for sale
         asserterror CreateItemPurchaseLineWithItemVariant(PurchaseLine, PurchaseHeader, ItemVariant);
 
-        // [THEN] An error appears: 'You cannot purchase this item variant'
-        Assert.ExpectedError(StrSubstNo(ItemVariantPurchasingBlockedErr, ItemVariant.Code, ItemVariant."Item No.", ItemVariant.FieldCaption("Purchasing Blocked")));
+        // [THEN] An error appears: 'The field %1 of table %2 contains a value (%3) that cannot be found in the related table (%4).'
+        Assert.ExpectedError(StrSubstNo(InvalidTableRelationErr, PurchaseLine.FieldCaption("Variant Code"), PurchaseLine.TableCaption(), ItemVariant.Code, ItemVariant.TableCaption()));
     end;
 
     [Test]

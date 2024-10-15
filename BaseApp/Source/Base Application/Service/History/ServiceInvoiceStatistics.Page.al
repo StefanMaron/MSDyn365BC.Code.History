@@ -161,7 +161,7 @@ page 6033 "Service Invoice Statistics"
                     Caption = 'Cost Adjmt. Amount (LCY)';
                     ToolTip = 'Specifies the difference between the original cost and the total adjusted cost of the items in the posted service invoice.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries();
                     end;
