@@ -4500,7 +4500,7 @@
                 FieldError("Unit Price", StrSubstNo(Text047, FieldCaption("Prepayment %")));
         end;
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
-            if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
+            if ("Prepmt. Line Amount" < "Prepmt. Amt. Inv.") and (SalesHeader.Status <> SalesHeader.Status::Released) then begin
                 if IsServiceChargeLine() then
                     Error(CannotChangePrepaidServiceChargeErr);
                 if "Inv. Discount Amount" <> 0 then

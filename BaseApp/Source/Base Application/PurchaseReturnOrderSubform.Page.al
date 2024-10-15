@@ -83,6 +83,7 @@
                         CrossReferenceNoLookUp;
                         InsertExtendedText(false);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -107,6 +108,7 @@
                         ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
                         InsertExtendedText(false);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 

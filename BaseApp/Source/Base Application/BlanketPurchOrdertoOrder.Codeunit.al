@@ -200,6 +200,8 @@ codeunit 97 "Blanket Purch. Order to Order"
     end;
 
     local procedure CreatePurchHeader(PurchHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
+    var
+        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         OnBeforeCreatePurchHeader(PurchHeader);
 
@@ -213,6 +215,8 @@ codeunit 97 "Blanket Purch. Order to Order"
 
             PurchOrderLine.LockTable();
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
+            StandardCodesMgt.SetSkipRecurringLines(true);
+            PurchOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
             InsertPurchaseHeader(PurchOrderHeader);
 
             if "Order Date" = 0D then

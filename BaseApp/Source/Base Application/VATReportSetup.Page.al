@@ -26,6 +26,11 @@ page 743 "VAT Report Setup"
                     Caption = 'Enable Datifattura Lines Filtering';
                     ToolTip = 'Specifies if the request page must be shown when suggesting Datifattura lines to allow setting a filter for the entries that will be considered.';
                 }
+                field("Report VAT Note"; "Report VAT Note")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies if the VAT Note field is available for reporting from the VAT Return card page.';
+                }
             }
             group(Numbering)
             {
