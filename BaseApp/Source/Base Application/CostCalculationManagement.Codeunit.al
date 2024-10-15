@@ -398,6 +398,26 @@
         end;
     end;
 
+    procedure CalcActualOutputQtyWithNoCapacity(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
+    var
+        CapLedgEntry: Record "Capacity Ledger Entry";
+    begin
+        with CapLedgEntry do begin
+            if ProdOrderLine.Status < ProdOrderLine.Status::Released then
+                exit(0);
+
+            SetCurrentKey(
+              "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
+            SetFilterByProdOrderRoutingLine(
+              ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+              ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+            SetRange("Last Output Line", true);
+            SetRange(Quantity, 0);
+            CalcSums("Output Quantity", "Scrap Quantity");
+            exit("Output Quantity" + "Scrap Quantity");
+        end;
+    end;
+
     procedure CalcActQtyBase(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
     var
         CapLedgEntry: Record "Capacity Ledger Entry";
