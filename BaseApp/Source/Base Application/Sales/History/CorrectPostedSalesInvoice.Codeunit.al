@@ -285,7 +285,6 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
         CancellingOnly := Cancelling;
 
-        TestSalesInvoiceHeaderAmount(SalesInvoiceHeader, Cancelling);
         TestIfPostingIsAllowed(SalesInvoiceHeader);
         TestIfInvoiceIsCorrectedOnce(SalesInvoiceHeader);
         TestIfInvoiceIsNotCorrectiveDoc(SalesInvoiceHeader);
@@ -302,19 +301,6 @@ codeunit 1303 "Correct Posted Sales Invoice"
         TestNotSalesPrepaymentlInvoice(SalesInvoiceHeader);
 
         OnAfterTestCorrectInvoiceIsAllowed(SalesInvoiceHeader, Cancelling);
-    end;
-
-    local procedure TestSalesInvoiceHeaderAmount(var SalesInvoiceHeader: Record "Sales Invoice Header"; Cancelling: Boolean)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeTestSalesInvoiceHeaderAmount(SalesInvoiceHeader, Cancelling, IsHandled);
-        if IsHandled then
-            exit;
-
-        SalesInvoiceHeader.CalcFields(Amount);
-        SalesInvoiceHeader.TestField(Amount);
     end;
 
     local procedure ShowInvoiceAppliedNotification(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1234,6 +1220,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
     end;
 
+    [Obsolete('OnBeforeTestSalesInvoiceHeaderAmount is not supported anymore.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestSalesInvoiceHeaderAmount(var SalesInvoiceHeader: Record "Sales Invoice Header"; Cancelling: Boolean; var IsHandled: Boolean)
     begin

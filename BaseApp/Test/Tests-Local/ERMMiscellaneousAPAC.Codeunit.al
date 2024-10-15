@@ -32,6 +32,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         CurrentSaveValuesId: Integer;
+        QtyType: Option General,Invoicing,Shipping;
         LinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
@@ -1191,6 +1192,502 @@ codeunit 141008 "ERM - Miscellaneous APAC"
                 TempVATAmountLine.TableCaption()));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyAmountACYOfSalesLineInVATAmountLine()
+    var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Currency: Record Currency;
+        ExpectedAmountACY: Decimal;
+        NewExchRate: Decimal;
+    begin
+        // [SCENARIO 539558] The "Amount (ACY)" value Sales Invoice Statistics is same as in Sales Header when 
+        // Currency Code of Sales Header and Additional Reporting Currency of General Ledger Setup are same.
+        Initialize();
+
+        // [GIVEN] Create a Currency.
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Set Reporting Currency in the General Ledger Setup.
+        LibraryERM.SetAddReportingCurrency(Currency.Code);
+
+        // [GIVEN] Create an Exchange Rate.
+        NewExchRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LibraryERM.CreateExchangeRate(
+            Currency.Code,
+            WorkDate(),
+            NewExchRate,
+            NewExchRate);
+
+        // [GIVEN] Create a VAT Posting Setup with Accounts.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+
+        // [GIVEN] Create a Sales Header.
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Invoice,
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Validate Currency Code in Sales Header.
+        SalesHeader.Validate("Currency Code", Currency.Code);
+        SalesHeader.Modify();
+
+        // [GIVEN] Create a Sales Line with a VAT Product Posting Group.
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandInt(100));
+
+        // [GIVEN] Update Unit Price in Sales Line.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Generate and save Expected "Amount ACY" in a Variable.
+        ExpectedAmountACY := Round(SalesLine."VAT Base Amount");
+
+        // [GIVEN] Create another Sales Line with a VAT Product Posting Group.
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandInt(100));
+
+        // [GIVEN] Update Unit Price in Sales Line.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Generate and save Expected "Amount ACY".
+        ExpectedAmountACY += Round(SalesLine."VAT Base Amount");
+
+        // [WHEN] Calculate VAT Amount Line.
+        TempVATAmountLine.DeleteAll();
+        SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, TempVATAmountLine);
+
+        // [THEN] "Amount (ACY)" in VAT Amount Line is equal to ExpectedAmountACY.
+        Assert.AreEqual(
+            ExpectedAmountACY,
+            TempVATAmountLine."Amount (ACY)",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                TempVATAmountLine.FieldCaption("Amount (ACY)"),
+                ExpectedAmountACY,
+                TempVATAmountLine.TableCaption()));
+    end;
+
+    [Test]
+    procedure AmountACYInSalesInvStatsWhenEmptyCurrency()
+    var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CurrencyACY: Record Currency;
+        ExpectedAmountACY: Decimal;
+        ExchRateACY: Decimal;
+        LineAmount1: Decimal;
+        LineAmount2: Decimal;
+    begin
+        // [SCENARIO 540301] Amount (ACY) on Sales Invoice Statistics page when invoice currency is not set and Additional Reporting Currency is set.
+        Initialize();
+
+        // [GIVEN] Additional Reporting Currency "C1" with exchange rate amount 5 is set in General Ledger Setup.
+        ExchRateACY := 5;
+        LibraryERM.CreateCurrency(CurrencyACY);
+        LibraryERM.CreateExchangeRate(CurrencyACY.Code, WorkDate(), ExchRateACY, ExchRateACY);
+        LibraryERM.SetAddReportingCurrency(CurrencyACY.Code);
+
+        // [GIVEN] Sales Invoice with "Currency Code" = "".
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Invoice,
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Two Sales Lines with sum Amount = 1000.
+        LineAmount1 := 900;
+        LineAmount2 := 100;
+        LibrarySales.CreateSalesLineWithUnitPrice(
+            SalesLine, SalesHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount1, 1);
+        LibrarySales.CreateSalesLineWithUnitPrice(
+            SalesLine, SalesHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount2, 1);
+
+        // [WHEN] Run CalcVATAmountLines with Quantity type General. The resulted VAT Amount Line is shown on Sales Invoice Statistics page.
+        SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, TempVATAmountLine);
+
+        // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 5000: <invoice amount> * <additional currency exchange rate amount>.
+        ExpectedAmountACY := (LineAmount1 + LineAmount2) * ExchRateACY;
+        Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+    end;
+
+    [Test]
+    procedure AmountACYInSalesInvStatsWhenNonEmptyCurrency()
+    var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CurrencyACY: Record Currency;
+        CurrencyInv: Record Currency;
+        ExpectedAmountACY: Decimal;
+        ExchRateACY: Decimal;
+        ExchRateInv: Decimal;
+        LineAmount1: Decimal;
+        LineAmount2: Decimal;
+    begin
+        // [SCENARIO 540301] Amount (ACY) on Sales Invoice Statistics page when invoice currency is set and Additional Reporting Currency is set.
+        Initialize();
+
+        // [GIVEN] Additional Reporting Currency "C1" with exchange rate amount 5 is set in General Ledger Setup.
+        ExchRateACY := 5;
+        LibraryERM.CreateCurrency(CurrencyACY);
+        LibraryERM.CreateExchangeRate(CurrencyACY.Code, WorkDate(), ExchRateACY, ExchRateACY);
+        LibraryERM.SetAddReportingCurrency(CurrencyACY.Code);
+
+        // [GIVEN] Currency "C2" with exchange rate amount 2.
+        ExchRateInv := 2;
+        LibraryERM.CreateCurrency(CurrencyInv);
+        LibraryERM.CreateExchangeRate(CurrencyInv.Code, WorkDate(), ExchRateInv, ExchRateInv);
+
+        // [GIVEN] Sales Invoice with "Currency Code" = "C2".
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Invoice,
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        SalesHeader.Validate("Currency Code", CurrencyInv.Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Two Sales Lines with sum Amount = 1000.
+        LineAmount1 := 900;
+        LineAmount2 := 100;
+        LibrarySales.CreateSalesLineWithUnitPrice(
+            SalesLine, SalesHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount1, 1);
+        LibrarySales.CreateSalesLineWithUnitPrice(
+            SalesLine, SalesHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount2, 1);
+
+        // [WHEN] Run CalcVATAmountLines with Quantity type General. The resulted VAT Amount Line is shown on Sales Invoice Statistics page.
+        SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, TempVATAmountLine);
+
+        // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 2500: <invoice amount> / <invoice currency exch rate amount> * <additional currency exch rate amount>.
+        ExpectedAmountACY := ((LineAmount1 + LineAmount2) / ExchRateInv) * ExchRateACY;
+        Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+    end;
+
+    [Test]
+    procedure AmountACYInSalesInvStatsWhenNonEmptyCurrencyPartInvoiced()
+    var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CurrencyACY: Record Currency;
+        CurrencyInv: Record Currency;
+        ExpectedAmountACY: Decimal;
+        ExchRateACY: Decimal;
+        ExchRateInv: Decimal;
+        LineAmount1: Decimal;
+        LineAmount2: Decimal;
+    begin
+        // [SCENARIO 540301] Amount (ACY) on Sales Invoice Statistics page when invoice currency and Additional Reporting Currency are set, and Qty to Invoice < Quantity.
+        Initialize();
+
+        // [GIVEN] Additional Reporting Currency "C1" with exchange rate amount 5 is set in General Ledger Setup.
+        ExchRateACY := 5;
+        LibraryERM.CreateCurrency(CurrencyACY);
+        LibraryERM.CreateExchangeRate(CurrencyACY.Code, WorkDate(), ExchRateACY, ExchRateACY);
+        LibraryERM.SetAddReportingCurrency(CurrencyACY.Code);
+
+        // [GIVEN] Currency "C2" with exchange rate amount 2.
+        ExchRateInv := 2;
+        LibraryERM.CreateCurrency(CurrencyInv);
+        LibraryERM.CreateExchangeRate(CurrencyInv.Code, WorkDate(), ExchRateInv, ExchRateInv);
+
+        // [GIVEN] Sales Invoice with "Currency Code" = "C2".
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Invoice,
+            LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        SalesHeader.Validate("Currency Code", CurrencyInv.Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Two Sales Lines with Qty to Invoice < Quantity. Sum Amount to invoice = 1000.
+        LineAmount1 := 900;
+        LineAmount2 := 100;
+        LibrarySales.CreateSalesLineWithUnitPrice(
+            SalesLine, SalesHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount1, 2);
+        SalesLine.Validate("Qty. to Invoice", 1);
+        SalesLine.Modify(true);
+        LibrarySales.CreateSalesLineWithUnitPrice(
+            SalesLine, SalesHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount2, 2);
+        SalesLine.Validate("Qty. to Invoice", 1);
+        SalesLine.Modify(true);
+
+        // [WHEN] Run CalcVATAmountLines with Quantity type Invoicing. The resulted VAT Amount Line is shown on Sales Invoice Statistics page.
+        SalesLine.CalcVATAmountLines(QtyType::Invoicing, SalesHeader, SalesLine, TempVATAmountLine);
+
+        // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 2500: <amount to invoice> / <invoice currency exch rate amount> * <additional currency exch rate amount>.
+        ExpectedAmountACY := ((LineAmount1 + LineAmount2) / ExchRateInv) * ExchRateACY;
+        Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+    end;
+
+    [Test]
+    procedure AmountACYInPurchInvStatsWhenEmptyCurrency()
+    var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CurrencyACY: Record Currency;
+        ExpectedAmountACY: Decimal;
+        ExchRateACY: Decimal;
+        LineAmount1: Decimal;
+        LineAmount2: Decimal;
+    begin
+        // [SCENARIO 540301] Amount (ACY) on Purchase Invoice Statistics page when invoice currency is not set and Additional Reporting Currency is set.
+        Initialize();
+
+        // [GIVEN] Additional Reporting Currency "C1" with exchange rate amount 5 is set in General Ledger Setup.
+        ExchRateACY := 5;
+        LibraryERM.CreateCurrency(CurrencyACY);
+        LibraryERM.CreateExchangeRate(CurrencyACY.Code, WorkDate(), ExchRateACY, ExchRateACY);
+        LibraryERM.SetAddReportingCurrency(CurrencyACY.Code);
+
+        // [GIVEN] Purchase Invoice with "Currency Code" = "".
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Two Purchase Lines with sum Amount = 1000.
+        LineAmount1 := 900;
+        LineAmount2 := 100;
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount1, 1);
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount2, 1);
+
+        // [WHEN] Run CalcVATAmountLines with Quantity type General. The resulted VAT Amount Line is shown on Purchase Invoice Statistics page.
+        PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, TempVATAmountLine);
+
+        // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 5000: <invoice amount> * <additional currency exchange rate amount>.
+        ExpectedAmountACY := (LineAmount1 + LineAmount2) * ExchRateACY;
+        Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+    end;
+
+    [Test]
+    procedure AmountACYInPurchInvStatsWhenNonEmptyCurrency()
+    var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CurrencyACY: Record Currency;
+        CurrencyInv: Record Currency;
+        ExpectedAmountACY: Decimal;
+        ExchRateACY: Decimal;
+        ExchRateInv: Decimal;
+        LineAmount1: Decimal;
+        LineAmount2: Decimal;
+    begin
+        // [SCENARIO 540301] Amount (ACY) on Purchase Invoice Statistics page when invoice currency is set and Additional Reporting Currency is set.
+        Initialize();
+
+        // [GIVEN] Additional Reporting Currency "C1" with exchange rate amount 5 is set in General Ledger Setup.
+        ExchRateACY := 5;
+        LibraryERM.CreateCurrency(CurrencyACY);
+        LibraryERM.CreateExchangeRate(CurrencyACY.Code, WorkDate(), ExchRateACY, ExchRateACY);
+        LibraryERM.SetAddReportingCurrency(CurrencyACY.Code);
+
+        // [GIVEN] Currency "C2" with exchange rate amount 2.
+        ExchRateInv := 2;
+        LibraryERM.CreateCurrency(CurrencyInv);
+        LibraryERM.CreateExchangeRate(CurrencyInv.Code, WorkDate(), ExchRateInv, ExchRateInv);
+
+        // [GIVEN] Purchase Invoice with "Currency Code" = "C2".
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchaseHeader.Validate("Currency Code", CurrencyInv.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Two Purchase Lines with sum Amount = 1000.
+        LineAmount1 := 900;
+        LineAmount2 := 100;
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount1, 1);
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount2, 1);
+
+        // [WHEN] Run CalcVATAmountLines with Quantity type General. The resulted VAT Amount Line is shown on Purchase Invoice Statistics page.
+        PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, TempVATAmountLine);
+
+        // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 2500: <invoice amount> / <invoice currency exch rate amount> * <additional currency exch rate amount>.
+        ExpectedAmountACY := ((LineAmount1 + LineAmount2) / ExchRateInv) * ExchRateACY;
+        Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+    end;
+
+    [Test]
+    procedure AmountACYInPurchInvStatsWhenNonEmptyCurrencyPartInvoiced()
+    var
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CurrencyACY: Record Currency;
+        CurrencyInv: Record Currency;
+        ExpectedAmountACY: Decimal;
+        ExchRateACY: Decimal;
+        ExchRateInv: Decimal;
+        LineAmount1: Decimal;
+        LineAmount2: Decimal;
+    begin
+        // [SCENARIO 540301] Amount (ACY) on Purchase Invoice Statistics page when invoice currency and Additional Reporting Currency are set, and Qty to Invoice < Quantity.
+        Initialize();
+
+        // [GIVEN] Additional Reporting Currency "C1" with exchange rate amount 5 is set in General Ledger Setup.
+        ExchRateACY := 5;
+        LibraryERM.CreateCurrency(CurrencyACY);
+        LibraryERM.CreateExchangeRate(CurrencyACY.Code, WorkDate(), ExchRateACY, ExchRateACY);
+        LibraryERM.SetAddReportingCurrency(CurrencyACY.Code);
+
+        // [GIVEN] Currency "C2" with exchange rate amount 2.
+        ExchRateInv := 2;
+        LibraryERM.CreateCurrency(CurrencyInv);
+        LibraryERM.CreateExchangeRate(CurrencyInv.Code, WorkDate(), ExchRateInv, ExchRateInv);
+
+        // [GIVEN] Purchase Invoice with "Currency Code" = "C2".
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        PurchaseHeader.Validate("Currency Code", CurrencyInv.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Two Purchase Lines with Qty to Invoice < Quantity. Sum Amount to invoice = 1000.
+        LineAmount1 := 900;
+        LineAmount2 := 100;
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount1, 2);
+        PurchaseLine.Validate("Qty. to Invoice", 1);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.CreatePurchaseLineWithUnitCost(
+            PurchaseLine, PurchaseHeader, LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"), LineAmount2, 2);
+        PurchaseLine.Validate("Qty. to Invoice", 1);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Run CalcVATAmountLines with Quantity type Invoicing. The resulted VAT Amount Line is shown on Purchase Invoice Statistics page.
+        PurchaseLine.CalcVATAmountLines(QtyType::Invoicing, PurchaseHeader, PurchaseLine, TempVATAmountLine);
+
+        // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 2500: <amount to invoice> / <invoice currency exch rate amount> * <additional currency exch rate amount>.
+        ExpectedAmountACY := ((LineAmount1 + LineAmount2) / ExchRateInv) * ExchRateACY;
+        Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsHandler')]
+    procedure ChangedVATAmountACYOnPurchaseStatistics()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        VATPostingSetup: Record "VAT Posting Setup";
+        NewVATAmount: Decimal;
+    begin
+        // [SCENARIO 542548] VAT Amount (ACY) on Purchase Statistics is changed when changing VAT amount
+        Initialize();
+        
+        // [GIVEN] "Max. VAT Difference Allowed" = 1
+        LibraryERM.SetMaxVATDifferenceAllowed(LibraryRandom.RandIntInRange(1, 1));
+        // [GIVEN] Set VAT posting setup for VAT = 10%
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.UpdateVATPostingSetup(VATPostingSetup, 10);
+        // [GIVEN] "Allow VAT Difference" = true
+        LibraryPurchase.SetAllowVATDifference(true);
+
+        // [GIVEN] Create Purchase Invoice with VAT amount = 10.1
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+        PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+        LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
+        PurchaseLine.Modify();
+
+        // [WHEN] Change VAT Amount to 10 on Purchase Statistics
+        // True means update VAT Amount to get some VAT Difference
+        NewVATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine."Amount" - LibraryERM.GetAmountRoundingPrecision();
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(NewVATAmount);
+        PurchaseHeader.OpenDocumentStatistics();
+
+        // [THEN] VAT Amount (ACY) is changed and saved when reopening Statistic page
+        // [THEN] VAT Difference (ACY) is calculated correctly
+        // false means don't update VAT Amount (ACY) after Statistic page reopened.
+        LibraryVariableStorage.Enqueue(false);
+        PurchaseHeader.OpenDocumentStatistics();
+
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        GetPurchaseVATAmountLine(PurchaseHeader, TempVATAmountLine);
+        TempVATAmountLine.TestField("VAT Difference (ACY)", TempVATAmountLine."VAT Amount (ACY)" - TempVATAmountLine."Calculated VAT Amount (ACY)");
+        TempVATAmountLine.TestField("VAT Amount (ACY)", PurchaseLine."Amount Including VAT (ACY)" - PurchaseLine."Amount (ACY)");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseStatisticsWithErrorHandler')]
+    procedure ChangedVATAmountACYWithErrorOnPurchaseStatistics()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        MaxVATDifferenceAllowed: Decimal;
+        NewVATAmount: Decimal;
+        VATDifferenceErr: Label 'The total VAT Difference (ACY) for a document must not exceed the value %1 in the Max. VAT Difference Allowed field.', Locked = true;
+    begin
+        // [SCENARIO 542548] VAT Amount on Purchase Statistics can be changed within max allowed VAT difference
+        Initialize();
+
+        // [GIVEN] "Max. VAT Difference Allowed" = 1
+        MaxVATDifferenceAllowed := LibraryRandom.RandIntInRange(1, 1);
+        LibraryERM.SetMaxVATDifferenceAllowed(MaxVATDifferenceAllowed);
+        // [GIVEN] Set VAT posting setup for VAT = 10%
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.UpdateVATPostingSetup(VATPostingSetup, 10);
+        // [GIVEN] "Allow VAT Difference" = true
+        LibraryPurchase.SetAllowVATDifference(true);
+        // [GIVEN] Clear additional reporting currency
+        LibraryERM.SetAddReportingCurrency('');
+
+        // [GIVEN] Create Purchase Invoice with VAT amount = 10.1, "Vendor Exchange Rate (ACY)" = 0.5
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+        PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+        LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
+        PurchaseLine.Modify();
+
+        // [GIVEN] Set "Vendor Exchange Rate (ACY)" on purchase invoice
+        PurchaseHeader."Vendor Exchange Rate (ACY)" := LibraryRandom.RandDec(1, 2);
+        PurchaseHeader.Modify();
+
+        // [WHEN] Change VAT Amount to 11.1 on Purchase Statistics
+        NewVATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine."Amount" + MaxVATDifferenceAllowed;
+        LibraryVariableStorage.Enqueue(NewVATAmount);
+        PurchaseHeader.OpenDocumentStatistics();
+
+        // [THEN] The error is executed, the VAT amount cannot be changed with the VAT difference bigger than "Max Allowed VAT Difference" * "Vendor Exchange Rate (ACY)"
+        Assert.ExpectedError(StrSubstNo(VATDifferenceErr, MaxVATDifferenceAllowed * PurchaseHeader."Vendor Exchange Rate (ACY)"));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -1902,6 +2399,15 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
     end;
 
+    local procedure GetPurchaseVATAmountLine(PurchaseHeader: Record "Purchase Header"; var VATAmountLine: Record "VAT Amount Line")
+    var
+        TempPurchaseLine: Record "Purchase Line" temporary;
+        PurchPost: Codeunit "Purch.-Post";
+    begin
+        PurchPost.GetPurchLines(PurchaseHeader, TempPurchaseLine, 0);
+        TempPurchaseLine.CalcVATAmountLines(0, PurchaseHeader, TempPurchaseLine, VATAmountLine);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AUNZStatementRequestPageHandler(var AUNZStatement: TestRequestPage "AU/NZ Statement")
@@ -1918,6 +2424,24 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           "Date Filter",
           StrSubstNo('%1..%2', Format(WorkDate()), LibraryRandom.RandDateFrom(WorkDate(), LibraryRandom.RandIntInRange(10, 100))));
         AUNZStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [ModalPageHandler]
+    procedure PurchaseStatisticsHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    var
+        UpdateVATAmount: Boolean;
+    begin
+        UpdateVATAmount := LibraryVariableStorage.DequeueBoolean();
+        if UpdateVATAmount then
+            PurchaseStatistics.SubForm."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
+        PurchaseStatistics.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure PurchaseStatisticsWithErrorHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
+    begin
+        asserterror PurchaseStatistics.SubForm."VAT Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
+        PurchaseStatistics.OK().Invoke();
     end;
 }
 

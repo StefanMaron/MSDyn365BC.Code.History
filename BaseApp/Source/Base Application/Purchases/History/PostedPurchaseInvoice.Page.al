@@ -826,7 +826,13 @@ page 138 "Posted Purchase Invoice"
                     var
                         PurchaseHeader: Record "Purchase Header";
                         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCreateCreditMemoOnAction(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         if CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(Rec, PurchaseHeader) then begin
                             PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
                             CurrPage.Close();
@@ -1132,6 +1138,11 @@ page 138 "Posted Purchase Invoice"
             FormatAddress.VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
             IsRemitToCountyVisible := FormatAddress.UseCounty(RemitAddress."Country/Region Code");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCreditMemoOnAction(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

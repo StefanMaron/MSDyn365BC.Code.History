@@ -754,8 +754,6 @@ report 20 "Calc. and Post VAT Settlement"
         VATPostingSetup: Record "VAT Posting Setup";
         VATReportHeader: Record "VAT Report Header";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-        EntrdStartDate: Date;
-        EnteredEndDate: Date;
         PrintVATEntries: Boolean;
         NextVATEntryNo: Integer;
 #if not CLEAN22
@@ -804,6 +802,8 @@ report 20 "Calc. and Post VAT Settlement"
     protected var
         GLAccSettle: Record "G/L Account";
         PostSettlement: Boolean;
+        EntrdStartDate: Date;
+        EnteredEndDate: Date;
 
     /// <summary>
     /// InitializeRequest with "VAT Date" default to "Posting Date"
