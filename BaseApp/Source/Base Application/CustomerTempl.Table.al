@@ -349,6 +349,10 @@ table 1381 "Customer Templ."
         {
             Caption = 'Partner Type';
         }
+        field(133; "Intrastat Partner Type"; Enum "Partner Type")
+        {
+            Caption = 'Intrastat Partner Type';
+        }
         field(150; "Privacy Blocked"; Boolean)
         {
             Caption = 'Privacy Blocked';

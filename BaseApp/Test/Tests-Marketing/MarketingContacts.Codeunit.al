@@ -5365,6 +5365,86 @@ codeunit 136201 "Marketing Contacts"
         Vendor.TestField(Contact, '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerPrimaryContactDeletion()
+    var
+        Customer: Record Customer;
+        CompanyContact: Record Contact;
+        PersonContact: Record Contact;
+    begin
+        // [SCENARIO 433957] 'Primary Contact No.' and 'Contact' fields should be cleared when the Contact is deleted
+        Initialize();
+
+        // [GIVEN] Company Contact "CC"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Person Contact "PC" related to "CC" 
+        LibraryMarketing.CreatePersonContact(PersonContact);
+        PersonContact.Validate("Company No.", CompanyContact."Company No.");
+        PersonContact.Modify(true);
+
+        // [GIVEN] Customer created from "CC" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateCustomerFromTemplate('');
+        Customer.SetRange(Name, CompanyContact.Name);
+        Customer.FindFirst();
+
+        // [GIVEN] Customer Primary Contact No. = "PC", Customer Contact = PC.Name
+        Customer.Validate("Primary Contact No.", PersonContact."No.");
+        Customer.Modify();
+        Customer.TestField("Primary Contact No.", PersonContact."No.");
+        Customer.TestField(Contact, PersonContact.Name);
+
+        // [WHEN] Contact "PC" is deleted
+        PersonContact.Delete(true);
+
+        // [THEN] Customer 'Primary Contact No.' and 'Contact' are cleared
+        Customer.Find();
+        Customer.TestField("Primary Contact No.", '');
+        Customer.TestField(Contact, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorPrimaryContactDeletion()
+    var
+        Vendor: Record Vendor;
+        CompanyContact: Record Contact;
+        PersonContact: Record Contact;
+    begin
+        // [SCENARIO 433957] 'Primary Contact No.' and 'Contact' fields should be cleared when the Contact is deleted
+        Initialize();
+
+        // [GIVEN] Company Contact "CC"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Person Contact "PC" related to "CC" 
+        LibraryMarketing.CreatePersonContact(PersonContact);
+        PersonContact.Validate("Company No.", CompanyContact."Company No.");
+        PersonContact.Modify(true);
+
+        // [GIVEN] Customer created from "CC" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateVendor();
+        Vendor.SetRange(Name, CompanyContact.Name);
+        Vendor.FindFirst();
+
+        // [GIVEN] Vendor Primary Contact No. = "PC", Customer Contact = PC.Name
+        Vendor.Validate("Primary Contact No.", PersonContact."No.");
+        Vendor.Modify();
+        Vendor.TestField("Primary Contact No.", PersonContact."No.");
+        Vendor.TestField(Contact, PersonContact.Name);
+
+        // [WHEN] Contact "PC" is deleted
+        PersonContact.Delete(true);
+
+        // [THEN] Vendor 'Primary Contact No.' and 'Contact' are cleared
+        Vendor.Find();
+        Vendor.TestField("Primary Contact No.", '');
+        Vendor.TestField(Contact, '');
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";

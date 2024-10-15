@@ -2203,6 +2203,47 @@ codeunit 137088 "SCM Order Planning - III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MakeSupplyOrdersPageHandler')]
+    procedure PullJobLinkThroughOrderPlanningToNewPurchaseOrder()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        RequisitionLine: Record "Requisition Line";
+        ManufacturingUserTemplate: Record "Manufacturing User Template";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Order Planning] [Job Planning Line] [Purchase]
+        // [SCENARIO 433588] Pull Job No., Job Task No., and Job Planning Line No. through order planning to a new purchase order.
+        Initialize();
+
+        // [GIVEN] Item with vendor no.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] Job, Job Task and Job Planning Line for item "I".
+        CreateJobPlanningLine(JobPlanningLine, Item."No.", '');
+
+        // [GIVEN] Calculate Order Planning for job planning lines.
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+
+        // [GIVEN] Find the planning line for item "I".
+        FindRequisitionLine(RequisitionLine, JobPlanningLine."Job No.", Item."No.", '');
+
+        // [WHEN] Make a purchase order to supply the job planning line.
+        MakeSupplyOrders(
+          RequisitionLine, ManufacturingUserTemplate."Make Orders"::"The Active Order",
+          ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
+
+        // [THEN] Check that Job No., Job Task No., and Job Planning Line No. are populated on the new purchase line.
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+        PurchaseLine.TestField("Job No.", JobPlanningLine."Job No.");
+        PurchaseLine.TestField("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchaseLine.TestField("Job Planning Line No.", JobPlanningLine."Line No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
