@@ -22,10 +22,13 @@ Codeunit 104021 "Upgrade Item Cross Reference"
     trigger OnUpgradePerCompany()
     var
         HybridDeployment: Codeunit "Hybrid Deployment";
+        DisableAggregateTableUpdate: Codeunit "Disable Aggregate Table Update";
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
 
+        DisableAggregateTableUpdate.SetDisableAllRecords(true);
+        BindSubscription(DisableAggregateTableUpdate);
         UpdateData();
     end;
 

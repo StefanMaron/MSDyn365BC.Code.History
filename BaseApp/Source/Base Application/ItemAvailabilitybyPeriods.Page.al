@@ -133,7 +133,7 @@ page 157 "Item Availability by Periods"
     trigger OnAfterGetRecord()
     begin
         SetRange("Drop Shipment Filter", false);
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -148,7 +148,7 @@ page 157 "Item Availability by Periods"
         AmountType: Enum "Analysis Amount Type";
         LastDate: Date;
 
-    local procedure UpdateSubForm()
+    protected procedure UpdateSubForm()
     begin
         CurrPage.ItemAvailLines.PAGE.SetLines(Rec, PeriodType, AmountType);
     end;
@@ -160,42 +160,42 @@ page 157 "Item Availability by Periods"
 
     local procedure DayPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure WeekPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure MonthPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure QuarterPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure YearPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure PeriodPeriodTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure BalanceatDateAmountTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure NetChangeAmountTypeOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure LookupOKOnPush()

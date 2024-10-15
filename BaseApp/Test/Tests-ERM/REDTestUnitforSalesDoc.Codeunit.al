@@ -2280,6 +2280,90 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesReturnOrderArchive.Close;
     end;
 
+    [Test]
+    [HandlerFunctions('UpdateAmountToDeferOnDeferralScheduleModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateAmountToDeferOnDeferralScheduleCreatedBeforeAmountValidation()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        DeferralTemplateCode: Code[10];
+        NoOfPeriods: Integer;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 416877] Stan can change "Amount to Defer" on deferall schedule created before Amount is validated on Line/Document
+
+        Initialize();
+
+        NoOfPeriods := LibraryRandom.RandIntInRange(10, 20);
+        DeferralTemplateCode :=
+            CreateDeferralCode(CalcMethod::"Equal per Period", StartDate::"Beginning of Next Period", NoOfPeriods);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 0);
+
+        SalesLine.Validate("Deferral Code", DeferralTemplateCode);
+
+        SalesLine.Modify(true);
+
+        SalesLine.Validate(Quantity, LibraryRandom.RandIntInRange(100, 200) * NoOfPeriods);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200) * NoOfPeriods);
+
+        SalesLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(SalesLine.GetDeferralAmount() / 2);
+
+        SalesInvoice.OpenEdit();
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.SalesLines.DeferralSchedule.Invoke();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('UpdateAmountToDeferOnDeferralScheduleModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateAmountToDeferOnDeferralScheduleCreatedAfterAmountValidation()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoice: TestPage "Sales Invoice";
+        DeferralTemplateCode: Code[10];
+        NoOfPeriods: Integer;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 416877] Stan can change "Amount to Defer" on deferall schedule created after Amount is validated on Line/Document
+
+        Initialize();
+
+        NoOfPeriods := LibraryRandom.RandIntInRange(10, 20);
+        DeferralTemplateCode :=
+            CreateDeferralCode(CalcMethod::"Equal per Period", StartDate::"Beginning of Next Period", NoOfPeriods);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 0);
+
+        SalesLine.Validate(Quantity, LibraryRandom.RandIntInRange(100, 200) * NoOfPeriods);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200) * NoOfPeriods);
+
+        SalesLine.Modify(true);
+
+        SalesLine.Validate("Deferral Code", DeferralTemplateCode);
+
+        SalesLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(SalesLine.GetDeferralAmount() / 2);
+
+        SalesInvoice.OpenEdit();
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesInvoice.SalesLines.DeferralSchedule.Invoke();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3268,9 +3352,9 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     procedure DeferralScheduleHandler(var DeferralSchedule: TestPage "Deferral Schedule")
     begin
         // Modal Page Handler.
-        LibraryVariableStorage.AssertEmpty;
-        LibraryVariableStorage.Enqueue(DeferralSchedule."Amount to Defer".AsDEcimal);
-        LibraryVariableStorage.Enqueue(DeferralSchedule.PostingDate.AsDate);
+        LibraryVariableStorage.AssertEmpty();
+        LibraryVariableStorage.Enqueue(DeferralSchedule."Amount to Defer".AsDEcimal());
+        LibraryVariableStorage.Enqueue(DeferralSchedule.PostingDate.AsDate());
         LibraryVariableStorage.Enqueue(DeferralSchedule.StartDateCalcMethod.Value);
     end;
 
@@ -3279,9 +3363,20 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     procedure UpdateDeferralSchedulePeriodHandler(var DeferralSchedule: TestPage "Deferral Schedule")
     begin
         // Modal Page Handler.
-        DeferralSchedule."No. of Periods".SetValue(LibraryVariableStorage.DequeueInteger);
-        DeferralSchedule.CalculateSchedule.Invoke;
-        DeferralSchedule.OK.Invoke;
+        DeferralSchedule."No. of Periods".SetValue(LibraryVariableStorage.DequeueInteger());
+        DeferralSchedule.CalculateSchedule.Invoke();
+        DeferralSchedule.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure UpdateAmountToDeferOnDeferralScheduleModalPageHandler(var DeferralSchedule: TestPage "Deferral Schedule")
+    var
+        NoOfPeriods: Variant;
+    begin
+        DeferralSchedule."Amount to Defer".SetValue(LibraryVariableStorage.DequeueDecimal());
+        DeferralSchedule.CalculateSchedule.Invoke();
+        DeferralSchedule.OK.Invoke();
     end;
 
     [ModalPageHandler]
@@ -3289,7 +3384,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     procedure DeferralScheduleViewHandler(var DeferralScheduleView: TestPage "Deferral Schedule View")
     begin
         // Modal Page Handler.
-        DeferralScheduleView.OK.Invoke;
+        DeferralScheduleView.OK.Invoke();
     end;
 
     [ModalPageHandler]
@@ -3297,7 +3392,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     procedure DeferralScheduleArchiveHandler(var DeferralScheduleArchive: TestPage "Deferral Schedule Archive")
     begin
         // Modal Page Handler.
-        DeferralScheduleArchive.OK.Invoke;
+        DeferralScheduleArchive.OK.Invoke();
     end;
 
     [RequestPageHandler]
@@ -3305,8 +3400,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     procedure BatchPostSalesInvoicesRequestPageHandler(var BatchPostSalesInvoices: TestRequestPage "Batch Post Sales Invoices")
     begin
         BatchPostSalesInvoices.ReplacePostingDate.SetValue(true);
-        BatchPostSalesInvoices.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        BatchPostSalesInvoices.OK.Invoke;
+        BatchPostSalesInvoices.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        BatchPostSalesInvoices.OK.Invoke();
     end;
 
     [RequestPageHandler]
@@ -3316,8 +3411,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         BatchPostSalesOrders.Ship.SetValue(true);
         BatchPostSalesOrders.Invoice.SetValue(true);
         BatchPostSalesOrders.ReplacePostingDate.SetValue(true);
-        BatchPostSalesOrders.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        BatchPostSalesOrders.OK.Invoke;
+        BatchPostSalesOrders.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        BatchPostSalesOrders.OK.Invoke();
     end;
 
     [RequestPageHandler]
@@ -3325,8 +3420,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     procedure BatchPostSalesCreditMemosRequestPageHandler(var BatchPostSalesCreditMemos: TestRequestPage "Batch Post Sales Credit Memos")
     begin
         BatchPostSalesCreditMemos.ReplacePostingDate.SetValue(true);
-        BatchPostSalesCreditMemos.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        BatchPostSalesCreditMemos.OK.Invoke;
+        BatchPostSalesCreditMemos.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        BatchPostSalesCreditMemos.OK.Invoke();
     end;
 
     [ConfirmHandler]
@@ -3334,8 +3429,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Assert.ExpectedMessage(DeferralLineQst, Question);
-        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger + 1); // count of handler call's
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger() + 1); // count of handler call's
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 
