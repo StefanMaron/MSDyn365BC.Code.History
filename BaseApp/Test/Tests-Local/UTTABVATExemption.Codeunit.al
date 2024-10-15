@@ -23,7 +23,11 @@ codeunit 144070 "UT TAB VAT Exemption"
         LibraryERM: Codeunit "Library - ERM";
         TestFieldErr: Label 'TestField';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         IsInitialized: Boolean;
+        VATExemptionNosSalesSetupErr: Label 'VAT Exemption Nos. must have a value in Sales & Receivables Setup: Primary Key=. It cannot be zero or empty';
+        VATExemptionNosPurchaseSetupErr: Label 'VAT Exemption Nos. must have a value in Purchases & Payables Setup: Primary Key=. It cannot be zero or empty';
 
     [Test]
     [HandlerFunctions('CheckVATExemptionConfirmHandler')]
@@ -582,6 +586,60 @@ codeunit 144070 "UT TAB VAT Exemption"
         VATExemption.SetRange("VAT Exempt. No.", VATExemptionNo);
         VATExemption.SetRange(Type, VATExemption.Type::Customer);
         Assert.RecordIsNotEmpty(VATExemption);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OnValidateVATExemptIntRegistryNoForVendor()
+    var
+        VATExemptions: TestPage "VAT Exemptions";
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [SCENARIO 385036] Change "VAT Exempt. Int. Registry No." in page "VAT Exemptions" using assistedit with empty "VAT Exemption Nos." in Purchase Setup
+        Initialize;
+
+        // [GIVEN] Removed data from PurchasesPayablesSetup."VAT Exemption Nos."
+        UpdatePurchasesPayablesSetupVATExemptionNos('');
+
+        // [GIVEN] Open page 12100 "VAT Exemptions" from Vendor Card
+        VendorCard.OpenEdit;
+        VendorCard.FILTER.SetFilter("No.", LibraryPurchase.CreateVendorNo);
+        VATExemptions.Trap;
+        VendorCard."VAT E&xemption".Invoke;
+
+        // [WHEN] VATExemption No "N"
+        asserterror VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit;
+
+        // [THEN] Testfield error was shown
+        Assert.ExpectedError(VATExemptionNosPurchaseSetupErr);
+        Assert.ExpectedErrorCode('TestWrapped:TestField');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OnValidateVATExemptIntRegistryNoForCustomer()
+    var
+        VATExemptions: TestPage "VAT Exemptions";
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [SCENARIO 385036] Change "VAT Exempt. Int. Registry No." in page "VAT Exemptions" unsing assistedit with empty "VAT Exemption Nos." in Sales Setup
+        Initialize;
+
+        // [GIVEN] Removed data from SalesReceivablesSetup."VAT Exemption Nos."
+        UpdateSalesReceivablesSetupVATExemptionNos('');
+
+        // [GIVEN] Open page 12100 "VAT Exemptions" from Customer Card
+        CustomerCard.OpenEdit;
+        CustomerCard.FILTER.SetFilter("No.", LibrarySales.CreateCustomerNo);
+        VATExemptions.Trap;
+        CustomerCard."VAT E&xemption".Invoke;
+
+        // [WHEN] VATExemption No "N"
+        asserterror VATExemptions."VAT Exempt. Int. Registry No.".AssistEdit;
+
+        // [THEN] Testfield error was shown
+        Assert.ExpectedError(VATExemptionNosSalesSetupErr);
+        Assert.ExpectedErrorCode('TestWrapped:TestField');
     end;
 
     local procedure Initialize()

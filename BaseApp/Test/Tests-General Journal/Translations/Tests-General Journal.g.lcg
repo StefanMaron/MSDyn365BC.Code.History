@@ -113,6 +113,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Currency Factor - NamedType UnknownError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2137651644 - NamedType 221122293" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Currency Factor must have a value in %1: Document Type=%2, No.=%3. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Currency Factor - NamedType CurrencyFactoMustHaveValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1464927296 - NamedType 2306536960" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The document numbers cannot be renumbered while there is an active filter on the Document No. field.]]></Val>

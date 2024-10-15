@@ -490,7 +490,7 @@
                 GLSetup.Get();
                 if ("Currency Code" <> '') and (not GLSetup."Use Document Date in Currency") then begin
                     UpdateCurrencyFactor();
-                    if "Currency Factor" <> xRec."Currency Factor" then
+                    if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
                         SkipJobCurrFactorUpdate := not ConfirmUpdateCurrencyFactor();
                 end;
 
@@ -2834,11 +2834,11 @@
         ShowDocAlreadyExistNotificationNameTxt: Label 'Purchase document with same external document number already exists.';
         ShowDocAlreadyExistNotificationDescriptionTxt: Label 'Warn if purchase document with same external document number already exists.';
         DuplicatedCaptionsNotAllowedErr: Label 'Field captions must not be duplicated when using this method. Use UpdatePurchLinesByFieldNo instead.';
-        MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         StatusCheckSuspended: Boolean;
         FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
         RecreatePurchaseLinesCancelErr: Label 'You must delete the existing purchase lines before you can change %1.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
+        CalledFromWhseDoc: Boolean;
 
     procedure InitInsert()
     var
@@ -3495,7 +3495,6 @@
     procedure UpdateCurrencyFactor()
     var
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
-        ConfirmManagement: Codeunit "Confirm Management";
         Updated: Boolean;
     begin
         OnBeforeUpdateCurrencyFactor(Rec, Updated);
@@ -3517,15 +3516,8 @@
                 "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
                 if "Currency Code" <> xRec."Currency Code" then
                     RecreatePurchLines(FieldCaption("Currency Code"));
-            end else begin
-                if ConfirmManagement.GetResponseOrDefault(
-                     StrSubstNo(MissingExchangeRatesQst, "Currency Code", CurrencyDate), true)
-                then begin
-                    UpdateCurrencyExchangeRates.OpenExchangeRatesPage("Currency Code");
-                    UpdateCurrencyFactor();
-                end else
-                    RevertCurrencyCodeAndPostingDate();
-            end;
+            end else
+                UpdateCurrencyExchangeRates.ShowMissingExchangeRatesNotification("Currency Code");
         end else begin
             "Currency Factor" := 0;
             if "Currency Code" <> xRec."Currency Code" then
@@ -5680,13 +5672,6 @@
         OnAfterGetReportSelectionsUsageFromDocumentType(Rec, ReportSelectionsUsage, DocTxt);
     end;
 
-    local procedure RevertCurrencyCodeAndPostingDate()
-    begin
-        "Currency Code" := xRec."Currency Code";
-        "Posting Date" := xRec."Posting Date";
-        Modify;
-    end;
-
     local procedure ValidateEmptySellToCustomerAndLocation()
     var
         IsHandled: Boolean;
@@ -5828,6 +5813,11 @@
             exit;
 
         Vend.CheckBlockedVendOnDocs(Vend, false);
+    end;
+
+    procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
+    begin
+        CalledFromWhseDoc := NewCalledFromWhseDoc;
     end;
 
     [IntegrationEvent(false, false)]
