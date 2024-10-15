@@ -605,6 +605,7 @@ page 7016 "Sales Price List"
             SourceGroup::Job:
                 DefaultSourceType := Rec."Source Type"::"All Jobs";
         end;
+        OnAfterGetDefaultSourceType(SourceGroup, DefaultSourceType);
     end;
 
     var
@@ -659,8 +660,13 @@ page 7016 "Sales Price List"
         CurrPage.SaveRecord();
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Sales Price Source Type"; var IsJobGroup: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetDefaultSourceType(PriceSourceGroup: Enum "Price Source Group"; var DefaultPriceSourceType: Enum "Price Source Type")
     begin
     end;
 }

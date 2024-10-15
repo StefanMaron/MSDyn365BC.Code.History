@@ -74,7 +74,13 @@ page 5600 "Fixed Asset Card"
                         end;
 
                         trigger OnValidate()
+                        var
+                            IsHandled: Boolean;
                         begin
+                            IsHandled := false;
+                            OnBeforeOnValidateFASubclassCode(Rec, xRec, IsHandled);
+                            if IsHandled then
+                                exit;
                             SetDefaultDepreciationBook();
                             SetDefaultPostingGroup();
                             ShowAcquisitionNotification();
@@ -790,7 +796,13 @@ page 5600 "Fixed Asset Card"
     procedure UpdateDepreciationBook(FixedAssetNo: Code[20])
     var
         FixedAsset: Record "Fixed Asset";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDepreciationBook(IsHandled, FixedAssetNo, FADepreciationBook);
+        if IsHandled then
+            exit;
+
         if FixedAsset.Get(FixedAssetNo) then
             if FADepreciationBook."Depreciation Book Code" <> '' then
                 if FADepreciationBook."FA No." = '' then begin
@@ -798,8 +810,8 @@ page 5600 "Fixed Asset Card"
                     FADepreciationBook.Insert(true)
                 end else begin
                     FADepreciationBook.Description := Rec.Description;
-                    FADepreciationBook.Modify(true);
-                end;
+        FADepreciationBook.Modify(true);
+    end;
     end;
 
     protected procedure SetDefaultDepreciationBook()
@@ -903,6 +915,16 @@ page 5600 "Fixed Asset Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowAcquisitionNotification(FixedAsset: Record "Fixed Asset"; var Acquirable: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDepreciationBook(var IsHandled: Boolean; var FixedAssetNo: Code[20]; var FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnValidateFASubclassCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
     begin
     end;
 }

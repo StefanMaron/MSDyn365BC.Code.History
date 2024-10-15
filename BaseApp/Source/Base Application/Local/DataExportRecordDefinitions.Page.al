@@ -88,10 +88,15 @@ page 11003 "Data Export Record Definitions"
                     var
                         DataExportRecordDefinition: Record "Data Export Record Definition";
                         ExportBusinessData: Report "Export Business Data";
+                        IsHandled: Boolean;
                     begin
                         DataExportRecordDefinition.Reset();
                         DataExportRecordDefinition.SetRange("Data Export Code", "Data Export Code");
                         DataExportRecordDefinition.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
+                        IsHandled := false;
+                        OnActionExportOnBeforeExportBusinessData(DataExportRecordDefinition, IsHandled);
+                        if IsHandled then
+                            exit;
                         ExportBusinessData.SetTableView(DataExportRecordDefinition);
                         ExportBusinessData.Run();
                         Clear(ExportBusinessData);
@@ -188,6 +193,11 @@ page 11003 "Data Export Record Definitions"
         SetView(Filters);
         FilterGroup(0);
         SetView('');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnActionExportOnBeforeExportBusinessData(var DataExportRecordDefinition: Record "Data Export Record Definition"; var IsHandled: Boolean);
+    begin
     end;
 }
 

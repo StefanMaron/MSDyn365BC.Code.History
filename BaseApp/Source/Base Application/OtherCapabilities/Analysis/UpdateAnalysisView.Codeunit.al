@@ -174,7 +174,7 @@ codeunit 410 "Update Analysis View"
                 Updated := true;
             end;
 
-        OnUpdateOneOnBeforeUpdateAnalysisView(AnalysisView, TempAnalysisViewEntry, Updated);
+        OnUpdateOneOnBeforeUpdateAnalysisView(AnalysisView, TempAnalysisViewEntry, Updated, ShowProgressWindow);
         if Updated then begin
             AnalysisView."Last Date Updated" := Today;
             AnalysisView."Reset Needed" := false;
@@ -710,7 +710,7 @@ codeunit 410 "Update Analysis View"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnUpdateOneOnBeforeUpdateAnalysisView(var AnalysisView: Record "Analysis View"; var TempAnalysisViewEntry: Record "Analysis View Entry" temporary; var Updated: Boolean)
+    local procedure OnUpdateOneOnBeforeUpdateAnalysisView(var AnalysisView: Record "Analysis View"; var TempAnalysisViewEntry: Record "Analysis View Entry" temporary; var Updated: Boolean; ShowProgressWindow: Boolean)
     begin
     end;
 

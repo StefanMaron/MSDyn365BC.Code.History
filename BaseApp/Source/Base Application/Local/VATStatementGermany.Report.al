@@ -1,7 +1,7 @@
 report 11005 "VAT Statement Germany"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './VATStatementGermany.rdlc';
+    RDLCLayout = './Local/VATStatementGermany.rdlc';
     Caption = 'VAT Statement Germany';
 
     dataset

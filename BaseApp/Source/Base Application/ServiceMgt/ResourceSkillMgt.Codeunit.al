@@ -138,6 +138,8 @@ codeunit 5931 "Resource Skill Mgt."
                     "Source Type" := UnifiedResSkill."Source Type";
                 end;
 
+                OnUnifyResSkillCodeOnBeforeInsert(NewResSkill, UnifiedResSkill);
+
                 Insert();
                 exit(true);
             end;
@@ -451,6 +453,8 @@ codeunit 5931 "Resource Skill Mgt."
                         SrcTypeText := ServItem.TableCaption();
                 end;
 
+                OnAfterAssignRelationConfirmation(ResSkill, SrcType, DestType, DestTypeText, SrcTypeText);
+
                 exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, DestTypeText, DestCode, SrcTypeText, SrcCode), true));
             end;
         end;
@@ -565,6 +569,7 @@ codeunit 5931 "Resource Skill Mgt."
         ResSkillCodesExistRelatedItem: Boolean;
         ResSkillCodesExistRelatedSIG: Boolean;
         ResSkillCodesItemExist: Boolean;
+        IsHandled: Boolean;
     begin
         if not SkipValidationDialog then begin
             with ExistingResSkill do begin
@@ -602,8 +607,12 @@ codeunit 5931 "Resource Skill Mgt."
                                     SetRange("No.", Item."Service Item Group");
                                     ResSkillCodesItemExist := FindFirst();
                                 end;
-                        if ResSkillCodesItemExist then
-                            AssignWithUpdate := ConfirmManagement.GetResponseOrDefault(Text028, true);
+                        if ResSkillCodesItemExist then begin
+                            IsHandled := false;
+                            OnChangeResSkillRelationWithItemOnBeforeAssignWithUpdateGetResponse(Item, AssignWithUpdate, IsHandled);
+                            if not IsHandled then
+                                AssignWithUpdate := ConfirmManagement.GetResponseOrDefault(Text028, true);
+                        end;
                     end;
                     if Item.Get(DestCode) and AssignWithUpdate then
                         if Item."Service Item Group" <> '' then
@@ -873,6 +882,8 @@ codeunit 5931 "Resource Skill Mgt."
                     SrcTypeText := ServItem.TableCaption();
             end;
 
+            OnAfterRevalidateRelationConfirmation(ResSkill, SrcType, DestType, DestTypeText, SrcTypeText);
+
             exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, DestTypeText, DestCode, SrcTypeText, SrcCode), true));
         end;
     end;
@@ -923,6 +934,26 @@ codeunit 5931 "Resource Skill Mgt."
                     NewResSkill.Insert();
                 until Next() = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnifyResSkillCodeOnBeforeInsert(var NewResourceSkill: Record "Resource Skill"; var UnifiedResourceSkill: Record "Resource Skill")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignRelationConfirmation(var ResourceSkill: Record "Resource Skill"; SrcType: Enum "Resource Skill Type"; DestType: Enum "Resource Skill Type"; var SrcTypeText: Text[30]; var DestTypeText: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeResSkillRelationWithItemOnBeforeAssignWithUpdateGetResponse(Item: Record Item; var AssignWithUpdate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRevalidateRelationConfirmation(var ResourceSkill: Record "Resource Skill"; SrcType: Enum "Resource Skill Type"; DestType: Enum "Resource Skill Type"; var SrcTypeText: Text[30]; var DestTypeText: Text[30])
+    begin
     end;
 }
 

@@ -545,6 +545,8 @@ report 5899 "Calculate Inventory Value"
                         if TempUpdatedStdCostSKU.Insert() then;
                     end else
                         Validate("Inventory Value (Revalued)", "Inventory Value (Calculated)");
+                else
+                    OnInsertItemJnlLineOnCaseCalcBaseOnElse(ItemJnlLine, EntryType2, ItemNo2, VariantCode2, LocationCode2, Quantity2, Amount2, ApplyToEntry2, AppliedAmount, CalcBase, ByLocation2, ByVariant2, PostingDate);
             end;
             "Update Standard Cost" := UpdStdCost;
             "Partial Revaluation" := true;
@@ -707,6 +709,11 @@ report 5899 "Calculate Inventory Value"
 
     [IntegrationEvent(false, false)]
     local procedure OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemJnlLineOnCaseCalcBaseOnElse(var ItemJournalLine: Record "Item Journal Line"; EntryType2: Enum "Item Ledger Entry Type"; ItemNo2: Code[20]; VariantCode2: Code[10]; LocationCode2: Code[10]; Quantity2: Decimal; Amount2: Decimal; ApplyToEntry2: Integer; AppliedAmount: Decimal; CalcBase: Enum "Inventory Value Calc. Base"; ByLocation2: Boolean; ByVariant2: Boolean; PostingDate: Date)
     begin
     end;
 }

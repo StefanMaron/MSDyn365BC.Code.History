@@ -57,32 +57,36 @@ codeunit 5901 ServLoanerManagement
         LoanerEntry: Record "Loaner Entry";
         ServLogMgt: Codeunit ServLogManagement;
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
-        if ServItemLine."Loaner No." <> '' then begin
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text005, ServItemLine."Loaner No."), true) then
-                exit;
-            LoanerEntry.Reset();
-            LoanerEntry.SetCurrentKey("Document Type", "Document No.", "Loaner No.", Lent);
-            LoanerEntry.SetRange("Document Type", LoanerEntry.GetDocTypeFromServDocType(ServItemLine."Document Type"));
-            LoanerEntry.SetRange("Document No.", ServItemLine."Document No.");
-            LoanerEntry.SetRange("Loaner No.", ServItemLine."Loaner No.");
-            LoanerEntry.SetRange(Lent, true);
-            if LoanerEntry.FindFirst() then begin
-                LoanerEntry."Date Received" := WorkDate();
-                LoanerEntry."Time Received" := Time;
-                LoanerEntry.Lent := false;
-                LoanerEntry.Modify();
-                ServItemLine."Loaner No." := '';
-                ServItemLine.Modify();
-                Clear(ServLogMgt);
-                ServLogMgt.LoanerReceived(LoanerEntry);
-                ClearLoanerField(ServItemLine."Document No.", ServItemLine."Line No.", LoanerEntry."Loaner No.");
+        IsHandled := false;
+        OnBeforeReceiveLoaner(ServItemLine, IsHandled);
+        if not IsHandled then
+            if ServItemLine."Loaner No." <> '' then begin
+                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text005, ServItemLine."Loaner No."), true) then
+                    exit;
+                LoanerEntry.Reset();
+                LoanerEntry.SetCurrentKey("Document Type", "Document No.", "Loaner No.", Lent);
+                LoanerEntry.SetRange("Document Type", LoanerEntry.GetDocTypeFromServDocType(ServItemLine."Document Type"));
+                LoanerEntry.SetRange("Document No.", ServItemLine."Document No.");
+                LoanerEntry.SetRange("Loaner No.", ServItemLine."Loaner No.");
+                LoanerEntry.SetRange(Lent, true);
+                if LoanerEntry.FindFirst() then begin
+                    LoanerEntry."Date Received" := WorkDate();
+                    LoanerEntry."Time Received" := Time;
+                    LoanerEntry.Lent := false;
+                    LoanerEntry.Modify();
+                    ServItemLine."Loaner No." := '';
+                    ServItemLine.Modify();
+                    Clear(ServLogMgt);
+                    ServLogMgt.LoanerReceived(LoanerEntry);
+                    ClearLoanerField(ServItemLine."Document No.", ServItemLine."Line No.", LoanerEntry."Loaner No.");
+                end else
+                    Error(
+                      Text002, ServItemLine."Loaner No.",
+                      Format(ServItemLine."Document Type"), ServItemLine."Document No.");
             end else
-                Error(
-                  Text002, ServItemLine."Loaner No.",
-                  Format(ServItemLine."Document Type"), ServItemLine."Document No.");
-        end else
-            Error(Text003, Loaner.TableCaption());
+                Error(Text003, Loaner.TableCaption());
 
         OnAfterReceiveLoaner(LoanerEntry, ServItemLine);
     end;
@@ -191,6 +195,11 @@ codeunit 5901 ServLoanerManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReceiveLoaner(LoanerEntry: Record "Loaner Entry"; ServItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReceiveLoaner(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 }

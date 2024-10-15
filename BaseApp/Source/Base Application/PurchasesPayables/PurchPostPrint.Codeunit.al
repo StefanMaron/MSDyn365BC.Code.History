@@ -6,7 +6,7 @@ codeunit 92 "Purch.-Post + Print"
     var
         PurchHeader: Record "Purchase Header";
     begin
-        OnBeforeOnRun(PurchHeader);
+        OnBeforeOnRun(PurchHeader, Rec);
         PurchHeader.Copy(Rec);
         Code(PurchHeader);
         Rec := PurchHeader;
@@ -235,7 +235,7 @@ codeunit 92 "Purch.-Post + Print"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeOnRun(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeaderRec: Record "Purchase Header")
     begin
     end;
 

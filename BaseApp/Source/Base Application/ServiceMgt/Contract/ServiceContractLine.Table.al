@@ -56,7 +56,7 @@ table 5964 "Service Contract Line"
                     Error(Text013, FieldCaption("Service Item No."));
 
                 ServiceItemNoIsNotEmpty := "Service Item No." <> '';
-                OnValidateServiceItemNoOnAfterCalcServiceItemNoIsNotEmpty(Rec, ServiceItemNoIsNotEmpty);
+                OnValidateServiceItemNoOnAfterCalcServiceItemNoIsNotEmpty(Rec, ServiceItemNoIsNotEmpty, xRec, HideDialog);
                 if ServiceItemNoIsNotEmpty then begin
                     GetServItem();
                     TestField("Customer No.");
@@ -1087,7 +1087,7 @@ table 5964 "Service Contract Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateServiceItemNoOnAfterCalcServiceItemNoIsNotEmpty(var ServiceContractLine: Record "Service Contract Line"; var ServiceItemNoIsNotEmpty: Boolean)
+    local procedure OnValidateServiceItemNoOnAfterCalcServiceItemNoIsNotEmpty(var ServiceContractLine: Record "Service Contract Line"; var ServiceItemNoIsNotEmpty: Boolean; xServiceContractLine: Record "Service Contract Line"; var HideDialog: Boolean)
     begin
     end;
 

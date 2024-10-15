@@ -48,8 +48,12 @@ report 698 "Get Sales Orders"
             end;
 
             trigger OnPostDataItem()
+            var
+                IsHandled: Boolean;
             begin
-                if not HideDialog then
+                IsHandled := false;
+                OnPostDataItemOnBeforeCheckLineCount(LineCount, IsHandled);
+                if (not HideDialog) and (not IsHandled) then
                     if LineCount = 0 then
                         Error(Text001);
             end;
@@ -114,7 +118,6 @@ report 698 "Get Sales Orders"
         LineCount: Integer;
         GetDim: Option Item,"Sales Line";
         HideDialog: Boolean;
-
         Text000: Label 'Processing sales lines  #1######';
         Text001: Label 'There are no sales lines to retrieve.';
 
@@ -265,6 +268,11 @@ report 698 "Get Sales Orders"
 
     [IntegrationEvent(true, false)]
     local procedure OnInsertReqWkshLineOnBeforeCode(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; SpecOrder: Integer; var LineNo: Integer; ReqWkshName: Record "Requisition Wksh. Name"; GetDim: Option Item,"Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemOnBeforeCheckLineCount(LineCount: Integer; var IsHandled: Boolean)
     begin
     end;
 }

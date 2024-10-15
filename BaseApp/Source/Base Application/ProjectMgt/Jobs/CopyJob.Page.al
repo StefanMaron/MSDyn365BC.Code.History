@@ -234,20 +234,25 @@ page 1040 "Copy Job"
     var
         JobsSetup: Record "Jobs Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
     begin
         if (SourceJobNo = '') or not SourceJob.Get(SourceJob."No.") then
             Error(Text004, SourceJob.TableCaption());
 
-        JobsSetup.Get();
-        JobsSetup.TestField("Job Nos.");
-        if TargetJobNo = '' then begin
-            TargetJobNo := NoSeriesManagement.GetNextNo(JobsSetup."Job Nos.", 0D, true);
-            if not Confirm(Text002, true, TargetJobNo) then begin
-                TargetJobNo := '';
-                Error('');
-            end;
-        end else
-            NoSeriesManagement.TestManual(JobsSetup."Job Nos.");
+        IsHandled := false;
+        OnValidateUserInputOnBeforeCheckTargetJobNo(SourceJob, TargetJobNo, IsHandled);
+        if not IsHandled then begin
+            JobsSetup.Get();
+            JobsSetup.TestField("Job Nos.");
+            if TargetJobNo = '' then begin
+                TargetJobNo := NoSeriesManagement.GetNextNo(JobsSetup."Job Nos.", 0D, true);
+                if not Confirm(Text002, true, TargetJobNo) then begin
+                    TargetJobNo := '';
+                    Error('');
+                end;
+            end else
+                NoSeriesManagement.TestManual(JobsSetup."Job Nos.");
+        end;
     end;
 
     local procedure ValidateSource()
@@ -294,6 +299,11 @@ page 1040 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupToJobTaskNoOnAfterSetJobTaskFilters(var JobTask: Record "Job Task")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateUserInputOnBeforeCheckTargetJobNo(SourceJob: Record Job; var TargetJobNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

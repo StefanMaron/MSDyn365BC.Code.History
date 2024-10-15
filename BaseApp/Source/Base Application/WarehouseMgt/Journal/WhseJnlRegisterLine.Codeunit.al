@@ -55,7 +55,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
             InsertWhseEntry(GlobalWhseEntry);
         end;
 
-        OnAfterCode(WhseJnlLine, WhseEntryNo);
+        OnAfterCode(WhseJnlLine, WhseEntryNo, WhseReg);
     end;
 
     procedure LockTables()
@@ -557,7 +557,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseEntryNo: Integer)
+    local procedure OnAfterCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WhseEntryNo: Integer; var WarehouseRegister: Record "Warehouse Register")
     begin
     end;
 
