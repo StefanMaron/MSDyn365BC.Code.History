@@ -4736,6 +4736,121 @@
             ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 10000);
     end;
 
+    [Test]
+    procedure NonInventoryItemsWithReqLocation()
+    var
+        Item: Record Item;
+        NonInventoryItem: Record Item;
+        ServiceItem: Record "Service Item";
+        Location: Record Location;
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // [SCENARIO] On service lines, Location can be set or be empty on Non Inventory Items.
+        Initialize();
+
+        // [GIVEN] A non-inventory item and a service item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
+
+        // [GIVEN] Mandatory location.
+        LibraryInventory.SetLocationMandatory(true);
+
+        // [GIVEN] A service order with a service item containing a service line.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Quantity, 1);
+        // [WHEN] Setting Location on Non-inventory item.
+        ServiceLine.Validate("No.", Item."No.");
+        ServiceLine.Validate("Location Code", Location.Code);
+        ServiceLine.Modify(true);
+
+        LibraryService.ReleaseServiceDocument(ServiceHeader);
+
+        // [THEN] No error is thrown.
+        LibraryService.ReopenServiceDocument(ServiceHeader);
+
+        // [WHEN] Setting Location to non mandatory and Removing Location on non-inventory items.
+        LibraryInventory.SetLocationMandatory(false);
+        ServiceLine.Validate("No.", NonInventoryItem."No.");
+        ServiceLine.Validate("Location Code", '');
+        ServiceLine.Modify(true);
+        LibraryService.ReleaseServiceDocument(ServiceHeader);
+
+        // [THEN] No error is thrown.
+        LibraryService.ReopenServiceDocument(ServiceHeader);
+
+        // [GIVEN] No Mandatory Location using Location on Non Inventory item
+
+        // [WHEN] Setting Location to non mandatory and Setting Location on non-inventory items.
+        LibraryInventory.SetLocationMandatory(false);
+        ServiceLine.Validate("No.", NonInventoryItem."No.");
+        ServiceLine.Validate("Location Code", Location.Code);
+        ServiceLine.Modify(true);
+        LibraryService.ReleaseServiceDocument(ServiceHeader);
+
+        // [THEN] No error is thrown.
+        LibraryService.ReopenServiceDocument(ServiceHeader);
+
+    end;
+    
+    procedure BinCodeNotAllowedForNonInventoryItems()
+    var
+        Item: Record Item;
+        NonInventoryItem: Record Item;
+        ServiceItem: Record "Service Item";
+        Location: Record Location;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+    begin
+        // [SCENARIO] On service lines, bin code should only be possible to set for inventory items.
+        Initialize();
+
+        // [GIVEN] An item, A non-inventory item and a service item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A location and a bin.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBinContent(
+            BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure"
+        );
+
+        // [GIVEN] A service order with a service item containing a service line.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+
+        // [WHEN] Setting bin code on inventory item.
+        ServiceLine.Validate("No.", Item."No.");
+        ServiceLine.Validate("Location Code", Location.Code);
+        ServiceLine.Validate("Bin Code", Bin.Code);
+
+        // [THEN] No error is thrown.
+
+        // [WHEN] Setting bin code on non-inventory items.
+        ServiceLine.Validate("No.", NonInventoryItem."No.");
+        ServiceLine.Validate("Location Code", Location.Code);
+        asserterror ServiceLine.Validate("Bin Code", Bin.Code);
+
+        // [THEN] An error is thrown.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

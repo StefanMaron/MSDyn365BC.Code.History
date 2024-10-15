@@ -1616,6 +1616,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Designer Page Tests - NamedType NextStepTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2710729220 - NamedType 3417174896" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Response are Deleted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Workflow Designer Page Tests - NamedType ResponseDeletedLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2710729220 - NamedType 3601724229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[<Select Response>]]></Val>
