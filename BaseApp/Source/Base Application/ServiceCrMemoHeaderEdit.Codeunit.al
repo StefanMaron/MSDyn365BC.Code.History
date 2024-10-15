@@ -23,8 +23,10 @@ codeunit 10769 "Service Cr. Memo Header - Edit"
 
     local procedure UpdateSIIDocUploadState(ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     var
+        xSIIDocUploadState: Record "SII Doc. Upload State";
         SIIDocUploadState: Record "SII Doc. Upload State";
         SIIManagement: Codeunit "SII Management";
+        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
     begin
         if not SIIManagement.IsSIISetupEnabled() then
             exit;
@@ -37,8 +39,10 @@ codeunit 10769 "Service Cr. Memo Header - Edit"
         then
             exit;
 
+        xSIIDocUploadState := SIIDocUploadState;
         SIIDocUploadState."Sales Cr. Memo Type" := ServiceCrMemoHeader."Cr. Memo Type" + 1;
         SIIDocUploadState."Sales Special Scheme Code" := ServiceCrMemoHeader."Special Scheme Code" + 1;
+        SIISchemeCodeMgt.ValidateServiceSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState, SIIDocUploadState);
         SIIDocUploadState.Modify();
     end;
 

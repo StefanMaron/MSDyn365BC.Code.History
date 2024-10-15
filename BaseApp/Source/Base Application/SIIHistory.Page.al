@@ -96,6 +96,7 @@ page 10752 "SII History"
                 {
                     ApplicationArea = All;
                     Caption = 'Sales Special Scheme Code';
+                    Editable = false;
                     ToolTip = 'Specifies the special scheme code of the sales document.';
                     Visible = false;
 
@@ -132,6 +133,7 @@ page 10752 "SII History"
                 {
                     ApplicationArea = All;
                     Caption = 'Purchase Special Scheme Code';
+                    Editable = false;
                     ToolTip = 'Specifies the special scheme code of the purchase document.';
                     Visible = false;
 

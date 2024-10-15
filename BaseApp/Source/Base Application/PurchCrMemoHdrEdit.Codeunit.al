@@ -25,8 +25,10 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
 
     local procedure UpdateSIIDocUploadState(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
+        xSIIDocUploadState: Record "SII Doc. Upload State";
         SIIDocUploadState: Record "SII Doc. Upload State";
         SIIManagement: Codeunit "SII Management";
+        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
     begin
         if not SIIManagement.IsSIISetupEnabled then
             exit;
@@ -39,8 +41,10 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
         then
             exit;
 
+        xSIIDocUploadState := SIIDocUploadState;
         SIIDocUploadState."Purch. Cr. Memo Type" := PurchCrMemoHdr."Cr. Memo Type" + 1;
         SIIDocUploadState."Purch. Special Scheme Code" := PurchCrMemoHdr."Special Scheme Code" + 1;
+        SIISchemeCodeMgt.ValidatePurchSpecialRegimeCodeInSIIDocUploadState(xSIIDocUploadState, SIIDocUploadState);
         SIIDocUploadState.IDType := PurchCrMemoHdr."ID Type";
         SIIDocUploadState."Succeeded Company Name" := PurchCrMemoHdr."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := PurchCrMemoHdr."Succeeded VAT Registration No.";
