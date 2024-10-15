@@ -53,6 +53,22 @@ table 225 "Post Code"
             Caption = 'County';
             TableRelation = County.Name;
         }
+        field(30; "Time Zone"; Text[180])
+        {
+
+            trigger OnLookup()
+            var
+                TimeZoneID: Text[180];
+            begin
+                if ConfPersonalizationMgt.LookupTimeZone(TimeZoneID) then
+                    "Time Zone" := TimeZoneID;
+            end;
+
+            trigger OnValidate()
+            begin
+                ConfPersonalizationMgt.ValidateTimeZone("Time Zone");
+            end;
+        }
     }
 
     keys
@@ -84,6 +100,7 @@ table 225 "Post Code"
 
     var
         Text000: Label '%1 %2 already exists.';
+        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         PostCodeCheck: Codeunit "Post Code Check";
 
     procedure ValidateCity(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean)

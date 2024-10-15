@@ -28,6 +28,7 @@ report 291 "Delete Invd Blnkt Sales Orders"
                 if SalesLine.FindFirst then begin
                     SalesLine.SetRange("Quantity Invoiced");
                     SalesLine.SetFilter("Outstanding Quantity", '<>0');
+                    OnAfterSetSalesLineFilters(SalesLine);
                     if not SalesLine.FindFirst then begin
                         SalesLine.SetRange("Outstanding Quantity");
                         SalesLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
@@ -97,6 +98,11 @@ report 291 "Delete Invd Blnkt Sales Orders"
         ArchiveManagement: Codeunit ArchiveManagement;
         PostCodeCheck: Codeunit "Post Code Check";
         Window: Dialog;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesHeader(var SalesHeader: Record "Sales Header")

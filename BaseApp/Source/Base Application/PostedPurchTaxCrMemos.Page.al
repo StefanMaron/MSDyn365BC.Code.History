@@ -1,9 +1,12 @@
 page 28080 "Posted Purch. Tax Cr. Memos"
 {
+    ApplicationArea = Basic, Suite;
+    CardPageID = "Posted Purch. Tax  Credit Memo";
     Caption = 'Posted Purch. Tax Cr. Memos';
     Editable = false;
     PageType = List;
     SourceTable = "Purch. Tax Cr. Memo Hdr.";
+    UsageCategory = Lists;
 
     layout
     {

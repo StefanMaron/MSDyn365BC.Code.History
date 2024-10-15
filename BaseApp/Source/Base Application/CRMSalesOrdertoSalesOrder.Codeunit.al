@@ -189,7 +189,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
                 if not CRMIntegrationManagement.IsWorkingConnection then
                     exit;
                 if CRMSalesorder.Find then
-                    SetLastBackOfficeSubmit(CRMSalesorder, 0D);
+                    if CRMSalesOrder.StateCode = CrmSalesOrder.StateCode::Submitted then
+                        SetLastBackOfficeSubmit(CRMSalesorder, 0D);
             end;
     end;
 

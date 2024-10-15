@@ -6043,7 +6043,7 @@ Cstr(Fields!ShipmentMethodDescriptionCaption.Value)
         <Height>24.68336cm</Height>
         <Style />
       </Body>
-      <Width>19cm</Width>
+      <Width>18cm</Width>
       <Page>
         <PageHeader>
           <Height>10.71016cm</Height>
@@ -7297,7 +7297,7 @@ Cstr(Fields!ShipmentMethodDescriptionCaption.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>7.5cm</Left>
+              <Left>7cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>48</ZIndex>
@@ -7349,7 +7349,7 @@ Cstr(Fields!ShipmentMethodDescriptionCaption.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>50</ZIndex>

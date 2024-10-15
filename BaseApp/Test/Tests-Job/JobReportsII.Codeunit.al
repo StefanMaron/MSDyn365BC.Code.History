@@ -56,32 +56,6 @@ codeunit 136311 "Job Reports II"
         PostingDateTxt: Label 'PstDate_ResLedgEntry';
         UnitCostResLedgEntryTxt: Label 'UnitCost_ResLedgEntry';
 
-    local procedure Initialize()
-    var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Reports II");
-        LibraryVariableStorage.Clear;
-        // To clear all Global variables.
-        ClearGlobals;
-
-        if IsInitialized then
-            exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Reports II");
-
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-
-        DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
-        DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
-
-        IsInitialized := true;
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Reports II");
-    end;
-
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
     [Scope('OnPrem')]
@@ -634,6 +608,7 @@ codeunit 136311 "Job Reports II"
     var
         JobJournalLine: Record "Job Journal Line";
         JobLedgerEntry: Record "Job Ledger Entry";
+        Job: Record Job;
         JobNo: Code[20];
     begin
         // 1. Setup.
@@ -642,12 +617,84 @@ codeunit 136311 "Job Reports II"
         JobNo := CreateAndPostJobJournalLine(JobJournalLine."Line Type"::Billable, CurrencyCode);
 
         // 2. Exercise: Run Job Journal Test Report.
-        RunJobTransactionDetail(JobNo);
+        Job.Get(JobNo);
+        Job.SetRecFilter;
+        RunJobTransactionDetail(Job);
 
         // 3. Verify: Verify Job Transaction Detail Report.
         FindJobLedgerEntry(JobLedgerEntry, JobNo);
         VerfiyJobTransactionDetailReport(JobLedgerEntry);
     end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure JobTransactionDetailsMultipleLineInJobTask()
+    var
+        JobToReport: Record Job;
+        Job: array[2] of Record Job;
+        JobTask: array[2, 2] of Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        JobIndex: Integer;
+        JobTaskIndex: Integer;
+        LineIndex: Integer;
+        LineCost: array[2, 2, 2] of Decimal;
+        LinePrice: array[2, 2, 2] of Decimal;
+        LineAmount: array[2, 2, 2] of Decimal;
+        LineDiscountAmount: array[2, 2, 2] of Decimal;
+        CurrencyOption: Option;
+    begin
+        // [SCENARIO 322646] Calculation Total and SubTotal amounts in report "Job - Transaction Details" for job tasks having multiple job ledger entries
+        Initialize;
+        CurrencyOption := CurrencyField::"Local Currency";
+
+        // [GIVEN] Two jobs "A" and "B" with two job tasks each: "A_T_1", "A_T_2", "B_T_1", "B_T_2"
+        // [GIVEN] Job journal for "A"
+        // [GIVEN] Item = "IA1", "Job Task" = "A_T_1", "Total Cost" = 100, "Total Price" = 1000 with lines
+        // [GIVEN] Item = "IA2", "Job Task" = "A_T_2", "Total Cost" = 200, "Total Price" = 2000 with lines
+        // [GIVEN] Item = "IA3", "Job Task" = "B_T_1", "Total Cost" = 300, "Total Price" = 3000 with lines
+        // [GIVEN] Item = "IA4", "Job Task" = "B_T_2", "Total Cost" = 400, "Total Price" = 4000 with lines
+        // [GIVEN] Them same job journal for "B"
+        for JobIndex := 1 to ArrayLen(Job) do begin
+            LibraryJob.CreateJob(Job[JobIndex]);
+            for JobTaskIndex := 1 to ArrayLen(JobTask, 2) do begin
+                Clear(JobJournalLine);
+                LibraryJob.CreateJobTask(Job[JobIndex], JobTask[JobIndex, JobTaskIndex]);
+                for LineIndex := 1 to ArrayLen(LineCost, 3) do begin
+                    LibraryJob.CreateJobJournalLineForType(
+                      JobJournalLine."Line Type"::Billable, JobJournalLine.Type::Item, JobTask[JobIndex, JobTaskIndex], JobJournalLine);
+                    JobJournalLine.Validate("Total Cost (LCY)", 1 + 10 * LineIndex + 100 * JobTaskIndex + 1000 * JobIndex);
+                    JobJournalLine.Validate("Total Price (LCY)", 2 + 10 * LineIndex + 100 * JobTaskIndex + 1000 * JobIndex);
+                    JobJournalLine.Validate("Line Amount (LCY)", 3 + 10 * LineIndex + 100 * JobTaskIndex + 1000 * JobIndex);
+                    JobJournalLine.Validate("Line Discount Amount (LCY)", ROUND(JobJournalLine."Line Amount" / 100));
+                    JobJournalLine.Modify(true);
+                    LineCost[JobIndex, JobTaskIndex, LineIndex] := JobJournalLine."Total Cost";
+                    LinePrice[JobIndex, JobTaskIndex, LineIndex] := JobJournalLine."Total Price";
+                    LineAmount[JobIndex, JobTaskIndex, LineIndex] := JobJournalLine."Line Amount";
+                    LineDiscountAmount[JobIndex, JobTaskIndex, LineIndex] := JobJournalLine."Line Discount Amount";
+                end;
+                LibraryJob.PostJobJournal(JobJournalLine);
+            end;
+        end;
+
+        // [WHEN] Run report "Job - Transaction Details" for "A" and "B"
+        JobToReport.SetFilter("No.", '%1|%2', Job[1]."No.", Job[2]."No.");
+        RunJobTransactionDetail(JobToReport);
+
+        // [THEN] Run report output on two pages (job per page)
+        // [THEN] Page "1" contains two groups "G1" and "G2" (two tasks)
+        // [THEN] Each group has two lines: 2 items per task
+        // [THEN] Total Cost for "G1" = 100 + 200 = 300
+        // [THEN] Total Price for "G1" = 1000 + 2000 = 3000
+        // [THEN] Total Cost for "G2" = 300 + 400 = 700
+        // [THEN] Total Price for "G2" = 3000 + 4000 = 7000
+        // [THEN] Job Total Cost = 300 + 700 = 1000
+        // [THEN] Job Total Price = 3000 + 7000 = 10000
+        // [THEN] the same totals on page 2
+        LibraryReportValidation.OpenFile();
+
+        VerifyJobTransactionDetaisReportTotals(Job, JobTask, LineCost, LinePrice, LineAmount, LineDiscountAmount, CurrencyOption);
+    END;
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,DocumentEntriesReqPageHandler,NavigatePageHandler')]
@@ -685,6 +732,32 @@ codeunit 136311 "Job Reports II"
         LibraryReportDataset.SetRange(PostingDateTxt, Format(JobLedgerEntry."Posting Date"));
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals(UnitCostResLedgEntryTxt, JobLedgerEntry."Unit Cost (LCY)");
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Reports II");
+        LibraryVariableStorage.Clear;
+        // To clear all Global variables.
+        ClearGlobals;
+
+        if IsInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Reports II");
+
+        LibraryService.SetupServiceMgtNoSeries;
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
+        DummyJobsSetup."Apply Usage Link by Default" := false;
+        DummyJobsSetup.Modify;
+
+        IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Reports II");
     end;
 
     local procedure RunJobAnalysisReportWithMultipleJobTask(ExcludeZeroLines: Boolean): Code[20]
@@ -1010,12 +1083,10 @@ codeunit 136311 "Job Reports II"
         LibraryReportValidation.DownloadFile;
     end;
 
-    local procedure RunJobTransactionDetail(No: Code[20])
+    local procedure RunJobTransactionDetail(var Job: Record Job)
     var
-        Job: Record Job;
         JobTransactionDetail: Report "Job - Transaction Detail";
     begin
-        Job.SetRange("No.", No);
         JobTransactionDetail.SetTableView(Job);
         LibraryReportValidation.SetFileName(CreateGuid);
         JobTransactionDetail.InitializeRequest(CurrencyField);
@@ -1246,6 +1317,83 @@ codeunit 136311 "Job Reports II"
         VerifyJobReports(JobCalculateBatches.GetCurrencyCode(Job, 1, CurrencyField), JobLedgerEntry."Total Price");
         VerifyJobReports(JobCalculateBatches.GetCurrencyCode(Job, 0, CurrencyField), JobLedgerEntry."Total Cost");
         VerifyJobReports(JobCalculateBatches.GetCurrencyCode(Job, 3, CurrencyField), JobLedgerEntry."Line Amount");
+    end;
+
+    local procedure VerifyJobTransactionDetaisReportTotals(Job: array[2] of Record "Job"; JobTask: array[2, 2] of Record 1001; LineCost: array[2, 2, 2] of Decimal; LinePrice: array[2, 2, 2] of Decimal; LineAmount: array[2, 2, 2] of Decimal; LineDiscountAmount: array[2, 2, 2] of Decimal; CurrencyOption: Option);
+    VAR
+        JobToReport: Record "Job";
+        JobCalculateBatches: Codeunit "Job Calculate Batches";
+        TotalCostColumnNo: Integer;
+        TotalPriceColumnNo: Integer;
+        TotalLineAmountColumnNo: Integer;
+        TotalLineDiscountAmountColumnNo: Integer;
+        JobIndex: Integer;
+        JobTaskIndex: Integer;
+        LineIndex: Integer;
+        RowNo: Integer;
+        ColumnNo: Integer;
+        JobTotalCost: Decimal;
+        JobTotalPrice: Decimal;
+        JobTotalLineAmount: Decimal;
+        JobTotalLineDiscountAmount: Decimal;
+        JobTaskTotalCost: Decimal;
+        JobTaskTotalPrice: Decimal;
+        JobTaskTotalLineAmount: Decimal;
+        JobTaskTotalLineDiscountAmount: Decimal;
+    begin
+        TotalCostColumnNo :=
+          LibraryReportValidation.FindColumnNoFromColumnCaption(
+            JobCalculateBatches.GetCurrencyCode(JobToReport, 0, CurrencyOption));
+        TotalPriceColumnNo :=
+          LibraryReportValidation.FindColumnNoFromColumnCaption(
+            JobCalculateBatches.GetCurrencyCode(JobToReport, 1, CurrencyOption));
+        TotalLineAmountColumnNo :=
+          LibraryReportValidation.FindColumnNoFromColumnCaption(
+            JobCalculateBatches.GetCurrencyCode(JobToReport, 3, CurrencyOption));
+        TotalLineDiscountAmountColumnNo :=
+          LibraryReportValidation.FindColumnNoFromColumnCaption(
+            JobCalculateBatches.GetCurrencyCode(JobToReport, 2, CurrencyOption));
+
+        for JobIndex := 1 to ArrayLen(Job) do begin
+            JobTotalCost := 0;
+            JobTotalPrice := 0;
+            JobTotalLineAmount := 0;
+            JobTotalLineDiscountAmount := 0;
+            for JobTaskIndex := 1 TO ArrayLen(JobTask, 2) do begin
+                JobTaskTotalCost := 0;
+                JobTaskTotalPrice := 0;
+                JobTaskTotalLineAmount := 0;
+                JobTaskTotalLineDiscountAmount := 0;
+                LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet(
+                  JobTask[JobIndex, JobTaskIndex]."Job Task No.", JobIndex, RowNo, ColumnNo);
+                for LineIndex := 1 to ArrayLen(LineCost, 3) do begin
+                    JobTaskTotalCost += LineCost[JobIndex, JobTaskIndex, LineIndex];
+                    JobTaskTotalPrice += LinePrice[JobIndex, JobTaskIndex, LineIndex];
+                    JobTaskTotalLineAmount += LineAmount[JobIndex, JobTaskIndex, LineIndex];
+                    JobTaskTotalLineDiscountAmount += LineDiscountAmount[JobIndex, JobTaskIndex, LineIndex];
+                end;
+                LibraryReportValidation.VerifyCellValue(
+                  RowNo + 3, TotalCostColumnNo, LibraryReportValidation.FormatDecimalValue(JobTaskTotalCost));
+                LibraryReportValidation.VerifyCellValue(
+                  RowNo + 3, TotalPriceColumnNo, LibraryReportValidation.FormatDecimalValue(JobTaskTotalPrice));
+                LibraryReportValidation.VerifyCellValue(
+                  RowNo + 3, TotalLineAmountColumnNo, LibraryReportValidation.FormatDecimalValue(JobTaskTotalLineAmount));
+                LibraryReportValidation.VerifyCellValue(
+                  RowNo + 3, TotalLineDiscountAmountColumnNo, LibraryReportValidation.FormatDecimalValue(JobTaskTotalLineDiscountAmount));
+                JobTotalCost += JobTaskTotalCost;
+                JobTotalPrice += JobTaskTotalPrice;
+                JobTotalLineAmount += JobTaskTotalLineAmount;
+                JobTotalLineDiscountAmount += JobTaskTotalLineDiscountAmount;
+            end;
+
+            LibraryReportValidation.FindRowNoColumnNoByValueOnWorksheet('Total Usage', JobIndex, RowNo, ColumnNo);
+            LibraryReportValidation.VerifyCellValue(RowNo, TotalCostColumnNo, LibraryReportValidation.FormatDecimalValue(JobTotalCost));
+            LibraryReportValidation.VerifyCellValue(RowNo, TotalPriceColumnNo, LibraryReportValidation.FormatDecimalValue(JobTotalPrice));
+            LibraryReportValidation.VerifyCellValue(
+              RowNo, TotalLineAmountColumnNo, LibraryReportValidation.FormatDecimalValue(JobTotalLineAmount));
+            LibraryReportValidation.VerifyCellValue(
+              RowNo, TotalLineDiscountAmountColumnNo, LibraryReportValidation.FormatDecimalValue(JobTotalLineDiscountAmount));
+        end;
     end;
 
     [ConfirmHandler]

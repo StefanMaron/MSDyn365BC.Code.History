@@ -448,58 +448,46 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // [SCENARIO] This test verifies E2E scenario for the purchase invoice approval and basic purchase invoice posting workflow.
-        // [GIVEN] A Purchase Invoice created from an Incoming Document.
-        // [GIVEN] Purchase Invoice Approval Workflow that has Purchaser as the approver and No Limit as the limit type.
-        // [WHEN] Purchase Invoice is sent for approval.
-        // [THEN] Approval Request is created for the purchaser.
-        // [WHEN] Purchaser approves the approval request.
-        // [THEN] Purchase Invoice is released.
-        // [THEN] Purchase Invoice is posted.
-        // [THEN] A payment line is created.
-
         Initialize;
+        // [GIVEN] Create sender's usersetup
+        LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
+
+        // [GIVEN] Enable workflows: 'Incoming Document' and 'Purchase Invoice Approval'
         EnableIncDocWorkflow;
-
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
-
         EnablePurchInvWorkflow;
 
-        // Setup - Create Incoming Document.
+        // [GIVEN] Create Incoming Document.
         LibraryIncomingDocuments.InitIncomingDocuments;
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
-        // Verify - Notification Entry.
+        // [GIVEN] Genereated the Notification Entry for Incoming Document
         VerifyNotificationEntry(IncomingDocument.RecordId);
 
-        // Setup - Create 2 usersetups
-        LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
+        // [GIVEN] Create Approver's usersetup and chain of approvers
         LibraryDocumentApprovals.CreateMockupUserSetup(ApproverUserSetup);
-
-        // Setup - Chain of approvers
         LibraryDocumentApprovals.SetApprover(CurrentUserSetup, ApproverUserSetup);
 
-        // Setup - Create purchase invoice for the incoming document.
+        // [GIVEN] Purchase Invoice created from the Incoming Document.
         CreatePurchInvWithLine(PurchHeader, LibraryRandom.RandInt(5000));
         PurchHeader.Validate("Incoming Document Entry No.", IncomingDocument."Entry No.");
         PurchHeader.Modify(true);
 
-        // Setup - Update Purchaser Code
+        // [GIVEN] Purchase Invoice Approval Workflow that has Purchaser as the approver and No Limit as the limit type.
         SetPurchDocPurchaserCode(PurchHeader, ApproverUserSetup."Salespers./Purch. Code");
 
-        // Excercise - Open Purchase invoice card and sent it for approval
+        // [WHEN] Purchase Invoice is sent for approval.
         SendPurchaseInvoiceForApproval(PurchHeader);
 
-        // Verify - Purchase invoice status is set to Pending Approval
+        // [THEN] Approval Request is created for the purchaser.
         VerifyPurchaseInvIsPendingApproval(PurchHeader);
 
-        // Setup - Assign the approval entry to current user so that it can be approved
+        // [WHEN] Purchaser approves the approval request.
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
-
-        // Exercise - Approve the approval request
         ApprovalsMgmt.ApproveRecordApprovalRequest(PurchHeader.RecordId);
 
-        // Verify - Payment line has been created.
+        // [THEN] A payment line is created.
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchHeader."No.");
         PurchInvHeader.FindFirst;
 
@@ -509,7 +497,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         Assert.AreEqual(1, GenJournalLine.Count, 'Unexpected payment line.');
         GenJournalLine.FindFirst;
 
-        // Verify - Notification entry.
+        // [THEN] Notification entry for the payment line.
         VerifyNotificationEntry(GenJournalLine.RecordId);
     end;
 

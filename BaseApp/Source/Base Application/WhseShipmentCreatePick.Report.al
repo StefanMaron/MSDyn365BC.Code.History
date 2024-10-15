@@ -72,8 +72,8 @@ report 7318 "Whse.-Shipment - Create Pick"
                 WhseWkshLine.SetRange(
                   "Whse. Document Type", WhseWkshLine."Whse. Document Type"::Shipment);
                 WhseWkshLine.SetRange("Whse. Document No.", WhseShptHeader."No.");
-
                 WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
+                OnAfterSetWhseWkshLineFilters(WhseWkshLine, "Warehouse Shipment Line", WhseShptHeader);
                 if not WhseWkshLine.FindFirst then begin
                     TestField("Qty. per Unit of Measure");
                     CalcFields("Pick Qty. (Base)", "Pick Qty.");
@@ -354,6 +354,11 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostReport(var FirstActivityNo: Code[20]; var LastActivityNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetWhseWkshLineFilters(var WhseWkshLine: Record "Whse. Worksheet Line"; WhseShipmentLine: Record "Warehouse Shipment Line"; WhseShipmentHeader: Record "Warehouse Shipment Header")
     begin
     end;
 

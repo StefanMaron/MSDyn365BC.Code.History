@@ -125,7 +125,7 @@ page 11609 "BAS Setup Preview"
         ExcludeClosingEntriesEnable: Boolean;
         YouCannotPreviewErr: Label 'You cannot preview a %1 %2.', Comment = '%1 - Consolidated field; %2 - BAS Calculation Seeet table';
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure UpdateSubForm()
     begin
         ExcludeClosingEntriesEnable := PeriodSelection = PeriodSelection::"Before and Within Period";

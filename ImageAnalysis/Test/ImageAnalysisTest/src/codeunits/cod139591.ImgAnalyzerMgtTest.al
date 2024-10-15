@@ -1,6 +1,6 @@
 // ------------------------------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved. 
-// Licensed under the MIT License. See License.txt in the project root for license information. 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
 codeunit 139591 "Img. Analyzer Mgt. Test"
@@ -10,7 +10,7 @@ codeunit 139591 "Img. Analyzer Mgt. Test"
 
     var
         Assert: Codeunit Assert;
-
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     trigger OnRun();
     begin
         // [FEATURE] [Image Analysis]
@@ -84,6 +84,7 @@ codeunit 139591 "Img. Analyzer Mgt. Test"
         // [Given] In saas and no application area is setup
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         ApplicationAreaSetup.DeleteAll();
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // [When]
 
@@ -108,6 +109,7 @@ codeunit 139591 "Img. Analyzer Mgt. Test"
         ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, MaxStrLen(ApplicationAreaSetup."User ID"));
         ApplicationAreaSetup.Advanced := true;
         ApplicationAreaSetup.Insert();
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
         // [When]
 
         // [Then] Function returns false
@@ -132,6 +134,7 @@ codeunit 139591 "Img. Analyzer Mgt. Test"
         ApplicationAreaSetup.Basic := true;
         ApplicationAreaSetup."Relationship Mgmt" := true;
         ApplicationAreaSetup.Insert();
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // [When]
 
@@ -156,6 +159,7 @@ codeunit 139591 "Img. Analyzer Mgt. Test"
         ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, MaxStrLen(ApplicationAreaSetup."User ID"));
         ApplicationAreaSetup.Basic := true;
         ApplicationAreaSetup.Insert();
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // [When]
 

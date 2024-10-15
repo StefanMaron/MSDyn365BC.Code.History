@@ -280,8 +280,15 @@ codeunit 1235 "XML Buffer Writer"
         XMLBuffer.Modify;
     end;
 
-    procedure InsertAttribute(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; AttributeName: Text[250]; AttributeValue: Text[250])
+    procedure InsertAttribute(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; AttributeName: Text; AttributeValue: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertAttribute(XMLBuffer, ParentXMLBuffer, NodeNumber, NodeDepth, AttributeName, AttributeValue, IsHandled);
+        IF IsHandled then
+            exit;
+
         with XMLBuffer do begin
             Reset;
             if FindLast then;
@@ -291,7 +298,7 @@ codeunit 1235 "XML Buffer Writer"
             Path := CopyStr(ParentXMLBuffer.Path + '/@' + AttributeName, 1, MaxStrLen(Path));
             "Node Number" := NodeNumber;
             Name := AttributeName;
-            Value := AttributeValue;
+            Value := CopyStr(AttributeValue, 1, MaxStrLen(Value));
             Depth := NodeDepth;
             "Data Type" := GetType(Value);
             Type := Type::Attribute;
@@ -301,11 +308,17 @@ codeunit 1235 "XML Buffer Writer"
         end;
     end;
 
-    procedure InsertElement(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer; ElementDepth: Integer; ElementNameAndNamespace: Text[250]; ElementValue: Text)
+    procedure InsertElement(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer; ElementDepth: Integer; ElementNameAndNamespace: Text; ElementValue: Text)
     var
-        ElementName: Text[250];
-        ElementNamespace: Text[250];
+        ElementName: Text;
+        ElementNamespace: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertElement(XMLBuffer, ParentXMLBuffer, ElementNumber, ElementDepth, ElementNameAndNamespace, ElementValue, IsHandled);
+        IF IsHandled then
+            exit;
+
         SplitXmlElementName(ElementNameAndNamespace, ElementName, ElementNamespace);
 
         if IsNullGuid(ParentXMLBuffer."Import ID") then
@@ -320,17 +333,17 @@ codeunit 1235 "XML Buffer Writer"
             Path := CopyStr(StrSubstNo('%1/%2', ParentXMLBuffer.Path, ElementNameAndNamespace), 1, MaxStrLen(Path));
             "Node Number" := ElementNumber;
             Depth := ElementDepth;
-            Name := ElementName;
+            Name := CopyStr(ElementName, 1, MaxStrLen(Name));
             SetValueWithoutModifying(ElementValue);
             Type := Type::Element;
-            Namespace := ElementNamespace;
+            Namespace := CopyStr(ElementNamespace, 1, MaxStrLen(Namespace));
             "Import ID" := ParentXMLBuffer."Import ID";
 
             Insert;
         end;
     end;
 
-    procedure InsertProcessingInstruction(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; InstructionName: Text[250]; InstructionValue: Text)
+    procedure InsertProcessingInstruction(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; InstructionName: Text; InstructionValue: Text)
     begin
         with XMLBuffer do begin
             Reset;
@@ -341,7 +354,7 @@ codeunit 1235 "XML Buffer Writer"
             Path := CopyStr(ParentXMLBuffer.Path + '/processing-instruction(''' + InstructionName + ''')', 1, MaxStrLen(Path));
             "Node Number" := NodeNumber;
             Depth := NodeDepth;
-            Name := InstructionName;
+            Name := CopyStr(InstructionName, 1, MaxStrLen(Name));
             SetValueWithoutModifying(InstructionValue);
             Type := Type::"Processing Instruction";
             "Import ID" := ParentXMLBuffer."Import ID";
@@ -350,7 +363,7 @@ codeunit 1235 "XML Buffer Writer"
         end;
     end;
 
-    local procedure SplitXmlElementName(RawXmlElementName: Text[250]; var ElementName: Text[250]; var ElementNamespace: Text[250])
+    local procedure SplitXmlElementName(RawXmlElementName: Text; var ElementName: Text; var ElementNamespace: Text)
     var
         ColonPosition: Integer;
     begin
@@ -373,12 +386,34 @@ codeunit 1235 "XML Buffer Writer"
     local procedure CanPassValue(Name: Text; Value: Text): Boolean
     var
         XMLBuffer: Record "XML Buffer";
+        ReturnValue: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCanPassValue(Name, Value, ReturnValue, IsHandled);
+        IF IsHandled then
+            exit(ReturnValue);
+
         if StrLen(Value) <= MaxStrLen(XMLBuffer.Value) then
             exit(true);
         if Name = rdfaboutTok then
             exit(false);
         Error(ValueStringToLongErr, XMLBuffer.FieldCaption(Value), MaxStrLen(XMLBuffer.Value))
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCanPassValue(Name: Text; var Value: Text; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertAttribute(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; var AttributeName: Text; var AttributeValue: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertElement(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer; ElementDepth: Integer; ElementNameAndNamespace: Text; ElementValue: Text; var IsHandled: Boolean);
+    begin
     end;
 }
 

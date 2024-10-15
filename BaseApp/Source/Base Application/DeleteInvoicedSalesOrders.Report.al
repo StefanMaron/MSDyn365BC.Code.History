@@ -41,6 +41,7 @@ report 299 "Delete Invoiced Sales Orders"
                 if SalesOrderLine.Find('-') then begin
                     SalesOrderLine.SetRange("Quantity Invoiced");
                     SalesOrderLine.SetFilter("Outstanding Quantity", '<>0');
+                    OnAfterSetSalesLineFilters(SalesOrderLine);
                     if not SalesOrderLine.Find('-') then begin
                         SalesOrderLine.SetRange("Outstanding Quantity");
                         SalesOrderLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
@@ -173,6 +174,11 @@ report 299 "Delete Invoiced Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteSalesLine(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line")
     begin
     end;
 

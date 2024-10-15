@@ -2725,7 +2725,7 @@ Cstr(Fields!PageCaption.Value)
         <Height>11.05431cm</Height>
         <Style />
       </Body>
-      <Width>19cm</Width>
+      <Width>18cm</Width>
       <Page>
         <PageHeader>
           <Height>8.90412cm</Height>
@@ -3904,7 +3904,7 @@ Cstr(Fields!PageCaption.Value)
               <Value>=Convert.ToBase64String(Fields!CompanyInfo1Picture.Value)</Value>
               <MIMEType>image/bmp</MIMEType>
               <Sizing>FitProportional</Sizing>
-              <Left>7.5cm</Left>
+              <Left>7cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>44</ZIndex>
@@ -4038,7 +4038,7 @@ Cstr(Fields!PageCaption.Value)
               <Value>=Convert.ToBase64String(Fields!CompanyInfo2Picture.Value)</Value>
               <MIMEType>image/bmp</MIMEType>
               <Sizing>FitProportional</Sizing>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>45</ZIndex>

@@ -1693,6 +1693,8 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           DummySalesCrMemoEntityBuffer.FieldNo("Sell-to Customer No."), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo("No."), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(
+         DummySalesCrMemoEntityBuffer.FieldNo("Posting Date"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
+        AddFieldToBuffer(
           DummySalesCrMemoEntityBuffer.FieldNo("Payment Terms Code"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(
           DummySalesCrMemoEntityBuffer.FieldNo("Shipment Method Code"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);

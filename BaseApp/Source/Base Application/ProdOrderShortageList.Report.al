@@ -172,7 +172,7 @@ report 99000788 "Prod. Order - Shortage List"
                         TempProdOrderLine.SetRange("Item No.", "Item No.");
                         TempProdOrderLine.SetRange("Variant Code", "Variant Code");
                         TempProdOrderLine.SetRange("Location Code", "Location Code");
-                        TempProdOrderLine.SetFilter("Due Date", '..%1', "Due Date");
+                        TempProdOrderLine.SetRange("Due Date", "Due Date");
                         CalcProdOrderLineFields(TempProdOrderLine);
                         CompItem."Scheduled Receipt (Qty.)" :=
                           CompItem."Scheduled Receipt (Qty.)" +
@@ -194,7 +194,7 @@ report 99000788 "Prod. Order - Shortage List"
                         TempProdOrderComp.SetRange("Item No.", "Item No.");
                         TempProdOrderComp.SetRange("Variant Code", "Variant Code");
                         TempProdOrderComp.SetRange("Location Code", "Location Code");
-                        TempProdOrderComp.SetFilter("Due Date", '..%1', "Due Date");
+                        TempProdOrderComp.SetRange("Due Date", "Due Date");
                         CalcProdOrderCompFields(TempProdOrderComp);
                         CompItem."Scheduled Need (Qty.)" :=
                           CompItem."Scheduled Need (Qty.)" +

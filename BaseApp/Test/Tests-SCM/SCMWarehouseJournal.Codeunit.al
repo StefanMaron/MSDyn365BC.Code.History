@@ -3201,6 +3201,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [WHEN] Calculate warehouse adjustment filtered by serial nos. "S1"|"S10".
         Item.SetFilter("Serial No. Filter", '%1|%2', SerialNos[1], SerialNos[NoOfSN]);
+        Item.SetRange("Location Filter", Location.Code);
         LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, LibraryUtility.GenerateGUID);
 
         // [THEN] Item journal line for 2 pcs is created.
@@ -3218,6 +3219,69 @@ codeunit 137153 "SCM Warehouse - Journal"
         Assert.RecordCount(ReservationEntry, 1);
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseAdjustmentOnCurrentZoneOfAdjustmentBin()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        OldAdjmtZone: Record Zone;
+        NewAdjmtZone: Record Zone;
+        AdjmtBin: Record Bin;
+        Bin: Record Bin;
+        Item: Record Item;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        ItemJournalLine: Record "Item Journal Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Warehouse Adjustment] [Adjustment Bin] [Zone]
+        // [SCENARIO 329519] Warehouse adjustment takes only the current zone of the adjustment bin.
+        Initialize;
+        ResetDefaultWhseLocation;
+        Qty := LibraryRandom.RandInt(10);
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        // [GIVEN] The adjustment bin is now on zone "Z1".
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        AdjmtBin.Get(Location.Code, Location."Adjustment Bin Code");
+        OldAdjmtZone.Get(Location.Code, AdjmtBin."Zone Code");
+
+        // [GIVEN] Post positive warehouse adjustment for 10 pcs using warehouse journal.
+        FindBin(Bin, Location.Code, true);
+        CreateWarehouseJournalLine(WarehouseJournalLine, Bin, WarehouseJournalTemplate.Type::Item, Item."No.", Qty, false);
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
+
+        // [GIVEN] Change the zone code of the adjustment bin to "Z2".
+        NewAdjmtZone.SetRange("Location Code", Location.Code);
+        NewAdjmtZone.SetRange("Bin Type Code", OldAdjmtZone."Bin Type Code");
+        NewAdjmtZone.SetFilter(Code, '<>%1', OldAdjmtZone.Code);
+        NewAdjmtZone.FindFirst;
+        AdjmtBin.Find;
+        AdjmtBin."Zone Code" := NewAdjmtZone.Code;
+        AdjmtBin.Modify;
+
+        // [GIVEN] Post another positive warehouse adjustment for 10 pcs.
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name",
+          Bin."Location Code", Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Qty);
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
+
+        // [WHEN] Calculate warehouse adjustment in item journal.
+        Item.SetRange("Location Filter", Location.Code);
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+
+        // [THEN] An item journal line for 10 pcs is created.
+        ItemJournalLine.SetRange("Item No.", Item."No.");
+        ItemJournalLine.FindFirst;
+        ItemJournalLine.TestField(Quantity, Qty);
     end;
 
     local procedure Initialize()
@@ -3657,9 +3721,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         LibraryWarehouse.CreateLocationWMS(Location[2], true, false, false, false, false);
 
-        LibraryWarehouse.CreateLocationWMS(Location[3], true, false, false, false, false);
-        Location[3].Validate("Directed Put-away and Pick", true);
-        Location[3].Modify(true);
+        LibraryWarehouse.CreateFullWMSLocation(Location[3], 2);
 
         WhseEmployee.DeleteAll(true);
     end;

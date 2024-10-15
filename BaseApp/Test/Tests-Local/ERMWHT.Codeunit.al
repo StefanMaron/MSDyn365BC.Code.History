@@ -531,7 +531,6 @@ codeunit 141012 "ERM WHT"
     var
         WHTPostingSetup: Record "WHT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         VendorNo: Code[20];
         GLAccountNo: Code[20];
         InvoiceNo: Code[20];
@@ -539,6 +538,7 @@ codeunit 141012 "ERM WHT"
         Index: Decimal;
         WHTAmount: Decimal;
         CrMemoWHTAmount: Decimal;
+        InvoiceAmount: Decimal;
     begin
         // [FEATURE] [Application]
         // [SCENARIO 362329] Remaining Unrealized WHT Amount decreased by applying partial Purchase Credit Memo with "Applies-to Doc. No."
@@ -548,28 +548,27 @@ codeunit 141012 "ERM WHT"
         InitScenarioForWHTApplication(WHTPostingSetup, VendorNo, GLAccountNo);
 
         // [GIVEN] Posted Purchase Invoice with WHT Amount = "X"
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         InvoiceNo :=
-          CreateAndPostPurchaseDocumentWithWHT(
-            PurchaseLine, WHTPostingSetup, PurchaseHeader."Document Type"::Order, VendorNo, GLAccountNo, '');
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(
+            WHTPostingSetup, PurchaseHeader."Document Type"::Order, VendorNo, GLAccountNo, InvoiceAmount);
 
-        // [GIVEN] Credit Memo with WHT and partial Amount "Y" = "X" / 2. Set Posted Invoice as "Applies-to Doc. No."
+        // [GIVEN] Purchase Credit Memo with WHT and partial Amount "Y" = "X" / 2. Posted Invoice is set as "Applies-to Doc. No.".
+        // [WHEN] Post Purchase Credit Memo.
         Index := 1 / LibraryRandom.RandIntInRange(2, 4);
-        CreatePurchaseDocumentWithWHTWithAppliesToDocNo(
-          PurchaseHeader, WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
-          VendorNo, GLAccountNo, '', InvoiceNo, PurchaseLine.Quantity, PurchaseLine."Direct Unit Cost" * Index);
+        CrMemoNo :=
+          CreateAndPostPurchaseDocumentWithWHTAndAppliesToDocNo(
+            WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo", VendorNo, GLAccountNo, InvoiceNo, 1, InvoiceAmount * Index);
 
-        WHTAmount := PurchaseLine.Amount * WHTPostingSetup."WHT %" / 100;
+        WHTAmount := InvoiceAmount * WHTPostingSetup."WHT %" / 100;
         CrMemoWHTAmount := -WHTAmount * Index;
-
-        // [WHEN] Post Purchase Credit Memo
-        CrMemoNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Invoice WHT Entry is Opened: "Remaining Unrealized Amount", "Remaining Unrealized Base" are descreased by Cr.Memo Amount/Base
         VerifyUnrealizedAmountAndBaseOnWHTEntry(
-          InvoiceNo, WHTAmount, PurchaseLine.Amount, WHTAmount * (1 - Index), PurchaseLine.Amount * (1 - Index), false);
+          InvoiceNo, WHTAmount, InvoiceAmount, WHTAmount * (1 - Index), InvoiceAmount * (1 - Index), false);
         // [THEN] Cr.Memo WHT Entry is Closed: Remaining Amounts = 0.
         VerifyUnrealizedAmountAndBaseOnWHTEntry(
-          CrMemoNo, CrMemoWHTAmount, -PurchaseLine.Amount * Index, 0, 0, true);
+          CrMemoNo, CrMemoWHTAmount, -InvoiceAmount * Index, 0, 0, true);
     end;
 
     [Test]
@@ -899,7 +898,7 @@ codeunit 141012 "ERM WHT"
     [Scope('OnPrem')]
     procedure WHTAmtPaymentApplToPurchDocEmptyTypeNegativeAmtAndPurchInvoice()
     var
-        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
@@ -907,8 +906,10 @@ codeunit 141012 "ERM WHT"
         WHTManagement: Codeunit WHTManagement;
         VendorNo: Code[20];
         InvoiceNo: Code[20];
+        AppliesToID: Code[50];
         GenJnlLineAmount: Decimal;
         WHTAmount: Decimal;
+        InvoiceAmount: Decimal;
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of Payment applies to Purhase Doc. "D1" with empty type and to Purchase Invoice "D2".
@@ -919,35 +920,34 @@ codeunit 141012 "ERM WHT"
         // [GIVEN] Posted Gen. Journal Line "D1" with Vendor "V", empty "Document Type" and negative Amount.
         VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
         GenJnlLineAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CreateAndPostGenJnlLineVendorAndSetAppliesToID(
           VendorLedgerEntry, WHTPostingSetup, GenJournalLine."Document Type"::" ", VendorNo, -GenJnlLineAmount);
 
         // [GIVEN] Posted Purchase Invoice "D2" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
         InvoiceNo :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDecInRange(1000, 2000, 2));
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is between ABS("D2".Amount) and ABS("D1".Amount + "D2".Amount).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
-          GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor,
-          GenJournalLine."Document Type"::Payment, VendorNo, VendorLedgerEntry."Applies-to ID",
-          GenJnlLineAmount + PurchaseLine."Line Amount" - LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
+          VendorNo, AppliesToID, GenJnlLineAmount + InvoiceAmount - LibraryRandom.RandDecInRange(100, 200, 2));
 
         // [WHEN] Calculate WHT Amount for "D3".
         WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
 
         // [THEN] WHT Amount of "D3" is equal to WHT Amount of Invoice "D2".
-        Assert.AreEqual(Round(PurchaseLine."Line Amount" * WHTPostingSetup."WHT %" / 100), WHTAmount, '');
+        Assert.AreEqual(Round(InvoiceAmount * WHTPostingSetup."WHT %" / 100), WHTAmount, '');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure WHTAmtPaymentApplToPurchDocEmptyTypePositiveAmtAndPurchInvoice()
     var
-        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
@@ -955,8 +955,10 @@ codeunit 141012 "ERM WHT"
         WHTManagement: Codeunit WHTManagement;
         VendorNo: Code[20];
         InvoiceNo: Code[20];
+        AppliesToID: Code[50];
         GenJnlLineAmount: Decimal;
         WHTAmount: Decimal;
+        InvoiceAmount: Decimal;
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of Payment applies to Purhase Doc. "D1" with empty type and to Purchase Invoice "D2".
@@ -967,21 +969,21 @@ codeunit 141012 "ERM WHT"
         // [GIVEN] Posted Gen. Journal Line "D1" with Vendor "V", empty "Document Type" and positive Amount.
         VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
         GenJnlLineAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CreateAndPostGenJnlLineVendorAndSetAppliesToID(
           VendorLedgerEntry, WHTPostingSetup, GenJournalLine."Document Type"::" ", VendorNo, GenJnlLineAmount);
 
         // [GIVEN] Posted Purchase Invoice "D2" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
         InvoiceNo :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDecInRange(1000, 2000, 2));
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is between ABS("D2".Amount - "D1".Amount) and ABS("D2".Amount).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", PurchaseLine."Line Amount" - GenJnlLineAmount + LibraryRandom.RandDecInRange(10, 20, 2));
+          VendorNo, AppliesToID, InvoiceAmount - GenJnlLineAmount + LibraryRandom.RandDecInRange(10, 20, 2));
 
         // [WHEN] Calculate WHT Amount for "D3".
         WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
@@ -995,7 +997,6 @@ codeunit 141012 "ERM WHT"
     procedure WHTAmtPaymentApplToPurchInvoiceWHTWithAppliedPurchCrMemoWHT()
     var
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1003,6 +1004,7 @@ codeunit 141012 "ERM WHT"
         WHTManagement: Codeunit WHTManagement;
         VendorNo: Code[20];
         InvoiceNo: Code[20];
+        AppliesToID: Code[50];
         WHTAmount: Decimal;
         InvoiceAmount: Decimal;
         CrMemoAmount: Decimal;
@@ -1021,21 +1023,18 @@ codeunit 141012 "ERM WHT"
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CrMemoAmount := LibraryRandom.RandDecInRange(100, 200, 2);
         InvoiceNo :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
             VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
-        CreatePurchaseDocumentWithWHTWithAppliesToDocNo(
-          PurchaseHeader, WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
-          VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), '', InvoiceNo, 1, CrMemoAmount);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        CreateAndPostPurchaseDocumentWithWHTAndAppliesToDocNo(WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
+          VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceNo, 1, CrMemoAmount);
 
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is between ABS(InvoiceAmount - CrMemoAmount) and ABS(InvoiceAmount).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", Abs(InvoiceAmount - CrMemoAmount + LibraryRandom.RandDecInRange(10, 20, 2)));
+          VendorNo, AppliesToID, Abs(InvoiceAmount - CrMemoAmount + LibraryRandom.RandDecInRange(10, 20, 2)));
 
         // [WHEN] Calculate WHT Amount for "D3".
         WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
@@ -1049,14 +1048,15 @@ codeunit 141012 "ERM WHT"
     [Scope('OnPrem')]
     procedure WHTAmtPaymentApplToPurchInvoiceWHTAndPurchCrMemoWHT()
     var
-        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         WHTManagement: Codeunit WHTManagement;
         VendorNo: Code[20];
-        DocumentNo: array[2] of Code[20];
+        DocumentNo: List of [Code[20]];
+        AppliesToID: Code[50];
         WHTAmount: Decimal;
         InvoiceAmount: Decimal;
         CrMemoAmount: Decimal;
@@ -1073,23 +1073,21 @@ codeunit 141012 "ERM WHT"
         VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CrMemoAmount := LibraryRandom.RandDecInRange(100, 200, 2);
-        DocumentNo[1] :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
-        DocumentNo[2] :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::"Credit Memo",
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), CrMemoAmount);
+        DocumentNo.Add(
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount));
+        DocumentNo.Add(
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), CrMemoAmount));
 
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo[1]);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo[2]);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, DocumentNo.Get(1));
+        SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo.Get(2));
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is between ABS(InvoiceAmount - CrMemoAmount) and ABS(InvoiceAmont).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", Abs(InvoiceAmount - CrMemoAmount + LibraryRandom.RandDecInRange(10, 20, 2)));
+          VendorNo, AppliesToID, Abs(InvoiceAmount - CrMemoAmount + LibraryRandom.RandDecInRange(10, 20, 2)));
 
         // [WHEN] Calculate WHT Amount for "D3".
         WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
@@ -1104,7 +1102,6 @@ codeunit 141012 "ERM WHT"
     procedure WHTAmtPaymentApplToPurchInvoiceWHTWithAppliedPurchCrMemoNonWHT()
     var
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1112,6 +1109,7 @@ codeunit 141012 "ERM WHT"
         WHTManagement: Codeunit WHTManagement;
         VendorNo: Code[20];
         InvoiceNo: Code[20];
+        AppliesToID: Code[50];
         WHTAmount: Decimal;
         InvoiceAmount: Decimal;
         CrMemoAmount: Decimal;
@@ -1130,21 +1128,19 @@ codeunit 141012 "ERM WHT"
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CrMemoAmount := LibraryRandom.RandDecInRange(10, 20, 2);
         InvoiceNo :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
             VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
-        CreatePurchaseDocumentWithWHTWithAppliesToDocNo(
-          PurchaseHeader, WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
-          VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), '', InvoiceNo, 1, CrMemoAmount);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        CreateAndPostPurchaseDocumentWithWHTAndAppliesToDocNo(
+          WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
+          VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceNo, 1, CrMemoAmount);
 
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is between ABS(InvoiceAmount - CrMemoAmount) and ABS(InvoiceAmont).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", Abs(InvoiceAmount - CrMemoAmount + LibraryRandom.RandDecInRange(4, 6, 2)));
+          VendorNo, AppliesToID, Abs(InvoiceAmount - CrMemoAmount + LibraryRandom.RandDecInRange(4, 6, 2)));
 
         // [WHEN] Calculate WHT Amount for "D3".
         WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
@@ -1158,14 +1154,15 @@ codeunit 141012 "ERM WHT"
     [Scope('OnPrem')]
     procedure WHTAmtPaymentApplToPurchInvoiceWHTAndPurchCrMemoNonWHT()
     var
-        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         WHTManagement: Codeunit WHTManagement;
         VendorNo: Code[20];
-        DocumentNo: array[2] of Code[20];
+        DocumentNo: List of [Code[20]];
+        AppliesToID: Code[50];
         WHTAmount: Decimal;
         InvoiceAmount: Decimal;
         CrMemoAmount: Decimal;
@@ -1181,23 +1178,21 @@ codeunit 141012 "ERM WHT"
         VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CrMemoAmount := LibraryRandom.RandDecInRange(10, 20, 2);
-        DocumentNo[1] :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
-        DocumentNo[2] :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::"Credit Memo",
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), CrMemoAmount);
+        DocumentNo.Add(
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount));
+        DocumentNo.Add(
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), CrMemoAmount));
 
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo[1]);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo[2]);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, DocumentNo.Get(1));
+        SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo.Get(2));
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is between ABS(InvoiceAmount - CrMemoAmount) and ABS(InvoiceAmont).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", Abs(InvoiceAmount - CrMemoAmount + LibraryRandom.RandDecInRange(4, 6, 2)));
+          VendorNo, AppliesToID, Abs(InvoiceAmount - CrMemoAmount + LibraryRandom.RandDecInRange(4, 6, 2)));
 
         // [WHEN] Calculate WHT Amount for "D3".
         WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
@@ -1208,16 +1203,148 @@ codeunit 141012 "ERM WHT"
 
     [Test]
     [Scope('OnPrem')]
+    procedure WHTAmtPaymentWithLessAmountApplToMultipleInvoiceAndCrMemo()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        WHTManagement: Codeunit WHTManagement;
+        AppliesToID: Code[50];
+        VendorNo: Code[20];
+        DocAmount: List of [Decimal];
+        TotalDocAmount: Decimal;
+        DiffAmount: Decimal;
+        WHTAmount: Decimal;
+        ExpectedWHTAmt: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 321930] WHT Amount calculation in case of Payment applies to two Purchase Invoices and to two Purchase Cr.Memos.
+        // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is less than summ of Purchase document amounts.
+        Initialize;
+        FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
+
+        // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
+        // [GIVEN] Two Posted Purchase Cr. Memos for Vendor "V" with Amounts > InvoiceAmount / 2. Amounts are 900 and 700.
+        VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
+        DiffAmount := LibraryRandom.RandDecInRange(10, 20, 2);
+
+        CreateMultiplePostedPurchDocumentsWithAppliesToID(
+          AppliesToID, DocAmount, TotalDocAmount, WHTPostingSetup, VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"));
+        CalcWHTAmountOnInvoiceCrMemoAmounts(ExpectedWHTAmt, DocAmount, DiffAmount, WHTPostingSetup."WHT %");
+
+        // [GIVEN] Gen. Journal Line "D" with Vendor "V", "Document Type" = Payment, Amount is between ABS(InvoiceAmounts - CrMemoAmounts) and ABS(InvoiceAmont).
+        // [GIVEN] "D" applies to all Posted Purchase documents by setting the same "Applies-to ID".
+        CreateGenJnlLineWithAppliesToID(
+          GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
+          VendorNo, AppliesToID, TotalDocAmount - DiffAmount);
+
+        // [WHEN] Calculate WHT Amount for "D".
+        WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
+
+        // [THEN] WHT Amount of "D" is equal to Payment Amount * WHT%, i.e. to (1000 + 800 - 900 - 700 - 10) * WHT%.
+        Assert.AreEqual(ExpectedWHTAmt, WHTAmount, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WHTAmtPaymentWithEqualAmountApplToMultipleInvoiceAndCrMemo()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        WHTManagement: Codeunit WHTManagement;
+        AppliesToID: Code[50];
+        VendorNo: Code[20];
+        DocAmount: List of [Decimal];
+        TotalDocAmount: Decimal;
+        WHTAmount: Decimal;
+        ExpectedWHTAmt: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 321930] WHT Amount calculation in case of Payment applies to two Purchase Invoices and to two Purchase Cr.Memos.
+        // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is equal to summ of Purchase document amounts.
+        Initialize;
+        FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
+
+        // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
+        // [GIVEN] Two Posted Purchase Cr. Memos for Vendor "V" with Amounts > InvoiceAmount / 2. Amounts are 900 and 700.
+        VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
+
+        CreateMultiplePostedPurchDocumentsWithAppliesToID(
+          AppliesToID, DocAmount, TotalDocAmount, WHTPostingSetup, VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"));
+        CalcWHTAmountOnInvoiceCrMemoAmounts(ExpectedWHTAmt, DocAmount, 0, WHTPostingSetup."WHT %");
+
+        // [GIVEN] Gen. Journal Line "D" with Vendor "V", "Document Type" = Payment, Amount is equal to ABS(InvoiceAmounts - CrMemoAmounts).
+        // [GIVEN] "D" applies to all Posted Purchase documents by setting the same "Applies-to ID".
+        CreateGenJnlLineWithAppliesToID(
+          GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
+          VendorNo, AppliesToID, TotalDocAmount);
+
+        // [WHEN] Calculate WHT Amount for "D".
+        WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
+
+        // [THEN] WHT Amount of "D" is equal to (1000 + 800 - 900 - 700) * WHT%.
+        Assert.AreEqual(ExpectedWHTAmt, WHTAmount, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WHTAmtPaymentWithGreaterAmountApplToMultipleInvoiceAndCrMemo()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        WHTManagement: Codeunit WHTManagement;
+        AppliesToID: Code[50];
+        VendorNo: Code[20];
+        DocAmount: List of [Decimal];
+        TotalDocAmount: Decimal;
+        DiffAmount: Decimal;
+        WHTAmount: Decimal;
+        ExpectedWHTAmt: Decimal;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 321930] WHT Amount calculation in case of Payment applies to two Purchase Invoices and to two Purchase Cr.Memos.
+        // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is greater than summ of Purchase document amounts.
+        Initialize;
+        FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
+
+        // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
+        // [GIVEN] Two Posted Purchase Cr. Memos for Vendor "V" with Amounts > InvoiceAmount / 2. Amounts are 900 and 700.
+        VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
+        DiffAmount := LibraryRandom.RandDecInRange(10, 20, 2);
+
+        CreateMultiplePostedPurchDocumentsWithAppliesToID(
+          AppliesToID, DocAmount, TotalDocAmount, WHTPostingSetup, VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"));
+        CalcWHTAmountOnInvoiceCrMemoAmounts(ExpectedWHTAmt, DocAmount, 0, WHTPostingSetup."WHT %");
+
+        // [GIVEN] Gen. Journal Line "D" with Vendor "V", "Document Type" = Payment, Amount is larger than ABS(InvoiceAmounts - CrMemoAmounts).
+        // [GIVEN] "D" applies to all Posted Purchase documents by setting the same "Applies-to ID".
+        CreateGenJnlLineWithAppliesToID(
+          GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
+          VendorNo, AppliesToID, Abs(TotalDocAmount) + DiffAmount);
+
+        // [WHEN] Calculate WHT Amount for "D".
+        WHTAmount := WHTManagement.WHTAmountJournal(GenJournalLine, false);
+
+        // [THEN] WHT Amount of "D" is equal to (1000 + 800 - 900 - 700) * WHT%.
+        Assert.AreEqual(ExpectedWHTAmt, WHTAmount, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure WHTAmtPostPaymentApplToPurchDocEmptyTypeNegativeAmtAndPurchInvoice()
     var
-        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorNo: Code[20];
         InvoiceNo: Code[20];
+        AppliesToID: Code[50];
         GenJnlLineAmount: Decimal;
+        InvoiceAmount: Decimal;
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of posting Payment, that applies to Purhase Doc. "D1" with empty type and to Purchase Invoice "D2".
@@ -1228,22 +1355,21 @@ codeunit 141012 "ERM WHT"
         // [GIVEN] Posted Gen. Journal Line "D1" with Vendor "V", empty "Document Type" and negative Amount.
         VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
         GenJnlLineAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CreateAndPostGenJnlLineVendorAndSetAppliesToID(
           VendorLedgerEntry, WHTPostingSetup, GenJournalLine."Document Type"::" ", VendorNo, -GenJnlLineAmount);
 
         // [GIVEN] Posted Purchase Invoice "D2" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
         InvoiceNo :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDecInRange(1000, 2000, 2));
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is equal to ABS("D1".Amount + "D2".Amount).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
-          GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor,
-          GenJournalLine."Document Type"::Payment, VendorNo, VendorLedgerEntry."Applies-to ID",
-          GenJnlLineAmount + PurchaseLine."Line Amount");
+          GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
+          VendorNo, AppliesToID, GenJnlLineAmount + InvoiceAmount);
         SetCheckPrinted(GenJournalLine);
 
         // [WHEN] Post Gen. Journal Line "D3".
@@ -1252,21 +1378,23 @@ codeunit 141012 "ERM WHT"
         // [THEN] Amount of G/L Entry for WHT Payable account is equal to WHT Amount of Invoice "D2".
         VerifyAmountOnGLEntry(
           GenJournalLine."Document No.", WHTPostingSetup."Payable WHT Account Code",
-          -Round(PurchaseLine."Line Amount" * WHTPostingSetup."WHT %" / 100));
+          -Round(InvoiceAmount * WHTPostingSetup."WHT %" / 100));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure WHTAmtPostPaymentApplToPurchDocEmptyTypePositiveAmtAndPurchInvoice()
     var
-        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorNo: Code[20];
         InvoiceNo: Code[20];
+        AppliesToID: Code[50];
         GenJnlLineAmount: Decimal;
+        InvoiceAmount: Decimal;
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of posting Payment, that applies to Purhase Doc. "D1" with empty type and to Purchase Invoice "D2".
@@ -1277,21 +1405,21 @@ codeunit 141012 "ERM WHT"
         // [GIVEN] Posted Gen. Journal Line "D1" with Vendor "V", empty "Document Type" and positive Amount.
         VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
         GenJnlLineAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CreateAndPostGenJnlLineVendorAndSetAppliesToID(
           VendorLedgerEntry, WHTPostingSetup, GenJournalLine."Document Type"::" ", VendorNo, GenJnlLineAmount);
 
         // [GIVEN] Posted Purchase Invoice "D2" for Vendor "V". Amount is greater than WHTSetup's Minimum Invoice Amount.
         InvoiceNo :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDecInRange(1000, 2000, 2));
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is equal to ABS("D2".Amount - "D1".Amount).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", PurchaseLine."Line Amount" - GenJnlLineAmount);
+          VendorNo, AppliesToID, InvoiceAmount - GenJnlLineAmount);
         SetCheckPrinted(GenJournalLine);
 
         // [WHEN] Post Gen. Journal Line "D3".
@@ -1308,13 +1436,13 @@ codeunit 141012 "ERM WHT"
     procedure WHTAmtPostPaymentApplToPurchInvoiceWHTWithAppliedPurchCrMemoWHT()
     var
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorNo: Code[20];
         InvoiceNo: Code[20];
+        AppliesToID: Code[50];
         InvoiceAmount: Decimal;
         CrMemoAmount: Decimal;
         ExpectedWHTAmt: Decimal;
@@ -1332,21 +1460,19 @@ codeunit 141012 "ERM WHT"
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CrMemoAmount := LibraryRandom.RandDecInRange(100, 200, 2);
         InvoiceNo :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
             VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
-        CreatePurchaseDocumentWithWHTWithAppliesToDocNo(
-          PurchaseHeader, WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
-          VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), '', InvoiceNo, 1, CrMemoAmount);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        CreateAndPostPurchaseDocumentWithWHTAndAppliesToDocNo(
+          WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
+          VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceNo, 1, CrMemoAmount);
 
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is equal to ABS(InvoiceAmount - CrMemoAmount).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", Abs(InvoiceAmount - CrMemoAmount));
+          VendorNo, AppliesToID, Abs(InvoiceAmount - CrMemoAmount));
         SetCheckPrinted(GenJournalLine);
 
         // [WHEN] Post Gen. Journal Line "D3".
@@ -1361,15 +1487,17 @@ codeunit 141012 "ERM WHT"
     [Scope('OnPrem')]
     procedure WHTAmtPostPaymentApplToPurchInvoiceWHTAndPurchCrMemoWHT()
     var
-        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorNo: Code[20];
-        DocumentNo: array[2] of Code[20];
+        DocumentNo: List of [Code[20]];
+        AppliesToID: Code[50];
         InvoiceAmount: Decimal;
         CrMemoAmount: Decimal;
+        ExpectedWHTAmounts: List of [Decimal];
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 304082] WHT Amount calculation in case of posting Payment, that applies to Purchase Invoice "D1" and to Purchase Cr.Memo "D2".
@@ -1382,35 +1510,31 @@ codeunit 141012 "ERM WHT"
         VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CrMemoAmount := LibraryRandom.RandDecInRange(100, 200, 2);
-        DocumentNo[1] :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
-        DocumentNo[2] :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::"Credit Memo",
-            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), CrMemoAmount);
+        DocumentNo.Add(
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount));
+        DocumentNo.Add(
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
+            VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), CrMemoAmount));
 
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo[1]);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo[2]);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, DocumentNo.Get(1));
+        SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo.Get(2));
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is equal to ABS(InvoiceAmount - CrMemoAmount).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", Abs(InvoiceAmount - CrMemoAmount));
+          VendorNo, AppliesToID, Abs(InvoiceAmount - CrMemoAmount));
         SetCheckPrinted(GenJournalLine);
 
         // [WHEN] Post Gen. Journal Line "D3".
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Amounts of G/L Entries for WHT Payable account are equal to CrMemoAmount * WHT% and InvoiceAmount * WHT%.
-        VerifyAmountOnGLEntry(
-          GenJournalLine."Document No.", WHTPostingSetup."Payable WHT Account Code",
-          Round(CrMemoAmount * WHTPostingSetup."WHT %" / 100));
-        VerifyAmountOnSecondGLEntry(
-          GenJournalLine."Document No.", WHTPostingSetup."Payable WHT Account Code",
-          -Round(InvoiceAmount * WHTPostingSetup."WHT %" / 100));
+        ExpectedWHTAmounts.Add(Round(CrMemoAmount * WHTPostingSetup."WHT %" / 100));
+        ExpectedWHTAmounts.Add(-Round(InvoiceAmount * WHTPostingSetup."WHT %" / 100));
+        VerifyAmountOnMultipleGLEntries(
+          GenJournalLine."Document No.", WHTPostingSetup."Payable WHT Account Code", ExpectedWHTAmounts);
     end;
 
     [Test]
@@ -1418,13 +1542,13 @@ codeunit 141012 "ERM WHT"
     procedure WHTAmtPostPaymentApplToPurchInvoiceWHTWithAppliedPurchCrMemoNonWHT()
     var
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorNo: Code[20];
         InvoiceNo: Code[20];
+        AppliesToID: Code[50];
         InvoiceAmount: Decimal;
         CrMemoAmount: Decimal;
         ExpectedWHTAmt: Decimal;
@@ -1442,21 +1566,19 @@ codeunit 141012 "ERM WHT"
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CrMemoAmount := LibraryRandom.RandDecInRange(10, 20, 2);
         InvoiceNo :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
             VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
-        CreatePurchaseDocumentWithWHTWithAppliesToDocNo(
-          PurchaseHeader, WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
-          VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), '', InvoiceNo, 1, CrMemoAmount);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        CreateAndPostPurchaseDocumentWithWHTAndAppliesToDocNo(
+          WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
+          VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceNo, 1, CrMemoAmount);
 
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is equal to ABS(InvoiceAmount - CrMemoAmount).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", Abs(InvoiceAmount - CrMemoAmount));
+          VendorNo, AppliesToID, Abs(InvoiceAmount - CrMemoAmount));
         SetCheckPrinted(GenJournalLine);
 
         // [WHEN] Post Gen. Journal Line "D3".
@@ -1471,13 +1593,14 @@ codeunit 141012 "ERM WHT"
     [Scope('OnPrem')]
     procedure WHTAmtPostPaymentApplToPurchInvoiceWHTAndPurchCrMemoNonWHT()
     var
-        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorNo: Code[20];
         DocumentNo: array[2] of Code[20];
+        AppliesToID: Code[50];
         InvoiceAmount: Decimal;
         CrMemoAmount: Decimal;
     begin
@@ -1493,22 +1616,20 @@ codeunit 141012 "ERM WHT"
         InvoiceAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CrMemoAmount := LibraryRandom.RandDecInRange(10, 20, 2);
         DocumentNo[1] :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::Invoice,
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
             VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), InvoiceAmount);
         DocumentNo[2] :=
-          CreateAndPostPurchaseDocumentWithWHTAndAmount(PurchaseLine, WHTPostingSetup, PurchaseLine."Document Type"::"Credit Memo",
+          CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, PurchaseHeader."Document Type"::"Credit Memo",
             VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), CrMemoAmount);
 
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo[1]);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
-        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo[2]);
-        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        AppliesToID := SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::Invoice, DocumentNo[1]);
+        SetAppliesToIDVendorDocument(VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo[2]);
 
         // [GIVEN] Gen. Journal Line "D3" with Vendor "V", "Document Type" = Payment, Amount is equal to ABS(InvoiceAmount - CrMemoAmount).
         // [GIVEN] "D3" applies to "D1" and "D2" by setting the same "Applies-to ID".
         CreateGenJnlLineWithAppliesToID(
           GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
-          VendorNo, VendorLedgerEntry."Applies-to ID", Abs(InvoiceAmount - CrMemoAmount));
+          VendorNo, AppliesToID, Abs(InvoiceAmount - CrMemoAmount));
         SetCheckPrinted(GenJournalLine);
 
         // [WHEN] Post Gen. Journal Line "D3".
@@ -1518,6 +1639,97 @@ codeunit 141012 "ERM WHT"
         VerifyAmountOnGLEntry(
           GenJournalLine."Document No.", WHTPostingSetup."Payable WHT Account Code",
           -Round(InvoiceAmount * WHTPostingSetup."WHT %" / 100));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WHTAmtPostPaymentWithLessAmountApplToMultipleInvoiceAndCrMemo()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        AppliesToID: Code[50];
+        VendorNo: Code[20];
+        DocAmount: List of [Decimal];
+        TotalDocAmount: Decimal;
+        DiffAmount: Decimal;
+        ExpectedWHTAmt: Decimal;
+        ExpectedWHTAmounts: List of [Decimal];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 321930] WHT Amount calculation in case of posting Payment, that applies to two Purchase Invoices and to two Purchase Cr.Memos.
+        // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is less than summ of Purchase document amounts.
+        Initialize;
+        FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
+
+        // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
+        // [GIVEN] Two Posted Purchase Cr. Memos for Vendor "V" with Amounts > InvoiceAmount / 2. Amounts are 900 and 700.
+        VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
+        DiffAmount := LibraryRandom.RandDecInRange(10, 20, 2);
+
+        CreateMultiplePostedPurchDocumentsWithAppliesToID(
+          AppliesToID, DocAmount, TotalDocAmount, WHTPostingSetup, VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"));
+        CalcWHTAmountOnInvoiceCrMemoAmounts(ExpectedWHTAmt, DocAmount, DiffAmount, WHTPostingSetup."WHT %");
+
+        // [GIVEN] Gen. Journal Line "D" with Vendor "V", "Document Type" = Payment, Amount is between ABS(InvoiceAmounts - CrMemoAmounts) and ABS(InvoiceAmont).
+        // [GIVEN] "D" applies to all Posted Purchase documents by setting the same "Applies-to ID".
+        CreateGenJnlLineWithAppliesToID(
+          GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
+          VendorNo, AppliesToID, TotalDocAmount - DiffAmount);
+        SetCheckPrinted(GenJournalLine);
+
+        // [WHEN] Post Gen. Journal Line "D".
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Amounts of G/L Entries for WHT Payable account are equal to 900 * WHT%, 700 * WHT%, 1000 * WHT%, (800 - DiffAmount) * WHT%.
+        DocAmount.Set(3, DocAmount.Get(3) - DiffAmount);
+        CalcWHTAmountsForMultipleWHTGLEntries(ExpectedWHTAmounts, DocAmount, WHTPostingSetup."WHT %");
+        VerifyAmountOnMultipleGLEntries(
+          GenJournalLine."Document No.", WHTPostingSetup."Payable WHT Account Code", ExpectedWHTAmounts);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WHTAmtPostPaymentWithEqualAmountApplToMultipleInvoiceAndCrMemo()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        AppliesToID: Code[50];
+        VendorNo: Code[20];
+        DocAmount: List of [Decimal];
+        TotalDocAmount: Decimal;
+        ExpectedWHTAmt: Decimal;
+        ExpectedWHTAmounts: List of [Decimal];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 321930] WHT Amount calculation in case of posting Payment, that applies to two Purchase Invoices and to two Purchase Cr.Memos.
+        // [SCENARIO 321930] All Purchase documents have related WHT Entry. Payment amount is equal to summ of Purchase document amounts.
+        Initialize;
+        FindAndUpdateSetupsWithGSTAndWHTAndZeroVAT(VATPostingSetup, WHTPostingSetup);
+
+        // [GIVEN] Two Posted Purchase Invoices for Vendor "V". Amounts are 1000 and 800.
+        // [GIVEN] Two Posted Purchase Cr. Memos for Vendor "V" with Amounts > InvoiceAmount / 2. Amounts are 900 and 700.
+        VendorNo := CreateVendorNoWithoutABN(VATPostingSetup."VAT Bus. Posting Group");
+
+        CreateMultiplePostedPurchDocumentsWithAppliesToID(
+          AppliesToID, DocAmount, TotalDocAmount, WHTPostingSetup, VendorNo, CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"));
+        CalcWHTAmountOnInvoiceCrMemoAmounts(ExpectedWHTAmt, DocAmount, 0, WHTPostingSetup."WHT %");
+
+        // [GIVEN] Gen. Journal Line "D" with Vendor "V", "Document Type" = Payment, Amount is equal to ABS(InvoiceAmounts - CrMemoAmounts).
+        // [GIVEN] "D" applies to all Posted Purchase documents by setting the same "Applies-to ID".
+        CreateGenJnlLineWithAppliesToID(
+          GenJournalLine, WHTPostingSetup, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment,
+          VendorNo, AppliesToID, TotalDocAmount);
+        SetCheckPrinted(GenJournalLine);
+
+        // [WHEN] Post Gen. Journal Line "D".
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Amounts of G/L Entries for WHT Payable account are equal to 900 * WHT%, 700 * WHT%, 1000 * WHT%, 800 * WHT%.
+        CalcWHTAmountsForMultipleWHTGLEntries(ExpectedWHTAmounts, DocAmount, WHTPostingSetup."WHT %");
+        VerifyAmountOnMultipleGLEntries(
+          GenJournalLine."Document No.", WHTPostingSetup."Payable WHT Account Code", ExpectedWHTAmounts);
     end;
 
     local procedure Initialize()
@@ -1611,6 +1823,21 @@ codeunit 141012 "ERM WHT"
         VendLedgEntry.Modify(true);
     end;
 
+    local procedure CalcWHTAmountOnInvoiceCrMemoAmounts(var TotalWHTAmount: Decimal; DocAmount: List of [Decimal]; DiffAmount: Decimal; WHTPercent: Decimal)
+    begin
+        TotalWHTAmount :=
+          Round(DocAmount.Get(1) * WHTPercent / 100) - Round(DocAmount.Get(2) * WHTPercent / 100) +
+          Round((DocAmount.Get(3) - DiffAmount) * WHTPercent / 100) - Round(DocAmount.Get(4) * WHTPercent / 100);
+    end;
+
+    local procedure CalcWHTAmountsForMultipleWHTGLEntries(var WHTAmounts: List of [Decimal]; DocumentAmounts: List of [Decimal]; WHTPercent: Decimal)
+    begin
+        WHTAmounts.Add(Round(DocumentAmounts.Get(2) * WHTPercent / 100));
+        WHTAmounts.Add(Round(DocumentAmounts.Get(4) * WHTPercent / 100));
+        WHTAmounts.Add(-Round(DocumentAmounts.Get(1) * WHTPercent / 100));
+        WHTAmounts.Add(-Round(DocumentAmounts.Get(3) * WHTPercent / 100));
+    end;
+
     local procedure CreateAppliedPaymentToInvoices(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; InvoiceNo: array[20] of Code[20]; AppliedAmount: array[20] of Decimal; WHTPostingSetup: Record "WHT Posting Setup"; InvoiceCount: Integer)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1667,9 +1894,10 @@ codeunit 141012 "ERM WHT"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWithWHTAndAmount(var PurchaseLine: Record "Purchase Line"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal) DocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal) DocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchaseHeader(PurchaseHeader, DocumentType, VendorNo, '');
         LibraryPurchase.CreatePurchaseLine(
@@ -1702,11 +1930,12 @@ codeunit 141012 "ERM WHT"
         VendorLedgerEntry.Modify;
     end;
 
-    local procedure CreatePurchaseDocumentWithWHTWithAppliesToDocNo(var PurchaseHeader: Record "Purchase Header"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10]; ApplyToDocNo: Code[20]; Qty: Decimal; ApplnAmount: Decimal)
+    local procedure CreateAndPostPurchaseDocumentWithWHTAndAppliesToDocNo(WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; ApplyToDocNo: Code[20]; Qty: Decimal; ApplnAmount: Decimal) DocumentNo: Code[20]
     var
+        PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchaseHeader(PurchaseHeader, DocumentType, VendorNo, CurrencyCode);
+        CreatePurchaseHeader(PurchaseHeader, DocumentType, VendorNo, '');
         PurchaseHeader.Validate(Adjustment, true);
         PurchaseHeader.Validate("Applies-to Doc. Type", PurchaseHeader."Applies-to Doc. Type"::Invoice);
         PurchaseHeader.Validate("Applies-to Doc. No.", ApplyToDocNo);
@@ -1715,6 +1944,7 @@ codeunit 141012 "ERM WHT"
         PurchaseLine.Validate(Quantity, Qty);
         PurchaseLine.Validate("Direct Unit Cost", ApplnAmount);
         PurchaseLine.Modify(true);
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
     local procedure CreateAndPostSalesDocumentWithWHT(var SalesLine: Record "Sales Line"; WHTPostingSetup: Record "WHT Posting Setup"; DocumentType: Option; CustomerNo: Code[20]; GLAccountNo: Code[20]) DocumentNo: Code[20]
@@ -1729,6 +1959,34 @@ codeunit 141012 "ERM WHT"
         SalesLine.Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
         SalesLine.Modify(true);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure CreateMultiplePostedPurchDocumentsWithAppliesToID(var AppliesToID: Code[50]; var DocAmount: List of [Decimal]; var TotalDocAmount: Decimal; WHTPostingSetup: Record "WHT Posting Setup"; VendorNo: Code[20]; GLAccountNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PurchaseHeader: Record "Purchase Header";
+        DocumentType: List of [Integer];
+        DocumentNo: Code[20];
+        i: Integer;
+    begin
+        DocAmount.Add(LibraryRandom.RandDecInRange(1000, 2000, 2));
+        DocAmount.Add(DocAmount.Get(1) - LibraryRandom.RandDecInRange(100, 200, 2));
+        DocAmount.Add(DocAmount.Get(2) - LibraryRandom.RandDecInRange(100, 200, 2));
+        DocAmount.Add(DocAmount.Get(3) - LibraryRandom.RandDecInRange(100, 200, 2));
+
+        DocumentType.Add(PurchaseHeader."Document Type"::Invoice);
+        DocumentType.Add(PurchaseHeader."Document Type"::"Credit Memo");
+        DocumentType.Add(PurchaseHeader."Document Type"::Invoice);
+        DocumentType.Add(PurchaseHeader."Document Type"::"Credit Memo");
+
+        for i := 1 to DocumentType.Count do begin
+            DocumentNo := CreateAndPostPurchaseDocumentWithWHTAndAmount(WHTPostingSetup, DocumentType.Get(i), VendorNo, GLAccountNo, DocAmount.Get(i));
+            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType.Get(i), DocumentNo);
+            LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        end;
+
+        AppliesToID := VendorLedgerEntry."Applies-to ID";
+        TotalDocAmount := DocAmount.Get(1) - DocAmount.Get(2) + DocAmount.Get(3) - DocAmount.Get(4);
     end;
 
     local procedure CreateBankAccount(CurrencyCode: Code[10]): Code[20]
@@ -2092,6 +2350,15 @@ codeunit 141012 "ERM WHT"
         GenJournalLine.Modify;
     end;
 
+    local procedure SetAppliesToIDVendorDocument(DocumentType: Option; DocumentNo: Code[20]) AppliesToID: Code[50]
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        AppliesToID := VendorLedgerEntry."Applies-to ID";
+    end;
+
     local procedure TearDownGenPostingSetup(GenBusPostingGroupCode: Code[20])
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -2199,9 +2466,9 @@ codeunit 141012 "ERM WHT"
         WHTEntry.SetRange("Original Document No.", DocumentNo);
         WHTEntry.FindFirst;
         Assert.AreNearlyEqual(
-          WHTEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, WHTEntry.FieldCaption(Amount), Amount));
+          Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, WHTEntry.FieldCaption(Amount), Amount));
         Assert.AreNearlyEqual(
-          WHTEntry.Base, Base, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, WHTEntry.FieldCaption(Base), Base));
+          Base, WHTEntry.Base, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, WHTEntry.FieldCaption(Base), Base));
     end;
 
     local procedure VerifyAmountOnBankLedgerEntry(DocumentNo: Code[20]; Amount: Decimal; BankAccountNo: Code[20])
@@ -2224,19 +2491,22 @@ codeunit 141012 "ERM WHT"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst;
         Assert.AreNearlyEqual(
-          GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount));
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount));
     end;
 
-    local procedure VerifyAmountOnSecondGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyAmountOnMultipleGLEntries(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amounts: List of [Decimal])
     var
         GLEntry: Record "G/L Entry";
+        i: Integer;
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindSet;
-        GLEntry.Next;
-        Assert.AreNearlyEqual(
-          GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount));
+        repeat
+            i += 1;
+            Assert.AreNearlyEqual(
+              Amounts.Get(i), GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amounts.Get(i)));
+        until GLEntry.Next = 0;
     end;
 
     local procedure VerifyAmountOnGLEntries(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; Amount2: Decimal)

@@ -33,7 +33,7 @@ table 5507 "Sales Cr. Memo Entity Buffer"
         {
             Caption = 'Bill-to Name';
             DataClassification = CustomerContent;
-            TableRelation = Customer;
+            TableRelation = Customer.Name;
             ValidateTableRelation = false;
         }
         field(7; "Bill-to Address"; Text[100])
@@ -60,6 +60,11 @@ table 5507 "Sales Cr. Memo Entity Buffer"
         field(10; "Bill-to Contact"; Text[100])
         {
             Caption = 'Bill-to Contact';
+            DataClassification = CustomerContent;
+        }
+        field(20; "Posting Date"; Date)
+        {
+            Caption = 'Posting Date';
             DataClassification = CustomerContent;
         }
         field(23; "Payment Terms Code"; Code[10])
