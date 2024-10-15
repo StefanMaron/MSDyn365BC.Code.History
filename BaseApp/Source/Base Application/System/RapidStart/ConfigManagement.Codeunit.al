@@ -272,7 +272,7 @@ codeunit 8616 "Config. Management"
             Database::Microsoft.Sales.Reminder."Reminder Email Text":
                 exit(Page::Microsoft.Sales.Reminder."Reminder Email Text");
             Database::Microsoft.Sales.Reminder."Reminder Terms":
-                exit(Page::Microsoft.Sales.Reminder."Reminder Terms");
+                exit(Page::Microsoft.Sales.Reminder."Reminder Terms List");
             Database::Microsoft.Sales.Reminder."Reminder Level":
                 exit(Page::Microsoft.Sales.Reminder."Reminder Levels");
             Database::Microsoft.Sales.Reminder."Reminder Text":

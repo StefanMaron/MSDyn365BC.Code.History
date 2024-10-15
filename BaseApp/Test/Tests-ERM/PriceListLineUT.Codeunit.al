@@ -43,7 +43,7 @@ codeunit 134123 "Price List Line UT"
         CustomSourceNoMustBeFilledErr: Label 'Assign-to No. (custom) must have a value';
         CustomSourceNoMustBeBlankErr: Label 'Assign-to No. (custom) must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
-        SourceGroupJobErr: Label 'Source Group must be equal to ''Job''';
+        SourceGroupJobErr: Label 'Source Group must be equal to ''Project''';
         OutOfSyncNotificationMsg: Label 'We have detected that price list lines exists, which are out of sync. We have disabled the new lookups to prevent issues.';
         IsInitialized: Boolean;
         ResourceNoErr: Label 'Resource Group is not updated';
@@ -2657,7 +2657,7 @@ codeunit 134123 "Price List Line UT"
         PriceListLine."Asset No." := 'ACC';
         // [WHEN] Set "Cost Factor" as 1
         asserterror PriceListLine.Validate("Cost Factor", 1);
-        // [THEN] Error message: 'Source Group must be equal to Job'
+        // [THEN] Error message: 'Source Group must be equal to Project'
         Assert.ExpectedError(SourceGroupJobErr);
     end;
 

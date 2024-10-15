@@ -198,8 +198,7 @@ codeunit 213 "Res. Jnl.-Post Batch"
                     ResJnlLine3.Modify();
                 end;
             end;
-        if ResJnlBatch."No. Series" <> '' then
-            NoSeriesBatch.SaveState();
+        NoSeriesBatch.SaveState();
 
         Commit();
 

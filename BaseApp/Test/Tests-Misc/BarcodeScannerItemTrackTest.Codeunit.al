@@ -205,7 +205,7 @@ codeunit 137213 BarcodeScannerItemTrackTest
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler,ItemTrackingTypeStrMenuHandler,ContinuousScanningTestPageModalHandler,ConfirmHandler')]
+    [HandlerFunctions('ItemTrackingLinePageModalHandler,ItemTrackingTypeStrMenuHandler,ContinuousScanningTestPageModalHandler')]
     procedure ContinuousScanSerialNoInBoundMinusTest()
     var
         Item: Record Item;
@@ -218,7 +218,7 @@ codeunit 137213 BarcodeScannerItemTrackTest
         // [GIVEN] Create serial specific tracked item
         LibraryItemTracking.CreateSerialItem(Item);
         // [GIVEN] Positive adjustment Item journal line for the item, but with minus Qty
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", -10, '');
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", WorkDate(), Item."No.", -10, '');
 
         // [GIVEN] The Stored value is used to select 'Serial No' on StrMenu
         LibraryVariableStorage.Enqueue('Serial No');
@@ -415,7 +415,7 @@ codeunit 137213 BarcodeScannerItemTrackTest
         // [GIVEN] Create Lot specific tracked item
         LibraryItemTracking.CreateLotItem(Item);
         // [GIVEN] Positive adjustment Item journal line for the item, but with minus Qty
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", -5, '');
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", WorkDate(), Item."No.", -5, '');
 
         // [GIVEN] The Stored value is used to select 'Lot No' on StrMenu
         LibraryVariableStorage.Enqueue('Lot No');
@@ -562,7 +562,7 @@ codeunit 137213 BarcodeScannerItemTrackTest
         // [GIVEN] Create Lot specific tracked item
         LibraryItemTracking.CreateSerialItem(Item);
         // [GIVEN] Positive adjustment Item journal line for the item, but with minus Qty
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", -5, '');
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", WorkDate(), Item."No.", -5, '');
 
         // [GIVEN] The Stored value is used to select 'Serial No' on StrMenu
         LibraryVariableStorage.Enqueue('Package No');

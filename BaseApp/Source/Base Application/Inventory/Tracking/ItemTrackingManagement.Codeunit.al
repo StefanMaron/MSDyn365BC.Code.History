@@ -2122,16 +2122,20 @@ codeunit 6500 "Item Tracking Management"
 
         if ItemLedgEntry.GetFilters() <> '' then
             ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.");
+        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Lot No.", "Package No.", "Serial No.");
         ItemLedgEntry.SetRange("Item No.", ItemNo);
         ItemLedgEntry.SetRange("Variant Code", VariantCode);
-        if ItemTrackingSetup."Lot No." <> '' then
-            ItemLedgEntry.SetRange("Lot No.", ItemTrackingSetup."Lot No.")
-        else
+        ItemLedgEntry.SetRange(Positive, true);
+        if (ItemTrackingSetup."Lot No." <> '') or (ItemTrackingSetup."Package No." <> '') then begin
+            if ItemTrackingSetup."Lot No." <> '' then
+                ItemLedgEntry.SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+            if ItemTrackingSetup."Package No." <> '' then
+                ItemLedgEntry.SetRange("Package No.", ItemTrackingSetup."Package No.");
+        end else
             if ItemTrackingSetup."Serial No." <> '' then
                 ItemLedgEntry.SetRange("Serial No.", ItemTrackingSetup."Serial No.");
-        ItemLedgEntry.SetRange(Positive, true);
-        exit(ItemLedgEntry.FindLast());
+        EntryFound := ItemLedgEntry.FindLast();
+        exit(EntryFound);
     end;
 
     procedure WhseItemTrackingLineExists(TemplateName: Code[10]; BatchName: Code[10]; LocationCode: Code[10]; LineNo: Integer; var WhseItemTrackingLine: Record "Whse. Item Tracking Line"): Boolean
@@ -2149,7 +2153,7 @@ codeunit 6500 "Item Tracking Management"
             WhseItemTrackingLine.SetRange("Source Ref. No.", LineNo);
         WhseItemTrackingLine.SetRange("Source Prod. Order Line", 0);
 
-        exit(not WhseItemTrackingLine.IsEmpty);
+        exit(not WhseItemTrackingLine.IsEmpty());
     end;
 
     procedure ExistingExpirationDate(ItemNo: Code[20]; VariantCode: Code[20]; ItemTrackingSetup: Record "Item Tracking Setup"; TestMultiple: Boolean; var EntriesExist: Boolean) ExpiryDate: Date
@@ -3323,7 +3327,9 @@ codeunit 6500 "Item Tracking Management"
         ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
 
         OnItemTrackingExistsOnDocumentLineOnBeforeExit(TrackingSpecification, ReservEntry);
-        exit(not TrackingSpecification.IsEmpty() or not ReservEntry.IsEmpty());
+        if not TrackingSpecification.IsEmpty() then
+            exit(true);
+        exit(not ReservEntry.IsEmpty());
     end;
 
     procedure CalcQtyToHandleForTrackedQtyOnDocumentLine(SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer) Result: Decimal

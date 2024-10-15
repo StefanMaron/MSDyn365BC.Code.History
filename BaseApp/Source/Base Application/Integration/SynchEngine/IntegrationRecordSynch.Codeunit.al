@@ -398,12 +398,21 @@ codeunit 5336 "Integration Record Synch."
     procedure JoinIDs(var IdList: List of [Guid]; Delimiter: Text[1]): Text
     var
         IdValue: Guid;
-        IdFilter: Text;
+        tb: TextBuilder;
+        isFirst: Boolean;
     begin
-        foreach IdValue in IdList do
-            IdFilter += Delimiter + IdValue;
-        IdFilter := IdFilter.TrimStart(Delimiter);
-        exit(IdFilter);
+        isFirst := true;
+
+        foreach IdValue in IdList do begin
+            if (isFirst) then
+                isFirst := false
+            else
+                tb.Append(Delimiter);
+
+            tb.Append(IdValue);
+        end;
+
+        exit(tb.ToText())
     end;
 
     local procedure ResetFieldModifiedFlags()

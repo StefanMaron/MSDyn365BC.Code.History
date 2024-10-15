@@ -112,6 +112,9 @@ report 597 "G/L Currency Revaluation"
         RunRevaluationProcess();
 
         Message(LinesCreatedMsg, LinesCreated, GenJnlBatch.Name);
+
+        if not SkipShowBatch and (LinesCreated > 0) then
+            OpenGeneralJournalBatch();
     end;
 
     var
@@ -123,6 +126,7 @@ report 597 "G/L Currency Revaluation"
         PostingDateReq: Date;
         LastLineNo: Integer;
         LinesCreated: Integer;
+        SkipShowBatch: Boolean;
         CorrTxt: Label 'Corr';
         PostingDateErr: Label 'Please enter posting date.';
         GenJournalErr: Label 'Please enter general journal name.';
@@ -143,21 +147,25 @@ report 597 "G/L Currency Revaluation"
             repeat
                 GLAccountSourceCurrency.Reset();
                 GLAccountSourceCurrency.SetRange("G/L Account No.", GLAccount."No.");
+                if "G/L Account".GetFilter("Source Currency Code") <> '' then
+                    GLAccountSourceCurrency.SetFilter("Currency Code", "G/L Account".GetFilter("Source Currency Code"));
                 GLAccountSourceCurrency.SetRange("Date Filter", 0D, PostingDateReq);
                 if GLAccountSourceCurrency.FindSet() then
                     repeat
-                        CurrRate := CurrencyExchangeRate.ExchangeRateAdjmt(PostingDateReq, GLAccountSourceCurrency."Currency Code");
-                        if CurrRate <> 0 then
-                            CurrRate := Round(1 / CurrRate, 0.00001);
+                        if GLAccountSourceCurrency."Currency Code" <> '' then begin
+                            CurrRate := CurrencyExchangeRate.ExchangeRateAdjmt(PostingDateReq, GLAccountSourceCurrency."Currency Code");
+                            if CurrRate <> 0 then
+                                CurrRate := Round(1 / CurrRate, 0.00001);
 
-                        GLAccountSourceCurrency.CalcFields("Balance at Date", "Source Curr. Balance at Date");
-                        RevaluationAmount :=
-                            Round(
-                                (GLAccountSourceCurrency."Source Curr. Balance at Date" * CurrRate) - GLAccountSourceCurrency."Balance at Date", 0.01);
+                            GLAccountSourceCurrency.CalcFields("Balance at Date", "Source Curr. Balance at Date");
+                            RevaluationAmount :=
+                                Round(
+                                    (GLAccountSourceCurrency."Source Curr. Balance at Date" * CurrRate) - GLAccountSourceCurrency."Balance at Date", 0.01);
 
-                        if RevaluationAmount <> 0 then begin
-                            CreateGenJnlLine(GLAccount, GLAccountSourceCurrency, RevaluationAmount);
-                            LinesCreated := LinesCreated + 1;
+                            if RevaluationAmount <> 0 then begin
+                                CreateGenJnlLine(GLAccount, GLAccountSourceCurrency, RevaluationAmount);
+                                LinesCreated := LinesCreated + 1;
+                            end;
                         end;
                     until GLAccountSourceCurrency.Next() = 0;
             until GLAccount.Next() = 0;
@@ -181,6 +189,7 @@ report 597 "G/L Currency Revaluation"
         GenJnlLine."Account No." := GLAccountSourceCurrency."G/L Account No.";
         GenJnlLine.Validate("Posting Date", PostingDateReq);
         GenJnlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
+        GenJnlLine."System-Created Entry" := true;
         Currency.Get(GLAccountSourceCurrency."Currency Code");
         if RevaluationAmount > 0 then
             GenJnlLine.Validate("Bal. Account No.", GetGainsAccount(Currency, GLAccount."Unrealized Revaluation"))
@@ -206,6 +215,18 @@ report 597 "G/L Currency Revaluation"
             exit(Currency.GetUnrealizedLossesAccount());
 
         exit(Currency.GetRealizedLossesAccount());
+    end;
+
+    procedure SetSkipShowBatch(NewSkipShowBatch: Boolean)
+    begin
+        SkipShowBatch := NewSkipShowBatch;
+    end;
+
+    local procedure OpenGeneralJournalBatch()
+    var
+        GenJnlManagement: Codeunit GenJnlManagement;
+    begin
+        GenJnlManagement.TemplateSelectionFromBatch(GenJnlBatch);
     end;
 }
 

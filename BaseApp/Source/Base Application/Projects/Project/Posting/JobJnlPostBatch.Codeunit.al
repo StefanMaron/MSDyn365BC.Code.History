@@ -272,8 +272,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                 end;
             end;
 
-        if JobJnlBatch."No. Series" <> '' then
-            NoSeriesBatch.SaveState();
+        NoSeriesBatch.SaveState();
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)

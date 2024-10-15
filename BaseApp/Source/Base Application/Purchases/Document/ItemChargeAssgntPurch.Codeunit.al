@@ -147,7 +147,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         if IsHandled then
             exit;
 
-        FromPurchRcptLine.TestField("Work Center No.", '');
+        CheckFromPurchRcptLineWorkCenter(FromPurchRcptLine);
         NextLine := ItemChargeAssgntPurch."Line No.";
         ItemChargeAssgntPurch2.SetRange("Document Type", ItemChargeAssgntPurch."Document Type");
         ItemChargeAssgntPurch2.SetRange("Document No.", ItemChargeAssgntPurch."Document No.");
@@ -163,6 +163,18 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                     FromPurchRcptLine."Document No.", FromPurchRcptLine."Line No.",
                     FromPurchRcptLine."No.", FromPurchRcptLine.Description, NextLine);
         until FromPurchRcptLine.Next() = 0;
+    end;
+
+    local procedure CheckFromPurchRcptLineWorkCenter(FromPurchRcptLine: Record "Purch. Rcpt. Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckFromPurchRcptLineWorkCenter(FromPurchRcptLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        FromPurchRcptLine.TestField("Work Center No.", '');
     end;
 
     procedure CreateTransferRcptChargeAssgnt(var FromTransRcptLine: Record "Transfer Receipt Line"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
@@ -413,6 +425,17 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
     procedure AssignByVolumeMenuText(): Text
     begin
         exit(ByVolumeTok)
+    end;
+
+    procedure ReverseItemChargeAssgnt(ItemChargeAssgnt: Record "Item Charge Assignment (Purch)"; CancelledQuantity: Decimal)
+    begin
+        if ItemChargeAssgnt."Qty. Assigned" = 0 then
+            exit;
+
+        ItemChargeAssgnt."Qty. Assigned" -= CancelledQuantity;
+        ItemChargeAssgnt."Qty. to Assign" += CancelledQuantity;
+        ItemChargeAssgnt.Validate("Qty. to Handle", ItemChargeAssgnt."Qty. to Assign");
+        ItemChargeAssgnt.Modify();
     end;
 
     local procedure AssignEqually(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal)
@@ -722,6 +745,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                         DecimalArray[1] := PurchLine.Quantity;
                         DecimalArray[2] := PurchLine."Gross Weight";
                         DecimalArray[3] := PurchLine."Unit Volume";
+                        OnGetItemValuesOnAfterGetPurchLine(PurchLine, TempItemChargeAssgntPurch, DecimalArray);
                     end;
                 TempItemChargeAssgntPurch."Applies-to Doc. Type"::Receipt:
                     begin
@@ -729,6 +753,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                         DecimalArray[1] := PurchRcptLine.Quantity;
                         DecimalArray[2] := PurchRcptLine."Gross Weight";
                         DecimalArray[3] := PurchRcptLine."Unit Volume";
+                        OnGetItemValuesOnAfterGetPurchRcptLine(PurchRcptLine, TempItemChargeAssgntPurch, DecimalArray);
                     end;
                 TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Return Receipt":
                     begin
@@ -736,6 +761,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                         DecimalArray[1] := ReturnRcptLine.Quantity;
                         DecimalArray[2] := ReturnRcptLine."Gross Weight";
                         DecimalArray[3] := ReturnRcptLine."Unit Volume";
+                        OnGetItemValuesOnAfterGetReturnRcptLine(ReturnRcptLine, TempItemChargeAssgntPurch, DecimalArray);
                     end;
                 TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Return Shipment":
                     begin
@@ -743,6 +769,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                         DecimalArray[1] := ReturnShptLine.Quantity;
                         DecimalArray[2] := ReturnShptLine."Gross Weight";
                         DecimalArray[3] := ReturnShptLine."Unit Volume";
+                        OnGetItemValuesOnAfterGetReturnShptLine(ReturnShptLine, TempItemChargeAssgntPurch, DecimalArray);
                     end;
                 TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt":
                     begin
@@ -750,6 +777,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                         DecimalArray[1] := TransferRcptLine.Quantity;
                         DecimalArray[2] := TransferRcptLine."Gross Weight";
                         DecimalArray[3] := TransferRcptLine."Unit Volume";
+                        OnGetItemValuesOnAfterGetTransferRcptLine(TransferRcptLine, TempItemChargeAssgntPurch, DecimalArray);
                     end;
                 TempItemChargeAssgntPurch."Applies-to Doc. Type"::"Sales Shipment":
                     begin
@@ -757,6 +785,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                         DecimalArray[1] := SalesShptLine.Quantity;
                         DecimalArray[2] := SalesShptLine."Gross Weight";
                         DecimalArray[3] := SalesShptLine."Unit Volume";
+                        OnGetItemValuesOnAfterGetSalesShptLine(SalesShptLine, TempItemChargeAssgntPurch, DecimalArray);
                     end;
             end;
         end;
@@ -1022,6 +1051,41 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesShptChargeAssgntOnBeforeInsertItemChargeAssignment(var FromSalesShipmentLine: Record "Sales Shipment Line"; ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; NextLine: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemValuesOnAfterGetPurchLine(PurchaseLine: Record "Purchase Line"; TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemValuesOnAfterGetPurchRcptLine(PurchRcptLine: Record "Purch. Rcpt. Line"; TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemValuesOnAfterGetReturnRcptLine(ReturnReceiptLine: Record "Return Receipt Line"; TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemValuesOnAfterGetReturnShptLine(ReturnShipmentLine: Record "Return Shipment Line"; TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemValuesOnAfterGetTransferRcptLine(TransferReceiptLine: Record "Transfer Receipt Line"; TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemValuesOnAfterGetSalesShptLine(SalesShipmentLine: Record "Sales Shipment Line"; TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFromPurchRcptLineWorkCenter(FromPurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean)
     begin
     end;
 }
