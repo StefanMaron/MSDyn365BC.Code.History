@@ -20,8 +20,12 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     EU3PartyTrade: Boolean;
                 begin
                     TotalLines := TotalLines + 1;
-                    TestField("Country/Region Code");
-                    TestField("Partner VAT ID");
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true)
+                    else begin
+                        TestField("Country/Region Code");
+                        TestField("Partner VAT ID");
+                    end;
                     if not "Intrastat Jnl. Batch"."Corrective Entry" then
                         TestField(Amount);
 
@@ -187,6 +191,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 LineNo := 0;
                 TestField("Statistics Period");
                 TestField("File Disk No.");
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
             end;
 
             trigger OnPostDataItem()
@@ -214,8 +219,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
         }
 
         trigger OnOpenPage()
-        var
-            IntrastatSetup: Record "Intrastat Setup";
         begin
             if not IntrastatSetup.Get then
                 exit;
@@ -263,6 +266,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
         Text000: Label 'Enter the file name.';
         Text001: Label 'WwWw';
         CompanyInfo: Record "Company Information";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         FileMgt: Codeunit "File Management";
         IntraFile: File;
         FileName: Text;

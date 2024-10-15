@@ -6843,6 +6843,7 @@
         FAGenJournalLine.Validate("Account Type", "Account Type");
         FAGenJournalLine.Validate("Account No.", "Account No.");
         FAGenJournalLine.Validate(Amount, Amount);
+        FAGenJournalLine.Validate("Currency Code", "Currency Code");
         FAGenJournalLine.Validate("Posting Date", "Posting Date");
         FAGenJournalLine.Validate("Activity Code", "Activity Code");
         FAGenJournalLine.Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");

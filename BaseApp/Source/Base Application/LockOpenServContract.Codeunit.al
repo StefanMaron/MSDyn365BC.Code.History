@@ -42,6 +42,7 @@ codeunit 5943 "Lock-OpenServContract"
                 ServContractLine.SetRange("Contract Type", "Contract Type");
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetRange("Line Amount", 0);
+                ServContractLine.SetFilter("Line Discount %", '<%1', 100);
                 RaiseError := not ServContractLine.IsEmpty;
                 OnErrorIfServContractLinesHaveZeroAmount(ServContractHeader, ServContractLine, RaiseError);
                 if RaiseError then

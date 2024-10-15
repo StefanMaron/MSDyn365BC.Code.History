@@ -58,7 +58,7 @@ codeunit 144069 "ERM Posting Routine"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        PurchaseInvoiceExistsErr: Label 'Purchase Invoice  already exists for this vendor';
+        PurchaseInvoiceExistsErr: Label 'Purchase Invoice %1 already exists for this vendor';
         NumberSeriesLastDateUsedErr: Label 'You cannot assign new numbers from the number series %1 on a date before %2.';
         SalesDocLastGenJourPrintingDateErr: Label 'Operation Occurred Date must not be prior to %1 in Sales Header Document Type=''%2'',No.=''%3''.';
         ServiceDocLastGenJourPrintingDateErr: Label 'Operation Occurred Date must not be prior to %1 in Service Header Document Type=''%2'',No.=''%3''.';
@@ -99,7 +99,7 @@ codeunit 144069 "ERM Posting Routine"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
 
         // Verify: Verify Error: Purchase Invoice already exists for this vendor.
-        Assert.ExpectedError(PurchaseInvoiceExistsErr);
+        Assert.ExpectedError(StrSubstNo(PurchaseInvoiceExistsErr, PurchaseHeader."Vendor Invoice No."));
     end;
 
     [Test]

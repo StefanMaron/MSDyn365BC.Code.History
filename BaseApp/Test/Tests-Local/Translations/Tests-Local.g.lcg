@@ -1618,7 +1618,7 @@
   </Item>
   <Item ItemId=";Codeunit 3628821200 - NamedType 4965073" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Purchase Invoice  already exists for this vendor]]></Val>
+      <Val><![CDATA[Purchase Invoice %1 already exists for this vendor]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2912,6 +2912,24 @@
       <Cmt Name="Dev"><![CDATA[%1=Entry number,%2=Amount.]D;]A;(LookupHint=Codeunit IT - CU 2015 Unit Test - NamedType BaseExcludedAmountTotalErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2709192724 - NamedType 3134231156" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must specify an exceptional event.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - CU 2015 Unit Test - NamedType BlankedExceptionalEventErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2709192724 - NamedType 2960560016" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CUR%1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit IT - CU 2015 Unit Test - NamedType CURTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 558127152 - NamedType 3287569589" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Applied Amount (LCY)]]></Val>
@@ -4161,6 +4179,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RES Purchase Job IT - NamedType UnitPriceErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2534060936 - NamedType 3268343927" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Purchase Invoice %1 already exists for this vendor.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = purchase invoice no.]D;]A;(LookupHint=Codeunit Same Ext. Doc. No. In FY - NamedType PurchInvAlreadyExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2534060936 - NamedType 3050246068" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Purchase Invoice %1 already exists.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = external document no.]D;]A;(LookupHint=Codeunit Same Ext. Doc. No. In FY - NamedType PurchInvExistsInRepErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2418598749 - NamedType 222016273" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

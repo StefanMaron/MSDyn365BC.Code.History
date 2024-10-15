@@ -419,6 +419,14 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Notify On Occur. Date Change';
         }
+        field(12191; "Same Ext. Doc. No. in Diff. FY"; Boolean)
+        {
+            Caption = 'Same Ext. Doc. No. in Diff. FY"';
+        }
+        field(12192; "Ext. Doc. No. Period Source"; Enum "Period Source Type")
+        {
+            Caption = 'Ext. Doc. No. Period Source"';
+        }
     }
 
     keys

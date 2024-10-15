@@ -100,6 +100,9 @@ page 12112 "Withholding Tax Card"
                     ApplicationArea = Basic, Suite;
                     OptionCaption = ' ,,,5,6,7,8,9,10,11,12,13';
                     ToolTip = 'Specifies the type of non-taxable income.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Withholding Tax Lines';
+                    ObsoleteTag = '19.0';
 
                     trigger OnValidate()
                     begin

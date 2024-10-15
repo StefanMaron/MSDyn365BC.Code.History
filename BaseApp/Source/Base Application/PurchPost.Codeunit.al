@@ -2176,6 +2176,7 @@
     local procedure UpdatePostingNos(var PurchHeader: Record "Purchase Header"; ReverseChargeVAT: Boolean) ModifyHeader: Boolean
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        VendorMgt: Codeunit "Vendor Mgt.";
         IsHandled: Boolean;
         PreviewTokenFoundLbl: Label 'Preview token %1 found on posting related fields on %2 - %3.', Locked = true;
         PostCategoryLbl: Label 'Post', Locked = true;
@@ -2244,18 +2245,17 @@
                         VendLedgEntry.SetCurrentKey("External Document No.");
                         if ("Document Type" = "Document Type"::Invoice) or ("Document Type" = "Document Type"::Order) then begin
                             TestField("Vendor Invoice No.");
-                            VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
-                            VendLedgEntry.SetRange("External Document No.", "Vendor Invoice No.");
+                            VendorMgt.SetFilterForExternalDocNo(
+                                VendLedgEntry, "Document Type"::Invoice, "Vendor Invoice No.", "Pay-to Vendor No.", "Document Date");
                         end else
                             if ("Document Type" = "Document Type"::"Credit Memo") or ("Document Type" = "Document Type"::"Return Order") then begin
                                 TestField("Vendor Cr. Memo No.");
-                                VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
-                                VendLedgEntry.SetRange("External Document No.", "Vendor Cr. Memo No.");
+                                VendorMgt.SetFilterForExternalDocNo(
+                                    VendLedgEntry, "Document Type"::"Credit Memo", "Vendor Cr. Memo No.", "Pay-to Vendor No.", "Document Date");
                             end;
-                        VendLedgEntry.SetRange("Vendor No.", "Pay-to Vendor No.");
                         OnUpdatePostingNosOnBeforeCheckExternalDocNo(VendLedgEntry, "Posting Date");
                         if VendLedgEntry.FindFirst then
-                            Error(PurchaseAlreadyExistsErr, VendLedgEntry."Document Type", GenJnlLineExtDocNo);
+                            Error(PurchaseAlreadyExistsErr, VendLedgEntry."Document Type", VendLedgEntry."External Document No.");
                     end;
                     if not PreviewMode then begin
                         "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
@@ -2920,7 +2920,7 @@
                     "Line No." := BiggestLineNo;
                     Validate(Type, Type::"G/L Account");
                 end;
-                Validate("No.", VendPostingGr."Invoice Rounding Account");
+                Validate("No.", VendPostingGr.GetInvRoundingAccount());
                 Validate(Quantity, 1);
                 if IsCreditDocType then
                     Validate("Return Qty. to Ship", Quantity)
