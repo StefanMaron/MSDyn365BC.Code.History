@@ -134,6 +134,8 @@
         UnauthorizedResponseCodeTok: Label '(401)', Locked = true;
         UnableToInsertUnlinkedBankAccToBufferErr: Label 'Unable to insert information about account that is linked on Yodlee. ProviderAccount id - %1, AccountId - %2.', Locked = true;
         StartingToRegisterUserTxt: Label 'Starting to register user %1 with currency code %2 on Yodlee.', Locked = true;
+        Fastlink4ExtraParamsTok: Label 'configName=DefaultFL4', Locked = true;
+        Fastlink4MfaRefreshExtraParamsTok: Label 'providerAccountId=%1&flow=refresh&callback=%2&configName=DefaultFL4', Locked = true;
 
     procedure SetValuesToDefault(var MSYodleeBankServiceSetup: Record "MS - Yodlee Bank Service Setup");
     var
@@ -361,7 +363,10 @@
         // strip '&' as Yodlee seems to discard any text after this
         BankName := DELCHR(BankName, '=', '&');
 
-        ExtraParams := STRSUBSTNO('keyword=%1', TypeHelper.UrlEncode(BankName)); // prepopulate search with bank name
+        if UsingFastlink4() then
+            ExtraParams := Fastlink4ExtraParamsTok
+        else
+            ExtraParams := STRSUBSTNO('keyword=%1', TypeHelper.UrlEncode(BankName)); // prepopulate search with bank name
 
         Data := GetFastlinkData(ExtraParams, ErrorText);
         EXIT(ErrorText = '');
@@ -372,9 +377,10 @@
         TypeHelper: Codeunit "Type Helper";
         ExtraParams: Text;
     begin
-        ExtraParams :=
-          STRSUBSTNO(
-            'siteAccountId=%1&flow=refresh&callback=%2', TypeHelper.UrlEncode(BankStatementServiceId), TypeHelper.UrlEncode(CallbackUrl));
+        if UsingFastlink4() then
+            ExtraParams := StrSubstNo(Fastlink4MfaRefreshExtraParamsTok, TypeHelper.UrlEncode(BankStatementServiceId), TypeHelper.UrlEncode(CallbackUrl))
+        else
+            ExtraParams := StrSubstNo('siteAccountId=%1&flow=refresh&callback=%2', TypeHelper.UrlEncode(BankStatementServiceId), TypeHelper.UrlEncode(CallbackUrl));
 
         Data := GetFastlinkData(ExtraParams, ErrorText);
         EXIT(ErrorText = '');
@@ -389,6 +395,9 @@
           STRSUBSTNO(
             'siteAccountId=%1&flow=manageConsent&callback=%2', TypeHelper.UrlEncode(OnlineBankAccountId), TypeHelper.UrlEncode(CallbackUrl));
 
+        if UsingFastlink4() then
+            ExtraParams += ('&' + Fastlink4ExtraParamsTok);
+
         Data := GetFastlinkData(ExtraParams, ErrorText);
         EXIT(ErrorText = '');
     end;
@@ -401,6 +410,9 @@
         ExtraParams :=
           STRSUBSTNO(
             'providerAccountId=%1&flow=edit&callback=%2', TypeHelper.UrlEncode(OnlineBankAccountId), TypeHelper.UrlEncode(CallbackUrl));
+
+        if UsingFastlink4() then
+            ExtraParams += ('&' + Fastlink4ExtraParamsTok);
 
         Data := GetFastlinkData(ExtraParams, ErrorText);
         EXIT(ErrorText = '');
@@ -1781,6 +1793,11 @@
         MSYodleeBankServiceSetup.GET();
         MSYodleeBankServiceSetup.TESTFIELD("Bank Acc. Linking URL");
         EXIT(MSYodleeBankServiceSetup."Bank Acc. Linking URL");
+    end;
+
+    internal procedure UsingFastlink4(): Boolean;
+    begin
+        Exit(GetYodleeFastlinkUrl().Contains('fl4'));
     end;
 
     [Scope('OnPrem')]

@@ -332,7 +332,9 @@ report 322 "Aged Accounts Payable"
                                    (VendorLedgEntryEndingDate."Posting Date" > EndingDate) and
                                    (AgingBy <> AgingBy::"Posting Date")
                                 then begin
-                                    if VendorLedgEntryEndingDate."Document Date" <= EndingDate then
+                                    if (VendorLedgEntryEndingDate."Document Date" <= EndingDate) and
+                                       (VendorLedgEntryEndingDate."Posting Date" <= EndingDate)
+                                    then
                                         DetailedVendorLedgerEntry."Posting Date" :=
                                           VendorLedgEntryEndingDate."Document Date"
                                     else

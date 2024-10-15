@@ -134,8 +134,9 @@ table 318 "Tax Area"
         Language: Codeunit Language;
     begin
         if TaxAreaTranslation.Get(Code, Language.GetUserLanguageCode) then
-            exit(TaxAreaTranslation.Description);
-        exit(Description);
+            exit(CopyStr(TaxAreaTranslation.Description, 1, 50));
+
+        exit(CopyStr(Description, 1, 50));
     end;
 
     local procedure SetLastModifiedDateTime()
@@ -164,4 +165,3 @@ table 318 "Tax Area"
         exit(false);
     end;
 }
-

@@ -268,6 +268,11 @@
             Caption = 'SAT Trailer Type';
             TableRelation = "SAT Trailer Type";
         }
+        field(27000; "SAT Classification Code"; Code[10])
+        {
+            Caption = 'SAT Classification Code';
+            TableRelation = "SAT Classification";
+        }
     }
 
     keys
