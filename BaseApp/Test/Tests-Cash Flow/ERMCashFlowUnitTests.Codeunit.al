@@ -17,6 +17,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         LibraryCF: Codeunit "Library - Cash Flow";
         LibraryCFHelper: Codeunit "Library - Cash Flow Helper";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Matrix1: Label 'Matrix 1x';
@@ -1253,7 +1254,6 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
     local procedure InsertRndCFLedgEntries(CashFlowNo: Code[20]; SourceType: Option; CashFlowDate: Date; var TotalAmount: Decimal)
     var
-        CFForecastEntry: Record "Cash Flow Forecast Entry";
         Amount: Decimal;
         "Count": Integer;
         i: Integer;
@@ -1262,15 +1262,9 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         TotalAmount := 0;
         for i := 1 to Count do begin
             Amount := LibraryRandom.RandDec(100, 2);
-            if SourceType in
-               [CFForecastEntry."Source Type"::"Purchase Orders",
-                CFForecastEntry."Source Type"::"Cash Flow Manual Expense",
-                CFForecastEntry."Source Type"::"Fixed Assets Budget",
-                CFForecastEntry."Source Type"::Payables]
-            then
-                Amount := -Amount;
 
-            LibraryCFHelper.InsertCFLedgerEntry(CashFlowNo, '', SourceType, CashFlowDate, Amount);
+            InsertCFLedgerEntry(CashFlowNo, SourceType, CashFlowDate, Amount);
+
             TotalAmount += Amount;
         end;
     end;
@@ -2824,6 +2818,63 @@ codeunit 134557 "ERM Cash Flow UnitTests"
           'Wrong filter of VAT Calculation Type');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CashFlowForecastStatisticsWithManualPaymentsTo()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        CashFlowForecastCard: TestPage "Cash Flow Forecast Card";
+        CashFlowStatistic: TestPage "Cash Flow Forecast Statistics";
+        CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
+        ConsiderSource: array[16] of Boolean;
+        LedgerEntryAmount: Decimal;
+    begin
+        Initialize();
+
+        LedgerEntryAmount := LibraryRandom.RandDecInRange(100, 200, 2);
+
+        ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
+
+        LibraryCFHelper.CreateSpecificCashFlowCard(CashFlowForecast, false, false);
+        CashFlowForecast.Validate("Manual Payments To", WorkDate() - 2);
+        CashFlowForecast.Modify(true);
+
+        InsertCFLedgerEntriesDifferentDays(CashFlowForecast, ConsiderSource, LedgerEntryAmount);
+
+        CashFlowForecastCard.OpenView();
+        CashFlowForecastCard.Filter.SetFilter("No.", CashFlowForecast."No.");
+        CashFlowStatistic.Trap();
+        CashFlowForecastCard."&Statistics".Invoke();
+
+        CFLedgerEntries.Trap();
+        CashFlowStatistic.LiquidFunds.DrillDown();
+        CashFlowStatistic.LiquidFunds.AssertEquals(LedgerEntryAmount);
+    end;
+
+    [Test]
+    procedure CashFlowManualRevenueAssignDimension()
+    var
+        CashFlowManualRevenue: Record "Cash Flow Manual Revenue";
+        DimensionValue1: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 410654] Validate Global Dimension Codes in Cash Flow Manual Revenue
+        Initialize();
+
+        CashFlowManualRevenue.InitNewRecord();
+        CashFlowManualRevenue.Insert();
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue1);
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue2);
+
+        CashFlowManualRevenue.Validate("Global Dimension 1 Code", DimensionValue1.Code);
+        CashFlowManualRevenue.Validate("Global Dimension 2 Code", DimensionValue2.Code);
+
+        CashFlowManualRevenue.TestField("Global Dimension 1 Code", DimensionValue1.Code);
+        CashFlowManualRevenue.TestField("Global Dimension 2 Code", DimensionValue2.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2840,6 +2891,37 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow UnitTests");
+    end;
+
+    local procedure InsertCFLedgerEntry(CashFlowNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CashFlowDate: Date; var LedgerAmount: Decimal)
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+    begin
+        if SourceType in
+            [CFForecastEntry."Source Type"::"Purchase Orders",
+             CFForecastEntry."Source Type"::"Cash Flow Manual Expense",
+             CFForecastEntry."Source Type"::"Fixed Assets Budget",
+             CFForecastEntry."Source Type"::Payables]
+        then
+            LedgerAmount := -LedgerAmount;
+
+        LibraryCFHelper.InsertCFLedgerEntry(CashFlowNo, '', SourceType, CashFlowDate, LedgerAmount);
+    end;
+
+    local procedure InsertCFLedgerEntriesDifferentDays(CashFlowForecast: Record "Cash Flow Forecast"; ConsiderSource: array[16] of Boolean; LedgerEntryAmount: Decimal)
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry";
+        SourceType: Integer;
+        Period: Option ,Before,After;
+        Index: Integer;
+    begin
+        CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
+        CFForecastEntry.DeleteAll();
+
+        for SourceType := 1 to ArrayLen(ConsiderSource) do
+            if ConsiderSource[SourceType] then
+                for Index := 1 to 2 do
+                    InsertCFLedgerEntry(CashFlowForecast."No.", "Cash Flow Source Type".FromInteger(SourceType), WorkDate() - Index, LedgerEntryAmount);
     end;
 }
 
