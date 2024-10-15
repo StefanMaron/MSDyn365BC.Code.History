@@ -28,6 +28,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
@@ -1002,6 +1003,93 @@ codeunit 137077 "SCM Supply Planning -IV"
         // Verify: Verify Quantity of child Item on Resuisition Line is correct.
         VerifyRequisitionLineQuantity(
           CompItem."No.", RequisitionLine."Action Message"::New, QuantityPer * Quantity);
+    end;
+
+    [Test]
+    procedure MakeAssemblyOrdersFromPlanningWorksheet()
+    var
+        Item: Record Item;
+        CompItem: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        AssemblyHeader: Record "Assembly Header";
+        AsmOrderChoice: Option " ","Make Assembly Orders","Make Assembly Orders & Print";
+    begin
+        // [SCENARIO] Carry out action on planning worksheet with Make and Print assembly orders should be able to print multiple assembly orders. 
+        // [GIVEN] Create Item with planning parameters and Asm. BOM.
+        Initialize();
+        CreateAssemblyItemWithBOM(Item, CompItem);
+        CreateSalesOrder(Item."No.", '');
+
+        // [GIVEN] Calculate the plan in Planning Worksheet.
+        CalculateRegenPlanForPlanningWorksheet(Item);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+
+        // [WHEN]  Carry out action to create Assembly Order for Sales Lines with Option: Make Assembly Orders'
+        LibraryPlanning.CarryOutPlanWksh(RequisitionLine, 0, 0, 0, AsmOrderChoice::"Make Assembly Orders", '', '', '', '');
+
+        // [THEN] Assembly Order is created but no document is printed. 
+        AssemblyHeader.SetRange("Item No.", Item."No.");
+        Assert.AreEqual(1, AssemblyHeader.Count(), 'There should be only 1 assembly order created.');
+    end;
+
+    [Test]
+    [HandlerFunctions('AssemblyOrderSaveAsXML')]
+    procedure MakeAndPrintAssemblyOrdersFromPlanningWorksheet()
+    var
+        Item: Record Item;
+        CompItem: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        AssemblyHeader: Record "Assembly Header";
+        AsmOrderChoice: Option " ","Make Assembly Orders","Make Assembly Orders & Print";
+        ReqLineCount: Decimal;
+    begin
+        // [SCENARIO] Carry out action on planning worksheet with Make and Print assembly orders should be able to print multiple assembly orders. 
+        // [GIVEN] Create Item with planning parameters and Asm. BOM.
+        Initialize();
+        CreateAssemblyItemWithBOM(Item, CompItem);
+        CreateSalesOrder(Item."No.", '');
+        CreateSalesOrder(Item."No.", '');
+        CreateSalesOrder(Item."No.", '');
+        CreateSalesOrder(Item."No.", '');
+
+        // [GIVEN] Calculate the plan in Planning Worksheet which should result in multiple assembly orders.
+        CalculateRegenPlanForPlanningWorksheet(Item);
+
+        // [WHEN]  Carry out action to create 1 Assembly Order for Sales Lines with Option: Make Assembly Orders & Print'
+        AcceptActionMessage(RequisitionLine, Item."No."); //This will accept the message for First Line.
+        LibraryPlanning.CarryOutPlanWksh(RequisitionLine, 0, 0, 0, AsmOrderChoice::"Make Assembly Orders & Print", '', '', '', ''); //ReportHandler AssemblyOrderSaveAsXML is used to intercept the print request.
+
+        // [THEN] 1 Assembly Order is created and the report is contains the right order.
+        AssemblyHeader.SetRange("Item No.", Item."No.");
+        Assert.AreEqual(1, AssemblyHeader.Count(), 'There should be only 1 assembly order created.');
+        VerifyPrintedAsmOrders(AssemblyHeader);
+        AssemblyHeader.Delete(); //Delete the assembly order for next test.
+
+        // [WHEN] Carry out action to create multiple Assembly Order for Sales Lines with Option: Make Assembly Orders & Print'
+        RequisitionLine.SetRange("Accept Action Message", false);
+        repeat
+            AcceptActionMessage(RequisitionLine, Item."No.");
+        until RequisitionLine.Next() = 0;
+        RequisitionLine.Reset();
+        RequisitionLine.SetRange("No.", Item."No.");
+        ReqLineCount := RequisitionLine.Count();
+        LibraryPlanning.CarryOutPlanWksh(RequisitionLine, 0, 0, 0, AsmOrderChoice::"Make Assembly Orders & Print", '', '', '', ''); //ReportHandler AssemblyOrderSaveAsXML is used to intercept the print request.
+
+        // [THEN] Rest of the Assembly Orders are created and all of them are printed.
+        AssemblyHeader.SetRange("Item No.", Item."No.");
+        Assert.AreEqual(ReqLineCount, AssemblyHeader.Count(), StrSubstNo('There should be %1 number of assembly orders created.', ReqLineCount));
+        VerifyPrintedAsmOrders(AssemblyHeader);
+    end;
+
+    local procedure VerifyPrintedAsmOrders(var AssemblyHeader: Record "Assembly Header")
+    var
+        AsmOrderReport: Report "Assembly Order";
+    begin
+        AssemblyHeader.FindSet();
+        repeat
+            LibraryReportDataset.AssertElementWithValueExists('No_AssemblyHeader', AssemblyHeader."No.");
+            LibraryReportDataset.GetNextRow();
+        until AssemblyHeader.Next() = 0;
     end;
 
     [Test]
@@ -4027,6 +4115,14 @@ codeunit 137077 "SCM Supply Planning -IV"
     procedure CarryOutActionMsgReqWkshtRequestPageHandler(var CarryOutActionMsgReq: TestRequestPage "Carry Out Action Msg. - Req.")
     begin
         CarryOutActionMsgReq.OK.Invoke();
+    end;
+
+    [ReportHandler]
+    procedure AssemblyOrderSaveAsXML(var AsmOrder: Report "Assembly Order")
+    var
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        LibraryReportDataset.RunReportAndLoad(Report::"Assembly Order", AssemblyHeader, '');
     end;
 
     [ModalPageHandler]

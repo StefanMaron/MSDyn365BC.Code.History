@@ -31,7 +31,7 @@ report 10477 "Elec. Sales Invoice MX"
                     trigger OnAfterGetRecord()
                     begin
                         with TempSalesInvoiceLine do begin
-                            Init;
+                            Init();
                             "Document No." := "Sales Invoice Header"."No.";
                             "Line No." := HighestLineNo + 10;
                             HighestLineNo := "Line No.";
@@ -78,7 +78,7 @@ report 10477 "Elec. Sales Invoice MX"
                 trigger OnAfterGetRecord()
                 begin
                     with TempSalesInvoiceLine do begin
-                        Init;
+                        Init();
                         "Document No." := "Sales Invoice Header"."No.";
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
@@ -102,7 +102,7 @@ report 10477 "Elec. Sales Invoice MX"
                 trigger OnPreDataItem()
                 begin
                     with TempSalesInvoiceLine do begin
-                        Init;
+                        Init();
                         "Document No." := "Sales Invoice Header"."No.";
                         "Line No." := HighestLineNo + 1000;
                         HighestLineNo := "Line No.";
@@ -320,10 +320,22 @@ report 10477 "Elec. Sales Invoice MX"
                     column(SATPaymentMethod; SATPaymentMethod)
                     {
                     }
-                    column(SATPaymentTerm; SATPaymentTerm)
+                    column(SATPaymentTerms; SATPaymentTerms)
                     {
                     }
                     column(SATTaxRegimeClassification; SATTaxRegimeClassification)
+                    {
+                    }
+                    column(SATPaymentMethodDescription; SATPaymentMethodDescription)
+                    {
+                    }
+                    column(SATPaymentTermsDescription; SATPaymentTermsDescription)
+                    {
+                    }
+                    column(SATTaxRegimeClassificationDescription; SATTaxRegimeClassificationDescription)
+                    {
+                    }
+                    column(UsoCFDI; CFDIPurpose)
                     {
                     }
                     column(SATTipoRelacion; SATTipoRelacion)
@@ -332,7 +344,16 @@ report 10477 "Elec. Sales Invoice MX"
                     column(SATFolioFiscal; SATFolioFiscal)
                     {
                     }
+                    column(PaymentMethodCaption; PaymentMethodLbl)
+                    {
+                    }
+                    column(PaymentTermsCaption; PaymentTermsLbl)
+                    {
+                    }
                     column(TaxRegimeCaption; TaxRegimeLbl)
+                    {
+                    }
+                    column(UsoCFDICaption; UsoCFDILbl)
                     {
                     }
                     dataitem(SalesInvLine; "Integer")
@@ -435,13 +456,13 @@ report 10477 "Elec. Sales Invoice MX"
                             {
                                 DecimalPlaces = 0 : 5;
                             }
-                            column(TempPostedAsmLineVariantCode; BlanksForIndent + TempPostedAsmLine."Variant Code")
+                            column(TempPostedAsmLineVariantCode; BlanksForIndent() + TempPostedAsmLine."Variant Code")
                             {
                             }
-                            column(TempPostedAsmLineDescription; BlanksForIndent + TempPostedAsmLine.Description)
+                            column(TempPostedAsmLineDescription; BlanksForIndent() + TempPostedAsmLine.Description)
                             {
                             }
-                            column(TempPostedAsmLineNo; BlanksForIndent + TempPostedAsmLine."No.")
+                            column(TempPostedAsmLineNo; BlanksForIndent() + TempPostedAsmLine."No.")
                             {
                             }
                             column(AsmLoop_Number; Number)
@@ -451,9 +472,9 @@ report 10477 "Elec. Sales Invoice MX"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then
-                                    TempPostedAsmLine.FindSet
+                                    TempPostedAsmLine.FindSet()
                                 else
-                                    TempPostedAsmLine.Next;
+                                    TempPostedAsmLine.Next();
                             end;
 
                             trigger OnPreDataItem()
@@ -471,7 +492,7 @@ report 10477 "Elec. Sales Invoice MX"
                                 if OnLineNumber = 1 then
                                     Find('-')
                                 else
-                                    Next;
+                                    Next();
 
                                 OrderedQuantity := 0;
                                 if "Sales Invoice Header"."Order No." = '' then
@@ -485,18 +506,18 @@ report 10477 "Elec. Sales Invoice MX"
                                         if ShipmentLine.Find('-') then
                                             repeat
                                                 OrderedQuantity := OrderedQuantity + ShipmentLine.Quantity;
-                                            until 0 = ShipmentLine.Next;
+                                            until 0 = ShipmentLine.Next();
                                     end;
 
                                 DescriptionToPrint := Description + ' ' + "Description 2";
                                 if Type = Type::" " then begin
                                     if OnLineNumber < NumberOfLines then begin
-                                        Next;
+                                        Next();
                                         if Type = Type::" " then begin
                                             DescriptionToPrint :=
                                               CopyStr(DescriptionToPrint + ' ' + Description + ' ' + "Description 2", 1, MaxStrLen(DescriptionToPrint));
                                             OnLineNumber := OnLineNumber + 1;
-                                            SalesInvLine.Next;
+                                            SalesInvLine.Next();
                                         end else
                                             Next(-1);
                                     end;
@@ -730,8 +751,13 @@ report 10477 "Elec. Sales Invoice MX"
                 "Digital Stamp PAC".CreateInStream(InStream);
                 InStream.Read(DigitalSignaturePACTextUnbounded);
 
-                SATPaymentMethod := SATUtilities.GetSATPaymentTermDescription("Payment Terms Code"); // MetodoPago
-                SATPaymentTerm := SATUtilities.GetSATPaymentMethodDescription("Payment Method Code"); // FormaPago
+                SATPaymentTerms := "Payment Terms Code";
+                SATPaymentMethod := "Payment Method Code";
+
+                SATPaymentTermsDescription := SATUtilities.GetSATPaymentTermDescription("Payment Terms Code"); // MetodoPago
+                SATPaymentMethodDescription := SATUtilities.GetSATPaymentMethodDescription("Payment Method Code"); // FormaPago
+
+                CFDIPurpose := "CFDI Purpose"; // UsoCFDI
 
                 SATFolioFiscal := EInvoiceMgt.GetUUIDFromOriginalPrepayment("Sales Invoice Header", DummySalesInvoiceNumber);// Folio Fiscal
                 if SATFolioFiscal <> '' then
@@ -786,7 +812,7 @@ report 10477 "Elec. Sales Invoice MX"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -801,7 +827,7 @@ report 10477 "Elec. Sales Invoice MX"
     begin
         ShipmentLine.SetCurrentKey("Order No.", "Order Line No.");
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
 
         CompanyInformation.Get();
         SalesSetup.Get();
@@ -830,7 +856,8 @@ report 10477 "Elec. Sales Invoice MX"
         else
             Clear(CompanyAddress);
 
-        SATTaxRegimeClassification := SATUtilities.GetSATTaxSchemeDescription(CompanyInformation."SAT Tax Regime Classification");
+        SATTaxRegimeClassification := CompanyInformation."SAT Tax Regime Classification";
+        SATTaxRegimeClassificationDescription := SATUtilities.GetSATTaxSchemeDescription(CompanyInformation."SAT Tax Regime Classification");
     end;
 
     var
@@ -928,10 +955,17 @@ report 10477 "Elec. Sales Invoice MX"
         Digital_StampCaptionLbl: Label 'Digital stamp from SAT';
         Digital_stampCaption_Control1020008Lbl: Label 'Digital stamp';
         DocumentFooterLbl: Label 'This document is a printed version of a CFDI.';
-        SATPaymentMethod: Text[50];
-        SATPaymentTerm: Text[50];
-        SATTaxRegimeClassification: Text[100];
+        SATPaymentMethod: Code[10];
+        SATPaymentTerms: Code[10];
+        SATTaxRegimeClassification: Code[10];
+        CFDIPurpose: Code[10];
+        SATPaymentMethodDescription: Text[50];
+        SATPaymentTermsDescription: Text[50];
+        SATTaxRegimeClassificationDescription: Text[100];
         TaxRegimeLbl: Label 'Regimen Fiscal:';
+        PaymentTermsLbl: Label 'Payment Terms:';
+        PaymentMethodLbl: Label 'Payment Method:';
+        UsoCFDILbl: Label 'Uso CFDI:';
         SATTipoRelacion: Text[100];
         SATFolioFiscal: Text[100];
         TipoRelacionTxt: Label '07 CFDI por aplicacion de anticipo';
