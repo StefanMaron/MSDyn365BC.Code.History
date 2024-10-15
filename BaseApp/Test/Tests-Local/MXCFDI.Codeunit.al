@@ -1235,7 +1235,7 @@
 
         // [THEN] String for digital stamp has 'ValorUnitario' = 0, 'Importe' = 0  (TFS 329513)
         // [THEN] Original stamp string has NumParcialidad (partial payment number) = '1' (TFS 363806)
-        // [THEN] String for digital stamp has 'FormaDePagoP' = '03' (TFS 375439)          
+        // [THEN] String for digital stamp has 'FormaDePagoP' = '03' (TFS 375439)       
         InitOriginalStringFromCustLedgerEntry(CustLedgerEntry, OriginalStr);
         Assert.AreEqual('0', SelectStr(23, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'ValorUnitario', OriginalStr));
         Assert.AreEqual('0', SelectStr(24, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
@@ -2071,7 +2071,7 @@
             GetPostedSalesInvoice(SalesInvoiceHeader, CustLedgerEntryInv[i]."Document No.");
         end;
 
-        // [GIVEN] Payment "Pmt1" with amount of -150 (100/2 + 200)
+        // [GIVEN] Payment "Pmt1" with amount of -250 (100/2 + 200)
         PaymentNo1 := CreatePostPayment(CustomerNo, '', -CustLedgerEntryInv[1].Amount / 2 - CustLedgerEntryInv[2].Amount, '');
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo1);
 
@@ -6263,7 +6263,7 @@
         SalesHeader.Validate(SalesHeader."Prepayment %", LibraryRandom.RandIntInRange(10, 50));
         SalesHeader.Modify(true);
         CreateSalesLineItem(SalesLine, SalesHeader, CreateItem(), LibraryRandom.RandIntInRange(2, 5), 0, 16, false, false);
-        
+
         // [GIVEN] Posted prepayment invoice, Amount Including VAT = 2320, VAT = 16%
         SalesInvoiceHeader.Get(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader));
 

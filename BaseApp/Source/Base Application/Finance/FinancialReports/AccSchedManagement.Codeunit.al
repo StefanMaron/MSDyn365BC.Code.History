@@ -2427,7 +2427,7 @@ codeunit 8 AccSchedManagement
                 GLAcc.FilterGroup(0);
                 PAGE.Run(PAGE::"Chart of Accounts (G/L)", GLAcc)
             end else begin
-                OnDrillDownOnGLAccountOnBeforeCopyFiltersWithAnalysisView(AccScheduleLine, TempColumnLayout, GLAcc);
+                OnDrillDownOnGLAccountOnBeforeCopyFiltersWithAnalysisView(AccScheduleLine, TempColumnLayout, GLAcc, GLAccAnalysisView);
                 GLAcc.CopyFilter("Date Filter", GLAccAnalysisView."Date Filter");
                 GLAcc.CopyFilter("Budget Filter", GLAccAnalysisView."Budget Filter");
                 GLAcc.CopyFilter("Business Unit Filter", GLAccAnalysisView."Business Unit Filter");
@@ -2838,7 +2838,7 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnDrillDownOnGLAccountOnBeforeCopyFiltersWithAnalysisView(var AccScheduleLine: Record "Acc. Schedule Line"; var TempColumnLayout: Record "Column Layout"; var GLAcc: Record "G/L Account")
+    local procedure OnDrillDownOnGLAccountOnBeforeCopyFiltersWithAnalysisView(var AccScheduleLine: Record "Acc. Schedule Line"; var TempColumnLayout: Record "Column Layout"; var GLAcc: Record "G/L Account"; var GLAccAnalysisView: Record "G/L Account (Analysis View)")
     begin
     end;
 

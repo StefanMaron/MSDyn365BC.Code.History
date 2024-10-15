@@ -1092,6 +1092,7 @@ codeunit 80 "Sales-Post"
                 OnPostSalesLineOnBeforeInsertCrMemoLine(SalesHeader, SalesLine, IsHandled, xSalesLine, SalesCrMemoHeader);
                 if not IsHandled then begin
                     SalesCrMemoLine.InitFromSalesLine(SalesCrMemoHeader, xSalesLine);
+                    OnPostSalesLineOnBeforeCollectValueEntryRelationForCrMemo(SalesHeader, SalesLine, SalesInvHeader, SalesInvLine);
                     ItemJnlPostLine.CollectValueEntryRelation(TempValueEntryRelation, SalesCrMemoLine.RowID1());
                     SetCreditMemoOrderNo(SalesLine, SalesCrMemoLine);
                     IsHandled := false;
@@ -1222,7 +1223,7 @@ codeunit 80 "Sales-Post"
 #if not CLEAN23
         end;
 #endif
-        UpdateSalesHeader(CustLedgEntry);
+        UpdateSalesHeader(CustLedgEntry, SalesHeader);
 
         // Balancing account
         if SalesHeader."Bal. Account No." <> '' then begin
@@ -3550,7 +3551,7 @@ codeunit 80 "Sales-Post"
         xSalesLine := SalesLine;
         SalesLineACY := SalesLine;
         IsHandled := false;
-        OnRoundAmountOnAfterAssignSalesLines(xSalesLine, SalesLineACY, SalesHeader, IsHandled);
+        OnRoundAmountOnAfterAssignSalesLines(xSalesLine, SalesLineACY, SalesHeader, IsHandled, TotalSalesLine, TotalSalesLineLCY, SalesLine);
         if not IsHandled then
             if SalesHeader."Currency Code" <> '' then begin
                 NoVAT := SalesLine.Amount = SalesLine."Amount Including VAT";
@@ -6145,13 +6146,13 @@ codeunit 80 "Sales-Post"
     end;
 #endif
 
-    local procedure UpdateSalesHeader(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure UpdateSalesHeader(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesHeader: Record "Sales Header")
     var
         GenJnlLine: Record "Gen. Journal Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateSalesHeader(CustLedgerEntry, SalesInvHeader, SalesCrMemoHeader, GenJnlLineDocType.AsInteger(), IsHandled);
+        OnBeforeUpdateSalesHeader(CustLedgerEntry, SalesInvHeader, SalesCrMemoHeader, GenJnlLineDocType.AsInteger(), IsHandled, GenJnlLineDocNo, PreviewMode, SalesHeader);
         if IsHandled then
             exit;
 
@@ -6170,7 +6171,7 @@ codeunit 80 "Sales-Post"
                 end;
         end;
 
-        OnAfterUpdateSalesHeader(CustLedgerEntry, SalesInvHeader, SalesCrMemoHeader, GenJnlLineDocType.AsInteger());
+        OnAfterUpdateSalesHeader(CustLedgerEntry, SalesInvHeader, SalesCrMemoHeader, GenJnlLineDocType.AsInteger(), GenJnlLineDocNo, PreviewMode, SalesHeader);
     end;
 
     local procedure MakeSalesLineToShip(var SalesLineToShip: Record "Sales Line"; SalesLineInvoiced: Record "Sales Line")
@@ -6710,7 +6711,12 @@ codeunit 80 "Sales-Post"
         ATOLink: Record "Assemble-to-Order Link";
         AsmHeader: Record "Assembly Header";
         Window: Dialog;
+        IsHandled: Boolean;
     begin
+        OnBeforeFinalizePostATO(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLine.AsmToOrderExists(AsmHeader) then begin
             if not HideProgressWindow then begin
                 Window.Open(AssemblyFinalizeProgressMsg);
@@ -6734,7 +6740,12 @@ codeunit 80 "Sales-Post"
     local procedure CheckATOLink(SalesLine: Record "Sales Line")
     var
         AsmHeader: Record "Assembly Header";
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckATOLink(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLine."Qty. to Asm. to Order (Base)" = 0 then
             exit;
         if SalesLine.AsmToOrderExists(AsmHeader) then
@@ -6744,7 +6755,12 @@ codeunit 80 "Sales-Post"
     local procedure DeleteATOLinks(SalesHeader: Record "Sales Header")
     var
         ATOLink: Record "Assemble-to-Order Link";
+        IsHandled: Boolean;
     begin
+        OnBeforeDeleteATOLinks(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ATOLink.SetCurrentKey(ATOLink.Type, ATOLink."Document Type", ATOLink."Document No.");
         ATOLink.SetRange(ATOLink.Type, ATOLink.Type::Sale);
         ATOLink.SetRange(ATOLink."Document Type", SalesHeader."Document Type");
@@ -8461,8 +8477,10 @@ codeunit 80 "Sales-Post"
                 ReturnRcptLine."Return Qty. Rcd. Not Invd." :=
                   ReturnRcptLine.Quantity - ReturnRcptLine."Quantity Invoiced";
 
-                OnPostItemTrackingForReceiptOnBeforeReturnRcptLineModify(SalesHeader, ReturnRcptLine, SalesLine);
-                ReturnRcptLine.Modify();
+                IsHandled := false;
+                OnPostItemTrackingForReceiptOnBeforeReturnRcptLineModify(SalesHeader, ReturnRcptLine, SalesLine, IsHandled);
+                if not IsHandled then
+                    ReturnRcptLine.Modify();
 
                 OnBeforePostItemTrackingReturnRcpt(
                   SalesInvHeader, SalesShptLine, TempTrackingSpecification, TrackingSpecificationExists,
@@ -9789,7 +9807,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateSalesHeader(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; GenJnlLineDocType: Integer)
+    local procedure OnAfterUpdateSalesHeader(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; GenJnlLineDocType: Integer; GenJnlLineDocNo: Code[20]; PreviewMode: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -10555,7 +10573,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateSalesHeader(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; GenJnlLineDocType: Option; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateSalesHeader(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; GenJnlLineDocType: Option; var IsHandled: Boolean; GenJnlLineDocNo: Code[20]; PreviewMode: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -11958,7 +11976,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemTrackingForReceiptOnBeforeReturnRcptLineModify(SalesHeader: Record "Sales Header"; var ReturnRcptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line")
+    local procedure OnPostItemTrackingForReceiptOnBeforeReturnRcptLineModify(SalesHeader: Record "Sales Header"; var ReturnRcptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -11973,7 +11991,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRoundAmountOnAfterAssignSalesLines(var xSalesLine: Record "Sales Line"; var SalesLineACY: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    local procedure OnRoundAmountOnAfterAssignSalesLines(var xSalesLine: Record "Sales Line"; var SalesLineACY: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean; TotalSalesLines: Record "Sales Line"; TotalSalesLineLCY: Record "Sales Line"; var SalesLine: Record "Sales Line");
     begin
     end;
 
@@ -12606,6 +12624,11 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostSalesLineOnBeforeCollectValueEntryRelationForCrMemo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceLine: Record "Sales Invoice Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostSalesLineOnAfterCollectValueEntryRelation(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceLine: Record "Sales Invoice Line")
     begin
     end;
@@ -12687,6 +12710,21 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateQtyToBeInvoicedForReturnReceiptOnAfterSetQtyToBeInvoiced(TrackingSpecificationExists: Boolean; var QtyToBeInvoiced: Decimal; var QtyToBeInvoicedBase: Decimal; RemQtyToBeInvoiced: Decimal; RemQtyToBeInvoicedBase: Decimal; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinalizePostATO(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteATOLinks(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckATOLink(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

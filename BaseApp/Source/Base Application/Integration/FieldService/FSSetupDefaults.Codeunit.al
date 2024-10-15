@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
+#if not CLEAN25
 namespace Microsoft.Integration.FieldService;
 
 using Microsoft.CRM.Contact;
@@ -26,6 +27,10 @@ using System.Media;
 
 codeunit 6404 "FS Setup Defaults"
 {
+    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
+
     var
         CRMProductName: Codeunit "CRM Product Name";
         JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
@@ -759,4 +764,4 @@ codeunit 6404 "FS Setup Defaults"
     begin
     end;
 }
-
+#endif

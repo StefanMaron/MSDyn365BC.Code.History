@@ -1658,7 +1658,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ItemUnitPrice := LibraryRandom.RandDecInDecimalRange(100, 10000, 2);
         CreateItem(Item, ItemUnitPrice);
         CreateCustomer(Customer);
-        InvoiceDiscountAmount := LibraryRandom.RandDecInRange(1, 100, 2);
+        InvoiceDiscountAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
 
         if GeneralLedgerSetup.UseVat() then begin
             Customer."Prices Including VAT" := true;

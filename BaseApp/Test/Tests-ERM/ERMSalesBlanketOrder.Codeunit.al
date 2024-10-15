@@ -21,6 +21,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryPurchase: Codeunit "Library - Purchase";
         isInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3.';
         FieldError: Label '%1 not updated correctly.';
@@ -33,6 +34,7 @@ codeunit 134377 "ERM Sales Blanket Order"
         BlanketOrderNoFieldError: Label 'Blanket Order No. missing on related Sales Credit Memo';
         BlanketOrderLineNoFieldError: Label 'Blanket Order Line No. missing on related Sales Credit Memo';
         UnitPriceIsChangedErr: Label 'Unit Price is changed on Quantity update.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     [Test]
     [Scope('OnPrem')]
@@ -1294,6 +1296,94 @@ codeunit 134377 "ERM Sales Blanket Order"
         Assert.IsTrue(SalesLine."Unit Price" = UnitPrice, UnitPriceIsChangedErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDropShipmentMustBeTrueInBlanketSalesOrderLineByCopyDocument()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [SCENARIO 537912] Drop Shipment is set to false in blanket sales order using copy document functionality.
+        Initialize();
+
+        // [GIVEN] Create an Item with a purchasing code.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purchasing Code", CreatePurchasingCode(true, false));
+        Item.Modify(true);
+
+        // [GIVEN] Create a Sales Quote for that item.
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Quote, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader[1], SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Release the sales document.
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+
+        // [GIVEN] Create a Sales Header with document type Blanket order.
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::"Blanket Order", SalesHeader[1]."Sell-to Customer No.");
+
+        // [GIVEN] Save the transaction.
+        Commit();
+
+        // [WHEN] Copy the document to Blanket Sales Order from the Sales Quote and include Header = Yes, Recalculate Lines = No.
+        LibrarySales.CopySalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Quote, SalesHeader[1]."No.", true, false);
+
+        // [VERIFY] Verify Drop Shipment must be true in the blanket sales order line using copy document functionality.
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader[2]."No.");
+        if SalesLine.FindSet() then
+            repeat
+                Assert.AreEqual(
+                    true,
+                    SalesLine."Drop Shipment",
+                    StrSubstNo(ValueMustBeEqualErr, SalesLine.FieldCaption("Drop Shipment"), true, SalesLine.TableCaption()));
+            until SalesLine.Next() = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySpecialOrderMustBeTrueInBlanketSalesOrderLineByCopyDocument()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [SCENARIO 537912] Special Order is set to false in blanket sales order using copy document functionality.
+        Initialize();
+
+        // [GIVEN] Create an Item with a purchasing code.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Purchasing Code", CreatePurchasingCode(false, true));
+        Item.Modify(true);
+
+        // [GIVEN] Create a Sales Quote for that item.
+        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesHeader[1]."Document Type"::Quote, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader[1], SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Release the sales document.
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+
+        // [GIVEN] Create a Sales Header with document type Blanket order.
+        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesHeader[2]."Document Type"::"Blanket Order", SalesHeader[1]."Sell-to Customer No.");
+
+        // [GIVEN] Save the transaction.
+        Commit();
+
+        // [WHEN] Copy the document to Blanket Sales Order from the Sales Quote and include Header = Yes, Recalculate Lines = No.
+        LibrarySales.CopySalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Quote, SalesHeader[1]."No.", true, false);
+
+        // [VERIFY] Verify Special Order must be true in the blanket sales order line using copy document functionality.
+        SalesLine.Reset();
+        SalesLine.SetRange("Document No.", SalesHeader[2]."No.");
+        if SalesLine.FindSet() then
+            repeat
+                Assert.AreEqual(
+                    true,
+                    SalesLine."Special Order",
+                    StrSubstNo(ValueMustBeEqualErr, SalesLine.FieldCaption("Special Order"), true, SalesLine.TableCaption()));
+            until SalesLine.Next() = 0;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1629,6 +1719,18 @@ codeunit 134377 "ERM Sales Blanket Order"
     begin
         SalesLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePurchasingCode(IsDropShipment: Boolean; IsSpecialOrder: Boolean): Code[10]
+    var
+        Purchasing: Record Purchasing;
+    begin
+        LibraryPurchase.CreatePurchasingCode(Purchasing);
+        Purchasing.Validate("Drop Shipment", IsDropShipment);
+        Purchasing.Validate("Special Order", IsSpecialOrder);
+        Purchasing.Modify(true);
+
+        exit(Purchasing.Code);
     end;
 
     [MessageHandler]

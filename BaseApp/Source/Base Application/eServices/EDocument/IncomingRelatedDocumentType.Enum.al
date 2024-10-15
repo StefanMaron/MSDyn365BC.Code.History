@@ -15,4 +15,6 @@ enum 141 "Incoming Related Document Type"
     value(3; "Purchase Invoice") { Caption = 'Purchase Invoice'; }
     value(4; "Purchase Credit Memo") { Caption = 'Purchase Credit Memo'; }
     value(5; " ") { Caption = ' '; }
+    value(6; "Service Invoice") { Caption = 'Service Invoice'; }
+    value(7; "Service Credit Memo") { Caption = 'Service Credit Memo'; }
 }

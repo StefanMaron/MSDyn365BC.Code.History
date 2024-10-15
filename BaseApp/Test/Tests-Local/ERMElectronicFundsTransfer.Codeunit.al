@@ -48,6 +48,7 @@
         CheckTransmittedErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty', Locked = true;
         CheckExportedErr: Label 'Check Exported must be true.';
         DocumentNoBlankErr: Label 'Document No. must be blank.';
+        JulainDateErr: Label 'Format of File date must be Julain Date.';
 
     [Test]
     [HandlerFunctions('ExportElectronicPaymentsXMLRequestPageHandler')]
@@ -2739,6 +2740,49 @@
         Assert.AreEqual('', GenJournalLine."Document No.", DocumentNoBlankErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
+    procedure JulianDateFormatOnEFTExportCA()
+    var
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+        BankAccount: Record "Bank Account";
+        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        GenerateEFT: Codeunit "Generate EFT";
+        EFTValues: Codeunit "EFT Values";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        SettleDate: Date;
+    begin
+        // [SCENARIO 527241] Julian date format for Canada EFT is not properly formatting/displaying the year.
+        Initialize();
+
+        // [GIVEN] Create the format of Export Report.
+        BindSubscription(ERMElectronicFundsTransfer);
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        CreateExportReportSelection(Layout::RDLC);
+
+        // [GIVEN] Create Vendor and Vendor Bank Account.
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'CA');
+
+        // [GIVEN] Create Bank Account for Canada and its Format.
+        CreateBankAccountForCountry(
+            BankAccount, BankAccount."Export Format"::CA, CreateBankExportImportSetup(CreateDataExchDefForCA()),
+            LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Exported payment journal line with filled in all business data.
+        CreateAndExportVendorPaymentWithAllBusinessData(TempEFTExportWorkset, VendorBankAccount, BankAccount."No.");
+
+        // [WHEN] Generate EFT file.
+        SettleDate := LibraryRandom.RandDate(10);
+        GenerateEFT.ProcessAndGenerateEFTFile(BankAccount."No.", SettleDate, TempEFTExportWorkset, EFTValues);
+        ERMElectronicFundsTransfer.GetTempACHRBHeader(TempACHRBHeader);
+
+        // [THEN] File Creation Date must be in Julian Date Format.
+        Assert.AreEqual(TempACHRBHeader."File Creation Date", CalculateJulianDate((Today())), JulainDateErr);
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -4756,7 +4800,7 @@
     begin
         ERMElectronicFundsTransfer.GetTempACHRBHeader(TempACHRBHeader);
         TempACHRBHeader.TestField("File Creation Number", FileCreationNo);
-        TempACHRBHeader.TestField("File Creation Date", ExportEFTRB.JulianDate(Today()));
+        TempACHRBHeader.TestField("File Creation Date", CalculateJulianDate(Today()));
         TempACHRBHeader.TestField("Settlement Date", SettleDate);
         TempACHRBHeader.TestField("Settlement Julian Date", ExportEFTRB.JulianDate(SettleDate)); // TFS 401126
 
@@ -4893,6 +4937,33 @@
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         PaymentJournal.ApplyEntries.Invoke();
         PaymentJournal.Close();
+    end;
+
+    local procedure CalculateJulianDate(NormalDate: Date): Integer
+    var
+        Year: Integer;
+        Day: Integer;
+        CalculatedDate: Integer;
+    begin
+        Year := Date2DMY(NormalDate, 3);
+        Day := (NormalDate - DMY2Date(1, 1, Year)) + 1;
+        Evaluate(CalculatedDate, GetFormattedJulainDate(Format(Day), Format(Year)));
+        exit(CalculatedDate);
+    end;
+
+    local procedure GetFormattedJulainDate(Day: Text; Year: Text): Text
+    var
+        ReturnDate: Text;
+    begin
+        case StrLen(Day) of
+            1:
+                ReturnDate := Year + '00' + Day;
+            2:
+                ReturnDate := Year + '0' + Day;
+            else
+                ReturnDate := Year + Day;
+        end;
+        exit(ReturnDate);
     end;
 
     [ConfirmHandler]

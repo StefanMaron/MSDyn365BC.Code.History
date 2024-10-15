@@ -10,10 +10,7 @@ using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Shipping;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Projects.Project.Job;
 using Microsoft.Service.Item;
-using Microsoft.Integration.FieldService;
 using Microsoft.Foundation.UOM;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
@@ -2227,7 +2224,6 @@ codeunit 5334 "CRM Setup Defaults"
 
     procedure GetCRMTableNo(NAVTableID: Integer): Integer
     var
-        FSConnectionSetup: Record "FS Connection Setup";
         CDSTableNo: Integer;
         handled: Boolean;
     begin
@@ -2245,13 +2241,9 @@ codeunit 5334 "CRM Setup Defaults"
             DATABASE::"Price List Header",
             DATABASE::"Customer Price Group":
                 exit(DATABASE::"CRM Pricelevel");
-            DATABASE::Item:
-                exit(DATABASE::"CRM Product");
+            DATABASE::Item,
             DATABASE::Resource:
-                if FSConnectionSetup.IsEnabled() then
-                    exit(DATABASE::"FS Bookable Resource")
-                else
-                    exit(DATABASE::"CRM Product");
+                exit(DATABASE::"CRM Product");
             DATABASE::"Sales Invoice Header":
                 exit(DATABASE::"CRM Invoice");
             DATABASE::"Sales Invoice Line":
@@ -2276,10 +2268,6 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(DATABASE::"CRM Salesorder");
             DATABASE::"Record Link":
                 exit(DATABASE::"CRM Annotation");
-            DATABASE::"Service Item":
-                exit(DATABASE::"FS Customer Asset");
-            DATABASE::"Job Task":
-                exit(DATABASE::"FS Project Task");
         end;
     end;
 
@@ -2359,13 +2347,6 @@ codeunit 5334 "CRM Setup Defaults"
         SalesHeader: Record "Sales Header";
         CRMSalesorder: Record "CRM Salesorder";
         ServiceItem: Record "Service Item";
-        FSCustomerAsset: Record "FS Customer Asset";
-        FSBookableResource: Record "FS Bookable Resource";
-        FSWorkOrderProduct: Record "FS Work Order Product";
-        FSWorkOrderService: Record "FS Work Order Service";
-        FSProjectTask: Record "FS Project Task";
-        JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
         FieldNo: Integer;
     begin
         OnBeforeGetNameFieldNo(TableID, FieldNo);
@@ -2434,20 +2415,6 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(CRMSalesorder.FieldNo(Name));
             DATABASE::"Service Item":
                 exit(ServiceItem.FieldNo("No."));
-            DATABASE::"FS Customer Asset":
-                exit(FSCustomerAsset.FieldNo(Name));
-            DATABASE::"FS Bookable Resource":
-                exit(FSBookableResource.FieldNo(Name));
-            DATABASE::"FS Work Order Product":
-                exit(FSWorkOrderProduct.FieldNo(Name));
-            DATABASE::"FS Work Order Service":
-                exit(FSWorkOrderService.FieldNo(Name));
-            DATABASE::"FS Project Task":
-                exit(FSProjectTask.FieldNo(ProjectNumber));
-            DATABASE::"Job Task":
-                exit(JobTask.FieldNo("Job Task No."));
-            DATABASE::"Job Journal Line":
-                exit(JobJournalLine.FieldNo(Description));
         end;
     end;
 
@@ -2530,7 +2497,6 @@ codeunit 5334 "CRM Setup Defaults"
 
     procedure GetTableIDCRMEntityNameMapping(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     var
-        FSConnectionSetup: Record "FS Connection Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         TempNameValueBuffer.Reset();
@@ -2547,24 +2513,7 @@ codeunit 5334 "CRM Setup Defaults"
 
         AddEntityTableMapping('product', DATABASE::Item, TempNameValueBuffer);
         AddEntityTableMapping('product', DATABASE::"CRM Product", TempNameValueBuffer);
-
-        if FSConnectionSetup.IsEnabled() then begin
-            AddEntityTableMapping('bookableresource', DATABASE::Resource, TempNameValueBuffer);
-            AddEntityTableMapping('bookableresource', DATABASE::"FS Bookable Resource", TempNameValueBuffer);
-
-            AddEntityTableMapping('msdyn_customerasset', DATABASE::"Service Item", TempNameValueBuffer);
-            AddEntityTableMapping('msdyn_customerasset', DATABASE::"FS Customer Asset", TempNameValueBuffer);
-
-            AddEntityTableMapping('bcbi_projecttask', DATABASE::"Job Task", TempNameValueBuffer);
-            AddEntityTableMapping('bcbi_projecttask', DATABASE::"FS Project Task", TempNameValueBuffer);
-
-            AddEntityTableMapping('msdyn_workorderproduct', DATABASE::"Job Journal Line", TempNameValueBuffer);
-            AddEntityTableMapping('msdyn_workorderproduct', DATABASE::"FS Work Order Product", TempNameValueBuffer);
-
-            AddEntityTableMapping('msdyn_workorderservice', DATABASE::"Job Journal Line", TempNameValueBuffer);
-            AddEntityTableMapping('msdyn_workorderservice', DATABASE::"FS Work Order Service", TempNameValueBuffer);
-        end else
-            AddEntityTableMapping('product', DATABASE::Resource, TempNameValueBuffer);
+        AddEntityTableMapping('product', DATABASE::Resource, TempNameValueBuffer);
 
         AddEntityTableMapping('salesorder', DATABASE::"Sales Header", TempNameValueBuffer);
         AddEntityTableMapping('salesorder', DATABASE::"CRM Salesorder", TempNameValueBuffer);

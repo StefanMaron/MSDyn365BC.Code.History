@@ -76,6 +76,25 @@ codeunit 139300 "Assis. Comp. Setup Plat. Tests"
     end;
 
     [Scope('OnPrem')]
+    procedure SetupCompanyForTestSaasTests()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.LockTable();
+        if not CompanyInformation.Get() then
+            CompanyInformation.Insert();
+        CompanyInformation.Name := 'Foo æoå';
+        CompanyInformation.Address := 'OneDrive 2';
+        CompanyInformation."Address 2" := '';
+        CompanyInformation.City := 'Redmond';
+        CompanyInformation.County := 'Washington';
+        CompanyInformation."Post Code" := '98052';
+        CompanyInformation."Country/Region Code" := 'US';
+        CompanyInformation."Phone No." := '4529229677';
+        CompanyInformation.Modify();
+    end;
+
+    [Scope('OnPrem')]
     procedure TestPostPurchaseInvoice()
     var
         PurchInvHeader: Record "Purch. Inv. Header";
