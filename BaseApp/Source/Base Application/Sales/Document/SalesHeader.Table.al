@@ -4478,7 +4478,7 @@ table 36 "Sales Header"
     var
         Cont: Record Contact;
         ConfirmManagement: Codeunit "Confirm Management";
-        IsHandled, Result: Boolean;
+        IsHandled, Result : Boolean;
     begin
         if ("Bill-to Customer No." <> '') and ("Sell-to Customer No." <> '') then
             exit(true);
@@ -5995,8 +5995,13 @@ table 36 "Sales Header"
     end;
 
     procedure PrepareOpeningDocumentStatistics()
+    var
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        SalesHeader2: Record "Sales Header";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        SalesLine2: Record "Sales Line";
     begin
-        if not WritePermission() or not SalesLine.WritePermission() then
+        if not SalesHeader2.WritePermission() or not SalesLine2.WritePermission() then
             Error(StatisticsInsuffucientPermissionsErr);
 
         CalcInvDiscForHeader();

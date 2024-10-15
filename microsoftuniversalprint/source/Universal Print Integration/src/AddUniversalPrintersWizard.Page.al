@@ -11,7 +11,7 @@ page 2752 "Add Universal Printers Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND (CurrentStep <> CurrentStep::Done);
+                Visible = TopBannerVisible and (CurrentStep <> CurrentStep::Done);
 
                 field("<MediaRepositoryStandard>"; MediaResourcesStandard."Media Reference")
                 {
@@ -25,7 +25,7 @@ page 2752 "Add Universal Printers Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND (CurrentStep = CurrentStep::Done);
+                Visible = TopBannerVisible and (CurrentStep = CurrentStep::Done);
 
                 field("<MediaRepositoryDone>"; MediaResourcesDone."Media Reference")
                 {
@@ -137,7 +137,7 @@ page 2752 "Add Universal Printers Wizard"
                 group("Para2.1")
                 {
                     Caption = '';
-                    Visible = Not HasLicense;
+                    Visible = not HasLicense;
                     label("Para2.1.1")
                     {
                         ApplicationArea = All;

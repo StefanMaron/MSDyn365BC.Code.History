@@ -35,7 +35,7 @@ page 2754 "Universal Printer Tray List"
         Rec.Reset();
         Rec.DeleteAll();
         Rec.Copy(TempStarRowCellNameValueBuffer, true);
-        If Rec.FindFirst() then;
+        if Rec.FindFirst() then;
     end;
 
 }
