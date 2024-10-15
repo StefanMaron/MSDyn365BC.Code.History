@@ -71,6 +71,16 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                             currXMLport.Skip();
                     end;
                 }
+                fieldattribute(CustomColumnSeparator; "Data Exch. Def"."Custom Column Separator")
+                {
+                    Occurrence = Optional;
+
+                    trigger OnBeforePassField()
+                    begin
+                        if "Data Exch. Def"."Column Separator" <> "Data Exch. Def"."Column Separator"::Custom then
+                            currXMLport.Skip();
+                    end;
+                }
                 fieldattribute(FileEncoding; "Data Exch. Def"."File Encoding")
                 {
                     Occurrence = Optional;
