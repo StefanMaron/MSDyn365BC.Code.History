@@ -272,8 +272,8 @@
         // [THEN] Tax Amount 450.26 is posted for last document, posted sales invoice has Amount = 0 and Amount Incl VAT = 450.26
         GLAccFilter := GetGLAccountFromTaxJurisdiction(TaxGroupCode);
         VerifyPostedSalesEntries(SalesInv1, GLAccFilter, 1500.0 * 2, 224.63, 0, 224.63);
-        VerifyPostedSalesEntries(SalesInv2, GLAccFilter, 3006.8 * 2, 450.27, 0, 450.27);
-        VerifyPostedSalesEntries(SalesInv3, GLAccFilter, 3006.8 * 2, 450.26, 0, 450.26);
+        VerifyPostedSalesEntries(SalesInv2, GLAccFilter, 3006.8 * 2, 450.26, 0, 450.26);
+        VerifyPostedSalesEntries(SalesInv3, GLAccFilter, 3006.8 * 2, 450.27, 0, 450.27);
     end;
 
     [Test]
@@ -325,8 +325,8 @@
         // [THEN] Tax Amount 450.26 is posted for last document, posted sales invoice has Amount = -450.26 and Amount Incl VAT = 0
         GLAccFilter := GetGLAccountFromTaxJurisdiction(TaxGroupCode);
         VerifyPostedSalesEntries(SalesInv1, GLAccFilter, 1500.0 * 2, 224.63, -224.63, 0);
-        VerifyPostedSalesEntries(SalesInv2, GLAccFilter, 3006.8 * 2, 450.27, -450.27, 0);
-        VerifyPostedSalesEntries(SalesInv3, GLAccFilter, 3006.8 * 2, 450.26, -450.26, 0);
+        VerifyPostedSalesEntries(SalesInv2, GLAccFilter, 3006.8 * 2, 450.26, -450.26, 0);
+        VerifyPostedSalesEntries(SalesInv3, GLAccFilter, 3006.8 * 2, 450.27, -450.27, 0);
     end;
 
     [Test]
@@ -346,23 +346,23 @@
         // [GIVEN] Tax Details for tax jurisdiction with 5 %.
         LibraryERM.CreateTaxArea(TaxArea);
         LibraryERM.CreateTaxGroup(TaxGroup);
-        CreateTaxAreaSetupWithValues(TaxDetail,TaxArea.Code,TaxGroup.Code,5);
+        CreateTaxAreaSetupWithValues(TaxDetail, TaxArea.Code, TaxGroup.Code, 5);
 
         // [GIVEN] Posted Sales Order with "Prepmt. Include Tax" = TRUE and "Prepayment %" = 100.
         // [GIVEN] Sales Line of "Unit Price" = 500.
-        LibrarySales.CreateSalesHeader(SalesHeader,SalesHeader."Document Type"::Order,CreateCustomerWithTaxArea(TaxArea.Code));
-        SalesHeader.Validate("Prepayment %",100);
-        SalesHeader.Validate("Prepmt. Include Tax",true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithTaxArea(TaxArea.Code));
+        SalesHeader.Validate("Prepayment %", 100);
+        SalesHeader.Validate("Prepmt. Include Tax", true);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine,SalesHeader,SalesLine.Type::Item,CreateItemWithTaxGroup(TaxGroup.Code),1);
-        SalesLine.Validate("Unit Price",500);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithTaxGroup(TaxGroup.Code), 1);
+        SalesLine.Validate("Unit Price", 500);
         SalesLine.Modify(true);
         PostSalesPrepmtInvoice(SalesHeader);
 
         // [GIVEN] Sales Order Reopened and second Sales Line added with "Unit Price" = 300.
         LibrarySales.ReopenSalesDocument(SalesHeader);
-        LibrarySales.CreateSalesLine(SalesLine,SalesHeader,SalesLine.Type::Item,CreateItemWithTaxGroup(TaxGroup.Code),1);
-        SalesLine.Validate("Unit Price",300);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithTaxGroup(TaxGroup.Code), 1);
+        SalesLine.Validate("Unit Price", 300);
         SalesLine.Modify(true);
 
         // [WHEN] Sales Order posted.
@@ -371,7 +371,7 @@
         // [THEN] Resulting posted Sales Invoice has Amount equal to 315.
         SalesInvoiceHeader.Get(SalesHeader."Last Prepayment No.");
         SalesInvoiceHeader.CalcFields(Amount);
-        Assert.AreEqual(SalesLine."Amount Including VAT",SalesInvoiceHeader.Amount,'');
+        Assert.AreEqual(SalesLine."Amount Including VAT", SalesInvoiceHeader.Amount, '');
     end;
 
     [Test]

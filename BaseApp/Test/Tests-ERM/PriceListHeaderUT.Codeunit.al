@@ -951,6 +951,50 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
+    procedure T069_UpdateStatusOnHeaderSourceAllLocationsSourceFilled()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is filled.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Locations", "Source No." is 'X'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::"All Locations", '');
+        PriceListHeader."Source No." := 'x';
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to No. must be equal to ''''"
+        Assert.ExpectedError(SourceNoMustBeBlankErr);
+    end;
+
+    [Test]
+    procedure T070_UpdateStatusOnHeaderSourceLocationSourceBlank()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
+        Initialize();
+        // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Source No." is <blank>
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Location, '');
+        PriceListHeader.Modify();
+
+        // [WHEN] Set "Status" as 'Active'
+        asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+
+        // [THEN] Error: "Applies-to No. must have a value"
+        Assert.ExpectedError(SourceNoMustBeFilledErr);
+    end;
+
+
+    [Test]
     procedure T100_DeletePricesOnCampaignDeletion()
     var
         Campaign: array[2] of Record Campaign;

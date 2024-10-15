@@ -20,6 +20,7 @@
 
         Vendor.SetInsertFromTemplate(true);
         Vendor.Init();
+        InitVendorNo(Vendor, VendorTempl);
         Vendor.Insert(true);
         Vendor.SetInsertFromTemplate(false);
 
@@ -299,6 +300,16 @@
 
         IsHandled := true;
         Page.Run(Page::"Vendor Templ. List");
+    end;
+
+    local procedure InitVendorNo(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    var
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        if VendorTempl."No. Series" = '' then
+            exit;
+
+        NoSeriesManagement.InitSeries(VendorTempl."No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
     end;
 
     [IntegrationEvent(false, false)]

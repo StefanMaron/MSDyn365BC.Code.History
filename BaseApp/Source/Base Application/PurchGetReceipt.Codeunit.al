@@ -83,10 +83,13 @@
                         PurchRcptLine := PurchRcptLine2;
                         PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
                         CalcUpdatePrepmtAmtToDeductRounding(PurchRcptLine, PurchLine, PrepmtAmtToDeductRounding);
-                        if Type = Type::"Charge (Item)" then
-                            GetItemChargeAssgnt(PurchRcptLine2, PurchLine."Qty. to Invoice");
                     end;
-                until Next = 0;
+                until Next() = 0;
+
+                UpdateItemChargeLines();
+
+                if PurchLine.Find() then;
+
                 OnAfterInsertLines(PurchHeader);
 
                 CalcInvoiceDiscount(PurchLine);
@@ -102,6 +105,25 @@
     begin
         PurchHeader.Get(PurchHeader2."Document Type", PurchHeader2."No.");
         PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Invoice);
+    end;
+
+    local procedure UpdateItemChargeLines()
+    var
+        PurchRcptLineLocal: Record "Purch. Rcpt. Line";
+        PurchaseLineChargeItemUpdate: Record "Purchase Line";
+    begin
+        PurchaseLineChargeItemUpdate.SetRange("Document Type", PurchLine."Document Type");
+        PurchaseLineChargeItemUpdate.SetRange("Document No.", PurchLine."Document No.");
+        PurchaseLineChargeItemUpdate.SetRange(Type, PurchaseLineChargeItemUpdate.Type::"Charge (Item)");
+        if PurchaseLineChargeItemUpdate.FindSet() then
+            repeat
+                if PurchRcptLineLocal.Get(
+                    PurchaseLineChargeItemUpdate."Receipt No.", PurchaseLineChargeItemUpdate."Receipt Line No.")
+                then
+                    GetItemChargeAssgnt(PurchRcptLineLocal, PurchaseLineChargeItemUpdate."Qty. to Invoice");
+            until PurchaseLineChargeItemUpdate.Next() = 0;
+
+        if PurchLine.Find() then;
     end;
 
     procedure GetItemChargeAssgnt(var PurchRcptLine: Record "Purch. Rcpt. Line"; QtyToInvoice: Decimal)
@@ -182,6 +204,7 @@
                                     PurchRcptLine2.SetCurrentKey("Order No.", "Order Line No.");
                                     PurchRcptLine2.SetRange("Order No.", ItemChargeAssgntPurch."Applies-to Doc. No.");
                                     PurchRcptLine2.SetRange("Order Line No.", ItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                                    PurchRcptLine2.SetRange(Correction, false);
                                     PurchRcptLine2.SetFilter(Quantity, '<>0');
                                     if PurchRcptLine2.FindFirst then begin
                                         PurchLine2.SetCurrentKey("Document Type", "Receipt No.", "Receipt Line No.");
