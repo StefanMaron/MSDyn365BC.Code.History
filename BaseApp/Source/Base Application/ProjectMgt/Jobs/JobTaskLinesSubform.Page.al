@@ -176,7 +176,12 @@ page 1001 "Job Task Lines Subform"
                     trigger OnDrillDown()
                     var
                         PurchLine: Record "Purchase Line";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeOnDrillDownOutstandingOrders(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
                         ApplyPurchaseLineFilters(PurchLine, "Job No.", "Job Task No.");
                         PurchLine.SetFilter("Outstanding Amount (LCY)", '<> 0');
                         PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
@@ -192,7 +197,13 @@ page 1001 "Job Task Lines Subform"
                     trigger OnDrillDown()
                     var
                         PurchLine: Record "Purchase Line";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeOnDrillDownAmtRcdNotInvoiced(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         ApplyPurchaseLineFilters(PurchLine, "Job No.", "Job Task No.");
                         PurchLine.SetFilter("Amt. Rcd. Not Invoiced (LCY)", '<> 0');
                         PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
@@ -225,7 +236,12 @@ page 1001 "Job Task Lines Subform"
                         var
                             JobPlanningLine: Record "Job Planning Line";
                             JobPlanningLines: Page "Job Planning Lines";
+                            IsHandled: Boolean;
                         begin
+                            IsHandled := false;
+                            OnBeforeOnActionJobPlanningLines(Rec, IsHandled);
+                            if IsHandled then
+                                exit;
                             TestField("Job No.");
                             JobPlanningLine.FilterGroup(2);
                             JobPlanningLine.SetRange("Job No.", "Job No.");
@@ -508,5 +524,19 @@ page 1001 "Job Task Lines Subform"
         DescriptionIndent: Integer;
         [InDataSet]
         StyleIsStrong: Boolean;
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnActionJobPlanningLines(var JobTask: Record "Job Task"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownOutstandingOrders(var JobTask: Record "Job Task"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownAmtRcdNotInvoiced(var JobTask: Record "Job Task"; var IsHandled: Boolean);
+    begin
+    end;
 }
 

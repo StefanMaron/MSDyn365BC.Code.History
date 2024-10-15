@@ -386,7 +386,13 @@ codeunit 74 "Purch.-Get Receipt"
         OrderPurchaseHeader: Record "Purchase Header";
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
         OrderNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyDocumentAttachments(OrderNoList, PurchaseHeader, IsHandled);
+        If IsHandled then
+            exit;
+
         OrderPurchaseHeader.ReadIsolation := IsolationLevel::ReadCommitted;
         OrderPurchaseHeader.SetLoadFields("Document Type", "No.");
         foreach OrderNo in OrderNoList do
@@ -510,6 +516,11 @@ codeunit 74 "Purch.-Get Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyItemChargeAssgntOnBeforeFindPurchLine2(var PurchLine2: Record "Purchase Line"; var ItemChargeAssgntPurch2: Record "Item Charge Assignment (Purch)"; PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyDocumentAttachments(var OrderNoList: List of [Code[20]]; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

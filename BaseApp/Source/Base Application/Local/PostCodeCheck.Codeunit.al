@@ -805,6 +805,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Alternative Address", 'OnAfterDeleteEvent', '', false, false)]
     local procedure AlternativeAddressOnAfterDeleteEvent(var Rec: Record "Alternative Address")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Alternative Address", Rec.GetPosition(), 0);
     end;
 
@@ -859,6 +862,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Bank Account", 'OnAfterDeleteEvent', '', false, false)]
     local procedure BankAccountOnAfterDeleteEvent(var Rec: Record "Bank Account")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Bank Account", Rec.GetPosition(), 0);
     end;
 
@@ -990,6 +996,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Company Information", 'OnAfterDeleteEvent', '', false, false)]
     local procedure CompanyInformationOnAfterDeleteEvent(var Rec: Record "Company Information")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Company Information", Rec.GetPosition(), 0);
     end;
 
@@ -1037,6 +1046,9 @@
     [EventSubscriber(ObjectType::Table, Database::Contact, 'OnAfterDeleteEvent', '', false, false)]
     local procedure ContactOnAfterDeleteEvent(var Rec: Record Contact)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::Contact, Rec.GetPosition(), 0);
     end;
 
@@ -1091,6 +1103,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Contact Alt. Address", 'OnAfterDeleteEvent', '', false, false)]
     local procedure ContactAltAddressOnAfterDeleteEvent(var Rec: Record "Contact Alt. Address")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Contact Alt. Address", Rec.GetPosition(), 0);
     end;
 
@@ -1204,6 +1219,9 @@
     [EventSubscriber(ObjectType::Table, Database::Customer, 'OnAfterDeleteEvent', '', false, false)]
     local procedure CustomerOnAfterDeleteEvent(var Rec: Record Customer)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::Customer, Rec.GetPosition(), 0);
     end;
 
@@ -1258,6 +1276,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Customer Bank Account", 'OnAfterDeleteEvent', '', false, false)]
     local procedure CustomerBankAccountOnAfterDeleteEvent(var Rec: Record "Customer Bank Account")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Customer Bank Account", Rec.GetPosition(), 0);
     end;
 
@@ -1340,6 +1361,9 @@
     [EventSubscriber(ObjectType::Table, Database::Employee, 'OnAfterDeleteEvent', '', false, false)]
     local procedure EmployeeOnAfterDeleteEvent(var Rec: Record Employee)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::Employee, Rec.GetPosition(), 0);
     end;
 
@@ -1404,6 +1428,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Finance Charge Memo Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure FinanceChargeMemoHeaderOnAfterDeleteEvent(var Rec: Record "Finance Charge Memo Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Finance Charge Memo Header", Rec.GetPosition(), 0);
     end;
 
@@ -1414,17 +1441,23 @@
           DATABASE::"Finance Charge Memo Header", xRec.GetPosition(), 0, DATABASE::"Finance Charge Memo Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Issued Fin. Charge Memo Header"
+    // Table "Issued Fin. Charge Memo Header"
     [EventSubscriber(ObjectType::Table, Database::"Issued Fin. Charge Memo Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure IssuedFinChargeMemoHeaderOnAfterDeleteEvent(var Rec: Record "Issued Fin. Charge Memo Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Issued Fin. Charge Memo Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Issued Reminder Header"
+    // Table "Issued Reminder Header"
     [EventSubscriber(ObjectType::Table, Database::"Issued Reminder Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure IssuedReminderHeaderOnAfterDeleteEvent(var Rec: Record "Issued Reminder Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Issued Reminder Header", Rec.GetPosition(), 0);
     end;
 
@@ -1476,6 +1509,9 @@
     [EventSubscriber(ObjectType::Table, Database::Job, 'OnAfterDeleteEvent', '', false, false)]
     local procedure JobOnAfterDeleteEvent(var Rec: Record Job)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::Job, Rec.GetPosition(), 0);
     end;
 
@@ -1537,6 +1573,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Location", 'OnAfterDeleteEvent', '', false, false)]
     local procedure LocationOnAfterDeleteEvent(var Rec: Record "Location")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Location", Rec.GetPosition(), 0);
     end;
 
@@ -1591,6 +1630,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Machine Center", 'OnAfterDeleteEvent', '', false, false)]
     local procedure MachineCenterOnAfterDeleteEvent(var Rec: Record "Machine Center")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Machine Center", Rec.GetPosition(), 0);
     end;
 
@@ -1645,6 +1687,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Order Address", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OrderAddressOnAfterDeleteEvent(var Rec: Record "Order Address")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Order Address", Rec.GetPosition(), 0);
     end;
 
@@ -1842,6 +1887,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure PurchaseHeaderOnAfterDeleteEvent(var Rec: Record "Purchase Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Purchase Header", Rec.GetPosition(), 0);
     end;
 
@@ -1852,24 +1900,33 @@
           DATABASE::"Purchase Header", xRec.GetPosition(), 0, DATABASE::"Purchase Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Purch. Cr. Memo Hdr."
+    // Table "Purch. Cr. Memo Hdr."
     [EventSubscriber(ObjectType::Table, Database::"Purch. Cr. Memo Hdr.", 'OnAfterDeleteEvent', '', false, false)]
     local procedure PurchCrMemoHdrOnAfterDeleteEvent(var Rec: Record "Purch. Cr. Memo Hdr.")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Purch. Cr. Memo Hdr.", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Purch. Inv. Header"
+    // Table "Purch. Inv. Header"
     [EventSubscriber(ObjectType::Table, Database::"Purch. Inv. Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure PurchInvHeaderOnAfterDeleteEvent(var Rec: Record "Purch. Inv. Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Purch. Inv. Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Purch. Rcpt. Header"
+    // Table "Purch. Rcpt. Header"
     [EventSubscriber(ObjectType::Table, Database::"Purch. Rcpt. Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure PurchRcptHeaderOnAfterDeleteEvent(var Rec: Record "Purch. Rcpt. Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Purch. Rcpt. Header", Rec.GetPosition(), 0);
     end;
 
@@ -1981,6 +2038,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Reminder Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure ReminderHeaderOnAfterDeleteEvent(var Rec: Record "Reminder Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Reminder Header", Rec.GetPosition(), 0);
     end;
 
@@ -2044,6 +2104,9 @@
     [EventSubscriber(ObjectType::Table, Database::Resource, 'OnAfterDeleteEvent', '', false, false)]
     local procedure ResourceOnAfterDeleteEvent(var Rec: Record Resource)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::Resource, Rec.GetPosition(), 0);
     end;
 
@@ -2098,6 +2161,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Responsibility Center", 'OnAfterDeleteEvent', '', false, false)]
     local procedure ResponsibilityCenterOnAfterDeleteEvent(var Rec: Record "Responsibility Center")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Responsibility Center", Rec.GetPosition(), 0);
     end;
 
@@ -2112,13 +2178,19 @@
     [EventSubscriber(ObjectType::Table, Database::"Return Receipt Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure ReturnReceiptHeaderOnAfterDeleteEvent(var Rec: Record "Return Receipt Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Return Receipt Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Return Shipment Header"
+    // Table "Return Shipment Header"
     [EventSubscriber(ObjectType::Table, Database::"Return Shipment Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure ReturnShipmentHeaderOnAfterDeleteEvent(var Rec: Record "Return Shipment Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Return Shipment Header", Rec.GetPosition(), 0);
     end;
 
@@ -2274,27 +2346,39 @@
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure SalesHeaderOnAfterDeleteEvent(var Rec: Record "Sales Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Sales Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Sales Cr.Memo Header"
+    // Table "Sales Cr.Memo Header"
     [EventSubscriber(ObjectType::Table, Database::"Sales Cr.Memo Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure SalesCrMemoHeaderOnAfterDeleteEvent(var Rec: Record "Sales Cr.Memo Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Sales Cr.Memo Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Sales Invoice Header"
+    // Table "Sales Invoice Header"
     [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure SalesInvoiceHeaderOnAfterDeleteEvent(var Rec: Record "Sales Invoice Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Sales Invoice Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Sales Shipment Header"
+    // Table "Sales Shipment Header"
     [EventSubscriber(ObjectType::Table, Database::"Sales Shipment Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure SalesShipmentHeaderOnAfterDeleteEvent(var Rec: Record "Sales Shipment Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Sales Shipment Header", Rec.GetPosition(), 0);
     end;
 
@@ -2512,6 +2596,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure ServiceHeaderOnAfterDeleteEvent(var Rec: Record "Service Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Service Header", Rec.GetPosition(), 0);
     end;
 
@@ -2559,6 +2646,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Ship-to Address", 'OnAfterDeleteEvent', '', false, false)]
     local procedure ShipToAddressOnAfterDeleteEvent(var Rec: Record "Ship-to Address")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Ship-to Address", Rec.GetPosition(), 0);
     end;
 
@@ -2672,6 +2762,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Transfer Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure TransferHeaderOnAfterDeleteEvent(var Rec: Record "Transfer Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Transfer Header", Rec.GetPosition(), 0);
     end;
 
@@ -2682,17 +2775,23 @@
           DATABASE::"Transfer Header", xRec.GetPosition(), 0, DATABASE::"Transfer Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Transfer Receipt Header"
+    // Table "Transfer Receipt Header"
     [EventSubscriber(ObjectType::Table, Database::"Transfer Receipt Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure TransferReceiptHeaderOnAfterDeleteEvent(var Rec: Record "Transfer Receipt Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Transfer Receipt Header", Rec.GetPosition(), 0);
     end;
 
-    // Teble "Transfer Shipment Header"
+    // Table "Transfer Shipment Header"
     [EventSubscriber(ObjectType::Table, Database::"Transfer Shipment Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure TransferShipmentHeaderOnAfterDeleteEvent(var Rec: Record "Transfer Shipment Header")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Transfer Shipment Header", Rec.GetPosition(), 0);
     end;
 
@@ -2758,6 +2857,9 @@
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterDeleteEvent', '', false, false)]
     local procedure VendorOnAfterDeleteEvent(var Rec: Record Vendor)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::Vendor, Rec.GetPosition(), 0);
     end;
 
@@ -2819,6 +2921,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Vendor Bank Account", 'OnAfterDeleteEvent', '', false, false)]
     local procedure VendorBankAccountOnAfterDeleteEvent(var Rec: Record "Vendor Bank Account")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Vendor Bank Account", Rec.GetPosition(), 0);
     end;
 
@@ -2906,6 +3011,9 @@
     [EventSubscriber(ObjectType::Table, Database::Union, 'OnAfterDeleteEvent', '', false, false)]
     local procedure UnionOnAfterDeleteEvent(var Rec: Record Union)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(Database::Union, Rec.GetPosition(), 0);
     end;
 
@@ -2960,6 +3068,9 @@
     [EventSubscriber(ObjectType::Table, Database::"Work Center", 'OnAfterDeleteEvent', '', false, false)]
     local procedure WorkCenterOnAfterDeleteEvent(var Rec: Record "Work Center")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         DeleteAddressIDRecords(DATABASE::"Work Center", Rec.GetPosition(), 0);
     end;
 

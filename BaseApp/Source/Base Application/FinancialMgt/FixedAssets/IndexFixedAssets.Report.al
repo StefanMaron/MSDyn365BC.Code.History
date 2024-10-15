@@ -385,7 +385,7 @@ report 5690 "Index Fixed Assets"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeInsertJournalLine(FixedAsset: Record "Fixed Asset"; IndexAmount: Decimal; var IsHandled: Boolean; i: Integer; DeprBookCode: Code[10])
+    local procedure OnBeforeInsertJournalLine(FixedAsset: Record "Fixed Asset"; var IndexAmount: Decimal; var IsHandled: Boolean; i: Integer; DeprBookCode: Code[10])
     begin
     end;
 }

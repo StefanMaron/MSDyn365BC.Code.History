@@ -2341,7 +2341,7 @@ table 5080 "To-do"
     [Scope('OnPrem')]
     procedure FinishWizard(SendExchangeAppointment: Boolean)
     var
-        SendOnFinish: Boolean;
+        SendOnFinish, IsHandled : Boolean;
     begin
         CreateExchangeAppointment := SendExchangeAppointment;
         if Recurring then begin
@@ -2355,7 +2355,10 @@ table 5080 "To-do"
                 Validate("Salesperson Code", TempAttendee."Attendee No.");
                 TempAttendee.Reset();
             end;
-            Validate("Contact No.", '');
+            IsHandled := false;
+            OnFinishWizardOnBeforeContactNoValidation(Rec, IsHandled);
+            if not IsHandled then
+                Validate("Contact No.", '');
         end else
             CreateAttendeeFromFinishWizard();
 
@@ -3138,6 +3141,11 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateOrganizerTask(Task: Record "To-do"; var TempAttendee: Record Attendee temporary; TaskNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinishWizardOnBeforeContactNoValidation(var ToDo: Record "To-do"; var IsHandled: Boolean)
     begin
     end;
 }

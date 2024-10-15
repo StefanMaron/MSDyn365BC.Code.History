@@ -296,7 +296,10 @@ report 7391 "Whse. Get Bin Content"
             Validate("Variant Code", BinContent."Variant Code");
             Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate("Bin Code", BinContent."Bin Code");
-            Validate("New Bin Code", '');
+            IsHandled := false;
+            OnInsertItemJournalLineOnBeforeValidateNewBinCode(ItemJournalLine, BinContent, IsHandled);
+            if not IsHandled then
+                Validate("New Bin Code", '');
             Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per Unit of Measure"));
             OnInsertItemJournalLineOnBeforeInsert(ItemJournalLine, BinContent);
@@ -549,13 +552,18 @@ report 7391 "Whse. Get Bin Content"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnInsertItemJournalLineOnBeforeValidateEntryType(var ItemJournalLine: Record "Item Journal Line"; var BinContent: Record "Bin Content"; var ItemLedgerEntryType: Enum "Item Ledger Entry Type"; ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch")
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnInsertItemJournalLineOnBeforeValidateNewLocationCode(var ItemJournalLine: Record "Item Journal Line"; var BinContent: Record "Bin Content"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertItemJournalLineOnBeforeValidateNewBinCode(var ItemJournalLine: Record "Item Journal Line"; BinContent: Record "Bin Content"; var IsHandled: Boolean)
     begin
     end;
 }

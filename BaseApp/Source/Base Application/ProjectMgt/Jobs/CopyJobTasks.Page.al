@@ -163,16 +163,25 @@ page 1041 "Copy Job Tasks"
     begin
         PlanningLineType := PlanningLineType::"Budget+Billable";
         LedgerEntryType := LedgerEntryType::"Usage+Sale";
+        OnOpenPageOnBeforeValidateSource(CopyQuantity, CopyDimensions, Source, PlanningLineType, LedgerEntryType);
         ValidateSource();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(CloseAction, SourceJob, TargetJob, IsHandled, CopyQuantity, CopyDimensions, Source, PlanningLineType, LedgerEntryType, FromJobTaskNo, ToJobTaskNo, FromDate, ToDate);
+        if IsHandled then
+            exit(IsHandled);
+
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
             ValidateUserInput();
             CopyJob.SetCopyOptions(false, CopyQuantity, CopyDimensions, Source, PlanningLineType, LedgerEntryType);
             CopyJob.SetJobTaskRange(FromJobTaskNo, ToJobTaskNo);
             CopyJob.SetJobTaskDateRange(FromDate, ToDate);
+            OnQueryClosePageOnBeforeCopyJobTasks(CopyJob, CopyQuantity, CopyDimensions, Source, PlanningLineType, LedgerEntryType);
             CopyJob.CopyJobTasks(SourceJob, TargetJob);
             Message(Text001);
         end
@@ -251,6 +260,21 @@ page 1041 "Copy Job Tasks"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupToJobTaskNoOnAfterSetJobTaskFilters(var JobTask: Record "Job Task")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnQueryClosePage(var CloseAction: Action; var SourceJob: Record Job; var TargetJob: Record Job; var IsHandled: Boolean; var CopyQuantity: Boolean; var CopyDimensions: Boolean; var Source: Option "Job Planning Lines","Job Ledger Entries","None"; var PlanningLineType: Option "Budget+Billable",Budget,Billable; var LedgerEntryType: Option "Usage+Sale",Usage,Sale; var FromJobTaskNo: Code[20]; var ToJobTaskNo: Code[20]; var FromDate: Date; var ToDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOpenPageOnBeforeValidateSource(var CopyQuantity: Boolean; var CopyDimensions: Boolean; var Source: Option "Job Planning Lines","Job Ledger Entries","None"; var PlanningLineType: Option "Budget+Billable",Budget,Billable; var LedgerEntryType: Option "Usage+Sale",Usage,Sale);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnQueryClosePageOnBeforeCopyJobTasks(var CopyJob: Codeunit "Copy Job"; var CopyQuantity: Boolean; var CopyDimensions: Boolean; var Source: Option "Job Planning Lines","Job Ledger Entries","None"; var PlanningLineType: Option "Budget+Billable",Budget,Billable; var LedgerEntryType: Option "Usage+Sale",Usage,Sale);
     begin
     end;
 }

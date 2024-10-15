@@ -1187,7 +1187,7 @@
             end;
 
             DialogWindow.Open(StrSubstNo(SavingDocumentMsg, FileName));
-            DocumentUrl := DocumentServiceMgt.SaveFile(FileNameServer, FileName, Enum::"Doc. Service Conflict Behavior"::Replace);
+            DocumentUrl := DocumentServiceMgt.SaveFile(FileNameServer, FileName, Enum::"Doc. Sharing Conflict Behavior"::Replace);
             DocumentServiceMgt.OpenDocument(DocumentUrl);
             DialogWindow.Close();
             exit(true);

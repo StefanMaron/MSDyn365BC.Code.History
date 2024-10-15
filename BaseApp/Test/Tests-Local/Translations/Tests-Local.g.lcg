@@ -473,15 +473,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType AmtLcy)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2622383499 - NamedType 1612705530" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Select Dimension Value Code %1 for the Dimension Code %2 for G/L Account %3.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType DimensionValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2622383499 - NamedType 342894238" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[AgedVendLedgEnt2RemAmtLCY]]></Val>
@@ -489,6 +480,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType RemainingAmtLcy)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2622383499 - NamedType 67431746" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 %2 with %3 %4 is required for %5 %6.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = "Dimension code" caption, %2= "Dimension Code" value, %3 = "Dimension value code" caption, %4 = "Dimension value code" value, %5 = Table caption (Vendor), %6 = Table value (XYZ)]D;]A;(LookupHint=Codeunit ERM IC Purchase Details - NamedType SameCodeMissingDimErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2622383499 - NamedType 1366197332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

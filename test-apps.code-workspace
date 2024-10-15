@@ -61,6 +61,9 @@
       "path": "./Email - Outlook REST API/Test"
     },
     {
+      "path": "./ErrorMessagesWithRecommendations/test/Error Messages with Recommendations Tests"
+    },
+    {
       "path": "./uksendremittanceadvice/Test/Send remittance advice by email Tests"
     },
     {

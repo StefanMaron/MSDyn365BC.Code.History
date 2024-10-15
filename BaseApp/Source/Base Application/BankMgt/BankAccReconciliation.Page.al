@@ -514,6 +514,8 @@ page 379 "Bank Acc. Reconciliation"
     begin
         if UpdatedBankAccountLESystemId <> Rec.SystemId then
             UpdatedBankAccountLESystemId := Rec.SystemId;
+
+        CurrPage.ApplyBankLedgerEntries.Page.SetBankRecDateFilter(Rec.MatchCandidateFilterDate());
         CurrPage.ApplyBankLedgerEntries.Page.AssignBankAccReconciliation(Rec);
     end;
 

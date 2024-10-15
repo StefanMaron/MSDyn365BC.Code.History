@@ -251,6 +251,7 @@
                     trigger OnValidate()
                     begin
                         DeltaUpdateTotals();
+                        CurrPage.Update();
                     end;
                 }
                 field("Bin Code"; Rec."Bin Code")

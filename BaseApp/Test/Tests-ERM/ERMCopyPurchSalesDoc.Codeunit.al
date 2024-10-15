@@ -32,6 +32,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         InvoiceNoTxt: Label 'Invoice No. %1:';
         WrongCopyPurchaseResourceErr: Label 'Wrong data after copy purchase resource';
         AddrChangedErr: Label 'field on the purchase order %1 must be the same as on sales order %2.', Comment = '%1: Purchase Order No., %2: Sales Order No.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
 
 #if not CLEAN21
     [Test]
@@ -3659,7 +3660,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesCreditMemo.GoToRecord(SalesHeader);
 
         // Exercise. Received-from Country Code is set
-        Assert.AreNotEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is not set');
+        Assert.AreNotEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is not set');
 
         // [WHEN] Set Recceived-from Country Code
         SalesCreditMemo."Rcvd-from Country/Region Code".SetValue(CountryRegion.Code);
@@ -3699,7 +3700,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesCreditMemo.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
-        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd-from Country/Region Code");
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd.-from Count./Region Code");
         SalesCreditMemo.Close();
     end;
 
@@ -3729,7 +3730,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesCreditMemo.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
-        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd-from Country/Region Code");
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd.-from Count./Region Code");
         SalesCreditMemo.Close();
     end;
 
@@ -3831,7 +3832,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CreateCountryRegion(ReceivedFromCountryRegion, true);
         CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
         DocumentNo := CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
-        SalesCreditMemoHeader.SetLoadFields("Sell-to Customer No.", "Rcvd-from Country/Region Code");
+        SalesCreditMemoHeader.SetLoadFields("Sell-to Customer No.", "Rcvd.-from Count./Region Code");
         SalesCreditMemoHeader.Get(DocumentNo);
 
         // [GIVEN] New Sales Credit Memo
@@ -3844,7 +3845,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesCreditMemo.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
-        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesCreditMemoHeader."Rcvd-from Country/Region Code");
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesCreditMemoHeader."Rcvd.-from Count./Region Code");
         SalesCreditMemo.Close();
     end;
 
@@ -3871,7 +3872,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CreateCountryRegion(ReceivedFromCountryRegion, true);
         CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
         CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
-        ReturnReceiptHeader.SetLoadFields("Sell-to Customer No.", "Rcvd-from Country/Region Code");
+        ReturnReceiptHeader.SetLoadFields("Sell-to Customer No.", "Rcvd.-from Count./Region Code");
         ReturnReceiptHeader.SetCurrentKey("Posting Date");
         ReturnReceiptHeader.SetRange("Posting Date", WorkDate());
         ReturnReceiptHeader.FindLast();
@@ -3886,7 +3887,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesCreditMemo.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Credit Memo is created without Received-from Country Code
-        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(ReturnReceiptHeader."Rcvd-from Country/Region Code");
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(ReturnReceiptHeader."Rcvd.-from Count./Region Code");
         SalesCreditMemo.Close();
     end;
 
@@ -4040,7 +4041,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesCreditMemo.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Credit Memo is created with Received-from Country Code
-        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesHeaderArchive."Rcvd-from Country/Region Code");
+        SalesCreditMemo."Rcvd-from Country/Region Code".AssertEquals(SalesHeaderArchive."Rcvd.-from Count./Region Code");
         SalesCreditMemo.Close();
     end;
 
@@ -4170,7 +4171,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesReturnOrder.GoToRecord(SalesHeader);
 
         // Exercise. Received-from Country Code is set
-        Assert.AreNotEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is not set');
+        Assert.AreNotEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is not set');
 
         // [WHEN] Set Recceived-from Country Code
         SalesReturnOrder."Rcvd-from Country/Region Code".SetValue(CountryRegion.Code);
@@ -4210,7 +4211,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesReturnOrder.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Return Order is created with Received-from Country Code
-        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd-from Country/Region Code");
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd.-from Count./Region Code");
         SalesReturnOrder.Close();
     end;
 
@@ -4240,7 +4241,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesReturnOrder.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Return Order is created with Received-from Country Code
-        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd-from Country/Region Code");
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesHeader."Rcvd.-from Count./Region Code");
         SalesReturnOrder.Close();
     end;
 
@@ -4342,7 +4343,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CreateCountryRegion(ReceivedFromCountryRegion, true);
         CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
         DocumentNo := CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
-        SalesCreditMemoHeader.SetLoadFields("Sell-to Customer No.", "Rcvd-from Country/Region Code");
+        SalesCreditMemoHeader.SetLoadFields("Sell-to Customer No.", "Rcvd.-from Count./Region Code");
         SalesCreditMemoHeader.Get(DocumentNo);
 
         // [GIVEN] New Sales Return Order
@@ -4355,7 +4356,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesReturnOrder.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Return Order is created with Received-from Country Code
-        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesCreditMemoHeader."Rcvd-from Country/Region Code");
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesCreditMemoHeader."Rcvd.-from Count./Region Code");
         SalesReturnOrder.Close();
     end;
 
@@ -4382,7 +4383,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CreateCountryRegion(ReceivedFromCountryRegion, true);
         CreateAndPostPurchaseItemJournalLine(Location.Code, ItemNo);
         CreateAndPostSalesCreditMemoWithCountryAndLocation(CountryRegion.Code, ReceivedFromCountryRegion.Code, Location.Code, ItemNo);
-        ReturnReceiptHeader.SetLoadFields("Sell-to Customer No.", "Rcvd-from Country/Region Code");
+        ReturnReceiptHeader.SetLoadFields("Sell-to Customer No.", "Rcvd.-from Count./Region Code");
         ReturnReceiptHeader.SetCurrentKey("Posting Date");
         ReturnReceiptHeader.SetRange("Posting Date", WorkDate());
         ReturnReceiptHeader.FindLast();
@@ -4397,7 +4398,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesReturnOrder.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Return Order is created with Received-from Country Code
-        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(ReturnReceiptHeader."Rcvd-from Country/Region Code");
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(ReturnReceiptHeader."Rcvd.-from Count./Region Code");
         SalesReturnOrder.Close();
     end;
 
@@ -4551,7 +4552,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesReturnOrder.CopyDocument.Invoke();
 
         // [THEN] Verify new Sales Return Order is created with Received-from Country Code
-        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesHeaderArchive."Rcvd-from Country/Region Code");
+        SalesReturnOrder."Rcvd-from Country/Region Code".AssertEquals(SalesHeaderArchive."Rcvd.-from Count./Region Code");
         SalesReturnOrder.Close();
     end;
 
@@ -4683,7 +4684,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Credit Memo", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4710,7 +4711,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Return Order", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4743,7 +4744,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4776,7 +4777,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Shipment", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4810,7 +4811,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Credit Memo", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4850,7 +4851,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           ReturnReceiptHeader."No.", SalesHeader, "Sales Document Type From"::"Posted Return Receipt", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4877,7 +4878,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Quote, true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4904,7 +4905,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Order, true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4931,7 +4932,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Invoice, true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4958,7 +4959,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Blanket Order", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -4989,7 +4990,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5020,7 +5021,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5051,7 +5052,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5082,7 +5083,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
 
         // [THEN] Verify new Sales Quote is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
     #endregion
 
@@ -5111,7 +5112,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Credit Memo", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5138,7 +5139,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Return Order", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5165,7 +5166,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Quote, true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5192,7 +5193,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Order, true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5219,7 +5220,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Invoice, true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5246,7 +5247,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Blanket Order", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5279,7 +5280,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5312,7 +5313,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Shipment", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5346,7 +5347,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Credit Memo", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5386,7 +5387,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           ReturnReceiptHeader."No.", SalesHeader, "Sales Document Type From"::"Posted Return Receipt", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5417,7 +5418,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5448,7 +5449,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5479,7 +5480,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5510,7 +5511,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
     #endregion
 
@@ -5539,7 +5540,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Credit Memo", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5566,7 +5567,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Return Order", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5593,7 +5594,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Quote, true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5620,7 +5621,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Order, true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5647,7 +5648,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Invoice, true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5674,7 +5675,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Blanket Order", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5707,7 +5708,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5740,7 +5741,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Shipment", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5774,7 +5775,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Credit Memo", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5814,7 +5815,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           ReturnReceiptHeader."No.", SalesHeader, "Sales Document Type From"::"Posted Return Receipt", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5845,7 +5846,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5876,7 +5877,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5907,7 +5908,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5938,7 +5939,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
     #endregion
 
@@ -5967,7 +5968,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Credit Memo", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -5994,7 +5995,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Return Order", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6021,7 +6022,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Quote, true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6048,7 +6049,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Order, true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6075,7 +6076,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::Invoice, true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6102,7 +6103,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           FromSalesHeader."No.", ToSalesHeader, "Sales Document Type From"::"Blanket Order", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6135,7 +6136,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Invoice", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6168,7 +6169,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Shipment", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6202,7 +6203,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           DocumentNo, SalesHeader, "Sales Document Type From"::"Posted Credit Memo", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6242,7 +6243,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           ReturnReceiptHeader."No.", SalesHeader, "Sales Document Type From"::"Posted Return Receipt", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', SalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', SalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6273,7 +6274,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6304,7 +6305,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Quote", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6335,7 +6336,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Order", true, false);
 
         // [THEN] Verify new Sales Blanket Order is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
 
     [Test]
@@ -6366,7 +6367,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
           SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Blanket Order", true, false);
 
         // [THEN] Verify new Sales Invoice is created without Received-from Country Code
-        Assert.AreEqual('', ToSalesHeader."Rcvd-from Country/Region Code", 'Received-from Country Code is set');
+        Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
     end;
     #endregion
 
@@ -6750,6 +6751,50 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [THEN] Ship-to address fields of "RO" are equal to "SA"
         VerifyShiptoAddressInSalesDocToCompanyInfo(SalesHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyItemLedgerEntryTypeInValueEntryForItemChargeAssignedToSalesShipment()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        PurchaseInvoiceNo: Code[20];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 473759] Verify the Item Ledger Entry Type in Value Entry which is “Purchase”, but it should be Sale.
+        Initialize();
+
+        // [GIVEN] Create a new item.
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Create a Sales Document with Item.
+        CreateAndPostSalesDocumentWithItem("Sales Document Type"::Invoice, ItemNo);
+
+        // [GIVEN] Find an Item Ledger Entry with Document Type and Item Number.
+        FindItemLedgerEntryWithDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Shipment", ItemNo);
+
+        // [GIVEN] Create a Purchase Credit Memo with Item Charge and assign Sales Shipment to Item Charge.
+        CreatePurchaseCreditMemoWithItemChargeAssignment(
+            PurchaseHeader,
+            ItemLedgerEntry,
+            "Purchase Applies-to Document Type"::"Sales Shipment");
+
+        // [WHEN] Post a Purchase Credit Memo.
+        PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [VERIFY] Verify: The Item Ledger Entry Type in the Value Entry must be equal to Sale.
+        ValueEntry.SetRange("Document No.", PurchaseInvoiceNo);
+        ValueEntry.FindFirst();
+        Assert.AreEqual(
+            ItemLedgerEntry."Entry Type",
+            ValueEntry."Item Ledger Entry Type",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                ValueEntry.FieldCaption("Item Ledger Entry Type"),
+                ItemLedgerEntry."Entry Type",
+                ValueEntry.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -8130,7 +8175,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
              SalesHeader, SalesLine, CreateCustomerWithVATRegNo(true), WorkDate(), SalesHeader."Document Type",
              SalesLine.Type::Item, CreateItem(), 1);
         CreateCountryRegion(CountryRegion, true);
-        SalesHeader.Validate("Rcvd-from Country/Region Code", CountryRegion.Code);
+        SalesHeader.Validate("Rcvd.-from Count./Region Code", CountryRegion.Code);
         SalesHeader.Modify();
     end;
 
@@ -8197,7 +8242,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Validate("VAT Country/Region Code", CountryRegionCode);
-        SalesHeader.Validate("Rcvd-from Country/Region Code", ReceivedFromCountryRegionCode);
+        SalesHeader.Validate("Rcvd.-from Count./Region Code", ReceivedFromCountryRegionCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 1);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -8292,6 +8337,58 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostSalesDocumentWithItem(SalesDocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure FindItemLedgerEntryWithDocTypeAndItemNo(
+        var ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerDocumentType: Enum "Item Ledger Document Type";
+        ItemNo: Code[20])
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerDocumentType);
+        ItemLedgerEntry.FindFirst();
+    end;
+
+    local procedure CreatePurchaseCreditMemoWithItemChargeAssignment(
+        var PurchaseHeader: Record "Purchase Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PurchaseAppliesToDocumentType: Enum "Purchase Applies-to Document Type")
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeAssignmentPurchase: Record "Item Charge Assignment (Purch)";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader,
+            PurchaseHeader."Document Type"::"Credit Memo",
+            LibraryPurchase.CreateVendorNo());
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::"Charge (Item)",
+            LibraryInventory.CreateItemChargeNo(),
+            LibraryRandom.RandInt(10));
+
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+
+        LibraryInventory.CreateItemChargeAssignPurchase(
+            ItemChargeAssignmentPurchase,
+            PurchaseLine,
+            PurchaseAppliesToDocumentType,
+            ItemLedgerEntry."Document No.",
+            ItemLedgerEntry."Document Line No.",
+            ItemLedgerEntry."Item No.");
     end;
 
     [RequestPageHandler]

@@ -19,7 +19,7 @@ codeunit 141083 "ERM IC Purchase Details"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         AmtLcy: Label 'VendLedgEntryEndDtAmtLCY';
-        DimensionValueErr: Label 'Select Dimension Value Code %1 for the Dimension Code %2 for G/L Account %3.';
+        SameCodeMissingDimErr: Label 'The %1 %2 with %3 %4 is required for %5 %6.', Comment = '%1 = "Dimension code" caption, %2= "Dimension Code" value, %3 = "Dimension value code" caption, %4 = "Dimension value code" value, %5 = Table caption (Vendor), %6 = Table value (XYZ)';
         RemainingAmtLcy: Label 'AgedVendLedgEnt2RemAmtLCY';
         UnexpectedErr: Label 'Expected value is different from Actual value.';
         VendorRegisterMsg: Label 'Vendor %1 is not registered. Do you wish to continue?';
@@ -57,6 +57,7 @@ codeunit 141083 "ERM IC Purchase Details"
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
         GLAccountNo: Code[20];
     begin
         // [SCENARIO] program does not create any posted purchase invoice after posting a purchase invoice if purchase invoice dimensions & Bank account posting groups A\C dimensions are different and value posting=Same Code.
@@ -72,7 +73,7 @@ codeunit 141083 "ERM IC Purchase Details"
 
         // [THEN] Error "Select Dimension Value Code..."
         Assert.ExpectedError(
-          StrSubstNo(DimensionValueErr, DefaultDimension."Dimension Value Code", DefaultDimension."Dimension Code", GLAccountNo));
+          StrSubstNo(SameCodeMissingDimErr, DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code", GLAccount.TableCaption(), GLAccountNo));
     end;
 
     [Test]
