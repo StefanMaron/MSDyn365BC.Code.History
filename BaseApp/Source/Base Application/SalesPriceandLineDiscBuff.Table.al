@@ -845,7 +845,7 @@ table 1304 "Sales Price and Line Disc Buff"
         end;
     end;
 
-    local procedure InsertTempCampaignFromSegmentLines(var TempCampaign: Record Campaign temporary; SegmentLine: Record "Segment Line")
+    local procedure InsertTempCampaignFromSegmentLines(var TempCampaign: Record Campaign temporary; var SegmentLine: Record "Segment Line")
     begin
         if SegmentLine.FindSet then
             repeat

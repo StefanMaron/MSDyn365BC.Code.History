@@ -78,10 +78,8 @@ report 121 "Customer - Balance to Date"
                 {
                     IncludeCaption = true;
                 }
-                column(OriginalAmt; OriginalAmt)
+                column(OriginalAmt; Format(OriginalAmt, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, CurrencyCode)))
                 {
-                    AutoFormatExpression = CurrencyCode;
-                    AutoFormatType = 1;
                 }
                 column(EntryNo_CustLedgEntry; "Entry No.")
                 {
@@ -106,10 +104,8 @@ report 121 "Customer - Balance to Date"
                     column(DocNo_DtldCustLedgEntry; "Document No.")
                     {
                     }
-                    column(Amt; Amt)
+                    column(Amt; Format(Amt, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, CurrencyCode)))
                     {
-                        AutoFormatExpression = CurrencyCode;
-                        AutoFormatType = 1;
                     }
                     column(CurrencyCodeDtldCustLedgEntry; CurrencyCode)
                     {
@@ -117,10 +113,8 @@ report 121 "Customer - Balance to Date"
                     column(EntNo_DtldCustLedgEntry; DtldCustLedgEntryNum)
                     {
                     }
-                    column(RemainingAmt; RemainingAmt)
+                    column(RemainingAmt; Format(RemainingAmt, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, CurrencyCode)))
                     {
-                        AutoFormatExpression = CurrencyCode;
-                        AutoFormatType = 1;
                     }
 
                     trigger OnAfterGetRecord()
@@ -351,6 +345,7 @@ report 121 "Customer - Balance to Date"
         Text000: Label 'Balance on %1';
         CurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
         CurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
+        AutoFormat: Codeunit "Auto Format";
         PrintAmountInLCY: Boolean;
         PrintOnePrPage: Boolean;
         ShowEntriesWithZeroBalance: Boolean;
