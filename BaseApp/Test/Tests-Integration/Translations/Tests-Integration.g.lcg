@@ -158,24 +158,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Email Address Selection - NamedType SalesHeaderEmailTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2933273639 - NamedType 2542021117" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ACTIVITIEX]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Normal translation]D;]A;(LookupHint=Codeunit ERM KPI Web Service - NamedType ActivitiesTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2933273639 - NamedType 2929246244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[LIQUIDITX]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Normal translation]D;]A;(LookupHint=Codeunit ERM KPI Web Service - NamedType LiquidityTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1980943398 - NamedType 4032849293" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Office 365 synchronization setup record is not configured correctly.]]></Val>

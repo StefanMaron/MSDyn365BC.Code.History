@@ -371,6 +371,28 @@ codeunit 138300 "RS Pack Content - Standard"
         VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUESIMPLE');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerTemplates()
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+    begin
+        // [SCENARIO 255439] There should be 2 customer templates
+        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
+        Assert.RecordCount(ConfigTemplateHeader, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorTemplates()
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+    begin
+        // [SCENARIO 255439] There should be 2 vendor templates
+        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
+        Assert.RecordCount(ConfigTemplateHeader, 2);
+    end;
+
     local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])
     var
         ReportLayoutSelection: Record "Report Layout Selection";

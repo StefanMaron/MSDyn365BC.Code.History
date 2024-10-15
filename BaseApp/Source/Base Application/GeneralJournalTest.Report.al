@@ -2020,7 +2020,13 @@ report 2 "General Journal - Test"
     var
         Job: Record Job;
         JT: Record "Job Task";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestJobFields(GenJnlLine, ErrorCounter, ErrorText, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             if ("Job No." = '') or ("Account Type" <> "Account Type"::"G/L Account") then
                 exit;
@@ -2167,7 +2173,7 @@ report 2 "General Journal - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignDimTableID(GenJournalLine: Record "Gen. Journal Line"; TableID: array[10] of Integer; No: array[10] of Code[20])
+    local procedure OnAfterAssignDimTableID(GenJournalLine: Record "Gen. Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 
@@ -2183,6 +2189,11 @@ report 2 "General Journal - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestJobFields(GenJournalLine: Record "Gen. Journal Line"; var ErrorCounter: Integer; var ErrorText: array[50] of Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestJobFields(var GenJournalLine: Record "Gen. Journal Line"; var ErrorCounter: Integer; var ErrorText: Array[50] of Text[250]; var IsHandled: Boolean)
     begin
     end;
 

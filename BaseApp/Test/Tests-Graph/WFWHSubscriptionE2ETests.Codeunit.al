@@ -22,6 +22,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         MockOnFetchInitParams: Codeunit MockOnFetchInitParams;
         TypeHelper: Codeunit "Type Helper";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         EmptyJSONErr: Label 'The JSON should not be blank.';
         WrongPropertyValueErr: Label 'Incorrect property value for %1.';
         EnabledErr: Label 'The %1 %2 must be enabled.';
@@ -39,6 +40,8 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"WFWH Subscription E2E Tests");
+
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryWorkflow.DisableAllWorkflows;
         WorkflowWebhookSubscription.DeleteAll();

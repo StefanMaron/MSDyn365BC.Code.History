@@ -753,6 +753,7 @@ table 121 "Purch. Rcpt. Line"
             OnBeforeInsertInvLineFromRcptLineBeforeInsertTextLine(Rec, PurchLine, NextLineNo, IsHandled);
             if not IsHandled then begin
                 PurchLine.Insert();
+                OnAfterDescriptionPurchaseLineInsert(PurchLine, Rec, NextLineNo);
                 NextLineNo := NextLineNo + 10000;
             end;
         end;
@@ -1100,6 +1101,11 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromPurchLine(PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchLine: Record "Purchase Line"; var PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDescriptionPurchaseLineInsert(var PurchLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; var NextLineNo: Integer)
     begin
     end;
 

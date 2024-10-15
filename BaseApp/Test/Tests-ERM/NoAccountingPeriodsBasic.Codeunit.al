@@ -187,11 +187,11 @@ codeunit 134360 "No Accounting Periods: Basic"
 
         // [WHEN] Create 2019 fiscal year
         DateInPeriodBetween := CalcDate('<-1Y>', LastPeriodStartingDate);
-        RunCreateFiscalYear(DateInPeriodBetween);
+        asserterror RunCreateFiscalYear(DateInPeriodBetween);
 
-        // [THEN] Closed 2019 fiscal year is created
-        Assert.RecordCount(AccountingPeriod, 37);
-        VerifyAccountingPeriod(AccountingPeriod, DateInPeriodBetween, true, true);
+        // [THEN] Two open fiscal years are not allowed in FR
+        Assert.ExpectedError('It is not allowed to have more than two open fiscal years.');
+        Assert.ExpectedErrorCode('Dialog');
     end;
 
     [Test]

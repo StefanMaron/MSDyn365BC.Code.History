@@ -581,7 +581,7 @@ table 290 "VAT Amount Line"
                                         SalesTaxCalculate.ReverseCalculateTax(
                                           TaxAreaCode, "Tax Group Code", TaxLiable, PostingDate, "Amount Including VAT", Quantity, CurrencyFactor),
                                         Currency."Amount Rounding Precision");
-                                OnAfterSalesTaxCalculateReverseCalculateTax(Rec, Currency);
+                                OnAfterSalesTaxCalculateReverseCalculateTax(Rec, Currency, TaxAreaCode, TaxLiable, PostingDate, CurrencyFactor);
                                 "VAT Amount" := "VAT Difference" + "Amount Including VAT" - "VAT Base";
                                 if "VAT Base" = 0 then
                                     "VAT %" := 0
@@ -629,7 +629,7 @@ table 290 "VAT Amount Line"
                                     "VAT Amount" :=
                                       SalesTaxCalculate.CalculateTax(
                                         TaxAreaCode, "Tax Group Code", TaxLiable, PostingDate, "VAT Base", Quantity, CurrencyFactor);
-                                OnAfterSalesTaxCalculateCalculateTax(Rec, Currency);
+                                OnAfterSalesTaxCalculateCalculateTax(Rec, Currency, TaxAreaCode, TaxLiable, PostingDate, CurrencyFactor);
                                 if "VAT Base" = 0 then
                                     "VAT %" := 0
                                 else
@@ -810,12 +810,12 @@ table 290 "VAT Amount Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSalesTaxCalculateCalculateTax(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency)
+    local procedure OnAfterSalesTaxCalculateCalculateTax(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date; CurrencyFactor: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSalesTaxCalculateReverseCalculateTax(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency)
+    local procedure OnAfterSalesTaxCalculateReverseCalculateTax(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date; CurrencyFactor: Decimal)
     begin
     end;
 

@@ -16,7 +16,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         CustomerBankAccount: Record "Customer Bank Account";
         Vendor: Record Vendor;
         VendorBankAccount: Record "Vendor Bank Account";
-        Employee: Record Employee;
         BankExportImportSetup: Record "Bank Export/Import Setup";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -26,8 +25,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
-        LibraryHumanResource: Codeunit "Library - Human Resource";
-        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Initialized: Boolean;
         NameTxt: Label 'You Name It';
         AddressTxt: Label 'Privet Drive';
@@ -35,6 +32,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         EURCode: Code[10];
         PostingDocNoWithGapOnNoSeriesErr: Label 'You have one or more documents that must be posted before you post document no. %1 according to your company''s No. Series setup.', Comment = '%1 = Document number to be posted.';
         ExtDocNoTxt: Label 'A123', Locked = true;
+        InvalidLengthErr: Label 'The lengths are not identical';
         NamespaceTxt: Label 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
         MessageToRecipientNotFoundErr: Label 'The Message To Recipient was not found in the XML file.';
         MessageExceedsLimitErr: Label 'The length of the string is %1, but it must be less than or equal to', Comment = '.';
@@ -234,7 +232,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         CreditTransferEntry: Record "Credit Transfer Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        EmployeeLedgerEntry: Record "Employee Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
         CredTrfRegNo: Integer;
         TrfDate: Date;
@@ -258,14 +255,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VendorLedgerEntry.Description := 'Test';
         VendorLedgerEntry."Currency Code" := EURCode;
         VendorLedgerEntry.Insert();
-        if EmployeeLedgerEntry.FindLast then;
-        EmployeeLedgerEntry."Entry No." += 1;
-        EmployeeLedgerEntry."Employee No." := Employee."No.";
-        EmployeeLedgerEntry."Posting Date" := GetTodayDate();
-        EmployeeLedgerEntry."Document No." := '123';
-        EmployeeLedgerEntry.Description := 'Test';
-        EmployeeLedgerEntry."Currency Code" := '';
-        EmployeeLedgerEntry.Insert();
         with CreditTransferEntry do begin
             if FindLast then;
             CredTrfRegNo := "Credit Transfer Register No.";
@@ -304,19 +293,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             Assert.AreEqual(CustLedgerEntry."Currency Code", AppliesToEntryCurrencyCode, 'Wrong CLE Currency Code.');
             Assert.AreEqual(CustLedgerEntry.Amount, AppliesToEntryAmount, 'Wrong CLE Amount.');
             Assert.AreEqual(CustLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount, 'Wrong CLE Rem. Amt.');
-
-            CreateNew(
-              CredTrfRegNo, 0, GenJnlLine."Account Type"::Employee, EmployeeLedgerEntry."Employee No.", EmployeeLedgerEntry."Entry No.",
-              TrfDate, EmployeeLedgerEntry."Currency Code", 123.45, 'ID123',
-              GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
-            EmployeeLedgerEntry.CalcFields(Amount, "Remaining Amount");
-            Assert.AreEqual(Employee.FullName, CreditorName, 'Wrong Creditor Name.');
-            Assert.AreEqual(EmployeeLedgerEntry."Document No.", AppliesToEntryDocumentNo, 'Wrong ELE Doc. No.');
-            Assert.AreEqual(EmployeeLedgerEntry.Description, AppliesToEntryDescription, 'Wrong ELE Description.');
-            Assert.AreEqual(EmployeeLedgerEntry."Posting Date", AppliesToEntryPostingDate, 'Wrong ELE Posting Date.');
-            Assert.AreEqual(EmployeeLedgerEntry."Currency Code", AppliesToEntryCurrencyCode, 'Wrong ELE Currency Code.');
-            Assert.AreEqual(EmployeeLedgerEntry.Amount, AppliesToEntryAmount, 'Wrong ELE Amount.');
-            Assert.AreEqual(EmployeeLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount, 'Wrong ELE Rem. Amt.');
         end;
     end;
 
@@ -395,7 +371,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             Assert.IsFalse(IsFieldBlank(FieldNo("Sender Bank Account No.")), FieldName("Sender Bank Account No."));
             "Sender Bank Account No." := '';
             Assert.IsTrue(IsFieldBlank(FieldNo("Sender Bank Account No.")), FieldName("Sender Bank Account No."));
-            "Transfer Date" := DMY2Date(1, 1, 2001);
+            "Transfer Date" := 20010101D;
             Assert.IsFalse(IsFieldBlank(FieldNo("Transfer Date")), FieldName("Transfer Date"));
             "Transfer Date" := 0D;
             Assert.IsTrue(IsFieldBlank(FieldNo("Transfer Date")), FieldName("Transfer Date"));
@@ -644,39 +620,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestSetEmployeeAsRecipient()
-    var
-        Employee: Record Employee;
-        PaymentExportData: Record "Payment Export Data";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 274759] Employee bank account information should be transferred by PaymentExportData.SetEmployeeAsRecipient
-        Employee.Init();
-        Employee."First Name" := LibraryUtility.GenerateGUID;
-        Employee.Address := LibraryUtility.GenerateGUID;
-        Employee.City := LibraryUtility.GenerateGUID;
-        Employee.County := LibraryUtility.GenerateGUID;
-        Employee."Post Code" := LibraryUtility.GenerateGUID;
-        Employee."Country/Region Code" := LibraryUtility.GenerateGUID;
-        Employee."E-Mail" := LibraryUtility.GenerateGUID;
-        Employee.IBAN := LibraryUtility.GenerateGUID;
-        Employee."SWIFT Code" := LibraryUtility.GenerateGUID;
-
-        PaymentExportData.SetEmployeeAsRecipient(Employee);
-
-        PaymentExportData.TestField("Recipient Name", Employee.FullName);
-        PaymentExportData.TestField("Recipient Address", Employee.Address);
-        PaymentExportData.TestField("Recipient City", Employee.City);
-        PaymentExportData.TestField("Recipient County", Employee.County);
-        PaymentExportData.TestField("Recipient Post Code", Employee."Post Code");
-        PaymentExportData.TestField("Recipient Country/Region Code", Employee."Country/Region Code");
-        PaymentExportData.TestField("Recipient Email Address", Employee."E-Mail");
-        PaymentExportData.TestField("Recipient Bank Acc. No.", Employee.IBAN);
-        PaymentExportData.TestField("Recipient Bank BIC", Employee."SWIFT Code");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestBankAsSenderBank()
     var
         BankAccount: Record "Bank Account";
@@ -798,18 +741,28 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestXMLMessageToRecipientAppliesToExtDocNoFilled()
+    procedure TestXMLMessageToRecipient()
     var
         GenJnlLine: Record "Gen. Journal Line";
         TempBlob: Codeunit "Temp Blob";
+        NodeList: DotNet XmlNodeList;
         OutStr: OutStream;
+        ContainsReqCharacters: Boolean;
+        i: Integer;
+        RequiredMessageLength: Integer;
     begin
-        // [SCENARIO 318397] Exported SEPA CT 001.001.03 contains one Ustrd tag with "Applies-to Ext. Doc. No." and "Message to Recipient"
+        // [SCENARIO 109389] Message to recipient is not stored in the exported file for FR
         Init;
-        // [GIVEN] GenJnlLine with "Message to recipient" "Applies-to Ext. Doc. No." not empty
+        RequiredMessageLength := 140;
+
+        // [GIVEN] A Payment Journal Line
+        // [GIVEN] bal. bank account using the SEPA CT export format
         CreateGenJnlLine(GenJnlLine);
-        GenJnlLine.Validate("Message to Recipient", LibraryUtility.GenerateRandomXMLText(140));
+
+        // [GIVEN] 140 characters in "Message to recipient"
+        GenJnlLine.Validate("Message to Recipient", LibraryUtility.GenerateRandomXMLText(RequiredMessageLength));
         GenJnlLine.Modify(true);
+        Assert.AreEqual(RequiredMessageLength, StrLen(GenJnlLine."Message to Recipient"), InvalidLengthErr);
 
         // [WHEN] The Payment Journal Line is exported
         GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
@@ -817,79 +770,23 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
 
-        // [THEN] The exported file contains one ustrd tag with "Message to recipient" and "Applies-to Ext. Doc. No."
+        // [THEN] TFS 227779: One line only of <Ustrd> can be validated
+        // [THEN] The exported file does not contain "Message to recipient" under <Ustrd> tag
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Ustrd', 1);
+        LibraryXPathXMLReader.GetNodeList('//Ustrd', NodeList);
+
+        ContainsReqCharacters := false;
+        for i := 1 to NodeList.Count do
+            if GenJnlLine."Message to Recipient" = NodeList.Item(i - 1).InnerText then
+                ContainsReqCharacters := true;
+        Assert.IsFalse(ContainsReqCharacters, MessageToRecipientNotFoundErr);
+
+        // [THEN] One <Ustrd> tag is created
+        Assert.AreEqual(1, NodeList.Count, 'One <Ustrd> node is allowed.');
+        // [THEN] Invoice Number "Applies-to Ext. Doc. No." is exported under <Ustrd> tag
         Assert.AreEqual(
-          CopyStr(StrSubstNo('%1 %2; %3', GenJnlLine."Applies-to Doc. Type", GenJnlLine."Applies-to Ext. Doc. No.", GenJnlLine."Message to Recipient"), 1, 140),
-          LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Ustrd', 0),
-          MessageToRecipientNotFoundErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestXMLMessageToRecipientAppliesToExtDocNoEmpty()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        TempBlob: Codeunit "Temp Blob";
-        OutStr: OutStream;
-    begin
-        // [SCENARIO 318397] Exported SEPA CT 001.001.03 contains one Ustrd tag with "Description" and "Message to Recipient"
-        Init;
-
-        // [GIVEN] GenJnlLine with "Message to recipient" and Decsription not empty, "Applies-to Ext. Doc. No." empty
-        CreateGenJnlLine(GenJnlLine);
-        GenJnlLine.Validate("Message to Recipient", LibraryUtility.GenerateRandomXMLText(140));
-        GenJnlLine.Validate("Applies-to Ext. Doc. No.", '');
-        GenJnlLine.Modify(true);
-
-        // [WHEN] The Payment Journal Line is exported
-        GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
-        GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
-        TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
-
-        // [THEN] The exported file contains one ustrd tag with "Message to recipient" and Decsription
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Ustrd', 1);
-        Assert.AreEqual(
-          CopyStr(StrSubstNo('%1; %2', GenJnlLine.Description, GenJnlLine."Message to Recipient"), 1, 140),
-          LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Ustrd', 0),
-          MessageToRecipientNotFoundErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestXMLMessageToRecipientDescriptionEmpty()
-    var
-        GenJnlLine: Record "Gen. Journal Line";
-        TempBlob: Codeunit "Temp Blob";
-        OutStr: OutStream;
-    begin
-        // [SCENARIO 318397] Exported SEPA CT 001.001.03 contains one Ustrd tag with "Message to Recipient"
-        Init;
-
-        // [GIVEN] GenJnlLine with "Message to recipient" not empty, Description and "Applies-to Ext. Doc. No." empty
-        CreateGenJnlLine(GenJnlLine);
-        GenJnlLine.Validate("Message to Recipient", LibraryUtility.GenerateRandomXMLText(140));
-        GenJnlLine.Validate("Applies-to Ext. Doc. No.", '');
-        GenJnlLine.Validate(Description, '');
-        GenJnlLine.Modify(true);
-
-        // [WHEN] The Payment Journal Line is exported
-        GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
-        GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
-        TempBlob.CreateOutStream(OutStr);
-
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
-
-        // [THEN] The exported file contains one ustrd tag with "Message to recipient"
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Ustrd', 1);
-        Assert.AreEqual(
-          GenJnlLine."Message to Recipient",
-          LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Ustrd', 0),
-          MessageToRecipientNotFoundErr);
+          GenJnlLine."Applies-to Ext. Doc. No.", DelChr(NodeList.Item(i - 1).InnerText, '<'),
+          GenJnlLine.FieldCaption("Applies-to Ext. Doc. No."));
     end;
 
     [Test]
@@ -1175,36 +1072,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestXMLEmployee()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        GenJnlLine: Record "Gen. Journal Line";
-        Employee: Record Employee;
-        TempBlob: Codeunit "Temp Blob";
-        OutStr: OutStream;
-    begin
-        // [SCENARIO 274730] SWIFT Code is exported for employee payment to <CdtrAgt>/<FinInstnId>
-        Init;
-        GeneralLedgerSetup."LCY Code" := GetEURCurrencyCode;
-        GeneralLedgerSetup.Modify();
-
-        // [GIVEN] Payment Gen. Journal Line for Employee with SWIFT Code
-        CreateGenJnlLineEmployee(GenJnlLine);
-        Employee.Get(GenJnlLine."Account No.");
-
-        // [WHEN] The Payment Journal Line is exported
-        GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
-        GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
-        TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
-
-        // [THEN] The exported file contains <CdtrAgt>/<FinInstnId> having Employee "SWIFT Code"
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('//CdtrAgt/FinInstnId', Employee."SWIFT Code");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SEPAExportGeneratesCreditTransferEntryForEachAppliedToEntry()
     var
         VendorLedgerEntry: array[2] of Record "Vendor Ledger Entry";
@@ -1369,8 +1236,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
-        LibrarySetupStorage.Restore;
-
         if Initialized then begin
             GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
@@ -1385,7 +1250,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateBankAccount(BankAccount);
-        if EURCode = GetEURCurrencyCode then
+        if EURCode = 'EUR' then
             LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-1Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2),
               LibraryRandom.RandDec(100, 2));
 
@@ -1413,11 +1278,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
 
-        LibraryHumanResource.CreateEmployee(Employee);
-        Employee.IBAN := LibraryUtility.GenerateGUID;
-        Employee."SWIFT Code" := LibraryUtility.GenerateGUID;
-        Employee.Modify();
-
         NoSeries.FindFirst;
         CreateBankExpSetup;
         BankAccount."Bank Account No." := '1234 12345678';
@@ -1426,44 +1286,27 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         BankAccount."Payment Export Format" := BankExportImportSetup.Code;
         BankAccount.Modify();
         Initialized := true;
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
     end;
 
     local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        CreateGenJnlLineForAccType(
-          GenJnlLine, GenJournalBatch, GenJnlLine."Account Type"::Vendor, Vendor."No.", VendorBankAccount.Code, EURCode);
-    end;
-
-    local procedure CreateGenJnlLineEmployee(var GenJnlLine: Record "Gen. Journal Line")
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-    begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        CreateGenJnlLineForAccType(
-          GenJnlLine, GenJournalBatch, GenJnlLine."Account Type"::Employee, Employee."No.", Employee."No.", '');
-    end;
-
-    local procedure CreateGenJnlLineForAccType(var GenJnlLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; RecipientBankAcc: Code[20]; CurrencyCode: Code[10])
-    begin
         with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+            SetRange("Journal Template Name", GenJournalTemplate.Name);
             SetRange("Journal Batch Name", GenJournalBatch.Name);
 
             Init;
             LibraryERM.CreateGeneralJnlLine(
               GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name,
-              "Document Type"::Payment, AccountType, AccountNo, 1);
+              "Document Type"::Payment, "Account Type"::Vendor, Vendor."No.", 1);
 
             if "Applies-to Ext. Doc. No." = '' then
                 "Applies-to Ext. Doc. No." := ExtDocNoTxt;
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Currency Code", CurrencyCode);
+            Validate("Recipient Bank Account", VendorBankAccount.Code);
+            Validate("Currency Code", EURCode);
             Validate(Amount, DefaultLineAmount);
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
             Validate("Bal. Account No.", BankAccount."No.");
-            Validate("Recipient Bank Account", RecipientBankAcc);
             Modify;
         end;
     end;
@@ -1573,11 +1416,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJnlLine."Line No.");
         PaymentJnlExportErrorText.SetRange("Error Text", TransferDateErr);
         Assert.AreEqual(1, PaymentJnlExportErrorText.Count, 'Unexpected errors for jnl. line.');
-    end;
-
-    local procedure GetEURCurrencyCode(): Code[10]
-    begin
-        exit('EUR');
     end;
 
     local procedure GetTodayDate(): Date

@@ -78,7 +78,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                           Round(ResCost."Direct Unit Cost" * "Qty. per Unit of Measure", Currency."Unit-Amount Rounding Precision");
                     end;
             end;
-            OnAfterFindPurchLinePrice(PurchLine, PurchHeader, TempPurchPrice, CalledByFieldNo, PriceInSKU);
+            OnAfterFindPurchLinePrice(PurchLine, PurchHeader, TempPurchPrice, CalledByFieldNo, PriceInSKU, FoundPurchPrice);
         end;
     end;
 
@@ -383,6 +383,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     var
         FromPurchLineDisc: Record "Purchase Line Discount";
     begin
+        OnBeforeFindPurchLineDsic(ToPurchLineDisc, VendorNo, ItemNo, VariantCode, UOM, CurrencyCode, StartingDate, ShowAll, QuantityPerUoM, Quantity);
         with FromPurchLineDisc do begin
             SetRange("Item No.", ItemNo);
             SetRange("Vendor No.", VendorNo);
@@ -599,6 +600,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         ResCost.Init();
                         ResCost.Code := "No.";
                         ResCost."Work Type Code" := "Work Type Code";
+                        OnFindJobPlanningLinePriceOnBeforeResourceFindCost(JobPlanningLine, ResCost);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
                         OnAfterJobPlanningLineFindResCost(JobPlanningLine, CalledByFieldNo, ResCost);
                         ConvertPriceLCYToFCY("Currency Code", ResCost."Unit Cost");
@@ -657,6 +659,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         ResCost.Init();
                         ResCost.Code := "No.";
                         ResCost."Work Type Code" := "Work Type Code";
+                        OnFindJobJnlLinePriceOnBeforeResourceFindCost(JobJnlLine, ResCost);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
                         OnAfterJobJnlLineFindResCost(JobJnlLine, CalledByFieldNo, ResCost);
                         ConvertPriceLCYToFCY("Currency Code", ResCost."Unit Cost");
@@ -843,7 +846,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindPurchLinePrice(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var PurchasePrice: Record "Purchase Price"; CalledByFieldNo: Integer; PriceInSKU: Boolean)
+    local procedure OnAfterFindPurchLinePrice(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var PurchasePrice: Record "Purchase Price"; CalledByFieldNo: Integer; PriceInSKU: Boolean; FoundPurchPrice: Boolean)
     begin
     end;
 
@@ -933,6 +936,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindPurchLineDsic(var ToPurchLineDisc: Record "Purchase Line Discount"; var VendorNo: Code[20]; var ItemNo: Code[20]; var VariantCode: Code[10]; var UOM: Code[10]; var CurrencyCode: Code[10]; var StartingDate: Date; var ShowAll: Boolean; var QuantityPerUoM: Decimal; var Quantity: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindPurchPrice(var ToPurchPrice: Record "Purchase Price"; var FromPurchasePrice: Record "Purchase Price"; var VendorNo: Code[20]; var ItemNo: Code[20]; var VariantCode: Code[10]; var UOM: Code[10]; var CurrencyCode: Code[10]; var StartingDate: Date; var ShowAll: Boolean; var Qty: Decimal; var QtyPerUOM: Decimal)
     begin
     end;
@@ -1014,6 +1022,16 @@ codeunit 7010 "Purch. Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcBestDirectUnitCostOnBeforeNoPriceFound(var PurchasePrice: Record "Purchase Price"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindJobPlanningLinePriceOnBeforeResourceFindCost(JobPlanningLine: Record "Job Planning Line"; var ResCost: Record "Resource Cost")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindJobJnlLinePriceOnBeforeResourceFindCost(JobJournalLine: Record "Job Journal Line"; var ResCost: Record "Resource Cost")
     begin
     end;
 

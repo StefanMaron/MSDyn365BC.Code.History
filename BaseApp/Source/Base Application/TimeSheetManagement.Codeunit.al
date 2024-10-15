@@ -435,7 +435,7 @@ codeunit 950 "Time Sheet Management"
         JobPlanningLine.SetRange("Planning Date", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
         if JobPlanningLine.FindSet then
             repeat
-                SkipLine := false;
+                SkipLine := TimesheetLineWithJobPlanningLineExists(TimeSheetHeader, JobPlanningLine);
                 OnCheckInsertJobPlanningLine(JobPlanningLine, JobPlanningLineBuffer, SkipLine);
                 if not SkipLine then begin
                     JobPlanningLineBuffer.SetRange("Job No.", JobPlanningLine."Job No.");
@@ -443,11 +443,23 @@ codeunit 950 "Time Sheet Management"
                     if JobPlanningLineBuffer.IsEmpty then begin
                         JobPlanningLineBuffer."Job No." := JobPlanningLine."Job No.";
                         JobPlanningLineBuffer."Job Task No." := JobPlanningLine."Job Task No.";
+                        OnFillJobPlanningBufferOnBeforeJobPlanningLineBufferInsert(JobPlanningLine, JobPlanningLineBuffer);
                         JobPlanningLineBuffer.Insert();
                     end;
                 end;
             until JobPlanningLine.Next = 0;
         JobPlanningLineBuffer.Reset();
+    end;
+
+    local procedure TimesheetLineWithJobPlanningLineExists(TimeSheetHeader: Record "Time Sheet Header"; JobPlanningLine: Record "Job Planning Line"): Boolean
+    var
+        TimeSheetLine: Record "Time Sheet Line";
+    begin
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
+        TimeSheetLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        TimeSheetLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        exit(not TimeSheetLine.IsEmpty());
     end;
 
     procedure FindTimeSheet(var TimeSheetHeader: Record "Time Sheet Header"; Which: Option Prev,Next): Code[20]
@@ -640,6 +652,8 @@ codeunit 950 "Time Sheet Management"
             Description := Desc;
             Insert;
         end;
+
+        OnAfterCreateTSPostingEntry(TimeSheetDetail, TimeSheetPostingEntry);
     end;
 
     local procedure CheckTSLineDetailPosting(TimeSheetNo: Code[20]; TimeSheetLineNo: Integer; TimeSheetDate: Date; QtyToPost: Decimal; QtyPerUnitOfMeasure: Decimal; var MaxAvailableQty: Decimal): Boolean
@@ -900,6 +914,11 @@ codeunit 950 "Time Sheet Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateTSPostingEntry(TimeSheetDetail: Record "Time Sheet Detail"; var TimeSheetPostingEntry: Record "Time Sheet Posting Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyPrevTimeSheetLines()
     begin
     end;
@@ -930,7 +949,7 @@ codeunit 950 "Time Sheet Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; FieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeFilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -946,6 +965,11 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetActivityInfo(var TimeSheetLine: Record "Time Sheet Line"; var ActivityCaption: Text[30]; var ActivityID: Code[20]; var ActivitySubCaption: Text[30]; var ActivitySubID: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillJobPlanningBufferOnBeforeJobPlanningLineBufferInsert(JobPlanningLine: Record "Job Planning Line"; var JobPlanningLineBuffer: Record "Job Planning Line" temporary);
     begin
     end;
 

@@ -278,6 +278,8 @@ report 730 "Copy Item"
     var
         TargetItem: Record Item;
     begin
+        OnBeforeCopyItem(SourceItem);
+
         InsertTargetItem(TargetItem, CopyCounter);
 
         if not (CopySalesLineDisc or CopyPurchLineDisc) then begin
@@ -346,14 +348,11 @@ report 730 "Copy Item"
     local procedure InsertTargetItem(var TargetItem: Record Item; CopyCounter: Integer)
     begin
         with TargetItem do begin
-            TransferFields(SourceItem);
-
-            SetTargetItemNo(TargetItem, CopyCounter);
-
-            "Last Date Modified" := Today;
-            "Created From Nonstock Item" := false;
+            InitTargetItem(TargetItem, CopyCounter);
             Insert;
         end;
+
+        OnAfterInsertTargetItem(TargetItem, SourceItem, CopyCounter);
     end;
 
     local procedure CheckTargetItemNo()
@@ -645,6 +644,16 @@ report 730 "Copy Item"
         CopyItemRelatedTableFromRecRef(RecRef, ItemAttributeValueMapping.FieldNo("No."), FromItemNo, ToItemNo);
     end;
 
+    local procedure InitTargetItem(var TargetItem: Record Item; CopyCounter: Integer)
+    begin
+        TargetItem.TransferFields(SourceItem);
+        SetTargetItemNo(TargetItem, CopyCounter);
+        TargetItem."Last Date Modified" := Today;
+        TargetItem."Created From Nonstock Item" := false;
+
+        OnAfterInitTargetItem(TargetItem, SourceItem, CopyCounter);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenPage()
     begin
@@ -660,13 +669,28 @@ report 730 "Copy Item"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCopyItem(SourceItem: Record Item; var TargetItem: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitSeries(var Item: Record Item; var InventorySetup: Record "Inventory Setup")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitTargetItem(var TargetItem: Record Item; SourceItem: Record Item; CopyCounter: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInsertTargetItem(var TargetItem: Record Item; SourceItem: Record Item; CopyCounter: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCopyItem(SourceItem: Record Item)
     begin
     end;
 }

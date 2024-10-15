@@ -253,9 +253,14 @@ page 438 "Issued Reminder"
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
+                var
+                    IsHandled: Boolean;
                 begin
                     IssuedReminderHeader := Rec;
-                    OnBeforePrintRecords(Rec, IssuedReminderHeader);
+                    IsHandled := false;
+                    OnBeforePrintRecords(Rec, IssuedReminderHeader, IsHandled);
+                    if IsHandled then
+                        exit;
                     CurrPage.SetSelectionFilter(IssuedReminderHeader);
                     IssuedReminderHeader.PrintRecords(true, false, false);
                 end;
@@ -270,8 +275,14 @@ page 438 "Issued Reminder"
                 ToolTip = 'Prepare to send the document by email. The Send Email window opens prefilled for the customer where you can add or change information before you send the email.';
 
                 trigger OnAction()
+                var
+                    IsHandled: Boolean;
                 begin
                     IssuedReminderHeader := Rec;
+                    IsHandled := false;
+                    OnBeforeSendRecords(Rec, IssuedReminderHeader, IsHandled);
+                    if IsHandled then
+                        exit;
                     CurrPage.SetSelectionFilter(IssuedReminderHeader);
                     IssuedReminderHeader.PrintRecords(false, true, false);
                 end;
@@ -316,7 +327,12 @@ page 438 "Issued Reminder"
         ChangeExchangeRate: Page "Change Exchange Rate";
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header")
+    local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToSend: Record "Issued Reminder Header"; var IsHandled: Boolean)
     begin
     end;
 }

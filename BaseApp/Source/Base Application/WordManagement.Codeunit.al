@@ -1,4 +1,4 @@
-codeunit 5054 WordManagement
+﻿codeunit 5054 WordManagement
 {
 
     trigger OnRun()
@@ -714,24 +714,10 @@ codeunit 5054 WordManagement
         SalesPersonCode: Code[20];
         ContactNo: Code[20];
         LanguageCode: Code[10];
-        Date: Date;
+        ActiveDate: Date;
         DataFieldsCount: Integer;
     begin
-        if InteractLogEntry.IsEmpty then begin
-            ContactNo := SegLine."Contact No.";
-            SalesPersonCode := SegLine."Salesperson Code";
-            LineNo := Format(SegLine."Line No.");
-            ContactAltAddressCode := SegLine."Contact Alt. Address Code";
-            Date := SegLine.Date;
-            LanguageCode := SegLine."Language Code";
-        end else begin
-            ContactNo := InteractLogEntry."Contact No.";
-            SalesPersonCode := InteractLogEntry."Salesperson Code";
-            LineNo := Format(InteractLogEntry."Entry No.");
-            ContactAltAddressCode := InteractLogEntry."Contact Alt. Address Code";
-            Date := InteractLogEntry.Date;
-            LanguageCode := InteractLogEntry."Interaction Language Code";
-        end;
+        InitMergeFields(InteractLogEntry, SegLine, ContactAltAddressCode, LineNo, SalesPersonCode, ContactNo, LanguageCode, ActiveDate);
 
         CompanyInfo.Get();
         if not Country2.Get(CompanyInfo."Country/Region Code") then
@@ -746,7 +732,7 @@ codeunit 5054 WordManagement
 
         // This field must come first in the merge source file
         WordMergefile.AddField(LineNo);
-        AddMultilineFieldData(WordMergefile, Contact, ContactAltAddressCode, Date);
+        AddMultilineFieldData(WordMergefile, Contact, ContactAltAddressCode, ActiveDate);
         DataFieldsCount := 2;
 
         TempNameValueBuffer.DeleteAll();
@@ -822,15 +808,41 @@ codeunit 5054 WordManagement
         end;
     end;
 
+    local procedure InitMergeFields(var InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line";
+          var ContactAltAddressCode: Code[10]; var LineNo: Text; var SalesPersonCode: Code[20]; var ContactNo: Code[20]; var LanguageCode: Code[10]; var ActiveDate: Date)
+    begin
+        OnBeforeInitMergeFields(InteractionLogEntry, SegmentLine);
+
+        if InteractionLogEntry.IsEmpty() then begin
+            ContactNo := SegmentLine."Contact No.";
+            SalesPersonCode := SegmentLine."Salesperson Code";
+            LineNo := Format(SegmentLine."Line No.");
+            ContactAltAddressCode := SegmentLine."Contact Alt. Address Code";
+            LanguageCode := SegmentLine."Language Code";
+            ActiveDate := SegmentLine.Date;
+        end else begin
+            ContactNo := InteractionLogEntry."Contact No.";
+            SalesPersonCode := InteractionLogEntry."Salesperson Code";
+            LineNo := Format(InteractionLogEntry."Entry No.");
+            ContactAltAddressCode := InteractionLogEntry."Contact Alt. Address Code";
+            LanguageCode := InteractionLogEntry."Interaction Language Code";
+            ActiveDate := InteractionLogEntry.Date;
+        end;
+    end;
+
     local procedure AddMultilineFieldData(var WordMergefile: DotNet MergeHandler; Contact: Record Contact; ContactAltAddressCode: Code[10]; Date: Date)
     var
         FormatAddr: Codeunit "Format Address";
         ContAddr: array[8] of Text[100];
         ContAddr2: array[8] of Text[100];
         ContactAddressDimension: Integer;
+        IsHandled: Boolean;
     begin
         ContactAddressDimension := 1;
-        FormatAddr.ContactAddrAlt(ContAddr, Contact, ContactAltAddressCode, Date);
+        IsHandled := false;
+        OnAddMultilineFieldDataOnBeforeFormatContactAddr(ContAddr, Contact, ContactAltAddressCode, Date, IsHandled);
+        if not IsHandled then
+            FormatAddr.ContactAddrAlt(ContAddr, Contact, ContactAltAddressCode, Date);
 
         WordMergefile.OpenNewMultipleValueField;
         CopyArray(ContAddr2, ContAddr, 1);
@@ -1129,6 +1141,11 @@ codeunit 5054 WordManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAddMultilineFieldDataOnBeforeFormatContactAddr(var ContAddr: array[8] of Text[100]; Contact: Record Contact; ContactAltAddressCode: Code[10]; Date: Date; var Ishandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateHeaderAddFields(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; Salesperson: Record "Salesperson/Purchaser"; Country: Record "Country/Region"; Contact: Record Contact; CompanyInfo: Record "Company Information"; SegmentLine: Record "Segment Line"; InteractionLogEntry: Record "Interaction Log Entry")
     begin
     end;
@@ -1145,6 +1162,11 @@ codeunit 5054 WordManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteFile(FileName: Text; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitMergeFields(var InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line");
     begin
     end;
 

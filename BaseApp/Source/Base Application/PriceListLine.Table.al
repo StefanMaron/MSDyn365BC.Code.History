@@ -16,8 +16,17 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
+                if xRec."Source Type" = "Source Type" then
+                    exit;
+
+                xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Source Type", "Source Type");
                 CopyFrom(PriceSource);
+                if "Asset No." <> '' then begin
+                    CopyTo(PriceAsset);
+                    PriceAsset.ValidateAssetNo();
+                    CopyFrom(PriceAsset);
+                end;
             end;
         }
         field(4; "Source No."; Code[20])
@@ -25,8 +34,16 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
+                xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Source No.", "Source No.");
                 CopyFrom(PriceSource);
+            end;
+
+            trigger OnLookup()
+            begin
+                CopyTo(PriceSource);
+                if PriceSource.LookupNo() then
+                    CopyFrom(PriceSource);
             end;
         }
         field(5; "Parent Source No."; Code[20])
@@ -34,6 +51,7 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
+                xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Parent Source No.", "Parent Source No.");
                 CopyFrom(PriceSource);
             end;
@@ -43,6 +61,7 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
+                xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Source ID", "Source ID");
                 CopyFrom(PriceSource);
             end;
@@ -117,14 +136,17 @@ table 7001 "Price List Line"
         field(12; "Starting Date"; Date)
         {
             DataClassification = CustomerContent;
+            trigger OnValidate()
+            begin
+                VerifyDates();
+            end;
         }
         field(13; "Ending Date"; Date)
         {
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
-                if ("Starting Date" <> 0D) and ("Ending Date" < "Starting Date") then
-                    "Ending Date" := "Starting Date";
+                VerifyDates();
             end;
         }
         field(14; "Minimum Quantity"; Decimal)
@@ -185,13 +207,24 @@ table 7001 "Price List Line"
             AutoFormatType = 2;
             Caption = 'Unit Price';
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                if "Source Type" in ["Source Type"::"All Jobs", "Source Type"::Job, "Source Type"::"Job Task"] then
+                    "Cost Factor" := 0;
+            end;
         }
         field(18; "Cost Factor"; Decimal)
         {
             DataClassification = CustomerContent;
             Caption = 'Cost Factor';
-        }
 
+            trigger OnValidate()
+            begin
+                if "Source Type" in ["Source Type"::"All Jobs", "Source Type"::Job, "Source Type"::"Job Task"] then
+                    "Unit Price" := 0;
+            end;
+        }
         field(19; "Unit Cost"; Decimal)
         {
             DataClassification = CustomerContent;
@@ -249,6 +282,10 @@ table 7001 "Price List Line"
             MinValue = 0;
             Editable = false;
         }
+        field(28; "Price Type"; Enum "Price Type")
+        {
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
@@ -271,26 +308,15 @@ table 7001 "Price List Line"
             "Line No." := "Line No." + 1
         else
             "Line No." := 0;
-
-        if PriceSource.IsSourceNoAllowed() then
-            TestField("Source No.")
-        else
-            "Source No." := '';
-        if PriceAsset.IsAssetNoRequired() then
-            TestField("Asset No.");
-    end;
-
-    trigger OnRename()
-    begin
-        if PriceSource.IsSourceNoAllowed() then
-            TestField("Source No.");
-        if PriceAsset.IsAssetNoRequired() then
-            TestField("Asset No.");
     end;
 
     protected var
         PriceAsset: Record "Price Asset";
         PriceSource: Record "Price Source";
+
+    var
+        StartingDateErr: Label 'Starting Date cannot be after Ending Date.';
+        CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
 
     procedure IsRealLine(): Boolean;
     begin
@@ -299,29 +325,72 @@ table 7001 "Price List Line"
 
     local procedure CopyFrom(PriceSource: Record "Price Source")
     begin
+        "Price Type" := PriceSource."Price Type";
         "Source Type" := PriceSource."Source Type";
         "Source No." := PriceSource."Source No.";
         "Parent Source No." := PriceSource."Parent Source No.";
         "Source ID" := PriceSource."Source ID";
+
+        "Currency Code" := PriceSource."Currency Code";
+        "Price Includes VAT" := PriceSource."Price Includes VAT";
+        "Allow Invoice Disc." := PriceSource."Allow Invoice Disc.";
+        "Allow Line Disc." := PriceSource."Allow Line Disc.";
+        "VAT Bus. Posting Gr. (Price)" := PriceSource."VAT Bus. Posting Gr. (Price)";
+        "Starting Date" := PriceSource."Starting Date";
+        "Ending Date" := PriceSource."Ending Date";
         OnAfterCopyFromPriceSource(PriceSource);
     end;
 
     local procedure CopyFrom(PriceAsset: Record "Price Asset")
     begin
+        "Price Type" := PriceAsset."Price Type";
         "Asset Type" := PriceAsset."Asset Type";
         "Asset No." := PriceAsset."Asset No.";
         "Asset ID" := PriceAsset."Asset ID";
         "Unit of Measure Code" := PriceAsset."Unit of Measure Code";
+        "Variant Code" := PriceAsset."Variant Code";
+        "Work Type Code" := PriceAsset."Work Type Code";
+
+        "Allow Invoice Disc." := PriceAsset."Allow Invoice Disc.";
+        if "VAT Bus. Posting Gr. (Price)" = '' then begin
+            "Price Includes VAT" := PriceAsset."Price Includes VAT";
+            "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
+        end;
         OnAfterCopyFromPriceAsset(PriceAsset);
     end;
 
     procedure CopyTo(var PriceAsset: Record "Price Asset")
     begin
+        PriceAsset."Price Type" := "Price Type";
         PriceAsset."Asset Type" := "Asset Type";
         PriceAsset."Asset No." := "Asset No.";
         PriceAsset."Asset ID" := "Asset ID";
         PriceAsset."Unit of Measure Code" := "Unit of Measure Code";
+        PriceAsset."Variant Code" := "Variant Code";
+        PriceAsset."Work Type Code" := "Work Type Code";
+
+        PriceAsset."Allow Invoice Disc." := "Allow Invoice Disc.";
+        PriceAsset."Price Includes VAT" := "Price Includes VAT";
+        PriceAsset."VAT Bus. Posting Gr. (Price)" := "VAT Bus. Posting Gr. (Price)";
         OnAfterCopyToPriceAsset(PriceAsset);
+    end;
+
+    procedure CopyTo(var PriceSource: Record "Price Source")
+    begin
+        PriceSource."Price Type" := "Price Type";
+        PriceSource."Source Type" := "Source Type";
+        PriceSource."Source No." := "Source No.";
+        PriceSource."Parent Source No." := "Parent Source No.";
+        PriceSource."Source ID" := "Source ID";
+
+        PriceSource."Currency Code" := "Currency Code";
+        PriceSource."Price Includes VAT" := "Price Includes VAT";
+        PriceSource."Allow Invoice Disc." := "Allow Invoice Disc.";
+        PriceSource."Allow Line Disc." := "Allow Line Disc.";
+        PriceSource."VAT Bus. Posting Gr. (Price)" := "VAT Bus. Posting Gr. (Price)";
+        PriceSource."Starting Date" := "Starting Date";
+        PriceSource."Ending Date" := "Ending Date";
+        OnAfterCopyToPriceSource(PriceSource);
     end;
 
     procedure CopyFilteredLinesToTemporaryBuffer(var TempPriceListLine: Record "Price List Line" temporary) Copied: Boolean;
@@ -332,6 +401,14 @@ table 7001 "Price List Line"
                 if TempPriceListLine.Insert() then
                     Copied := true;
             until Next() = 0;
+    end;
+
+    local procedure VerifyDates()
+    begin
+        if (CurrFieldNo <> 0) and ("Source Type" = "Source Type"::Campaign) then
+            Error(CampaignDateErr);
+        if ("Ending Date" <> 0D) and ("Starting Date" <> 0D) and ("Ending Date" < "Starting Date") then
+            Error(StartingDateErr);
     end;
 
     [IntegrationEvent(true, false)]
@@ -346,6 +423,11 @@ table 7001 "Price List Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyToPriceAsset(var PriceAsset: Record "Price Asset")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCopyToPriceSource(var PriceSource: Record "Price Source")
     begin
     end;
 }

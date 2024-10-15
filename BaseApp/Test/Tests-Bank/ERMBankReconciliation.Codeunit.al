@@ -1199,7 +1199,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountStatementPage.GotoRecord(BankAccountStatement);
         BankAccountLedgerEntries.Trap;
         BankAccountStatementPage.Control11."Applied Amount".DrillDown;
-        BankAccountLedgerEntries.Amount.AssertEquals(BankAccountStatementLine."Applied Amount");
+        BankAccountLedgerEntries."Debit Amount".AssertEquals(BankAccountStatementLine."Applied Amount");
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;

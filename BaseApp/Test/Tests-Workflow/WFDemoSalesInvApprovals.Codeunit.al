@@ -12,6 +12,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
     var
         Workflow: Record Workflow;
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySales: Codeunit "Library - Sales";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -872,6 +873,7 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
     var
         UserSetup: Record "User Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo Sales Inv. Approvals");
         LibraryVariableStorage.Clear;
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -880,8 +882,10 @@ codeunit 134170 "WF Demo Sales Inv. Approvals"
         Commit();
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Sales Inv. Approvals");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo Sales Inv. Approvals");
     end;
 
     local procedure CreateCustomerWithCreditLimitWithSalesInvoice(var SalesHeader: Record "Sales Header")

@@ -119,7 +119,7 @@ page 475 "VAT Statement Preview Line"
 
     trigger OnAfterGetRecord()
     begin
-        VATStatement.CalcLineTotal(Rec, ColumnValue, 0);
+        CalcColumnValue(Rec, ColumnValue, 0);
         if "Print with" = "Print with"::"Opposite Sign" then
             ColumnValue := -ColumnValue;
     end;
@@ -134,6 +134,18 @@ page 475 "VAT Statement Preview Line"
         PeriodSelection: Option "Before and Within Period","Within Period";
         UseAmtsInAddCurr: Boolean;
 
+    local procedure CalcColumnValue(VATStatementLine: Record "VAT Statement Line"; var ColumnValue: Decimal; Level: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcColumnValue(VATStatementLine, ColumnValue, Level, IsHandled);
+        if IsHandled then
+            exit;
+
+        VATStatement.CalcLineTotal(VATStatementLine, ColumnValue, Level);
+    end;
+
     procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewUseAmtsInAddCurr: Boolean)
     begin
         SetRange("Statement Template Name", VATStmtName."Statement Template Name");
@@ -144,6 +156,11 @@ page 475 "VAT Statement Preview Line"
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
         VATStatement.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
         CurrPage.Update;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalcColumnValue(VATStatementLine: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

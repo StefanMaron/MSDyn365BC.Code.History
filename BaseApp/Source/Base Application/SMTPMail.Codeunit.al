@@ -488,6 +488,7 @@ codeunit 400 "SMTP Mail"
     /// Tries to connect to the SMTP server.
     /// </summary>
     /// <returns>True if there are no exceptions.</returns>
+    [NonDebuggable]
     [TryFunction]
     local procedure TryAuthenticate()
     var

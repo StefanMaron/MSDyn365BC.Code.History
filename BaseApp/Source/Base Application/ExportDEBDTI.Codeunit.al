@@ -293,6 +293,10 @@ codeunit 10821 "Export DEB DTI"
         end;
         if IntrastatJnlLine."Country/Region of Origin Code" <> '' then
             XMLDomMgt.AddNode(XMLNode, 'countryOfOriginCode', IntrastatJnlLine."Country/Region of Origin Code");
+        if IntrastatJnlLine."Entry/Exit Point" <> '' then
+            XMLDomMgt.AddNode(XMLNode, 'paysProvenance', IntrastatJnlLine."Entry/Exit Point");
+        if IntrastatJnlLine.Area <> '' then
+            XMLDomMgt.AddNode(XMLNode, 'departement', IntrastatJnlLine.Area);
         if IntrastatJnlLine."Total Weight" <> 0 then
             XMLDomMgt.AddNode(XMLNode, 'netMass', FormatToXML(IntrastatJnlLine."Total Weight"));
         if IntrastatJnlLine.Quantity <> 0 then

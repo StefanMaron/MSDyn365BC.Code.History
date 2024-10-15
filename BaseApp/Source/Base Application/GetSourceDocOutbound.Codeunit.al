@@ -12,8 +12,15 @@ codeunit 5752 "Get Source Doc. Outbound"
         Text004: Label 'No %1 was found. The warehouse shipment could not be created.';
         GetSourceDocuments: Report "Get Source Documents";
 
-    local procedure CreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"): Boolean
+    local procedure CreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateWhseShipmentHeaderFromWhseRequest(WarehouseRequest, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if WarehouseRequest.IsEmpty then
             exit(false);
 
@@ -510,6 +517,11 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateFromServiceOrder(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var Rusult: Boolean; var IsHandled: Boolean)
     begin
     end;
 

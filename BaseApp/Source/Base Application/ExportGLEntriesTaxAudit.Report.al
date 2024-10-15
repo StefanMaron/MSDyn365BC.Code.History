@@ -433,6 +433,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         FileName: Text[250];
     begin
         CompanyInformation.Get();
+        CompanyInformation.TestField("Registration No.");
         FileName := Format(CompanyInformation.GetSIREN) +
           'FEC' +
           GetFormattedDate(EndingDate) +

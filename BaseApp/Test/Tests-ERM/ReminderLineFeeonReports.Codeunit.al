@@ -462,6 +462,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Reminder Terms Code", ReminderTermsCode);
         Customer.Validate("Payment Terms Code", PaymentTermsCode);
+        Customer.Validate("VAT Bus. Posting Group", '');
         Customer.Modify(true);
         exit(Customer."No.")
     end;
@@ -536,7 +537,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         Clear(SalesInvoice);
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesInvoice.SetTableView(SalesInvoiceHeader);
-        SalesInvoice.InitializeRequest(0, true, false, false); // IncludeShptNo = FALSE, DisplayAssemblyInformation = FALSE
+        SalesInvoice.InitializeRequest(0, true, false, false, true); // IncludeShptNo = FALSE, DisplayAssemblyInformation = FALSE
         Commit();
         SalesInvoice.Run;
     end;

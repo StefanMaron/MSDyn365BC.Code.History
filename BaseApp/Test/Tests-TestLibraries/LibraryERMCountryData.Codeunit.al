@@ -7,6 +7,9 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
+    var
+        LibraryERM: Codeunit "Library - ERM";
+
     procedure InitializeCountry()
     begin
         exit;
@@ -84,12 +87,19 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        exit;
+        UpdateAccountsInGeneralPostingSetup;
     end;
 
     procedure UpdateInventoryPostingSetup()
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
-        exit;
+        if InventoryPostingSetup.FindSet then
+            repeat
+                if InventoryPostingSetup."Inventory Account (Interim)" = '' then
+                    InventoryPostingSetup.Validate("Inventory Account (Interim)", CreateGLAccount);
+                InventoryPostingSetup.Modify();
+            until InventoryPostingSetup.Next = 0;
     end;
 
     procedure UpdateGenJournalTemplate()
@@ -99,7 +109,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralLedgerSetup()
     begin
-        exit;
+        DisableAdjustForPmtDiscInGLSetup;
     end;
 
     procedure UpdatePrepaymentAccounts()
@@ -139,7 +149,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateFAPostingGroup()
     begin
-        exit;
+        UpdateAccountsInFAPostingGroup;
     end;
 
     procedure UpdateFAPostingType()
@@ -169,7 +179,20 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure RemoveBlankGenJournalTemplate()
     begin
-        exit;
+        DeleteExtraGeneralJournalTemplate;
+    end;
+
+    local procedure UpdateAccountsInFAPostingGroup()
+    var
+        FAPostingGroup: Record "FA Posting Group";
+    begin
+        if FAPostingGroup.FindSet then
+            repeat
+                if FAPostingGroup."Losses Acc. on Disposal" = '' then begin
+                    FAPostingGroup.Validate("Losses Acc. on Disposal", CreateGLAccount);
+                    FAPostingGroup.Modify(true);
+                end;
+            until FAPostingGroup.Next = 0;
     end;
 
     procedure UpdateLocalPostingSetup()
@@ -196,12 +219,78 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries."Credit Amount".AsDEcimal <> 0 then
+            EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDEcimal
+        else
+            EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDEcimal;
         exit(EntryRemainingAmount);
     end;
 
     procedure InsertRecordsToProtectedTables()
     begin
+    end;
+
+    local procedure UpdateAccountsInGeneralPostingSetup()
+    var
+        NormalGeneralPostingSetup: Record "General Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetupInvtFull(NormalGeneralPostingSetup);
+        with GeneralPostingSetup do
+            if FindSet then
+                repeat
+                    if "Direct Cost Applied Account" = '' then
+                        Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account")
+                    else
+                        // Due to FR DDT COD119032 "Direct Cost Applied Account" may be equal to "Inventory Adjmt. Account"
+                        if "Direct Cost Applied Account" = "Inventory Adjmt. Account" then
+                            Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo);
+                    if "Overhead Applied Account" = '' then
+                        Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
+                    if "COGS Account" = '' then
+                        Validate("COGS Account", NormalGeneralPostingSetup."COGS Account");
+                    if "Purchase Variance Account" = '' then
+                        Validate("Purchase Variance Account", NormalGeneralPostingSetup."Purchase Variance Account");
+                    if "Inventory Adjmt. Account" = '' then
+                        Validate("Inventory Adjmt. Account", NormalGeneralPostingSetup."Inventory Adjmt. Account");
+                    if "Purch. Prepayments Account" = '' then
+                        Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
+                    if "Sales Prepayments Account" = '' then
+                        Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
+                    Modify(true);
+                until Next = 0;
+    end;
+
+    local procedure CreateGLAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure DeleteExtraGeneralJournalTemplate()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Recurring, false);
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
+        GenJournalTemplate.FindSet;
+        repeat
+            GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
+            if GenJournalBatch.Count = 0 then
+                GenJournalTemplate.Delete(true);
+        until GenJournalTemplate.Next = 0;
+    end;
+
+    local procedure DisableAdjustForPmtDiscInGLSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Adjust for Payment Disc.", false);
+        GeneralLedgerSetup.Modify(true);
     end;
 }
 

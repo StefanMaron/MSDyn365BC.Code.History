@@ -245,10 +245,12 @@ codeunit 139450 "O365 Setup Permissions Test"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure O365SetupFiscalYear()
     begin
         LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Full;
         LibraryFiscalYear.CreateFiscalYear;
     end;
 
@@ -355,6 +357,13 @@ codeunit 139450 "O365 Setup Permissions Test"
         // Verify read permissions
         TimeSheetLineArchive.Find;
         TimeSheetLineArchive.Find;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

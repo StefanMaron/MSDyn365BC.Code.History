@@ -214,11 +214,12 @@
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                if "E-Mail" = '' then
+                if "E-Mail" = '' then begin
+                    SetSearchEmail();
                     exit;
+                end;
                 MailManagement.CheckValidEmailAddresses("E-Mail");
-                if ("Search E-Mail" = UpperCase(xRec."E-Mail")) or ("Search E-Mail" = '') then
-                    "Search E-Mail" := "E-Mail";
+                SetSearchEmail();
             end;
         }
         field(103; "Home Page"; Text[80])
@@ -386,7 +387,7 @@
         field(5052; "Company Name"; Text[100])
         {
             Caption = 'Company Name';
-            TableRelation = Contact WHERE(Type = CONST(Company));
+            TableRelation = Contact.Name WHERE(Type = CONST(Company));
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -1025,6 +1026,7 @@
 
         TypeChange;
         SetLastDateTimeModified;
+        SetSearchEmail();
     end;
 
     trigger OnModify()
@@ -1034,6 +1036,7 @@
         if Format(xRec) = Format(Rec) then
             xRec.Find;
         DoModify(xRec);
+        SetSearchEmail();
     end;
 
     trigger OnRename()
@@ -2632,6 +2635,12 @@
         exit(false);
     end;
 
+    local procedure SetSearchEmail()
+    begin
+        if "Search E-Mail" <> "E-Mail".ToUpper() then
+            "Search E-Mail" := "E-Mail";
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculatedName(var Contact: Record Contact; var NewName92: Text[92])
     begin
@@ -2738,7 +2747,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesQuoteFromContact(var Contact: Record Contact; SalesHeader: Record "Sales Header")
+    local procedure OnBeforeCreateSalesQuoteFromContact(var Contact: Record Contact; var SalesHeader: Record "Sales Header")
     begin
     end;
 

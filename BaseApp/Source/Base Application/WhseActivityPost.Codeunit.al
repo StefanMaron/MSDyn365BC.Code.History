@@ -1,4 +1,4 @@
-codeunit 7324 "Whse.-Activity-Post"
+﻿codeunit 7324 "Whse.-Activity-Post"
 {
     Permissions = TableData "Warehouse Setup" = m,
                   TableData "Warehouse Journal Batch" = imd,
@@ -109,6 +109,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     ItemTrackingRequired := CheckItemTracking(WhseActivLine);
                     InsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
                 until WhseActivLine.Next = 0;
+                CheckWhseItemTrackingAgainstSource();
             end;
             NoOfRecords := LineCount;
 
@@ -358,6 +359,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             "Qty. to Handle (Base)" := -"Qty. to Handle (Base)";
                         end;
                         SalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
+                        OnUpdateSourceDocumentOnAfterGetSalesLine(SalesLine, TempWhseActivLine);
                         if "Source Document" = "Source Document"::"Sales Order" then begin
                             SalesLine.Validate("Qty. to Ship", -"Qty. to Handle");
                             SalesLine."Qty. to Ship (Base)" := -"Qty. to Handle (Base)";
@@ -542,6 +544,8 @@ codeunit 7324 "Whse.-Activity-Post"
                 CreatePostedActivLine(WhseActivLine, PostedInvtPutAwayHeader, PostedInvtPickHeader);
             until WhseActivLine.Next = 0;
         end;
+
+        OnAfterPostWhseActivityLine(WhseActivHeader, WhseActivLine, PostedSourceNo, PostedSourceType, PostedSourceSubType);
     end;
 
     local procedure UpdateWhseActivityLine(var WhseActivLine: Record "Warehouse Activity Line")
@@ -954,6 +958,21 @@ codeunit 7324 "Whse.-Activity-Post"
         SuppressCommit := NewSuppressCommit;
     end;
 
+    local procedure CheckWhseItemTrackingAgainstSource()
+    var
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        with TempWhseActivLine do begin
+            Reset();
+            if FindSet() then
+                repeat
+                    TrackingSpecification.CheckItemTrackingQuantity(
+                      "Source Type", "Source Subtype", "Source No.", "Source Line No.",
+                      "Qty. to Handle", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                until Next() = 0;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var SuppressCommit: Boolean; PrintDoc: Boolean)
     begin
@@ -986,6 +1005,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostedInvtPutAwayHeaderInsert(var PostedInvtPutAwayHeader: Record "Posted Invt. Put-Away Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostWhseActivityLine(WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line"; PostedSourceNo: Code[20]; PostedSourceType: Integer; PostedSourceSubType: Integer)
     begin
     end;
 
@@ -1126,6 +1150,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSourceDocumentOnAfterTransLineModify(var TransferLine: Record "Transfer Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSourceDocumentOnAfterGetSalesLine(var SalesLine: Record "Sales Line"; TempWhseActivLine: Record "Warehouse Activity Line" temporary)
     begin
     end;
 }

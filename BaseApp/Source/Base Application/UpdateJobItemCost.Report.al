@@ -148,6 +148,11 @@ report 1095 "Update Job Item Cost"
     {
     }
 
+    trigger OnPreReport()
+    begin
+        OnAfterOnPreReport();
+    end;
+
     var
         Text001: Label 'The job ledger entry item costs have now been updated to equal the related item ledger entry actual costs.\\The number of job ledger entries modified = %1.', Comment = 'The Job Ledger Entry item costs have now been updated to equal the related item ledger entry actual costs.\\Number of Job Ledger Entries modified = 2.';
         NoOfJobLedgEntry: Integer;
@@ -231,6 +236,8 @@ report 1095 "Update Job Item Cost"
 
             JobLedgEntry.Adjusted := true;
             JobLedgEntry."DateTime Adjusted" := CurrentDateTime;
+
+            OnPostTotalCostAdjustmentOnBeforeJobLedgEntryModify(JobLedgEntry, "Item Ledger Entry");
             JobLedgEntry.Modify();
 
             UpdatePostedTotalCost(JobLedgEntry, AdjustJobCost, AdjustJobCostLCY);
@@ -261,7 +268,17 @@ report 1095 "Update Job Item Cost"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostTotalCostAdjustment(var JobLedgEntry: Record "Job Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; JobLedgerEntryCostValue: Decimal; JobLedgerEntryCostValueACY: Decimal; var AdjustJobCost: Decimal; var AdjustJobCostLCY: Decimal; var NoOfJobLedgEntry: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostTotalCostAdjustmentOnBeforeJobLedgEntryModify(var JobLedgerEntry: Record "Job Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

@@ -3118,7 +3118,13 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         GLAccount: Record "G/L Account";
     begin
         CreateAndAssignPackage(ConfigPackage, DATABASE::"G/L Account");
-        GLAccountCode := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account");
+        repeat
+            GLAccountCode := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account");
+            // Fix for french requirement to have all GL."No." in [1..9] range
+            GLAccountCode[1] := Format(LibraryRandom.RandInt(9)) [1];
+            GLAccount.SetRange("No.", GLAccountCode);
+        until GLAccount.IsEmpty;
+
         LibraryRapidStart.CreatePackageData(ConfigPackage.Code, DATABASE::"G/L Account", 1, GLAccount.FieldNo("No."), GLAccountCode);
     end;
 

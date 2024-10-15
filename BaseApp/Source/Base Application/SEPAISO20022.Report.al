@@ -141,9 +141,6 @@ report 10883 "SEPA ISO20022"
         XMLNodeCurr := XMLNewChild;
 
         AddElement(XMLNodeCurr, 'Nm', CompanyInfo.Name, '', XMLNewChild);
-
-        AddCompanyAddressTags(XMLNodeCurr);
-
         AddElement(XMLNodeCurr, 'Id', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
 
@@ -357,37 +354,6 @@ report 10883 "SEPA ISO20022"
             AddElement(XMLNodeCurr, 'AdrLine', CopyStr(AddressLine2, 1, 70), '', XMLNewChild);
         AddElement(XMLNodeCurr, 'Ctry', CopyStr(CountryCode, 1, 2), '', XMLNewChild);
         XMLNodeCurr := XMLNodeCurr.ParentNode;
-        XMLNodeCurr := XMLNodeCurr.ParentNode;
-    end;
-
-    local procedure AddCompanyAddressTags(var XMLNodeCurr: DotNet XmlNode)
-    var
-        CountryRegion: Record "Country/Region";
-        XMLNewChild: DotNet XmlNode;
-        StreetName: Text[70];
-        PostCode: Text[16];
-        TownName: Text[30];
-        CountryCode: Text[2];
-    begin
-        StreetName := CopyStr(DelChr(CompanyInfo.Address, '<>'), 1, 70);
-        PostCode := CopyStr(DelChr(CompanyInfo."Post Code", '<>'), 1, 16);
-        TownName := DelChr(CompanyInfo.City, '<>');
-        if CountryRegion.Get(CompanyInfo."Country/Region Code") then
-            CountryCode := CountryRegion."ISO Code";
-
-        if (StreetName = '') and (PostCode = '') and (TownName = '') and (CountryCode = '') then
-            exit;
-
-        AddElement(XMLNodeCurr, 'PstlAdr', '', '', XMLNewChild);
-        XMLNodeCurr := XMLNewChild;
-        if StreetName <> '' then
-            AddElement(XMLNodeCurr, 'StrtNm', StreetName, '', XMLNewChild);
-        if PostCode <> '' then
-            AddElement(XMLNodeCurr, 'PstCd', PostCode, '', XMLNewChild);
-        if TownName <> '' then
-            AddElement(XMLNodeCurr, 'TwnNm', TownName, '', XMLNewChild);
-        if CountryCode <> '' then
-            AddElement(XMLNodeCurr, 'Ctry', CountryCode, '', XMLNewChild);
         XMLNodeCurr := XMLNodeCurr.ParentNode;
     end;
 

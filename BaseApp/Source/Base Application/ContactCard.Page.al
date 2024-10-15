@@ -255,6 +255,11 @@ page 5050 "Contact Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies additional address information.';
                     }
+                    field("Country/Region Code"; "Country/Region Code")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the country/region of the address.';
+                    }
                     field("Post Code"; "Post Code")
                     {
                         ApplicationArea = Basic, Suite;
@@ -265,11 +270,6 @@ page 5050 "Contact Card"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the city where the contact is located.';
-                    }
-                    field("Country/Region Code"; "Country/Region Code")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        ToolTip = 'Specifies the country/region of the address.';
                     }
                     field(ShowMap; ShowMapLbl)
                     {

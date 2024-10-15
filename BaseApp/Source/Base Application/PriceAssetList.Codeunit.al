@@ -162,6 +162,35 @@ codeunit 7007 "Price Asset List"
         exit(Found)
     end;
 
+    procedure Remove(AssetType: Enum "Price Asset Type"): Boolean;
+    var
+        PriceAsset: Record "Price Asset";
+    begin
+        PriceAsset.SetRange("Asset Type", AssetType);
+        exit(Remove(PriceAsset));
+    end;
+
+    procedure RemoveAtLevel(AssetType: Enum "Price Asset Type"; Level: Integer): Boolean;
+    var
+        PriceAsset: Record "Price Asset";
+    begin
+        PriceAsset.SetRange(Level, Level);
+        PriceAsset.SetRange("Asset Type", AssetType);
+        exit(Remove(PriceAsset));
+    end;
+
+    local procedure Remove(var PriceAsset: Record "Price Asset"): Boolean
+    var
+        LocalTempPriceAsset: Record "Price Asset" temporary;
+    begin
+        LocalTempPriceAsset.Copy(TempPriceAsset, true);
+        LocalTempPriceAsset.CopyFilters(PriceAsset);
+        if not LocalTempPriceAsset.IsEmpty() then begin
+            LocalTempPriceAsset.DeleteAll();
+            exit(true);
+        end;
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAddOnBeforeInsert(var PriceAsset: Record "Price Asset")
     begin

@@ -1077,6 +1077,17 @@ table 99000829 "Planning Component"
         exit(BinCode);
     end;
 
+    procedure InitFromRequisitionLine(RequisitionLine: Record "Requisition Line")
+    begin
+        Init();
+        "Worksheet Template Name" := RequisitionLine."Worksheet Template Name";
+        "Worksheet Batch Name" := RequisitionLine."Journal Batch Name";
+        "Worksheet Line No." := RequisitionLine."Line No.";
+        "Planning Line Origin" := RequisitionLine."Planning Line Origin";
+
+        OnAfterInitFromRequisitionLine(Rec, RequisitionLine);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var PlanningComponent: Record "Planning Component"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
@@ -1134,6 +1145,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingLinkCodeOnBeforeValidateDueDate(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromRequisitionLine(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line");
     begin
     end;
 }
