@@ -286,6 +286,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
 
             trigger OnAfterGetRecord()
             begin
+                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 FormatDocumentFields(Header);
             end;
         }
@@ -322,6 +323,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
         DummyShipmentMethod: Record "Shipment Method";
         DummyCurrency: Record Currency;
         Currency: Record Currency;
+        Language: Codeunit Language;
         AutoFormat: Codeunit "Auto Format";
         CompanyAddress: array[8] of Text[100];
         CustomerAddress: array[8] of Text[100];

@@ -47,7 +47,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         PAR_ITPage_FINDDIR: Code[20];
         WorkDate2: Date;
         MSG_WHSE_HANDLING_REQUIRED: Label 'Warehouse handling is required for Entry Type = Assembly Consumption, Order No. = ';
-        MSG_QTY_TO_HANDLE_BASE_MUST_BE_NOT: Label 'Qty. to Handle (Base) in Tracking Specification for Item No.';
+        MSG_QTY_TO_HANDLE_BASE_MUST_BE_NOT: Label 'Qty. to Handle (Base) in the item tracking';
 
     local procedure Initialize()
     var
@@ -2634,7 +2634,8 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
-        NotEnoughItemPostingIT(LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_NOT_ON_INVT, '', false, true, false);
+        NotEnoughItemPostingIT(
+          LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_QTY_TO_HANDLE_BASE_MUST_BE_NOT, '', false, true, false);
     end;
 
     [Test]
@@ -2764,7 +2765,8 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Serial);
 
-        NotEnoughItemPostingIT(LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_NOT_ON_INVT, '', true, false, false);
+        NotEnoughItemPostingIT(
+          LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_QTY_TO_HANDLE_BASE_MUST_BE_NOT, '', true, false, false);
     end;
 
     [Test]
@@ -2895,7 +2897,8 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
-        NotEnoughItemPostingIT(LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_NOT_ON_INVT, '', false, true, false);
+        NotEnoughItemPostingIT(
+          LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_QTY_TO_HANDLE_BASE_MUST_BE_NOT, '', false, true, false);
     end;
 
     [Test]
@@ -3025,7 +3028,8 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::Lot);
 
-        NotEnoughItemPostingIT(LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_NOT_ON_INVT, '', true, false, false);
+        NotEnoughItemPostingIT(
+          LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_QTY_TO_HANDLE_BASE_MUST_BE_NOT, '', true, false, false);
     end;
 
     [Test]
@@ -3168,7 +3172,8 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
-        NotEnoughItemPostingIT(LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_NOT_ON_INVT, '', false, true, false);
+        NotEnoughItemPostingIT(
+          LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_QTY_TO_HANDLE_BASE_MUST_BE_NOT, '', false, true, false);
     end;
 
     [Test]
@@ -3298,7 +3303,8 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         AssignBinCodesInvtMvmt;
         CreateItems(Tracking::LotSerial);
 
-        NotEnoughItemPostingIT(LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_NOT_ON_INVT, '', true, false, false);
+        NotEnoughItemPostingIT(
+          LocationInvtMvmt, 100, 100, false, WhseActivityType::InvtMvmt, MSG_QTY_TO_HANDLE_BASE_MUST_BE_NOT, '', true, false, false);
     end;
 
     [Test]

@@ -43,6 +43,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ReservedQuantityErr: Label 'Reserved Quantity should not be cleared';
         ItemTrackingDefinedErr: Label 'Item tracking is defined for item %1 in the Requisition Line', Comment = '%1 = Item No.';
         DialogErr: Label 'Dialog';
+        OrderTrackingLineShouldExistErr: Label 'Order tracking line should exist';
 
     [Test]
     [Scope('OnPrem')]
@@ -693,6 +694,116 @@ codeunit 137075 "SCM Planning Order Tracking"
         SelectRequisitionLine(RequisitionLine, ComponentItem."No.");
         RequisitionLine.TestField("Ref. Order No.", ProductionOrder[2]."No.");
         RequisitionLine.TestField("Action Message", RequisitionLine."Action Message"::Cancel);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQtyToCreateWithLotNoPageHandler,OrderTrackingWithNoLinesModalPageHandler,MessageHandlerCheckWithPeek')]
+    [Scope('OnPrem')]
+    procedure OrderTrackingNoEntriesPostedSalesShipment()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        ItemJournalLine: Record "Item Journal Line";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+        SerialNo: Variant;
+        PostedSalesShipmentNo: Code[20];
+    begin
+        // [SCENARIO 348770] Order Tracking page should show no entries for Posted Sales Shipment with Item tracking
+        Initialize;
+        MockReservationEntries;
+
+        // [GIVEN] Item "I" with Serial No. Item tracking
+        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
+        Item.Validate("Include Inventory", true);
+        Item.Modify(true);
+        LibraryItemTracking.AddSerialNoTrackingInfo(Item);
+        LibraryItemTracking.AddLotNoTrackingInfo(Item);
+
+        // [GIVEN] Create Positive Adjmt. Item Journal Line with Item "I"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        LibraryVariableStorage.Enqueue(ControlOptions::Purchase);
+        CreateItemJournalLine(
+          ItemJournalBatch, ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1);  // Large Quantity required.
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] From Item tracking lines (Item Journal), add a SN to the item, then post journal line
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryVariableStorage.Dequeue(SerialNo);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create and ship Sales Order with item tracking for Item "I"
+        CreateSpecialOrder(SalesHeader, SalesLine, Item, Location.Code, '', 1, WorkDate, LibraryRandom.RandDec(10, 2));
+
+        LibraryVariableStorage.Enqueue(ControlOptions::Sale);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        SalesLine.OpenItemTrackingLines;
+        PostedSalesShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        SalesShipmentHeader.Get(PostedSalesShipmentNo);
+        PostedSalesShipment.OpenView;
+        PostedSalesShipment.GotoRecord(SalesShipmentHeader);
+        PostedSalesShipment.SalesShipmLines.First;
+
+        // [WHEN] Order tracking is invoked from Posted Sales Shipment
+        LibraryVariableStorage.Enqueue(NoTrackingLines);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        PostedSalesShipment.SalesShipmLines."Order Tra&cking".Invoke; // Order Tracking action
+
+        // [THEN] Order Tracking page is opened with no lines (checked in OrderTrackingWithNoLinesModalPageHandler handler)
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,EnterQtyToCreateWithLotNoPageHandler,OrderTrackingWithLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderTrackingEntriesExistPostedPurchReceipt()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
+        SerialNo: Variant;
+        PostedPurchaseReceiptNo: Code[20];
+    begin
+        // [SCENARIO 348770] Order Tracking page should show correct entries for Posted Purchase Receipt with Item tracking
+        Initialize;
+        MockReservationEntries;
+
+        // [GIVEN] Item "I" with Serial No. Item tracking
+        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
+        Item.Validate("Include Inventory", true);
+        Item.Modify(true);
+        LibraryItemTracking.AddSerialNoTrackingInfo(Item);
+        LibraryItemTracking.AddLotNoTrackingInfo(Item);
+
+        // [GIVEN] Create a purchase order with Item "I"
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryPatterns.MAKEPurchaseOrder(
+          PurchaseHeader, PurchaseLine, Item, Location.Code, '', 2, WorkDate, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] From Item tracking lines (Purchase Order), add a SN to the item, then post receipt
+        LibraryVariableStorage.Enqueue(ControlOptions::Purchase);
+        PurchaseLine.OpenItemTrackingLines;
+        LibraryVariableStorage.Dequeue(SerialNo);
+        PostedPurchaseReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Order Tracking form is opened from posted Purchase Receipt
+        PurchRcptHeader.Get(PostedPurchaseReceiptNo);
+        PostedPurchaseReceipt.OpenView;
+        PostedPurchaseReceipt.GotoRecord(PurchRcptHeader);
+        PostedPurchaseReceipt.PurchReceiptLines.First;
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(2);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        PostedPurchaseReceipt.PurchReceiptLines.OrderTracking.Invoke; // Order Tracking action
+        // [THEN] Order Tracking page is opened with 2 lines for Item "I" and quantity = 1(checked in OrderTrackingWithLinesModalPageHandler handler)
     end;
 
     local procedure Initialize()
@@ -1393,6 +1504,31 @@ codeunit 137075 "SCM Planning Order Tracking"
         PurchaseHeader.Modify(true);
     end;
 
+    local procedure MockReservationEntries()
+    var
+        ReservationEntry: Record "Reservation Entry";
+        ItemNo: Code[20];
+        ReservationEntryNo: Integer;
+    begin
+        ItemNo := LibraryInventory.CreateItemNo;
+        ReservationEntryNo := LibraryUtility.GetNewRecNo(ReservationEntry, ReservationEntry.FieldNo("Entry No."));
+        InsertReservationEntry(ReservationEntryNo, ItemNo, 3, true);
+        InsertReservationEntry(ReservationEntryNo, ItemNo, -3, false);
+    end;
+
+    local procedure InsertReservationEntry(ReservationEntryNo: Integer; ItemNo: Code[20]; Quantity: Integer; IsPositive: Boolean)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.Init;
+        ReservationEntry."Entry No." := ReservationEntryNo;
+        ReservationEntry.Positive := IsPositive;
+        ReservationEntry."Item No." := ItemNo;
+        ReservationEntry.Quantity := Quantity;
+        ReservationEntry."Quantity (Base)" := Quantity;
+        ReservationEntry.Insert;
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculatePlanPlanWkshRequestPageHandler(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
@@ -1426,6 +1562,16 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         LibraryVariableStorage.Dequeue(ExpectedMsg);
         Assert.IsTrue(AreSameMessages(Message, ExpectedMsg), Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerCheckWithPeek(Message: Text[1024])
+    var
+        ExpectedMsg: Variant;
+    begin
+        ExpectedMsg := LibraryVariableStorage.PeekText(1);
+        Assert.IsTrue(AreSameMessages(Message, LibraryVariableStorage.PeekText(1)), Message);
     end;
 
     [ModalPageHandler]
@@ -1479,6 +1625,41 @@ codeunit 137075 "SCM Planning Order Tracking"
     procedure EnterQtyToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EnterQtyToCreateWithLotNoPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.CreateNewLotNo.SetValue(true);
+        EnterQuantityToCreate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderTrackingWithNoLinesModalPageHandler(var OrderTracking: TestPage "Order Tracking")
+    begin
+        OrderTracking."Untracked Quantity".AssertEquals(LibraryVariableStorage.PeekDecimal(2)); // Untracked Quantity
+        OrderTracking."Total Quantity".AssertEquals(LibraryVariableStorage.PeekDecimal(3)); // Quantity
+        OrderTracking.CurrItemNo.AssertEquals(LibraryVariableStorage.PeekText(4));
+        Assert.IsFalse(OrderTracking.First, 'Order tracking line should not exist');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderTrackingWithLinesModalPageHandler(var OrderTracking: TestPage "Order Tracking")
+    var
+        ItemNo: Text;
+    begin
+        OrderTracking."Untracked Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal); // Untracked Quantity
+        OrderTracking."Total Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal); // Quantity
+        ItemNo := LibraryVariableStorage.DequeueText;
+        // Check 2 lines in Order tracking page with Item "I" exist
+        OrderTracking.CurrItemNo.AssertEquals(ItemNo);
+        Assert.IsTrue(OrderTracking.First, OrderTrackingLineShouldExistErr);
+        OrderTracking."Item No.".AssertEquals(ItemNo);
+        Assert.IsTrue(OrderTracking.Next, OrderTrackingLineShouldExistErr);
+        OrderTracking."Item No.".AssertEquals(ItemNo);
     end;
 }
 

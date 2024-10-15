@@ -18,6 +18,7 @@ codeunit 138020 "O365 Customer Prices"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        TheTestPageIsNotOpenErr: Label 'The TestPage is not open.';
         isInitialized: Boolean;
 
     local procedure Initialize()
