@@ -375,14 +375,14 @@ codeunit 11503 CHMgt
                 -MaxStrLen(GenJournalLine.Description));
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Vendor Payment Buffer", 'OnCopyFieldsFromVendorLedgerEntry', '', false, false)]
-    local procedure HandleOnCopyFieldsFromVendorLedgerEntryFromBuffer(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var VendorPaymentBufferTarget: Record "Vendor Payment Buffer")
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Payment Buffer", 'OnAfterCopyFieldsFromVendorLedgerEntry', '', false, false)]
+    local procedure HandleOnAfterCopyFieldsFromVendorLedgerEntryFromBuffer(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var VendorPaymentBufferTarget: Record "Vendor Payment Buffer")
     begin
         VendorPaymentBufferTarget."Reference No." := VendorLedgerEntrySource."Reference No.";
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Vendor Payment Buffer", 'OnCopyFieldsToGenJournalLine', '', false, false)]
-    local procedure HandleOnCopyFieldsToGenJournalLineFromBuffer(VendorPaymentBufferSource: Record "Vendor Payment Buffer"; var GenJournalLineTarget: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Payment Buffer", 'OnAfterCopyFieldsToGenJournalLine', '', false, false)]
+    local procedure HandleOnAfterCopyFieldsToGenJournalLineFromBuffer(VendorPaymentBufferSource: Record "Vendor Payment Buffer"; var GenJournalLineTarget: Record "Gen. Journal Line")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin

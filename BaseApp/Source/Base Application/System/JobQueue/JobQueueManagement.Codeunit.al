@@ -171,7 +171,7 @@ codeunit 456 "Job Queue Management"
         JobQueueEntry."User ID" := copystr(UserId(), 1, MaxStrLen(JobQueueEntry."User ID"));
         JobQueueEntry."Recurring Job" := false;
         JobQueueEntry.Status := JobQueueEntry.Status::"Ready";
-        JobQueueEntry."Job Queue Category Code" := '';
+        JobQueueEntry."Job Queue Category Code" := SelectedJobQueueEntry."Job Queue Category Code";
         clear(JobQueueEntry."Expiration Date/Time");
         clear(JobQueueEntry."System Task ID");
         JobQueueEntry.Insert(true);
@@ -230,11 +230,42 @@ codeunit 456 "Job Queue Management"
         end;
     end;
 
+    local procedure CheckAndRefreshCategoryRecoveryTasks()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueCategory: Record "Job Queue Category";
+        Categories: Dictionary of [Text, Boolean];
+        Category: Text;
+    begin
+        if not JobQueueEntry.WritePermission() then
+            exit;
+        if not JobQueueCategory.WritePermission() then
+            exit;
+
+        JobQueueEntry.ReadIsolation(IsolationLevel::ReadCommitted);
+        JobQueueEntry.SetFilter("Job Queue Category Code", '<>''''');
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Waiting);
+        JobQueueEntry.SetLoadFields("Job Queue Category Code");
+        if not JobQueueEntry.FindSet() then
+            exit;
+
+        repeat
+            if Categories.Add(JobQueueEntry."Job Queue Category Code", true) then;
+        until JobQueueEntry.Next() = 0;
+
+        foreach Category in Categories.Keys() do begin
+            JobQueueCategory.ReadIsolation(IsolationLevel::UpdLock);
+            if JobQueueCategory.Get(JobQueueEntry."Job Queue Category Code") then
+                if not TaskScheduler.TaskExists(JobQueueCategory."Recovery Task Id") then
+                    JobQueueEntry.RefreshRecoveryTask(JobQueueCategory);
+        end;
+    end;
+
     /// <summary>
     /// To find stale jobs (in process jobs with no scheduled tasks) and set them to error state.
     /// For both JQE and JQLE
     /// </summary>
-    internal procedure FindStaleJobsAndSetError()
+    local procedure FindStaleJobsAndSetError()
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
@@ -418,6 +449,13 @@ codeunit 456 "Job Queue Management"
         Session.LogMessage('0000FNM', JobQueueStatusChangeTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
         GlobalLanguage(CurrentLanguage);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::LogInManagement, 'OnAfterCompanyClose', '', true, true)]
+    local procedure OnAfterCompanyCloseJobQueueTasks()
+    begin
+        CheckAndRefreshCategoryRecoveryTasks();
+        FindStaleJobsAndSetError();
     end;
 
     [IntegrationEvent(false, false)]

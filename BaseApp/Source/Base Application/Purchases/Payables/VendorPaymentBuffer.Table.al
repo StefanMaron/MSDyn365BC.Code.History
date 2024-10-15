@@ -157,6 +157,7 @@ table 475 "Vendor Payment Buffer"
         "Remit-to Code" := VendorLedgerEntry."Remit-to Code";
 
         OnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntry, Rec);
+        OnAfterCopyFieldsFromVendorLedgerEntry(VendorLedgerEntry, Rec);
     end;
 
     procedure CopyFieldsToGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -169,6 +170,7 @@ table 475 "Vendor Payment Buffer"
         GenJournalLine."Remit-to Code" := "Remit-to Code";
 
         OnCopyFieldsToGenJournalLine(Rec, GenJournalLine);
+        OnAfterCopyFieldsToGenJournalLine(Rec, GenJournalLine);
     end;
 
 #if not CLEAN22
@@ -186,6 +188,16 @@ table 475 "Vendor Payment Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFieldsToGenJournalLine(VendorPaymentBufferSource: Record "Vendor Payment Buffer"; var GenJournalLineTarget: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFieldsFromVendorLedgerEntry(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var VendorPaymentBufferTarget: Record "Vendor Payment Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFieldsToGenJournalLine(VendorPaymentBufferSource: Record "Vendor Payment Buffer"; var GenJournalLineTarget: Record "Gen. Journal Line")
     begin
     end;
 }

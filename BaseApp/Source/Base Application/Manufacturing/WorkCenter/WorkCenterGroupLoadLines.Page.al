@@ -167,6 +167,9 @@ page 99000892 "Work Center Group Load Lines"
 
         OnBeforeCalculateCapacity(WorkCenterGroup, CapacityUoM);
 
+        Clear(WorkCenterGroup."Capacity (Effective)");
+        Clear(WorkCenterGroup."Prod. Order Need (Qty.)");
+
         WorkCenter.SetCurrentKey("Work Center Group Code");
         WorkCenter.SetRange("Work Center Group Code", WorkCenterGroup.Code);
         if WorkCenter.FindSet() then

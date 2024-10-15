@@ -2,7 +2,7 @@ namespace System.Threading;
 
 codeunit 453 "Job Queue - Enqueue"
 {
-    Permissions = TableData "Job Queue Entry" = rimd;
+    Permissions = TableData "Job Queue Entry" = rimd, tabledata "Job Queue Category" = rim;
     TableNo = "Job Queue Entry";
 
     trigger OnRun()
@@ -15,8 +15,9 @@ codeunit 453 "Job Queue - Enqueue"
         SavedStatus: Option;
     begin
         OnBeforeEnqueueJobQueueEntry(JobQueueEntry);
-
         JobQueueEntry.CheckRequiredPermissions();
+        if JobQueueEntry."Job Queue Category Code" <> '' then
+            CheckAndCreateCategory(JobQueueEntry);  // we have some code in CRM and WF that doesn't rely on consistent data
 
         SavedStatus := JobQueueEntry.Status;
         InitEntryForSchedulerWithDelayInSec(JobQueueEntry, 1);
@@ -28,8 +29,10 @@ codeunit 453 "Job Queue - Enqueue"
             JobQueueEntry.Modify();
         end;
 
-        if CanScheduleTask(JobQueueEntry) and not UpdateStatusOnHoldWithInactivityTimeout(JobQueueEntry, SavedStatus) then
+        if CanScheduleTask(JobQueueEntry) and not UpdateStatusOnHoldWithInactivityTimeout(JobQueueEntry, SavedStatus) then begin
             JobQueueEntry."System Task ID" := JobQueueEntry.ScheduleTask();
+            JobQueueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueEntry."User ID"));
+        end;
 
         if not IsNullGuid(JobQueueEntry."System Task ID") then begin
             if SavedStatus = JobQueueEntry.Status::"On Hold with Inactivity Timeout" then
@@ -41,6 +44,18 @@ codeunit 453 "Job Queue - Enqueue"
         end;
 
         OnAfterEnqueueJobQueueEntry(JobQueueEntry);
+    end;
+
+    local procedure CheckAndCreateCategory(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        JobQueueCategory: Record "Job Queue Category";
+    begin
+        JobQueueCategory.ReadIsolation(IsolationLevel::ReadUncommitted);
+        if JobQueueCategory.Get(JobQueueEntry."Job Queue Category Code") then
+            exit;
+        JobQueueCategory.Code := JobQueueEntry."Job Queue Category Code";
+        JobQueueCategory.Description := JobQueueEntry."Job Queue Category Code";
+        if JobQueueCategory.Insert() then;
     end;
 
     local procedure InitEntryForSchedulerWithDelayInSec(var JobQueueEntry: Record "Job Queue Entry"; DelayInSec: Integer)

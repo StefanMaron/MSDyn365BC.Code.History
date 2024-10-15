@@ -9,6 +9,8 @@ using Microsoft.Sales.Document;
 using Microsoft.Service.Document;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Worksheet;
+using System.Text;
+using System.Reflection;
 
 codeunit 5752 "Get Source Doc. Outbound"
 {
@@ -440,8 +442,10 @@ codeunit 5752 "Get Source Doc. Outbound"
     local procedure GetRequireShipRqst(var WhseRqst: Record "Warehouse Request")
     var
         Location: Record Location;
-        LocationCode: Text;
+        LocationList: List of [Code[20]];
+        LocationCodeFilter: Text;
         IsHandled: Boolean;
+        BlankLocationExists: Boolean;
     begin
         IsHandled := false;
         OnBeforeGetRequireShipRqst(WhseRqst, IsHandled);
@@ -450,15 +454,17 @@ codeunit 5752 "Get Source Doc. Outbound"
 
         if WhseRqst.FindSet() then begin
             repeat
-                if Location.RequireShipment(WhseRqst."Location Code") then
-                    LocationCode += WhseRqst."Location Code" + '|';
+                if Location.RequireShipment(WhseRqst."Location Code") then begin
+                    if WhseRqst."Location Code" = '' then
+                        BlankLocationExists := true;
+                    if not LocationList.Contains(WhseRqst."Location Code") then
+                        LocationList.Add(WhseRqst."Location Code");
+                end;
             until WhseRqst.Next() = 0;
-            if LocationCode <> '' then begin
-                LocationCode := CopyStr(LocationCode, 1, StrLen(LocationCode) - 1);
-                if LocationCode[1] = '|' then
-                    LocationCode := '''''' + LocationCode;
-            end;
-            WhseRqst.SetFilter("Location Code", LocationCode);
+
+            GenerateLocationCodeFilter(LocationList, LocationCodeFilter, BlankLocationExists);
+
+            WhseRqst.SetFilter("Location Code", LocationCodeFilter);
         end;
     end;
 
@@ -554,6 +560,34 @@ codeunit 5752 "Get Source Doc. Outbound"
         GetSourceDocuments.ShowShipmentDialog();
         if WhseShipmentCreated then
             OpenWarehouseShipmentPage();
+    end;
+
+    local procedure GenerateLocationCodeFilter(LocationList: List of [Code[20]]; var LocationCodeFilter: Text; BlankLocationExists: Boolean)
+    var
+        TypeHelper: Codeunit "Type Helper";
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        LocationFilter: Code[20];
+        WarehouseLocationAddToFilter: TextBuilder;
+    begin
+        if LocationList.Count() >= (TypeHelper.GetMaxNumberOfParametersInSQLQuery() - 100) then
+            exit;
+
+        if LocationList.Count() = 0 then
+            exit;
+
+        foreach LocationFilter in LocationList do begin
+            if WarehouseLocationAddToFilter.Length() > 0 then
+                WarehouseLocationAddToFilter.Append('|');
+            WarehouseLocationAddToFilter.Append(SelectionFilterManagement.AddQuotes(LocationFilter));
+        end;
+
+        LocationCodeFilter := WarehouseLocationAddToFilter.ToText();
+
+        if BlankLocationExists then
+            if LocationCodeFilter = '' then
+                LocationCodeFilter := ''''''
+            else
+                LocationCodeFilter += '|' + '''''';
     end;
 
     [IntegrationEvent(false, false)]

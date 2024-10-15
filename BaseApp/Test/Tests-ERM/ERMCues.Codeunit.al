@@ -13,8 +13,6 @@ codeunit 134924 "ERM Cues"
         Assert: Codeunit Assert;
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibraryService: Codeunit "Library - Service";
-        WrongValueErr: Label 'Wrong value of the field %1 in table %2.';
-        AverageDaysDelayedErr: Label 'Average Days Delayed is calculated incorrectly.';
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -24,6 +22,8 @@ codeunit 134924 "ERM Cues"
         ShipStatus: Option Full,Partial,"Not Shipped";
         WrongNumberOfDelayedOrdersErr: Label 'Wrong number of delayed Sales Orders.';
         RedundantSalesOnListErr: Label 'List of delayed Sales Order contains redundant documents.';
+        WrongValueErr: Label 'Wrong value of the field %1 in table %2.', Comment = '%1 = Field name, %2 = Table name';
+        AverageDaysDelayedErr: Label 'Average Days Delayed is calculated incorrectly.';
         IsInitialized: Boolean;
 
     [Test]
@@ -101,12 +101,10 @@ codeunit 134924 "ERM Cues"
 
         // [GIVEN] Several service documents and service contrancts with different types and statutes, covering all activities shown in Service Cue.
         CreateResponsibilityCenterAndUserSetup();
-        with ServHeader do begin
-            CreateServDocument("Document Type"::Order, Status::"In Process");
-            CreateServDocument("Document Type"::Order, Status::Finished);
-            CreateServDocument("Document Type"::Order, Status::"On Hold");
-            CreateServDocument("Document Type"::Quote, Status::Pending);
-        end;
+        CreateServDocument(ServHeader."Document Type"::Order, ServHeader.Status::"In Process");
+        CreateServDocument(ServHeader."Document Type"::Order, ServHeader.Status::Finished);
+        CreateServDocument(ServHeader."Document Type"::Order, ServHeader.Status::"On Hold");
+        CreateServDocument(ServHeader."Document Type"::Quote, ServHeader.Status::Pending);
         CreateServContract("Service Contract Type"::Quote);
         CreateServContract("Service Contract Type"::Contract);
 
@@ -144,13 +142,11 @@ codeunit 134924 "ERM Cues"
         // [SCENARIO 377251] Sales Order with no lines has Shipped = FALSE
         Initialize();
 
-        with SalesHeader do begin
-            MockSalesHeader(SalesHeader, "Document Type"::Order, Status::Released);
+        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader.Status::Released);
 
-            CalcFields(Shipped);
+        SalesHeader.CalcFields(Shipped);
 
-            TestField(Shipped, false);
-        end;
+        SalesHeader.TestField(Shipped, false);
     end;
 
     [Test]
@@ -163,13 +159,11 @@ codeunit 134924 "ERM Cues"
         // [SCENARIO 377251] Sales Order with one line with "Qty. Shipped (Base)" = 0 has Shipped = FALSE
         Initialize();
 
-        with SalesHeader do begin
-            CreateShippedSalesOrder(SalesHeader, ShipStatus::"Not Shipped");
+        CreateShippedSalesOrder(SalesHeader, ShipStatus::"Not Shipped");
 
-            CalcFields(Shipped);
+        SalesHeader.CalcFields(Shipped);
 
-            TestField(Shipped, false);
-        end;
+        SalesHeader.TestField(Shipped, false);
     end;
 
     [Test]
@@ -182,13 +176,11 @@ codeunit 134924 "ERM Cues"
         // [SCENARIO 377251] Sales Order with one line with "Qty. Shipped (Base)" > 0 has Shipped = TRUE
         Initialize();
 
-        with SalesHeader do begin
-            CreateShippedSalesOrder(SalesHeader, ShipStatus::Full);
+        CreateShippedSalesOrder(SalesHeader, ShipStatus::Full);
 
-            CalcFields(Shipped);
+        SalesHeader.CalcFields(Shipped);
 
-            TestField(Shipped, true);
-        end;
+        SalesHeader.TestField(Shipped, true);
     end;
 
     [Test]
@@ -205,15 +197,13 @@ codeunit 134924 "ERM Cues"
 
         Qty := LibraryRandom.RandInt(10);
 
-        with SalesHeader do begin
-            MockSalesHeader(SalesHeader, "Document Type"::Order, Status::Released);
-            MockSalesLine(SalesHeader, SalesLine, WorkDate(), Qty, 0);
-            MockSalesLine(SalesHeader, SalesLine, WorkDate(), Qty, Qty);
+        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader.Status::Released);
+        MockSalesLine(SalesHeader, SalesLine, WorkDate(), Qty, 0);
+        MockSalesLine(SalesHeader, SalesLine, WorkDate(), Qty, Qty);
 
-            CalcFields(Shipped);
+        SalesHeader.CalcFields(Shipped);
 
-            TestField(Shipped, true);
-        end;
+        SalesHeader.TestField(Shipped, true);
     end;
 
     [Test]
@@ -709,6 +699,49 @@ codeunit 134924 "ERM Cues"
         Assert.IsFalse(SalesOrderList.Previous(), '');
     end;
 
+    [Test]
+    procedure TotalOverdueLCYInFinanceCue()
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        AccountReceivablesKPIs: TestPage "Account Receivables KPIs";
+        TotalOverDueLCYErr: Label 'The total overdue LCY amount is not calculated correctly.', Locked = true;
+        DateFilterTxt: Label '<=%1', Locked = true, Comment = '%1 = Date';
+    begin
+        // [FEATURE] [Finance Cue] [Accounts Receivables Overview]
+        // [SCENARIO 506725] Total overdue LCY cue in Finance Cue displays the amount of open overdue cust. ledger entries where due date filter is today
+        Initialize();
+
+        // [GIVEN] Create customer ledger entries and detailed customer ledger entries
+        // [GIVEN] Cust. ledger entry 1, due date = today - 10days, open = true, amount (LCY) = 100.34, remaining amount (LCY) = 50.17 (detailed cust. ledger entry 1 amount (LCY) = 100.34, detailed cust. ledger entry 2 amount (LCY) = 50.17)
+        // [GIVEN] Cust. ledger entry 2, due date = today, open = false, amount (LCY) = 120.23, remaining amount (LCY) = 0 (detailed cust. ledger entry 1 amount (LCY) = 120.23, detailed cust. ledger entry 2 amount (LCY) = 120.23)
+        // [GIVEN] Cust. ledger entry 3, due date = today + 20days, open = true, amount (LCY) = 150.82, remaining amount (LCY) = 150.82 (detailed cust. ledger entry 1 amount (LCY) = 150.82, detailed cust. ledger entry 2 amount (LCY) = 150.82)
+        CreateCustomerLedgerEntry(CalcDate('<-10D>', Today), true, 100.34, 50.17);
+        CreateCustomerLedgerEntry(Today, false, 120.23, 120.23);
+        CreateCustomerLedgerEntry(CalcDate('<+20D>', Today), true, 150.82, 0);
+
+        // [WHEN] Open Account Receivables KPIs page with overdue date filter
+        AccountReceivablesKPIs.OpenView();
+        AccountReceivablesKPIs.Filter.SetFilter("Overdue Date Filter", StrSubstNo(DateFilterTxt, Today()));
+
+        // [WHEN] Calculate total overdue LCY amount
+        DetailedCustLedgEntry.SetFilter("Initial Entry Due Date", '<=%1', Today());
+        DetailedCustLedgEntry.CalcSums("Amount (LCY)");
+
+        // [THEN] Verify the total overdue amount is correct
+        Assert.AreEqual(Format(DetailedCustLedgEntry."Amount (LCY)"), AccountReceivablesKPIs."Sales - Total Overdue (LCY)".Value, TotalOverDueLCYErr);
+
+        // [WHEN] DrillDown to "Sales - Total Overdue (LCY)" cue
+        CustomerLedgerEntries.Trap();
+        AccountReceivablesKPIs."Sales - Total Overdue (LCY)".Drilldown();
+
+        // [THEN] Only Cust. ledger entry 1 is shown on Cust. ledger entries page
+        CustomerLedgerEntries.First();
+        Assert.AreEqual(Format(CustomerLedgerEntries."Remaining Amt. (LCY)"), AccountReceivablesKPIs."Sales - Total Overdue (LCY)".Value, TotalOverDueLCYErr);
+        Assert.IsFalse(CustomerLedgerEntries.Next(), '');
+        CustomerLedgerEntries.Close();
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -721,6 +754,8 @@ codeunit 134924 "ERM Cues"
         ServiceContractLine: Record "Service Contract Line";
         PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         SalesCue: Record "Sales Cue";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cues");
@@ -734,6 +769,9 @@ codeunit 134924 "ERM Cues"
         ServiceContractLine.DeleteAll();
         PostedWhseShipmentHeader.DeleteAll();
         VendorLedgerEntry.DeleteAll();
+        CustLedgerEntry.DeleteAll();
+        DetailedCustLedgEntry.DeleteAll();
+
         if SalesCue.Get() then begin
             SalesCue."Avg. Days Delayed Updated On" := 0DT;
             SalesCue.Modify();
@@ -766,39 +804,33 @@ codeunit 134924 "ERM Cues"
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
     begin
-        with PurchHeader do begin
-            Init();
-            "Document Type" := DocType;
-            Insert(true);
-            Status := PassedStatus;
-            Receive := PassedReceive;
-            Invoice := PassedInvoice;
-            Modify();
-        end;
+        PurchHeader.Init();
+        PurchHeader."Document Type" := DocType;
+        PurchHeader.Insert(true);
+        PurchHeader.Status := PassedStatus;
+        PurchHeader.Receive := PassedReceive;
+        PurchHeader.Invoice := PassedInvoice;
+        PurchHeader.Modify();
 
-        with PurchLine do begin
-            "Document Type" := PurchHeader."Document Type";
-            "Document No." := PurchHeader."No.";
-            Type := Type::Item;
-            "Completely Received" := CompletelyReceived;
-            Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
-            if PassedInvoice then
-                "Quantity Invoiced" := Quantity / 2;
-            Insert();
-        end;
+        PurchLine."Document Type" := PurchHeader."Document Type";
+        PurchLine."Document No." := PurchHeader."No.";
+        PurchLine.Type := PurchLine.Type::Item;
+        PurchLine."Completely Received" := CompletelyReceived;
+        PurchLine.Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
+        if PassedInvoice then
+            PurchLine."Quantity Invoiced" := PurchLine.Quantity / 2;
+        PurchLine.Insert();
     end;
 
     local procedure CreateServDocument(DocType: Enum "Service Document Type"; PassedStatus: Enum "Service Document Status")
     var
         ServHeader: Record "Service Header";
     begin
-        with ServHeader do begin
-            Init();
-            "Document Type" := DocType;
-            Insert(true);
-            Status := PassedStatus;
-            Modify();
-        end;
+        ServHeader.Init();
+        ServHeader."Document Type" := DocType;
+        ServHeader.Insert(true);
+        ServHeader.Status := PassedStatus;
+        ServHeader.Modify();
     end;
 
     local procedure CreateServContract(ContractType: Enum "Service Contract Type")
@@ -807,12 +839,10 @@ codeunit 134924 "ERM Cues"
         UserSetup: Record "User Setup";
     begin
         UserSetup.Get(UserId);
-        with ServContractHeader do begin
-            Init();
-            "Contract Type" := ContractType;
-            "Responsibility Center" := UserSetup."Service Resp. Ctr. Filter";
-            Insert(true);
-        end;
+        ServContractHeader.Init();
+        ServContractHeader."Contract Type" := ContractType;
+        ServContractHeader."Responsibility Center" := UserSetup."Service Resp. Ctr. Filter";
+        ServContractHeader.Insert(true);
     end;
 
     local procedure CreateShippedSalesOrder(var SalesHeader: Record "Sales Header"; OrderShipStatus: Option Full,Partial,"Not Shipped")
@@ -834,14 +864,12 @@ codeunit 134924 "ERM Cues"
                 ShippedQty := 0;
         end;
 
-        with SalesHeader do begin
-            MockSalesHeader(SalesHeader, "Document Type"::Order, Status::Open);
-            MockSalesLine(SalesHeader, SalesLine, ShipmentDate, Qty, ShippedQty);
-            "Shipment Date" := ShipmentDate;
-            Ship := OrderShipStatus <> OrderShipStatus::Full;
-            Status := Status::Released;
-            Modify();
-        end;
+        MockSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, SalesHeader.Status::Open);
+        MockSalesLine(SalesHeader, SalesLine, ShipmentDate, Qty, ShippedQty);
+        SalesHeader."Shipment Date" := ShipmentDate;
+        SalesHeader.Ship := OrderShipStatus <> OrderShipStatus::Full;
+        SalesHeader.Status := SalesHeader.Status::Released;
+        SalesHeader.Modify();
     end;
 
     local procedure CreateTwoSalesOrdersWithVariedDateAndShipLines(var SalesHeader: array[2] of Record "Sales Header"; var Delays: array[2] of Integer)
@@ -865,64 +893,56 @@ codeunit 134924 "ERM Cues"
 
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; NewStatus: Enum "Sales Document Status")
     begin
-        with SalesHeader do begin
-            Init();
-            "Document Type" := DocumentType;
-            "No." := '';
-            Insert(true);
-            Status := NewStatus;
-            Modify();
-        end;
+        SalesHeader.Init();
+        SalesHeader."Document Type" := DocumentType;
+        SalesHeader."No." := '';
+        SalesHeader.Insert(true);
+        SalesHeader.Status := NewStatus;
+        SalesHeader.Modify();
     end;
 
     local procedure MockSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ShipmentDate: Date; Qty: Decimal; QtyShipped: Decimal)
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            if FindLast() then;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindLast() then;
 
-            Init();
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            "Line No." += 10000;
-            "Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
-            Type := Type::Item;
-            "Shipment Date" := ShipmentDate;
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        SalesLine."Line No." += 10000;
+        SalesLine."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."Shipment Date" := ShipmentDate;
 
-            "Quantity (Base)" := Qty;
-            "Qty. Shipped (Base)" := QtyShipped;
-            "Outstanding Quantity" := "Quantity (Base)" - "Qty. Shipped (Base)";
-            "Completely Shipped" := ("Quantity (Base)" <> 0) and ("Outstanding Quantity" = 0);
-            "Qty. Shipped Not Invoiced" := "Qty. Shipped (Base)" - "Qty. Invoiced (Base)";
-            Insert();
-        end;
+        SalesLine."Quantity (Base)" := Qty;
+        SalesLine."Qty. Shipped (Base)" := QtyShipped;
+        SalesLine."Outstanding Quantity" := SalesLine."Quantity (Base)" - SalesLine."Qty. Shipped (Base)";
+        SalesLine."Completely Shipped" := (SalesLine."Quantity (Base)" <> 0) and (SalesLine."Outstanding Quantity" = 0);
+        SalesLine."Qty. Shipped Not Invoiced" := SalesLine."Qty. Shipped (Base)" - SalesLine."Qty. Invoiced (Base)";
+        SalesLine.Insert();
     end;
 
     local procedure MockPostedWhseShipmentHeader()
     var
         PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header";
     begin
-        with PostedWhseShipmentHeader do begin
-            Init();
-            "No." := '';
-            Insert();
-            "Posting Date" := WorkDate();
-            Modify();
-        end;
+        PostedWhseShipmentHeader.Init();
+        PostedWhseShipmentHeader."No." := '';
+        PostedWhseShipmentHeader.Insert();
+        PostedWhseShipmentHeader."Posting Date" := WorkDate();
+        PostedWhseShipmentHeader.Modify();
     end;
 
     local procedure MockVendorLedgerEntry(DueDate: Date)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Document Type" := "Document Type"::Invoice;
-            "Due Date" := DueDate;
-            Open := true;
-            Insert();
-        end;
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
+        VendorLedgerEntry."Due Date" := DueDate;
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure MockProdOrderRoutingLine(ProdOrderStatus: Enum "Production Order Status"; RoutingStatus: Enum "Prod. Order Routing Status")
@@ -952,6 +972,35 @@ codeunit 134924 "ERM Cues"
         SalesLine.Modify(true);
     end;
 
+    local procedure CreateCustomerLedgerEntry(DueDate: Date; Open: Boolean; Amount1: Decimal; Amount2: Decimal)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry."Entry No." := CustLedgerEntry.GetLastEntryNo() + 1;
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Due Date" := DueDate;
+        CustLedgerEntry.Open := Open;
+        CustLedgerEntry.Insert();
+
+        CreateDetailedCustLedgEntry(CustLedgerEntry."Entry No.", DueDate, Amount1, CustLedgerEntry."Document Type", true);
+        CreateDetailedCustLedgEntry(CustLedgerEntry."Entry No.", DueDate, -Amount2, CustLedgerEntry."Document Type", false);
+    end;
+
+    local procedure CreateDetailedCustLedgEntry(CustEntryNo: Integer; PostingDate: Date; AmountLCY: Decimal; DocumentType: Enum "Gen. Journal Document Type"; LedgerEntryAmount: Boolean)
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry.GetLastEntryNo() + 1;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustEntryNo;
+        DetailedCustLedgEntry."Posting Date" := PostingDate;
+        DetailedCustLedgEntry."Amount (LCY)" := AmountLCY;
+        DetailedCustLedgEntry."Document Type" := DocumentType;
+        DetailedCustLedgEntry."Initial Document Type" := DocumentType;
+        DetailedCustLedgEntry."Initial Entry Due Date" := PostingDate;
+        DetailedCustLedgEntry."Ledger Entry Amount" := LedgerEntryAmount;
+        DetailedCustLedgEntry.Insert();
+    end;
+
     local procedure VerifySalesCueFlowFields()
     var
         SalesCue: Record "Sales Cue";
@@ -967,38 +1016,34 @@ codeunit 134924 "ERM Cues"
 
     local procedure VerifySalesCueFields(var SalesCue: Record "Sales Cue")
     begin
-        with SalesCue do begin
-            Assert.AreEqual(
-              1, "Sales Quotes - Open", StrSubstNo(WrongValueErr, FieldCaption("Sales Quotes - Open"), TableCaption));
-            Assert.AreEqual(
-              1, "Sales Orders - Open", StrSubstNo(WrongValueErr, FieldCaption("Sales Orders - Open"), TableCaption));
-            Assert.AreEqual(
-              2, "Ready to Ship", StrSubstNo(WrongValueErr, FieldCaption("Ready to Ship"), TableCaption));
-            Assert.AreEqual(
-              1, Delayed, StrSubstNo(WrongValueErr, FieldCaption(Delayed), TableCaption));
-            Assert.AreEqual(
-              1, "Sales Return Orders - Open", StrSubstNo(WrongValueErr, FieldCaption("Sales Return Orders - Open"), TableCaption));
-            Assert.AreEqual(
-              1, "Sales Credit Memos - Open", StrSubstNo(WrongValueErr, FieldCaption("Sales Credit Memos - Open"), TableCaption));
-            Assert.AreEqual(
-              1, "Partially Shipped", StrSubstNo(WrongValueErr, FieldCaption("Partially Shipped"), TableCaption));
+        Assert.AreEqual(
+          1, SalesCue."Sales Quotes - Open", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Sales Quotes - Open"), SalesCue.TableCaption));
+        Assert.AreEqual(
+          1, SalesCue."Sales Orders - Open", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Sales Orders - Open"), SalesCue.TableCaption));
+        Assert.AreEqual(
+          2, SalesCue."Ready to Ship", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Ready to Ship"), SalesCue.TableCaption));
+        Assert.AreEqual(
+          1, SalesCue.Delayed, StrSubstNo(WrongValueErr, SalesCue.FieldCaption(Delayed), SalesCue.TableCaption));
+        Assert.AreEqual(
+          1, SalesCue."Sales Return Orders - Open", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Sales Return Orders - Open"), SalesCue.TableCaption));
+        Assert.AreEqual(
+          1, SalesCue."Sales Credit Memos - Open", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Sales Credit Memos - Open"), SalesCue.TableCaption));
+        Assert.AreEqual(
+          1, SalesCue."Partially Shipped", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Partially Shipped"), SalesCue.TableCaption));
 
-            VerifySalesCueNonFlowFieldCalculated(SalesCue);
-        end;
+        VerifySalesCueNonFlowFieldCalculated(SalesCue);
     end;
 
     local procedure VerifySalesCueNonFlowFieldCalculated(var SalesCue: Record "Sales Cue")
     begin
-        with SalesCue do begin
-            Assert.AreEqual(
-            4, "Average Days Delayed", StrSubstNo(WrongValueErr, FieldCaption("Average Days Delayed"), TableCaption));
-            Assert.AreEqual(
-            "Ready to Ship", CountOrders(FieldNo("Ready to Ship")), StrSubstNo(WrongValueErr, 'CountReadyToShip', TableCaption));
-            Assert.AreEqual(
-            Delayed, CountOrders(FieldNo(Delayed)), StrSubstNo(WrongValueErr, 'CountDelayed', TableCaption));
-            Assert.AreEqual(
-            "Partially Shipped", CountOrders(FieldNo("Partially Shipped")), StrSubstNo(WrongValueErr, 'CountPartiallyShipped', TableCaption));
-        end;
+        Assert.AreEqual(
+            4, SalesCue."Average Days Delayed", StrSubstNo(WrongValueErr, SalesCue.FieldCaption("Average Days Delayed"), SalesCue.TableCaption));
+        Assert.AreEqual(
+            SalesCue."Ready to Ship", SalesCue.CountOrders(SalesCue.FieldNo("Ready to Ship")), StrSubstNo(WrongValueErr, 'CountReadyToShip', SalesCue.TableCaption));
+        Assert.AreEqual(
+            SalesCue.Delayed, SalesCue.CountOrders(SalesCue.FieldNo(Delayed)), StrSubstNo(WrongValueErr, 'CountDelayed', SalesCue.TableCaption));
+        Assert.AreEqual(
+            SalesCue."Partially Shipped", SalesCue.CountOrders(SalesCue.FieldNo("Partially Shipped")), StrSubstNo(WrongValueErr, 'CountPartiallyShipped', SalesCue.TableCaption));
     end;
 
     local procedure VerifySalesCueFlowFieldsPartiallyShipped()
@@ -1085,19 +1130,17 @@ codeunit 134924 "ERM Cues"
     var
         WarehouseWMSCue: Record "Warehouse WMS Cue";
     begin
-        with WarehouseWMSCue do begin
-            SetFilter("Date Filter", '<%1', WorkDate());
-            SetFilter("Date Filter2", '>=%1', WorkDate());
-            CalcFields("Posted Shipments - Today");
-            Assert.AreEqual(
-              1, "Posted Shipments - Today", StrSubstNo(WrongValueErr, FieldCaption("Posted Shipments - Today"), TableCaption));
+        WarehouseWMSCue.SetFilter("Date Filter", '<%1', WorkDate());
+        WarehouseWMSCue.SetFilter("Date Filter2", '>=%1', WorkDate());
+        WarehouseWMSCue.CalcFields("Posted Shipments - Today");
+        Assert.AreEqual(
+          1, WarehouseWMSCue."Posted Shipments - Today", StrSubstNo(WrongValueErr, WarehouseWMSCue.FieldCaption("Posted Shipments - Today"), WarehouseWMSCue.TableCaption));
 
-            SetFilter("Date Filter", '>=%1', WorkDate());
-            SetFilter("Date Filter2", '<%1', WorkDate());
-            CalcFields("Posted Shipments - Today");
-            Assert.AreEqual(
-              0, "Posted Shipments - Today", StrSubstNo(WrongValueErr, FieldCaption("Posted Shipments - Today"), TableCaption));
-        end;
+        WarehouseWMSCue.SetFilter("Date Filter", '>=%1', WorkDate());
+        WarehouseWMSCue.SetFilter("Date Filter2", '<%1', WorkDate());
+        WarehouseWMSCue.CalcFields("Posted Shipments - Today");
+        Assert.AreEqual(
+          0, WarehouseWMSCue."Posted Shipments - Today", StrSubstNo(WrongValueErr, WarehouseWMSCue.FieldCaption("Posted Shipments - Today"), WarehouseWMSCue.TableCaption));
     end;
 
     [ConfirmHandler]

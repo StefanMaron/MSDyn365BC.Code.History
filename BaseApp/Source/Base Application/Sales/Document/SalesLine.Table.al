@@ -8197,6 +8197,7 @@ table 37 "Sales Line"
             "VAT %" := Round(100 * VATAmount / BaseAmount, 0.00001)
         else
             "VAT %" := 0;
+        OnAfterUpdateVATPercent(Rec);
     end;
 
     procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]) ReturnValue: Boolean
@@ -9472,6 +9473,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdatePrePaymentAmounts(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateVATPercent(var SalesLine: Record "Sales Line")
     begin
     end;
 

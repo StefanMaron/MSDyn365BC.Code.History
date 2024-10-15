@@ -3758,9 +3758,9 @@ codeunit 144352 "Swiss SEPA CT Export"
     local procedure VerifyXMLFileHeader()
     begin
         LibraryXMLRead.VerifyXMLDeclaration('1.0', 'UTF-8', 'no');
-        LibraryXMLRead.VerifyAttributeValue('Document', 'xmlns', 'http://www.six-interbank-clearing.com/de/pain.001.001.09.ch.01.xsd');
+        LibraryXMLRead.VerifyAttributeValue('Document', 'xmlns', 'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd');
         LibraryXMLRead.VerifyAttributeValue('Document', 'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-        LibraryXMLRead.VerifyAttributeValue('Document', 'xsi:schemaLocation', 'http://www.six-interbank-clearing.com/de/pain.001.001.09.ch.01.xsd  pain.001.001.09.ch.01.xsd');
+        LibraryXMLRead.VerifyAttributeValue('Document', 'xsi:schemaLocation', 'http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd  pain.001.001.03.ch.02.xsd');
     end;
 
     local procedure VerifyXMLFileGroupHeader(GenJournalLine: Record "Gen. Journal Line"; MessageID: Text)
@@ -3814,7 +3814,7 @@ codeunit 144352 "Swiss SEPA CT Export"
             else
                 LibraryXMLRead.VerifyElementAbsenceInSubtree('PmtInf', 'PmtTpInf');
         end;
-        LibraryXMLRead.VerifyNodeValueInSubtree('ReqdExctnDt', 'Dt', Format(GenJournalLine."Posting Date", 0, 9));
+        LibraryXMLRead.VerifyNodeValueInSubtree('PmtInf', 'ReqdExctnDt', Format(GenJournalLine."Posting Date", 0, 9));
         CompanyInformation.Get();
         LibraryXMLRead.VerifyNodeValueInSubtree('Dbtr', 'Nm', CompanyInformation.Name);
         LibraryXMLRead.VerifyNodeAbsenceInSubtree('Dbtr', 'Id');
