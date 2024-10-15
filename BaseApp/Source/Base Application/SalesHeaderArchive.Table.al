@@ -543,6 +543,11 @@ table 5107 "Sales Header Archive"
             Editable = false;
             TableRelation = "IC Partner";
         }
+        field(127; "IC Reference Document No."; Code[20])
+        {
+            Caption = 'IC Reference Document No.';
+            Editable = false;
+        }
         field(129; "IC Direction"; Enum "IC Direction Type")
         {
             Caption = 'IC Direction';

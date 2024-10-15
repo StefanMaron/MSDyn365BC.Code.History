@@ -18,4 +18,5 @@ enum 1237 "Transformation Rule Type"
     value(12; "Date and Time Formatting") { Caption = 'Date and Time Formatting'; }
     value(13; "Field Lookup") { Caption = 'Field Lookup'; }
     value(14; "Round") { Caption = 'Round'; }
+    value(15; "Extract From Date") { Caption = 'Extract From Date'; }
 }

@@ -539,6 +539,7 @@ codeunit 5804 ItemCostManagement
         if not GLSetupRead then
             GLSetup.Get();
         GLSetupRead := true;
+        OnAfterGetGLSetup(GLSetup);
     end;
 
     procedure FindUpdateUnitCostSKU(Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; FilterSKU: Boolean; LastDirectCost: Decimal)
@@ -568,6 +569,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateQuantity(var ValueEntry: Record "Value Entry"; var Item: Record Item; var CalcQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGLSetup(var GeneralLedgerSetup: Record "General Ledger Setup")
     begin
     end;
 
