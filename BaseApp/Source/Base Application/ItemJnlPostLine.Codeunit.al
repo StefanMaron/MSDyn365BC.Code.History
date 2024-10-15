@@ -1551,7 +1551,7 @@
         end;
 
         if Item."Costing Method" = Item."Costing Method"::Average then
-            if ItemApplnEntry.Fixed then
+            if not ItemApplnEntry.Fixed then
                 UpdateValuedByAverageCost(CostItemLedgEntry."Entry No.", true);
 
         ItemApplnEntry.InsertHistory;

@@ -612,10 +612,9 @@
     begin
         if (VATBusPostingGroup <> VATPostingSetup."VAT Bus. Posting Group") or
            (VATProdPostingGroup <> VATPostingSetup."VAT Prod. Posting Group")
-        then begin
+        then
             VATPostingSetup.Get(VATBusPostingGroup, VATProdPostingGroup);
-            VATPostingSetup.TestField("Sales Prepayments Account");
-        end;
+        VATPostingSetup.TestField("Sales Prepayments Account");
         exit(VATPostingSetup."Sales Prepayments Account");
     end;
 
@@ -706,6 +705,7 @@
                 "Line No." := PrevLineNo + 10000;
                 "Invoice Rounding" := true;
                 "G/L Account No." := SalesLine."No.";
+                Description := SalesLine.Description;
 
                 CopyFromSalesLine(SalesLine);
                 "Gen. Bus. Posting Group" := SalesHeader."Gen. Bus. Posting Group";

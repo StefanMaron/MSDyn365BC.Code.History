@@ -1516,7 +1516,8 @@ codeunit 12184 "Fattura Doc. Helper"
         CrMemoCode := GetCrMemoCode();
         if CrMemoCode = '' then
             exit;
-        SalesHeader."Fattura Document Type" := CrMemoCode;
+        SalesHeader.Validate("Fattura Document Type", CrMemoCode);
+        SalesHeader.Modify(true);
     end;
 }
 

@@ -142,7 +142,6 @@ codeunit 12179 "Export FatturaPA Document"
                 until TempFatturaLine.Next = 0;
             GetParent;
             PopulatePaymentData(TempFatturaLine, TempFatturaHeader);
-            GetParent;
             PopulateDocumentAttachments(TempFatturaHeader);
         end;
     end;
@@ -542,6 +541,7 @@ codeunit 12179 "Export FatturaPA Document"
                     AddNonEmptyElement('ImportoPagamento', FormatAmount(TempFatturaLine.Amount));
                     AddNonEmptyLastElement('IBAN', CompanyInformation.IBAN);
                 until TempFatturaLine.Next = 0;
+                GetParent();
             end;
         end;
     end;

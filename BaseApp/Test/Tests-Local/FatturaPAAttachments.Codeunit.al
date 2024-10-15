@@ -163,6 +163,41 @@ codeunit 144205 "FatturaPA Attachments"
         VerifySingleAttachment(ServerFileName, FileName, Extension, Base64String);
     end;
 
+    [Test]
+    [HandlerFunctions('ErrorMessagesPageHandlerWithoutVerification')]
+    [Scope('OnPrem')]
+    procedure SalesDocNoPmtTermsSingleAttachment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        RecRef: RecordRef;
+        ServerFileName: Text[250];
+        FileName: Text;
+        Extension: Text;
+        Base64String: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 394076] Allegati xml node exports under the FatturaElettronicaBody if document does not have payment terms code
+
+        Initialize();
+
+        // [GIVEN] Posted sales invoice with no payment terms code
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithPmtData(SalesHeader."Document Type"::Invoice, CreatePaymentTerms(), ''));
+        RecRef.Get(SalesInvoiceHeader.RecordId);
+        RecRef.SetRecFilter();
+
+        // [GIVEN] Insert attachment for the posted document using file "PATH\FILE.EXT" with plain text = "TEXT"
+        MockAttachment(RecRef, FileName, Extension, Base64String, LibraryRandom.RandIntInRange(100, 200));
+
+        // [WHEN] Export Fattura PA for the posted document
+        ExportFaturaPA(RecRef, ServerFileName);
+
+        // [THEN] Exported XML has "FatturaElettronicaBody\Allegati" node with the following values:
+        // [THEN] "NomeAttachment" = "FILE", "FormatoAttachment" = "EXT", "Attachent" = "X", where "X" = base64Encoding("TEXT")
+        VerifySingleAttachment(ServerFileName, FileName, Extension, Base64String);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -224,13 +259,18 @@ codeunit 144205 "FatturaPA Attachments"
     end;
 
     local procedure CreatePostSalesDoc(DocumentType: Enum "Sales Document Type"): Code[20]
+    begin
+        exit(CreatePostSalesDocWithPmtData(DocumentType, CreatePaymentTerms(), CreatePaymentMethod()));
+    end;
+
+    local procedure CreatePostSalesDocWithPmtData(DocumentType: Option; PmtTermsCode: Code[10]; PmtMethodCode: Code[10]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
-        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
-        SalesHeader.Validate("Payment Method Code", CreatePaymentMethod);
+        SalesHeader.Validate("Payment Terms Code", PmtTermsCode);
+        SalesHeader.Validate("Payment Method Code", PmtMethodCode);
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
@@ -316,6 +356,13 @@ codeunit 144205 "FatturaPA Attachments"
         Assert.AreEqual(
           ExpectedValue, ActualValue, StrSubstNo(UnexpectedElementValueErr, ExpectedName, ExpectedValue, ActualValue));
         XMLBuffer.Next;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ErrorMessagesPageHandlerWithoutVerification(var ErrorMessages: TestPage "Error Messages")
+    begin
+        ErrorMessages.Close();
     end;
 }
 

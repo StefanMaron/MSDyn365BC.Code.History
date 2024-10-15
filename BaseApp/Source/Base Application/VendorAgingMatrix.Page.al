@@ -586,7 +586,7 @@ page 35463 "Vendor Aging Matrix"
         DetailedVendLedgEntry.SetFilter("Initial Entry Global Dim. 1", GlobalDim1Filter);
         DetailedVendLedgEntry.SetFilter("Initial Entry Global Dim. 2", GlobalDim2Filter);
         DetailedVendLedgEntry.CalcSums("Amount (LCY)");
-        MATRIX_CellData[MATRIX_ColumnOrdinal] := DetailedVendLedgEntry."Amount (LCY)";
+        MATRIX_CellData[MATRIX_ColumnOrdinal] := -DetailedVendLedgEntry."Amount (LCY)";
     end;
 
     local procedure MATRIXCellData1OnFormat(Text: Text[1024])

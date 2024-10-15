@@ -420,6 +420,56 @@ codeunit 144172 "ERM Prepayment IT"
         PostedPaymentLines.TestField(Amount, SalesCrMemoHeader."Amount Including VAT");
     end;
 
+    [Test]
+    procedure ErrorOnMissingSalesPrepaymentAccountInVATPostingSetup()
+    VAR
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 403116] An error "Sales Prepayments Account must have a value in VAT Posting Setup" is shown
+        // [SCENARIO 403116] in case of blanked account on trying posting prepayment invoice
+        Initialize();
+        EnableUnrealizedVAT(true);
+
+        FindGenPostingSetup(GeneralPostingSetup);
+        CreateVATPostingSetup(VATPostingSetup, GeneralPostingSetup."Gen. Prod. Posting Group");
+        VATPostingSetup.Validate("Sales Prepayments Account", '');
+        VATPostingSetup.Modify(true);
+
+        CreateSalesDocumentSetPrepmtAccount(SalesHeader, VATPostingSetup, GeneralPostingSetup."Gen. Bus. Posting Group");
+        asserterror PostSalesPrepmtInvoice(SalesHeader);
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError('Sales Prepayments Account must have a value in VAT Posting Setup');
+    end;
+
+    [Test]
+    procedure ErrorOnMissingPurchPrepaymentAccountInVATPostingSetup()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 403116] An error "Purch. Prepayments Account must have a value in VAT Posting Setup" is shown
+        // [SCENARIO 403116] in case of blanked account on trying posting prepayment invoice
+        Initialize();
+        EnableUnrealizedVAT(true);
+
+        FindGenPostingSetup(GeneralPostingSetup);
+        CreateVATPostingSetup(VATPostingSetup, GeneralPostingSetup."Gen. Prod. Posting Group");
+        VATPostingSetup.Validate("Purch. Prepayments Account", '');
+        VATPostingSetup.Modify(true);
+
+        CreatePurchDocumentSetPrepmtAccount(PurchaseHeader, VATPostingSetup, GeneralPostingSetup."Gen. Bus. Posting Group");
+        asserterror PostPurchPrepmtInvoice(PurchaseHeader);
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError('Purch. Prepayments Account must have a value in VAT Posting Setup');
+    end;
+
     local procedure Initialize()
     begin
         Clear(LibraryReportDataset);

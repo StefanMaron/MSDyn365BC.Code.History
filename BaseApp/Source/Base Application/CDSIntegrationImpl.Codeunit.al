@@ -1277,7 +1277,10 @@ codeunit 7201 "CDS Integration Impl."
         if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
             TempAdminCDSConnectionSetup."User Name" := CopyStr(AdminUser, 1, MaxStrLen(TempAdminCDSConnectionSetup."User Name"));
             TempAdminCDSConnectionSetup.SetPassword(AdminPassword);
-            UpdateConnectionString(TempAdminCDSConnectionSetup);
+            if TempAdminCDSConnectionSetup."Authentication Type" = TempAdminCDSConnectionSetup."Authentication Type"::OAuth then
+                SetConnectionString(TempAdminCDSConnectionSetup, ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUser, Format(MissingPasswordTok)))
+            else
+                UpdateConnectionString(TempAdminCDSConnectionSetup);
         end;
     end;
 
@@ -2419,10 +2422,14 @@ codeunit 7201 "CDS Integration Impl."
                 Error(AdminUserPasswordWrongErr);
             end;
 
-            if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::AD then
-                TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain))
-            else
-                TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+            case CDSConnectionSetup."Authentication Type" of
+                CDSConnectionSetup."Authentication Type"::AD:
+                    TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup, AdminADDomain));
+                CDSConnectionSetup."Authentication Type"::OAuth:
+                    TempConnectionString := ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUser, AdminPassword);
+                else
+                    TempConnectionString := StrSubstNo(ConnectionStringFormatTok, CDSConnectionSetup."Server Address", AdminUser, AdminPassword, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
+            end
         end else begin
             GetAccessToken(CDSConnectionSetup."Server Address", GetTokenFromCache, AccessToken);
             TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTok, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup."Proxy Version", GetAuthenticationTypeToken(CDSConnectionSetup));
@@ -2434,6 +2441,37 @@ codeunit 7201 "CDS Integration Impl."
         end;
     end;
 
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup: Record "CDS Connection Setup"; NewUserName: Text; NewPassword: Text): Text
+    var
+        PasswordPlaceHolderPos: Integer;
+        UserNameTokenPos: Integer;
+        NewConnectionString: Text;
+        LeftPart: Text;
+        RightPart: Text;
+        UserNameTok: Text;
+    begin
+        UserNameTok := 'UserName=';
+        PasswordPlaceHolderPos := StrPos(CDSConnectionSetup."Connection String", MissingPasswordTok);
+
+        // first replace the password
+        NewConnectionString :=
+            CopyStr(CDSConnectionSetup."Connection String", 1, PasswordPlaceHolderPos - 1) + NewPassword +
+            CopyStr(CDSConnectionSetup."Connection String", PasswordPlaceHolderPos + StrLen(MissingPasswordTok));
+
+        // then replace the user name
+        UserNameTokenPos := StrPos(NewConnectionString, UserNameTok);
+        LeftPart := CopyStr(NewConnectionString, 1, UserNameTokenPos - 1);
+        RightPart := CopyStr(NewConnectionString, UserNameTokenPos);
+        if RightPart.IndexOf(';') > 0 then
+            NewConnectionString := LeftPart + UserNameTok + NewUserName + CopyStr(RightPart, RightPart.IndexOf(';'))
+        else
+            NewConnectionString := LeftPart + UserNameTok + NewUserName;
+
+        exit(NewConnectionString);
+    end;
 
     [Scope('OnPrem')]
     [NonDebuggable]
