@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
+using Microsoft.Purchases.Vendor;
+
 codeunit 148017 "IRS 1099 Printing Tests"
 {
     Subtype = Test;
@@ -11,12 +13,14 @@ codeunit 148017 "IRS 1099 Printing Tests"
     EventSubscriberInstance = Manual;
 
     var
-        LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryRandom: Codeunit "Library - Random";
-        LibraryUtility: Codeunit "Library - Utility";
+        Assert: Codeunit Assert;
         LibraryIRSReportingPeriod: Codeunit "Library IRS Reporting Period";
         LibraryIRS1099FormBox: Codeunit "Library IRS 1099 Form Box";
-        Assert: Codeunit Assert;
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         IRS1099FormStatementLineEmptyErr: Label 'There are no form statement lines for the selected form and period.';
 
@@ -113,6 +117,60 @@ codeunit 148017 "IRS 1099 Printing Tests"
 #endif
     end;
 
+    [Test]
+    procedure UT_IRS1099Print_BankAccountNo()
+    var
+        IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header";
+        IRS1099FormDocLine: Record "IRS 1099 Form Doc. Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+#if not CLEAN25
+#pragma warning disable AL0432
+        IRSFormsEnableFeature: Codeunit "IRS Forms Enable Feature";
+#pragma warning restore AL0432
+#endif
+        FormBoxNo: Code[20];
+    begin
+        // [SCENARIO 495389] Bank Account No for Vendor is shown correctly in report
+        Initialize();
+#if not CLEAN25
+        BindSubscription(IRSFormsEnableFeature);
+#endif
+
+        // [GIVEN] IRS 1099 Document exists for Vendor in period
+        CreateIRS1099Document(IRS1099FormDocHeader);
+
+        // [GIVEN] Vendor Bank Account exists for this vendor with Bank Account No = "XXX"
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, IRS1099FormDocHeader."Vendor No.");
+        VendorBankAccount."Bank Account No." := LibraryUtility.GenerateGUID();
+        VendorBankAccount.Modify(true);
+
+        // [GIVEN] Update Preffered Bank Account for Vendor
+        SetPreferredBankAccount(IRS1099FormDocHeader."Vendor No.", VendorBankAccount.Code);
+
+        // [GIVEN] Form Box No exists in period
+        FormBoxNo := LibraryIRS1099FormBox.CreateSingleFormBoxInReportingPeriod(WorkDate(), IRS1099FormDocHeader."Form No.");
+
+        // [GIVEN] IRS 1099 Document Line exists for Vendor in period
+        CreateIRS1099DocLine(IRS1099FormDocHeader, IRS1099FormDocLine, FormBoxNo, LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] No Statement Line exists for Vendor in period
+        CreateStatementLine(IRS1099FormDocHeader, FormBoxNo);
+
+        Commit();
+
+        // [WHEN] Run report
+        LibraryReportDataset.RunReportAndLoad(Report::"IRS 1099 Print", IRS1099FormDocHeader, '');
+
+        // [THEN] Vendor Bank Account No in report is "XXX"
+        LibraryReportDataset.AssertElementWithValueExists('Vendor_BankAccountNo', VendorBankAccount."Bank Account No.");
+
+        // Tear down
+        IRS1099FormDocHeader.Delete(true);
+#if not CLEAN25
+        UnbindSubscription(IRSFormsEnableFeature);
+#endif
+    end;
+
     local procedure Initialize()
     var
         IRSReportingPeriod: Record "IRS Reporting Period";
@@ -186,6 +244,15 @@ codeunit 148017 "IRS 1099 Printing Tests"
         IRS1099FormDocLine.SetRange("Form Box No.", FormBoxNo);
         IRS1099FormStatementLine.Validate("Filter Expression", IRS1099FormDocLine.GetFilters());
         IRS1099FormStatementLine.Insert();
+    end;
+
+    local procedure SetPreferredBankAccount(VendorNo: Code[20]; BankAccountNo: Code[20])
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(VendorNo);
+        Vendor."Preferred Bank Account Code" := BankAccountNo;
+        Vendor.Modify();
     end;
 
     local procedure VerifyFileContentExists(IRS1099FormDocHeader: Record "IRS 1099 Form Doc. Header"; ReportType: Enum "IRS 1099 Form Report Type")

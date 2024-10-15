@@ -235,6 +235,7 @@ table 10123 "Posted Bank Rec. Header"
     end;
 
     var
+        PostedBankRecHdr: Record "Posted Bank Rec. Header";
         PostedBankRecLines: Record "Posted Bank Rec. Line";
         PostedBankRecDelete: Codeunit "Posted Bank Rec.-Delete";
         DimMgt: Codeunit DimensionManagement;
@@ -242,6 +243,8 @@ table 10123 "Posted Bank Rec. Header"
 
     procedure PrintRecords(ShowRequestForm: Boolean)
     begin
+        PostedBankRecHdr.Copy(Rec);
+        Report.RunModal(Report::"Bank Reconciliation", ShowRequestForm, false, PostedBankRecHdr);
     end;
 
     procedure Navigate()

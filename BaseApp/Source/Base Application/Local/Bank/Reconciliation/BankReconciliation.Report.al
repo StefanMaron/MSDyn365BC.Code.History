@@ -1,12 +1,8 @@
-#if not CLEAN21
 report 10408 "Bank Reconciliation"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Bank/BankReconciliation.rdlc';
+    RDLCLayout = './Local/Bank/Reconciliation/BankReconciliation.rdlc';
     Caption = 'Bank Reconciliation';
-    ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
-    ObsoleteState = Pending;
-    ObsoleteTag = '21.0';
 
     dataset
     {
@@ -708,5 +704,3 @@ report 10408 "Bank Reconciliation"
         PrintChecksEditable := PrintDetails;
     end;
 }
-
-#endif

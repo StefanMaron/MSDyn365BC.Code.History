@@ -38,7 +38,6 @@ table 2671 "Alloc. Account Distribution"
             trigger OnValidate()
             begin
                 CalcPercent();
-                Rec.Modify();
             end;
         }
         field(7; Percent; Decimal)
@@ -66,69 +65,10 @@ table 2671 "Alloc. Account Distribution"
         {
             Caption = 'Destination Account Number';
 
-            trigger OnLookup()
-            var
-                GLAccount: Record "G/L Account";
-                BankAccount: Record "Bank Account";
-                GLAccountList: Page "G/L Account List";
-                BankAccountList: Page "Bank Account List";
-            begin
-                case Rec."Destination Account Type" of
-                    Rec."Destination Account Type"::"G/L Account":
-                        begin
-                            GLAccountList.LookupMode(true);
-                            GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-                            GLAccount.SetRange("Direct Posting", true);
-                            GLAccountList.SetTableView(GLAccount);
-                            if GLAccountList.RunModal() = ACTION::LookupOK then begin
-                                GLAccountList.GetRecord(GLAccount);
-                                Rec.Validate("Destination Account Number", GLAccount."No.");
-                            end;
-                        end;
-                    Rec."Destination Account Type"::"Bank Account":
-                        begin
-                            BankAccountList.LookupMode(true);
-                            if BankAccountList.RunModal() = ACTION::LookupOK then begin
-                                BankAccountList.GetRecord(BankAccount);
-                                Rec.Validate("Destination Account Number", BankAccount."No.");
-                            end;
-                        end;
-                    Rec."Destination Account Type"::"Inherit from Parent":
-                        Error(CannotEnterAccountNumberIfInheritFromParentErr);
-                end;
-            end;
+            TableRelation = if ("Destination Account Type" = const("G/L Account")) "G/L Account" where("Account Type" = const(Posting), "Direct Posting" = const(true))
+            else
+            if ("Destination Account Type" = const("Bank Account")) "Bank Account";
 
-            trigger OnValidate()
-            var
-                GLAccount: Record "G/L Account";
-                BankAccount: Record "Bank Account";
-            begin
-                if Rec."Destination Account Number" = '' then
-                    exit;
-
-                case Rec."Destination Account Type" of
-                    Rec."Destination Account Type"::"G/L Account":
-                        begin
-                            GLAccount.SetRange("No.", Rec."Destination Account Number");
-                            if not GLAccount.IsEmpty() then
-                                exit;
-
-                            GLAccount.SetFilter("No.", '@*%1*', Rec."Destination Account Number");
-                            if GLAccount.IsEmpty() then
-                                Error(SelectedAccountDoesNotExistErr);
-                        end;
-                    Rec."Destination Account Type"::"Bank Account":
-                        begin
-                            BankAccount.SetRange("No.", Rec."Destination Account Number");
-                            if not BankAccount.IsEmpty() then
-                                exit;
-
-                            BankAccount.SetFilter("No.", '@*%1*', Rec."Destination Account Number");
-                            if BankAccount.IsEmpty() then
-                                Error(SelectedAccountDoesNotExistErr);
-                        end;
-                end;
-            end;
         }
         field(19; "Breakdown Account Type"; Enum "Breakdown Account Type")
         {
@@ -589,11 +529,9 @@ table 2671 "Alloc. Account Distribution"
     end;
 
     var
-        GenericDimensionFilterLbl: Label 'Dimension %1 Filter', Comment = '%1 is a number most likely in a rage from 1 to8';
-        BusinessUnitCodeCanOnlyBeUsedWithGLAccFilterErr: Label 'Business Unit Code Filter can only be used with distrubution account that have G/L Account type';
+        GenericDimensionFilterLbl: Label 'Dimension %1 Filter', Comment = '%1 is a number most likely in a range from 1 to 8';
+        BusinessUnitCodeCanOnlyBeUsedWithGLAccFilterErr: Label 'Business Unit Code Filter can only be used with distribution account that has G/L Account type';
         DimensionPageCaptionLbl: Label '%1 %2 %3', Locked = true;
-        DimensionFilterCaptionLbl: label '%1 %2', Locked = true;
+        DimensionFilterCaptionLbl: Label '%1 %2', Locked = true;
         DimensionFilterLbl: Label 'Filter', Comment = 'Used to display to the users values like Department Filter, Project Filter, Sales Campaign Filter, etc.';
-        CannotEnterAccountNumberIfInheritFromParentErr: Label 'You cannot select account number if inherit from parent is selected. Destination account number and type will be taken from the line when the Allocation Account No. field is set.';
-        SelectedAccountDoesNotExistErr: Label 'Selected destination account does not exist.';
 }

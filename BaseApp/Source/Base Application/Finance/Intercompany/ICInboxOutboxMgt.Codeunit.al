@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1049,8 +1049,6 @@ codeunit 427 ICInboxOutboxMgt
             OnCreateSalesLinesOnAfterValidateNo(SalesLine, SalesHeader, ICInboxSalesLine);
 
             SalesLine."Currency Code" := SalesHeader."Currency Code";
-            SalesLine.Description := ICInboxSalesLine.Description;
-            SalesLine."Description 2" := ICInboxSalesLine."Description 2";
             if (SalesLine.Type <> SalesLine.Type::" ") and (ICInboxSalesLine.Quantity <> 0) then begin
                 ValidateQuantityFromICInboxSalesLine(SalesLine, ICInboxSalesLine);
                 IsHandled := false;
@@ -1067,7 +1065,9 @@ codeunit 427 ICInboxOutboxMgt
                 end;
                 ValidateSalesLineDeliveryDates(SalesLine, ICInboxSalesLine);
                 UpdateSalesLineICPartnerReference(SalesLine, SalesHeader, ICInboxSalesLine);
-            end;
+            end;          
+            SalesLine.Description := ICInboxSalesLine.Description;
+            SalesLine."Description 2" := ICInboxSalesLine."Description 2";
             SalesLine."Shortcut Dimension 1 Code" := '';
             SalesLine."Shortcut Dimension 2 Code" := '';
             SalesLine.Insert(true);
@@ -1306,8 +1306,6 @@ codeunit 427 ICInboxOutboxMgt
             end;
             OnCreatePurchLinesOnAfterValidateNo(PurchLine, PurchHeader, ICInboxPurchLine);
             PurchLine."Currency Code" := PurchHeader."Currency Code";
-            PurchLine.Description := ICInboxPurchLine.Description;
-            PurchLine."Description 2" := ICInboxPurchLine."Description 2";
             if (PurchLine.Type <> PurchLine.Type::" ") and (ICInboxPurchLine.Quantity <> 0) then begin
                 if Currency.Get(PurchHeader."Currency Code") then begin
                     Precision := Currency."Unit-Amount Rounding Precision";
@@ -1325,6 +1323,8 @@ codeunit 427 ICInboxOutboxMgt
                 end;
                 PurchLine.Validate(Quantity, ICInboxPurchLine.Quantity);
                 PurchLine.Validate("Unit of Measure Code", ICInboxPurchLine."Unit of Measure Code");
+                PurchLine.Description := ICInboxPurchLine.Description;
+                PurchLine."Description 2" := ICInboxPurchLine."Description 2";
                 IsHandled := false;
                 OnCreatePurchLinesOnBeforeCalcPriceAndAmounts(PurchHeader, PurchLine, IsHandled);
                 if not IsHandled then begin
