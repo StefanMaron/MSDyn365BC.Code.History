@@ -55,6 +55,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         SOAPWebServiceRequestMgt.SetGlobals(InStream, VATRegistrationURL, '', '');
         SOAPWebServiceRequestMgt.DisableHttpsCheck;
         SOAPWebServiceRequestMgt.SetTimeout(60000);
+        SOAPWebServiceRequestMgt.SetContentType('text/xml;charset=utf-8');
 
         OnSendRequestToVatRegistrationServiceOnBeforeSendRequestToWebService(SOAPWebServiceRequestMgt, TempBlobBody);
         if SOAPWebServiceRequestMgt.SendRequestToWebService then begin
