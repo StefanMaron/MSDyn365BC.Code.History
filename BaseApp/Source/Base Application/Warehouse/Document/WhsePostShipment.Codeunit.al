@@ -830,7 +830,14 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     local procedure PrintDocuments()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintDocuments(SalesInvHeader, SalesShptHeader, PurchCrMemHeader, ReturnShptHeader, TransShptHeader, ServiceInvHeader, ServiceShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesInvHeader.MarkedOnly(true);
         if not SalesInvHeader.IsEmpty() then
             SalesInvHeader.PrintRecords(false);
@@ -1478,6 +1485,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             if ModifyLine then begin
                                 ServLine.Validate("Qty. to Ship", "Qty. to Ship");
                                 ServLine."Qty. to Ship (Base)" := "Qty. to Ship (Base)";
+                                OnHandleServiceLineOnSourceDocumentServiceOrderOnBeforeModifyLine(ServLine, WhseShptLine, InvoiceService);
                                 if InvoiceService then begin
                                     ServLine.Validate("Qty. to Consume", 0);
                                     ServLine.Validate(
@@ -1507,7 +1515,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             ServLine.Validate("Qty. to Consume", 0);
                         end;
                     end;
-                    OnBeforeServiceLineModify(ServLine, WhseShptLine, ModifyLine, Invoice);
+                    OnBeforeServiceLineModify(ServLine, WhseShptLine, ModifyLine, Invoice, InvoiceService);
                     if ModifyLine then
                         ServLine.Modify();
                 until ServLine.Next() = 0;
@@ -2269,7 +2277,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceLineModify(var ServiceLine: Record "Service Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyLine: Boolean; Invoice: Boolean)
+    local procedure OnBeforeServiceLineModify(var ServiceLine: Record "Service Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyLine: Boolean; Invoice: Boolean; var InvoiceService: Boolean)
     begin
     end;
 
@@ -2285,6 +2293,16 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleServiceLineOnNonWhseLineOnAfterCalcModifyLine(var ServiceLine: Record "Service Line"; var ModifyLine: Boolean; WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleServiceLineOnSourceDocumentServiceOrderOnBeforeModifyLine(var ServiceLine: Record "Service Line"; WarehouseShipmentLine: Record "Warehouse Shipment Line"; var InvoiceService: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintDocuments(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ReturnShipmentHeader: Record "Return Shipment Header"; var TransferShipmentHeader: Record "Transfer Shipment Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceShipmentHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 }

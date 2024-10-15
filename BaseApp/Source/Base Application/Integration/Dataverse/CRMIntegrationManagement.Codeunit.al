@@ -343,6 +343,15 @@ codeunit 5330 "CRM Integration Management"
     internal procedure RemoveCRMNAVConnectionUrl(WebClientUrl: Text[250]): Boolean
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if CRMConnectionSetup.Get() then
+            if CRMConnectionSetup."Is Enabled" then
+                exit(TryRemoveCRMNAVConnectionUrl(CRMConnectionSetup, WebClientUrl));
+    end;
+
+    [TryFunction]
+    local procedure TryRemoveCRMNAVConnectionUrl(var CRMConnectionSetup: Record "CRM Connection Setup"; WebClientUrl: Text[250])
+    var
         CRMNAVConnection: Record "CRM NAV Connection";
         HttpUtility: DotNet HttpUtility;
     begin
@@ -358,7 +367,7 @@ codeunit 5330 "CRM Integration Management"
                 if not CRMNAVConnection.FindFirst() then
                     exit;
 
-                exit(CRMNAVConnection.Delete());
+                CRMNAVConnection.Delete();
             end;
     end;
 
@@ -3914,6 +3923,7 @@ codeunit 5330 "CRM Integration Management"
         TableNo: Integer;
         FieldNo: Integer;
         IsHandled: Boolean;
+        FieldFilterSearchTok: Label '*%1*', Locked = true;
     begin
         TableNo := RecRef.Number();
 
@@ -3930,8 +3940,13 @@ codeunit 5330 "CRM Integration Management"
             Field.SetRange(FieldName, Customer.FieldName("Coupled to Dataverse"));
             if Field.FindFirst() then
                 FieldNo := Field."No."
-            else
-                FieldNo := 0;
+            else begin
+                Field.SetFilter(FieldName, StrSubstNo(FieldFilterSearchTok, Customer.FieldName("Coupled to Dataverse")));
+                if Field.FindFirst() then
+                    FieldNo := Field."No."
+                else
+                    FieldNo := 0;
+            end;
             CachedCoupledToCRMFieldNo.Add(TableNo, FieldNo);
         end;
         if FieldNo = 0 then

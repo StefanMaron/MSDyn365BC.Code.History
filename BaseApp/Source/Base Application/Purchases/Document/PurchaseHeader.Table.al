@@ -711,8 +711,7 @@ table 38 "Purchase Header"
 
                 UpdateShipToAddress();
                 UpdateInboundWhseHandlingTime();
-                if ("Location Code" <> '') or (("Location Code" = '') and (xRec."Location Code" <> '')) then
-                    CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
+                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
@@ -1201,10 +1200,11 @@ table 38 "Purchase Header"
                     CheckSpecialOrderSalesLineLink();
                 end;
 
-                if "Sell-to Customer No." = '' then
-                    UpdateLocationCode('')
-                else
-                    SetShipToCodeEmpty();
+                if ("Sell-to Customer No." <> xRec."Sell-to Customer No.") then
+                    if ("Sell-to Customer No." = '') then
+                        UpdateLocationCode('')
+                    else
+                        SetShipToCodeEmpty();
             end;
         }
         field(73; "Reason Code"; Code[10])
@@ -2636,7 +2636,7 @@ table 38 "Purchase Header"
         ShowPostedDocsToPrint :=
             (PurchRcptHeader."No." <> '') or (PurchInvHeader."No." <> '') or (PurchCrMemoHeader."No." <> '') or
            (ReturnShptHeader."No." <> '') or (PurchInvHeaderPrepmt."No." <> '') or (PurchCrMemoHeaderPrepmt."No." <> '');
-        OnBeforeShowPostedDocsToPrintCreatedMsg(ShowPostedDocsToPrint);
+        OnBeforeShowPostedDocsToPrintCreatedMsg(ShowPostedDocsToPrint, HideValidationDialog);
         if ShowPostedDocsToPrint then
             Message(PostedDocsToPrintCreatedMsg);
     end;
@@ -3810,7 +3810,7 @@ table 38 "Purchase Header"
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
-        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo);
+        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID, DefaultDimSource);
 
         if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and GuiAllowed and not GetHideValidationDialog() then
             if CouldDimensionsBeKept() then
@@ -3845,15 +3845,13 @@ table 38 "Purchase Header"
         IsHandled := false;
         OnBeforeCouldDimensionsBeKept(Rec, xRec, Result, IsHandled);
         if not IsHandled then begin
-            if CurrFieldNo = 0 then
-                exit(false);
             if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> Rec."Buy-from Vendor No.") then
                 exit(false);
             if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> Rec."Pay-to Vendor No.") then
                 exit(false);
             if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
                 exit(true);
-            if (xRec."location Code" <> Rec."Location Code") and ((CurrFieldNo = Rec.FieldNo("Location Code"))
+            if (xRec."Location Code" <> Rec."Location Code") and ((CurrFieldNo = Rec.FieldNo("Location Code"))
                 or ((Rec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No."))) then
                 exit(true);
             if (xRec."Purchaser Code" <> '') and (xRec."Purchaser Code" <> Rec."Purchaser Code") then
@@ -5471,10 +5469,16 @@ table 38 "Purchase Header"
             Error(MixedDropshipmentErr);
     end;
 
-    local procedure HasMixedDropShipment(): Boolean
+    local procedure HasMixedDropShipment() Result: Boolean
     var
         PurchaseLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasMixedDropShipment(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         PurchaseLine.SetRange("Document Type", "Document Type");
         PurchaseLine.SetRange("Document No.", "No.");
         PurchaseLine.SetFilter("No.", '<>%1', '');
@@ -5998,33 +6002,37 @@ table 38 "Purchase Header"
         exit(IsShipToAddressEqualToCompanyShipToAddress(Rec, CompanyInformation));
     end;
 
-    local procedure IsShipToAddressEqualToCompanyShipToAddress(PurchaseHeader: Record "Purchase Header"; CompanyInformation: Record "Company Information"): Boolean
+    local procedure IsShipToAddressEqualToCompanyShipToAddress(PurchaseHeader: Record "Purchase Header"; CompanyInformation: Record "Company Information") Result: Boolean
     begin
-        exit(
+        Result :=
           (PurchaseHeader."Ship-to Address" = CompanyInformation."Ship-to Address") and
           (PurchaseHeader."Ship-to Address 2" = CompanyInformation."Ship-to Address 2") and
           (PurchaseHeader."Ship-to City" = CompanyInformation."Ship-to City") and
           (PurchaseHeader."Ship-to County" = CompanyInformation."Ship-to County") and
           (PurchaseHeader."Ship-to Post Code" = CompanyInformation."Ship-to Post Code") and
           (PurchaseHeader."Ship-to Country/Region Code" = CompanyInformation."Ship-to Country/Region Code") and
-          (PurchaseHeader."Ship-to Name" = CompanyInformation."Ship-to Name"));
+          (PurchaseHeader."Ship-to Name" = CompanyInformation."Ship-to Name");
+
+        OnAfterIsShipToAddressEqualToCompanyShipToAddress(Rec, CompanyInformation, Result);
     end;
 
-    procedure BuyFromAddressEqualsShipToAddress(): Boolean
+    procedure BuyFromAddressEqualsShipToAddress() Result: Boolean
     begin
-        exit(
+        Result :=
           ("Ship-to Address" = "Buy-from Address") and
           ("Ship-to Address 2" = "Buy-from Address 2") and
           ("Ship-to City" = "Buy-from City") and
           ("Ship-to County" = "Buy-from County") and
           ("Ship-to Post Code" = "Buy-from Post Code") and
           ("Ship-to Country/Region Code" = "Buy-from Country/Region Code") and
-          ("Ship-to Name" = "Buy-from Vendor Name"));
+          ("Ship-to Name" = "Buy-from Vendor Name");
+
+        OnAfterBuyFromAddressEqualsShipToAddress(Rec, Result);
     end;
 
-    procedure BuyFromAddressEqualsPayToAddress(): Boolean
+    procedure BuyFromAddressEqualsPayToAddress() Result: Boolean
     begin
-        exit(
+        Result :=
           ("Pay-to Address" = "Buy-from Address") and
           ("Pay-to Address 2" = "Buy-from Address 2") and
           ("Pay-to City" = "Buy-from City") and
@@ -6032,7 +6040,9 @@ table 38 "Purchase Header"
           ("Pay-to Post Code" = "Buy-from Post Code") and
           ("Pay-to Country/Region Code" = "Buy-from Country/Region Code") and
           ("Pay-to Contact No." = "Buy-from Contact No.") and
-          ("Pay-to Contact" = "Buy-from Contact"));
+          ("Pay-to Contact" = "Buy-from Contact");
+
+        OnAfterBuyFromAddressEqualsPayToAddress(Rec, Result);
     end;
 
     local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
@@ -7216,7 +7226,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateDimOnBeforeUpdateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer)
+    local procedure OnCreateDimOnBeforeUpdateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
@@ -7301,7 +7311,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowPostedDocsToPrintCreatedMsg(var ShowPostedDocsToPrint: Boolean)
+    local procedure OnBeforeShowPostedDocsToPrintCreatedMsg(var ShowPostedDocsToPrint: Boolean; HideValidationDialog: Boolean)
     begin
     end;
 
@@ -7812,6 +7822,26 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDropShipmentLineExists(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBuyFromAddressEqualsPayToAddress(PurchaseHeader: Record "Purchase Header"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsShipToAddressEqualToCompanyShipToAddress(PurchaseHeader: Record "Purchase Header"; CompanyInformation: Record "Company Information"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBuyFromAddressEqualsShipToAddress(PurchaseHeader: Record "Purchase Header"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasMixedDropShipment(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1699,6 +1699,9 @@ page 254 "Purchase Journal"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
+            exit;
+
         if not GenJournalBatch.Get(Rec.GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
             exit;
 

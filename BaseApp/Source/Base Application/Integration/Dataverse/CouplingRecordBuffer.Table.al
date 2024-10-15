@@ -342,6 +342,10 @@ table 5332 "Coupling Record Buffer"
                 "CRM Name" := '';
             RecordRef.Close();
         end else begin
+            if "CRM Option Id" = 0 then begin
+                "CRM Name" := '';
+                exit;
+            end;
             IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
             IntegrationTableMapping.SetRange("Table ID", "NAV Table ID");
             IntegrationTableMapping.SetRange("Delete After Synchronization", false);

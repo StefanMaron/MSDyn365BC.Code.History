@@ -31,7 +31,11 @@ codeunit 5643 "FA Reclass. Transfer Batch"
         Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
 
     local procedure "Code"()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeCode(FAReclassJnlLine);
+
         with FAReclassJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
@@ -66,12 +70,16 @@ codeunit 5643 "FA Reclass. Transfer Batch"
             OneFAReclassDone := false;
             SetCurrentKey("Journal Template Name", "Journal Batch Name", "FA Posting Date");
             Find('-');
-            repeat
-                LineCounter := LineCounter + 1;
-                Window.Update(3, LineCounter);
-                Window.Update(4, Round(LineCounter / NoOfRecords * 10000, 1));
-                FAReclassTransferLine.FAReclassLine(FAReclassJnlLine, OneFAReclassDone);
-            until Next() = 0;
+
+            IsHandled := false;
+            OnCodeOnBeforeLoopFAReclassJnlLine(FAReclassJnlLine, NoOfRecords, OneFAReclassDone, IsHandled);
+            if not IsHandled then
+                repeat
+                    LineCounter := LineCounter + 1;
+                    Window.Update(3, LineCounter);
+                    Window.Update(4, Round(LineCounter / NoOfRecords * 10000, 1));
+                    FAReclassTransferLine.FAReclassLine(FAReclassJnlLine, OneFAReclassDone);
+                until Next() = 0;
 
             Init();
             if OneFAReclassDone then
@@ -118,6 +126,16 @@ codeunit 5643 "FA Reclass. Transfer Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFAReclassJnlLineInsert(var FAReclassJournalLine: Record "FA Reclass. Journal Line"; var FAReclassJournalLine2: Record "FA Reclass. Journal Line"; var FAReclassJournalLine3: Record "FA Reclass. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var FAReclassJournalLine: Record "FA Reclass. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeLoopFAReclassJnlLine(var FAReclassJournalLine: Record "FA Reclass. Journal Line"; NoOfRecords: Integer; var OneFAReclassDone: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

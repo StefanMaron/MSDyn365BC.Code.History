@@ -840,19 +840,19 @@ table 5612 "FA Depreciation Book"
     begin
         IsHandled := false;
         OnBeforeModifyDeprFields(Rec, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then
+            if ("Last Depreciation Date" > 0D) or
+               ("Last Write-Down Date" > 0D) or
+               ("Last Appreciation Date" > 0D) or
+               ("Last Custom 1 Date" > 0D) or
+               ("Last Custom 2 Date" > 0D) or
+               ("Disposal Date" > 0D)
+            then begin
+                DeprBook.Get("Depreciation Book Code");
+                DeprBook.TestField("Allow Changes in Depr. Fields", true);
+            end;
 
-        if ("Last Depreciation Date" > 0D) or
-           ("Last Write-Down Date" > 0D) or
-           ("Last Appreciation Date" > 0D) or
-           ("Last Custom 1 Date" > 0D) or
-           ("Last Custom 2 Date" > 0D) or
-           ("Disposal Date" > 0D)
-        then begin
-            DeprBook.Get("Depreciation Book Code");
-            DeprBook.TestField("Allow Changes in Depr. Fields", true);
-        end;
+        OnAfterModifyDeprFields(Rec);
     end;
 
     procedure CalcDeprPeriod()
@@ -1232,5 +1232,9 @@ table 5612 "FA Depreciation Book"
     local procedure OnValidateNoofDepreciationMonthsOnBeforeTestFieldDeprStartingDate(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterModifyDeprFields(var FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
+}
