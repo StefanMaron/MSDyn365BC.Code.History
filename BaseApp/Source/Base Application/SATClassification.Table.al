@@ -16,6 +16,10 @@ table 27010 "SAT Classification"
         {
             Caption = 'Description';
         }
+        field(3; "Hazardous Material Mandatory"; Boolean)
+        {
+            Caption = 'Hazardous Material Mandatory';
+        }
     }
 
     keys

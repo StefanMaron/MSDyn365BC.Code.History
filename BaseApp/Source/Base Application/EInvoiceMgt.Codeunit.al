@@ -2354,6 +2354,7 @@
         NumeroPedimento: Text;
         DestinationRFCNo: Text;
         HazardousMatExists: Boolean;
+        SATClassificationCode: Code[10];
     begin
         InitXMLCartaPorte(XMLDoc, XMLCurrNode);
 
@@ -2467,10 +2468,10 @@
                     Item.Get(TempDocumentLine."No.")
                 else
                     Item.Init();
+                SATClassificationCode := SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.");
                 AddElementCartaPorte(XMLCurrNode, 'Mercancia', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
-                AddAttribute(
-                  XMLDoc, XMLCurrNode, 'BienesTransp', SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No."));
+                AddAttribute(XMLDoc, XMLCurrNode, 'BienesTransp', SATClassificationCode);
                 AddAttribute(XMLDoc, XMLCurrNode, 'Descripcion', EncodeString(TempDocumentLine.Description));
                 AddAttribute(XMLDoc, XMLCurrNode, 'Cantidad', Format(TempDocumentLine.Quantity, 0, 9));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ClaveUnidad', SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code"));
@@ -2480,8 +2481,8 @@
                     AddAttribute(XMLDoc, XMLCurrNode, 'CveMaterialPeligroso', Item."SAT Hazardous Material");
                     AddAttribute(XMLDoc, XMLCurrNode, 'Embalaje', Item."SAT Packaging Type");
                 end else
-                    AddAttribute(XMLDoc, XMLCurrNode, 'MaterialPeligroso', 'No');
-
+                    if IsHazardousMaterialMandatory(SATClassificationCode) then
+                        AddAttribute(XMLDoc, XMLCurrNode, 'MaterialPeligroso', 'No');
                 AddAttribute(XMLDoc, XMLCurrNode, 'PesoEnKg', FormatDecimal(TempDocumentLine."Gross Weight", 3));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ValorMercancia', '0');
                 AddAttribute(XMLDoc, XMLCurrNode, 'Moneda', 'MXN');
@@ -3016,6 +3017,7 @@
         OutStream: OutStream;
         DestinationRFCNo: Text;
         HazardousMatExists: Boolean;
+        SATClassificationCode: Code[10];
     begin
         Clear(TempBlob);
         TempBlob.CreateOutStream(OutStream);
@@ -3096,7 +3098,8 @@
                     Item.Get(TempDocumentLine."No.")
                 else
                     Item.Init();
-                WriteOutStr(OutStream, SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.") + '|'); // BienesTransp
+                SATClassificationCode := SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.");
+                WriteOutStr(OutStream, SATClassificationCode + '|'); // BienesTransp
                 WriteOutStr(OutStream, EncodeString(TempDocumentLine.Description) + '|'); // Descripcion
                 WriteOutStr(OutStream, Format(TempDocumentLine.Quantity, 0, 9) + '|'); // Cantidad
                 WriteOutStr(OutStream, SATUtilities.GetSATUnitofMeasure(TempDocumentLine."Unit of Measure Code") + '|'); // ClaveUnidad
@@ -3105,8 +3108,9 @@
                     WriteOutStr(OutStream, 'Sí|'); // MaterialPeligroso
                     WriteOutStr(OutStream, Item."SAT Hazardous Material" + '|'); // CveMaterialPeligroso
                     WriteOutStr(OutStream, Item."SAT Packaging Type" + '|'); // Embalaje
-                end else 
-                    WriteOutStr(OutStream, 'No|');
+                end else
+                    if IsHazardousMaterialMandatory(SATClassificationCode) then
+                        WriteOutStr(OutStream, 'No|');
 
                 WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Gross Weight", 3) + '|'); // PesoEnKg
                 WriteOutStr(OutStream, '0|'); // ValorMercancia
@@ -5873,6 +5877,15 @@ IsVATExemptLine(TempDocumentLine));
     begin
         GetGLSetupOnce();
         exit((GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled) And GLSetup."CFDI Enabled");
+    end;
+
+    procedure IsHazardousMaterialMandatory(SATClassificationCode: Code[10]): Boolean
+    var
+        SATClassification: Record "SAT Classification";
+    begin
+        if not SATClassification.Get(SATClassificationCode) then
+            exit(false);
+        exit(SATClassification."Hazardous Material Mandatory");
     end;
 
     local procedure WriteOutStr(var OutStr: OutStream; TextParam: Text[1024])
