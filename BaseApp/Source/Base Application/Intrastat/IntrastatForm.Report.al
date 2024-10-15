@@ -448,12 +448,7 @@ report 501 "Intrastat - Form"
                     if Nihil then
                         CurrReport.Break();
 
-                    if Count > 0 then begin
-                        if GetRangeMin(Type) = 0 then
-                            "Intrastat Jnl. Batch".TestField("System 19 reported", false)
-                        else
-                            "Intrastat Jnl. Batch".TestField("System 29 reported", false);
-                    end;
+                    CheckIntrastatJnlBatch();
 
                     // Calculate number of pages
                     if not Nihil then begin
@@ -726,5 +721,28 @@ report 501 "Intrastat - Form"
         V6Caption_Control1010070Lbl: Label '6';
         V5Caption_Control1010071Lbl: Label '5';
         BNBB__de_Berlaimont_14__1000_BRUCaption_Control1010072Lbl: Label 'BNBB, de Berlaimont 14, 1000 BRU';
+
+    local procedure CheckIntrastatJnlBatch()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIntrastatJnlBatch("Intrastat Jnl. Batch", "Intrastat Jnl. Line", IsHandled);
+        if IsHandled then
+            exit;
+
+        with "Intrastat Jnl. Line" do
+            if Count() > 0 then
+                if GetRangeMin(Type) = 0 then
+                    "Intrastat Jnl. Batch".TestField("System 19 reported", false)
+                else
+                    "Intrastat Jnl. Batch".TestField("System 29 reported", false);
+
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIntrastatJnlBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

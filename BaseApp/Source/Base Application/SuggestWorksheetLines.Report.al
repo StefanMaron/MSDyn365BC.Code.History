@@ -21,6 +21,7 @@ report 840 "Suggest Worksheet Lines"
                 begin
                     GLAcc.SetFilter("No.", "G/L Account Filter");
 
+                    ClearCircularRefData();
                     GetSubPostingGLAccounts(GLAcc, TempGLAccount);
 
                     if TempGLAccount.FindSet() then
@@ -703,6 +704,9 @@ report 840 "Suggest Worksheet Lines"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         CashFlowManagement: Codeunit "Cash Flow Management";
         ConsiderSource: array[16] of Boolean;
+        TotalAccounts: List of [Code[20]];
+        TotalAccountPairs: List of [Code[50]];
+        LastTotalAccount: Code[20];
         SourceType: Enum "Cash Flow Source Type";
         CashFlowNo: Code[20];
         LineNo: Integer;
@@ -743,6 +747,8 @@ report 840 "Suggest Worksheet Lines"
         XTAXRECEIVABLESCORRECTIONTxt: Label 'Tax from Sales entries';
         XTAXSALESORDERSTxt: Label 'Tax from Sales Orders';
         XTAXPURCHORDERSTxt: Label 'Tax from Purchase Orders';
+        CircularRefsErr: Label 'There are one or more circular references where the following G/L accounts reference to each other either directly or indirectly:\ %1.\Change the value of the Totaling field in one of these accounts.', Comment = '%1 - list of accounts.';
+        ThreePlaceHoldersLbl: Label '%1%2%3', Locked = true, Comment = '%1%2%3 are placeholders';
 
     protected var
         Window: Dialog;
@@ -1461,6 +1467,8 @@ report 840 "Suggest Worksheet Lines"
                 GLAccount."Account Type"::"End-Total",
                 GLAccount."Account Type"::Total:
                     begin
+                        CheckCircularRefs(GLAccount);
+
                         SubGLAccount.SetFilter("No.", GLAccount.Totaling);
                         SubGLAccount.FilterGroup := 2;
                         SubGLAccount.SetFilter("No.", '<>%1', GLAccount."No.");
@@ -1760,6 +1768,66 @@ report 840 "Suggest Worksheet Lines"
         exit(Date < CashFlowSetup.GetCurrentPeriodStartDate);
     end;
 
+    local procedure CheckCircularRefs(var GLAccount: Record "G/L Account")
+    var
+        AccountPair: Code[50];
+        RecursiveLimit: Integer;
+    begin
+        if RecursiveLimit = 0 then
+            RecursiveLimit := GetRecursiveLimit();
+        AccountPair := StrSubstNo(ThreePlaceHoldersLbl, LastTotalAccount, '|', GLAccount."No.");
+        TotalAccountPairs.Add(AccountPair);
+        TotalAccounts.Add(GLAccount."No.");
+        LastTotalAccount := GLAccount."No.";
+        if TotalAccountPairs.Contains(AccountPair) then
+            if CountRepeatedElement(AccountPair) >= RecursiveLimit then
+                Error(CircularRefsErr, GetCircularRefErrorMessage(AccountPair));
+    end;
+
+    local procedure ClearCircularRefData()
+    begin
+        Clear(TotalAccounts);
+        Clear(TotalAccountPairs);
+        LastTotalAccount := '';
+    end;
+
+    local procedure CountRepeatedElement(AccountPair: Code[50]) Result: Integer
+    var
+        Index: Integer;
+    begin
+        for Index := TotalAccountPairs.IndexOf(AccountPair) to TotalAccountPairs.LastIndexOf(AccountPair) do
+            if TotalAccountPairs.Get(Index) = AccountPair then
+                Result += 1;
+    end;
+
+    local procedure GetRecursiveLimit() Limit: Integer
+    begin
+        Limit := 3;
+        OnAfterGetRecursiveLimit(Limit);
+    end;
+
+    local procedure GetCircularRefErrorMessage(AccountPair: Code[50]) CircularRefs: Text;
+    var
+        Index: Integer;
+        StartIndex: Integer;
+        EndIndex: Integer;
+        SeparatorChar: Text[1];
+    begin
+        EndIndex := TotalAccountPairs.Count();
+        TotalAccountPairs.RemoveAt(EndIndex);
+        EndIndex -= 1;
+        StartIndex := TotalAccountPairs.LastIndexOf(AccountPair);
+        for Index := 1 to EndIndex do begin
+            if Index = StartIndex then
+                CircularRefs += '(';
+            if Index = EndIndex then
+                SeparatorChar := ')'
+            else
+                SeparatorChar := ',';
+            CircularRefs += StrSubstNo(ThreePlaceHoldersLbl, TotalAccounts.Get(Index), SeparatorChar, ' ');
+        end;
+    end;
+
     procedure SetSummarized(NewSummarized: Boolean)
     begin
         Summarized := NewSummarized;
@@ -1792,6 +1860,11 @@ report 840 "Suggest Worksheet Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnJobPlanningLineOnAfterGetRecordOnBeforeInsertCFLineForJobPlanningLine(JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecursiveLimit(var Limit: Integer)
     begin
     end;
 }

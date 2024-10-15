@@ -2192,11 +2192,11 @@ codeunit 5940 ServContractManagement
     var
         ServLedgEntry: Record "Service Ledger Entry";
     begin
-        if ReturnLedgerEntry <> 0 then begin
-            ServLedgEntry.Get(FirstLineEntry);
-            ServLedgEntry."Apply Until Entry No." := LastEntry;
-            ServLedgEntry.Modify();
-        end;
+        if ReturnLedgerEntry <> 0 then
+            if ServLedgEntry.Get(FirstLineEntry) then begin
+                ServLedgEntry."Apply Until Entry No." := LastEntry;
+                ServLedgEntry.Modify();
+            end;
     end;
 
     local procedure PostPartialServLedgEntry(var InvAmountRounded: array[4] of Decimal; ServContractLine: Record "Service Contract Line"; ServHeader: Record "Service Header"; InvFrom: Date; InvTo: Date; DueDate: Date; AmtRoundingPrecision: Decimal) YearContractCorrection: Boolean
@@ -2429,7 +2429,7 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateServLedgEntryAmounts(var ServiceContractLine: Record "Service Contract Line"; var ServLedgEntry: Record "Service Ledger Entry"; InvRoundedAmount: array[4] of Decimal; LineInvoiceFrom: Date; InvoiceTo: Date; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateServLedgEntryAmounts(var ServiceContractLine: Record "Service Contract Line"; var ServLedgEntry: Record "Service Ledger Entry"; var InvRoundedAmount: array[4] of Decimal; LineInvoiceFrom: Date; InvoiceTo: Date; var IsHandled: Boolean)
     begin
     end;
 

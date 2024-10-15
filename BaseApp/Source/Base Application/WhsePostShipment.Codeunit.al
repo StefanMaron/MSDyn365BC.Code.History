@@ -1152,7 +1152,7 @@ codeunit 5763 "Whse.-Post Shipment"
                           ((SalesLine."Qty. to Ship" <> 0) or
                            (SalesLine."Return Qty. to Receive" <> 0) or
                            (SalesLine."Qty. to Invoice" <> 0));
-                        OnHandleSalesLineOnNonWhseLineOnAfterCalcModifyLine(SalesLine, ModifyLine);
+                        OnHandleSalesLineOnNonWhseLineOnAfterCalcModifyLine(SalesLine, ModifyLine, WhseShptLine);
 
                         if ModifyLine then begin
                             if "Source Document" = "Source Document"::"Sales Order" then
@@ -1874,7 +1874,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnHandleSalesLineOnNonWhseLineOnAfterCalcModifyLine(var SalesLine: Record "Sales Line"; var ModifyLine: Boolean)
+    local procedure OnHandleSalesLineOnNonWhseLineOnAfterCalcModifyLine(var SalesLine: Record "Sales Line"; var ModifyLine: Boolean; WhseShptLine: Record "Warehouse Shipment Line")
     begin
     end;
 

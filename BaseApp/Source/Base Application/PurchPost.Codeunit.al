@@ -1237,7 +1237,7 @@
 
             RunItemJnlPostLine(ItemJnlLine);
 
-            OnPostItemJnlLineOnAfterItemJnlPostLineRunWithCheck(ItemJnlLine, PurchLine, PurchHeader);
+            OnPostItemJnlLineOnAfterItemJnlPostLineRunWithCheck(ItemJnlLine, PurchLine, PurchHeader, QtyToBeReceived, WhseReceive, TempWhseRcptHeader);
 
             if not Subcontracting then
                 PostItemJnlLineTracking(
@@ -2154,7 +2154,7 @@
             exit;
 
         with PurchaseLine do begin
-            if Amount = 0 then
+            if (Amount = 0) and (Quantity <> 0) then
                 Error(ItemChargeZeroAmountErr, "No.");
             TestField("Job No.", '');
         end;
@@ -2293,7 +2293,7 @@
                     end;
                     OnUpdateAssocOrderOnBeforeSalesOrderLineModify(SalesOrderLine, TempDropShptPostBuffer, SalesOrderHeader);
                     SalesOrderLine.Modify();
-                    OnUpdateAssocOrderOnAfterSalesOrderLineModify(SalesOrderLine, TempDropShptPostBuffer);
+                    OnUpdateAssocOrderOnAfterSalesOrderLineModify(SalesOrderLine, TempDropShptPostBuffer, SalesOrderHeader, SalesShptHeader);
                 until TempDropShptPostBuffer.Next() = 0;
                 TempDropShptPostBuffer.SetRange("Order No.");
                 OnUpdateAssocOrderOnAfterOrderNoClearFilter(TempDropShptPostBuffer);
@@ -3994,7 +3994,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCopyAndCheckItemChargeTempPurchLine(PurchHeader, TempPurchLine, TempItemChargeAssgntPurch, IsHandled);
+        OnBeforeCopyAndCheckItemChargeTempPurchLine(PurchHeader, TempPurchLine, TempItemChargeAssgntPurch, IsHandled, AssignError);
         if IsHandled then
             exit;
 
@@ -5488,7 +5488,10 @@
                 if PurchHeader.Invoice then begin
                     ItemLedgEntry.Reset();
                     ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Purchase Return Shipment");
-                    ItemLedgEntry.SetRange("Document No.", PurchHeader."Last Return Shipment No.");
+                    if "Return Shipment No." <> '' then
+                        ItemLedgEntry.SetRange("Document No.", "Return Shipment No.")
+                    else
+                        ItemLedgEntry.SetRange("Document No.", PurchHeader."Last Return Shipment No.");
                     ItemLedgEntry.SetRange("Item No.", "No.");
                     ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::"Negative Adjmt.");
                     ItemLedgEntry.SetRange("Completely Invoiced", false);
@@ -8843,7 +8846,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyAndCheckItemChargeTempPurchLine(PurchaseHeader: Record "Purchase Header"; var TempPrepmtPurchaseLine: Record "Purchase Line" temporary; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCopyAndCheckItemChargeTempPurchLine(PurchaseHeader: Record "Purchase Header"; var TempPrepmtPurchaseLine: Record "Purchase Line" temporary; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary; var IsHandled: Boolean; var AssignError: Boolean)
     begin
     end;
 
@@ -9722,7 +9725,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterItemJnlPostLineRunWithCheck(var ItemJnlLine: Record "Item Journal Line"; var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
+    local procedure OnPostItemJnlLineOnAfterItemJnlPostLineRunWithCheck(var ItemJnlLine: Record "Item Journal Line"; var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; QtyToBeReceived: Decimal; WhseReceive: Boolean; var TempWhseRcptHeader: Record "Warehouse Receipt Header" temporary)
     begin
     end;
 
@@ -9936,7 +9939,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAssocOrderOnAfterSalesOrderLineModify(var SalesOrderLine: Record "Sales Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
+    local procedure OnUpdateAssocOrderOnAfterSalesOrderLineModify(var SalesOrderLine: Record "Sales Line"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; SalesOrderHeader: Record "Sales Header"; SalesShptHeader: Record "Sales Shipment Header")
     begin
     end;
 

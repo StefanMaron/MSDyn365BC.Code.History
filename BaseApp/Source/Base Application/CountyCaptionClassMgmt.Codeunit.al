@@ -30,11 +30,17 @@ codeunit 344 "County CaptionClass Mgmt"
             CountyCaptionRef := CopyStr(CaptionExpr, CommaPosition + 1);
             case CountyCaptionType of
                 '1':
-                    if CountryRegion.Get(CountyCaptionRef) then begin
-                        Resolved := true;
-                        if CountryRegion."County Name" <> '' then
-                            exit(CountryRegion."County Name");
-                        exit(CountyTxt);
+                    begin
+                        if CountyCaptionRef = '' then begin
+                            Resolved := true;
+                            exit(CountyTxt);
+                        end;
+                        if CountryRegion.Get(CountyCaptionRef) then begin
+                            Resolved := true;
+                            if CountryRegion."County Name" <> '' then
+                                exit(CountryRegion."County Name");
+                            exit(CountyTxt);
+                        end;
                     end;
                 else
                     exit(CountyTxt);

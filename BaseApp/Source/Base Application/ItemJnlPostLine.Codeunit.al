@@ -245,17 +245,16 @@
 
             RoundingResidualAmount := 0;
             RoundingResidualAmountACY := 0;
-            if "Value Entry Type" = "Value Entry Type"::Revaluation then
-                if GetItem("Item No.", false) and (Item."Costing Method" = Item."Costing Method"::Average) then begin
-                    RoundingResidualAmount := Quantity *
-                      ("Unit Cost" - Round("Unit Cost" / QtyPerUnitOfMeasure, GLSetup."Unit-Amount Rounding Precision"));
-                    RoundingResidualAmountACY := Quantity *
-                      ("Unit Cost (ACY)" - Round("Unit Cost (ACY)" / QtyPerUnitOfMeasure, Currency."Unit-Amount Rounding Precision"));
-                    if Abs(RoundingResidualAmount) < GLSetup."Amount Rounding Precision" then
-                        RoundingResidualAmount := 0;
-                    if Abs(RoundingResidualAmountACY) < Currency."Amount Rounding Precision" then
-                        RoundingResidualAmountACY := 0;
-                end;
+            if MustConsiderUnitCostRoundingOnRevaluation(ItemJnlLine) then begin
+                RoundingResidualAmount := Quantity *
+                  ("Unit Cost" - Round("Unit Cost" / QtyPerUnitOfMeasure, GLSetup."Unit-Amount Rounding Precision"));
+                RoundingResidualAmountACY := Quantity *
+                  ("Unit Cost (ACY)" - Round("Unit Cost (ACY)" / QtyPerUnitOfMeasure, Currency."Unit-Amount Rounding Precision"));
+                if Abs(RoundingResidualAmount) < GLSetup."Amount Rounding Precision" then
+                    RoundingResidualAmount := 0;
+                if Abs(RoundingResidualAmountACY) < Currency."Amount Rounding Precision" then
+                    RoundingResidualAmountACY := 0;
+            end;
 
             "Unit Amount" := Round(
                 "Unit Amount" / QtyPerUnitOfMeasure, GLSetup."Unit-Amount Rounding Precision");
@@ -687,11 +686,8 @@
                     "Variant Code" := '';
                 end;
 
-            if GetItem("Item No.", false) then begin
-                if not CalledFromAdjustment then
-                    DisplayErrorIfItemIsBlocked(Item);
-                Item.CheckBlockedByApplWorksheet;
-            end;
+            if GetItem("Item No.", false) then
+                CheckIfItemIsBlocked();
 
             OnPostItemOnBeforeCheckInventoryPostingGroup(ItemJnlLine, CalledFromAdjustment);
             if ("Inventory Posting Group" = '') and (Item.Type = Item.Type::Inventory) then begin
@@ -1193,6 +1189,20 @@
                 ItemValuePosting();
     end;
 
+    local procedure CheckIfItemIsBlocked()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIfItemIsBlocked(ItemJnlLine, CalledFromAdjustment, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not CalledFromAdjustment then
+            ItemJnlLine.DisplayErrorIfItemIsBlocked(Item);
+        Item.CheckBlockedByApplWorksheet;
+    end;
+
     procedure ItemValuePosting()
     var
         IsCostNotTracedDirectly: Boolean;
@@ -1376,6 +1386,7 @@
         CompItem.Get(ProdOrderComp."Item No.");
         CompItem.TestField("Rounding Precision");
 
+        OnPostFlushedConsumptionOnBeforeCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, ProdOrderRoutingLine, OldItemJnlLine, OutputQtyBase);
         if ProdOrderComp."Flushing Method" in
            [ProdOrderComp."Flushing Method"::Backward, ProdOrderComp."Flushing Method"::"Pick + Backward"]
         then begin
@@ -2017,11 +2028,13 @@
         ItemTrackingSetup2.CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode);
         ItemTrackingSetup2.CopyTrackingFromItemLedgerEntry(FromItemLedgEntry);
         ToItemLedgEntry.SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup2);
-        if Location.Get(FromItemLedgEntry."Location Code") then
-            if Location."Use As In-Transit" then begin
-                ToItemLedgEntry.SetRange("Order Type", FromItemLedgEntry."Order Type"::Transfer);
-                ToItemLedgEntry.SetRange("Order No.", FromItemLedgEntry."Order No.");
-            end;
+        if (Location.Get(FromItemLedgEntry."Location Code") and Location."Use As In-Transit") or
+           (FromItemLedgEntry."Location Code" = '') and
+           (FromItemLedgEntry."Document Type" = FromItemLedgEntry."Document Type"::"Transfer Receipt")
+        then begin
+            ToItemLedgEntry.SetRange("Order Type", FromItemLedgEntry."Order Type"::Transfer);
+            ToItemLedgEntry.SetRange("Order No.", FromItemLedgEntry."Order No.");
+        end;
 
         OnAfterApplyItemLedgEntrySetFilters(ToItemLedgEntry, FromItemLedgEntry, ItemJnlLine);
     end;
@@ -2679,6 +2692,8 @@
             then
                 ValueEntry.Inventoriable := Item.Type = Item.Type::Inventory;
 
+            OnInitValueEntryOnAfterSetValueEntryInventoriable(ValueEntry, ItemJnlLine);
+
             if ((Quantity = 0) and ("Invoiced Quantity" <> 0)) or
                ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
                ("Item Charge No." <> '') or Adjustment
@@ -2947,9 +2962,7 @@
             CostAmtACY :=
               ValueEntry."Cost per Unit (ACY)" * ValueEntry."Valued Quantity";
 
-            if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation) and
-               (Item."Costing Method" = Item."Costing Method"::Average)
-            then begin
+            if MustConsiderUnitCostRoundingOnRevaluation(ItemJnlLine) then begin
                 CostAmt += RoundingResidualAmount;
                 CostAmtACY += RoundingResidualAmountACY;
             end;
@@ -4456,6 +4469,8 @@
 
         if NewItemLedgEntry."Item Tracking" <> NewItemLedgEntry."Item Tracking"::None then
             ItemTrackingMgt.ExistingExpirationDate(NewItemLedgEntry, true, EntriesExist);
+
+        OnAfterInitCorrItemLedgEntry(NewItemLedgEntry, EntriesExist);
     end;
 
     local procedure UpdateOldItemLedgEntry(var OldItemLedgEntry: Record "Item Ledger Entry"; LastInvoiceDate: Date)
@@ -4613,7 +4628,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckItemTrackingInformation(ItemJnlLine2, TrackingSpecification, ItemTrackingSetup, SignFactor, ItemTrackingCode, IsHandled);
+        OnBeforeCheckItemTrackingInformation(ItemJnlLine2, TrackingSpecification, ItemTrackingSetup, SignFactor, ItemTrackingCode, IsHandled, GlobalItemTrackingCode);
         if IsHandled then
             exit;
 
@@ -5658,6 +5673,14 @@
           (OldItemLedgEntry."Order Line No." = PrevAppliedItemLedgEntry."Order Line No."));
     end;
 
+    local procedure MustConsiderUnitCostRoundingOnRevaluation(ItemJournalLine: Record "Item Journal Line"): Boolean
+    begin
+        exit(
+          (ItemJournalLine."Value Entry Type" = ItemJournalLine."Value Entry Type"::Revaluation) and
+          (GetItem(ItemJournalLine."Item No.", false) and (Item."Costing Method" = Item."Costing Method"::Average) or
+           (ItemJournalLine."Applies-to Entry" <> 0)));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAllowProdApplication(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var AllowApplication: Boolean)
     begin
@@ -5689,7 +5712,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var ItemTrackingSetup: Record "Item Tracking Setup"; var SignFactor: Decimal; var ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; var ItemTrackingSetup: Record "Item Tracking Setup"; var SignFactor: Decimal; var ItemTrackingCode: Record "Item Tracking Code"; var IsHandled: Boolean; var GlobalItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
 
@@ -5705,6 +5728,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; ItemTrackingSetup: Record "Item Tracking Setup"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitCorrItemLedgEntry(var NewItemLedgEntry: Record "Item Ledger Entry"; EntriesExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfItemIsBlocked(var ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -6259,6 +6292,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitValueEntryOnAfterSetValueEntryInventoriable(var ValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitValueEntryOnBeforeRoundAmtValueEntry(var ValueEntry: Record "Value Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
     end;
@@ -6350,6 +6388,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostFlushedConsumpOnAfterCopyProdOrderFieldsToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var OldItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; CompItem: record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostFlushedConsumptionOnBeforeCalcQtyToPost(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; OldItemJnlLine: Record "Item Journal Line"; var OutputQtyBase: Decimal)
     begin
     end;
 

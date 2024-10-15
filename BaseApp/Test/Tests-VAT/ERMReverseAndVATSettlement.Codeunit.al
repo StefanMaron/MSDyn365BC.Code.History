@@ -21,6 +21,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJournals: Codeunit "Library - Journals";
         Assert: Codeunit Assert;
         VATCalculationType: Enum "Tax Calculation Type";
@@ -626,10 +627,12 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Reverse And VAT Settlement");
         LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Reverse And VAT Settlement");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySales.SetInvoiceRounding(false);

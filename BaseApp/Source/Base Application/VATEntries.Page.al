@@ -242,7 +242,14 @@ page 315 "VAT Entries"
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
+                var
+                    IsHandled: Boolean;
                 begin
+                    IsHandled := false;
+                    OnBeforeActionNavigate(Rec, IsHandled);
+                    if IsHandled then
+                        exit;
+
                     Navigate.SetDoc("Posting Date", "Document No.");
                     Navigate.Run;
                 end;
@@ -365,5 +372,10 @@ page 315 "VAT Entries"
         IsUnrealizedVATEnabled: Boolean;
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         ProgressMsg: Label 'Processed: @2@@@@@@@@@@@@@@@@@\';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeActionNavigate(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

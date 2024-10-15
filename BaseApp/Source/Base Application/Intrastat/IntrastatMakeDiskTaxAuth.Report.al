@@ -62,6 +62,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                 TempIntrastatJnlLine.DeleteAll();
                 IntraJnlManagement.ChecklistClearBatchErrors(IntrastatJnlBatch);
+                IntrastatFileWriter.Initialize(false, false, 0);
+                IntrastatFileWriter.SetStatisticsPeriod("Statistics Period");
+                IntrastatFileWriter.InitializeNextFile(IntrastatFileWriter.GetDefaultXMLFileName());
             end;
         }
     }
@@ -72,7 +75,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         layout
         {
-            area(content)
+            area(Content)
             {
                 group(Options)
                 {
@@ -115,17 +118,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         trigger OnOpenPage()
         begin
-            if not IntrastatSetup.Get then
-                exit;
-
-            if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
-                exit;
-
-            if IntrastatSetup."Report Receipts" then
-                IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Receipt)
-            else
-                if IntrastatSetup."Report Shipments" then
-                    IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment)
+            FilterSourceLinesByIntrastatSetupExportTypes();
         end;
     }
 
@@ -140,7 +133,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     trigger OnPostReport()
     begin
-        SaveXMLToClient;
+        XMLDoc.Save(IntrastatFileWriter.GetCurrFileOutStream());
+        IntrastatFileWriter.AddCurrFileToResultFile();
+        IntrastatFileWriter.CloseAndDownloadResultFile();
     end;
 
     trigger OnPreReport()
@@ -171,13 +166,12 @@ report 593 "Intrastat - Make Disk Tax Auth"
         IntrastatSetup: Record "Intrastat Setup";
         IntraJnlManagement: Codeunit IntraJnlManagement;
         XMLDOMManagement: Codeunit "XML DOM Management";
-        FileManagement: Codeunit "File Management";
+        IntrastatFileWriter: Codeunit "Intrastat File Writer";
         XMLDoc: DotNet XmlDocument;
         RootNode: DotNet XmlNode;
         Node: DotNet XmlNode;
         AdministrationNode: DotNet XmlNode;
         Namespace: Text;
-        ClientFileName: Text;
         ThirdPartyVatRegNo: Text[30];
         EnterpriseNo: Text[30];
         ReportingDate: Date;
@@ -192,6 +186,21 @@ report 593 "Intrastat - Make Disk Tax Auth"
         ExtendedFormTxt: Label 'INTRASTAT_X_EF', Locked = true;
         IntrastatReportName: Text;
         IntrastatFormName: Text;
+
+    local procedure FilterSourceLinesByIntrastatSetupExportTypes()
+    begin
+        if not IntrastatSetup.Get() then
+            exit;
+
+        if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
+            exit;
+
+        if IntrastatSetup."Report Receipts" then
+            IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Receipt)
+        else
+            if IntrastatSetup."Report Shipments" then
+                IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment)
+    end;
 
     local procedure UpdateBuffer()
     begin
@@ -209,7 +218,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 TempIntrastatJnlLine.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
                 TempIntrastatJnlLine.SetRange("Partner VAT ID", "Partner VAT ID");
             end;
-            if TempIntrastatJnlLine.FindFirst then begin
+            if TempIntrastatJnlLine.FindFirst() then begin
                 TempIntrastatJnlLine."Statistical Value" := TempIntrastatJnlLine."Statistical Value" + "Statistical Value";
                 TempIntrastatJnlLine."Total Weight" := TempIntrastatJnlLine."Total Weight" + "Total Weight";
                 TempIntrastatJnlLine."No. of Supplementary Units" :=
@@ -302,7 +311,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         // Item & Dim
         with TempIntrastatJnlLine do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     CountryRegion.Get("Country/Region Code");
                     CountryRegion.TestField("Intrastat Code");
@@ -396,25 +405,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
         end;
     end;
 
-    local procedure SaveXMLToClient(): Boolean
-    var
-        TempXMLFile: Text;
-    begin
-#if not CLEAN17
-        if (ClientFileName <> '') and FileManagement.IsLocalFileSystemAccessible then
-            XMLDoc.Save(ClientFileName)
-        else begin
-            TempXMLFile := FileManagement.ServerTempFileName('xml');
-            XMLDoc.Save(TempXMLFile);
-            exit(FileManagement.DownloadHandler(TempXMLFile, '', Dir, FileManagement.GetToFilterText('', TempXMLFile), 'Intrastat.xml'));
-        end;
-#else
-        TempXMLFile := FileManagement.ServerTempFileName('xml');
-        XMLDoc.Save(TempXMLFile);
-        exit(FileManagement.DownloadHandler(TempXMLFile, '', Dir, FileManagement.GetToFilterText('', TempXMLFile), 'Intrastat.xml'));
-#endif
-    end;
-
     local procedure ConvertPeriodToDate(Period: Code[10]): Date
     var
         Month: Integer;
@@ -428,10 +418,20 @@ report 593 "Intrastat - Make Disk Tax Auth"
         exit(DMY2Date(1, Month, Year));
     end;
 
+#if not CLEAN20
     [Scope('OnPrem')]
     procedure InitializeRequest(NewClientFileName: Text; NewThirdPartyVatRegNo: Text[30]; NewNihil: Boolean; NewCounterparty: Boolean)
     begin
-        ClientFileName := NewClientFileName;
+        IntrastatFileWriter.SetServerFileName(NewClientFileName);
+        ThirdPartyVatRegNo := NewThirdPartyVatRegNo;
+        Nihil := NewNihil;
+        CounterpartyInfo := NewCounterparty;
+    end;
+#endif
+
+    procedure InitializeRequest(var newResultFileOutStream: OutStream; NewThirdPartyVatRegNo: Text[30]; NewNihil: Boolean; NewCounterparty: Boolean)
+    begin
+        IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
         ThirdPartyVatRegNo := NewThirdPartyVatRegNo;
         Nihil := NewNihil;
         CounterpartyInfo := NewCounterparty;

@@ -1018,7 +1018,6 @@ page 5052 "Contact List"
                     EmailScenario: Enum "Email Scenario";
                 begin
                     TempEmailItem.AddSourceDocument(Database::Contact, Rec.SystemId);
-                    TempEmailItem.AddRelatedSourceDocuments(Database::Contact, Rec.SystemId);
                     TempEmailitem."Send to" := Rec."E-Mail";
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;

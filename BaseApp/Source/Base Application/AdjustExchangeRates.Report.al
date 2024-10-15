@@ -298,7 +298,7 @@
             trigger OnAfterGetRecord()
             begin
                 VATEntryNo := VATEntryNo + 1;
-                Window.Update(1, Round(VATEntryNo / VATEntryNoTotal * 10000, 1));
+                Window.Update(1, 10000 * VATEntryNo div VATEntryNoTotal);
 
                 VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                 VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
@@ -375,11 +375,15 @@
                 then
                     CurrReport.Break();
 
+                VATEntryNoTotal := VATEntry.Count();
+
+                if VATEntryNoTotal = 0 then
+                    CurrReport.Break();
+
                 Window.Open(
                   Text012Txt +
                   Text013Txt);
 
-                VATEntryNoTotal := VATEntry.Count();
                 VATEntry.SetCurrentKey(
                   "Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
                 VATEntry.SetRange(Closed, false);
@@ -613,7 +617,7 @@
     begin
         if GenJnlPostLine.IsGLEntryInconsistent() then
             GenJnlPostLine.ShowInconsistentEntries()
-        else begin    
+        else begin
             UpdateAnalysisView.UpdateAll(0, true);
             if TotalCustomersAdjusted + TotalVendorsAdjusted + TotalBankAccountsAdjusted + TotalGLAccountsAdjusted < 1 then
                 Message(NothingToAdjustMsg)
@@ -1034,13 +1038,13 @@
                 if TempAdjExchRateBuffer2.TotalGainsAmount <> 0 then
                     PostAdjmt(
                         TempCurrencyToAdjust.GetUnrealizedGainsAccount(),
-                        -TempAdjExchRateBuffer2.TotalGainsAmount, CurrAdjBase,
+                        -TempAdjExchRateBuffer2.TotalGainsAmount, -TempAdjExchRateBuffer2.AdjBase,
                         TempAdjExchRateBuffer2."Currency Code", TempDimSetEntry,
                         TempAdjExchRateBuffer2."Posting Date", TempAdjExchRateBuffer2."IC Partner Code");
                 if TempAdjExchRateBuffer2.TotalLossesAmount <> 0 then
                     PostAdjmt(
                         TempCurrencyToAdjust.GetUnrealizedLossesAccount(),
-                        -TempAdjExchRateBuffer2.TotalLossesAmount, CurrAdjBase,
+                        -TempAdjExchRateBuffer2.TotalLossesAmount, -TempAdjExchRateBuffer2.AdjBase,
                         TempAdjExchRateBuffer2."Currency Code", TempDimSetEntry,
                         TempAdjExchRateBuffer2."Posting Date", TempAdjExchRateBuffer2."IC Partner Code");
             until TempAdjExchRateBuffer2.Next() = 0;

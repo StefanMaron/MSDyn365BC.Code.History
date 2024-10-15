@@ -56,14 +56,8 @@ page 43 "Sales Invoice"
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
                     trigger OnValidate()
-                    var
-                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
                         CurrPage.Update();
                     end;
 
@@ -340,8 +334,7 @@ page 43 "Sales Invoice"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
-                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
+                        CurrPage.Update();
                     end;
                 }
                 field("Shipment Date"; "Shipment Date")
@@ -377,12 +370,7 @@ page 43 "Sales Invoice"
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
 
                     trigger OnValidate()
-                    var
-                        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                     begin
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
                         CurrPage.Update();
                     end;
                 }
@@ -690,18 +678,12 @@ page 43 "Sales Invoice"
                             ToolTip = 'Specifies the customer to whom you will send the sales invoice, when different from the customer that you are selling to.';
 
                             trigger OnValidate()
-                            var
-                                ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                             begin
                                 if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
                                     if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                                         SetRange("Bill-to Customer No.");
 
-                                CurrPage.SaveRecord;
-                                if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
-                                CurrPage.Update(false);
+                                CurrPage.Update();
                             end;
                         }
                         field("Bill-to Address"; "Bill-to Address")
@@ -984,6 +966,7 @@ page 43 "Sales Invoice"
                             exit;
 
                         OpenDocumentStatistics();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action("Co&mments")

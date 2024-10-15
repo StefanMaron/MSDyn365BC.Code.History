@@ -1409,7 +1409,7 @@ report 27 "Dimensions - Total"
         end;
 
         if ColumnLayoutName <> '' then
-            if not ColumnLayoutNameRec.Get(AnalysisViewCode) then
+            if not ColumnLayoutNameRec.Get(ColumnLayoutName) then
                 ColumnLayoutName := '';
 
         if ColumnLayoutName = '' then

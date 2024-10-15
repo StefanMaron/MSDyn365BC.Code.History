@@ -172,7 +172,7 @@ codeunit 452 "Report Distribution Management"
         OnAfterGetFullDocumentTypeText(DocumentVariant, DocumentTypeText);
     end;
 
-    procedure GetDocumentLanguageCode(DocumentVariant: Variant): Code[10]
+    procedure GetDocumentLanguageCode(DocumentVariant: Variant) LanguageCode: Code[10]
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -231,6 +231,8 @@ codeunit 452 "Report Distribution Management"
                     DocumentRecordRef.SetTable(Job);
                     exit(Job."Language Code");
                 end;
+            else
+                OnGetDocumentLanguageCodeCaseElse(DocumentRecordRef, LanguageCode);
         end;
     end;
 
@@ -522,6 +524,11 @@ codeunit 452 "Report Distribution Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetFullDocumentTypeText(DocumentVariant: Variant; var DocumentTypeText: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDocumentLanguageCodeCaseElse(DocumentRecordRef: RecordRef; var LanguageCode: Code[10])
     begin
     end;
 }
