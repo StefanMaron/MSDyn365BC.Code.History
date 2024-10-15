@@ -279,6 +279,7 @@ codeunit 6520 "Item Tracing Mgt."
                         exit;
                     ItemLedgEntry.SetFilter("Entry Type", '%1|%2', ItemLedgEntry."Entry Type"::Consumption,
                       ItemLedgEntry."Entry Type"::"Assembly Consumption");
+                    ItemLedgEntry.SetRange(Positive, not ItemLedgEntry2.Positive);
                 end;
                 OnFindComponentsOnAfterSetFilters(ItemLedgEntry, ItemLedgEntry2);
                 CurrentLevel += 1;
