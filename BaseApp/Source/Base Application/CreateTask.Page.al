@@ -517,10 +517,10 @@ page 5097 "Create Task"
             LanguageCodeEnable := "Interaction Template Code" <> '';
             AttachmentEnable := "Interaction Template Code" <> '';
         end else begin
-            StartTimeEnable := false;
-            EndingTimeEnable := false;
+            StartTimeEnable := Type = Type::"Phone Call";
+            EndingTimeEnable := Type = Type::"Phone Call";
+            DurationEnable := Type = Type::"Phone Call";
             LocationEnable := false;
-            DurationEnable := false;
             AllDayEventEnable := false;
         end;
     end;

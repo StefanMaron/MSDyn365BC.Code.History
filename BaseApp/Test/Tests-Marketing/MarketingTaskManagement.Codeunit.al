@@ -1144,6 +1144,40 @@ codeunit 136203 "Marketing Task Management"
         VerifySalespersonDeleted(SalespersonPurchaser.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateTaskPhoneCallSetStartEndTimeUI()
+    var
+        Todo: Record "To-do";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CreateTask: TestPage "Create Task";
+    begin
+        // [SCEANRIO 420421] Make "Start Time" and "Ending Time" fields available to edit for "Phone Call" task on the "Create Task" page
+        Initialize();
+
+        // [GIVEN] "Phone Call" task
+        LibraryMarketing.CreateTask(Todo);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        Todo.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Todo.Validate(Type, Todo.Type::"Phone Call");
+        Todo.Validate(Date, WorkDate());
+        Todo.Modify(true);
+
+        // [WHEN] Set "Start Time" = "T1" and "Ending Time" = "T2" on the "Create Task" page
+        CreateTask.OpenEdit();
+        CreateTask.GoToRecord(Todo);
+        CreateTask."Start Time".SetValue(120100T);
+        CreateTask."Ending Time".SetValue(125959T);
+        CreateTask.OK().Invoke();
+
+        // [THEN] "Start Time" = "T1", "Ending Time" = "T2", "Duration" = "T2" - "T1"
+        Todo.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Todo.FindFirst();
+        Todo.TestField("Start Time", 120100T);
+        Todo.TestField("Ending Time", 125959T);
+        Todo.TestField(Duration, 125959T - 120100T);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
