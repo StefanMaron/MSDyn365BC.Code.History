@@ -2573,6 +2573,9 @@
             MaintainSqlIndex = false;
             SumIndexFields = Amount, "Amount Including VAT", "Outstanding Amount", "Shipped Not Invoiced", "Outstanding Amount (LCY)", "Shipped Not Invoiced (LCY)", "Line Amount";
         }
+        key(Key16; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups
