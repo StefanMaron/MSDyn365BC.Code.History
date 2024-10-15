@@ -198,7 +198,7 @@ codeunit 99000809 "Planning Line Management"
                             ProdBOMLine[Level].Type::Item:
                                 begin
                                     IsHandled := false;
-                                    UpdateCondition := ReqQty <> 0;
+                                    UpdateCondition := ReqQty >= 0;
                                     OnTransferBOMOnBeforeUpdatePlanningComp(ProdBOMLine[Level], UpdateCondition, IsHandled);
                                     if not IsHandled then
                                         if UpdateCondition then begin

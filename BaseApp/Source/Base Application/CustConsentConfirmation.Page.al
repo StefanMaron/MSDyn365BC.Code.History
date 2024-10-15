@@ -89,4 +89,9 @@ page 1820 "Cust. Consent Confirmation"
     begin
         ConsentTextValue := OpenLinkConsentTxt;
     end;
+
+    procedure SetCustomConsentText(CustomConsentText: Text)
+    begin
+        ConsentTextValue := CustomConsentText;
+    end;
 }

@@ -6,6 +6,7 @@ codeunit 105 "Calc. Running Acc. Balance"
 
     var
         BankAccountLedgerEntry2: Record "Bank Account Ledger Entry";
+        ClientTypeManagement: Codeunit System.Environment."Client Type Management";
         DayTotals: Dictionary of [Date, Decimal];
         DayTotalsLCY: Dictionary of [Date, Decimal];
         EntryValues: Dictionary of [Integer, Decimal];
@@ -35,6 +36,8 @@ codeunit 105 "Calc. Running Acc. Balance"
         DateTotal: Decimal;
         DateTotalLCY: Decimal;
     begin
+        if ClientTypeManagement.GetCurrentClientType() in [ClientType::OData, ClientType::ODataV4] then
+            exit;
         if (PrevAccNo <> '') and (PrevAccNo <> BankAccountLedgerEntry."Bank Account No.") then begin
             Clear(DayTotals);
             Clear(DayTotalsLCY);

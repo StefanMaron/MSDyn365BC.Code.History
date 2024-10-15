@@ -30,7 +30,7 @@ table 11005 "Data Export Record Field"
             BlankZero = true;
             Caption = 'Table No.';
             NotBlank = true;
-            TableRelation = AllObj."Object ID" where("Object Type" = const(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
 
             trigger OnValidate()
             begin
