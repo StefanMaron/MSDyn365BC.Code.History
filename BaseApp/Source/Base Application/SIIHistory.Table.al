@@ -93,8 +93,6 @@ table 10750 "SII History"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ESSIITok: Label 'ES SII - Invoice and Credit Memo Types in Sales and Purchase Documents', Locked = true;
         CommunicationErrorWithRetriesErr: Label '%1. More details may be available in the content of the response. There are %2 automatic retries left before failure.', Comment = '@1 is the error message.@2 is the number or automatic retries before the upload is considered failed.';
-        MarkAsNotAcceptedErr: Label 'Marked as not accepted by %1 on %2.', Comment = '%1 = user id;%2 = date time of mark';
-        MarkAsAcceptedErr: Label 'Marked as accepted by %1 on %2.', Comment = '%1 = user id;%2 = date time of mark';
 
     procedure CreateNewRequest(DocUploadId: Integer; UploadType: Option; RetriesLeft: Integer; IsManual: Boolean; IsAcceptedWithErrorRetry: Boolean): Integer
     var
@@ -228,45 +226,7 @@ table 10750 "SII History"
                 SIIDocUploadState.Status := SIIDocUploadState.Status::"Accepted With Errors";
         end;
     end;
-
-    [Scope('OnPrem')]
-    procedure MarkAsAccepted()
-    var
-        SIIDocUploadState: Record "SII Doc. Upload State";
-    begin
-        if Status in [Status::Accepted, Status::"Accepted With Errors"] then
-            FieldError(Status);
-
-        SIIDocUploadState.Get("Document State Id");
-        SIIDocUploadState.Validate(Status, SIIDocUploadState.Status::"Accepted With Errors");
-        SIIDocUploadState.Validate("Accepted By User ID", UserId);
-        SIIDocUploadState.Validate("Accepted Date Time", CurrentDateTime);
-        SIIDocUploadState.Modify();
-
-        Status := Status::"Accepted With Errors";
-        "Error Message" := StrSubstNo(MarkAsAcceptedErr, UserId, CurrentDateTime);
-        Modify;
-    end;
-
-    [Scope('OnPrem')]
-    procedure MarkAsNotAccepted()
-    var
-        SIIDocUploadState: Record "SII Doc. Upload State";
-    begin
-        if not (Status in [Status::Accepted, Status::"Accepted With Errors"]) then
-            FieldError(Status);
-
-        SIIDocUploadState.Get("Document State Id");
-        SIIDocUploadState.Validate(Status, SIIDocUploadState.Status::Failed);
-        SIIDocUploadState.Validate("Accepted By User ID", '');
-        SIIDocUploadState.Validate("Accepted Date Time", 0DT);
-        SIIDocUploadState.Modify();
-
-        Status := Status::Failed;
-        "Error Message" := StrSubstNo(MarkAsNotAcceptedErr, UserId, CurrentDateTime);
-        Modify;
-    end;
-
+	
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewRequestOnBeforeInsertSIIHistory(var SIIHistory: Record "SII History")
     begin

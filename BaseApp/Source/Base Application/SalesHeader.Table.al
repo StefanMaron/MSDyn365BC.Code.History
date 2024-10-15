@@ -2201,6 +2201,14 @@
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
+            ObsoleteReason = 'Use new field on range 181';
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+        }
+        field(181; "Rcvd.-from Count./Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
         }
         field(200; "Work Description"; BLOB)
         {
@@ -5154,9 +5162,9 @@
     begin
         if not IsCreditDocType() then
             exit;
-        Rec."Rcvd-from Country/Region Code" := RcvdFromCountryRegionCode;
+        Rec."Rcvd.-from Count./Region Code" := RcvdFromCountryRegionCode;
     end;
-    
+
     local procedure UpdateShipToCodeFromCust()
     var
         IsHandled: Boolean;
@@ -7832,7 +7840,7 @@
         MyNotifications.InsertDefault(GetWarnWhenZeroQuantitySalesLinePosting(),
          WarnZeroQuantitySalesPostingTxt, WarnZeroQuantitySalesPostingDescriptionTxt, true);
     end;
-    
+
     internal procedure SetTrackInfoForCancellation()
     var
         CancelledDocument: Record "Cancelled Document";
