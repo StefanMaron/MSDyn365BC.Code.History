@@ -273,10 +273,16 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         end;
     end;
 
-    local procedure GetMachineCenterBinCode(MachineCenterNo: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method"): Code[20]
+    local procedure GetMachineCenterBinCode(MachineCenterNo: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method") Result: Code[20]
     var
         MachineCenter: Record "Machine Center";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetMachineCenterBinCode(MachineCenterNo, LocationCode, UseFlushingMethod, FlushingMethod, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if MachineCenter.Get(MachineCenterNo) then begin
             if MachineCenter."Location Code" = LocationCode then
                 exit(MachineCenter.GetBinCodeForFlushingMethod(UseFlushingMethod, FlushingMethod));
@@ -593,5 +599,10 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
                     PAGE.Run(PAGE::"Released Production Order", ProductionOrder);
                 end;
         end;
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetMachineCenterBinCode(MachineCenterNo: Code[20]; LocationCode: Code[10]; UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method"; var Result: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }

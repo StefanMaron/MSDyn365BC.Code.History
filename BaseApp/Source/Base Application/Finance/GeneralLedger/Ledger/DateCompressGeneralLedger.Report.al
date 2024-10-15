@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.GeneralLedger.Ledger;
+﻿namespace Microsoft.Finance.GeneralLedger.Ledger;
 
 using Microsoft.Finance.Analysis;
 using Microsoft.Finance.Dimension;
@@ -450,6 +450,7 @@ report 98 "Date Compress General Ledger"
         NewGLEntry.Amount := NewGLEntry.Amount + GLEntry.Amount;
         NewGLEntry."Source Currency Amount" := NewGLEntry."Source Currency Amount" + GLEntry."Source Currency Amount";
         NewGLEntry."VAT Amount" := NewGLEntry."VAT Amount" + GLEntry."VAT Amount";
+        NewGLEntry."Source Currency VAT Amount" := NewGLEntry."Source Currency VAT Amount" + GLEntry."Source Currency VAT Amount";
         NewGLEntry."Debit Amount" := NewGLEntry."Debit Amount" + GLEntry."Debit Amount";
         NewGLEntry."Credit Amount" := NewGLEntry."Credit Amount" + GLEntry."Credit Amount";
         NewGLEntry."Additional-Currency Amount" :=

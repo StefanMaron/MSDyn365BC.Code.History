@@ -118,6 +118,7 @@ codeunit 99000769 "Production BOM-Check"
               99, BOMHeaderNo, Item."Production BOM No.", Level);
 
         ProdBOMHeader.Get(BOMHeaderNo);
+        OnCheckBOMStructureOnAfterGetProdBOMHeader(ProdBOMHeader, VersionCode, Item);
 
         ProdBOMComponent.SetRange("Production BOM No.", BOMHeaderNo);
         ProdBOMComponent.SetRange("Version Code", VersionCode);
@@ -259,6 +260,11 @@ codeunit 99000769 "Production BOM-Check"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckCircularReferencesInProductionBOMOnBeforeProdBOMLineCheck(var ProductionBOMLine: Record "Production BOM Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBOMStructureOnAfterGetProdBOMHeader(ProductionBOMHeader: Record "Production BOM Header"; var VersionCode: Code[20]; var Item: Record Item)
     begin
     end;
 }

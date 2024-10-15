@@ -280,6 +280,7 @@ codeunit 104000 "Upgrade - BaseApp"
         CompanyInitialize: Codeunit "Company-Initialize";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        ExportProtocolDescription: Text[30];
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag()) then
             exit;
@@ -292,8 +293,9 @@ codeunit 104000 "Upgrade - BaseApp"
             CompanyInitialize.InsertBankExportImportSetup(CompanyInitialize.GetSEPADD08Code(), CompanyInitialize.GetSEPADD08Name(), BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA DD-Check Line");
 
+        ExportProtocolDescription := CopyStr(XGenericSEPADesc09Txt, 1, MaxStrLen(ExportProtocolDescription));
 	if not ExportProtocol.Get(XGenericSEPA09Txt) then
-            CreateExportProtocol(XGenericSEPA09Txt, XGenericSEPADesc09Txt, Codeunit::"Check BTL91", Report::Docket, Report::"SEPA ISO20022 Pain 01.01.09", '');
+            CreateExportProtocol(XGenericSEPA09Txt, ExportProtocolDescription, Codeunit::"Check BTL91", Report::Docket, Report::"SEPA ISO20022 Pain 01.01.09", '');
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag());
     end;
