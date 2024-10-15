@@ -344,13 +344,9 @@
         IsProcessingKeySet := false;
         OnBeforeProcessBalanceOfLines(GenJnlLine, GenJnlBatch, GenJnlTemplate, IsProcessingKeySet);
         if not IsProcessingKeySet then
-            if IsWHTPaymentPosting(GenJnlLine) or
-               (GenJnlTemplate."Force Doc. Balance" and
-                ((GenJnlBatch."No. Series" = '') and (GenJnlBatch."Posting No. Series" = '')) or
-                GenJnlTemplate.Recurring)
-            then
-                GenJnlLine.SetCurrentKey("Document No.");
-
+            if (IsWHTPaymentPosting(GenJnlLine) or
+                GenJnlTemplate."Force Doc. Balance") then
+                  GenJnlLine.SetCurrentKey("Document No.", "Posting Date");
         LineCount := 0;
         LastDate := 0D;
         LastDocType := LastDocType::" ";
