@@ -1660,7 +1660,7 @@ xmlport 1603 "Sales Credit Memo - PEPPOL 2.0"
 
     trigger OnPreXmlPort()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
     end;
 

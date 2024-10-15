@@ -284,7 +284,7 @@ report 5005272 "Delivery Reminder - Test"
                             Vend.TableCaption, "Vendor No."));
                 end;
 
-                GLSetup.Get;
+                GLSetup.Get();
 
                 if "Posting Date" = 0D then
                     AddError(StrSubstNo(Text1140000, FieldCaption("Posting Date")))

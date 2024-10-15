@@ -130,7 +130,7 @@ report 7130 "Item Budget"
 
             trigger OnAfterGetRecord()
             begin
-                ItemStatBuffer.Reset;
+                ItemStatBuffer.Reset();
                 ItemStatBuffer.SetRange("Analysis Area Filter", AnalysisAreaSelection);
                 ItemStatBuffer.SetRange("Item Filter", "No.");
                 ItemStatBuffer.SetFilter("Budget Filter", '%1', ItemBudgetFilter);

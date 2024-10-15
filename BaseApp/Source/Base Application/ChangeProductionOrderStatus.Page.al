@@ -1,4 +1,4 @@
-﻿page 99000914 "Change Production Order Status"
+page 99000914 "Change Production Order Status"
 {
     ApplicationArea = Manufacturing;
     Caption = 'Change Production Order Status';
@@ -154,7 +154,7 @@
                             if Status <> Status::Released then
                                 exit;
 
-                            ItemLedgEntry.Reset;
+                            ItemLedgEntry.Reset();
                             ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
                             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
                             ItemLedgEntry.SetRange("Order No.", "No.");
@@ -177,7 +177,7 @@
                             if Status <> Status::Released then
                                 exit;
 
-                            CapLedgEntry.Reset;
+                            CapLedgEntry.Reset();
                             CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
                             CapLedgEntry.SetRange("Order Type", CapLedgEntry."Order Type"::Production);
                             CapLedgEntry.SetRange("Order No.", "No.");
@@ -200,7 +200,7 @@
                             if Status <> Status::Released then
                                 exit;
 
-                            ValueEntry.Reset;
+                            ValueEntry.Reset();
                             ValueEntry.SetCurrentKey("Order Type", "Order No.");
                             ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
                             ValueEntry.SetRange("Order No.", "No.");
@@ -304,7 +304,7 @@
                                 Window.Update(2, Round(POCount / NoOfRecords * 10000, 1));
                                 ProdOrderStatusMgt.ChangeStatusOnProdOrder(
                                   Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
-                                Commit;
+                                Commit();
                             until Next = 0;
                     end;
                 }

@@ -1,4 +1,4 @@
-﻿page 5237 "Employee Ledger Entries"
+page 5237 "Employee Ledger Entries"
 {
     ApplicationArea = BasicHR;
     Caption = 'Employee Ledger Entries';
@@ -338,7 +338,7 @@
         JournalTemplateName: Code[10];
         JournalBatchName: Code[10];
     begin
-        GenJournalTemplate.Reset;
+        GenJournalTemplate.Reset();
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
         if GenJournalTemplate.FindFirst then

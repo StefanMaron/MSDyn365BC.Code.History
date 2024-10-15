@@ -78,7 +78,7 @@ table 5935 "Service Email Queue"
         ServEmailQueue: Record "Service Email Queue";
     begin
         if "Entry No." = 0 then begin
-            ServEmailQueue.Reset;
+            ServEmailQueue.Reset();
             if ServEmailQueue.FindLast then
                 "Entry No." := ServEmailQueue."Entry No." + 1
             else
@@ -93,7 +93,7 @@ table 5935 "Service Email Queue"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.Validate("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.Validate("Object ID to Run", CODEUNIT::"Process Service Email Queue");
         JobQueueEntry.Validate("Record ID to Process", RecordId);

@@ -17,7 +17,7 @@ report 99001041 "Delete Expired Components"
                 ProdBOMLine.SetRange("Production BOM No.", "No.");
                 ProdBOMLine.SetFilter("Ending Date", '<>%1&..%2', 0D, StartingDate - 1);
                 if not ProdBOMLine.IsEmpty then
-                    ProdBOMLine.DeleteAll;
+                    ProdBOMLine.DeleteAll();
             end;
         }
     }

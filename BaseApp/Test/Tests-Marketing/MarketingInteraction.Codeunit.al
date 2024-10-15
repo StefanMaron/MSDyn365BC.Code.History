@@ -30,7 +30,7 @@ codeunit 136208 "Marketing Interaction"
         DialogTxt: Label 'Dialog';
         CanNotBeSpecifiedErr: Label '%1 = %2 can not be specified for %3 %4.';
         WordAppExist: Boolean;
-        WizardAction: Option " ",Open,Import,Merge;
+        WizardAction: Enum "Interaction Template Wizard Action";
         FinishWizardLaterQst: Label 'Do you want to finish this interaction later?';
         SelectContactErr: Label 'You must select a contact to interact with.';
         MergedFieldErr: Label 'Value %1 from merged file are not equal to %2.', Comment = '%1 = Merged value,%2 = Original value';
@@ -178,7 +178,7 @@ codeunit 136208 "Marketing Interaction"
         // [GIVEN] Create Interaction Template, where Description is <blank>
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         InteractionTemplate.Description := '';
-        InteractionTemplate.Modify;
+        InteractionTemplate.Modify();
         // [GIVEN] Run "Create Interaction" page from Contact
 
         // [WHEN] Enter "Interaction Template Code" and close the page
@@ -390,7 +390,7 @@ codeunit 136208 "Marketing Interaction"
     var
         InteractionTmplLanguage: Record "Interaction Tmpl. Language";
         InteractionTemplate: Record "Interaction Template";
-        SavedWizardAction: Option;
+        SavedWizardAction: Enum "Interaction Template Wizard Action";
     begin
         // [FEATURE] [UT] [Interaction Template]
         // [SCENARIO] "Wizard Action" value can not be validated with "Merge" value for an Interaction Template with Interaction Tmpl. Language with Word attachment
@@ -431,7 +431,7 @@ codeunit 136208 "Marketing Interaction"
         Initialize;
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
-        Commit;
+        Commit();
 
         with InteractionTemplate do begin
             Validate("Language Code (Default)", InteractionTmplLanguage."Language Code");
@@ -573,7 +573,7 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO] Email Merge attachment is deleted after validate "Custom Layout No." = 0 "Interact. Tmpl. Languages" page
         Initialize;
         PrepareInteractionTmplLangCodeWithoutAttachment(InteractionTmplLanguage);
-        Count := DummyAttachment.Count;
+        Count := DummyAttachment.Count();
 
         InteractTmplLanguages.OpenView;
         InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
@@ -601,7 +601,7 @@ codeunit 136208 "Marketing Interaction"
         // [SCENARIO] Email Merge attachments are removed when delete Interaction Template with several attachments
         Initialize;
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
-        Count := DummyAttachment.Count;
+        Count := DummyAttachment.Count();
 
         for i := 2 to LibraryRandom.RandIntInRange(2, 5) do
             CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
@@ -649,7 +649,7 @@ codeunit 136208 "Marketing Interaction"
         MockCanceledInterLogEntryWithAttachment(Attachment."No.");
         MockCanceledInterLogEntryWithAttachment(Attachment."No.");
         // [WHEN] Delete all canceled Interaction Log Entries
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Delete Interaction Log Entries", false);
         // [THEN] Attachment is removed
         Attachment.SetRecFilter;
@@ -677,7 +677,7 @@ codeunit 136208 "Marketing Interaction"
         MockCanceledInterLogEntryWithAttachment(Attachment."No.");
         // [WHEN] Delete first of two canceled Interaction Log Entries
         InteractionLogEntry.SetRange("Entry No.", EntryNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Delete Interaction Log Entries", false, false, InteractionLogEntry);
         // [THEN] Attachment is not removed
         Attachment.SetRecFilter;
@@ -1937,7 +1937,7 @@ codeunit 136208 "Marketing Interaction"
         InteractionTemplate.Modify(true);
         CreateInteractionTmplLanguage(InteractionTmplLanguage, InteractionTemplate.Code, FindLanguageCode(''), '');
         InteractionTmplLanguage.Validate("Attachment No.", CreateAttachmentWithFileValue('docx'));
-        InteractionTmplLanguage.Modify;
+        InteractionTmplLanguage.Modify();
         FilePath := GetAttachmentFilePath(InteractionTmplLanguage."Attachment No.");
 
         // [WHEN] Invoke export attachment from Interaction Tmpl. Language.
@@ -1968,7 +1968,7 @@ codeunit 136208 "Marketing Interaction"
         LibrarySales.SetStockoutWarning(false);
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         LibrarySetupStorage.Save(DATABASE::"Interaction Template Setup");
@@ -1979,7 +1979,7 @@ codeunit 136208 "Marketing Interaction"
     var
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
-        InteractionLogEntry.Reset;
+        InteractionLogEntry.Reset();
         InteractionLogEntry.SetRange("Contact No.", ContactNo);
         InteractionLogEntry.SetRange("Interaction Group Code", InteractionGroupCode);
         InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplateCode);
@@ -1996,7 +1996,7 @@ codeunit 136208 "Marketing Interaction"
         Attachment.Validate("File Extension", FileExtension);
         Attachment."Attachment File".CreateOutStream(OStream);
         OStream.WriteText(LibraryUtility.GenerateRandomText(10));
-        Attachment.Modify;
+        Attachment.Modify();
         exit(Attachment."No.");
     end;
 
@@ -2082,11 +2082,11 @@ codeunit 136208 "Marketing Interaction"
     var
         InteractionTmplLanguage: Record "Interaction Tmpl. Language";
     begin
-        InteractionTmplLanguage.Init;
+        InteractionTmplLanguage.Init();
         InteractionTmplLanguage."Interaction Template Code" := TemplateCode;
         InteractionTmplLanguage."Language Code" := '';
         InteractionTmplLanguage."Attachment No." := AttachmentNo;
-        InteractionTmplLanguage.Insert;
+        InteractionTmplLanguage.Insert();
     end;
 
     local procedure CreateInteractionTemplateWithCorrespondenceType(var InteractionTemplate: Record "Interaction Template"; CorrespondenceType: Option)
@@ -2163,7 +2163,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         LibraryMarketing.CreateSalutationFormula(SalutationFormula, SalutationCode, LanguageCode, SalutationType);
         SalutationFormula.Validate(Salutation, LibraryUtility.GenerateGUID);
-        SalutationFormula.Modify;
+        SalutationFormula.Modify();
     end;
 
     local procedure EnqueueVariablesForEmailDialog(Email: Text; Subject: Text; FileExtension: Text)
@@ -2273,7 +2273,7 @@ codeunit 136208 "Marketing Interaction"
         OutStream.Write('</table>');
         OutStream.Write('</body>');
         OutStream.Write('</html>');
-        Attachment.Modify;
+        Attachment.Modify();
     end;
 
     local procedure MockContactNo(LanguageCode: Code[10]): Code[20]
@@ -2306,7 +2306,7 @@ codeunit 136208 "Marketing Interaction"
     begin
         MockInterLogEntryWithAttachment(InteractionLogEntry, AttachmentNo);
         InteractionLogEntry.Canceled := true;
-        InteractionLogEntry.Modify;
+        InteractionLogEntry.Modify();
         exit(InteractionLogEntry."Entry No.");
     end;
 
@@ -2413,7 +2413,7 @@ codeunit 136208 "Marketing Interaction"
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateInteractionTmplLangWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code, '');
         InteractionTemplate.Validate("Language Code (Default)", InteractionTmplLanguage."Language Code");
-        InteractionTemplate.Modify;
+        InteractionTemplate.Modify();
     end;
 
     local procedure PrepareSegmentForEmail(var SegmentHeader: Record "Segment Header"; FileExtension: Text[250])
@@ -2430,7 +2430,7 @@ codeunit 136208 "Marketing Interaction"
         CreateSegmentWithInteractionTemplateAndContact(
           SegmentHeader, InteractionTemplate.Code, Contact."No.",
           SegmentHeader."Correspondence Type (Default)"::Email);
-        Commit;
+        Commit();
         EnqueueVariablesForEmailDialog(Contact."E-Mail", SegmentHeader."Subject (Default)", '.' + FileExtension);
     end;
 
@@ -2447,9 +2447,9 @@ codeunit 136208 "Marketing Interaction"
     var
         InteractionTemplateSetup: Record "Interaction Template Setup";
     begin
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionTemplateSetup.Validate("E-Mail Draft", TemplateCode);
-        InteractionTemplateSetup.Modify;
+        InteractionTemplateSetup.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -2474,11 +2474,11 @@ codeunit 136208 "Marketing Interaction"
 
     local procedure UpdateMarketingSetup(MarketingSetup: Record "Marketing Setup"; StorageType: Option; StorageLocation: Text)
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Attachment Storage Type" := StorageType;
         MarketingSetup."Attachment Storage Location" :=
           CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Location"));
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure WordDocumentTakeValue(var Attachment: Record Attachment; MergeFieldNo: Integer) MergedFieldValue: Text[250]
@@ -2626,14 +2626,14 @@ codeunit 136208 "Marketing Interaction"
     var
         TempSegmentLine: Record "Segment Line" temporary;
     begin
-        TempSegmentLine.Init;
+        TempSegmentLine.Init();
         CreateInteraction.GetRecord(TempSegmentLine);
-        TempSegmentLine.Insert;
+        TempSegmentLine.Insert();
 
         TempSegmentLine.Validate("Interaction Template Code",
           CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempSegmentLine."Interaction Template Code")));
         TempSegmentLine.Validate(Description, TempSegmentLine."Interaction Template Code");  // Validating Description as TemplateCode as using for contact search.
-        TempSegmentLine.Modify;
+        TempSegmentLine.Modify();
 
         if LibraryVariableStorage.DequeueBoolean then begin
             TempSegmentLine.Validate("Cost (LCY)", LibraryVariableStorage.DequeueDecimal);
@@ -2692,14 +2692,14 @@ codeunit 136208 "Marketing Interaction"
         TempSegmentLine: Record "Segment Line" temporary;
         TemplateCode: Code[10];
     begin
-        TempSegmentLine.Init;
+        TempSegmentLine.Init();
         CreateInteraction.GetRecord(TempSegmentLine);
-        TempSegmentLine.Insert;
+        TempSegmentLine.Insert();
 
         TemplateCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TemplateCode));
         TempSegmentLine.Validate("Interaction Template Code", TemplateCode);
         TempSegmentLine.Validate(Description, TemplateCode);  // Validating Description as TemplateCode as using for contact search.
-        TempSegmentLine.Modify;
+        TempSegmentLine.Modify();
 
         TempSegmentLine.CheckStatus;
         TempSegmentLine.FinishWizard(true);
@@ -2720,13 +2720,13 @@ codeunit 136208 "Marketing Interaction"
         TempSegmentLine: Record "Segment Line" temporary;
         TemplateCode: Code[10];
     begin
-        TempSegmentLine.Init;
+        TempSegmentLine.Init();
         CreateInteraction.GetRecord(TempSegmentLine);
-        TempSegmentLine.Insert;
+        TempSegmentLine.Insert();
         TemplateCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TemplateCode));
         if TemplateCode <> '' then begin
             TempSegmentLine.Validate("Interaction Template Code", TemplateCode);
-            TempSegmentLine.Modify;
+            TempSegmentLine.Modify();
         end;
 
         TempSegmentLine.CheckStatus;
@@ -2820,7 +2820,7 @@ codeunit 136208 "Marketing Interaction"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Default Correspondence Type", CorrespondenceType);
         MarketingSetup.Modify(true);
     end;
@@ -2915,9 +2915,9 @@ codeunit 136208 "Marketing Interaction"
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
-        SMTPMailSetup.Get;
+        SMTPMailSetup.Get();
         SMTPMailSetup."User ID" := 'test@test.com';
-        SMTPMailSetup.Modify;
+        SMTPMailSetup.Modify();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
@@ -2925,7 +2925,7 @@ codeunit 136208 "Marketing Interaction"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.Init;
+        NameValueBuffer.Init();
         NameValueBuffer.ID := SessionId;
         NameValueBuffer.Value := FromFileName;
         NameValueBuffer.Insert(true);

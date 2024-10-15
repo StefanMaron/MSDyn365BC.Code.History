@@ -33,17 +33,17 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
-        ConfigPackage.DeleteAll;
-        ConfigPackageTable.DeleteAll;
-        ConfigPackageData.DeleteAll;
-        ConfigPackageRecord.DeleteAll;
+        ConfigPackage.DeleteAll();
+        ConfigPackageTable.DeleteAll();
+        ConfigPackageData.DeleteAll();
+        ConfigPackageRecord.DeleteAll();
 
-        DataExchDef.DeleteAll;
-        DataExch.DeleteAll;
-        DataExchField.DeleteAll;
-        DataExchColumnDef.DeleteAll;
-        DataExchMapping.DeleteAll;
-        DataExchFieldMapping.DeleteAll;
+        DataExchDef.DeleteAll();
+        DataExch.DeleteAll();
+        DataExchField.DeleteAll();
+        DataExchColumnDef.DeleteAll();
+        DataExchMapping.DeleteAll();
+        DataExchFieldMapping.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -245,7 +245,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetFilter("Column No.", '<>-1');
         DataExchField.SetRange("Data Exch. Line Def Code", SalesHeaderDataExchLineDef.Code);
-        DataExchField.DeleteAll;
+        DataExchField.DeleteAll();
 
         // Execute
         MapDataExchToRapidStart.ProcessAllLinesColumnMapping(DataExch, ConfigPackage.Code);
@@ -295,7 +295,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetFilter("Column No.", '<>-1');
         DataExchField.SetRange("Data Exch. Line Def Code", SalesLineDataExchLineDef.Code);
-        DataExchField.DeleteAll;
+        DataExchField.DeleteAll();
 
         // Execute
         MapDataExchToRapidStart.ProcessAllLinesColumnMapping(DataExch, ConfigPackage.Code);
@@ -344,7 +344,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         // Remove all field values except the record definition
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetFilter("Column No.", '<>-1');
-        DataExchField.DeleteAll;
+        DataExchField.DeleteAll();
 
         // Execute
         MapDataExchToRapidStart.ProcessAllLinesColumnMapping(DataExch, ConfigPackage.Code);
@@ -386,8 +386,8 @@ codeunit 139153 "Data Exch. to RapidStart UT"
 
         for I := 1 to 2 do begin
             // Clean up from previous mapping
-            DataExch.DeleteAll;
-            DataExchField.DeleteAll;
+            DataExch.DeleteAll();
+            DataExchField.DeleteAll();
             Clear(DataExch);
             Clear(DataExchField);
 
@@ -434,7 +434,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         // [WHEN] There are no records to import but the definion is present
         // [THEN] No records are imported
         Initialize;
-        DataExch.Init;
+        DataExch.Init();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, ConfigPackage, DataExchDef);
 
         // Execute
@@ -458,8 +458,8 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         // [WHEN] There is no definition but the codeunit is run
         // [THEN] No records are imported
         Initialize;
-        DataExch.Init;
-        ConfigPackage.Init;
+        DataExch.Init();
+        ConfigPackage.Init();
 
         // Execute
         MapDataExchToRapidStart.ProcessAllLinesColumnMapping(DataExch, ConfigPackage.Code);
@@ -493,7 +493,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
           DataExch, SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, NumberOfSalesHeaders, NumberOfSalesLinesPerHeader,
           CurrentNodeID, LineNo);
 
-        DataExchFieldMapping.DeleteAll;
+        DataExchFieldMapping.DeleteAll();
 
         // Execute
         asserterror MapDataExchToRapidStart.ProcessAllLinesColumnMapping(DataExch, ConfigPackage.Code);
@@ -646,7 +646,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
 
     local procedure CreateConfigPackage(var ConfigPackage: Record "Config. Package")
     begin
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackage.Code := LibraryUtility.GenerateRandomCode(ConfigPackage.FieldNo(Code), DATABASE::"Config. Package");
         ConfigPackage."Exclude Config. Tables" := true;
         ConfigPackage."Language ID" := GlobalLanguage;
@@ -657,7 +657,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     var
         ConfigPackageTable: Record "Config. Package Table";
     begin
-        ConfigPackageTable.Init;
+        ConfigPackageTable.Init();
         ConfigPackageTable.Validate("Package Code", ConfigPackage.Code);
         ConfigPackageTable.Validate("Table ID", TableID);
         ConfigPackageTable.Validate("Package Processing Order", ProcessingOrder);
@@ -667,7 +667,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
 
     local procedure CreateDataExchangeColumnDef(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchLineDef: Record "Data Exch. Line Def"; ColumnNo: Integer; Path: Text[250])
     begin
-        DataExchColumnDef.Init;
+        DataExchColumnDef.Init();
         DataExchColumnDef.Validate("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchColumnDef.Validate("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchColumnDef.Validate("Column No.", ColumnNo);
@@ -679,7 +679,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     var
         DataExchMapping: Record "Data Exch. Mapping";
     begin
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping.Validate("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchMapping.Validate("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchMapping.Validate("Table ID", DATABASE::"Config. Package Data");
@@ -690,7 +690,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
     var
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping.Validate("Data Exch. Def Code", DataExchColumnDef."Data Exch. Def Code");
         DataExchFieldMapping.Validate("Data Exch. Line Def Code", DataExchColumnDef."Data Exch. Line Def Code");
         DataExchFieldMapping.Validate("Table ID", DATABASE::"Config. Package Data");
@@ -702,7 +702,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
 
     local procedure CreateDataExchange(DataExchLineDef: Record "Data Exch. Line Def"; var DataExch: Record "Data Exch.")
     begin
-        DataExch.Init;
+        DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
         DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExch.Insert(true);
@@ -710,7 +710,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
 
     local procedure CreateDataExchangeField(var DataExchField: Record "Data Exch. Field"; DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def"; ColumnNo: Integer; TextValue: Text[250]; CurrentNodeID: Integer; ParentNodeID: Text[250]; LineNo: Integer)
     begin
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.Validate("Data Exch. No.", DataExch."Entry No.");
         DataExchField.Validate("Column No.", ColumnNo);
         DataExchField.Validate("Node ID", GetNodeID(CurrentNodeID, ParentNodeID));
@@ -778,7 +778,7 @@ codeunit 139153 "Data Exch. to RapidStart UT"
             GetDataExchangeFieldsWithValuesOnly(DataExch, DataExchLineDef, DataExchField);
             repeat
                 TempDataExchField := DataExchField;
-                TempDataExchField.Insert;
+                TempDataExchField.Insert();
             until DataExchField.Next = 0;
         until DataExchLineDef.Next = 0;
     end;
@@ -797,11 +797,11 @@ codeunit 139153 "Data Exch. to RapidStart UT"
         TempReferenceDataExchField: Record "Data Exch. Field" temporary;
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
-        TempDataExchField.Reset;
+        TempDataExchField.Reset();
         TempDataExchField.FindSet;
         repeat
             TempReferenceDataExchField := TempDataExchField;
-            TempReferenceDataExchField.Insert;
+            TempReferenceDataExchField.Insert();
         until TempDataExchField.Next = 0;
 
         TempReferenceDataExchField.FindFirst;

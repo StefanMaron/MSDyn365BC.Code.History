@@ -58,10 +58,10 @@ codeunit 432 Consolidate
         GenJnlLine."Business Unit Code" := BusUnit.Code;
         GenJnlLine."Document No." := GLDocNo;
         GenJnlLine."Source Code" := ConsolidSourceCode;
-        TempSubsidGLEntry.Reset;
+        TempSubsidGLEntry.Reset();
         TempSubsidGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         TempSubsidGLEntry.SetRange("Posting Date", StartingDate, EndingDate);
-        TempSubsidGLAcc.Reset;
+        TempSubsidGLAcc.Reset();
         if TempSubsidGLAcc.FindSet then
             repeat
                 Window.Update(3, TempSubsidGLAcc."No.");
@@ -82,8 +82,8 @@ codeunit 432 Consolidate
                            (TempSubsidGLEntry."Posting Date" <> PreviousDate)
                         then begin
                             if PreviousDate <> 0D then begin
-                                TempDimBufOut.Reset;
-                                TempDimBufOut.DeleteAll;
+                                TempDimBufOut.Reset();
+                                TempDimBufOut.DeleteAll();
                                 if TempGLEntry.FindSet then
                                     repeat
                                         if not SkipAllDimensions then begin
@@ -93,32 +93,32 @@ codeunit 432 Consolidate
                                         CreateAndPostGenJnlLine(GenJnlLine, TempGLEntry, TempDimBufOut);
                                     until TempGLEntry.Next = 0;
                             end;
-                            TempGLEntry.Reset;
-                            TempGLEntry.DeleteAll;
+                            TempGLEntry.Reset();
+                            TempGLEntry.DeleteAll();
                             DimBufMgt.DeleteAllDimensions;
                             PreviousDate := TempSubsidGLEntry."Posting Date";
                         end;
-                        TempDimBufIn.Reset;
-                        TempDimBufIn.DeleteAll;
+                        TempDimBufIn.Reset();
+                        TempDimBufIn.DeleteAll();
                         if not SkipAllDimensions then begin
                             TempSubsidDimBuf.SetRange("Entry No.", TempSubsidGLEntry."Entry No.");
                             if TempSubsidDimBuf.FindSet then
                                 repeat
                                     if TempSelectedDim.Get('', 0, 0, '', TempSubsidDimBuf."Dimension Code") then begin
-                                        TempDimBufIn.Init;
+                                        TempDimBufIn.Init();
                                         TempDimBufIn."Table ID" := DATABASE::"G/L Entry";
                                         TempDimBufIn."Entry No." := TempSubsidGLEntry."Entry No.";
                                         TempDimBufIn."Dimension Code" := TempSubsidDimBuf."Dimension Code";
                                         TempDimBufIn."Dimension Value Code" := TempSubsidDimBuf."Dimension Value Code";
-                                        TempDimBufIn.Insert;
+                                        TempDimBufIn.Insert();
                                     end;
                                 until TempSubsidDimBuf.Next = 0;
                         end;
                         UpdateTempGLEntry(TempSubsidGLEntry);
                     until TempSubsidGLEntry.Next = 0;
 
-                TempDimBufOut.Reset;
-                TempDimBufOut.DeleteAll;
+                TempDimBufOut.Reset();
+                TempDimBufOut.DeleteAll();
                 if TempGLEntry.FindSet then
                     repeat
                         if not SkipAllDimensions then begin
@@ -249,7 +249,7 @@ codeunit 432 Consolidate
         if not TestMode then begin
             BusUnit."Last Balance Currency Factor" := BusUnit."Balance Currency Factor";
             BusUnit."Last Run" := WorkDate;
-            BusUnit.Modify;
+            BusUnit.Modify();
         end;
 
         if AnalysisViewEntriesDeleted then
@@ -346,8 +346,8 @@ codeunit 432 Consolidate
 
     procedure SetSelectedDim(var SelectedDim: Record "Selected Dimension")
     begin
-        TempSelectedDim.Reset;
-        TempSelectedDim.DeleteAll;
+        TempSelectedDim.Reset();
+        TempSelectedDim.DeleteAll();
         SkipAllDimensions := SelectedDim.IsEmpty;
         if SkipAllDimensions then
             exit;
@@ -358,7 +358,7 @@ codeunit 432 Consolidate
                 TempSelectedDim."User ID" := '';
                 TempSelectedDim."Object Type" := 0;
                 TempSelectedDim."Object ID" := 0;
-                TempSelectedDim.Insert;
+                TempSelectedDim.Insert();
             until SelectedDim.Next = 0;
     end;
 
@@ -377,23 +377,21 @@ codeunit 432 Consolidate
 
     procedure InsertGLAccount(NewGLAccount: Record "G/L Account")
     begin
-        TempSubsidGLAcc.Init;
+        TempSubsidGLAcc.Init();
         TempSubsidGLAcc."No." := NewGLAccount."No.";
         TempSubsidGLAcc."Consol. Translation Method" := NewGLAccount."Consol. Translation Method";
         TempSubsidGLAcc."Consol. Debit Acc." := NewGLAccount."Consol. Debit Acc.";
         TempSubsidGLAcc."Consol. Credit Acc." := NewGLAccount."Consol. Credit Acc.";
-        TempSubsidGLAcc.Insert;
+        TempSubsidGLAcc.Insert();
     end;
 
     procedure InsertGLEntry(NewGLEntry: Record "G/L Entry"): Integer
     var
         NextEntryNo: Integer;
     begin
-        if TempSubsidGLEntry.FindLast then
-            NextEntryNo := TempSubsidGLEntry."Entry No." + 1
-        else
-            NextEntryNo := 1;
-        TempSubsidGLEntry.Init;
+        NextEntryNo := TempSubsidGLEntry.GetLastEntryNo() + 1;
+
+        TempSubsidGLEntry.Init();
         TempSubsidGLEntry."Entry No." := NextEntryNo;
         TempSubsidGLEntry."G/L Account No." := NewGLEntry."G/L Account No.";
         TempSubsidGLEntry."Posting Date" := NewGLEntry."Posting Date";
@@ -402,7 +400,7 @@ codeunit 432 Consolidate
         TempSubsidGLEntry."Add.-Currency Debit Amount" := NewGLEntry."Add.-Currency Debit Amount";
         TempSubsidGLEntry."Add.-Currency Credit Amount" := NewGLEntry."Add.-Currency Credit Amount";
         OnBeforeInsertGLEntry(TempSubsidGLEntry, NewGLEntry);
-        TempSubsidGLEntry.Insert;
+        TempSubsidGLEntry.Insert();
         exit(NextEntryNo);
     end;
 
@@ -414,22 +412,22 @@ codeunit 432 Consolidate
                   Text034, GLEntryNo, NewDimBuf."Dimension Value Code", TempSubsidDimBuf."Dimension Value Code",
                   NewDimBuf."Dimension Code");
         end else begin
-            TempSubsidDimBuf.Init;
+            TempSubsidDimBuf.Init();
             TempSubsidDimBuf := NewDimBuf;
             TempSubsidDimBuf."Entry No." := GLEntryNo;
-            TempSubsidDimBuf.Insert;
+            TempSubsidDimBuf.Insert();
         end;
     end;
 
     procedure InsertExchRate(NewCurrExchRate: Record "Currency Exchange Rate")
     begin
-        TempSubsidCurrExchRate.Init;
+        TempSubsidCurrExchRate.Init();
         TempSubsidCurrExchRate."Currency Code" := NewCurrExchRate."Currency Code";
         TempSubsidCurrExchRate."Starting Date" := NewCurrExchRate."Starting Date";
         TempSubsidCurrExchRate."Relational Currency Code" := NewCurrExchRate."Relational Currency Code";
         TempSubsidCurrExchRate."Exchange Rate Amount" := NewCurrExchRate."Exchange Rate Amount";
         TempSubsidCurrExchRate."Relational Exch. Rate Amount" := NewCurrExchRate."Relational Exch. Rate Amount";
-        TempSubsidCurrExchRate.Insert;
+        TempSubsidCurrExchRate.Insert();
     end;
 
     procedure UpdateGLEntryDimSetID()
@@ -437,8 +435,8 @@ codeunit 432 Consolidate
         if SkipAllDimensions then
             exit;
 
-        TempSubsidGLEntry.Reset;
-        TempSubsidDimBuf.Reset;
+        TempSubsidGLEntry.Reset();
+        TempSubsidDimBuf.Reset();
         TempSubsidDimBuf.SetRange("Table ID", DATABASE::"G/L Entry");
         with TempSubsidGLEntry do begin
             Reset;
@@ -459,7 +457,7 @@ codeunit 432 Consolidate
         CheckSum :=
           DateToDecimal(StartingDate) + DateToDecimal(EndingDate) +
           TextToDecimal(FormatVersion) + TextToDecimal(ProductVersion);
-        TempSubsidGLAcc.Reset;
+        TempSubsidGLAcc.Reset();
         if TempSubsidGLAcc.FindSet then
             repeat
                 CheckSum :=
@@ -470,7 +468,7 @@ codeunit 432 Consolidate
                   TextToDecimal(CopyStr(TempSubsidGLAcc."Consol. Credit Acc.", 1, 10)) +
                   TextToDecimal(CopyStr(TempSubsidGLAcc."Consol. Credit Acc.", 11, 10));
             until TempSubsidGLAcc.Next = 0;
-        TempSubsidGLEntry.Reset;
+        TempSubsidGLEntry.Reset();
         if TempSubsidGLEntry.FindSet then
             repeat
                 CheckSum := CheckSum +
@@ -573,16 +571,16 @@ codeunit 432 Consolidate
     procedure SelectAllImportedDimensions()
     begin
         // assume all dimensions that were imported were also selected.
-        TempSelectedDim.Reset;
-        TempSelectedDim.DeleteAll;
+        TempSelectedDim.Reset();
+        TempSelectedDim.DeleteAll();
         if TempSubsidDimBuf.FindSet then
             repeat
-                TempSelectedDim.Init;
+                TempSelectedDim.Init();
                 TempSelectedDim."User ID" := '';
                 TempSelectedDim."Object Type" := 0;
                 TempSelectedDim."Object ID" := 0;
                 TempSelectedDim."Dimension Code" := TempSubsidDimBuf."Dimension Code";
-                if TempSelectedDim.Insert then;
+                if TempSelectedDim.Insert() then;
             until TempSubsidDimBuf.Next = 0;
         SkipAllDimensions := TempSelectedDim.IsEmpty;
     end;
@@ -591,7 +589,7 @@ codeunit 432 Consolidate
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         ConsolidSourceCode := SourceCodeSetup.Consolidation;
     end;
 
@@ -599,12 +597,12 @@ codeunit 432 Consolidate
     begin
         NextLineNo := 0;
         AnalysisViewEntriesDeleted := false;
-        TempGenJnlLine.Reset;
-        TempGenJnlLine.DeleteAll;
-        TempDimBufOut.Reset;
-        TempDimBufOut.DeleteAll;
-        TempDimBufIn.Reset;
-        TempDimBufIn.DeleteAll;
+        TempGenJnlLine.Reset();
+        TempGenJnlLine.DeleteAll();
+        TempDimBufOut.Reset();
+        TempDimBufOut.DeleteAll();
+        TempDimBufIn.Reset();
+        TempDimBufIn.DeleteAll();
         Clear(RoundingResiduals);
         Clear(ExchRateAdjAmounts);
         Clear(CompExchRateAdjAmts);
@@ -648,7 +646,7 @@ codeunit 432 Consolidate
                     if "G/L Account No." <> TempGLAccount."No." then begin
                         Window.Update(3, "G/L Account No.");
                         TempGLAccount."No." := "G/L Account No.";
-                        TempGLAccount.Insert;
+                        TempGLAccount.Insert();
                     end;
                 until Next = 0;
         end;
@@ -665,25 +663,25 @@ codeunit 432 Consolidate
                         if AnalysisViewEntry.FindFirst then begin
                             TempAnalysisView.Code := AnalysisViewEntry."Analysis View Code";
                             TempAnalysisView."Account Source" := AnalysisViewEntry."Account Source";
-                            TempAnalysisView.Insert;
+                            TempAnalysisView.Insert();
                             AnalysisViewFound := true;
                         end;
                     until (TempGLAccount.Next = 0) or AnalysisViewFound;
             until AnalysisView.Next = 0;
 
-        AnalysisViewEntry.Reset;
+        AnalysisViewEntry.Reset();
         if TempAnalysisView.FindSet then
             repeat
                 AnalysisView.Get(TempAnalysisView.Code);
                 if AnalysisView.Blocked then begin
                     AnalysisView."Refresh When Unblocked" := true;
-                    AnalysisView.Modify;
+                    AnalysisView.Modify();
                 end else begin
                     AnalysisViewEntry.SetRange("Analysis View Code", TempAnalysisView.Code);
-                    AnalysisViewEntry.DeleteAll;
+                    AnalysisViewEntry.DeleteAll();
                     AnalysisView."Last Entry No." := 0;
                     AnalysisView."Last Date Updated" := 0D;
-                    AnalysisView.Modify;
+                    AnalysisView.Modify();
                     AnalysisViewEntriesDeleted := true;
                 end;
             until TempAnalysisView.Next = 0;
@@ -783,7 +781,7 @@ codeunit 432 Consolidate
                     TempSubsidGLAcc.FieldCaption("Consol. Translation Method"),
                     AccountToTest."No.", BusUnit.TableCaption));
         end else begin
-            TempSubsidGLAcc.Reset;
+            TempSubsidGLAcc.Reset();
             TempSubsidGLAcc := AccountToTest;
             TempSubsidGLAcc.Find('=');
         end;
@@ -866,34 +864,34 @@ codeunit 432 Consolidate
                                 if "Credit Amount" <> 0 then
                                     PostBalanceAdjustment("No.", -"Credit Amount");
                             end else begin
-                                TempGLEntry.Reset;
-                                TempGLEntry.DeleteAll;
+                                TempGLEntry.Reset();
+                                TempGLEntry.DeleteAll();
                                 DimBufMgt.DeleteAllDimensions;
-                                ConsolidGLEntry.Reset;
+                                ConsolidGLEntry.Reset();
                                 ConsolidGLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                                 ConsolidGLEntry.SetRange("G/L Account No.", "No.");
                                 ConsolidGLEntry.SetRange("Posting Date", 0D, EndingDate);
                                 ConsolidGLEntry.SetRange("Business Unit Code", BusUnit.Code);
                                 if ConsolidGLEntry.FindSet then
                                     repeat
-                                        TempDimBufIn.Reset;
-                                        TempDimBufIn.DeleteAll;
+                                        TempDimBufIn.Reset();
+                                        TempDimBufIn.DeleteAll();
                                         ConsolidDimSetEntry.SetRange("Dimension Set ID", ConsolidGLEntry."Dimension Set ID");
                                         if ConsolidDimSetEntry.FindSet then
                                             repeat
                                                 if TempSelectedDim.Get('', 0, 0, '', ConsolidDimSetEntry."Dimension Code") then begin
-                                                    TempDimBufIn.Init;
+                                                    TempDimBufIn.Init();
                                                     TempDimBufIn."Table ID" := DATABASE::"G/L Entry";
                                                     TempDimBufIn."Entry No." := ConsolidGLEntry."Entry No.";
                                                     TempDimBufIn."Dimension Code" := ConsolidDimSetEntry."Dimension Code";
                                                     TempDimBufIn."Dimension Value Code" := ConsolidDimSetEntry."Dimension Value Code";
-                                                    TempDimBufIn.Insert;
+                                                    TempDimBufIn.Insert();
                                                 end;
                                             until ConsolidDimSetEntry.Next = 0;
                                         UpdateTempGLEntry(ConsolidGLEntry);
                                     until ConsolidGLEntry.Next = 0;
-                                TempDimBufOut.Reset;
-                                TempDimBufOut.DeleteAll;
+                                TempDimBufOut.Reset();
+                                TempDimBufOut.DeleteAll();
                                 if TempGLEntry.FindSet then
                                     repeat
                                         DimBufMgt.GetDimensions(TempGLEntry."Entry No.", TempDimBufOut);
@@ -929,8 +927,8 @@ codeunit 432 Consolidate
                 until Next = 0;
         end;
 
-        TempDimBufOut.Reset;
-        TempDimBufOut.DeleteAll;
+        TempDimBufOut.Reset();
+        TempDimBufOut.DeleteAll();
 
         if ExchRateAdjAmount <> 0 then begin
             Clear(GenJnlLine);
@@ -974,12 +972,12 @@ codeunit 432 Consolidate
                 1, MaxStrLen(GenJnlLine.Description));
             if TempDimBufOut.FindSet then begin
                 repeat
-                    TempDimSetEntry2.Init;
+                    TempDimSetEntry2.Init();
                     TempDimSetEntry2."Dimension Code" := TempDimBufOut."Dimension Code";
                     TempDimSetEntry2."Dimension Value Code" := TempDimBufOut."Dimension Value Code";
                     DimValue.Get(TempDimSetEntry2."Dimension Code", TempDimSetEntry2."Dimension Value Code");
                     TempDimSetEntry2."Dimension Value ID" := DimValue."Dimension Value ID";
-                    TempDimSetEntry2.Insert;
+                    TempDimSetEntry2.Insert();
                 until TempDimBufOut.Next = 0;
                 GenJnlLine."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry2);
             end else begin
@@ -1002,7 +1000,7 @@ codeunit 432 Consolidate
         if Found and (DimEntryNo = 0) then begin
             TempGLEntry := GLEntry;
             TempGLEntry."Entry No." := DimBufMgt.InsertDimensions(TempDimBufIn);
-            TempGLEntry.Insert;
+            TempGLEntry.Insert();
         end else begin
             if TempGLEntry.Get(DimEntryNo) then begin
                 TempGLEntry.Amount := TempGLEntry.Amount + GLEntry.Amount;
@@ -1012,11 +1010,11 @@ codeunit 432 Consolidate
                 TempGLEntry."Add.-Currency Debit Amount" := TempGLEntry."Add.-Currency Debit Amount" + GLEntry."Add.-Currency Debit Amount";
                 TempGLEntry."Add.-Currency Credit Amount" :=
                   TempGLEntry."Add.-Currency Credit Amount" + GLEntry."Add.-Currency Credit Amount";
-                TempGLEntry.Modify;
+                TempGLEntry.Modify();
             end else begin
                 TempGLEntry := GLEntry;
                 TempGLEntry."Entry No." := DimEntryNo;
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             end;
         end;
     end;
@@ -1121,12 +1119,12 @@ codeunit 432 Consolidate
 
             if DimBuf.FindSet then begin
                 repeat
-                    TempDimSetEntry2.Init;
+                    TempDimSetEntry2.Init();
                     TempDimSetEntry2."Dimension Code" := DimBuf."Dimension Code";
                     TempDimSetEntry2."Dimension Value Code" := DimBuf."Dimension Value Code";
                     DimValue.Get(TempDimSetEntry2."Dimension Code", TempDimSetEntry2."Dimension Value Code");
                     TempDimSetEntry2."Dimension Value ID" := DimValue."Dimension Value ID";
-                    TempDimSetEntry2.Insert;
+                    TempDimSetEntry2.Insert();
                 until DimBuf.Next = 0;
                 "Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry2);
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID",
@@ -1135,8 +1133,8 @@ codeunit 432 Consolidate
 
             if Amount <> 0 then
                 GenJnlPostLineTmp(GenJnlLine);
-            TempDimSetEntry2.Reset;
-            TempDimSetEntry2.DeleteAll;
+            TempDimSetEntry2.Reset();
+            TempDimSetEntry2.DeleteAll();
 
             RoundingResiduals[idx] := RoundingResiduals[idx] + Amount;
             AdjustAmount := ClosingAmount - Amount;
@@ -1156,7 +1154,7 @@ codeunit 432 Consolidate
     begin
         if BusUnit."Currency Exchange Rate Table" = BusUnit."Currency Exchange Rate Table"::"Local"
         then begin
-            ConsolidCurrExchRate.Reset;
+            ConsolidCurrExchRate.Reset();
             ConsolidCurrExchRate.SetRange("Currency Code", BusUnit."Currency Code");
             ConsolidCurrExchRate.SetRange("Starting Date", 0D, DateToTranslate);
             ConsolidCurrExchRate.FindLast;
@@ -1166,7 +1164,7 @@ codeunit 432 Consolidate
             HistoricalCurrencyFactor :=
               ConsolidCurrExchRate."Exchange Rate Amount" / ConsolidCurrExchRate."Relational Exch. Rate Amount";
         end else begin
-            TempSubsidCurrExchRate.Reset;
+            TempSubsidCurrExchRate.Reset();
             TempSubsidCurrExchRate.SetRange("Starting Date", 0D, DateToTranslate);
             TempSubsidCurrExchRate.SetRange("Currency Code", CurrencyPCY);
             TempSubsidCurrExchRate.FindLast;
@@ -1197,7 +1195,7 @@ codeunit 432 Consolidate
         TempGenJnlLine."System-Created Entry" := true;
         DimMgt.UpdateGlobalDimFromDimSetID(TempGenJnlLine."Dimension Set ID",
           TempGenJnlLine."Shortcut Dimension 1 Code", TempGenJnlLine."Shortcut Dimension 2 Code");
-        TempGenJnlLine.Insert;
+        TempGenJnlLine.Insert();
     end;
 
     local procedure GenJnlPostLineFinally()
@@ -1254,13 +1252,13 @@ codeunit 432 Consolidate
 
     procedure GetNumSubsidGLAcc(): Integer
     begin
-        TempSubsidGLAcc.Reset;
+        TempSubsidGLAcc.Reset();
         exit(TempSubsidGLAcc.Count);
     end;
 
     procedure Get1stSubsidGLAcc(var GlAccount: Record "G/L Account"): Boolean
     begin
-        TempSubsidGLAcc.Reset;
+        TempSubsidGLAcc.Reset();
         if TempSubsidGLAcc.FindFirst then begin
             GlAccount := TempSubsidGLAcc;
             if TestMode then
@@ -1346,8 +1344,8 @@ codeunit 432 Consolidate
     local procedure InitializeGLAccount()
     begin
         TestGLAccounts;
-        TempGLEntry.Reset;
-        TempGLEntry.DeleteAll;
+        TempGLEntry.Reset();
+        TempGLEntry.DeleteAll();
         TempSubsidGLEntry.SetRange("G/L Account No.", TempSubsidGLAcc."No.");
     end;
 

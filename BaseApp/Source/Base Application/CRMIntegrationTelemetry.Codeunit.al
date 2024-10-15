@@ -12,7 +12,7 @@ codeunit 5333 "CRM Integration Telemetry"
         EnabledConnectionTelemetryTxt: Label '{"Enabled": "Yes", "AuthenticationType": "%1", "CRMVersion": "%2", "ProxyVersion": "%3", "CRMSolutionInstalled": "%4", "SOIntegration": "%5", "AutoCreateSO": "%6", "AutoProcessSQ": "%7", "UsersMapRequired": "%8", "ItemAvailablityEnabled": "%9"}', Locked = true;
         DisabledConnectionTelemetryTxt: Label '{"Enabled": "No", "DisableReason": "%1","AuthenticationType": "%2", "ProxyVersion": "%3", "AutoCreateSO": "%4", "UsersMapRequired": "%5"}', Locked = true;
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
-        IntegrationTableStatsTxt: Label '{"TableID": "%1", "IntTableID": "%2", "Direction": "%3", "SyncCoupledOnly": "%4", "SyncJobsTotal": "%5", "TotalRecords": "%6", "IntegrationRecords": "%7", "CoupledRecords": "%8", "CoupledErrors": "%9"}', Locked = true;
+        IntegrationTableStatsTxt: Label '{"TableID": "%1", "IntTableID": "%2", "Direction": "%3", "SyncCoupledOnly": "%4", "SyncJobsTotal": "%5", "TotalRecords": "%6", "CoupledRecords": "%7", "CoupledErrors": "%8"}', Locked = true;
         NoPermissionTxt: Label '{"READPERMISSION": "No"}', Locked = true;
         UserOpenedSetupPageTxt: Label 'User is attempting to set up the connection via %1 page.', Locked = true;
         UserDisabledConnectionTxt: Label 'User disabled the connection to %1.', Locked = true;
@@ -54,7 +54,7 @@ codeunit 5333 "CRM Integration Telemetry"
                       StrSubstNo(
                         IntegrationTableStatsTxt,
                         "Table ID", "Integration Table ID", Format(Direction), "Synch. Only Coupled Records",
-                        GetSyncJobsTotal(Name), GetTotalRecords("Table ID"), GetIntegrationRecords("Table ID"),
+                        GetSyncJobsTotal(Name), GetTotalRecords("Table ID"),
                         GetCoupledRecords("Table ID"), GetCoupledErrors("Table ID"));
                     Data += Comma + TableData;
                     Comma := ','
@@ -82,16 +82,6 @@ codeunit 5333 "CRM Integration Telemetry"
         else
             Result := -1;
         RecRef.Close;
-    end;
-
-    local procedure GetIntegrationRecords(TableID: Integer): Integer
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        if not IntegrationRecord.ReadPermission then
-            exit(-1);
-        IntegrationRecord.SetRange("Table ID", TableID);
-        exit(IntegrationRecord.Count);
     end;
 
     local procedure GetCoupledRecords(TableID: Integer): Integer

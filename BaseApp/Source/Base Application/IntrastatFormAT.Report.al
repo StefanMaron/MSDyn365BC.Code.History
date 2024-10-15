@@ -130,7 +130,7 @@ report 11104 "Intrastat - Form AT"
                        ("Transport Method" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TestField("Tariff No.");
                     TestField("Country/Region Code");
@@ -202,7 +202,7 @@ report 11104 "Intrastat - Form AT"
         if not ("Intrastat Jnl. Line".GetRangeMin(Type) = "Intrastat Jnl. Line".GetRangeMax(Type)) then
             "Intrastat Jnl. Line".FieldError(Type, Text000);
 
-        Companyinfo.Get;
+        Companyinfo.Get();
         Companyinfo."VAT Registration No." := ConvertStr(Companyinfo."VAT Registration No.", Text001, '    ');
     end;
 

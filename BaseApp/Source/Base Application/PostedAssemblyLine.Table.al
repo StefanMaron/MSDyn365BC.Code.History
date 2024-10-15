@@ -190,7 +190,7 @@ table 911 "Posted Assembly Line"
         AssemblyCommentLine.SetRange("Document No.", "Document No.");
         AssemblyCommentLine.SetRange("Document Line No.", "Line No.");
         if not AssemblyCommentLine.IsEmpty then
-            AssemblyCommentLine.DeleteAll;
+            AssemblyCommentLine.DeleteAll();
     end;
 
     procedure ShowDimensions()
@@ -221,27 +221,18 @@ table 911 "Posted Assembly Line"
         PostedAsmHeader: Record "Posted Assembly Header";
         PostedAsmLine: Record "Posted Assembly Line";
         SalesShipmentLine: Record "Sales Shipment Line";
-        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
     begin
-        TempPostedAssemblyLine.Reset;
-        TempPostedAssemblyLine.DeleteAll;
-
+        TempPostedAssemblyLine.Reset();
+        TempPostedAssemblyLine.DeleteAll();
         ValueEntry.SetRange("Document Type", ValueEntryDocType);
         ValueEntry.SetRange("Document No.", DocNo);
         ValueEntry.SetRange("Document Line No.", DocLineNo);
-        ValueEntry.SetFilter("Item Ledger Entry No.", '<>%1', 0);
-        if not ValueEntry.FindSet() then
+        if not ValueEntry.FindSet then
             exit;
         repeat
-            ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.");
-            TempItemLedgerEntry := ItemLedgerEntry;
-            if TempItemLedgerEntry.Insert() then;
-        until ValueEntry.Next() = 0;
-
-        if TempItemLedgerEntry.FindSet() then
-            repeat
-                if TempItemLedgerEntry."Document Type" = TempItemLedgerEntry."Document Type"::"Sales Shipment" then begin
-                    SalesShipmentLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
+            if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
+                if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Sales Shipment" then begin
+                    SalesShipmentLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.");
                     if SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then begin
                         PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
                         if PostedAsmLine.FindSet then
@@ -253,17 +244,16 @@ table 911 "Posted Assembly Line"
                                 TempPostedAssemblyLine.SetRange("Unit of Measure Code", PostedAsmLine."Unit of Measure Code");
                                 if TempPostedAssemblyLine.FindFirst then begin
                                     TempPostedAssemblyLine.Quantity += PostedAsmLine.Quantity;
-                                    TempPostedAssemblyLine.Modify;
+                                    TempPostedAssemblyLine.Modify();
                                 end else begin
                                     TempPostedAssemblyLine := PostedAsmLine;
-                                    TempPostedAssemblyLine.Insert;
+                                    TempPostedAssemblyLine.Insert();
                                 end;
                             until PostedAsmLine.Next = 0;
                     end;
                 end;
-            until TempItemLedgerEntry.Next() = 0;
-
-        TempPostedAssemblyLine.Reset;
+        until ValueEntry.Next = 0;
+        TempPostedAssemblyLine.Reset();
     end;
 }
 

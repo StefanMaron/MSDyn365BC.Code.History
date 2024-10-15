@@ -168,7 +168,7 @@ report 411 "Vendor - Payment Receipt"
                         trigger OnAfterGetRecord()
                         begin
                             if "Entry No." = "Vendor Ledger Entry"."Entry No." then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             NegPmtDiscInvCurrVendLedgEntry1 := 0;
                             NegPmtTolInvCurrVendLedgEntry1 := 0;
@@ -239,7 +239,7 @@ report 411 "Vendor - Payment Receipt"
                         trigger OnAfterGetRecord()
                         begin
                             if "Entry No." = "Vendor Ledger Entry"."Entry No." then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             NegPmtDiscInvCurrVendLedgEntry1 := 0;
                             NegPmtTolInvCurrVendLedgEntry1 := 0;
@@ -313,9 +313,9 @@ report 411 "Vendor - Payment Receipt"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }

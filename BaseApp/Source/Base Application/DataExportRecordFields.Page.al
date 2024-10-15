@@ -108,7 +108,7 @@ page 11027 "Data Export Record Fields"
                     DataExportRecordField: Record "Data Export Record Field";
                 begin
                     CurrPage.SetSelectionFilter(DataExportRecordField);
-                    DataExportRecordField.DeleteAll;
+                    DataExportRecordField.DeleteAll();
                 end;
             }
             action(MoveUp)

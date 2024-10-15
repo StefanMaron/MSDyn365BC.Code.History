@@ -80,10 +80,10 @@ codeunit 136361 "UT C Copy Job"
 
         InitJobTask(TargetJob, SourceJob."Bill-to Customer No.", '');
 
-        TargetJobTask.Init;
+        TargetJobTask.Init();
         TargetJobTask."Job No." := TargetJob."No.";
         TargetJobTask."Job Task No." := SourceJobTask."Job Task No.";
-        TargetJobTask.Insert;
+        TargetJobTask.Insert();
 
         CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
         CopyJob.CopyJobPlanningLines(SourceJobTask, TargetJobTask);
@@ -108,10 +108,10 @@ codeunit 136361 "UT C Copy Job"
 
         InitJobTask(TargetJob, SourceJob."Bill-to Customer No.", '');
 
-        TargetJobTask.Init;
+        TargetJobTask.Init();
         TargetJobTask."Job No." := TargetJob."No.";
         TargetJobTask."Job Task No." := SourceJobTask."Job Task No.";
-        TargetJobTask.Insert;
+        TargetJobTask.Insert();
 
         CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
         CopyJob.SetCopyQuantity(false);
@@ -166,7 +166,7 @@ codeunit 136361 "UT C Copy Job"
         NewDescription := LibraryUtility.GenerateGUID;
         NewCustNo := CreateCustomer;
         SourceJob.Validate(Status, SourceJob.Status::Planning);
-        SourceJob.Modify;
+        SourceJob.Modify();
 
         CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
         NewJobNo := LibraryUtility.GenerateGUID;
@@ -259,7 +259,7 @@ codeunit 136361 "UT C Copy Job"
 
         // [GIVEN] Additional Job Planning Line with "Line No." = 10625 for Source Job Task
         SourceJobPlanningLine."Line No." := 10625;
-        SourceJobPlanningLine.Insert;
+        SourceJobPlanningLine.Insert();
 
         // [GIVEN] Target Job Task
         InitJobTask(TargetJob, SourceJob."Bill-to Customer No.", '');
@@ -404,7 +404,7 @@ codeunit 136361 "UT C Copy Job"
           JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         JobPlanningLine."Ledger Entry Type" := JobPlanningLine."Ledger Entry Type"::Item;
         JobPlanningLine."Ledger Entry No." := LibraryRandom.RandInt(100);
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         // [GIVEN] Job "J2" whithout any Job Task Lines and Job Planning Lines.
         LibraryJob.CreateJob(Job[2]);
@@ -442,7 +442,7 @@ codeunit 136361 "UT C Copy Job"
           SourceJobPlanningLine."Line Type"::"Both Budget and Billable", SourceJobPlanningLine.Type::Item, SourceJobTask,
           SourceJobPlanningLine);
         SourceJobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(1000));
-        SourceJobPlanningLine.Modify;
+        SourceJobPlanningLine.Modify();
     end;
 
     local procedure UpdateJobTaskLines(JobNo: Code[20]; JobTaskType: Option)
@@ -703,7 +703,7 @@ codeunit 136361 "UT C Copy Job"
     begin
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
-        JobTaskDimension.Init;
+        JobTaskDimension.Init();
         JobTaskDimension.Validate("Job No.", JobNo);
         JobTaskDimension.Validate("Job Task No.", JobTaskNo);
         JobTaskDimension.Validate("Dimension Code", Dimension.Code);
@@ -735,34 +735,34 @@ codeunit 136361 "UT C Copy Job"
         JobsSetup: Record "Jobs Setup";
         NoSeries: Record "No. Series";
     begin
-        JobsSetup.Get;
+        JobsSetup.Get();
         NoSeries.Get(JobsSetup."Job Nos.");
         NoSeries."Manual Nos." := ManualNos;
-        NoSeries.Modify;
+        NoSeries.Modify();
     end;
 
     local procedure InitJobTask(var TargetJob: Record Job; CustNo: Code[20]; WIPMethodCode: Code[20])
     begin
-        TargetJob.Init;
+        TargetJob.Init();
         TargetJob."No." := LibraryUtility.GenerateGUID;
         TargetJob.Validate("Bill-to Customer No.", CustNo);
         TargetJob."WIP Method" := WIPMethodCode;
-        TargetJob.Insert;
+        TargetJob.Insert();
     end;
 
     local procedure MockJobTask(var JobTask: Record "Job Task"; JobNo: Code[20]; JobTaskNo: Code[20])
     begin
-        JobTask.Init;
+        JobTask.Init();
         JobTask."Job No." := JobNo;
         JobTask."Job Task No." := JobTaskNo;
-        JobTask.Insert;
+        JobTask.Insert();
     end;
 
     local procedure MockJobPlanningLineWithSpecificLineNo(JobTask: Record "Job Task"; LineNo: Integer)
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        JobPlanningLine.Init;
+        JobPlanningLine.Init();
         JobPlanningLine.Validate("Job No.", JobTask."Job No.");
         JobPlanningLine.Validate("Job Task No.", JobTask."Job Task No.");
         JobPlanningLine.Validate("Line No.", LineNo);

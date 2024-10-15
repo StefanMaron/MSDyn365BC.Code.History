@@ -276,7 +276,7 @@ codeunit 134921 "ERM Standard Journal"
         // [GIVEN] Create general journal batch with No. Series
         CreateGeneralJournalBatch(GenJournalBatch);
         GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
 
         // [GIVEN] Create standard journal "STDJ"
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
@@ -284,7 +284,7 @@ codeunit 134921 "ERM Standard Journal"
         CreateStandardJournalLinesWithZeroAmount(StandardGeneralJournal, LibraryRandom.RandIntInRange(3, 5));
 
         // [WHEN] Function Get Standard Journal with "STDJ" is being run
-        Commit;
+        Commit();
         StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
 
         // [THEN] Created general journal lines have same document number
@@ -311,7 +311,7 @@ codeunit 134921 "ERM Standard Journal"
         CreateStandardJournalLinesWithZeroAmount(StandardGeneralJournal, LibraryRandom.RandIntInRange(3, 5));
 
         // [WHEN] Function Get Standard Journal with "STDJ" is being run
-        Commit;
+        Commit();
         StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
 
         // [THEN] Created general journal lines have empty document number
@@ -328,7 +328,7 @@ codeunit 134921 "ERM Standard Journal"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -384,13 +384,13 @@ codeunit 134921 "ERM Standard Journal"
         if StandardGeneralJournalLine.FindLast then;
         LineNo := StandardGeneralJournalLine."Line No." + 10000;
 
-        StandardGeneralJournalLine.Init;
+        StandardGeneralJournalLine.Init();
         StandardGeneralJournalLine."Journal Template Name" := StandardGeneralJournal."Journal Template Name";
         StandardGeneralJournalLine."Standard Journal Code" := StandardGeneralJournal.Code;
         StandardGeneralJournalLine."Line No." := LineNo;
         StandardGeneralJournalLine.Validate("Account Type", AccountType);
         StandardGeneralJournalLine.Validate("Account No.", AccountNo);
-        StandardGeneralJournalLine.Insert;
+        StandardGeneralJournalLine.Insert();
     end;
 
     local procedure CreateStandardJournalLinesWithZeroAmount(StandardGeneralJournal: Record "Standard General Journal"; NumberOfLines: Integer)
@@ -457,9 +457,9 @@ codeunit 134921 "ERM Standard Journal"
         GenJournalLine.SetRange("Account No.", GenJournalLine."Account No.");
         GenJournalLine.FindSet;
         repeat
-            GenJournalLine2.Init;
+            GenJournalLine2.Init();
             GenJournalLine2 := GenJournalLine;
-            GenJournalLine2.Insert;
+            GenJournalLine2.Insert();
         until GenJournalLine.Next = 0;
     end;
 

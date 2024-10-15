@@ -150,7 +150,7 @@ report 99000789 "Subcontractor - Dispatch List"
                             begin
                                 if "Prod. Order Routing Line"."Previous Operation No." <> '' then begin
                                     if "Prod. Order Routing Line"."Routing Link Code" = '' then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                     SetRange("Routing Link Code", "Prod. Order Routing Line"."Routing Link Code");
                                 end else

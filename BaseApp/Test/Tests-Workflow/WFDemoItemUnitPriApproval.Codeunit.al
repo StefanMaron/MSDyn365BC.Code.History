@@ -34,7 +34,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
 
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         if IsInitialized then
             exit;
 

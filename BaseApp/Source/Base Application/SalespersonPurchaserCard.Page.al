@@ -1,4 +1,4 @@
-﻿page 5116 "Salesperson/Purchaser Card"
+page 5116 "Salesperson/Purchaser Card"
 {
     Caption = 'Salesperson/Purchaser Card';
     PageType = Card;

@@ -9,7 +9,7 @@ report 295 "Combine Shipments"
     {
         dataitem(SalesOrderHeader; "Sales Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Order), "Combine Shipments" = CONST(true));
+            DataItemTableView = SORTING("Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID") WHERE("Document Type" = CONST(Order), "Combine Shipments" = CONST(true));
             RequestFilterFields = "Sell-to Customer No.", "Bill-to Customer No.";
             RequestFilterHeading = 'Sales Order';
             dataitem("Sales Shipment Header"; "Sales Shipment Header")
@@ -34,11 +34,11 @@ report 295 "Combine Shipments"
 
                         if Type = 0 then begin
                             if (not CopyTextLines) or ("Attached to Line No." <> 0) then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         if "Authorized for Credit Card" then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if ("Qty. Shipped Not Invoiced" <> 0) or (Type = 0) then begin
                             if ("Bill-to Customer No." <> Cust."No.") and
@@ -91,7 +91,7 @@ report 295 "Combine Shipments"
                     Window.Update(3, "No.");
 
                     if IsCompletlyInvoiced then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if OnlyStdPmtTerms then begin
                         Cust.Get("Bill-to Customer No.");
@@ -105,11 +105,11 @@ report 295 "Combine Shipments"
                                (PmtDiscPct <> "Payment Discount %")
                             then begin
                                 NoOfskippedShiment := NoOfskippedShiment + 1;
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             end;
                         end else begin
                             NoOfskippedShiment := NoOfskippedShiment + 1;
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         end;
                     end;
                 end;
@@ -122,7 +122,7 @@ report 295 "Combine Shipments"
                 IsHandled := false;
                 OnAfterGetRecordSalesOrderHeader(SalesOrderHeader, IsHandled);
                 if IsHandled then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
@@ -162,8 +162,6 @@ report 295 "Combine Shipments"
 
             trigger OnPreDataItem()
             begin
-                SetCurrentKey("Sell-to Customer No.", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID");
-
                 if PostingDateReq = 0D then
                     Error(Text000);
                 if DocDateReq = 0D then
@@ -211,7 +209,7 @@ report 295 "Combine Shipments"
 
                         trigger OnValidate()
                         begin
-                            SalesSetup.Get;
+                            SalesSetup.Get();
                             SalesSetup.TestField("Calc. Inv. Discount", false);
                         end;
                     }
@@ -247,7 +245,7 @@ report 295 "Combine Shipments"
                 PostingDateReq := WorkDate;
             if DocDateReq = 0D then
                 DocDateReq := WorkDate;
-            SalesSetup.Get;
+            SalesSetup.Get();
             CalcInvDisc := SalesSetup."Calc. Inv. Discount";
         end;
     }
@@ -320,7 +318,7 @@ report 295 "Combine Shipments"
             if CalcInvDisc then
                 SalesCalcDisc.Run(SalesLine);
             Find;
-            Commit;
+            Commit();
             Clear(SalesCalcDisc);
             Clear(SalesPost);
             NoOfSalesInv := NoOfSalesInv + 1;
@@ -354,7 +352,7 @@ report 295 "Combine Shipments"
             "Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
             OnBeforeSalesInvHeaderModify(SalesHeader, SalesOrderHeader);
             Modify;
-            Commit;
+            Commit();
             HasAmount := false;
         end;
 

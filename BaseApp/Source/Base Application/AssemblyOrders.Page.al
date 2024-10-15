@@ -1,4 +1,4 @@
-﻿page 902 "Assembly Orders"
+page 902 "Assembly Orders"
 {
     AdditionalSearchTerms = 'kitting order,kit sale';
     ApplicationArea = Assembly;

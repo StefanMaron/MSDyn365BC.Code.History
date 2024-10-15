@@ -106,7 +106,7 @@ table 11014 Certificate
     begin
         RecordRef.GetTable(Rec);
         TempBlob.ToRecordRef(RecordRef, FieldNo);
-        RecordRef.Modify;
+        RecordRef.Modify();
     end;
 
     local procedure EncriptPassword(var TempBlob: Codeunit "Temp Blob"; PasswordText: Text)

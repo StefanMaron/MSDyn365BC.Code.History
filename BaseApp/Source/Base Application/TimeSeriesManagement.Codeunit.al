@@ -60,8 +60,8 @@ codeunit 2000 "Time Series Management"
         if TimeSeriesCalculationState < TimeSeriesCalculationState::Initialized then
             Error(NotInitializedErr);
 
-        TempTimeSeriesBuffer.Reset;
-        TempTimeSeriesBuffer.DeleteAll;
+        TempTimeSeriesBuffer.Reset();
+        TempTimeSeriesBuffer.DeleteAll();
 
         TimeSeriesPeriodType := PeriodType;
         TimeSeriesForecastingStartDate := ForecastingStartDate;
@@ -106,8 +106,8 @@ codeunit 2000 "Time Series Management"
         if TimeSeriesCalculationState < TimeSeriesCalculationState::"Data Prepared" then
             Error(DataNotPreparedErr);
 
-        TempTimeSeriesForecast.Reset;
-        TempTimeSeriesForecast.DeleteAll;
+        TempTimeSeriesForecast.Reset();
+        TempTimeSeriesForecast.DeleteAll();
 
         if TempTimeSeriesBuffer.IsEmpty then begin
             TimeSeriesCalculationState := TimeSeriesCalculationState::Done;
@@ -229,23 +229,23 @@ codeunit 2000 "Time Series Management"
                     PeriodEndDate :=
                       PeriodFormManagement.MoveDateByPeriodToEndOfPeriod(TimeSeriesForecastingStartDate, TimeSeriesPeriodType, CurrentPeriod);
                     DateFieldRef.SetRange(PeriodStartDate, PeriodEndDate);
-                    if Format(ValueFieldRef.Class) = 'Normal' then
+                    if ValueFieldRef.Class = FieldClass::Normal then
                         Value := CalculateValueNormal(ValueFieldRef)
                     else
                         Value := CalculateValueFlowField(RecRef, ValueFieldRef);
-                    TempTimeSeriesBuffer.Init;
+                    TempTimeSeriesBuffer.Init();
                     TempTimeSeriesBuffer."Group ID" := GroupIDFieldRef.GetFilter;
                     TempTimeSeriesBuffer."Period No." := TimeSeriesObservationPeriods + CurrentPeriod + 1;
                     TempTimeSeriesBuffer."Period Start Date" := PeriodStartDate;
                     TempTimeSeriesBuffer.Value := Value;
-                    TempTimeSeriesBuffer.Insert;
+                    TempTimeSeriesBuffer.Insert();
                 end;
             until TempTimeSeriesBufferDistinct.Next = 0;
     end;
 
     local procedure CalculateValueNormal(var ValueFieldRef: FieldRef) Value: Decimal
     begin
-        if Format(ValueFieldRef.Class) <> 'Normal' then
+        if ValueFieldRef.Class <> FieldClass::Normal then
             exit(0);
 
         ValueFieldRef.CalcSum;
@@ -256,7 +256,7 @@ codeunit 2000 "Time Series Management"
     var
         CurrentValue: Decimal;
     begin
-        if Format(ValueFieldRef.Class) <> 'FlowField' then
+        if ValueFieldRef.Class <> FieldClass::FlowField then
             exit(0);
 
         if RecRef.FindSet then
@@ -301,7 +301,7 @@ codeunit 2000 "Time Series Management"
         PeriodNo: Integer;
     begin
         for LineNo := 1 to GetOutputLength do begin
-            TempTimeSeriesForecast.Init;
+            TempTimeSeriesForecast.Init();
 
             Evaluate(GroupID, GetOutput(LineNo, 1));
             TempTimeSeriesForecast."Group ID" := GroupID;
@@ -321,7 +321,7 @@ codeunit 2000 "Time Series Management"
             if TempTimeSeriesForecast.Value <> 0 then
                 TempTimeSeriesForecast."Delta %" := Abs(TempTimeSeriesForecast.Delta / TempTimeSeriesForecast.Value) * 100;
 
-            TempTimeSeriesForecast.Insert;
+            TempTimeSeriesForecast.Insert();
         end;
     end;
 
@@ -334,13 +334,13 @@ codeunit 2000 "Time Series Management"
 
         if RecRef.FindSet then
             repeat
-                TempTimeSeriesBufferDistinct.Init;
-                if Format(FieldRef.Type) = 'Option' then begin
+                TempTimeSeriesBufferDistinct.Init();
+                if FieldRef.Type = FieldType::Option then begin
                     OptionValue := FieldRef.Value;
                     TempTimeSeriesBufferDistinct."Group ID" := Format(OptionValue);
                 end else
                     TempTimeSeriesBufferDistinct."Group ID" := FieldRef.Value;
-                if not TempTimeSeriesBufferDistinct.Insert then;
+                if not TempTimeSeriesBufferDistinct.Insert() then;
             until RecRef.Next = 0;
     end;
 

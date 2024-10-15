@@ -166,7 +166,7 @@ report 11000 "Intrastat  Disk (Labels)"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Intrastat Jnl. Batch"."Amounts in Add. Currency" then begin
                     GLSetup.TestField("Additional Reporting Currency");
                     ShowCurrency := GLSetup."Additional Reporting Currency";

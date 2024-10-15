@@ -24,11 +24,9 @@ table 5223 "Detailed Employee Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(6; "Document No."; Code[20])
         {
@@ -127,11 +125,9 @@ table 5223 "Detailed Employee Ledger Entry"
             Caption = 'Initial Entry Global Dim. 2';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
         }
-        field(35; "Initial Document Type"; Option)
+        field(35; "Initial Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Initial Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(36; "Applied Empl. Ledger Entry No."; Integer)
         {
@@ -181,6 +177,13 @@ table 5223 "Detailed Employee Ledger Entry"
         SetLedgerEntryAmount;
     end;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure UpdateDebitCredit(Correction: Boolean)
     begin
         if ((Amount > 0) or ("Amount (LCY)" > 0)) and not Correction or
@@ -210,7 +213,7 @@ table 5223 "Detailed Employee Ledger Entry"
             repeat
                 DtldEmplLedgEntry."Transaction No." := 0;
                 DtldEmplLedgEntry."Application No." := ApplicationNo;
-                DtldEmplLedgEntry.Modify;
+                DtldEmplLedgEntry.Modify();
             until DtldEmplLedgEntry.Next = 0;
         end;
     end;

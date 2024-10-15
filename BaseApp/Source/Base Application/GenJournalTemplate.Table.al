@@ -40,17 +40,15 @@ table 80 "Gen. Journal Template"
         {
             Caption = 'Force Posting Report';
         }
-        field(9; Type; Option)
+        field(9; Type; Enum "Gen. Journal Template Type")
         {
             Caption = 'Type';
-            OptionCaption = 'General,Sales,Purchases,Cash Receipts,Payments,Assets,Intercompany,Jobs';
-            OptionMembers = General,Sales,Purchases,"Cash Receipts",Payments,Assets,Intercompany,Jobs;
 
             trigger OnValidate()
             begin
                 "Test Report ID" := REPORT::"General Journal - Test";
                 "Posting Report ID" := REPORT::"G/L Register";
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 case Type of
                     Type::General:
                         begin
@@ -157,11 +155,9 @@ table 80 "Gen. Journal Template"
             Caption = 'Force Doc. Balance';
             InitValue = true;
         }
-        field(19; "Bal. Account Type"; Option)
+        field(19; "Bal. Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
 
             trigger OnValidate()
             begin
@@ -294,11 +290,11 @@ table 80 "Gen. Journal Template"
     trigger OnDelete()
     begin
         GenJnlAlloc.SetRange("Journal Template Name", Name);
-        GenJnlAlloc.DeleteAll;
+        GenJnlAlloc.DeleteAll();
         GenJnlLine.SetRange("Journal Template Name", Name);
         GenJnlLine.DeleteAll(true);
         GenJnlBatch.SetRange("Journal Template Name", Name);
-        GenJnlBatch.DeleteAll;
+        GenJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

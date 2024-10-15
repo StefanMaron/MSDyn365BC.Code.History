@@ -240,7 +240,6 @@ codeunit 134163 "Company Init Unit Test"
         DeleteAllDataInSourceCodeTable();
         DeleteAllStandardTexts();
         DeleteReportSelections();
-        DeleteDACHReportSelection();
         DeleteJobWIPMethods();
         DeleteBankExportImportSetup();
         DeleteBankClearingStandard();
@@ -257,7 +256,6 @@ codeunit 134163 "Company Init Unit Test"
         CheckSourceCodeTable();
         CheckStandardTexts();
         CheckReportSelections();
-        CheckDACHReportSelection();
         CheckJobWIPMethods();
         CheckBankExportImportSetup();
         CheckVATRegNrValidation();
@@ -288,26 +286,26 @@ codeunit 134163 "Company Init Unit Test"
         CompanyInfo: Record "Company Information";
         MfgSetup: Record "Manufacturing Setup";
     begin
-        GLSetup.DeleteAll;
-        SalesSetup.DeleteAll;
-        MarketingSetup.DeleteAll;
-        InteractionTemplateSetup.DeleteAll;
-        ServiceMgtSetup.DeleteAll;
-        PurchSetup.DeleteAll;
-        InvtSetup.DeleteAll;
-        ResourcesSetup.DeleteAll;
-        JobsSetup.DeleteAll;
-        FASetup.DeleteAll;
-        HumanResourcesSetup.DeleteAll;
-        WhseSetup.DeleteAll;
-        NonstockItemSetup.DeleteAll;
-        CashFlowSetup.DeleteAll;
-        CostAccSetup.DeleteAll;
-        AssemblySetup.DeleteAll;
-        VATReportSetup.DeleteAll;
-        ConfigSetup.DeleteAll;
-        CompanyInfo.DeleteAll;
-        MfgSetup.DeleteAll;
+        GLSetup.DeleteAll();
+        SalesSetup.DeleteAll();
+        MarketingSetup.DeleteAll();
+        InteractionTemplateSetup.DeleteAll();
+        ServiceMgtSetup.DeleteAll();
+        PurchSetup.DeleteAll();
+        InvtSetup.DeleteAll();
+        ResourcesSetup.DeleteAll();
+        JobsSetup.DeleteAll();
+        FASetup.DeleteAll();
+        HumanResourcesSetup.DeleteAll();
+        WhseSetup.DeleteAll();
+        NonstockItemSetup.DeleteAll();
+        CashFlowSetup.DeleteAll();
+        CostAccSetup.DeleteAll();
+        AssemblySetup.DeleteAll();
+        VATReportSetup.DeleteAll();
+        ConfigSetup.DeleteAll();
+        CompanyInfo.DeleteAll();
+        MfgSetup.DeleteAll();
     end;
 
     local procedure DeleteAllDataInSourceCodeTable()
@@ -315,57 +313,50 @@ codeunit 134163 "Company Init Unit Test"
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCode.DeleteAll;
-        SourceCodeSetup.DeleteAll;
+        SourceCode.DeleteAll();
+        SourceCodeSetup.DeleteAll();
     end;
 
     local procedure DeleteAllStandardTexts()
     var
         StandardText: Record "Standard Text";
     begin
-        StandardText.DeleteAll;
+        StandardText.DeleteAll();
     end;
 
     local procedure DeleteBankClearingStandard()
     var
         BankClearingStandard: Record "Bank Clearing Standard";
     begin
-        BankClearingStandard.DeleteAll;
+        BankClearingStandard.DeleteAll();
     end;
 
     local procedure DeleteBankExportImportSetup()
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        BankExportImportSetup.DeleteAll;
+        BankExportImportSetup.DeleteAll();
     end;
 
     local procedure DeleteReportSelections()
     var
         ReportSelections: Record "Report Selections";
     begin
-        ReportSelections.DeleteAll;
-    end;
-
-    local procedure DeleteDACHReportSelection()
-    var
-        DACHReportSelections: Record "DACH Report Selections";
-    begin
-        DACHReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
     end;
 
     local procedure DeleteJobWIPMethods()
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        JobWIPMethod.DeleteAll;
+        JobWIPMethod.DeleteAll();
     end;
 
     local procedure DeleteBankPmtApplRules()
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        BankPmtApplRule.DeleteAll;
+        BankPmtApplRule.DeleteAll();
     end;
 
     local procedure DeleteAndInitApplicationArea()
@@ -374,7 +365,7 @@ codeunit 134163 "Company Init Unit Test"
         ExperienceTierSetup: Record "Experience Tier Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        ApplicationAreaSetup.DeleteAll;
+        ApplicationAreaSetup.DeleteAll();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Basic));
     end;
 
@@ -604,15 +595,6 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Return", '1', REPORT::"Arch. Sales Return Order");
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Order Pick Instruction", '1', REPORT::"Pick Instruction");
         CheckReportSelectionEntry(ReportSelections.Usage::"C.Statement", '1', REPORT::"Standard Statement");
-    end;
-
-    local procedure CheckDACHReportSelection()
-    var
-        DACHReportSelections: Record "DACH Report Selections";
-    begin
-        DACHReportSelections.FindFirst;
-        DACHReportSelections.TestField("Report ID");
-        DACHReportSelections.TestField(Sequence);
     end;
 
     local procedure CheckReportSelectionEntry(RecUsage: Integer; Sequence: Text; ReportId: Integer)

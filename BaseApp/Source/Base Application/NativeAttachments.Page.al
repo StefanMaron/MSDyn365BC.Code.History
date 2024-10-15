@@ -157,8 +157,8 @@ page 2820 "Native - Attachments"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        TempFieldBuffer.Reset;
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.Reset();
+        TempFieldBuffer.DeleteAll();
     end;
 
     var

@@ -189,7 +189,7 @@ table 368 "Dimension Selection Buffer"
         SelectedDim: Record "Selected Dimension";
     begin
         SetDefaultRangeOnSelectedDimTable(SelectedDim, ObjectType, ObjectID, AnalysisViewCode);
-        SelectedDim.DeleteAll;
+        SelectedDim.DeleteAll();
         SelectedDimText := '';
         DimSelectionBuf.SetCurrentKey(Level, Code);
         DimSelectionBuf.SetRange(Selected, true);
@@ -203,7 +203,7 @@ table 368 "Dimension Selection Buffer"
                 SelectedDim."New Dimension Value Code" := DimSelectionBuf."New Dimension Value Code";
                 SelectedDim."Dimension Value Filter" := DimSelectionBuf."Dimension Value Filter";
                 SelectedDim.Level := DimSelectionBuf.Level;
-                SelectedDim.Insert;
+                SelectedDim.Insert();
             until DimSelectionBuf.Next = 0;
             SelectedDimText := GetDimSelectionText(ObjectType, ObjectID, AnalysisViewCode);
         end;

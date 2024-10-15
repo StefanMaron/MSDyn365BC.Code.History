@@ -518,7 +518,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateRequisitionLine(RequisitionLine);
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 1); // Special Order.
-        Commit;
+        Commit();
         GetSalesOrders.RunModal;
         UpdateVendorOnRequisitionLine(RequisitionLine, SalesHeader."No.", Vendor."No.");
 
@@ -567,14 +567,14 @@ codeunit 137068 "SCM Inventory Orders-II"
         ReqWkshName.FindFirst;
         LibraryPlanning.CreateRequisitionLine(ReqLine, ReqWkshName."Worksheet Template Name", ReqWkshName.Name);
 
-        Commit;
+        Commit();
         Clear(GetSalesOrders);
         GetSalesOrders.InitializeRequest(RetrieveDimFrom::Item);
         GetSalesOrders.SetReqWkshLine(ReqLine, 1);
         GetSalesOrders.RunModal;
 
         // Execute: Access Item Vendor Catalog for a Req. Line holding a Variant Code and create a new entry.
-        Vendor.Init;
+        Vendor.Init();
         ReqLine.SetRange(Type, ReqLine.Type::Item);
         ReqLine.SetRange("No.", ItemNo);
         ReqLine.FindFirst;
@@ -1157,7 +1157,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateRequisitionLine(RequisitionLine);
         LibraryVariableStorage.Enqueue(SalesHeader[1]."No." + '|' + SalesHeader[2]."No.");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 1); // Special Order.
-        Commit;
+        Commit();
         GetSalesOrders.RunModal;
 
         CreateVendorWithShipmentMethodCode(Vendor, SalesHeader[1]."Shipment Method Code");
@@ -1213,7 +1213,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateRequisitionLine(RequisitionLine);
         LibraryVariableStorage.Enqueue(SalesHeader[1]."No." + '|' + SalesHeader[2]."No.");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 0); // No special Order.
-        Commit;
+        Commit();
         GetSalesOrders.RunModal;
 
         LibraryPurchase.CreateVendor(Vendor);
@@ -1362,7 +1362,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CopyPurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", GlobalDocumentType::"Posted Invoice", InvoiceNo);
         PurchaseHeader."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] 9 Value Entries are posted that fully reversed cost amount of Value Entries posted by 'I'
@@ -1734,7 +1734,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateRequisitionLine(RequisitionLine);
         LibraryVariableStorage.Enqueue(SalesHeader[1]."No." + '|' + SalesHeader[2]."No.");
         GetSalesOrders.SetReqWkshLine(RequisitionLine, 0); // No special Order.
-        Commit;
+        Commit();
         GetSalesOrders.RunModal;
 
         // [WHEN] Carry out action messages.
@@ -1925,7 +1925,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         Assert.AreEqual(1, CountPurchaseOrdersFromVendor(Item."Vendor No."), StrSubstNo(WrongNoOfOrdersCreatedErr, 1));
 
         // [THEN] Requisition Line 2 for "V1" was removed
-        RequisitionLine.Reset;
+        RequisitionLine.Reset();
         RequisitionLine.SetRange("Vendor No.", Item."Vendor No.");
         Assert.RecordIsEmpty(RequisitionLine);
     end;
@@ -2078,7 +2078,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         RevaluationJournalSetup;
         ItemJournalSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -2237,7 +2237,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CarryOutActionMsgReq.SetReqWkshLine(RequisitionLine);
         CarryOutActionMsgReq.InitializeRequest(ExpirationDate, OrderDate, PostingDate, ExpectedReceiptDate, '');
         CarryOutActionMsgReq.UseRequestPage(true);
-        Commit;
+        Commit();
         CarryOutActionMsgReq.Run;
     end;
 
@@ -2304,13 +2304,13 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         LibraryInventory.NoSeriesSetup(InventorySetup);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -2321,21 +2321,21 @@ codeunit 137068 "SCM Inventory Orders-II"
 
     local procedure ItemJournalSetup()
     begin
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
     end;
 
     local procedure RevaluationJournalSetup()
     begin
-        RevaluationItemJournalTemplate.Init;
+        RevaluationItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(RevaluationItemJournalTemplate, RevaluationItemJournalTemplate.Type::Revaluation);
 
-        RevaluationItemJournalBatch.Init;
+        RevaluationItemJournalBatch.Init();
         LibraryInventory.CreateItemJournalBatch(RevaluationItemJournalBatch, RevaluationItemJournalTemplate.Name);
     end;
 
@@ -2504,11 +2504,11 @@ codeunit 137068 "SCM Inventory Orders-II"
     var
         Language: Record Language;
     begin
-        Language.Init;
+        Language.Init();
         Language.Validate(Code, LibraryUtility.GenerateRandomCode(Language.FieldNo(Code), DATABASE::Language));
         Language.Insert(true);
 
-        ItemTranslation.Init;
+        ItemTranslation.Init();
         ItemTranslation.Validate("Item No.", ItemNo);
         ItemTranslation.Validate("Language Code", Language.Code);
         ItemTranslation.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ItemTranslation.Description)));
@@ -2653,7 +2653,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
     local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true);  // Creating empty Document for Copy function.
         LibrarySales.CopySalesDocument(SalesHeader, FromDocType, DocumentNo, true, false);
@@ -2704,7 +2704,7 @@ codeunit 137068 "SCM Inventory Orders-II"
 
     local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", DocumentType);
         PurchaseHeader.Insert(true);  // Creating empty Document for Copy function.
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, FromDocType, DocumentNo, true, false);
@@ -2869,7 +2869,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     var
         InventorySetup2: Record "Inventory Setup";
     begin
-        InventorySetup2.Get;
+        InventorySetup2.Get();
         InventorySetup2.Validate("Automatic Cost Posting", InventorySetup."Automatic Cost Posting");
         InventorySetup2.Validate("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment");
         InventorySetup2.Modify(true);
@@ -2912,8 +2912,8 @@ codeunit 137068 "SCM Inventory Orders-II"
     var
         InventorySetup2: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
-        InventorySetup2.Get;
+        InventorySetup.Get();
+        InventorySetup2.Get();
         InventorySetup2.Validate("Automatic Cost Posting", false);
         InventorySetup2.Validate("Automatic Cost Adjustment", InventorySetup2."Automatic Cost Adjustment"::Never);
         InventorySetup2.Modify(true);
@@ -2944,7 +2944,7 @@ codeunit 137068 "SCM Inventory Orders-II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         StockoutWarning := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Stockout Warning", NewStockoutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -3179,7 +3179,7 @@ codeunit 137068 "SCM Inventory Orders-II"
             SetRange(Usage, 6);  // Purchase Order. Number is used instead of an option value to avoid codeunit localization
             FindFirst;
             SavedReportSelections := ReportSelections;
-            DeleteAll;
+            DeleteAll();
 
             Init;
             ReportSelections := SavedReportSelections;
@@ -3289,7 +3289,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         CreateRequisitionLine(RequisitionLine);
         LibraryVariableStorage.Enqueue(SalesOrderFilter);
         GetSalesOrders.SetReqWkshLine(RequisitionLine, SpecialOrder);
-        Commit;
+        Commit();
         GetSalesOrders.RunModal;
     end;
 
@@ -3414,7 +3414,7 @@ codeunit 137068 "SCM Inventory Orders-II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PostedQty: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.CalcSums(Quantity);

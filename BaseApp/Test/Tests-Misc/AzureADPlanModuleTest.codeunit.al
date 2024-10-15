@@ -14,8 +14,8 @@ codeunit 132913 "Azure AD Plan Module Test"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryPermissions: Codeunit "Library - Permissions";
         InformationWorkerUserGroupTxt: Label 'Information Worker';
-        MixedSKUsWithoutBasicErr: Label 'You cannot mix plans of type Essential and Premium. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.';
-        MixedSKUsWithBasicErr: Label 'You cannot mix plans of type Basic, Essential, and Premium. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.';
+        MixedSKUsWithoutBasicErr: Label 'You cannot mix plans of type Essential and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.', Comment = '%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);';
+        MixedSKUsWithBasicErr: Label 'You cannot mix plans of type Basic, Essential, and Premium. User %1 and user %2 have conflicting plans. Contact your system administrator or Microsoft partner for assistance.\\You will be logged out when you choose the OK button.', Comment = '%1 = First user name with conflict (guid); %2 = Second user name with conflict (guid);';
         ChangesInPlansDetectedMsg: Label 'Changes in users plans were detected. Choose the Refresh all User Groups action in the Users window.';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
 
@@ -591,7 +591,7 @@ codeunit 132913 "Azure AD Plan Module Test"
         TearDown;
 
         // [THEN] Error is thrown
-        Assert.ExpectedError(MixedSKUsWithoutBasicErr);
+        Assert.ExpectedError(StrSubstNo(MixedSKUsWithoutBasicErr, EssentialUser."User Name", PremiumUser."User Name"));
     end;
 
     [Test]
@@ -703,7 +703,7 @@ codeunit 132913 "Azure AD Plan Module Test"
         TearDown;
 
         // [THEN] Error is thrown
-        Assert.ExpectedError(MixedSKUsWithBasicErr);
+        Assert.ExpectedError(StrSubstNo(MixedSKUsWithBasicErr, BasicUser."User Name", PremiumUser."User Name"));
     end;
 
     [Test]
@@ -989,12 +989,8 @@ codeunit 132913 "Azure AD Plan Module Test"
     end;
 
     local procedure Initialize()
-    var
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService := true;
-
-        AzureADPlanTestLibrary.PopulatePlanTable();
 
         Clear(LibraryAzureADUserMgmt);
         LibraryAzureADUserMgmt.SetupMockGraphQuery;

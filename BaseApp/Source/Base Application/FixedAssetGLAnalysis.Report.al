@@ -129,9 +129,9 @@ report 5610 "Fixed Asset - G/L Analysis"
             trigger OnAfterGetRecord()
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
@@ -156,7 +156,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                     "No.", PostingTypeNo3, Period3, StartingDate, EndingDate, DeprBookCode);
 
                 if (Amounts[1] = 0) and (Amounts[2] = 0) and (Amounts[3] = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 for i := 1 to 3 do
                     GroupAmounts[i] := 0;
                 MakeGroupHeadLine;
@@ -556,7 +556,7 @@ report 5610 "Fixed Asset - G/L Analysis"
     procedure GetFASetup()
     begin
         if DeprBookCode = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
         FAPostingType.CreateTypes;

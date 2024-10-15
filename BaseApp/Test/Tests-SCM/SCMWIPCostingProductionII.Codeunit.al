@@ -210,7 +210,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure AvgForwardAddCurr()
     begin
@@ -223,7 +223,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure AvgManCapCostDiffAddCurr()
     begin
@@ -236,7 +236,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure AvgForwardProdOrderCompAddCurr()
     begin
@@ -249,7 +249,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure AvgManualRoutingDiffAddCurr()
     begin
@@ -262,7 +262,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure AvgSubconBackwardAddCurr()
     begin
@@ -275,7 +275,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure AvgSubconManCostDiffAddCurr()
     begin
@@ -696,7 +696,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM WIP Costing Production-II");
     end;
 
@@ -1090,7 +1090,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         Currency.Validate("Realized G/L Gains Account", GLAccount."No.");
         Currency.Validate("Realized G/L Losses Account", GLAccount."No.");
         Currency.Modify(true);
-        Commit;  // Required to run the Test Case on RTC.
+        Commit();  // Required to run the Test Case on RTC.
 
         // Create Currency Exchange Rate.
         LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
@@ -1158,10 +1158,10 @@ codeunit 137004 "SCM WIP Costing Production-II"
     begin
         // Create new Currency code and set Residual Gains Account and Residual Losses Account for Currency.
         CurrencyCode := CreateCurrency;
-        Commit;
+        Commit();
 
         // Update Additional Reporting Currency on G/L setup to execute Adjust Additional Reporting Currency report.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1180,7 +1180,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        ProdOrderRoutingLine.Init;
+        ProdOrderRoutingLine.Init();
         ProdOrderRoutingLine.Validate(Status, ProductionOrder.Status);
         ProdOrderRoutingLine.Validate("Prod. Order No.", ProductionOrder."No.");
         ProdOrderRoutingLine.Validate("Routing No.", ProductionOrder."Routing No.");
@@ -1209,7 +1209,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         ProdOrderComponent.SetRange("Item No.", ItemNo);
         ProdOrderComponent.FindFirst;
         ProdOrderComponent.Delete(true);
-        Commit;
+        Commit();
 
         ProdOrderLine.SetRange(Status, ProdOrderComponent.Status::Planned);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
@@ -1346,7 +1346,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
             PurchaseLine.Modify(true);
         end;
         TempPurchaseLine := PurchaseLine;
-        TempPurchaseLine.Insert;
+        TempPurchaseLine.Insert();
 
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         PurchaseHeader.Validate(
@@ -1563,7 +1563,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         SubcontractorAmount: Decimal;
     begin
         // Calculate Subcontractor Cost.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SubcontractorAmount :=
           (TempPurchaseLine.Quantity * TempPurchaseLine."Direct Unit Cost") +
           (TempPurchaseLine.Quantity *
@@ -1582,7 +1582,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         SubcontractorCostAddCurr: Decimal;
     begin
         // Calculate Subcontractor Cost. Values used are important for test.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.Get(TempPurchaseLine."Currency Code");
         SelectCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code);
         IndirectCost :=
@@ -1745,7 +1745,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         TotalConsumptionValue: Decimal;
         TotalAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TotalAmount := CalculateGLAmount(GLEntry, AdditionalCurrencyExist);
 
         SelectProductionOrderComponent(ProductionOrder, ProdOrderComponent, ProductionOrderNo);
@@ -1820,13 +1820,6 @@ codeunit 137004 "SCM WIP Costing Production-II"
     [Scope('OnPrem')]
     procedure MessageHandler(Msg: Text[1024])
     begin
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

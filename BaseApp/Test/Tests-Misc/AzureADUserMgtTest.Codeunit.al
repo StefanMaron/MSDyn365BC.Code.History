@@ -313,7 +313,7 @@ codeunit 132907 AzureADUserMgtTest
         // [GIVEN] 1 existing user in the system
         UserName := 'Cloud Test User';
         LibraryPermissions.CreateUser(User, UserName, false);
-        InitialUserCount := User.Count;
+        InitialUserCount := User.Count();
 
         // [GIVEN] A user created only in the cloud
         // TODO - this is broken, creates the previous user in the cloud. We need to create the user ONLY in the cloud
@@ -358,15 +358,11 @@ codeunit 132907 AzureADUserMgtTest
     end;
 
     local procedure Initialize()
-    var
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService := true;
 
         Clear(AzureADUserManagement);
         AzureADUserManagement.SetTestInProgress(true);
-
-        AzureADPlanTestLibrary.PopulatePlanTable();
 
         Clear(LibraryAzureADUserMgmt);
         LibraryAzureADUserMgmt.SetupMockGraphQuery();

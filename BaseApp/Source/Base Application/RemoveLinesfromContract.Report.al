@@ -40,12 +40,12 @@ report 6034 "Remove Lines from Contract"
                     ExpiredContractLinesTest.InitVariables(DelToDate, ReasonCode);
                     ExpiredContractLinesTest.SetTableView("Service Contract Line");
                     ExpiredContractLinesTest.RunModal;
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
 
                 if DelToDate = 0D then
                     Error(Text002);
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
                 if ServMgtSetup."Use Contract Cancel Reason" then
                     if ReasonCode = '' then
                         Error(Text003);
@@ -87,7 +87,7 @@ report 6034 "Remove Lines from Contract"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            ReasonCode2.Reset;
+                            ReasonCode2.Reset();
                             ReasonCode2.Code := ReasonCode;
                             if PAGE.RunModal(0, ReasonCode2) = ACTION::LookupOK then begin
                                 ReasonCode2.Get(ReasonCode2.Code);
@@ -130,7 +130,7 @@ report 6034 "Remove Lines from Contract"
     trigger OnInitReport()
     begin
         DelToDate := WorkDate;
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
     end;
 
     trigger OnPostReport()

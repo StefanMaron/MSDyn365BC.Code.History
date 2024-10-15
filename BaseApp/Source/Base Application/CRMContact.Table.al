@@ -97,6 +97,9 @@ table 5342 "CRM Contact"
             OptionCaption = ' ,Net 30,2% 10; Net 30,Net 45,Net 60';
             OptionOrdinalValues = -1, 1, 2, 3, 4;
             OptionMembers = " ",Net30,"2%10Net30",Net45,Net60;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is replaced by field 193 PaymentTermsCodeEnum';
+            ObsoleteTag = '16.0';
         }
         field(10; ShippingMethodCode; Option)
         {
@@ -762,6 +765,9 @@ table 5342 "CRM Contact"
             OptionCaption = ' ,FOB,No Charge';
             OptionOrdinalValues = -1, 1, 2;
             OptionMembers = " ",FOB,NoCharge;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is replaced by field 194 Address1_FreightTermsCodeEnum';
+            ObsoleteTag = '16.0';
         }
         field(94; Address1_UPSZone; Text[4])
         {
@@ -801,6 +807,9 @@ table 5342 "CRM Contact"
             OptionCaption = ' ,Airborne,DHL,FedEx,UPS,Postal Mail,Full Load,Will Call';
             OptionOrdinalValues = -1, 1, 2, 3, 4, 5, 6, 7;
             OptionMembers = " ",Airborne,DHL,FedEx,UPS,PostalMail,FullLoad,WillCall;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is replaced by field 194 Address1_ShippingMethodCodeEnum';
+            ObsoleteTag = '16.0';
         }
         field(99; Address1_Telephone2; Text[50])
         {
@@ -1539,6 +1548,38 @@ table 5342 "CRM Contact"
             OptionCaption = ' ,Default Value';
             OptionOrdinalValues = -1, 1;
             OptionMembers = " ",DefaultValue;
+        }
+        field(192; CompanyId; Guid)
+        {
+            Caption = 'Company Id';
+            Description = 'Unique identifier of the company that owns the contact.';
+            ExternalName = 'bcbi_companyid';
+            ExternalType = 'Lookup';
+            TableRelation = "CDS Company".CompanyId;
+        }
+        field(193; PaymentTermsCodeEnum; Enum "CDS Payment Terms Code")
+        {
+            Caption = 'Payment Terms';
+            Description = 'Select the payment terms to indicate when the customer needs to pay the total amount.';
+            ExternalName = 'paymenttermscode';
+            ExternalType = 'Picklist';
+            InitValue = " ";
+        }
+        field(194; Address1_FreightTermsCodeEnum; Enum "CDS Shipment Method Code")
+        {
+            Caption = 'Address 1: Freight Terms';
+            Description = 'Select the freight terms for the primary address to make sure shipping orders are processed correctly.';
+            ExternalName = 'address1_freighttermscode';
+            ExternalType = 'Picklist';
+            InitValue = " ";
+        }
+        field(195; Address1_ShippingMethodCodeEnum; Enum "CDS Shipping Agent Code")
+        {
+            Caption = 'Address 1: Shipping Method';
+            Description = 'Select a shipping method for deliveries sent to this address.';
+            ExternalName = 'address1_shippingmethodcode';
+            ExternalType = 'Picklist';
+            InitValue = " ";
         }
     }
 

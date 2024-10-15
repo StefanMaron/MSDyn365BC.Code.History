@@ -24,7 +24,7 @@ codeunit 134099 "Purchase Documents"
         PurchaseAlreadyExistsTxt: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
         IsInitialized: Boolean;
         WrongReportInvokedErr: Label 'Wrong report invoked.';
-        ZeroQuantityInLineErr: Label 'One or more document lines with a value in the Item No. field do not have a quantity specified.';
+        ZeroQuantityInLineErr: Label 'One or more document lines with a value in the No. field do not have a quantity specified.';
         PurchLinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the purchase lines.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
@@ -361,7 +361,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        Commit;
+        Commit();
 
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
@@ -383,7 +383,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        Commit;
+        Commit();
 
         PurchaseInvoices.OpenView;
         PurchaseInvoices.GotoRecord(PurchaseHeader);
@@ -405,7 +405,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
-        Commit;
+        Commit();
 
         PurchaseQuote.OpenView;
         PurchaseQuote.GotoRecord(PurchaseHeader);
@@ -430,7 +430,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
-        Commit;
+        Commit();
 
         PurchaseQuotes.OpenView;
         PurchaseQuotes.GotoRecord(PurchaseHeader);
@@ -455,7 +455,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchaseHeader);
@@ -477,7 +477,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         PurchaseOrderList.OpenView;
         PurchaseOrderList.GotoRecord(PurchaseHeader);
@@ -499,7 +499,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-        Commit;
+        Commit();
 
         PurchaseCreditMemo.OpenView;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
@@ -521,7 +521,7 @@ codeunit 134099 "Purchase Documents"
         Initialize();
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-        Commit;
+        Commit();
 
         PurchaseCreditMemos.OpenView;
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
@@ -543,7 +543,7 @@ codeunit 134099 "Purchase Documents"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        Commit;
+        Commit();
 
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
@@ -567,7 +567,7 @@ codeunit 134099 "Purchase Documents"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        Commit;
+        Commit();
 
         PurchaseInvoices.OpenView;
         PurchaseInvoices.GotoRecord(PurchaseHeader);
@@ -591,7 +591,7 @@ codeunit 134099 "Purchase Documents"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
-        Commit;
+        Commit();
 
         PurchaseQuote.OpenView;
         PurchaseQuote.GotoRecord(PurchaseHeader);
@@ -615,7 +615,7 @@ codeunit 134099 "Purchase Documents"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
-        Commit;
+        Commit();
 
         PurchaseQuotes.OpenView;
         PurchaseQuotes.GotoRecord(PurchaseHeader);
@@ -639,7 +639,7 @@ codeunit 134099 "Purchase Documents"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchaseHeader);
@@ -663,7 +663,7 @@ codeunit 134099 "Purchase Documents"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         PurchaseOrderList.OpenView;
         PurchaseOrderList.GotoRecord(PurchaseHeader);
@@ -687,7 +687,7 @@ codeunit 134099 "Purchase Documents"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-        Commit;
+        Commit();
 
         PurchaseCreditMemo.OpenView;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
@@ -711,7 +711,7 @@ codeunit 134099 "Purchase Documents"
         LibraryApplicationArea.EnableFoundationSetup;
 
         CreatePurchaseDocumentWithTwoLinesSecondLineQuantityZero(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-        Commit;
+        Commit();
 
         PurchaseCreditMemos.OpenView;
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
@@ -912,7 +912,7 @@ codeunit 134099 "Purchase Documents"
         VendorWithLocation.Modify(true);
 
         // [GIVEN] New Purchase Order with "Buy-from Vendor No." set to "V2"
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorWithLocation."No.");
 
         // [WHEN] Insert Purchase Order
@@ -942,8 +942,8 @@ codeunit 134099 "Purchase Documents"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         if not IntrastatSetup.Get then begin
-            IntrastatSetup.Init;
-            IntrastatSetup.Insert;
+            IntrastatSetup.Init();
+            IntrastatSetup.Insert();
         end;
         LibraryERM.SetDefaultTransactionTypesInIntrastatSetup;
 
@@ -961,7 +961,7 @@ codeunit 134099 "Purchase Documents"
     var
         MyNotifications: Record "My Notifications";
     begin
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Integer; VendorNo: Code[20])
@@ -996,7 +996,7 @@ codeunit 134099 "Purchase Documents"
           PurchaseHeader."Document Type"::"Return Order":
                 PurchaseHeader."Vendor Cr. Memo No." := ExternalDocumentNo;
         end;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -1029,7 +1029,7 @@ codeunit 134099 "Purchase Documents"
         MyNotifications: Record "My Notifications";
     begin
         if MyNotifications.Get(UserId, PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId) then
-            MyNotifications.Delete;
+            MyNotifications.Delete();
         PurchaseHeader.SetShowExternalDocAlreadyExistNotificationDefaultState(true);
     end;
 
@@ -1037,10 +1037,10 @@ codeunit 134099 "Purchase Documents"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
         PurchasesPayablesSetup."Posted Return Shpt. Nos." := LibraryERM.CreateNoSeriesCode;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure VerifyTransactionTypeWhenInsertPurchaseDocument(DocumentType: Option)
@@ -1052,10 +1052,10 @@ codeunit 134099 "Purchase Documents"
           PurchaseHeader, PurchaseLine, DocumentType, '',
           '', LibraryRandom.RandDecInRange(10, 20, 2), '', LibraryRandom.RandDate(10));
 
-        PurchaseHeader.Delete;
+        PurchaseHeader.Delete();
 
         PurchaseHeader."Transaction Type" := '';
-        PurchaseHeader.Insert;
+        PurchaseHeader.Insert();
 
         PurchaseHeader.TestField("Transaction Type", '');
     end;

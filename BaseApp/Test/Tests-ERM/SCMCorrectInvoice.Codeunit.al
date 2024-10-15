@@ -136,18 +136,18 @@ codeunit 137019 "SCM Correct Invoice"
 
         LibraryCosting.AdjustCostItemEntries('', '');
 
-        InvtPeriod.Init;
+        InvtPeriod.Init();
         InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
         InvtPeriod.Closed := true;
-        InvtPeriod.Insert;
-        Commit;
+        InvtPeriod.Insert();
+        Commit();
 
         GLEntry.FindLast;
 
         // EXERCISE
         asserterror CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeaderTmp);
-        InvtPeriod.Delete;
-        Commit;
+        InvtPeriod.Delete();
+        Commit();
 
         CheckNothingIsCreated(Cust, GLEntry);
     end;
@@ -185,7 +185,7 @@ codeunit 137019 "SCM Correct Invoice"
         SalesGetShpt.SetSalesHeader(SalesHeader);
         SalesGetShpt.CreateInvLines(SalesShptLine);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        Commit;
+        Commit();
 
         GLEntry.FindLast;
 
@@ -288,7 +288,7 @@ codeunit 137019 "SCM Correct Invoice"
         PostApplyUnapplyCreditMemoToInvoice(SalesInvHeader);
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesInvHeader."Bill-to Customer No.");
         SalesCrMemoHeader.FindLast;
-        Commit;
+        Commit();
 
         // [WHEN] Cancel Posted Invoice "A"
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvHeader);
@@ -330,7 +330,7 @@ codeunit 137019 "SCM Correct Invoice"
           SalesInvHeader."Customer Posting Group", SalesInvHeader."Gen. Bus. Posting Group");
         ExpectedAmount := GetAmountInclVATOfSalesInvLine(SalesInvHeader);
         LibraryLowerPermissions.SetSalesDocsPost;
-        Commit;
+        Commit();
 
         // [WHEN] Correct Posted Invoice "A" with new Invoice "B"
         CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvHeader, SalesHeader);
@@ -366,7 +366,7 @@ codeunit 137019 "SCM Correct Invoice"
           SalesInvHeader."Customer Posting Group", SalesInvHeader."Gen. Bus. Posting Group");
         SalesInvHeader.CalcFields("Amount Including VAT");
         LibraryLowerPermissions.SetSalesDocsPost;
-        Commit;
+        Commit();
 
         // [WHEN] Cancel Posted Invoice "A" with Corrective Credit Memo "B"
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvHeader);
@@ -656,7 +656,7 @@ codeunit 137019 "SCM Correct Invoice"
         CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
 
         // [GIVEN] Next no. in no. series "Credit Memo Nos." of Sales Setup is "X1"
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(SalesReceivablesSetup."Credit Memo Nos.", WorkDate);
 
         // [WHEN] Create Corrective Credit Memo for Sales Invoice "A"
@@ -820,7 +820,7 @@ codeunit 137019 "SCM Correct Invoice"
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Correct Invoice");
     end;
 
@@ -828,7 +828,7 @@ codeunit 137019 "SCM Correct Invoice"
     begin
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure SellItem(SellToCust: Record Customer; Item: Record Item; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -895,10 +895,10 @@ codeunit 137019 "SCM Correct Invoice"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Exact Cost Reversing Mandatory", false);
         SalesSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure SetInvoiceRounding()
@@ -911,7 +911,7 @@ codeunit 137019 "SCM Correct Invoice"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Memo Nos.", NoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;

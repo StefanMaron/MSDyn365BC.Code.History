@@ -506,7 +506,7 @@ codeunit 137927 "SCM Assembly Copy"
         ModifyGlobalDimensionsInAsmOrder(AssemblyHeader);
 
         // [GIVEN] New Assembly Order
-        ToAssemblyHeader.Init;
+        ToAssemblyHeader.Init();
         ToAssemblyHeader.Validate("Document Type", AssemblyHeader."Document Type");
         ToAssemblyHeader.Validate("No.", LibraryUtility.GenerateGUID);
         ToAssemblyHeader.Insert(true);
@@ -585,7 +585,7 @@ codeunit 137927 "SCM Assembly Copy"
         DimValue := DimensionValue.Code;
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension.Code);
         GeneralLedgerSetup.Modify(true);
 
@@ -638,7 +638,7 @@ codeunit 137927 "SCM Assembly Copy"
         DimValue := DimensionValue.Code;
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension.Code);
         GeneralLedgerSetup.Modify(true);
 
@@ -690,7 +690,7 @@ codeunit 137927 "SCM Assembly Copy"
         DimValue := DimensionValue.Code;
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension.Code);
         GeneralLedgerSetup.Modify(true);
 
@@ -735,7 +735,7 @@ codeunit 137927 "SCM Assembly Copy"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Copy");
     end;
 
@@ -748,7 +748,7 @@ codeunit 137927 "SCM Assembly Copy"
         if not SetupDataInitialized then
             exit;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if OldSalesOrderNoSeriesName <> '' then begin
             SalesSetup.Validate("Order Nos.", OldSalesOrderNoSeriesName);
             OldSalesOrderNoSeriesName := '';
@@ -762,12 +762,12 @@ codeunit 137927 "SCM Assembly Copy"
             StockoutWarningSet := false;
         end;
         SalesSetup."Credit Warnings" := OldCreditWarning;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         if OldAssemblyOrderNoSeries <> '' then begin
-            AssemblySetup.Get;
+            AssemblySetup.Get();
             AssemblySetup."Assembly Order Nos." := OldAssemblyOrderNoSeries;
-            AssemblySetup.Modify;
+            AssemblySetup.Modify();
         end;
 
         if ItemJournalBatch.Get(AssemblyTemplate, AssemblyBatch) then
@@ -802,21 +802,21 @@ codeunit 137927 "SCM Assembly Copy"
         // No. series
         NoSeriesName := 'ASMB__TEST';
         Clear(NoSeries);
-        NoSeries.Init;
+        NoSeries.Init();
         NoSeries.Code := NoSeriesName;
         NoSeries.Description := NoSeriesName;
         NoSeries."Default Nos." := true;
-        if NoSeries.Insert then begin
-            NoSeriesLine.Init;
+        if NoSeries.Insert() then begin
+            NoSeriesLine.Init();
             NoSeriesLine."Series Code" := NoSeriesName;
             NoSeriesLine."Line No." := 10000;
             NoSeriesLine."Starting No." := 'X00001';
             NoSeriesLine."Ending No." := 'X99999';
             NoSeriesLine."Increment-by No." := 1;
-            NoSeriesLine.Insert;
+            NoSeriesLine.Insert();
         end;
         // Setup data
-        SalesSetup.Get;
+        SalesSetup.Get();
         OldSalesOrderNoSeriesName := SalesSetup."Order Nos.";
         OldInvoiceNoSeriesName := SalesSetup."Posted Invoice Nos.";
         OldStockoutWarning := SalesSetup."Stockout Warning";
@@ -826,12 +826,12 @@ codeunit 137927 "SCM Assembly Copy"
         SalesSetup."Credit Warnings" := SalesSetup."Credit Warnings"::"No Warning";
         SalesSetup."Order Nos." := NoSeriesName;
         SalesSetup."Posted Invoice Nos." := NoSeriesName;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         OldAssemblyOrderNoSeries := AssemblySetup."Assembly Order Nos.";
         AssemblySetup."Assembly Order Nos." := NoSeriesName;
-        AssemblySetup.Modify;
+        AssemblySetup.Modify();
     end;
 
     local procedure CreateAssemblyItem()
@@ -841,7 +841,7 @@ codeunit 137927 "SCM Assembly Copy"
     begin
         LibraryAssembly.CreateItem(Item, 0, 3, '', '');
         Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
-        Item.Modify;
+        Item.Modify();
         AssemblyItemNo[1] := Item."No.";
         CreateVariant(1);
         for i := 2 to 4 do begin
@@ -890,18 +890,18 @@ codeunit 137927 "SCM Assembly Copy"
         ItemVariant: Record "Item Variant";
     begin
         UsedVariantCode[VariantNo] := 'TESTVAR_ ' + Format(VariantNo);
-        ItemVariant.Init;
+        ItemVariant.Init();
         ItemVariant."Item No." := AssemblyItemNo[VariantNo];
         ItemVariant.Code := UsedVariantCode[VariantNo];
         ItemVariant.Description := UsedVariantCode[VariantNo];
-        ItemVariant.Insert;
+        ItemVariant.Insert();
     end;
 
     local procedure CreateAssemblyComponent(ParentItemNo: Code[20]; ChildNo: Code[20]; Quantity: Decimal; Line: Integer; Type: Option " ",Item,Resource)
     var
         BOMComponent: Record "BOM Component";
     begin
-        BOMComponent.Init;
+        BOMComponent.Init();
         BOMComponent."Parent Item No." := ParentItemNo;
         BOMComponent."Line No." := (Line - 1) * 10000;
         case Type of
@@ -987,7 +987,7 @@ codeunit 137927 "SCM Assembly Copy"
         DimensionValue: Record "Dimension Value";
         AssemblyLine: Record "Assembly Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         AssemblyHeader.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 2 Code");
@@ -1042,7 +1042,7 @@ codeunit 137927 "SCM Assembly Copy"
             LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, AssemblyBatch, 0, AssemblyItemNo[i], 1000);
             ItemJournalLine.Validate("Location Code", UsedLocationCode);
             ItemJournalLine.Validate("Variant Code", UsedVariantCode[i]);
-            ItemJournalLine.Modify;
+            ItemJournalLine.Modify();
         end;
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, AssemblyBatch);
     end;
@@ -1175,11 +1175,11 @@ codeunit 137927 "SCM Assembly Copy"
             HeaderType::BlanketOrder:
                 LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", SellToCustomerNo);
         end;
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         SalesHeader.Validate(
           "Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
         SalesHeader.Validate("Location Code", UsedLocationCode);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         if AssemblyItemQuantity > 0 then begin
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, 2, AssemblyItemNo[1], AssemblyItemQuantity); // 2 -> Item
             SalesLine.Validate("Location Code", UsedLocationCode);
@@ -1235,7 +1235,7 @@ codeunit 137927 "SCM Assembly Copy"
         AsmLine: Record "Assembly Line";
     begin
         FullAssemblyOrderHeaderNo := '';
-        TempAsmLine.DeleteAll;
+        TempAsmLine.DeleteAll();
         case HeaderType of
             HeaderType::Quote:
                 AssembleToOrderLink.SetRange("Document Type", AssembleToOrderLink."Document Type"::Quote);
@@ -1255,7 +1255,7 @@ codeunit 137927 "SCM Assembly Copy"
             if AsmLine.FindSet then
                 repeat
                     TempAsmLine := AsmLine;
-                    TempAsmLine.Insert;
+                    TempAsmLine.Insert();
                 until AsmLine.Next = 0;
         until AssembleToOrderLink.Next = 0;
     end;
@@ -1266,7 +1266,7 @@ codeunit 137927 "SCM Assembly Copy"
         PostedAsmLine: Record "Posted Assembly Line";
     begin
         FullAssemblyOrderNo := '';
-        TempAsmLine.DeleteAll;
+        TempAsmLine.DeleteAll();
         PostedAssembleToOrderLink.SetRange("Document Type", PostedAssembleToOrderLink."Document Type"::"Sales Shipment");
         PostedAssembleToOrderLink.SetRange("Document No.", ShipmentNo);
         if not PostedAssembleToOrderLink.FindSet then
@@ -1280,7 +1280,7 @@ codeunit 137927 "SCM Assembly Copy"
                     TempAsmLine."Document Type" := TempAsmLine."Document Type"::Order;
                     TempAsmLine."Document No." := PostedAsmLine."Document No.";
                     TempAsmLine."Line No." := PostedAsmLine."Line No.";
-                    TempAsmLine.Insert;
+                    TempAsmLine.Insert();
                 until PostedAsmLine.Next = 0;
         until PostedAssembleToOrderLink.Next = 0;
     end;
@@ -1383,7 +1383,7 @@ codeunit 137927 "SCM Assembly Copy"
         i: Integer;
     begin
         for i := 1 to 4 do begin
-            SKU.Init;
+            SKU.Init();
             SKU."Location Code" := UsedLocationCode;
             SKU."Item No." := AssemblyItemNo[1];
             SKU."Variant Code" := UsedVariantCode[i];

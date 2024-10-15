@@ -286,7 +286,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
           LibraryUtility.GenerateGUID, '', GenJournalLine[1].Amount + LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine[2]."Document No.");
         CustLedgerEntry.Open := false;
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
         CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
@@ -344,7 +344,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
           LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine[2]."Document No.");
         CustLedgerEntry."Posting Date" := WorkDate + 1;
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
 
         // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
         CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
@@ -471,7 +471,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
           DirectDebitCollectionEntry[2], BankAccount."No.", CustLedgerEntry[2]."Entry No.",
           DirectDebitCollection.Status::"File Created", DirectDebitCollectionEntry[2].Status::"File Created");
         DirectDebitCollectionEntry[2]."Transaction ID" := DirectDebitCollectionEntry[1]."Transaction ID";
-        DirectDebitCollectionEntry[2].Modify;
+        DirectDebitCollectionEntry[2].Modify();
 
         // [GIVEN] Reconciliation Line with "Transaction ID" = "T1", Amount = "A2", "Document No." = "D2".
         CreateBankReconciliation(BankAccReconciliation, BankAccount."No.");
@@ -498,8 +498,8 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm II");
 
-        CustLedgerEntry.DeleteAll;
-        VendorLedgerEntry.DeleteAll;
+        CustLedgerEntry.DeleteAll();
+        VendorLedgerEntry.DeleteAll();
         InsertDefaultMatchingRules;
 
         if IsInitialized then
@@ -507,7 +507,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm II");
 
         LibraryERM.SetLCYCode(GetEURCurrency);
-        Commit;
+        Commit();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Algorithm II");
@@ -541,20 +541,20 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Bank Statement Import Format" := BankStatementImportFormat;
-        BankAccount.Modify;
+        BankAccount.Modify();
     end;
 
     local procedure CreateBankExportImportSetupCAMT(): Code[20]
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code :=
           LibraryUtility.GenerateRandomCode(BankExportImportSetup.FieldNo(Code), DATABASE::"Bank Export/Import Setup");
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::Import;
         BankExportImportSetup."Data Exch. Def. Code" := GetCAMTDataExch;
         BankExportImportSetup."Processing Codeunit ID" := GetCAMTProcCodID;
-        BankExportImportSetup.Insert;
+        BankExportImportSetup.Insert();
         exit(BankExportImportSetup.Code);
     end;
 
@@ -585,7 +585,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         GenJournalLine."Document No." := DocNo;
         GenJournalLine."External Document No." := ExtDocNo;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -598,7 +598,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
 
         GenJournalLine."Document No." := DocNo;
         GenJournalLine."External Document No." := ExtDocNo;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -607,12 +607,12 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     var
         DirectDebitCollection: Record "Direct Debit Collection";
     begin
-        DirectDebitCollection.Init;
+        DirectDebitCollection.Init();
         DirectDebitCollection."No." := LibraryUtility.GetNewRecNo(DirectDebitCollection, DirectDebitCollection.FieldNo("No."));
         DirectDebitCollection.Identifier := LibraryUtility.GenerateGUID;
         DirectDebitCollection.Status := DDCollectionStatus;
         DirectDebitCollection."To Bank Account No." := BankAccountNo;
-        DirectDebitCollection.Insert;
+        DirectDebitCollection.Insert();
 
         with DirectDebitCollectionEntry do begin
             Init;
@@ -629,13 +629,13 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        BankPmtApplRule.DeleteAll;
+        BankPmtApplRule.DeleteAll();
         BankPmtApplRule.InsertDefaultMatchingRules;
     end;
 
     local procedure SetRule(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; RelatedPartyMatched: Option; DocNoMatched: Option; AmountInclToleranceMatched: Option; DirectDebitCollectMatched: Option)
     begin
-        BankPmtApplRule.Init;
+        BankPmtApplRule.Init();
         BankPmtApplRule."Related Party Matched" := RelatedPartyMatched;
         BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := DocNoMatched;
         BankPmtApplRule."Amount Incl. Tolerance Matched" := AmountInclToleranceMatched;
@@ -668,7 +668,7 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         TempBankPmtApplRule.LoadRules;
         Score := TempBankPmtApplRule.GetBestMatchScore(ExpectedBankPmtApplRule);
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
         TempBankStatementMatchingBuffer.SetRange(Quality, Score);
         Assert.RecordIsNotEmpty(TempBankStatementMatchingBuffer);

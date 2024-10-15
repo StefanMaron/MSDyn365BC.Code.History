@@ -171,7 +171,7 @@ report 11012 "Intrastat - Form DE"
 
                 trigger OnAfterGetRecord()
                 var
-                    OldTariffNo: Code[10];
+                    OldTariffNo: Code[20];
                 begin
                     if ("Tariff No." = '') and
                        ("Country/Region Code" = '') and
@@ -181,7 +181,7 @@ report 11012 "Intrastat - Form DE"
                        ("Transaction Specification" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     OldTariffNo := "Tariff No.";
                     "Tariff No." := DelChr("Tariff No.");
@@ -233,7 +233,7 @@ report 11012 "Intrastat - Form DE"
             trigger OnAfterGetRecord()
             begin
                 // Code moved from Section
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Intrastat Jnl. Batch"."Amounts in Add. Currency" then begin
                     GLSetup.TestField("Additional Reporting Currency");
                     HeaderText := StrSubstNo(Text1140003, GLSetup."Additional Reporting Currency");
@@ -269,7 +269,7 @@ report 11012 "Intrastat - Form DE"
         if not ("Intrastat Jnl. Line".GetRangeMin(Type) = "Intrastat Jnl. Line".GetRangeMax(Type)) then
             "Intrastat Jnl. Line".FieldError(Type, Text1140000);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         VATIDNo := CopyStr(DelChr(UpperCase(CompanyInfo."Registration No."), '=', Text1140000), 1, 11);
     end;
 

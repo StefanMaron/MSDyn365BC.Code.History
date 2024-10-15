@@ -95,8 +95,8 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
 
     var
         O365SalesAttachmentMgt: Codeunit "O365 Sales Attachment Mgt";
-        Camera: Codeunit Camera;
         MediaUpload: Page "Media Upload";
+        Camera: Page Camera;
 
     procedure ImportNewFile()
     begin
@@ -131,12 +131,16 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
     var
         ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
         PictureInStream: InStream;
-        DummyPictureName: Text;
     begin
-        if not Camera.GetPicture(PictureInStream, DummyPictureName) then
+        if not Camera.IsAvailable() then
             exit;
 
-        ImportAttachmentIncDoc.ProcessAndUploadPicture(PictureInStream, Rec);
+        Camera.RunModal();
+        if Camera.HasPicture() then begin
+            Camera.GetPicture(PictureInStream);
+            ImportAttachmentIncDoc.ProcessAndUploadPicture(PictureInStream, Rec);
+        end;
+        Clear(Camera);
     end;
 
     procedure GetCameraAvailable(): Boolean

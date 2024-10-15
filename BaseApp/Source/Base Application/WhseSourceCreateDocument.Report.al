@@ -16,8 +16,6 @@ report 7305 "Whse.-Source - Create Document"
                 TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
                 WMSMgt: Codeunit "WMS Management";
                 ItemTrackingManagement: Codeunit "Item Tracking Management";
-                WhseSNRequired: Boolean;
-                WhseLNRequired: Boolean;
             begin
                 WMSMgt.CheckOutboundBlockedBin("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
 
@@ -36,8 +34,7 @@ report 7305 "Whse.-Source - Create Document"
                             PostedWhseReceiptLine2."Qty. (Base)" /
                             PostedWhseReceiptLine2."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
 
-                        ItemTrackingManagement.CheckWhseItemTrkgSetup("Item No.", WhseSNRequired, WhseLNRequired, false);
-                        if WhseSNRequired or WhseLNRequired then
+                        if ItemTrackingManagement.GetWhseItemTrkgSetup("Item No.") then
                             ItemTrackingManagement.InitItemTrkgForTempWkshLine(
                               WhseWkshLine."Whse. Document Type"::Receipt,
                               PostedWhseReceiptLine2."No.",
@@ -69,7 +66,7 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnPreDataItem()
             begin
                 if WhseDoc <> WhseDoc::"Posted Receipt" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 CreatePutAway.SetValues(AssignedID, SortActivity, DoNotFillQtytoHandle, BreakbulkFilter);
                 CopyFilters(PostedWhseReceiptLine);
@@ -113,7 +110,7 @@ report 7305 "Whse.-Source - Create Document"
                 QtyHandledBase: Decimal;
             begin
                 if TempWhseWorksheetLineMovement.IsEmpty then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TempWhseWorksheetLineMovement.FindSet;
                 repeat
@@ -127,7 +124,7 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnPreDataItem()
             begin
                 if WhseDoc <> WhseDoc::"Whse. Mov.-Worksheet" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 CreatePick.SetValues(
                   AssignedID, 2, SortActivity, 2, 0, 0, false, DoNotFillQtytoHandle, BreakbulkFilter, false);
@@ -136,10 +133,10 @@ report 7305 "Whse.-Source - Create Document"
 
                 CopyFilters(WhseWkshLine);
                 SetFilter("Qty. to Handle (Base)", '>0');
-                LockTable;
+                LockTable();
 
-                TempWhseWorksheetLineMovement.Reset;
-                TempWhseWorksheetLineMovement.DeleteAll;
+                TempWhseWorksheetLineMovement.Reset();
+                TempWhseWorksheetLineMovement.DeleteAll();
 
                 OnBeforeProcessWhseMovWkshLines("Whse. Mov.-Worksheet Line");
             end;
@@ -155,7 +152,7 @@ report 7305 "Whse.-Source - Create Document"
                 QtyHandledBase: Decimal;
                 SourceType: Integer;
             begin
-                LockTable;
+                LockTable();
 
                 CheckBin("Location Code", "From Bin Code", false);
 
@@ -181,7 +178,7 @@ report 7305 "Whse.-Source - Create Document"
                     then
                         WhseWkshLine.Delete
                     else
-                        WhseWkshLine.Modify;
+                        WhseWkshLine.Modify();
                     UpdateWhseItemTrkgLines(PostedWhseRcptLine, SourceType, TempWhseItemTrkgLine);
                 end else
                     if CreateErrorText = '' then
@@ -191,7 +188,7 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnPreDataItem()
             begin
                 if WhseDoc <> WhseDoc::"Put-away Worksheet" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 CreatePutAway.SetValues(AssignedID, SortActivity, DoNotFillQtytoHandle, BreakbulkFilter);
 
@@ -236,7 +233,7 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnPreDataItem()
             begin
                 if WhseDoc <> WhseDoc::"Internal Pick" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 CreatePick.SetValues(
                   AssignedID, 3, SortActivity, 1, 0, 0, false, DoNotFillQtytoHandle, BreakbulkFilter, false);
@@ -285,7 +282,7 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnPreDataItem()
             begin
                 if WhseDoc <> WhseDoc::"Internal Put-away" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 CreatePutAway.SetValues(AssignedID, SortActivity, DoNotFillQtytoHandle, BreakbulkFilter);
 
@@ -312,14 +309,14 @@ report 7305 "Whse.-Source - Create Document"
                 SkipProdOrderComp: Boolean;
             begin
                 if ("Flushing Method" = "Flushing Method"::"Pick + Forward") and ("Routing Link Code" = '') then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 WMSMgt.CheckInboundBlockedBin("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
 
                 SkipProdOrderComp := false;
                 OnAfterGetRecordProdOrderComponent("Prod. Order Component", SkipProdOrderComp);
                 if SkipProdOrderComp then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 WhseWkshLine.SetRange("Source Line No.", "Prod. Order Line No.");
                 WhseWkshLine.SetRange("Source Subline No.", "Line No.");
@@ -348,9 +345,9 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnPreDataItem()
             begin
                 if WhseDoc <> WhseDoc::Production then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
-                WhseSetup.Get;
+                WhseSetup.Get();
                 CreatePick.SetValues(
                   AssignedID, 4, SortActivity, 1, 0, 0, false, DoNotFillQtytoHandle, BreakbulkFilter, false);
 
@@ -391,9 +388,9 @@ report 7305 "Whse.-Source - Create Document"
             trigger OnPreDataItem()
             begin
                 if WhseDoc <> WhseDoc::Assembly then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
-                WhseSetup.Get;
+                WhseSetup.Get();
                 CreatePick.SetValues(
                   AssignedID, 5, SortActivity, 1, 0, 0, false, DoNotFillQtytoHandle, BreakbulkFilter, false);
 
@@ -516,7 +513,7 @@ report 7305 "Whse.-Source - Create Document"
             CreatePick.CreateWhseDocument(FirstActivityNo, LastActivityNo, true);
             CreatePick.ReturnTempItemTrkgLines(TempWhseItemTrkgLine);
             ItemTrackingMgt.UpdateWhseItemTrkgLines(TempWhseItemTrkgLine);
-            Commit;
+            Commit();
         end else
             CreatePutAway.GetWhseActivHeaderNo(FirstActivityNo, LastActivityNo);
 
@@ -540,7 +537,7 @@ report 7305 "Whse.-Source - Create Document"
                 OnAfterCreatePutAwayDeleteBlankBinContent(WhseActivHeader);
                 if SortActivity > 0 then
                     WhseActivHeader.SortWhseDoc;
-                Commit;
+                Commit();
             until WhseActivHeader.Next = 0;
 
             if PrintDoc then begin
@@ -664,7 +661,7 @@ report 7305 "Whse.-Source - Create Document"
         WhseActivityHeader.SetRange("No.", FirstActivityNo, LastActivityNo);
         WhseActivityHeader.SetRange(Type, TypeToFilter);
         if not WhseActivityHeader.FindFirst then
-            WhseActivityHeader.Init;
+            WhseActivityHeader.Init();
     end;
 
     procedure GetResultMessage(WhseDocType: Option): Boolean
@@ -1025,7 +1022,7 @@ report 7305 "Whse.-Source - Create Document"
         end;
         RemQtyToHandleBase := PostedWhseRcptLine."Qty. (Base)";
 
-        TempPostedWhseRcptLine.Reset;
+        TempPostedWhseRcptLine.Reset();
         if TempPostedWhseRcptLine.Find('-') then
             repeat
                 TempPostedWhseRcptLine2 := TempPostedWhseRcptLine;

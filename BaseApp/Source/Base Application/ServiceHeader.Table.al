@@ -9,11 +9,9 @@ table 5900 "Service Header"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Service Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo";
         }
         field(2; "Customer No."; Code[20])
         {
@@ -86,7 +84,7 @@ table 5900 "Service Header"
                         Get("Document Type", "No.");
                         if "Customer No." = '' then begin
                             Init;
-                            ServSetup.Get;
+                            ServSetup.Get();
                             "No. Series" := xRec."No. Series";
                             InitRecord;
                             if xRec."Shipping No." <> '' then begin
@@ -122,7 +120,7 @@ table 5900 "Service Header"
                             TestField("Gen. Bus. Posting Group", xRec."Gen. Bus. Posting Group");
                         end;
 
-                Commit;
+                Commit();
                 Validate("Ship-to Code", Cust."Ship-to Code");
                 if Cust."Bill-to Customer No." <> '' then
                     Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
@@ -146,7 +144,7 @@ table 5900 "Service Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    ServSetup.Get;
+                    ServSetup.Get();
                     TestNoSeriesManual;
                     "No. Series" := '';
                 end;
@@ -187,7 +185,7 @@ table 5900 "Service Header"
                                 ServLine.TestField("Quantity Shipped", 0)
                             else
                                 ServLine.TestField("Shipment No.", '');
-                        ServLine.Reset;
+                        ServLine.Reset();
                     end else
                         "Bill-to Customer No." := xRec."Bill-to Customer No.";
                 end;
@@ -450,7 +448,7 @@ table 5900 "Service Header"
 
                     if "Starting Time" <> 0T then
                         Validate("Starting Time");
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetCurrentKey("Document Type", "Document No.", "Starting Date");
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "No.");
@@ -463,14 +461,14 @@ table 5900 "Service Header"
                                   ServItemLine.FieldCaption("Starting Date"));
                         until ServItemLine.Next = 0;
 
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "No.");
                     if ServItemLine.Find('-') then
                         repeat
                             ServItemLine.CheckWarranty("Order Date");
                             ServItemLine.CalculateResponseDateTime("Order Date", "Order Time");
-                            ServItemLine.Modify;
+                            ServItemLine.Modify();
                         until ServItemLine.Next = 0;
                     UpdateServLinesByFieldNo(FieldNo("Order Date"), false);
                 end;
@@ -503,7 +501,7 @@ table 5900 "Service Header"
                     repeat
                         if "Posting Date" <> ServLine."Posting Date" then begin
                             ServLine."Posting Date" := "Posting Date";
-                            ServLine.Modify;
+                            ServLine.Modify();
                         end;
                     until ServLine.Next = 0;
 
@@ -571,7 +569,7 @@ table 5900 "Service Header"
 
             trigger OnValidate()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Payment Discount %" < GLSetup."VAT Tolerance %" then
                     "VAT Base Discount %" := "Payment Discount %"
                 else
@@ -712,7 +710,7 @@ table 5900 "Service Header"
                             ServLine."Amount Including VAT" := 0;
                             ServLine."VAT Base Amount" := 0;
                             ServLine.InitOutstandingAmount;
-                            ServLine.Modify;
+                            ServLine.Modify();
                         until ServLine.Next = 0;
                     ServLine.SetRange(Type);
                     ServLine.SetRange(Quantity);
@@ -770,7 +768,7 @@ table 5900 "Service Header"
                                             Currency."Amount Rounding Precision"));
                                     end;
                                 end;
-                            ServLine.Modify;
+                            ServLine.Modify();
                         until ServLine.Next = 0;
                     end;
                 end;
@@ -837,11 +835,9 @@ table 5900 "Service Header"
             Caption = 'No. Printed';
             Editable = false;
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -1150,11 +1146,9 @@ table 5900 "Service Header"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(97; "Exit Point"; Code[10])
         {
@@ -1207,10 +1201,17 @@ table 5900 "Service Header"
             trigger OnValidate()
             var
                 PaymentMethod: Record "Payment Method";
+                SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
             begin
                 if PaymentMethod.Get("Payment Method Code") then begin
                     "Bal. Account Type" := PaymentMethod."Bal. Account Type";
                     "Bal. Account No." := PaymentMethod."Bal. Account No.";
+                    if PaymentMethod."Direct Debit" then begin
+                        "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Due Date");
+                        if "Payment Terms Code" = '' then
+                            "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
+                    end else
+                        "Direct Debit Mandate ID" := '';
                 end;
                 if "Bal. Account No." <> '' then begin
                     TestField("Applies-to Doc. No.", '');
@@ -1250,7 +1251,7 @@ table 5900 "Service Header"
             begin
                 with ServHeader do begin
                     ServHeader := Rec;
-                    ServSetup.Get;
+                    ServSetup.Get();
                     TestNoSeries;
                     if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
                         Validate("Posting No. Series");
@@ -1261,7 +1262,7 @@ table 5900 "Service Header"
             trigger OnValidate()
             begin
                 if "Posting No. Series" <> '' then begin
-                    ServSetup.Get;
+                    ServSetup.Get();
                     TestNoSeries;
                     NoSeriesMgt.TestSeries(GetPostingNoSeriesCode, "Posting No. Series");
                 end;
@@ -1276,7 +1277,7 @@ table 5900 "Service Header"
             trigger OnValidate()
             begin
                 if "Shipping No. Series" <> '' then begin
-                    ServSetup.Get;
+                    ServSetup.Get();
                     ServSetup.TestField("Posted Service Shipment Nos.");
                     NoSeriesMgt.TestSeries(ServSetup."Posted Service Shipment Nos.", "Shipping No. Series");
                 end;
@@ -1313,11 +1314,9 @@ table 5900 "Service Header"
                     RecreateServLines(FieldCaption("VAT Bus. Posting Group"));
             end;
         }
-        field(117; Reserve; Option)
+        field(117; Reserve; Enum "Reserve Method")
         {
             Caption = 'Reserve';
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
         }
         field(118; "Applies-to ID"; Code[50])
         {
@@ -1338,7 +1337,7 @@ table 5900 "Service Header"
                     CustLedgEntry.SetRange("Applies-to ID", xRec."Applies-to ID");
                     if CustLedgEntry.FindFirst then
                         CustEntrySetApplID.SetApplId(CustLedgEntry, TempCustLedgEntry, '');
-                    CustLedgEntry.Reset;
+                    CustLedgEntry.Reset();
                 end;
             end;
         }
@@ -1353,7 +1352,7 @@ table 5900 "Service Header"
             var
                 IsHandled: Boolean;
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if "VAT Base Discount %" > GLSetup."VAT Tolerance %" then
                     Error(
                       Text011,
@@ -1391,18 +1390,16 @@ table 5900 "Service Header"
                 end;
             end;
         }
-        field(120; Status; Option)
+        field(120; Status; Enum "Service Document Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Pending,In Process,Finished,On Hold';
-            OptionMembers = Pending,"In Process",Finished,"On Hold";
 
             trigger OnValidate()
             var
                 JobQueueEntry: Record "Job Queue Entry";
                 RepairStatus: Record "Repair Status";
             begin
-                ServItemLine.Reset;
+                ServItemLine.Reset();
                 ServItemLine.SetRange("Document Type", "Document Type");
                 ServItemLine.SetRange("Document No.", "No.");
                 LinesExist := true;
@@ -1517,6 +1514,14 @@ table 5900 "Service Header"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
+        field(1200; "Direct Debit Mandate ID"; Code[35])
+        {
+            Caption = 'Direct Debit Mandate ID';
+            TableRelation = "SEPA Direct Debit Mandate" WHERE("Customer No." = FIELD("Bill-to Customer No."),
+                                                               Closed = CONST(false),
+                                                               Blocked = CONST(false));
+            DataClassification = SystemMetadata;
+        }
         field(5052; "Contact No."; Code[20])
         {
             Caption = 'Contact No.';
@@ -1560,7 +1565,7 @@ table 5900 "Service Header"
                           ConfirmManagement.GetResponseOrDefault(
                             StrSubstNo(Text005, FieldCaption("Contact No.")), true);
                     if Confirmed then begin
-                        ServLine.Reset;
+                        ServLine.Reset();
                         ServLine.SetRange("Document Type", "Document Type");
                         ServLine.SetRange("Document No.", "No.");
                         if ("Contact No." = '') and ("Customer No." = '') then begin
@@ -1629,7 +1634,7 @@ table 5900 "Service Header"
                           ConfirmManagement.GetResponseOrDefault(
                             StrSubstNo(Text005, FieldCaption("Bill-to Contact No.")), true);
                     if Confirmed then begin
-                        ServLine.Reset;
+                        ServLine.Reset();
                         ServLine.SetRange("Document Type", "Document Type");
                         ServLine.SetRange("Document No.", "No.");
                         if ("Bill-to Contact No." = '') and ("Bill-to Customer No." = '') then begin
@@ -1678,7 +1683,7 @@ table 5900 "Service Header"
                   DATABASE::"Service Order Type", "Service Order Type",
                   DATABASE::"Service Contract Header", "Contract No.");
 
-                ServItemLine.Reset;
+                ServItemLine.Reset();
                 ServItemLine.SetRange("Document Type", "Document Type");
                 ServItemLine.SetRange("Document No.", "No.");
                 if ServItemLine.Find('-') then
@@ -1694,11 +1699,9 @@ table 5900 "Service Header"
                 end;
             end;
         }
-        field(5750; "Shipping Advice"; Option)
+        field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
 
             trigger OnValidate()
             var
@@ -1783,7 +1786,7 @@ table 5900 "Service Header"
             trigger OnValidate()
             begin
                 if "Link Service to Service Item" <> xRec."Link Service to Service Item" then begin
-                    ServLine.Reset;
+                    ServLine.Reset();
                     ServLine.SetRange("Document Type", "Document Type");
                     ServLine.SetRange("Document No.", "No.");
                     ServLine.SetFilter(Type, '<>%1', ServLine.Type::Cost);
@@ -1865,13 +1868,13 @@ table 5900 "Service Header"
                         Error(Text007, FieldCaption("Order Time"), FieldCaption("Starting Time"));
                     if "Starting Time" <> 0T then
                         Validate("Starting Time");
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "No.");
                     if ServItemLine.Find('-') then
                         repeat
                             ServItemLine.CalculateResponseDateTime("Order Date", "Order Time");
-                            ServItemLine.Modify;
+                            ServItemLine.Modify();
                         until ServItemLine.Next = 0;
                 end;
             end;
@@ -1920,7 +1923,7 @@ table 5900 "Service Header"
                     then
                         Error(Text007, FieldCaption("Starting Date"), FieldCaption("Finishing Time"));
 
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetCurrentKey("Document Type", "Document No.", "Starting Date");
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "No.");
@@ -2016,7 +2019,7 @@ table 5900 "Service Header"
                         Validate("Finishing Time");
                     end;
 
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetCurrentKey("Document Type", "Document No.", "Finishing Date");
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "No.");
@@ -2054,7 +2057,7 @@ table 5900 "Service Header"
                           Text026, FieldCaption("Finishing Time"),
                           FieldCaption("Order Time"));
 
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetCurrentKey("Document Type", "Document No.", "Finishing Date");
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "No.");
@@ -2151,7 +2154,7 @@ table 5900 "Service Header"
                     if ServContractHeader.Get(ServContractHeader."Contract Type"::Contract, "Contract No.") then
                         ServContractList.SetRecord(ServContractHeader);
 
-                ServContractHeader.Reset;
+                ServContractHeader.Reset();
                 ServContractHeader.FilterGroup(2);
                 ServContractHeader.SetCurrentKey("Customer No.", "Ship-to Code");
                 ServContractHeader.SetRange("Customer No.", "Customer No.");
@@ -2188,7 +2191,7 @@ table 5900 "Service Header"
                         then
                             Error(Text043, "Contract No.");
                     end;
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "No.");
                     if ServItemLine.Find('-') then
@@ -2308,6 +2311,10 @@ table 5900 "Service Header"
         {
             Caption = 'Expected Finishing Date';
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
@@ -2385,7 +2392,7 @@ table 5900 "Service Header"
             Error(Text000, UserSetupMgt.GetServiceFilter);
 
         if "Document Type" = "Document Type"::Invoice then begin
-            ServLine.Reset;
+            ServLine.Reset();
             ServLine.SetRange("Document Type", ServLine."Document Type"::Invoice);
             ServLine.SetRange("Document No.", "No.");
             ServLine.SetFilter("Appl.-to Service Entry", '>%1', 0);
@@ -2396,8 +2403,8 @@ table 5900 "Service Header"
         ServPost.DeleteHeader(Rec, ServShptHeader, ServInvHeader, ServCrMemoHeader);
         Validate("Applies-to ID", '');
 
-        ServLine.Reset;
-        ServLine.LockTable;
+        ServLine.Reset();
+        ServLine.LockTable();
 
         ReservMgt.DeleteDocumentReservation(DATABASE::"Service Line", "Document Type", "No.", HideValidationDialog);
 
@@ -2408,11 +2415,11 @@ table 5900 "Service Header"
         ServLine.SuspendStatusCheck(true);
         ServLine.DeleteAll(true);
 
-        ServCommentLine.Reset;
+        ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Header");
         ServCommentLine.SetRange("Table Subtype", "Document Type");
         ServCommentLine.SetRange("No.", "No.");
-        ServCommentLine.DeleteAll;
+        ServCommentLine.DeleteAll();
 
         ServDocRegister.SetCurrentKey("Destination Document Type", "Destination Document No.");
         case "Document Type" of
@@ -2420,25 +2427,25 @@ table 5900 "Service Header"
                 begin
                     ServDocRegister.SetRange("Destination Document Type", ServDocRegister."Destination Document Type"::Invoice);
                     ServDocRegister.SetRange("Destination Document No.", "No.");
-                    ServDocRegister.DeleteAll;
+                    ServDocRegister.DeleteAll();
                 end;
             "Document Type"::"Credit Memo":
                 begin
                     ServDocRegister.SetRange("Destination Document Type", ServDocRegister."Destination Document Type"::"Credit Memo");
                     ServDocRegister.SetRange("Destination Document No.", "No.");
-                    ServDocRegister.DeleteAll;
+                    ServDocRegister.DeleteAll();
                 end;
         end;
 
-        ServOrderAlloc.Reset;
+        ServOrderAlloc.Reset();
         ServOrderAlloc.SetCurrentKey("Document Type");
         ServOrderAlloc.SetRange("Document Type", "Document Type");
         ServOrderAlloc.SetRange("Document No.", "No.");
         ServOrderAlloc.SetRange(Posted, false);
-        ServOrderAlloc.DeleteAll;
+        ServOrderAlloc.DeleteAll();
         ServAllocMgt.SetServOrderAllocStatus(Rec);
 
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", "Document Type");
         ServItemLine.SetRange("Document No.", "No.");
         if ServItemLine.Find('-') then
@@ -2459,25 +2466,25 @@ table 5900 "Service Header"
                           ServItemLine."Loaner No.");
 
                     LoanerEntry.SetRange(Lent, true);
-                    LoanerEntry.DeleteAll;
+                    LoanerEntry.DeleteAll();
                 end;
 
                 Clear(ServLogMgt);
                 ServLogMgt.ServItemOffServOrder(ServItemLine);
-                ServItemLine.Delete;
+                ServItemLine.Delete();
             until ServItemLine.Next = 0;
 
-        ServDocLog.Reset;
+        ServDocLog.Reset();
         ServDocLog.SetRange("Document Type", "Document Type");
         ServDocLog.SetRange("Document No.", "No.");
-        ServDocLog.DeleteAll;
+        ServDocLog.DeleteAll();
 
-        ServDocLog.Reset;
+        ServDocLog.Reset();
         ServDocLog.SetRange(Before, "No.");
         ServDocLog.SetFilter("Document Type", '%1|%2|%3',
           ServDocLog."Document Type"::Shipment, ServDocLog."Document Type"::"Posted Invoice",
           ServDocLog."Document Type"::"Posted Credit Memo");
-        ServDocLog.DeleteAll;
+        ServDocLog.DeleteAll();
 
         if (ServShptHeader."No." <> '') or
            (ServInvHeader."No." <> '') or
@@ -2490,7 +2497,7 @@ table 5900 "Service Header"
     var
         ServShptHeader: Record "Service Shipment Header";
     begin
-        ServSetup.Get;
+        ServSetup.Get();
         if "No." = '' then begin
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", 0D, "No.", "No. Series");
@@ -2623,7 +2630,7 @@ table 5900 "Service Header"
     begin
         with ServHeader do begin
             Copy(Rec);
-            ServSetup.Get;
+            ServSetup.Get();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldServHeader."No. Series", "No. Series") then begin
                 if ("Customer No." = '') and ("Contact No." = '') then
@@ -2647,7 +2654,7 @@ table 5900 "Service Header"
         ContractDimensionSetID: Integer;
         OldDimSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         TableID[1] := Type1;
         No[1] := No1;
@@ -2702,10 +2709,10 @@ table 5900 "Service Header"
         if not (HideValidationDialog or ConfirmManagement.GetResponseOrDefault(Text061, true)) then
             exit;
 
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
-        ServLine.LockTable;
+        ServLine.LockTable();
         if ServLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(ServLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -2713,14 +2720,14 @@ table 5900 "Service Header"
                     ServLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       ServLine."Dimension Set ID", ServLine."Shortcut Dimension 1 Code", ServLine."Shortcut Dimension 2 Code");
-                    ServLine.Modify;
+                    ServLine.Modify();
                 end;
             until ServLine.Next = 0;
 
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", "Document Type");
         ServItemLine.SetRange("Document No.", "No.");
-        ServItemLine.LockTable;
+        ServItemLine.LockTable();
         if ServItemLine.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(ServItemLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -2728,7 +2735,7 @@ table 5900 "Service Header"
                     ServItemLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       ServItemLine."Dimension Set ID", ServItemLine."Shortcut Dimension 1 Code", ServItemLine."Shortcut Dimension 2 Code");
-                    ServItemLine.Modify;
+                    ServItemLine.Modify();
                 end;
             until ServItemLine.Next = 0;
     end;
@@ -2801,7 +2808,7 @@ table 5900 "Service Header"
                 if IsHandled then
                     exit;
 
-                ServLine.Reset;
+                ServLine.Reset();
                 ServLine.SetRange("Document Type", "Document Type");
                 ServLine.SetRange("Document No.", "No.");
                 if ServLine.Find('-') then begin
@@ -2812,9 +2819,9 @@ table 5900 "Service Header"
                         TempServLine := ServLine;
                         if ServLine.Nonstock then begin
                             ServLine.Nonstock := false;
-                            ServLine.Modify;
+                            ServLine.Modify();
                         end;
-                        TempServLine.Insert;
+                        TempServLine.Insert();
                         CopyReservEntryToTemp(ServLine);
                     until ServLine.Next() = 0;
 
@@ -2844,7 +2851,7 @@ table 5900 "Service Header"
 
                     CreateServiceLines(TempServLine, ExtendedTextAdded);
                     TempServLine.SetRange(Type);
-                    TempServLine.DeleteAll;
+                    TempServLine.DeleteAll();
                 end;
             end else
                 Error('');
@@ -2878,8 +2885,8 @@ table 5900 "Service Header"
         end;
 
         if ServLineExists then begin
-            ServLine.LockTable;
-            ServLine.Reset;
+            ServLine.LockTable();
+            ServLine.Reset();
             ServLine.SetRange("Document Type", "Document Type");
             ServLine.SetRange("Document No.", "No.");
 
@@ -2905,7 +2912,7 @@ table 5900 "Service Header"
                             begin
                                 ServLine.Validate("Responsibility Center", "Responsibility Center");
                                 ServLine.Modify(true);
-                                ServItemLine.Reset;
+                                ServItemLine.Reset();
                                 ServItemLine.SetRange("Document Type", "Document Type");
                                 ServItemLine.SetRange("Document No.", "No.");
                                 if ServItemLine.Find('-') then
@@ -2970,10 +2977,10 @@ table 5900 "Service Header"
     begin
         OnBeforeTestMandatoryFields(Rec, PassedServLine);
 
-        ServSetup.Get;
+        ServSetup.Get();
         CheckMandSalesPersonOrderData(ServSetup);
-        PassedServLine.Reset;
-        ServLine.Reset;
+        PassedServLine.Reset();
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
 
@@ -3050,7 +3057,7 @@ table 5900 "Service Header"
 
     procedure UpdateResponseDateTime()
     begin
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Document Type", "Document No.", "Response Date");
         ServItemLine.SetRange("Document Type", "Document Type");
         ServItemLine.SetRange("Document No.", "No.");
@@ -3065,7 +3072,7 @@ table 5900 "Service Header"
     begin
         if ValidatingFromLines then
             exit;
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Document Type", "Document No.", "Starting Date");
         ServItemLine.SetRange("Document Type", "Document Type");
         ServItemLine.SetRange("Document No.", "No.");
@@ -3084,7 +3091,7 @@ table 5900 "Service Header"
     begin
         if ValidatingFromLines then
             exit;
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Document Type", "Document No.", "Finishing Date");
         ServItemLine.Ascending := false;
         ServItemLine.SetRange("Document Type", "Document Type");
@@ -3112,7 +3119,7 @@ table 5900 "Service Header"
     var
         ServItemLine: Record "Service Item Line";
     begin
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", "Document Type");
         ServItemLine.SetRange("Document No.", "No.");
         exit(not ServItemLine.IsEmpty);
@@ -3120,7 +3127,7 @@ table 5900 "Service Header"
 
     procedure ServLineExists(): Boolean
     begin
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
         exit(not ServLine.IsEmpty);
@@ -3136,7 +3143,7 @@ table 5900 "Service Header"
 
     local procedure ValidateServPriceGrOnServItem()
     begin
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", "Document Type");
         ServItemLine.SetRange("Document No.", "No.");
         if ServItemLine.Find('-') then begin
@@ -3144,7 +3151,7 @@ table 5900 "Service Header"
             repeat
                 if ServItemLine."Service Price Group Code" <> '' then begin
                     ServItemLine.Validate("Service Price Group Code");
-                    ServItemLine.Modify;
+                    ServItemLine.Modify();
                 end;
             until ServItemLine.Next = 0
         end;
@@ -3396,7 +3403,7 @@ table 5900 "Service Header"
     var
         IsHandled: Boolean;
     begin
-        ServSetup.Get;
+        ServSetup.Get();
         IsHandled := false;
         OnBeforeGetPostingNoSeriesCode(Rec, ServSetup, PostingNos, IsHandled);
         if IsHandled then
@@ -3455,7 +3462,7 @@ table 5900 "Service Header"
             Validate("Location Code", UserSetupMgt.GetLocation(2, Cust."Location Code", "Responsibility Center"));
 
         if "Document Type" in ["Document Type"::"Credit Memo"] then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Correction := GLSetup."Mark Cr. Memos as Corrections";
         end;
 
@@ -3477,7 +3484,7 @@ table 5900 "Service Header"
     local procedure InitRecordFromContact()
     begin
         Init;
-        ServSetup.Get;
+        ServSetup.Get();
         InitRecord;
         "No. Series" := xRec."No. Series";
         if xRec."Shipping No." <> '' then begin
@@ -3501,7 +3508,7 @@ table 5900 "Service Header"
 
     local procedure ShippedServLinesExist(): Boolean
     begin
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
         ServLine.SetFilter("Quantity Shipped", '<>0');
@@ -3521,7 +3528,7 @@ table 5900 "Service Header"
                   Location.City, Location."Post Code", Location.County, Location."Country/Region Code");
                 "Ship-to Contact" := Location.Contact;
             end else begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 "Ship-to Code" := '';
                 SetShipToAddress(
                   CompanyInfo."Ship-to Name", CompanyInfo."Ship-to Name 2", CompanyInfo."Ship-to Address", CompanyInfo."Ship-to Address 2",
@@ -3572,29 +3579,29 @@ table 5900 "Service Header"
 
     local procedure CopyReservEntryToTemp(OldServLine: Record "Service Line")
     begin
-        ReservEntry.Reset;
+        ReservEntry.Reset();
         ReservEntry.SetSourceFilter(
           DATABASE::"Service Line", OldServLine."Document Type", OldServLine."Document No.", OldServLine."Line No.", false);
         if ReservEntry.FindSet then
             repeat
                 TempReservEntry := ReservEntry;
-                TempReservEntry.Insert;
+                TempReservEntry.Insert();
             until ReservEntry.Next = 0;
-        ReservEntry.DeleteAll;
+        ReservEntry.DeleteAll();
     end;
 
     local procedure CopyReservEntryFromTemp(OldServLine: Record "Service Line"; NewSourceRefNo: Integer)
     begin
-        TempReservEntry.Reset;
+        TempReservEntry.Reset();
         TempReservEntry.SetSourceFilter(
           DATABASE::"Service Line", OldServLine."Document Type", OldServLine."Document No.", OldServLine."Line No.", false);
         if TempReservEntry.FindSet then
             repeat
                 ReservEntry := TempReservEntry;
                 ReservEntry."Source Ref. No." := NewSourceRefNo;
-                if not ReservEntry.Insert then;
+                if not ReservEntry.Insert() then;
             until TempReservEntry.Next = 0;
-        TempReservEntry.DeleteAll;
+        TempReservEntry.DeleteAll();
     end;
 
     procedure ShowDocDim()
@@ -3622,8 +3629,8 @@ table 5900 "Service Header"
     begin
         ServiceLine.SetRange("Document Type", "Document Type");
         ServiceLine.SetRange("Document No.", "No.");
-        TempValueEntry.Reset;
-        TempValueEntry.DeleteAll;
+        TempValueEntry.Reset();
+        TempValueEntry.DeleteAll();
 
         case "Document Type" of
             "Document Type"::Order, "Document Type"::Invoice:
@@ -3667,7 +3674,7 @@ table 5900 "Service Header"
             repeat
                 if ValueEntry.Adjustment then begin
                     TempValueEntry := ValueEntry;
-                    if TempValueEntry.Insert then;
+                    if TempValueEntry.Insert() then;
                 end;
             until ValueEntry.Next = 0;
     end;
@@ -3710,7 +3717,7 @@ table 5900 "Service Header"
                 TestField("Finishing Time");
             end;
             if ServiceMgtSetup."Fault Reason Code Mandatory" and not ValidatingFromLines then begin
-                ServItemLine.Reset;
+                ServItemLine.Reset();
                 ServItemLine.SetRange("Document Type", "Document Type");
                 ServItemLine.SetRange("Document No.", "No.");
                 if ServItemLine.Find('-') then
@@ -3794,17 +3801,18 @@ table 5900 "Service Header"
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
-        ServLine.Init;
+        ServLine.Init();
         ServLine."Line No." := 0;
         TempServLine.Find('-');
         ExtendedTextAdded := false;
 
         repeat
             if TempServLine."Attached to Line No." = 0 then begin
-                ServLine.Init;
+                ServLine.Init();
                 ServLine.SetHideReplacementDialog(true);
                 ServLine.SetHideCostWarning(true);
                 ServLine."Line No." := ServLine."Line No." + 10000;
+                ServLine."Price Calculation Method" := "Price Calculation Method";
                 ServLine.Validate(Type, TempServLine.Type);
                 if TempServLine."No." <> '' then begin
                     ServLine.Validate("No.", TempServLine."No.");
@@ -3857,7 +3865,7 @@ table 5900 "Service Header"
                 "Link Service to Service Item" := TempLinkToServItem;
 
                 OnBeforeInsertServLineOnServLineRecreation(ServLine, TempServLine);
-                ServLine.Insert;
+                ServLine.Insert();
                 ExtendedTextAdded := false;
             end else
                 if not ExtendedTextAdded then begin
@@ -3983,7 +3991,7 @@ table 5900 "Service Header"
                     "Payment Method Code" := Cust."Payment Method Code"
         end else
             "Payment Method Code" := Cust."Payment Method Code";
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then begin
             "VAT Bus. Posting Group" := Cust."VAT Bus. Posting Group";
             "VAT Registration No." := Cust."VAT Registration No.";
@@ -3994,6 +4002,7 @@ table 5900 "Service Header"
         "Currency Code" := Cust."Currency Code";
         "Customer Price Group" := Cust."Customer Price Group";
         "Prices Including VAT" := Cust."Prices Including VAT";
+        "Price Calculation Method" := Cust.GetPriceCalculationMethod();
         "Allow Line Disc." := Cust."Allow Line Disc.";
         "Invoice Disc. Code" := Cust."Invoice Disc. Code";
         "Customer Disc. Group" := Cust."Customer Disc. Group";

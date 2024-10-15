@@ -64,7 +64,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
         NumberOfDays3 := 0;
         Custom1NumberOfDays3 := 0;
         DeprBookCode := DeprBookCode2;
-        FALedgEntry.LockTable;
+        FALedgEntry.LockTable();
         FA.Get(FANo);
         DeprBook.Get(DeprBookCode);
         if not FADeprBook.Get(FANo, DeprBookCode) then

@@ -172,7 +172,7 @@ page 6005 "Resource Allocations"
                     trigger OnAction()
                     begin
                         Clear(CanceledAllocEntries);
-                        ServOrderAlloc.Reset;
+                        ServOrderAlloc.Reset();
                         ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
                         ServOrderAlloc.SetRange("Document Type", "Document Type");
                         ServOrderAlloc.SetRange("Document No.", "Document No.");
@@ -225,7 +225,7 @@ page 6005 "Resource Allocations"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         if "Service Item Line No." = 0 then begin
-            ServItemLine.Reset;
+            ServItemLine.Reset();
             ServItemLine.SetRange("Document Type", "Document Type");
             ServItemLine.SetRange("Document No.", "Document No.");
             if ServItemLine.Count = 1 then begin

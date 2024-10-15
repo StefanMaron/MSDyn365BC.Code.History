@@ -174,7 +174,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::"Return Order", SalesHeader."Sell-to Customer No.");
         LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", DocumentNo, true, false);  // Set TRUE for Include Header and FALSE for Recalculate Lines.
         EnqueueValuesForItemTrackingAppendixReport(DocType::"Sales Return Order", SalesHeader."No.", SalesLine."No.");
-        Commit;
+        Commit();
 
         // [WHEN] Run Item Tracking Appendix Report.
         RunItemTrackingAppendixReport;
@@ -331,7 +331,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         // [GIVEN] Clear Item Expiration Quantity Report. COMMIT to clear pending write transaction.
         Initialize;
-        Commit;
+        Commit();
         Evaluate(PeriodLength2, PeriodLength);
         EnqueueValuesForItemExpirationQuantityReport(EndingDate, PeriodLength2);
         Clear(ItemExpirationQuantity);
@@ -392,7 +392,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         FindShipmentLine(SalesShipmentLine, SalesLine."No.");
 
         // Exercise.
-        Commit;
+        Commit();
         SaveSalesShipment(SalesShipmentLine."Document No.");
 
         // [THEN] Verify Sales Shipment Report.
@@ -416,7 +416,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         FindReturnReceiptLine(ReturnReceiptLine, SalesLine);
 
         // Exercise.
-        Commit;
+        Commit();
         SaveSalesRetReceipt(ReturnReceiptLine."Document No.");
 
         // [THEN] Verify Sales Return Receipt Report.
@@ -667,7 +667,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         SetupForSalesReport(SalesLine);
 
         // [WHEN] Run Inventory Customer Sales Report.
-        Commit;
+        Commit();
         RunInventoryCustomerSalesReport(SalesLine."No.");
 
         // [THEN] Verify Sales Amount and Profit on Inventory Customer Sales Report.
@@ -689,7 +689,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         SetupForSalesReport(SalesLine);
 
         // [WHEN] Run Item Sales Report.
-        Commit;
+        Commit();
         RunItemSalesReport(SalesLine."Bill-to Customer No.");
 
         // [THEN] Verify Sales Amount and Profit on Item Sales Report.
@@ -720,7 +720,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
 
         // [WHEN] Run Inventory Valuation Sales Report.
-        Commit;
+        Commit();
         RunInventoryValuationReport(ItemNo);
 
         // [THEN] Verify Decrease Quantity and Amount on Inventory Valuation Report.
@@ -747,7 +747,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         CreateItemJournalForRevaluation(ItemJournalLine, Item."No.");
 
         // [WHEN] Run Revaluation Posting Test Report.
-        Commit;
+        Commit();
         RunRevaluationPostingTestReport(Item."No.");
 
         // [THEN] Verify Quantity and Inventory Value Revaluated on Revaluation Posting Test Report.
@@ -1116,7 +1116,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [THEN] Customer "CU2" is present in the report
         // [THEN] Customer "CU1" is not reported
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Customer__No__', SalesHeader."Bill-to Customer No.");
         Assert.IsTrue(LibraryReportDataset.GetNextRow, WrongCustomerErr);
 
@@ -1244,7 +1244,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [THEN] Sales amount for customer "C1" is "X1" + "Y1".
         // [THEN] Sales amount for customer "C2" is "X2" + "Y2".
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         for i := 1 to ArrayLen(CustomerNo) do begin
             ItemLedgerEntry.SetRange("Source No.", CustomerNo[i]);
             ItemLedgerEntry.FindFirst;
@@ -1356,7 +1356,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
 
         // [WHEN] Run "Customer/Item Sales" report for item "I" on WORKDATE.
-        Commit;
+        Commit();
         RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate, WorkDate);
 
         // [THEN] The report shows the full cost amount of the sales ("C1" + "C2"), that includes the cost adjustment posted on the later date.
@@ -1417,7 +1417,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [FEATURE] [Physical Inventory] [Calculate Inventory]
         // [SCENARIO 296470] "Calculate Inventory" Report sets "Qty. (Calculated)" to zero for Items without Transactions
         Initialize;
-        Location.DeleteAll;
+        Location.DeleteAll();
 
         // [GIVEN] Item "I1" with quantity on inventory = "Q1"
         ItemNo := LibraryInventory.CreateItem(Item);
@@ -1466,7 +1466,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - V");
     end;
 
@@ -1712,8 +1712,8 @@ codeunit 137352 "SCM Inventory Reports - V"
         BinContent: Record "Bin Content";
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        BinContent.Init;  // To ignore precal error using INIT.
-        WarehouseJournalLine.Init;
+        BinContent.Init();  // To ignore precal error using INIT.
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", WarehouseJournalBatch."Location Code");
@@ -1817,7 +1817,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Location Mandatory", LocationMandatory);
         InventorySetup.Modify(true);
     end;
@@ -1982,7 +1982,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         CalculateInventory.SetItemJnlLine(ItemJournalLine);
         CalculateInventory.InitializeRequest(WorkDate, LibraryUtility.GenerateGUID, ItemsNotInInvt, ItemsWithNoTrans);
         CalculateInventory.UseRequestPage(true);
-        Commit;
+        Commit();
         CalculateInventory.Run;
     end;
 
@@ -2032,7 +2032,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalBatch.SetRange(Name, ItemJournalBatch.Name);
-        Commit;  // Commit required before running this Report.
+        Commit();  // Commit required before running this Report.
         Clear(PhysInventoryList);
         PhysInventoryList.SetTableView(ItemJournalBatch);
         PhysInventoryList.Run;
@@ -2059,7 +2059,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     var
         Item: Record Item;
     begin
-        Commit;
+        Commit();
         Item.SetRange("No.", ItemNo);
         REPORT.Run(REPORT::Status, true, false, Item);
     end;
@@ -2081,7 +2081,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         ReturnReceiptHeader.SetRange("No.", No);
         LibraryVariableStorage.Enqueue(No);
-        Commit;  // Commit required due to use of RUN.
+        Commit();  // Commit required due to use of RUN.
         Clear(SalesReturnReceipt);
         SalesReturnReceipt.SetTableView(ReturnReceiptHeader);
         SalesReturnReceipt.Run;
@@ -2172,7 +2172,7 @@ codeunit 137352 "SCM Inventory Reports - V"
             LibraryReportDataset.AssertElementWithValueExists('InvtValue2', ItemLedgerEntry."Remaining Quantity" * Item."Unit Cost");
         until ItemLedgerEntry.Next = 0;
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         ItemLedgerEntry.SetRange(Open, false);
         ItemLedgerEntry.FindSet;
         repeat
@@ -2240,7 +2240,7 @@ codeunit 137352 "SCM Inventory Reports - V"
 
     local procedure VerifyPhysInventoryListReport(ItemNo: Code[20]; Qty: Decimal; LotNo: Code[50]; SerialNo: Code[50]; ShowQty: Boolean; ShowLot: Boolean; ShowSerial: Boolean)
     begin
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('ItemNo_ItemJournalLine', ItemNo);
         LibraryReportDataset.AssertElementWithValueExists('ShowQtyCalculated', ShowQty);
         LibraryReportDataset.AssertElementWithValueExists('QtyCalculated_ItemJnlLin', Qty);
@@ -2280,7 +2280,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchItemChargeAmt: Decimal;
     begin
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('ValueEntryBuffer__Item_No__', ItemNo);
         LibraryReportDataset.GetNextRow;
 

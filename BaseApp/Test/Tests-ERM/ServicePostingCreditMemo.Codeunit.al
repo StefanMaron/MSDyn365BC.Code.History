@@ -903,7 +903,7 @@ codeunit 136104 "Service Posting - Credit Memo"
 
         // [GIVEN] Setup Credit Warning field on Sales and Receivables Setup. Create Customer, Service Order for the Customer.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         CreditWarnings := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
         SalesReceivablesSetup.Modify(true);
@@ -942,7 +942,7 @@ codeunit 136104 "Service Posting - Credit Memo"
 
         // set Global Variable for Report Handler.
         ContractNo := ServiceContractHeader."Contract No.";
-        Commit;
+        Commit();
 
         // [WHEN] Run Report Create Service Invoice with Print Only Option and Save Service Invoice Report automatically run from it.
         CreateServiceInvoiceFromReport(ServiceContractHeader."Contract No.", CreateInvoices::"Print Only");
@@ -1398,7 +1398,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting - Credit Memo");
     end;
 
@@ -1428,9 +1428,9 @@ codeunit 136104 "Service Posting - Credit Memo"
     begin
         if FromServiceLine.FindSet then
             repeat
-                ToTempServiceLine.Init;
+                ToTempServiceLine.Init();
                 ToTempServiceLine := FromServiceLine;
-                ToTempServiceLine.Insert;
+                ToTempServiceLine.Insert();
             until FromServiceLine.Next = 0
     end;
 
@@ -1785,9 +1785,9 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceContractLine.SetRange("Contract No.", ServiceContractLine."Contract No.");
         ServiceContractLine.FindSet;
         repeat
-            TempServiceContractLine.Init;
+            TempServiceContractLine.Init();
             TempServiceContractLine := ServiceContractLine;
-            TempServiceContractLine.Insert;
+            TempServiceContractLine.Insert();
         until ServiceContractLine.Next = 0;
     end;
 
@@ -1799,9 +1799,9 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindSet;
         repeat
-            TempServiceLine.Init;
+            TempServiceLine.Init();
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 
@@ -1855,9 +1855,9 @@ codeunit 136104 "Service Posting - Credit Memo"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.Validate("Mark Cr. Memos as Corrections", true);
-        GLSetup.Modify;
+        GLSetup.Modify();
     end;
 
     local procedure VerifyAmountInvoiceCreditMemo(ContractNo: Code[20])
@@ -2111,7 +2111,7 @@ codeunit 136104 "Service Posting - Credit Memo"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ServiceLine.FindSet;
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceLine."Document No.");
         ServiceCrMemoHeader.FindFirst;

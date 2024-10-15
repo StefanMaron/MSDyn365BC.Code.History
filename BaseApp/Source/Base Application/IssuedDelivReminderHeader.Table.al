@@ -158,13 +158,13 @@ table 5005272 "Issued Deliv. Reminder Header"
     trigger OnDelete()
     begin
         TestField("No. Printed");
-        LockTable;
+        LockTable();
         DelivReminderIssue.DeleteIssuedDelivReminderLines(Rec);
 
-        DeliveryReminderCommentLine.Reset;
+        DeliveryReminderCommentLine.Reset();
         DeliveryReminderCommentLine.SetRange("Document Type", DeliveryReminderCommentLine."Document Type"::"Issued Delivery Reminder");
         DeliveryReminderCommentLine.SetRange("No.", "No.");
-        DeliveryReminderCommentLine.DeleteAll;
+        DeliveryReminderCommentLine.DeleteAll();
     end;
 
     var

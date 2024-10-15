@@ -78,7 +78,7 @@ report 5005341 "Issue Delivery Reminder"
 
     trigger OnPostReport()
     begin
-        Commit;
+        Commit();
 
         if PrintDoc then begin
             IssuedDeliveryReminderHeader.MarkedOnly := true;
@@ -88,7 +88,7 @@ report 5005341 "Issue Delivery Reminder"
                 until IssuedDeliveryReminderHeader.Next = 0;
         end;
 
-        Commit;
+        Commit();
 
         "Delivery Reminder Header".MarkedOnly := true;
         if (NoOfRecords <> 1) and "Delivery Reminder Header".Find('-') then

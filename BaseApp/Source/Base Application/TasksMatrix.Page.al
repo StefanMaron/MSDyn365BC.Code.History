@@ -808,7 +808,7 @@ page 9255 "Tasks Matrix"
 
     local procedure UpdateSalesPersonFilter()
     begin
-        Salesperson.Reset;
+        Salesperson.Reset();
         Salesperson.SetFilter(Code, FilterSalesPerson);
         Salesperson.SetFilter("Team Filter", FilterTeam);
         Salesperson.SetFilter("Campaign Filter", FilterCampaign);
@@ -821,7 +821,7 @@ page 9255 "Tasks Matrix"
 
     local procedure UpdateCampaignFilter()
     begin
-        Campaign.Reset;
+        Campaign.Reset();
         Campaign.SetFilter("No.", FilterCampaign);
         Campaign.SetFilter("Salesperson Filter", FilterSalesPerson);
         Campaign.SetFilter("Team Filter", FilterTeam);
@@ -834,7 +834,7 @@ page 9255 "Tasks Matrix"
 
     local procedure UpdateContactFilter()
     begin
-        Cont.Reset;
+        Cont.Reset();
         Cont.SetCurrentKey("Company Name", "Company No.", Type, Name);
         Cont.SetFilter("Company No.", FilterContact);
         Cont.SetFilter("Campaign Filter", FilterCampaign);
@@ -848,7 +848,7 @@ page 9255 "Tasks Matrix"
 
     local procedure UpdateTeamFilter()
     begin
-        Team.Reset;
+        Team.Reset();
         Team.SetFilter(Code, FilterTeam);
         Team.SetFilter("Campaign Filter", FilterCampaign);
         Team.SetFilter("Salesperson Filter", FilterSalesPerson);

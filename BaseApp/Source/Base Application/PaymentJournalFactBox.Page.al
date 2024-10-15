@@ -270,9 +270,9 @@ page 35517 "Payment Journal FactBox"
         PmtDiscDate := 0D;
         PaymentTerms := '';
 
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Document No.");
-        Vend.Init;
+        Vend.Init();
 
         case true of
             "Applies-to ID" <> '':

@@ -34,8 +34,8 @@ codeunit 5615 "Budget Depreciation"
                 exit;
             case "Depreciation Method" of
                 "Depreciation Method"::"Declining-Balance 1",
-              "Depreciation Method"::"DB1/SL",
-              "Depreciation Method"::"DB2/SL":
+                "Depreciation Method"::"DB1/SL",
+                "Depreciation Method"::"DB2/SL":
                     if NoOfErrors = 0 then begin
                         CreateMessage;
                         NoOfErrors := 1;
@@ -105,16 +105,13 @@ codeunit 5615 "Budget Depreciation"
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
         NextEntryNo: Integer;
     begin
-        GLBudgetEntry.LockTable;
-        BudgetName.LockTable;
+        GLBudgetEntry.LockTable();
+        BudgetName.LockTable();
 
         BudgetName.Get(BudgetNameCode);
         BudgetName.TestField(Blocked, false);
-        if GLBudgetEntry.FindLast then
-            NextEntryNo := GLBudgetEntry."Entry No." + 1
-        else
-            NextEntryNo := 1;
-        GLBudgetEntry.Init;
+        NextEntryNo := GLBudgetEntry.GetLastEntryNo() + 1;
+        GLBudgetEntry.Init();
         GLBudgetEntry."Budget Name" := BudgetNameCode;
         FALedgEntry."G/L Entry No." := NextEntryNo;
         FAInsertGLAcc.DeleteAllGLAcc;
@@ -138,7 +135,7 @@ codeunit 5615 "Budget Depreciation"
                     GLBudgetEntry."Dimension Set ID" := GetFADefaultDimSetID(FALedgEntry);
                 UpdateDimCodesFromDimSetID(GLBudgetEntry, BudgetName);
                 OnBeforeGLBudgetEntryInsert(GLBudgetEntry, FALedgEntry, FAGLPostBuf, BudgetName);
-                GLBudgetEntry.Insert;
+                GLBudgetEntry.Insert();
             until FAInsertGLAcc.GetNextGLAcc(FAGLPostBuf) = 0;
     end;
 
@@ -157,7 +154,7 @@ codeunit 5615 "Budget Depreciation"
                 TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";
                 TempDimSetEntry."Dimension Value Code" := DimVal.Code;
                 TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-                TempDimSetEntry.Insert;
+                TempDimSetEntry.Insert();
             until DefaultDim.Next = 0;
 
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));

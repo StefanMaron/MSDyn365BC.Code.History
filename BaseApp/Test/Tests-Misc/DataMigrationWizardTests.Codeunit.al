@@ -45,7 +45,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
         AssistedSetupTestLibrary.CallOnRegister();
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
 
         if InsertDataForImport then
             PopulateDataMigrationEntityRecord;
@@ -71,9 +71,9 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.Close;
 
         // [WHEN] The data migration wizard is run with a migration in progress
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus.Status := DataMigrationStatus.Status::"In Progress";
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
 
         // [THEN] an error is raised
         DataMigrationWizard.Trap;
@@ -89,7 +89,6 @@ codeunit 139305 "Data Migration Wizard Tests"
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         DataMigrationWizardTests: Codeunit "Data Migration Wizard Tests";
         DataMigrationWizard: TestPage "Data Migration Wizard";
     begin
@@ -102,7 +101,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
     end;
 
     [Test]
@@ -112,7 +111,6 @@ codeunit 139305 "Data Migration Wizard Tests"
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         DataMigrationWizardTests: Codeunit "Data Migration Wizard Tests";
         DataMigrationWizard: TestPage "Data Migration Wizard";
     begin
@@ -126,7 +124,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
     end;
 
     [Test]
@@ -136,7 +134,6 @@ codeunit 139305 "Data Migration Wizard Tests"
     procedure VerifyStatusCompletedWhenFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         DataMigrationWizardTests: Codeunit "Data Migration Wizard Tests";
         DataMigrationWizard: TestPage "Data Migration Wizard";
     begin
@@ -149,7 +146,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Data Migration Wizard"), 'Migrate Data status should be completed.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Data Migration Wizard"), 'Migrate Data status should be completed.');
     end;
 
     [Test]
@@ -159,7 +156,6 @@ codeunit 139305 "Data Migration Wizard Tests"
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         DataMigrationWizardTests: Codeunit "Data Migration Wizard Tests";
         DataMigrationWizard: TestPage "Data Migration Wizard";
     begin
@@ -173,7 +169,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Data Migration Wizard"), 'Migrate Data status should not be completed.');
 
         // [THEN] No events were fired
         VerifyDataTypeBuffer(OnGetInstructionsTxt, false);
@@ -414,7 +410,7 @@ codeunit 139305 "Data Migration Wizard Tests"
         Initialize(true);
         AccountingPeriod."Starting Date" := CalcDate('<-CY+1D>', WorkDate);
         AccountingPeriod."New Fiscal Year" := true;
-        AccountingPeriod.Insert;
+        AccountingPeriod.Insert();
         LibraryVariableStorage.Enqueue(PostingOptionsTok); // Recipient of the event
         LibraryVariableStorage.Enqueue(true); // Show posting options
         BindSubscription(DataMigrationWizardTests);
@@ -476,9 +472,9 @@ codeunit 139305 "Data Migration Wizard Tests"
         DataMigrationWizardTests.SetVariableStorage(LibraryVariableStorage);
 
         // [GIVEN] Wrong accounting period out of fiscal year
-        AccountingPeriod.Init;
+        AccountingPeriod.Init();
         AccountingPeriod."Starting Date" := WorkDate;
-        AccountingPeriod.Insert;
+        AccountingPeriod.Insert();
 
         // [GIVEN] The data migration wizard executed to the "Apply" page
         RunWizardToApply(DataMigrationWizard);
@@ -720,9 +716,9 @@ codeunit 139305 "Data Migration Wizard Tests"
         if not DoInsertDataMigrationEntityRecord then
             exit;
 
-        DataMigrationEntity.Init;
+        DataMigrationEntity.Init();
         DataMigrationEntity."No. of Records" := 10;
-        DataMigrationEntity.Insert;
+        DataMigrationEntity.Insert();
     end;
 
     [ConfirmHandler]
@@ -971,7 +967,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     begin
         if DataTypeBuffer.FindLast then;
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID += 1;
         DataTypeBuffer.Text := CopyStr(EventText, 1, 30);
         DataTypeBuffer.Insert(true);
@@ -1002,7 +998,7 @@ codeunit 139305 "Data Migration Wizard Tests"
     begin
         if DataTypeBuffer.FindLast then;
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID += 1;
         DataTypeBuffer.Text := CopyStr(InsertDataMigrationRecordsTxt, 1, 30);
         DataTypeBuffer.Insert(true);

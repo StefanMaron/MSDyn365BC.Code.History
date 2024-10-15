@@ -283,7 +283,7 @@ report 11013 "Intrastat - Checklist DE"
                        ("Transaction Specification" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     OldTariffNo := "Tariff No.";
                     "Tariff No." := DelChr("Tariff No.");
@@ -344,7 +344,7 @@ report 11013 "Intrastat - Checklist DE"
             begin
                 Clear(SumTotalWeight);
 
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Amounts in Add. Currency" then begin
                     GLSetup.TestField("Additional Reporting Currency");
                     HeaderText := StrSubstNo(Text1140002, GLSetup."Additional Reporting Currency");
@@ -398,7 +398,7 @@ report 11013 "Intrastat - Checklist DE"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         VATIDNo := CopyStr(DelChr(UpperCase(CompanyInfo."Registration No."), '=', Text1140000), 1, 11);
     end;
 
@@ -415,7 +415,7 @@ report 11013 "Intrastat - Checklist DE"
         PrintJnlLines: Boolean;
         Heading: Boolean;
         HeaderText: Text[30];
-        OldTariffNo: Code[10];
+        OldTariffNo: Code[20];
         VATIDNo: Code[11];
         OriginCountryIntrastatCode: Code[10];
         SumTotalWeight: Decimal;

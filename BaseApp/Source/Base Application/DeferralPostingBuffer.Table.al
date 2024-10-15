@@ -343,7 +343,7 @@ table 1706 "Deferral Posting Buffer"
             else
                 Modify;
         end else begin
-            "Entry No." := GetLastEntryNo + 1;
+            "Entry No." := GetLastEntryNo() + 1;
             "Dimension Set ID" := InvoicePostBuffer."Dimension Set ID";
             "Global Dimension 1 Code" := InvoicePostBuffer."Global Dimension 1 Code";
             "Global Dimension 2 Code" := InvoicePostBuffer."Global Dimension 2 Code";
@@ -362,13 +362,11 @@ table 1706 "Deferral Posting Buffer"
         exit(false);
     end;
 
-    local procedure GetLastEntryNo(): Integer
+    procedure GetLastEntryNo(): Integer;
     var
-        DeferralPostingBuffer: Record "Deferral Posting Buffer";
+        FindRecordManagement: Codeunit "Find Record Management";
     begin
-        if DeferralPostingBuffer.FindLast then
-            exit(DeferralPostingBuffer."Entry No.");
-        exit(0);
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     [IntegrationEvent(false, false)]

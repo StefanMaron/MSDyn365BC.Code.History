@@ -80,7 +80,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         SalesHeader: Record "Sales Header";
     begin
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         SetInventorySetup(
           OldInventorySetup, true,
           OldInventorySetup."Automatic Cost Posting",
@@ -135,7 +135,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         PostingDate: Date;
     begin
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         SetInventorySetup(OldInventorySetup, true, false, false, OldInventorySetup."Automatic Cost Adjustment"::Never);
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
 
@@ -198,7 +198,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         Initialize;
         Qty := 102.53;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         ExactCostReversing := SalesReceivablesSetup."Exact Cost Reversing Mandatory";
         SetSalesSetup(SalesReceivablesSetup, true);
 
@@ -241,7 +241,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
     begin
         Initialize;
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         ExactCostReversing := PurchasesPayablesSetup."Exact Cost Reversing Mandatory";
         SetPurchaseSetup(PurchasesPayablesSetup, true);
 
@@ -305,14 +305,14 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         NegativeOutputEntryNo: Integer;
     begin
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         SetInventorySetup(OldInventorySetup, true, false, false, OldInventorySetup."Automatic Cost Adjustment"::Never);
 
         // Setup Item: Unit Cost = Last Direct Cost
         UnitCost := 25;
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, UnitCost, 0, 0, '');
         Item."Last Direct Cost" := UnitCost;
-        Item.Modify;
+        Item.Modify();
 
         // Setup Production Order
         Quantity := 10;
@@ -332,7 +332,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         LibraryPatterns.MAKEOutputJournalLine(ItemJnlBatch, ProdOrderLine, WorkDate, -Quantity, UnitCost);
         FindLastJournalLine(ItemJnlBatch, ItemJnlLine);
         ItemJnlLine."Applies-to Entry" := FirstOutputEntryNo;
-        ItemJnlLine.Modify;
+        ItemJnlLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
         // Add Item as component to production order
@@ -343,7 +343,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         FindLastJournalLine(ItemJnlBatch, ItemJnlLine);
         NegativeOutputEntryNo := FindLastItemLedgEntry;
         ItemJnlLine."Applies-from Entry" := NegativeOutputEntryNo;
-        ItemJnlLine.Modify;
+        ItemJnlLine.Modify();
         asserterror LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
 
         // Verify error and that posting is blocked *)
@@ -375,7 +375,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         AccountNo: Code[20];
     begin
         Initialize;
-        OldInventorySetup.Get;
+        OldInventorySetup.Get();
         SetInventorySetup(OldInventorySetup, true, true, false, OldInventorySetup."Automatic Cost Adjustment"::Always);
 
         // create location
@@ -387,7 +387,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         // create item
         LibraryPatterns.MAKEItem(Item, Item."Costing Method"::FIFO, 0, 0, 0, '');
         Item.Validate("Inventory Posting Group", InvtPostingGroupCode);
-        Item.Modify;
+        Item.Modify();
 
         // posting Sales - the first posting should show error
 
@@ -505,7 +505,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Rollup Sev 1");
     end;
 
@@ -517,7 +517,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         // Setup produced and component item.
         LibraryPatterns.MAKEItem(ParentItem, ParentCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
-        ParentItem.Modify;
+        ParentItem.Modify();
 
         LibraryPatterns.MAKEItem(CompItem, CompCostingMethod, LibraryRandom.RandDec(100, 2), 0, 0, '');
 
@@ -585,7 +585,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         ProdOrderComponent2: Record "Prod. Order Component";
         CalcConsumption: Report "Calc. Consumption";
     begin
-        Commit;
+        Commit();
         CalcConsumption.InitializeRequest(PostingDate, CalcBasedOn);
         CalcConsumption.SetTemplateAndBatchName(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
@@ -628,7 +628,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
                 "Expected Cost Posting to G/L" := ExpectedCostPosting;
                 "Automatic Cost Adjustment" := AutomaticCostAdjustment;
             end else begin
-                SavedInventorySetup.Get;
+                SavedInventorySetup.Get();
                 SavedInventorySetup."Average Cost Calc. Type" := "Average Cost Calc. Type";
                 SavedInventorySetup."Average Cost Period" := "Average Cost Period";
                 SavedInventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
@@ -648,7 +648,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(InTransitLocation);
         InTransitLocation.Validate("Use As In-Transit", true);
-        InTransitLocation.Modify;
+        InTransitLocation.Modify();
 
         LibraryPatterns.POSTTransferOrder(
           TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', Qty, WorkDate, WorkDate, true, true);
@@ -690,7 +690,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         ItemJournalLine.SetRange("Item No.", Item."No.");
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Unit Cost (Revalued)", RevaluationCost);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
 
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
@@ -738,7 +738,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         VATPostingSetup.FindFirst;
 
         Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure PostSalesWithDiscount(var SalesHeader: Record "Sales Header"; var Item: Record Item; var Location: Record Location; var Customer: Record Customer; Qty: Decimal)
@@ -847,7 +847,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         PurchaseLine.Find('+');
         repeat
             PurchaseLine.Validate("Appl.-to Item Entry", ItemLedgerEntry."Entry No.");
-            PurchaseLine.Modify;
+            PurchaseLine.Modify();
             ItemLedgerEntry."Entry No." -= 1;
         until PurchaseLine.Next(-1) = 0;
 
@@ -893,12 +893,12 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         LibraryManufacturing.CreateProductionBOMLine(
           ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item[2]."No.", 1);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify;
+        ProductionBOMHeader.Modify();
 
         // update final item
         Item[3].Validate("Replenishment System", Item[3]."Replenishment System"::"Prod. Order");
         Item[3].Validate("Production BOM No.", ProductionBOMHeader."No.");
-        Item[3].Modify;
+        Item[3].Modify();
     end;
 
     local procedure CreateInventoryWithIT(var Item: Record Item; Quantity: Decimal; LotNo: Code[20]; LocationCode: Code[10])
@@ -991,21 +991,21 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         // according to scenario we have to post more output then planned and has to be split into 115 posting lines
         LineNo := ItemJournalLine."Line No.";
         ItemJournalLine.Validate("Output Quantity", Quantity);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
 
         // add item tracking for the first line
         LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', ItemJournalLine."Item No.", Quantity);
         if ApplyEntryNo > 0 then begin
             // posting reverse output
             ReservationEntry."Appl.-to Item Entry" := ApplyEntryNo;
-            ReservationEntry.Modify;
+            ReservationEntry.Modify();
         end;
 
         // creating the remaining ouput lines
         for i := 1 to 114 do begin
             LineNo += 10000;
             ItemJournalLine."Line No." := LineNo;
-            ItemJournalLine.Insert;
+            ItemJournalLine.Insert();
 
             // add item tracking for the new line line
             ReservationEntry."Source Ref. No." := LineNo;
@@ -1015,7 +1015,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
                 ApplyEntryNo += 1;
                 ReservationEntry."Appl.-to Item Entry" := ApplyEntryNo;
             end;
-            ReservationEntry.Insert;
+            ReservationEntry.Insert();
         end;
 
         // posting output
@@ -1033,14 +1033,14 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         if ProdOrderComp.FindLast then
             LastLineNo := ProdOrderComp."Line No.";
 
-        ProdOrderComp.Init;
+        ProdOrderComp.Init();
         ProdOrderComp.Status := ProdOrderLine.Status;
         ProdOrderComp."Prod. Order No." := ProdOrderLine."Prod. Order No.";
         ProdOrderComp."Prod. Order Line No." := ProdOrderLine."Line No.";
         ProdOrderComp."Line No." := LastLineNo + 10000;
         ProdOrderComp.Validate("Item No.", ItemNo);
         ProdOrderComp.Validate("Quantity per", QtyPer);
-        ProdOrderComp.Insert;
+        ProdOrderComp.Insert();
     end;
 
     local procedure FindLastJournalLine(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line")
@@ -1074,7 +1074,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
         ItemJournalLine.Validate("Item No.", ProdOrderLine."Item No.");
         ItemJournalLine.SetUpNewLine(ItemJournalLine);
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
     end;
 
     local procedure SetupDimensionInInventoryAccount(LocationCode: Code[10]; var InvtPostingGroupCode: Code[20]; var Dimension: Record Dimension; var AccountNo: Code[20])
@@ -1084,7 +1084,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         InventoryPostingSetup.SetRange("Location Code", LocationCode);
         InventoryPostingSetup.FindFirst;
@@ -1100,7 +1100,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
             LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::"G/L Account", AccountNo,
               GeneralLedgerSetup."Global Dimension 2 Code", DimensionValue.Code);
             DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
-            DefaultDimension.Modify;
+            DefaultDimension.Modify();
         end;
         Dimension.Get(DefaultDimension."Dimension Code");
     end;
@@ -1121,7 +1121,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
             DimensionValue.FindFirst;
 
             SalesLine.Validate("Shortcut Dimension 2 Code", DimensionValue.Code);
-            SalesLine.Modify;
+            SalesLine.Modify();
         end;
 
         // post Ship + Invoice
@@ -1134,7 +1134,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         LibraryInventory.MakeItemJournalLine(
           ItemJournalLine, ItemJournalBatch, Item, WorkDate, ItemJournalLine."Entry Type"::"Positive Adjmt.", 0);
 
-        Commit;  // Commit required before running this Report.
+        Commit();  // Commit required before running this Report.
         Item.SetRange("No.", Item."No.");
         LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate, false, false);
 
@@ -1142,7 +1142,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         ItemJournalLine.FindLast;
         ItemJournalLine.Validate("Qty. (Phys. Inventory)", 0);
         ItemJournalLine.Validate("Unit Amount", 7.5);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
     end;
 
     local procedure AddDimensionToPhysInvt(var ItemJournalLine: Record "Item Journal Line"; var Dimension: Record Dimension)
@@ -1153,7 +1153,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         DimensionValue.FindLast;
 
         ItemJournalLine.Validate("Shortcut Dimension 2 Code", DimensionValue.Code);
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
     end;
 
     [MessageHandler]

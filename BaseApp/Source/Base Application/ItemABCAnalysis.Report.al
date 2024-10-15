@@ -162,7 +162,7 @@ report 11503 "Item ABC Analysis"
                 Buffer.FindFirst;
 
                 if (PrintZero = false) and (Buffer.Amount = 0) and (Buffer."Amount 2" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Col1Value := Buffer.Amount;
                 Col2Value := Buffer."Amount 2";
@@ -185,11 +185,11 @@ report 11503 "Item ABC Analysis"
                 end;
 
                 if not Aprint and (ABC = 'A') then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not Bprint and (ABC = 'B') then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not Cprint and (ABC = 'C') then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Col1TotalStatistic := Col1TotalStatistic + Col1Value;
                 Col2TotalStatistic := Col2TotalStatistic + Col2Value;
@@ -279,11 +279,11 @@ report 11503 "Item ABC Analysis"
                                     TmpAmt[i] := "Budgeted Amount";
                             end;
 
-                        Buffer.Init;
+                        Buffer.Init();
                         Buffer.Amount := TmpAmt[1];
                         Buffer."Amount 2" := TmpAmt[2];
                         Buffer."Item No." := "No.";
-                        Buffer.Insert;
+                        Buffer.Insert();
 
                         Col1TotalAllRec := Col1TotalAllRec + TmpAmt[1];
                         Col2TotalAllRecs := Col2TotalAllRecs + TmpAmt[2];
@@ -438,7 +438,7 @@ report 11503 "Item ABC Analysis"
 
     trigger OnPreReport()
     begin
-        Buffer.DeleteAll;
+        Buffer.DeleteAll();
 
         if Column[1] = Column[2] then
             Error(SameColumnValuesErr);

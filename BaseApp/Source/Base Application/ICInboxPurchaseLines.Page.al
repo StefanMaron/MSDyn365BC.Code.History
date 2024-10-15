@@ -1,4 +1,4 @@
-﻿page 647 "IC Inbox Purchase Lines"
+page 647 "IC Inbox Purchase Lines"
 {
     Caption = 'Lines';
     DeleteAllowed = false;

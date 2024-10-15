@@ -137,10 +137,10 @@ report 1102 "Resource Journal - Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         Clear(DimText);
                         Continue := false;
@@ -163,7 +163,7 @@ report 1102 "Resource Journal - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         DimSetEntry.SetRange("Dimension Set ID", "Res. Journal Line"."Dimension Set ID");
                     end;
                 }
@@ -345,7 +345,7 @@ report 1102 "Resource Journal - Test"
         Text006: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
         Text008: Label 'There is a gap in the number series.';
         Text009: Label '%1 cannot be specified.';
-        Text010: Label '<Month Text>';
+        Text010: Label '<Month Text>', Locked = true;
         AccountingPeriod: Record "Accounting Period";
         Res: Record Resource;
         ResJnlTemplate: Record "Res. Journal Template";

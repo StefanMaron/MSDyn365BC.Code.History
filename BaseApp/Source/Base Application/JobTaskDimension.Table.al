@@ -91,12 +91,12 @@ table 1002 "Job Task Dimension"
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'At least one dimension value code must have a value. Enter a value or delete the %1. ';
 
-    local procedure UpdateGlobalDim(DimensionValue: Code[20])
+    procedure UpdateGlobalDim(DimensionValue: Code[20])
     var
         JobTask: Record "Job Task";
         GLSEtup: Record "General Ledger Setup";
     begin
-        GLSEtup.Get;
+        GLSEtup.Get();
         if "Dimension Code" = GLSEtup."Global Dimension 1 Code" then begin
             JobTask.Get("Job No.", "Job Task No.");
             JobTask."Global Dimension 1 Code" := DimensionValue;

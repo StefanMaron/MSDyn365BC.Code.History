@@ -21,26 +21,25 @@ table 5909 "Service Shipment Buffer"
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,G/L Account,Item,Resource,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
         }
         field(6; "No."; Code[20])
         {
             Caption = 'No.';
             DataClassification = SystemMetadata;
-            TableRelation = IF (Type = CONST("G/L Account")) "G/L Account"
+            TableRelation = IF (Type = CONST(" ")) "Standard Text"
             ELSE
-            IF (Type = CONST(Item)) Item
+            IF (Type = CONST("G/L Account")) "G/L Account"
+            ELSE
+            IF (Type = CONST(Item)) Item WHERE(Type = FILTER(Inventory | "Non-Inventory"),
+                                                                   Blocked = CONST(false))
             ELSE
             IF (Type = CONST(Resource)) Resource
             ELSE
-            IF (Type = CONST("Fixed Asset")) "Fixed Asset"
-            ELSE
-            IF (Type = CONST("Charge (Item)")) "Item Charge";
+            IF (Type = CONST(Cost)) "Service Cost";
         }
         field(7; Quantity; Decimal)
         {

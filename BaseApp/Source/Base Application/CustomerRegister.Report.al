@@ -157,7 +157,7 @@ report 103 "Customer Register"
                 trigger OnAfterGetRecord()
                 begin
                     if not Cust.Get("Customer No.") then
-                        Cust.Init;
+                        Cust.Init();
 
                     DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Entry No.");
                     DtldCustLedgEntry.CalcSums(Amount, "Amount (LCY)", "Debit Amount (LCY)", "Credit Amount (LCY)");

@@ -36,7 +36,7 @@ table 11002 "Data Export"
     var
         DataExportRecordDefinition: Record "Data Export Record Definition";
     begin
-        DataExportRecordDefinition.Reset;
+        DataExportRecordDefinition.Reset();
         DataExportRecordDefinition.SetRange("Data Export Code", Code);
         DataExportRecordDefinition.DeleteAll(true);
     end;

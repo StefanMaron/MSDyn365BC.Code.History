@@ -164,7 +164,7 @@ table 263 "Intrastat Jnl. Line"
                 Name := Item.Description;
                 "Tariff No." := Item."Tariff No.";
                 if Type = Type::Receipt then begin
-                    CompanyInfo.Get;
+                    CompanyInfo.Get();
                     if (Item."Country/Region of Origin Code" = CompanyInfo."Country/Region Code") or
                        (Item."Country/Region of Origin Code" = '')
                     then

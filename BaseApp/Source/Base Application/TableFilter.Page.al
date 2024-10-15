@@ -1,4 +1,4 @@
-page 9805 "Table Filter"
+﻿page 9805 "Table Filter"
 {
     AutoSplitKey = true;
     Caption = 'Table Filter';
@@ -318,7 +318,7 @@ page 9805 "Table Filter"
         else
             FieldName2 := GetValue(TableFilterText, '=');
 
-        FieldTable.Reset;
+        FieldTable.Reset();
         FieldTable.SetRange(TableNo, "Table Number");
         FieldTable.SetRange("Field Caption", FieldName2);
         FieldTable.FindFirst;
@@ -358,7 +358,6 @@ page 9805 "Table Filter"
         CurrPage.Caption := CurrPage.Caption + ' - ' + SourceTableCaption;
     end;
 
-    [Scope('OnPrem')]
     procedure GetViewFilter(): Text
     var
         RecRef: RecordRef;
@@ -373,16 +372,15 @@ page 9805 "Table Filter"
         exit(RecRef.GetView);
     end;
 
-    [Scope('OnPrem')]
     procedure GetFilterFieldsList(var TempTableFilter: Record "Table Filter")
     begin
-        TempTableFilter.Reset;
-        TempTableFilter.DeleteAll;
+        TempTableFilter.Reset();
+        TempTableFilter.DeleteAll();
         if FindSet then
             repeat
-                TempTableFilter.Init;
+                TempTableFilter.Init();
                 TempTableFilter.TransferFields(Rec);
-                TempTableFilter.Insert;
+                TempTableFilter.Insert();
             until Next = 0;
     end;
 }

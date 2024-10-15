@@ -78,7 +78,7 @@ table 5906 "Service Comment Line"
 
     procedure SetUpNewLine()
     begin
-        ServCommentLine.Reset;
+        ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", "Table Name");
         ServCommentLine.SetRange("Table Subtype", "Table Subtype");
         ServCommentLine.SetRange("No.", "No.");

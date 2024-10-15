@@ -563,7 +563,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Serv. Charge");
     end;
 
@@ -770,7 +770,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         SalesLine: Record "Sales Line";
         AmtIncVat: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.FindSet;
@@ -794,7 +794,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         PurchaseLine: Record "Purchase Line";
         AmtIncVat: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.FindSet;
@@ -818,7 +818,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         GLEntry: Record "G/L Entry";
         GLVatAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLVatAmount :=
           FindGLEntry(GLEntry."Document Type"::Invoice, DocumentNo, -VATAmount, GeneralLedgerSetup."Amount Rounding Precision");
         Assert.AreNearlyEqual(
@@ -833,7 +833,7 @@ codeunit 134908 "ERM VAT Serv. Charge"
         GLEntry: Record "G/L Entry";
         GLVatAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
         PurchCrMemoHdr.FindFirst;
         GLVatAmount :=

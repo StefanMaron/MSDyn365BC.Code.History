@@ -67,7 +67,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     begin
         BindActiveDirectoryMockEvents;
 
-        UserPreference.DeleteAll;
+        UserPreference.DeleteAll();
 
         LibraryApplicationArea.EnableFoundationSetup;
 
@@ -77,7 +77,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [ModalPageHandler]

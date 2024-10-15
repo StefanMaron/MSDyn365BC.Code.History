@@ -38,17 +38,17 @@ codeunit 11110 "Update VAT-AT"
         if VATStatementTemplate.Get(TemplateName) then
             VATStatementTemplate.Delete(true);
 
-        VATStatementTemplate.Init;
+        VATStatementTemplate.Init();
         VATStatementTemplate.Name := TemplateName;
         VATStatementTemplate.Description := TemplateDescription;
         VATStatementTemplate."VAT Statement Report ID" := REPORT::"VAT Statement AT";
         VATStatementTemplate."Page ID" := PAGE::"VAT Statement";
-        VATStatementTemplate.Insert;
+        VATStatementTemplate.Insert();
 
-        VATStatementName.Init;
+        VATStatementName.Init();
         VATStatementName."Statement Template Name" := TemplateName;
         VATStatementName.Name := VATStatementNameTxt;
-        VATStatementName.Insert;
+        VATStatementName.Insert();
         LineNo := 10000;
 
         InsertSalestaxBaseamounts(AgricultureVATProdPostingGroups);
@@ -279,7 +279,7 @@ codeunit 11110 "Update VAT-AT"
 
     local procedure InsertData(RowNo: Code[10]; Description: Text[50]; Type: Option; GenPostingType: Option; AmountType: Option; RowTotaling: Text[250]; Print: Boolean; ReverseSign: Boolean)
     begin
-        VATStatementLine.Init;
+        VATStatementLine.Init();
         VATStatementLine."Statement Template Name" := VATStatementTemplate.Name;
         VATStatementLine."Statement Name" := VATStatementNameTxt;
         VATStatementLine."Line No." := LineNo;
@@ -302,7 +302,7 @@ codeunit 11110 "Update VAT-AT"
             VATStatementLine."VAT Bus. Posting Group" := '';
             VATStatementLine."VAT Prod. Posting Group" := '';
         end;
-        VATStatementLine.Insert;
+        VATStatementLine.Insert();
     end;
 
     local procedure CreateVATStatementLines(RowNoPrefix: Text; VATCalculationType: Option; VATPercentage: Integer; GenPostingType: Option; AmountType: Option; IsAgriculture: Boolean; AgricultureVATProdPostingGroups: Text)

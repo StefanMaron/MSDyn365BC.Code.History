@@ -23,7 +23,7 @@ codeunit 5005271 "Create Delivery Reminder"
     var
         DelivReminLedgerEntries: Record "Delivery Reminder Ledger Entry";
     begin
-        PurchaseSetup.Get;
+        PurchaseSetup.Get();
         PurchaseSetup.TestField("Default Del. Rem. Date Field");
         case PurchaseSetup."Default Del. Rem. Date Field" of
             PurchaseSetup."Default Del. Rem. Date Field"::"Requested Receipt Date":
@@ -40,7 +40,7 @@ codeunit 5005271 "Create Delivery Reminder"
             exit(false);
 
         MaxLineLevel := 0;
-        DelivReminLedgerEntries.Reset;
+        DelivReminLedgerEntries.Reset();
         DelivReminLedgerEntries.SetCurrentKey("Order No.", "Order Line No.", "Posting Date");
         DelivReminLedgerEntries.SetRange("Order No.", PurchLine."Document No.");
         DelivReminLedgerEntries.SetRange("Order Line No.", PurchLine."Line No.");
@@ -61,7 +61,7 @@ codeunit 5005271 "Create Delivery Reminder"
         DeliveryReminderLevel.SetRange("Reminder Terms Code", DeliveryReminderTerms.Code);
         DeliveryReminderLevel.SetRange("No.", 1, MaxLineLevel);
         if not DeliveryReminderLevel.Find('+') then
-            DeliveryReminderLevel.Init;
+            DeliveryReminderLevel.Init();
 
         exit(CalcDate(DeliveryReminderLevel."Due Date Calculation", RemindingDate) < DateOfTheCurrentDay);
     end;
@@ -69,13 +69,13 @@ codeunit 5005271 "Create Delivery Reminder"
     [Scope('OnPrem')]
     procedure CreateDelivReminHeader(var DeliveryReminderHeader: Record "Delivery Reminder Header"; PurchHeader: Record "Purchase Header"; DeliveryReminderTerms: Record "Delivery Reminder Term"; DeliveryReminderLevel: Record "Delivery Reminder Level"; DateOfTheCurrentDay: Date)
     begin
-        DeliveryReminderHeader.Init;
+        DeliveryReminderHeader.Init();
         DeliveryReminderHeader."No." := '';
         DeliveryReminderHeader.Insert(true);
         DeliveryReminderHeader.Validate("Vendor No.", PurchHeader."Buy-from Vendor No.");
         DeliveryReminderHeader."Posting Date" := WorkDate;
         DeliveryReminderHeader."Document Date" := WorkDate;
-        DeliveryReminderHeader.Modify;
+        DeliveryReminderHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -84,17 +84,17 @@ codeunit 5005271 "Create Delivery Reminder"
         DeliveryReminderLine: Record "Delivery Reminder Line";
         NextLineNo: Integer;
     begin
-        PurchaseSetup.Get;
+        PurchaseSetup.Get();
         PurchaseSetup.TestField("Default Del. Rem. Date Field");
 
-        DeliveryReminderLine.Reset;
+        DeliveryReminderLine.Reset();
         DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
         if DeliveryReminderLine.FindLast then
             NextLineNo := DeliveryReminderLine."Line No." + 10000
         else
             NextLineNo := 10000;
 
-        DeliveryReminderLine.Init;
+        DeliveryReminderLine.Init();
         DeliveryReminderLine."Document No." := DeliveryReminderHeader."No.";
         DeliveryReminderLine."Line No." := NextLineNo;
         DeliveryReminderLine."Order No." := PurchLine."Document No.";
@@ -126,7 +126,7 @@ codeunit 5005271 "Create Delivery Reminder"
                     DeliveryReminderLine."Days overdue" := DateOfTheCurrentDay - PurchLine."Expected Receipt Date";
         end;
         OnBeforeDeliveryReminderLineInsert(DeliveryReminderLine, PurchLine);
-        DeliveryReminderLine.Insert;
+        DeliveryReminderLine.Insert();
         OnAfterDeliveryReminderLineInsert(DeliveryReminderLine, PurchLine);
     end;
 
@@ -136,7 +136,7 @@ codeunit 5005271 "Create Delivery Reminder"
         DeliveryReminderLine: Record "Delivery Reminder Line";
     begin
         DeliveryReminderHeader."Reminder Level" := 0;
-        DeliveryReminderLine.Reset;
+        DeliveryReminderLine.Reset();
         DeliveryReminderLine.SetRange("Document No.", DeliveryReminderHeader."No.");
         if DeliveryReminderLine.Find('-') then
             repeat
@@ -144,7 +144,7 @@ codeunit 5005271 "Create Delivery Reminder"
                     DeliveryReminderHeader."Reminder Level" := DeliveryReminderLine."Reminder Level";
             until DeliveryReminderLine.Next = 0;
         DeliveryReminderHeader.Validate("Reminder Level");
-        DeliveryReminderHeader.Modify;
+        DeliveryReminderHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -161,13 +161,13 @@ codeunit 5005271 "Create Delivery Reminder"
         DeliveryReminderTerms.Get(DeliveryReminderHeader."Reminder Terms Code");
         DateOfTheCurrentDay := WorkDate;
 
-        PurchHeader.Reset;
+        PurchHeader.Reset();
         PurchHeader.SetCurrentKey("Document Type", "Buy-from Vendor No.");
         PurchHeader.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchHeader.SetRange("Buy-from Vendor No.", DeliveryReminderHeader."Vendor No.");
         if PurchHeader.Find('-') then
             repeat
-                PurchLine.Reset;
+                PurchLine.Reset();
                 PurchLine.SetRange("Document No.", PurchHeader."No.");
                 if PurchLine.Find('-') then
                     repeat
@@ -185,7 +185,7 @@ codeunit 5005271 "Create Delivery Reminder"
     [Scope('OnPrem')]
     procedure UpdateLines(DeliveryReminder: Record "Delivery Reminder Header")
     begin
-        DeliveryReminderLine.Reset;
+        DeliveryReminderLine.Reset();
         DeliveryReminderLine.SetRange("Document No.", DeliveryReminder."No.");
         OK := DeliveryReminderLine.Find('-');
         while OK do begin
@@ -217,12 +217,12 @@ codeunit 5005271 "Create Delivery Reminder"
         DeliveryReminderLevel.SetRange("Reminder Terms Code", DeliveryReminder."Reminder Terms Code");
         DeliveryReminderLevel.SetRange("No.", 1, DeliveryReminder."Reminder Level");
         if DeliveryReminderLevel.FindLast then begin
-            DeliveryReminderText.Reset;
+            DeliveryReminderText.Reset();
             DeliveryReminderText.SetRange("Reminder Terms Code", DeliveryReminder."Reminder Terms Code");
             DeliveryReminderText.SetRange("Reminder Level", DeliveryReminderLevel."No.");
             DeliveryReminderText.SetRange(Position, DeliveryReminderText.Position::Beginning);
 
-            DeliveryReminderLine.Reset;
+            DeliveryReminderLine.Reset();
             DeliveryReminderLine.SetRange("Document No.", DeliveryReminder."No.");
             DeliveryReminderLine."Document No." := DeliveryReminder."No.";
             if DeliveryReminderLine.Find('-') then begin
@@ -244,7 +244,7 @@ codeunit 5005271 "Create Delivery Reminder"
             DeliveryReminderText.SetRange("Reminder Terms Code", DeliveryReminder."Reminder Terms Code");
             DeliveryReminderText.SetRange("Reminder Level", DeliveryReminderLevel."No.");
             DeliveryReminderText.SetRange(Position, DeliveryReminderText.Position::Ending);
-            DeliveryReminderLine.Reset;
+            DeliveryReminderLine.Reset();
             DeliveryReminderLine.SetRange("Document No.", DeliveryReminder."No.");
             DeliveryReminderLine."Document No." := DeliveryReminder."No.";
             if DeliveryReminderLine.Find('+') then
@@ -263,7 +263,7 @@ codeunit 5005271 "Create Delivery Reminder"
                 InsertBlankLine;
             repeat
                 NextLineNo := NextLineNo + LineOffset;
-                DeliveryReminderLine.Init;
+                DeliveryReminderLine.Init();
                 DeliveryReminderLine."Line No." := NextLineNo;
                 DeliveryReminderLine.Type := DeliveryReminderLine.Type::" ";
                 DeliveryReminderLine.Description :=
@@ -276,7 +276,7 @@ codeunit 5005271 "Create Delivery Reminder"
                     1,
                     MaxStrLen(DeliveryReminderLine.Description));
                 OnBeforeDeliveryReminderTextLineInsert(DeliveryReminderLine);
-                DeliveryReminderLine.Insert;
+                DeliveryReminderLine.Insert();
             until DeliveryReminderText.Next = 0;
             if DeliveryReminderText.Position = DeliveryReminderText.Position::Beginning then
                 InsertBlankLine;
@@ -287,9 +287,9 @@ codeunit 5005271 "Create Delivery Reminder"
     procedure InsertBlankLine()
     begin
         NextLineNo := NextLineNo + LineOffset;
-        DeliveryReminderLine.Init;
+        DeliveryReminderLine.Init();
         DeliveryReminderLine."Line No." := NextLineNo;
-        DeliveryReminderLine.Insert;
+        DeliveryReminderLine.Insert();
     end;
 
     [IntegrationEvent(false, false)]

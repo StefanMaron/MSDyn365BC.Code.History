@@ -38,7 +38,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         // Create and Post General Line for Invoice and Payment with currency, Modify Exchange Rate and Apply invoice and Modify
         // General Ledger Setup for Random Appln. Roudning Precision.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ApplnRounding := GeneralLedgerSetup."Appln. Rounding Precision";
         CurrencyCode := CreateCurrency;
         Amount := LibraryRandom.RandInt(100);
@@ -70,7 +70,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         // Create and Post General Line for Invoice and Payment with currency, Modify Exchange Rate and Apply invoice and Modify
         // General Ledger Setup for Random Appln. Roudning Precision
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ApplnRounding := GeneralLedgerSetup."Appln. Rounding Precision";
         Amount := LibraryRandom.RandInt(100);
         ExchRateAmount := Amount - LibraryUtility.GenerateRandomFraction;
@@ -137,7 +137,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
 
         // Setup: Create General Line for Invoice and Post with Random Values.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SelectGenJournalBatch(GenJournalBatch);
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalLine(
@@ -172,7 +172,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Appln Rounding for Vendor");
     end;
 
@@ -231,7 +231,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 3, 3);
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Currency Code", CurrencyCode);
-        Vendor.Modify;
+        Vendor.Modify();
 
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
@@ -346,7 +346,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Appln. Rounding Precision", ApplnRoundingPrecision);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -425,7 +425,7 @@ codeunit 134903 "ERM Appln Rounding for Vendor"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Take Zero for Validation on Apply Customer Entries Page.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         Assert.AreEqual(
           0, ApplyVendorEntries.ApplnRounding.AsDEcimal,

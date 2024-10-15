@@ -158,15 +158,15 @@ codeunit 134560 "Cash Flow Setup Test"
         EndingDate: Date;
     begin
         if AccountingPeriod.Count > 0 then
-            AccountingPeriod.DeleteAll;
+            AccountingPeriod.DeleteAll();
 
         StartingDate := DMY2Date(1, 1, 2015);
         EndingDate := DMY2Date(1, 1, 2018);
 
         while StartingDate <= EndingDate do begin
-            AccountingPeriod.Init;
+            AccountingPeriod.Init();
             AccountingPeriod.Validate("Starting Date", StartingDate);
-            AccountingPeriod.Insert;
+            AccountingPeriod.Insert();
             StartingDate := CalcDate('<1M>', StartingDate);
         end;
     end;
@@ -214,7 +214,7 @@ codeunit 134560 "Cash Flow Setup Test"
         APIURL := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(50, 1), 1, 50);
 
         // [WHEN] Setting a invalid URL on the cash flow setup
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         asserterror CashFlowSetup.Validate("API URL", APIURL);
 
         // [THEN] An error is thrown
@@ -322,7 +322,7 @@ codeunit 134560 "Cash Flow Setup Test"
     var
         AzureMLURI: Label 'http://%1.services.azureml.net', Locked = true;
     begin
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         APIKey := CreateGuid;
         APIURL := StrSubstNo(AzureMLURI, CopyStr(LibraryUtility.GenerateRandomAlphabeticText(50, 1), 1, 50));
         CashFlowSetup.SaveUserDefinedAPIKey(APIKey);

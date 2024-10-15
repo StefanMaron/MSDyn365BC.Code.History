@@ -70,7 +70,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
                         PlannedProdOrderLine.Delete(true);
                 until PlannedProdOrderLine.Next = 0;
 
-            Commit;
+            Commit();
 
             InvtProfileOffsetting.SetParm(UseForecast, ExcludeForecastBefore, CurrWorksheetType::Planning);
             InvtProfileOffsetting.CalculatePlanFromWorksheet(
@@ -88,14 +88,14 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
                 repeat
                     if PlanningAssignment."Latest Date" <= ToDate then begin
                         PlanningAssignment.Inactive := true;
-                        PlanningAssignment.Modify;
+                        PlanningAssignment.Modify();
                     end;
                 until PlanningAssignment.Next = 0;
 
-            Commit;
+            Commit();
 
             TempItemList := Item;
-            TempItemList.Insert;
+            TempItemList.Insert();
         end;
     end;
 
@@ -107,7 +107,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         MRP := NewMRP;
         RespectPlanningParm := NewRespectPlanningParm;
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         CheckPreconditions;
     end;
 
@@ -135,17 +135,17 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
                     end;
                 end;
                 if TempItemList.Get(TempPlanningCompList."Item No.") then
-                    TempPlanningCompList.Delete;
+                    TempPlanningCompList.Delete();
             until TempPlanningCompList.Next = 0;
 
         // Dynamic tracking is run for the remaining Planning Components:
         if TempPlanningCompList.Find('-') then
             repeat
-                ReservMgt.SetPlanningComponent(TempPlanningCompList);
+                ReservMgt.SetReservSource(TempPlanningCompList);
                 ReservMgt.AutoTrack(TempPlanningCompList."Net Quantity (Base)");
             until TempPlanningCompList.Next = 0;
 
-        Commit;
+        Commit();
     end;
 
     local procedure CheckPreconditions()

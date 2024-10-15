@@ -96,7 +96,7 @@ page 11003 "Data Export Record Definitions"
                         DataExportRecordDefinition: Record "Data Export Record Definition";
                         ExportBusinessData: Report "Export Business Data";
                     begin
-                        DataExportRecordDefinition.Reset;
+                        DataExportRecordDefinition.Reset();
                         DataExportRecordDefinition.SetRange("Data Export Code", "Data Export Code");
                         DataExportRecordDefinition.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
                         ExportBusinessData.SetTableView(DataExportRecordDefinition);

@@ -163,10 +163,10 @@ codeunit 134395 "ERM Document Totals UT"
         GetCurrentSalesLine(CurrentSalesLine, SalesHeader);
 
         SalesHeader.Validate("Invoice Discount Calculation", SalesHeader."Invoice Discount Calculation"::"%");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         CurrentSalesLine.Validate("Recalculate Invoice Disc.", true);
-        CurrentSalesLine.Modify;
+        CurrentSalesLine.Modify();
 
         // Execute
         DocumentTotals.SalesUpdateTotalsControls(
@@ -209,10 +209,10 @@ codeunit 134395 "ERM Document Totals UT"
         GetCurrentSalesLine(CurrentSalesLine, SalesHeader);
 
         SalesHeader.Validate("Invoice Discount Calculation", SalesHeader."Invoice Discount Calculation"::"%");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         CurrentSalesLine.Validate("Recalculate Invoice Disc.", true);
-        CurrentSalesLine.Modify;
+        CurrentSalesLine.Modify();
 
         DocumentTotals.SalesUpdateTotalsControls(
           CurrentSalesLine, SalesHeader, TotalsSalesLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
@@ -248,9 +248,9 @@ codeunit 134395 "ERM Document Totals UT"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Calc. Inv. Discount" := true;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
 
         // Execute
         ManualDiscountAllowed := SalesCalcDiscountByType.InvoiceDiscIsAllowed(SalesHeader."Invoice Disc. Code");
@@ -395,10 +395,10 @@ codeunit 134395 "ERM Document Totals UT"
         GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);
 
         PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::"%");
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         CurrentPurchaseLine.Validate("Recalculate Invoice Disc.", true);
-        CurrentPurchaseLine.Modify;
+        CurrentPurchaseLine.Modify();
 
         // Execute
         DocumentTotals.PurchaseUpdateTotalsControls(
@@ -441,10 +441,10 @@ codeunit 134395 "ERM Document Totals UT"
         GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeader);
 
         PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::"%");
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         CurrentPurchaseLine.Validate("Recalculate Invoice Disc.", true);
-        CurrentPurchaseLine.Modify;
+        CurrentPurchaseLine.Modify();
 
         DocumentTotals.PurchaseUpdateTotalsControls(
           CurrentPurchaseLine, PurchaseHeader, TotalsPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
@@ -495,7 +495,7 @@ codeunit 134395 "ERM Document Totals UT"
         CreatePurchaseDocument(PurchaseHeaderForFailedCalcTotal, 1);
         PurchaseHeaderForFailedCalcTotal."Invoice Discount Calculation" :=
           PurchaseHeaderForFailedCalcTotal."Invoice Discount Calculation"::"%"; // Getting Refresh Message Enabled = TRUE
-        PurchaseHeaderForFailedCalcTotal.Modify;
+        PurchaseHeaderForFailedCalcTotal.Modify();
         GetCurrentPurchaseLine(CurrentPurchaseLine, PurchaseHeaderForFailedCalcTotal);
         DocumentTotals.PurchaseUpdateTotalsControls(
           CurrentPurchaseLine, PurchaseHeaderForFailedCalcTotal, TotalPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
@@ -871,7 +871,7 @@ codeunit 134395 "ERM Document Totals UT"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Document Totals UT");
     end;
 
@@ -917,7 +917,7 @@ codeunit 134395 "ERM Document Totals UT"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Name := Customer."No.";
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer)
@@ -950,7 +950,7 @@ codeunit 134395 "ERM Document Totals UT"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Price", UnitPrice);
         Item.Validate("Last Direct Cost", LastDirectCost);
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreatePurchaseDocumentWithAmounts(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; LineQuantity: Decimal; LineDirectUnitCost: Decimal; LineDiscountAmount: Decimal)

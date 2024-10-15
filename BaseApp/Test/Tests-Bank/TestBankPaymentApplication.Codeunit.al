@@ -162,7 +162,7 @@ codeunit 134263 "Test Bank Payment Application"
         Customer.Get(CustLedgEntry."Customer No.");
         Customer.Validate("Global Dimension 1 Code", DimValue.Code);
         Customer.Validate("Global Dimension 2 Code", DimValue2.Code);
-        Customer.Modify;
+        Customer.Modify();
 
         CreateBankPmtReconcWithLine(
           BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
@@ -212,7 +212,7 @@ codeunit 134263 "Test Bank Payment Application"
         Customer.Get(CustLedgEntry."Customer No.");
         Customer.Validate("Global Dimension 1 Code", DimValue.Code);
         Customer.Validate("Global Dimension 2 Code", DimValue2.Code);
-        Customer.Modify;
+        Customer.Modify();
 
         CreateBankPmtReconcWithLine(
           BankAcc, BankAccRecon, BankAccReconLine, WorkDate, CustLedgEntry."Remaining Amount");
@@ -298,7 +298,7 @@ codeunit 134263 "Test Bank Payment Application"
         AppliedPmtEntry.SetRange("Account Type", AppliedPmtEntry."Account Type"::Customer);
         AppliedPmtEntry.SetRange("Account No.", CustLedgEntry."Customer No.");
         AppliedPmtEntry.FindFirst;
-        Commit;
+        Commit();
 
         // Should be possible to reduce
         AppliedPmtEntry.Validate("Applied Amount", AppliedPmtEntry."Applied Amount" / 2);
@@ -919,7 +919,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Amount);
         ToleranceAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
         BankAccount.Validate("Match Tolerance Value", ToleranceAmount);
-        BankAccount.Modify;
+        BankAccount.Modify();
         Amount := 2 * ToleranceAmount;
 
         CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
@@ -951,7 +951,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Amount);
         ToleranceAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
         BankAccount.Validate("Match Tolerance Value", ToleranceAmount);
-        BankAccount.Modify;
+        BankAccount.Modify();
         Amount := -2 * ToleranceAmount;
 
         CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
@@ -983,7 +983,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Amount);
         ToleranceAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
         BankAccount.Validate("Match Tolerance Value", ToleranceAmount);
-        BankAccount.Modify;
+        BankAccount.Modify();
         Amount := Round(ToleranceAmount / 3, LibraryERM.GetAmountRoundingPrecision);
 
         CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
@@ -1015,7 +1015,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Amount);
         ToleranceAmount := LibraryRandom.RandDecInRange(1, 1000, 2);
         BankAccount.Validate("Match Tolerance Value", ToleranceAmount);
-        BankAccount.Modify;
+        BankAccount.Modify();
         Amount := -Round(ToleranceAmount / 3, LibraryERM.GetAmountRoundingPrecision);
 
         CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
@@ -1051,7 +1051,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Percentage);
         TolerancePct := LibraryRandom.RandIntInRange(2, 80);
         BankAccount.Validate("Match Tolerance Value", TolerancePct);
-        BankAccount.Modify;
+        BankAccount.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
 
         CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
@@ -1085,7 +1085,7 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Percentage);
         TolerancePct := LibraryRandom.RandIntInRange(2, 80);
         BankAccount.Validate("Match Tolerance Value", TolerancePct);
-        BankAccount.Modify;
+        BankAccount.Modify();
         Amount := -LibraryRandom.RandDecInRange(1, 1000, 2);
 
         CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
@@ -1117,7 +1117,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Percentage);
         BankAccount.Validate("Match Tolerance Value", 0);
-        BankAccount.Modify;
+        BankAccount.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
 
         CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
@@ -1150,7 +1150,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Match Tolerance Type", BankAccount."Match Tolerance Type"::Percentage);
         BankAccount.Validate("Match Tolerance Value", 0);
-        BankAccount.Modify;
+        BankAccount.Modify();
         Amount := -LibraryRandom.RandDecInRange(1, 1000, 2);
 
         CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate, Amount);
@@ -1475,7 +1475,7 @@ codeunit 134263 "Test Bank Payment Application"
         CreateCustAndPostSalesInvoice(CustLedgerEntry, '');
         ApplyCustLedgEntry(BankAccReconciliationLine, CustLedgerEntry);
         CustLedgerEntry."Applies-to ID" := BankAccReconciliationLine.GetAppliesToID;
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
 
         // [WHEN] Post Bank Payment Application
         asserterror LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
@@ -1535,7 +1535,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         UpdateCustPostingGrp;
         LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Bank Payment Application");
     end;
 
@@ -1543,14 +1543,14 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         DimValue.Validate(Blocked, true);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimValue(var DimValue: Record "Dimension Value")
     begin
         DimValue.Validate(Blocked, false);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure BlockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -1564,7 +1564,7 @@ codeunit 134263 "Test Bank Payment Application"
             Validate("Combination Restriction", "Combination Restriction"::Blocked);
             Insert;
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -1573,7 +1573,7 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         DimCombination.Get(DimCode1, DimCode2);
         DimCombination.Delete(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateBankAccountWithCurrency(var BankAccount: Record "Bank Account"; CurrencyCode: Code[10])
@@ -1707,7 +1707,7 @@ codeunit 134263 "Test Bank Payment Application"
             Validate("Account No.", CustLedgEntry."Customer No.");
             Validate("Applies-to Entry No.", CustLedgEntry."Entry No.");
             Insert(true);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -1723,7 +1723,7 @@ codeunit 134263 "Test Bank Payment Application"
             Validate("Account No.", VendLedgEntry."Vendor No.");
             Validate("Applies-to Entry No.", VendLedgEntry."Entry No.");
             Insert(true);
-            Commit;
+            Commit();
         end;
     end;
 

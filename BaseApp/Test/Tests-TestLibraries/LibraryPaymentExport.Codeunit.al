@@ -58,37 +58,37 @@ codeunit 130100 "Library - Payment Export"
         DataExchLineDefCode: Code[20];
     begin
         DataExchDefCode := LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def");
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code := DataExchDefCode;
         DataExchDef.Name := DataExchDef.Code;
         DataExchDef.Type := DataExchDef.Type::"Payment Export";
-        DataExchDef.Insert;
+        DataExchDef.Insert();
 
         DataExchLineDefCode := LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.Code := DataExchLineDefCode;
         DataExchLineDef."Data Exch. Def Code" := DataExchDefCode;
-        DataExchLineDef.Insert;
+        DataExchLineDef.Insert();
 
-        DataExchColDef.Init;
+        DataExchColDef.Init();
         DataExchColDef."Data Exch. Def Code" := DataExchDefCode;
         DataExchColDef."Data Exch. Line Def Code" := DataExchLineDefCode;
         DataExchColDef."Column No." := 1;
-        DataExchColDef.Insert;
+        DataExchColDef.Insert();
 
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping."Data Exch. Def Code" := DataExchDefCode;
         DataExchMapping."Data Exch. Line Def Code" := DataExchLineDefCode;
         DataExchMapping."Table ID" := TableID;
-        DataExchMapping.Insert;
+        DataExchMapping.Insert();
 
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping."Data Exch. Def Code" := DataExchDefCode;
         DataExchFieldMapping."Data Exch. Line Def Code" := DataExchLineDefCode;
         DataExchFieldMapping."Table ID" := DataExchMapping."Table ID";
         DataExchFieldMapping."Column No." := 1;
         DataExchFieldMapping."Field ID" := FieldID;
-        DataExchFieldMapping.Insert;
+        DataExchFieldMapping.Insert();
     end;
 
     procedure SelectPaymentJournalTemplate(): Code[10]
@@ -115,7 +115,7 @@ codeunit 130100 "Library - Payment Export"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         BankAccount."Country/Region Code" := CompanyInformation."Country/Region Code";
         BankAccount.Modify(true);
         VendorBankAccount."Country/Region Code" := BankAccount."Country/Region Code";
@@ -127,7 +127,7 @@ codeunit 130100 "Library - Payment Export"
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         BankAccount."Country/Region Code" := CompanyInformation."Country/Region Code";
         BankAccount.Modify(true);
         CountryRegion.SetFilter(Code, '<>%1', BankAccount."Country/Region Code");
@@ -140,7 +140,7 @@ codeunit 130100 "Library - Payment Export"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         BankAccount."Country/Region Code" := CompanyInformation."Country/Region Code";
         BankAccount.Modify(true);
         CustomerBankAccount."Country/Region Code" := BankAccount."Country/Region Code";
@@ -152,7 +152,7 @@ codeunit 130100 "Library - Payment Export"
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         BankAccount."Country/Region Code" := CompanyInformation."Country/Region Code";
         BankAccount.Modify(true);
         CountryRegion.SetFilter(Code, '<>%1', BankAccount."Country/Region Code");
@@ -176,7 +176,7 @@ codeunit 130100 "Library - Payment Export"
 
         VendorBankAccount."Bank Branch No." := Format(LibraryRandom.RandIntInRange(111111, 999999));
         VendorBankAccount."Bank Account No." := Format(LibraryRandom.RandIntInRange(111111111, 999999999));
-        VendorBankAccount.Modify;
+        VendorBankAccount.Modify();
     end;
 
     procedure CreatePaymentExportBatch(var GenJournalBatch: Record "Gen. Journal Batch"; DataExchDefCode: Code[20])
@@ -187,7 +187,7 @@ codeunit 130100 "Library - Payment Export"
         CreateBankAccount(BankAccount);
         CreateBankExportImportSetup(BankExportImportSetup, DataExchDefCode);
         BankAccount.Validate("Payment Export Format", BankExportImportSetup.Code);
-        BankAccount.Modify;
+        BankAccount.Modify();
         CreateGenJournalBatch(GenJournalBatch, GenJournalBatch."Bal. Account Type"::"Bank Account", BankAccount."No.", true);
     end;
 
@@ -196,7 +196,7 @@ codeunit 130100 "Library - Payment Export"
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Bank Branch No." := Format(LibraryRandom.RandIntInRange(111111, 999999));
         BankAccount."Bank Account No." := Format(LibraryRandom.RandIntInRange(111111111, 999999999));
-        BankAccount.Modify;
+        BankAccount.Modify();
     end;
 
     procedure CreateBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup"; DataExchDefCode: Code[20])

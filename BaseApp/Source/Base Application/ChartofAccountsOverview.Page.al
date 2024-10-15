@@ -129,7 +129,7 @@ page 634 "Chart of Accounts Overview"
         GLAcc: Record "G/L Account";
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
         SetCurrentKey("No.");
 
         if OnlyRoot then

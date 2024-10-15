@@ -23,20 +23,26 @@ codeunit 1509 "Notification Entry Dispatcher"
     var
         UserSetup: Record "User Setup";
         TempNotificationEntryFromTo: Record "Notification Entry" temporary;
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorContextElement: Codeunit "Error Context Element";
+        ErrorMessageMgt: Codeunit "Error Message Management";
         UserIdWithError: Code[50];
     begin
         GetTempNotificationEntryFromTo(TempNotificationEntryFromTo);
-        TempNotificationEntryFromTo.Reset;
-        if TempNotificationEntryFromTo.FindSet then
+        TempNotificationEntryFromTo.Reset();
+        if TempNotificationEntryFromTo.FindSet then begin
+            ErrorMessageMgt.Activate(ErrorMessageHandler);
+            ErrorMessageMgt.PushContext(ErrorContextElement, TempNotificationEntryFromTo, 0, '');
             repeat
                 if not UserSetup.Get(TempNotificationEntryFromTo."Recipient User ID") then
                     UserIdWithError := TempNotificationEntryFromTo."Recipient User ID"
                 else
                     if ScheduledInstantly(UserSetup."User ID", TempNotificationEntryFromTo.Type) then
-                        DispatchForNotificationType(TempNotificationEntryFromTo.Type, UserSetup, TempNotificationEntryFromTo."Sender User ID");
+                        DispatchForNotificationType(TempNotificationEntryFromTo.Type, UserSetup, TempNotificationEntryFromTo."Sender User ID")
             until TempNotificationEntryFromTo.Next = 0;
-
-        Commit;
+            Commit();
+            ErrorMessageMgt.Finish(ErrorMessageHandler);
+        end;
 
         if UserIdWithError <> '' then
             UserSetup.Get(UserIdWithError);
@@ -93,6 +99,7 @@ codeunit 1509 "Notification Entry Dispatcher"
     var
         NotificationSetup: Record "Notification Setup";
         DocumentMailing: Codeunit "Document-Mailing";
+        ErrorMessageMgt: Codeunit "Error Message Management";
         BodyText: Text;
         MailSubject: Text;
     begin
@@ -107,9 +114,9 @@ codeunit 1509 "Notification Entry Dispatcher"
             NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
               NotificationEntry, BodyText, true, NotificationSetup."Notification Method"::Email)
         else begin
-            NotificationEntry."Error Message" := GetLastErrorText;
-            ClearLastError;
+            NotificationEntry."Error Message" := GetLastErrorText();
             NotificationEntry.Modify(true);
+            ErrorMessageMgt.LogError(NotificationEntry, GetLastErrorText(), '');
         end;
     end;
 
@@ -131,6 +138,7 @@ codeunit 1509 "Notification Entry Dispatcher"
         RecordLink: Record "Record Link";
         PageManagement: Codeunit "Page Management";
         RecordLinkManagement: Codeunit "Record Link Management";
+        ErrorMessageMgt: Codeunit "Error Message Management";
         RecRefLink: RecordRef;
         Link: Text;
     begin
@@ -152,7 +160,11 @@ codeunit 1509 "Notification Entry Dispatcher"
             Company := CompanyName;
             Notify := true;
             "To User ID" := NotificationEntry."Recipient User ID";
-            exit(Insert(true));
+            if not Insert(true) then begin
+                ErrorMessageMgt.LogError(NotificationEntry, GetLastErrorText(), '');
+                exit(false);
+            end;
+            exit(true);
         end;
 
         exit(false);
@@ -198,13 +210,15 @@ codeunit 1509 "Notification Entry Dispatcher"
     var
         ReportLayoutSelection: Record "Report Layout Selection";
         FileManagement: Codeunit "File Management";
+        ErrorMessageMgt: Codeunit "Error Message Management";
     begin
         HtmlBodyFilePath := FileManagement.ServerTempFileName('html');
         ReportLayoutSelection.SetTempLayoutSelected('');
         if not REPORT.SaveAsHtml(REPORT::"Notification Email", HtmlBodyFilePath, NotificationEntry) then begin
             NotificationEntry."Error Message" := GetLastErrorText;
-            ClearLastError;
             NotificationEntry.Modify(true);
+            ErrorMessageMgt.LogError(NotificationEntry, GetLastErrorText(), '');
+            ClearLastError;
             exit(false);
         end;
 
@@ -242,7 +256,7 @@ codeunit 1509 "Notification Entry Dispatcher"
         if NotificationEntry.FindFirst then
             repeat
                 if ApprovalNotificationEntryIsOutdated(NotificationEntry) then
-                    NotificationEntry.Delete;
+                    NotificationEntry.Delete();
             until NotificationEntry.Next = 0;
     end;
 
@@ -282,7 +296,7 @@ codeunit 1509 "Notification Entry Dispatcher"
                 TempNotificationEntryFromTo.SetRange("Recipient User ID", NotificationEntry."Recipient User ID");
                 if TempNotificationEntryFromTo.IsEmpty then begin
                     TempNotificationEntryFromTo := NotificationEntry;
-                    TempNotificationEntryFromTo.Insert;
+                    TempNotificationEntryFromTo.Insert();
                 end;
             until NotificationEntry.Next = 0;
     end;

@@ -141,7 +141,7 @@ page 6057 "Contract Line Selection"
                     CheckServContractLine;
                 until Next = 0;
             CreateServContractLines;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -170,7 +170,7 @@ page 6057 "Contract Line Selection"
 
     local procedure FindlineNo(): Integer
     begin
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", ContractType);
         ServContractLine.SetRange("Contract No.", ContractNo);
         if ServContractLine.FindLast then
@@ -185,7 +185,7 @@ page 6057 "Contract Line Selection"
     begin
         TempServItem := Rec;
 
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetCurrentKey("Service Item No.");
         ServContractLine.SetRange("Contract No.", ServContract."Contract No.");
         ServContractLine.SetRange("Contract Type", ServContract."Contract Type");
@@ -195,7 +195,7 @@ page 6057 "Contract Line Selection"
             exit;
         end;
 
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
         ServContractLine.SetRange("Service Item No.", TempServItem."No.");
         ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
@@ -207,7 +207,7 @@ page 6057 "Contract Line Selection"
             then
                 exit;
         end else begin
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.SetCurrentKey("Service Item No.");
             ServContractLine.SetRange("Service Item No.", TempServItem."No.");
             ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Quote);
@@ -225,16 +225,16 @@ page 6057 "Contract Line Selection"
             then
                 exit;
 
-        TempServItem.Insert;
+        TempServItem.Insert();
     end;
 
     local procedure CreateServContractLines()
     begin
-        ServContractLine.LockTable;
+        ServContractLine.LockTable();
         LineNo := FindlineNo + 10000;
         if TempServItem.Find('-') then
             repeat
-                ServContractLine.Init;
+                ServContractLine.Init();
                 ServContractLine.HideDialogBox(true);
                 ServContractLine."Contract Type" := ServContract."Contract Type";
                 ServContractLine."Contract No." := ServContract."Contract No.";

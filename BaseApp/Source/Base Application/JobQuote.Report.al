@@ -181,7 +181,7 @@ report 1016 "Job Quote"
                         PrintSection := true;
                         if "Line Type" = "Line Type"::Budget then begin
                             PrintSection := false;
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         end;
                         JobTotalValue += ("Unit Price" * Quantity);
 
@@ -260,8 +260,8 @@ report 1016 "Job Quote"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
-        JobsSetup.Get;
+        CompanyInfo.Get();
+        JobsSetup.Get();
     end;
 
     trigger OnPreReport()

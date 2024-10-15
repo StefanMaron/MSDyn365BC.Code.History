@@ -52,14 +52,14 @@ codeunit 136148 "Service Order Warehouse Orange"
         CreatePickWorksheet(ServiceHeader, ServiceLine, WarehouseShipmentHeader, WarehouseShipmentLine, 1);
         // setup
         ReceiveItemStockInWarehouse(ServiceLine);
-        Commit;
+        Commit();
         GetLatestWhseWorksheetLines(WarehouseShipmentHeader, WhseWorksheetLine);
         // verify
         repeat
             WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine.Quantity);
             WhseWorksheetLine.Modify(true);
         until WhseWorksheetLine.Next <= 0;
-        Commit;
+        Commit();
         // execute
         GetLatestWhseWorksheetLines(WarehouseShipmentHeader, WhseWorksheetLine);
         if not WhseWorksheetLine.IsEmpty then
@@ -439,7 +439,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         Initialize;
         // Execute
         CreateAndReleaseServiceOrder(ServHeader, ServiceLine, ServiceItemLine, 1);
-        Commit;
+        Commit();
         // validate
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Resource);
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Cost);
@@ -457,7 +457,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         Initialize;
         // Execute
         CreateWhseShptReopenOrder(ServHeader, ServiceLine);
-        Commit;
+        Commit();
         // validate
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Resource);
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Cost);
@@ -656,7 +656,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         UpdateServiceLine(ServiceLine, ServiceItemLineNo, ItemQuantity);
         ServiceLine.SetHideReplacementDialog(true);
         ServiceLine.Validate("Location Code", LocationCode);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
         exit(ServiceLine."Line No.");
     end;
 
@@ -689,7 +689,7 @@ codeunit 136148 "Service Order Warehouse Orange"
     local procedure CreateBin(var Bin: Record Bin; Locationcode: Code[10]; "Code": Code[10])
     begin
         Clear(Bin);
-        Bin.Init;
+        Bin.Init();
         Bin.Validate("Location Code", Locationcode);
         Bin.Validate(Code, Code);
         Bin.Validate(Empty, true);
@@ -862,7 +862,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         Assert.AreEqual(1, WhseWorksheetTemplate.Count, StrSubstNo(ERR_MultipleWhseWorksheetTemplate, PickWorksheetPage));
         if WhseWorksheetTemplate.FindFirst then begin
             WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetTemplate.Name);
-            WhseWorksheetLine.DeleteAll;
+            WhseWorksheetLine.DeleteAll();
         end;
     end;
 
@@ -919,7 +919,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 
@@ -1102,7 +1102,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, OrangeLocation, (not WarehouseEmployee.FindFirst));
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Warehouse Orange");
     end;

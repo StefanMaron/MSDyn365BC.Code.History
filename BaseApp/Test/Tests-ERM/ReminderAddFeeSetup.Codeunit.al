@@ -1020,7 +1020,7 @@ codeunit 134998 "Reminder - Add. Fee Setup"
         CreateAddFeeSetupUT(AdditionalFeeSetup, RemainingAmount + 1, '', true, AddFeeCalculationType);
         AdditionalFeeSetup."Min. Additional Fee Amount" := AdditionalFeeSetup."Additional Fee Amount" +
           AdditionalFeeSetup."Max. Additional Fee Amount" * (AdditionalFeeSetup."Additional Fee %" / 100);
-        AdditionalFeeSetup.Modify;
+        AdditionalFeeSetup.Modify();
         ReminderLevel.Get(AdditionalFeeSetup."Reminder Terms Code", AdditionalFeeSetup."Reminder Level No.");
 
         // [WHEN] Add. Fee Setup Page is run from Reminder Levels Page.

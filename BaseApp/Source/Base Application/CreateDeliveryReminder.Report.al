@@ -43,10 +43,10 @@ report 5005340 "Create Delivery Reminder"
             begin
                 Window.Update(1, "No.");
                 if "Buy-from Vendor No." = '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 Vendor.Get("Buy-from Vendor No.");
                 if Vendor."Delivery Reminder Terms" = '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 DeliveryReminderTerms.Get(Vendor."Delivery Reminder Terms");
             end;

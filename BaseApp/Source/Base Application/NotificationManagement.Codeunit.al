@@ -36,7 +36,7 @@ codeunit 1510 "Notification Management"
     begin
         if UserSetup.FindSet then
             repeat
-                ApprovalEntry.Reset;
+                ApprovalEntry.Reset();
                 ApprovalEntry.SetRange("Approver ID", UserSetup."User ID");
                 ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
                 ApprovalEntry.SetFilter("Due Date", '<=%1', Today);
@@ -90,7 +90,7 @@ codeunit 1510 "Notification Management"
         if DefaultNotificationEntryExists(NotificationType) then
             exit;
 
-        NotificationSetup.Init;
+        NotificationSetup.Init();
         NotificationSetup.Validate("Notification Type", NotificationType);
         NotificationSetup.Validate("Notification Method", NotificationSetup."Notification Method"::Email);
         NotificationSetup.Insert(true);

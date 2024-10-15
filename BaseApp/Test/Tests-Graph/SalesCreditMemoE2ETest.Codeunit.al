@@ -17,6 +17,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryERM: Codeunit "Library - ERM";
         GraphContactIdFieldTxt: Label 'contactId';
         CustomerIdFieldTxt: Label 'customerId';
         CustomerNameFieldTxt: Label 'customerName';
@@ -43,7 +44,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         // [GIVEN] 2 credit memos, one posted and one unposted
         Initialize;
         CreateSalesCreditMemos(CreditMemoNo1, CreditMemoNo2);
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the credit memos from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
@@ -81,7 +82,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         CreditMemoDate := Today;
 
         CreditMemoWithComplexJSON := CreateCreditMemoJSONWithAddress(Customer, CreditMemoDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
@@ -133,7 +134,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         CurrencyCode := Currency.Code;
         JSONManagement.AddJPropertyToJObject(JObject, 'currencyCode', CurrencyCode);
         CreditMemoJSON := JSONManagement.WriteObjectToString;
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
@@ -221,7 +222,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         LibraryGraphDocumentTools.GetCustomerAddressComplexType(ComplexTypeJSON, Customer, EmptyData, PartiallyEmptyData);
         CreditMemoWithComplexJSON := LibraryGraphMgt.AddComplexTypetoJSON(CreditMemoJSON, 'billingPostalAddress', ComplexTypeJSON);
 
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(CreditMemoID, PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
@@ -298,7 +299,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
 
         // [GIVEN] a json describing our new credit memo
         CreditMemoWithComplexJSON := CreateCreditMemoJSONWithAddress(Customer, CreditMemoDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and create another credit memo through the test page
         CreateCreditMemoThroughAPI(CreditMemoWithComplexJSON);
@@ -328,7 +329,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
         Assert.IsTrue(SalesHeader."Recalculate Invoice Disc.", 'Setup error - recalculate credit memo disc. should be set');
 
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the credit memos from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
@@ -366,7 +367,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         SalesLine.Modify(true);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
         Assert.IsTrue(SalesHeader."Recalculate Invoice Disc.", 'Setup error - recalculate credit memo disc. should be set');
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the credit memos from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
@@ -428,7 +429,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         CreditMemoWithComplexJSON := CreateCreditMemoJSONWithContactId(GraphIntegrationRecord);
 
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
-        Commit;
+        Commit();
 
         // [WHEN] We post an credit memo to web service
         LibraryGraphMgt.PostToWebService(TargetURL, CreditMemoWithComplexJSON, ResponseText);
@@ -469,7 +470,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         TargetURL := LibraryGraphMgt.CreateTargetURL(CreditMemoID, PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
         CreditMemoWithComplexJSON := CreateCreditMemoJSONWithContactId(SecondGraphIntegrationRecord);
 
-        Commit;
+        Commit();
 
         // [WHEN] We Patch to web service
         LibraryGraphMgt.PatchToWebService(TargetURL, CreditMemoWithComplexJSON, ResponseText);
@@ -495,7 +496,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
 
         // [WHEN] We look through all sales headers.
         // [THEN] The integration record for the sales header should have the same record id.
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         if SalesHeader.Find('-') then begin
             repeat
                 VerifySalesHeaderRegisteredInIntegrationTable(SalesHeader);
@@ -533,8 +534,8 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         SalesHeader.SetAutoCalcFields(Amount);
         SalesHeader.Find;
         CreditMemoID := SalesHeader."No.";
-        InvoiceDiscountAmount := SalesHeader.Amount / 2;
-        Commit;
+        InvoiceDiscountAmount := Round(SalesHeader.Amount / 2, LibraryERM.GetCurrencyAmountRoundingPrecision(SalesHeader."Currency Code"), '=');
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
@@ -585,7 +586,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
 
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(SalesHeader.Amount / 2, SalesHeader);
 
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.SystemId, PAGE::"Sales Credit Memo Entity", CreditMemoServiceNameTxt);
@@ -615,7 +616,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
         LibrarySales.CreateSalesCreditMemo(SalesHeader);
         ModifySalesHeaderPostingDate(SalesHeader, WorkDate);
         CreditMemoNo2 := SalesHeader."No.";
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCreditMemoJSONWithAddress(Customer: Record Customer; CreditMemoDate: Date): Text
@@ -677,7 +678,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
 
     local procedure GetFirstSalesCreditMemoLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.FindFirst;
@@ -768,7 +769,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
 
     local procedure GetSalesCreditMemoHeaderByCustomerNumberAndDate(CustomerNo: Text; CreditMemoNo: Text; CreditMemoDate: Date; var SalesHeader: Record "Sales Header"; ErrorMessage: Text)
     begin
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("No.", CreditMemoNo);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -778,7 +779,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
 
     local procedure GetSalesCreditMemoHeaderByCustomerAndNumber(CustomerNo: Text; CreditMemoNo: Text; var SalesHeader: Record "Sales Header"; ErrorMessage: Text)
     begin
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("No.", CreditMemoNo);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -787,7 +788,7 @@ codeunit 135536 "Sales Credit Memo E2E Test"
 
     local procedure GetSalesCreditMemoHeaderByCustomerAndDate(CustomerNo: Text; CreditMemoDate: Date; var SalesHeader: Record "Sales Header"; ErrorMessage: Text)
     begin
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesHeader.SetRange("Document Date", CreditMemoDate);

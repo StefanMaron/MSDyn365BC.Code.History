@@ -93,6 +93,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT Statement';
                             RunObject = report "VAT Statement";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("VAT- VIES Declaration Tax Auth")
                         {
@@ -100,6 +103,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT- VIES Declaration Tax Auth';
                             RunObject = report "VAT- VIES Declaration Tax Auth";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("VAT- VIES Declaration Disk")
                         {
@@ -107,6 +113,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT- VIES Declaration Disk...';
                             RunObject = report "VAT- VIES Declaration Disk";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Day Book VAT Entry")
                         {
@@ -132,6 +141,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT Statement Germany';
                             RunObject = report "VAT Statement Germany";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("VAT Statement AT")
                         {
@@ -145,6 +157,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'VAT-Vies Declaration Tax - DE';
                             RunObject = report "VAT-Vies Declaration Tax - DE";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("VAT - VIES Declaration XML")
                         {
@@ -458,6 +473,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Intrastat - Checklist';
                             RunObject = report "Intrastat - Checklist";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Intrastat - Checklist AT")
                         {
@@ -471,6 +489,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Intrastat - Checklist DE';
                             RunObject = report "Intrastat - Checklist DE";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Intrastat - Form")
                         {
@@ -478,6 +499,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Intrastat - Form';
                             RunObject = report "Intrastat - Form";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Intrastat - Checklist AT1")
                         {
@@ -491,6 +515,9 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Intrastat - Form DE';
                             RunObject = report "Intrastat - Form DE";
                             Visible = false;
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'This action will be removed from this page';
+                            ObsoleteTag = '16.0';
                         }
                         action("Intrastat - Item List")
                         {

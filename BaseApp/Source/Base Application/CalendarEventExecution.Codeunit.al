@@ -54,15 +54,15 @@ codeunit 2161 "Calendar Event Execution"
         CalendarEvent.LockTable(true);
         if not CalendarEvent.Find then begin // The event may have been removed while we executed it
             ActivityLog.LogActivity(CalendarEvent, ActivityLog.Status::Failed, ProcessCalendarTxt, CalendarEvent.Description, UnknownStateTxt);
-            Commit;
+            Commit();
             exit;
         end;
 
         // Log
         if Result then begin
             if CalendarEvent.Type = CalendarEvent.Type::System then begin
-                CalendarEvent.Delete;
-                Commit;
+                CalendarEvent.Delete();
+                Commit();
                 exit;
             end;
             ActivityLog.LogActivity(CalendarEvent, ActivityLog.Status::Success, ProcessCalendarTxt, CalendarEvent.Description, '');
@@ -76,7 +76,7 @@ codeunit 2161 "Calendar Event Execution"
         CalendarEvent.Validate(Archived, true);
         CalendarEvent.Modify(true);
 
-        Commit; // may error if we have delayed inserts - this entry will be skipped when the job queue reruns
+        Commit(); // may error if we have delayed inserts - this entry will be skipped when the job queue reruns
     end;
 
     local procedure RunCodeunit(var CalendarEvent: Record "Calendar Event"): Boolean
@@ -96,7 +96,7 @@ codeunit 2161 "Calendar Event Execution"
 
         CalendarEvent.Validate(State, CalendarEvent.State::"In Progress");
         CalendarEvent.Modify(true);
-        Commit; // Now if an error occurs related to this entry we will not run it again (even if the job queue is reran)
+        Commit(); // Now if an error occurs related to this entry we will not run it again (even if the job queue is reran)
 
         CalendarEventCopy := CalendarEvent;
         Result := CODEUNIT.Run(CalendarEvent."Object ID to Run", CalendarEventCopy);

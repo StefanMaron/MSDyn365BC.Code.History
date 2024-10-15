@@ -69,7 +69,13 @@ codeunit 5335 "Integration Table Synch."
         IntegrationRecordSynch: Codeunit "Integration Record Synch.";
         IntegrationRecSynchInvoke: Codeunit "Integration Rec. Synch. Invoke";
         SynchAction: Option;
+        IsHandled: Boolean;
+
     begin
+        OnBeforeSynchronize(SourceRecordRef, DestinationRecordRef, ForceModify, IgnoreSynchOnlyCoupledRecords, IsHandled);
+        if IsHandled then
+            exit;
+
         if not DoesSourceMatchMapping(SourceRecordRef.Number) then begin
             FinishIntegrationSynchJob(
               StrSubstNo(
@@ -79,7 +85,7 @@ codeunit 5335 "Integration Table Synch."
 
         EnsureState(JobState::Created);
         // Ready to synch.
-        Commit;
+        Commit();
 
         // First synch. fixes direction
         if JobState = JobState::Created then begin
@@ -89,7 +95,7 @@ codeunit 5335 "Integration Table Synch."
 
             BuildTempIntegrationFieldMapping(
               CurrentIntegrationTableMapping, CurrentIntegrationTableMapping.Direction, TempIntegrationFieldMapping);
-            Commit;
+            Commit();
         end else
             if CurrentIntegrationTableMapping.Direction <> CurrentIntegrationSynchJob."Synch. Direction" then
                 Error(DirectionChangeIsNotSupportedErr);
@@ -139,7 +145,7 @@ codeunit 5335 "Integration Table Synch."
                 SynchDirection := CurrentIntegrationTableMapping.Direction::ToIntegrationTable;
         end;
         CurrentIntegrationSynchJob.Modify(true);
-        Commit;
+        Commit();
         SynchAction := SynchActionType::Delete;
 
         IntegrationRecDeleteInvoke.SetContext(
@@ -239,7 +245,7 @@ codeunit 5335 "Integration Table Synch."
         JobID := CreateIntegrationSynchJobEntry;
 
         if EnsureIntegrationServicesState then begin // Prepare for processing
-            Commit;
+            Commit();
             exit(JobID);
         end;
     end;
@@ -252,7 +258,7 @@ codeunit 5335 "Integration Table Synch."
             "Finish Date/Time" := CurrentDateTime;
             Modify(true);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateIntegrationSynchJobEntry() JobID: Guid
@@ -267,7 +273,7 @@ codeunit 5335 "Integration Table Synch."
                 "Synch. Direction" := CurrentIntegrationTableMapping.Direction;
                 "Job Queue Log Entry No." := JobQueueLogEntryNo;
                 Insert(true);
-                Commit;
+                Commit();
                 JobID := ID;
             end;
     end;
@@ -309,10 +315,10 @@ codeunit 5335 "Integration Table Synch."
                   IntegrationTableMappingHasNoMappedFieldsErr, TableCaption,
                   FieldCaption("Integration Table Mapping Name"), IntegrationTableMapping.Name);
 
-            TempIntegrationFieldMapping.DeleteAll;
+            TempIntegrationFieldMapping.DeleteAll();
             FindSet;
             repeat
-                TempIntegrationFieldMapping.Init;
+                TempIntegrationFieldMapping.Init();
                 TempIntegrationFieldMapping."No." := "No.";
                 TempIntegrationFieldMapping."Integration Table Mapping Name" := "Integration Table Mapping Name";
                 TempIntegrationFieldMapping."Constant Value" := "Constant Value";
@@ -326,7 +332,7 @@ codeunit 5335 "Integration Table Synch."
                     TempIntegrationFieldMapping."Destination Field No." := "Field No.";
                     TempIntegrationFieldMapping."Validate Destination Field" := "Validate Field";
                 end;
-                TempIntegrationFieldMapping.Insert;
+                TempIntegrationFieldMapping.Insert();
             until Next = 0;
         end;
     end;
@@ -375,7 +381,7 @@ codeunit 5335 "Integration Table Synch."
                     exit
             end;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -396,6 +402,11 @@ codeunit 5335 "Integration Table Synch."
     begin
         CRMIntegrationRecord.FindByRecordID(RecRef.RecordId);
         exit(CRMIntegrationRecord.Skipped);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSynchronize(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var ForceModify: Boolean; var IgnoreSynchOnlyCoupledRecords: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -79,7 +79,7 @@ codeunit 139318 "Company Creation Wizard - User"
 
         // Add current as admin
         CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
-        Commit;
+        Commit();
 
         // Add User1
         LibraryPermissions.CreateUser(User1, '', false);
@@ -128,7 +128,7 @@ codeunit 139318 "Company Creation Wizard - User"
         CompanyCreationWizard.CompanyName.SetValue(NewCompanyName);
         CompanyCreationWizard.CompanyData.SetValue(NewCompanyData::"No Data"); // Set to None to avoid lengthy data import
         CompanyCreationWizard.ActionNext.Invoke; // Manage Users page
-        Commit;
+        Commit();
 
         // Add User1 and User2
         LibraryVariableStorage.Enqueue(User1);

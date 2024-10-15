@@ -99,16 +99,16 @@ codeunit 11000 "Data Export Management"
                     end else
                         // unindent:
                         repeat
-                    Indented := false;
-                    if RelDataExportRecordSource.Indentation >= OldIndentation then begin
-                        RelDataExportRecordSource.Indentation := RelDataExportRecordSource.Indentation + Indentation - OldIndentation;
-                        if RelDataExportRecordSource.Indentation = Indentation then begin
-                            RelDataExportRecordSource."Relation To Table No." := "Relation To Table No.";
-                            RelDataExportRecordSource."Relation To Line No." := "Relation To Line No.";
-                        end;
-                        RelDataExportRecordSource.Modify();
-                        Indented := true;
-                    end;
+                            Indented := false;
+                            if RelDataExportRecordSource.Indentation >= OldIndentation then begin
+                                RelDataExportRecordSource.Indentation := RelDataExportRecordSource.Indentation + Indentation - OldIndentation;
+                                if RelDataExportRecordSource.Indentation = Indentation then begin
+                                    RelDataExportRecordSource."Relation To Table No." := "Relation To Table No.";
+                                    RelDataExportRecordSource."Relation To Line No." := "Relation To Line No.";
+                                end;
+                                RelDataExportRecordSource.Modify();
+                                Indented := true;
+                            end;
                         until (not Indented) or (RelDataExportRecordSource.Next = 0);
                 end;
             end;
@@ -316,17 +316,17 @@ codeunit 11000 "Data Export Management"
                 DataExportRecordField2.CalcFields("Field Name");
                 XMLDOMManagement.AddNode(XMLCurrNode, 'Description', ConvertString(DataExportRecordField2."Field Name"));
 
-                case Format(FieldRef.Type) of
-                    'Integer', 'BigInteger':
+                case FieldRef.Type of
+                    FieldType::Integer, FieldType::BigInteger:
                         XMLDOMManagement.AddLastNode(XMLCurrNode, 'Numeric', '');
-                    'Decimal':
+                    FieldType::Decimal:
                         begin
                             XMLDOMManagement.AddGroupNode(XMLCurrNode, 'Numeric');
                             XMLDOMManagement.AddLastNode(XMLCurrNode, 'Accuracy',
                               CopyStr(GLSetup."Amount Decimal Places", StrLen(GLSetup."Amount Decimal Places")));
                             XMLCurrNode := XMLCurrNode.ParentNode;
                         end;
-                    'Date':
+                    FieldType::Date:
                         XMLDOMManagement.AddLastNode(XMLCurrNode, 'Date', '');
                     else
                         XMLDOMManagement.AddLastNode(XMLCurrNode, 'AlphaNumeric', '');

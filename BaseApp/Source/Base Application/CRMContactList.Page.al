@@ -1,7 +1,7 @@
 page 5342 "CRM Contact List"
 {
     ApplicationArea = Suite;
-    Caption = 'Contacts - Microsoft Dynamics 365 Sales';
+    Caption = 'Contacts - Common Data Service';
     Editable = false;
     PageType = List;
     SourceTable = "CRM Contact";
@@ -20,37 +20,37 @@ page 5342 "CRM Contact List"
                     ApplicationArea = Suite;
                     Caption = 'Name';
                     StyleExpr = FirstColumnStyle;
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_Line1; Address1_Line1)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Street 1';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_Line2; Address1_Line2)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Street 2';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_PostalCode; Address1_PostalCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'ZIP/Postal Code';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_City; Address1_City)
                 {
                     ApplicationArea = Suite;
                     Caption = 'City';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Address1_Country; Address1_Country)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Country/Region';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(EMailAddress1; EMailAddress1)
                 {
@@ -63,37 +63,37 @@ page 5342 "CRM Contact List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Fax';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(WebSiteUrl; WebSiteUrl)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Website URL';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(MobilePhone; MobilePhone)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Mobile Phone';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Pager; Pager)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Pager';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Telephone1; Telephone1)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Telephone';
-                    ToolTip = 'Specifies data from a corresponding field in a Dynamics 365 Sales entity. For more information about Dynamics 365 Sales, see Dynamics 365 Sales Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
                 }
                 field(Coupled; Coupled)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Coupled';
-                    ToolTip = 'Specifies if the Dynamics 365 Sales record is coupled to Business Central.';
+                    ToolTip = 'Specifies if the Common Data Service record is coupled to Business Central.';
                 }
             }
         }
@@ -110,7 +110,7 @@ page 5342 "CRM Contact List"
                 Image = NewCustomer;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Create a contact in Dynamics 365 that is linked to the Dynamics 365 Sales contact.';
+                ToolTip = 'Create a contact in Dynamics 365 that is linked to the Common Data Service contact.';
 
                 trigger OnAction()
                 var
@@ -143,15 +143,12 @@ page 5342 "CRM Contact List"
         end;
     end;
 
-    trigger OnInit()
-    begin
-        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
-    end;
-
     trigger OnOpenPage()
     var
         LookupCRMTables: Codeunit "Lookup CRM Tables";
     begin
+        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+
         FilterGroup(4);
         SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Contact"));
         FilterGroup(0);

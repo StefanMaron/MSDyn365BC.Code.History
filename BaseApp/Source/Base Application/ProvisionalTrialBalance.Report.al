@@ -275,7 +275,7 @@ report 11500 "Provisional Trial Balance"
         GlAccFilter := "G/L Account".GetFilters;
         JourNameFilter := JourName1 + '   ' + JourName2 + '   ' + JourName3;
 
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var
@@ -318,7 +318,7 @@ report 11500 "Provisional Trial Balance"
     [Scope('OnPrem')]
     procedure CreditEntries()
     begin
-        GlLines.Reset;
+        GlLines.Reset();
         GlLines.SetRange("Journal Template Name", TemplateName);
         GlLines.SetFilter("Journal Batch Name", '%1|%2|%3', JourName1, JourName2, JourName3);
         GlLines.SetRange("Account Type", GlLines."Account Type"::"G/L Account");
@@ -338,7 +338,7 @@ report 11500 "Provisional Trial Balance"
     [Scope('OnPrem')]
     procedure DebitEntries()
     begin
-        GlLines.Reset;
+        GlLines.Reset();
         GlLines.SetRange("Journal Template Name", TemplateName);
         GlLines.SetFilter("Journal Batch Name", '%1|%2|%3', JourName1, JourName2, JourName3);
         GlLines.SetRange("Bal. Account Type", GlLines."Bal. Account Type"::"G/L Account");

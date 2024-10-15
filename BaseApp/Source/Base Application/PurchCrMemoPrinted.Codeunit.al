@@ -5,12 +5,13 @@ codeunit 320 "PurchCrMemo-Printed"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec, SuppressCommit);
         Find;
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
         Modify;
         if not SuppressCommit then
-            Commit;
+            Commit();
     end;
 
     var
@@ -23,6 +24,11 @@ codeunit 320 "PurchCrMemo-Printed"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModify(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var SuppressCommit: Boolean)
     begin
     end;
 }

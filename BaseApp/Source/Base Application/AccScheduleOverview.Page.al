@@ -733,7 +733,7 @@ page 490 "Acc. Schedule Overview"
     trigger OnOpenPage()
     begin
         UseAmtsInAddCurr := false;
-        GLSetup.Get;
+        GLSetup.Get();
         UseAmtsInAddCurrVisible := GLSetup."Additional Reporting Currency" <> '';
         if NewCurrentSchedName <> '' then
             CurrentSchedName := NewCurrentSchedName;

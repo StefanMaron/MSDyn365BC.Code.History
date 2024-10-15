@@ -29,7 +29,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if SalespersonPurchaser.Get(CodeToSet) then
             exit(CodeToSet);
 
-        SalespersonPurchaser.Init;
+        SalespersonPurchaser.Init();
         SalespersonPurchaser.Validate(Code, CodeToSet);
         SalespersonPurchaser.Validate(Name, NameToSet);
         SalespersonPurchaser.Validate("Phone No.", PhoneNoToSet);
@@ -46,7 +46,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if CustomerPriceGroup.Get(CodeToSet) then
             exit(CodeToSet);
 
-        CustomerPriceGroup.Init;
+        CustomerPriceGroup.Init();
         CustomerPriceGroup.Validate(Code, CodeToSet);
         CustomerPriceGroup.Validate(Description, DescriptionToSet);
         CustomerPriceGroup.Validate("Price Includes VAT", PriceIncludesVatToSet);
@@ -61,7 +61,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if PaymentTerms.Get(CodeToSet) then
             exit(CodeToSet);
 
-        PaymentTerms.Init;
+        PaymentTerms.Init();
         PaymentTerms.Validate(Code, CodeToSet);
         PaymentTerms.Validate(Description, DescriptionToSet);
         PaymentTerms.Validate("Due Date Calculation", DueDateCalculationToSet);
@@ -76,7 +76,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if Territory.Get(CodeToSet) then
             exit(CodeToSet);
 
-        Territory.Init;
+        Territory.Init();
         Territory.Validate(Code, CodeToSet);
         Territory.Validate(Name, Name);
         Territory.Insert(true);
@@ -90,7 +90,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if TaxArea.Get(CodeToSet) then
             exit(CodeToSet);
 
-        TaxArea.Init;
+        TaxArea.Init();
         TaxArea.Validate(Code, CodeToSet);
         TaxArea.Validate(Description, Description);
         TaxArea.Insert(true);
@@ -104,7 +104,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if PaymentMethod.Get(CodeToSet) then
             exit(CodeToSet);
 
-        PaymentMethod.Init;
+        PaymentMethod.Init();
         PaymentMethod.Validate(Code, CodeToSet);
         PaymentMethod.Validate(Description, DescriptionToSet);
         PaymentMethod.Insert(true);
@@ -127,7 +127,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if PostCode.FindFirst then
             exit(false);
 
-        PostCode.Init;
+        PostCode.Init();
         PostCode.Validate(Code, CodeToSet);
         PostCode.Validate(City, CityToSet);
         PostCode.Validate(County, CountyToSet);
@@ -143,7 +143,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if CountryRegion.Get(CodeToSet) then
             exit(CountryRegion.Code);
 
-        CountryRegion.Init;
+        CountryRegion.Init();
         CountryRegion.Validate(Code, CodeToSet);
         CountryRegion.Validate(Name, NameToSet);
         CountryRegion.Validate("Address Format", AddressFormatToSet);
@@ -211,7 +211,7 @@ codeunit 1797 "Data Migration Facade Helper"
         GenJournalBatch.SetRange("No. Series", NoSeriesCode);
         GenJournalBatch.SetRange("Posting No. Series", PostingNoSeriesCode);
         if not GenJournalBatch.FindFirst then begin
-            GenJournalBatch.Init;
+            GenJournalBatch.Init();
             GenJournalBatch.Validate("Journal Template Name", TemplateName);
             GenJournalBatch.SetupNewBatch;
             GenJournalBatch.Validate(Name, GeneralJournalBatchCode);
@@ -229,7 +229,7 @@ codeunit 1797 "Data Migration Facade Helper"
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
         GenJournalTemplate.SetRange(Recurring, false);
         if not GenJournalTemplate.FindFirst then begin
-            GenJournalTemplate.Init;
+            GenJournalTemplate.Init();
             GenJournalTemplate.Validate(Name, GeneralJournalBatchCode);
             GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::General);
             GenJournalTemplate.Validate(Recurring, false);
@@ -256,7 +256,7 @@ codeunit 1797 "Data Migration Facade Helper"
 
         GenJournalTemplate.Get(GenJournalBatch."Journal Template Name");
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetHideValidation(true);
         GenJournalLine.Validate("Source Code", GenJournalTemplate."Source Code");
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
@@ -287,7 +287,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if Dimension.Get(DimensionCode) then
             exit;
 
-        Dimension.Init;
+        Dimension.Init();
         Dimension.Validate(Code, DimensionCode);
         Dimension.Validate(Description, DimensionDescription);
         Dimension.Insert(true);
@@ -298,7 +298,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if DimensionValue.Get(DimensionCode, DimensionValueCode) then
             exit;
 
-        DimensionValue.Init;
+        DimensionValue.Init();
         DimensionValue.Validate("Dimension Code", DimensionCode);
         DimensionValue.Validate(Code, DimensionValueCode);
         DimensionValue.Validate(Name, DimensionValueName);
@@ -312,7 +312,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if DefaultDimension.Get(TableId, EntityNo, DimensionCode) then
             exit;
 
-        DefaultDimension.Init;
+        DefaultDimension.Init();
         DefaultDimension.Validate("Dimension Code", DimensionCode);
         DefaultDimension.Validate("Dimension Value Code", DimensionValueCode);
         DefaultDimension.Validate("Table ID", TableId);
@@ -342,7 +342,7 @@ codeunit 1797 "Data Migration Facade Helper"
                 TempDimensionSetEntry.Insert(true);
             until DimensionSetEntry.Next = 0;
 
-        TempDimensionSetEntry.Init;
+        TempDimensionSetEntry.Init();
         TempDimensionSetEntry.Validate("Dimension Set ID", OldDimensionSetId);
         TempDimensionSetEntry.Validate("Dimension Code", DimensionCode);
         TempDimensionSetEntry.Validate("Dimension Value Code", DimensionValueCode);
@@ -375,7 +375,7 @@ codeunit 1797 "Data Migration Facade Helper"
             end else
                 exit;
 
-        Contact.Init;
+        Contact.Init();
         Contact.Validate(Name, NameToSet);
         Contact.Validate(Address, AddressToSet);
         Contact.Validate("Address 2", Address2ToSet);

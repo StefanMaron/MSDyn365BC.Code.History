@@ -6,7 +6,7 @@ codeunit 11100 "SEPA CT APC-Export File"
     var
         BankAccount: Record "Bank Account";
     begin
-        LockTable;
+        LockTable();
         BankAccount.Get("Bal. Account No.");
         if Export(Rec, BankAccount.GetPaymentExportXMLPortID) then
             ModifyAll("Exported to Payment File", true);

@@ -68,13 +68,13 @@ codeunit 132902 "Double quotations in Item No."
         ItemUnitOfMeasureObj: Record "Item Unit of Measure";
     begin
         if ItemObj.Get(No) then
-            ItemObj.Delete;
+            ItemObj.Delete();
         if StockkeepingUnitObj.Get(No) then
-            StockkeepingUnitObj.Delete;
+            StockkeepingUnitObj.Delete();
         ItemUnitOfMeasureObj.SetRange("Item No.", No);
         if ItemUnitOfMeasureObj.FindFirst then
-            ItemUnitOfMeasureObj.Delete;
-        Commit;
+            ItemUnitOfMeasureObj.Delete();
+        Commit();
     end;
 
     [Normal]
@@ -94,7 +94,7 @@ codeunit 132902 "Double quotations in Item No."
         ItemCard."Inventory Posting Group".Value := GetInventoryPostingGroup;
         ItemCard."Gen. Prod. Posting Group".Value := GetGenProdPostingGroup;
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
         ItemCard.OpenView;
         ItemCard.GotoRecord(Item);
         ItemCard."&Create Stockkeeping Unit".Invoke;

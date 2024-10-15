@@ -6,7 +6,8 @@ page 350 "G/L Acc. Balance/Budget Lines"
     LinksAllowed = false;
     PageType = ListPart;
     SaveValues = true;
-    SourceTable = Date;
+    SourceTable = "G/L Acc. Balance/Budget Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -29,7 +30,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
                     Editable = false;
                     ToolTip = 'Specifies the name of the period that you want to view.';
                 }
-                field(DebitAmount; GLAcc."Debit Amount")
+                field(DebitAmount; "Debit Amount")
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
@@ -41,10 +42,10 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BalanceDrillDown;
+                        BalanceDrillDown();
                     end;
                 }
-                field(CreditAmount; GLAcc."Credit Amount")
+                field(CreditAmount; "Credit Amount")
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
@@ -56,10 +57,10 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BalanceDrillDown;
+                        BalanceDrillDown();
                     end;
                 }
-                field(NetChange; GLAcc."Net Change")
+                field(NetChange; "Net Change")
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
@@ -72,10 +73,10 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BalanceDrillDown;
+                        BalanceDrillDown();
                     end;
                 }
-                field(BudgetedDebitAmount; GLAcc."Budgeted Debit Amount")
+                field(BudgetedDebitAmount; "Budgeted Debit Amount")
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
@@ -86,17 +87,17 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BudgetDrillDown;
+                        BudgetDrillDown();
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetDateFilter;
+                        SetDateFilter();
                         GLAcc.Validate("Budgeted Debit Amount");
-                        CalcFormFields;
+                        CalcFormFields();
                     end;
                 }
-                field(BudgetedCreditAmount; GLAcc."Budgeted Credit Amount")
+                field(BudgetedCreditAmount; "Budgeted Credit Amount")
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
@@ -107,17 +108,17 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BudgetDrillDown;
+                        BudgetDrillDown();
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetDateFilter;
+                        SetDateFilter();
                         GLAcc.Validate("Budgeted Credit Amount");
-                        CalcFormFields;
+                        CalcFormFields();
                     end;
                 }
-                field(BudgetedAmount; GLAcc."Budgeted Amount")
+                field(BudgetedAmount; "Budgeted Amount")
                 {
                     ApplicationArea = Suite;
                     AutoFormatType = 1;
@@ -129,17 +130,17 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BudgetDrillDown;
+                        BudgetDrillDown();
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetDateFilter;
+                        SetDateFilter();
                         GLAcc.Validate("Budgeted Amount");
-                        CalcFormFields;
+                        CalcFormFields();
                     end;
                 }
-                field(BudgetPct; BudgetPct)
+                field(BudgetPct; "Balance/Budget Pct.")
                 {
                     ApplicationArea = Suite;
                     BlankZero = true;
@@ -158,42 +159,55 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        CalcFormFields;
+        if DateRec.Get("Period Type", "Period Start") then;
+        SetDateFilter();
+        CalcFormFields();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, GLPeriodLength));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, GLPeriodLength);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, GLPeriodLength));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, GLPeriodLength);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
         AccountingPeriod: Record "Accounting Period";
         GLAcc: Record "G/L Account";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         GLPeriodLength: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        BudgetPct: Decimal;
         AmountType: Option "Net Change","Balance at Date";
         ClosingEntryFilter: Option Include,Exclude;
 
     procedure Set(var NewGLAcc: Record "G/L Account"; NewGLPeriodLength: Integer; NewAmountType: Option "Net Change",Balance; NewClosingEntryFilter: Option Include,Exclude)
     begin
         GLAcc.Copy(NewGLAcc);
+        DeleteAll();
 
         if GLAcc.GetFilter("Date Filter") <> '' then begin
             FilterGroup(2);
             SetFilter("Period Start", GLAcc.GetFilter("Date Filter"));
             FilterGroup(0);
+            DateRec.FilterGroup(2);
+            DateRec.SetFilter("Period Start", GLAcc.GetFilter("Date Filter"));
+            DateRec.FilterGroup(0);
         end;
 
         GLPeriodLength := NewGLPeriodLength;
@@ -206,8 +220,8 @@ page 350 "G/L Acc. Balance/Budget Lines"
     var
         GLEntry: Record "G/L Entry";
     begin
-        SetDateFilter;
-        GLEntry.Reset;
+        SetDateFilter();
+        GLEntry.Reset();
         GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         GLEntry.SetRange("G/L Account No.", GLAcc."No.");
         if GLAcc.Totaling <> '' then
@@ -223,8 +237,8 @@ page 350 "G/L Acc. Balance/Budget Lines"
     var
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        SetDateFilter;
-        GLBudgetEntry.Reset;
+        SetDateFilter();
+        GLBudgetEntry.Reset();
         GLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", Date);
         GLBudgetEntry.SetFilter("Budget Name", GLAcc.GetFilter("Budget Filter"));
         GLBudgetEntry.SetRange("G/L Account No.", GLAcc."No.");
@@ -239,9 +253,9 @@ page 350 "G/L Acc. Balance/Budget Lines"
 
     local procedure SetDateFilter()
     begin
-        if AmountType = AmountType::"Net Change" then begin
-            GLAcc.SetRange("Date Filter", "Period Start", "Period End");
-        end else
+        if AmountType = AmountType::"Net Change" then
+            GLAcc.SetRange("Date Filter", "Period Start", "Period End")
+        else
             GLAcc.SetRange("Date Filter", 0D, "Period End");
         if ClosingEntryFilter = ClosingEntryFilter::Exclude then begin
             AccountingPeriod.SetCurrentKey("New Fiscal Year");
@@ -258,7 +272,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
                     GLAcc.SetFilter(
                       "Date Filter", GLAcc.GetFilter("Date Filter") + '&<>%1',
                       ClosingDate(AccountingPeriod."Starting Date" - 1));
-                until AccountingPeriod.Next = 0;
+                until AccountingPeriod.Next() = 0;
         end else
             GLAcc.SetRange(
               "Date Filter",
@@ -269,14 +283,18 @@ page 350 "G/L Acc. Balance/Budget Lines"
     local procedure CalcFormFields()
     begin
         GLAcc.CalcFields("Net Change", "Debit Amount", "Credit Amount", "Budgeted Amount");
-        GLAcc."Budgeted Debit Amount" := GLAcc."Budgeted Amount";
-        GLAcc."Budgeted Credit Amount" := -GLAcc."Budgeted Amount";
+        "Debit Amount" := GLAcc."Debit Amount";
+        "Credit Amount" := GLAcc."Credit Amount";
+        "Net Change" := GLAcc."Net Change";
+        "Budgeted Debit Amount" := GLAcc."Budgeted Amount";
+        "Budgeted Credit Amount" := -GLAcc."Budgeted Amount";
+        "Budgeted Amount" := GLAcc."Budgeted Amount";
         if GLAcc."Budgeted Amount" = 0 then
-            BudgetPct := 0
+            "Balance/Budget Pct." := 0
         else
-            BudgetPct := Round(GLAcc."Net Change" / GLAcc."Budgeted Amount" * 100);
+            "Balance/Budget Pct." := Round(GLAcc."Net Change" / GLAcc."Budgeted Amount" * 100);
 
-        OnAfterCalcFormFields(GLAcc, BudgetPct);
+        OnAfterCalcFormFields(GLAcc, "Balance/Budget Pct.", Rec);
     end;
 
     procedure GetGLAcc(var NewGLAcc: Record "G/L Account")
@@ -285,7 +303,7 @@ page 350 "G/L Acc. Balance/Budget Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcFormFields(var GLAccount: Record "G/L Account"; var BudgetPct: Decimal)
+    local procedure OnAfterCalcFormFields(var GLAccount: Record "G/L Account"; var BudgetPct: Decimal; var GLAccBalanceBudgetBuffer: Record "G/L Acc. Balance/Budget Buffer")
     begin
     end;
 }

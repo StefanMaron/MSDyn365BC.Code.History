@@ -1216,10 +1216,13 @@ codeunit 138698 "AllProfile V2 Test"
         TextFromFirstList: Text;
         TextFromSecondList: Text;
     begin
-        Assert.AreEqual(FirstListOfStrings.Count(), SecondListOfStrings.Count(), 'Cannot match two lists of different size.');
-
         // This is quadratic, but currently we have 5 files so we can deal with it.
         foreach TextFromFirstList in FirstListOfStrings do begin
+            if SecondListOfStrings.Count() = 0 then
+                Assert.Fail(StrSubstNo('There are strings in the first list, but the second one is empty. Element %1 of %2: %3',
+                    FirstListOfStrings.IndexOf(TextFromFirstList), FirstListOfStrings.Count(), TextFromFirstList)
+                );
+
             foreach TextFromSecondList in SecondListOfStrings do begin
                 if TextFromFirstList.Contains(TextFromSecondList) or TextFromSecondList.Contains(TextFromFirstList) then begin
                     SecondListOfStrings.Remove(TextFromSecondList);
@@ -1237,10 +1240,16 @@ codeunit 138698 "AllProfile V2 Test"
         TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
         TenantProfileExtension: Record "Tenant Profile Extension";
     begin
-        TenantProfileExtension.DeleteAll();
+        if TenantProfileExtension.FindSet() then
+            repeat
+                TenantProfileExtension.Delete();
+            until TenantProfileExtension.Next() = 0;
 
         TenantProfilePageMetadata.SetRange(Owner, TenantProfilePageMetadata.Owner::Tenant);
-        TenantProfilePageMetadata.DeleteAll();
+        if TenantProfilePageMetadata.FindSet() then
+            repeat
+                TenantProfilePageMetadata.Delete();
+            until TenantProfilePageMetadata.Next() = 0;
     end;
 
     // Handlers

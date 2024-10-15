@@ -240,7 +240,7 @@ table 11005 "Data Export Record Field"
     begin
         NewLineNo := GetLineNoForLastRecord(ExportCode, RecordCode, SourceLineNo);
 
-        NewDataExportRecordField.Init;
+        NewDataExportRecordField.Init();
         NewDataExportRecordField."Data Export Code" := ExportCode;
         NewDataExportRecordField."Data Exp. Rec. Type Code" := RecordCode;
         NewDataExportRecordField."Source Line No." := SourceLineNo;
@@ -256,7 +256,7 @@ table 11005 "Data Export Record Field"
         TableNo: Integer;
         NewLineNo: Integer;
     begin
-        LockTable;
+        LockTable();
         NewLineNo := SelectedLineNo;
         if SelectedField.FindSet then begin
             TableNo := SelectedField.TableNo;

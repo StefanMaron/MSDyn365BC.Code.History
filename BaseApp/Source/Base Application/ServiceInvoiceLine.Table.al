@@ -21,11 +21,9 @@ table 5993 "Service Invoice Line"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource,Cost,G/L Account';
-            OptionMembers = " ",Item,Resource,Cost,"G/L Account";
         }
         field(6; "No."; Code[20])
         {
@@ -199,12 +197,10 @@ table 5993 "Service Invoice Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -593,6 +589,11 @@ table 5993 "Service Invoice Line"
         key(Key11; "Customer No.")
         {
         }
+        key(Key12; "Document No.", Type)
+        {
+            MaintainSqlIndex = false;
+            SumIndexFields = Amount;
+        }
     }
 
     fieldgroups
@@ -611,11 +612,11 @@ table 5993 "Service Invoice Line"
 
     procedure CalcVATAmountLines(ServInvHeader: Record "Service Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
         SetRange("Document No.", ServInvHeader."No.");
         if Find('-') then
             repeat
-                TempVATAmountLine.Init;
+                TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromServInvLine(Rec);
                 TempVATAmountLine.InsertLine;
             until Next = 0;
@@ -633,7 +634,7 @@ table 5993 "Service Invoice Line"
         ServiceInvHeader: Record "Service Invoice Header";
     begin
         if not ServiceInvHeader.Get("Document No.") then
-            ServiceInvHeader.Init;
+            ServiceInvHeader.Init();
         if ServiceInvHeader."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));
         exit('2,0,' + GetFieldCaption(FieldNumber));
@@ -675,8 +676,8 @@ table 5993 "Service Invoice Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempServShptLine.Reset;
-        TempServShptLine.DeleteAll;
+        TempServShptLine.Reset();
+        TempServShptLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -687,16 +688,16 @@ table 5993 "Service Invoice Line"
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Service Shipment" then
                     if ServShptLine.Get(ItemLedgEntry."Document No.", ItemLedgEntry."Document Line No.") then begin
-                        TempServShptLine.Init;
+                        TempServShptLine.Init();
                         TempServShptLine := ServShptLine;
-                        if TempServShptLine.Insert then;
+                        if TempServShptLine.Insert() then;
                     end;
             until ValueEntry.Next = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Document No.");
         ValueEntry.SetRange("Document No.", "Document No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Invoice");

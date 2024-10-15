@@ -21,7 +21,7 @@ codeunit 134800 "Pos. Pay Test Unit"
         BankAccount: Record "Bank Account";
     begin
         // [SCENARIO 122833]  Test the Pos Pay Export Code is invalid if it does not exist
-        BankAccount.Init;
+        BankAccount.Init();
         asserterror BankAccount.Validate("Positive Pay Export Code", CopyStr(Format(CreateGuid), 1, 20));
     end;
 
@@ -34,13 +34,13 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 122833]  Test the Pos Pay Export Code is valid when exists in the Bank Export/Import Setup
         // [GIVEN] Create the Bank Export/Import Setup to validate
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code := CopyStr(Format(CreateGuid), 1, 20);
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::"Export-Positive Pay";
-        BankExportImportSetup.Insert;
+        BankExportImportSetup.Insert();
 
         // [WHEN] Positive Pay Export Code is a valid
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount.Validate("Positive Pay Export Code", BankExportImportSetup.Code);
 
         // [THEN] Validation
@@ -56,13 +56,13 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 122833]  Test the Pos Pay Export Code is not valid even when it exists but is not of Type "Export-Positive Pay"
         // [GIVEN] Bank Eport/Import Setup.Code exists but create the Code so it is not a valid type
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code := CopyStr(Format(CreateGuid), 1, 20);
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::Export;
-        BankExportImportSetup.Insert;
+        BankExportImportSetup.Insert();
 
         // [THEN] Bank Account export code fails even though BankExportImportSetup code exists
-        BankAccount.Init;
+        BankAccount.Init();
         asserterror BankAccount.Validate("Positive Pay Export Code", BankExportImportSetup.Code);
     end;
 
@@ -74,7 +74,7 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 122833] From Bank Export/Import Setup, Test that Pos Pay Export Code is invalid if it does not exist
         // [GIVEN] Create the Bank Export/Import Setup record and attempt to add a BankExportImportSetup."Data Exch. Def. Code"
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code := CopyStr(Format(CreateGuid), 1, 20);
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::"Export-Positive Pay";
 
@@ -91,13 +91,13 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 122833]  Test the Bank Export Import Setup.Data Exch Def Code is valid when exists in the Data Exchange Def
         // [GIVEN] Create the Data Exchange Def so it is valid
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code := CopyStr(Format(CreateGuid), 1, 20);
         DataExchDef.Type := DataExchDef.Type::"Positive Pay Export";
-        DataExchDef.Insert;
+        DataExchDef.Insert();
 
         // [WHEN] Data Exch. Def. Code is valid
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code := CopyStr(Format(CreateGuid), 1, 20);
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::"Export-Positive Pay";
         BankExportImportSetup.Validate("Data Exch. Def. Code", DataExchDef.Code);
@@ -115,13 +115,13 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 122833] Test the Bank Export Import Setup.Data Exch Def Code is not valid when it exists but is not of Type "Positive Pay Export"
         // [GIVEN] No Bank Account Exists but create the Data Exchange Def so it is valid
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code := CopyStr(Format(CreateGuid), 1, 20);
         DataExchDef.Type := DataExchDef.Type::"Payment Export";
-        DataExchDef.Insert;
+        DataExchDef.Insert();
 
         // [THEN] Bank Export Import Setup Data Exchange Def. Code fails even though code exists
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code := CopyStr(Format(CreateGuid), 1, 20);
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::"Export-Positive Pay";
         asserterror BankExportImportSetup.Validate("Data Exch. Def. Code", DataExchDef.Code);
@@ -135,7 +135,7 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 123012] Test the Bank Account No. is invalid if it does not exist
         // [GIVEN] Bank Account does not exist
-        PositivePayEntry.Init;
+        PositivePayEntry.Init();
         asserterror PositivePayEntry.Validate("Bank Account No.", CopyStr(Format(CreateGuid), 1, 20));
 
         // [THEN] Validate that the Update dates and times were also not set since the validation failed
@@ -151,12 +151,12 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 123012] Test the Bank Account No. is valid if it exists in the Bank Account.No.
         // [GIVEN] Bank Account does exist
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."No." := CopyStr(Format(CreateGuid), 1, 20);
-        BankAccount.Insert;
+        BankAccount.Insert();
 
         // [WHEN] the Summary record also exists
-        PositivePayEntry.Init;
+        PositivePayEntry.Init();
         PositivePayEntry.Validate("Bank Account No.", BankAccount."No.");
 
         // [THEN] bank account and date-times are updated correctly
@@ -176,16 +176,16 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 123012] Test the PositivePayEntryDetail is valid if it exists in the PositivePayEntry for "Bank Account No." and "Upload Date-Time"
         // [GIVEN] Need to create both the Bank Account and the Pos. Pay Upload Summary
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."No." := CopyStr(Format(CreateGuid), 1, 20);
-        BankAccount.Insert;
+        BankAccount.Insert();
 
-        PositivePayEntry.Init;
+        PositivePayEntry.Init();
         PositivePayEntry."Bank Account No." := BankAccount."No.";
-        PositivePayEntry.Insert;
+        PositivePayEntry.Insert();
 
         // [WHEN] validate the fields
-        PositivePayEntryDetail.Init;
+        PositivePayEntryDetail.Init();
         PositivePayEntryDetail."Bank Account No." := PositivePayEntry."Bank Account No.";
         PositivePayEntryDetail.Validate("Upload Date-Time", PositivePayEntry."Upload Date-Time");
         PositivePayEntryDetail.Validate("Bank Account No.", BankAccount."No.");
@@ -206,16 +206,16 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 123012] Test the PositivePayEntryDetail is invalid if it does not exists in the PositivePayEntry for "Bank Account No." and "Upload Date-Time"
         // [GIVEN] Need to create both the Bank Account and the Pos. Pay Upload Summary
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."No." := CopyStr(Format(CreateGuid), 1, 20);
-        BankAccount.Insert;
+        BankAccount.Insert();
 
-        PositivePayEntry.Init;
+        PositivePayEntry.Init();
         PositivePayEntry."Bank Account No." := BankAccount."No.";
-        PositivePayEntry.Insert;
+        PositivePayEntry.Insert();
 
         // [WHEN] Bank Account exists but the Upload Summary Record does not
-        PositivePayEntryDetail.Init;
+        PositivePayEntryDetail.Init();
         PositivePayEntryDetail.Validate("Bank Account No.", BankAccount."No.");
         PositivePayEntryDetail."Bank Account No." := PositivePayEntry."Bank Account No.";
 
@@ -233,16 +233,16 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 123012] Test the PositivePayEntryDetail is invalid if the Bank Account does not exist
         // [GIVEN] Need to create both the Bank Account and the Pos. Pay Upload Summary
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."No." := CopyStr(Format(CreateGuid), 1, 20);
-        BankAccount.Insert;
+        BankAccount.Insert();
 
-        PositivePayEntry.Init;
+        PositivePayEntry.Init();
         PositivePayEntry."Bank Account No." := BankAccount."No.";
-        PositivePayEntry.Insert;
+        PositivePayEntry.Insert();
 
         // [WHEN] Upload Summary Record exists but Bank Account does not
-        PositivePayEntryDetail.Init;
+        PositivePayEntryDetail.Init();
         PositivePayEntryDetail."Bank Account No." := PositivePayEntry."Bank Account No.";
         PositivePayEntryDetail.Validate("Upload Date-Time", PositivePayEntry."Upload Date-Time");
 
@@ -258,7 +258,7 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 122869] Test the Data Exch. Entry No. and Data Exch. Voided Entry No. are invalid when Entry No. does not exist in the Data Exch.
         // [GIVEN] Check Ledger Entry created but Data Exch. does not exist
-        CheckLedgerEntry.Init;
+        CheckLedgerEntry.Init();
         CheckLedgerEntry."Entry No." := LibraryRandom.RandInt(100);
 
         // [THEN] Validation
@@ -276,19 +276,19 @@ codeunit 134800 "Pos. Pay Test Unit"
     begin
         // [SCENARIO 122869] Test the Data Exch. Entry No. and Data Exch. Voided Entry No. are valid when Entry No. exists in the Data Exch.
         // [GIVEN] Create the Data Exchange Def
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code := CopyStr(Format(CreateGuid), 1, 20);
         DataExchDef.Type := DataExchDef.Type::"Positive Pay Export";
-        DataExchDef.Insert;
+        DataExchDef.Insert();
 
         // [GIVEN] Create the Data Exch. record
-        DataExch.Init;
+        DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchDef.Code;
         DataExch."Data Exch. Line Def Code" := DataExchDef.Code;
-        DataExch.Insert;
+        DataExch.Insert();
 
         // [WHEN] Check Ledger Entry.Data Exch. Entry No. is valid
-        CheckLedgerEntry.Init;
+        CheckLedgerEntry.Init();
         CheckLedgerEntry.Validate("Data Exch. Entry No.", DataExch."Entry No.");
         CheckLedgerEntry.Validate("Data Exch. Voided Entry No.", DataExch."Entry No.");
 
@@ -310,7 +310,7 @@ codeunit 134800 "Pos. Pay Test Unit"
         Employee."First Name" := 'A';
         Employee."Middle Name" := 'B';
         Employee."Last Name" := 'C';
-        Employee.Modify;
+        Employee.Modify();
 
         CheckLedgerEntry."Bal. Account Type" := CheckLedgerEntry."Bal. Account Type"::Employee;
         CheckLedgerEntry."Bal. Account No." := Employee."No.";

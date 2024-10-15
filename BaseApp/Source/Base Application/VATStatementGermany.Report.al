@@ -188,7 +188,7 @@ report 11005 "VAT Statement Germany"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
 
                 PageGroupNo := 1;
                 NewPage := false;
@@ -357,7 +357,7 @@ report 11005 "VAT Statement Germany"
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     VATEntry.SetCurrentKey(
                       Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
                       "Tax Jurisdiction Code", "Use Tax", "Posting Date");

@@ -231,7 +231,7 @@ page 7371 "Bin Content Creation Worksheet"
                     begin
                         BinCreateLine.Copy(Rec);
                         CODEUNIT.Run(CODEUNIT::"Bin Content Create", Rec);
-                        BinCreateLine.Reset;
+                        BinCreateLine.Reset();
                         Copy(BinCreateLine);
                         FilterGroup(2);
                         SetRange("Worksheet Template Name", "Worksheet Template Name");

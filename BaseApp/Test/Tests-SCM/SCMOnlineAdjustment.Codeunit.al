@@ -148,7 +148,7 @@ codeunit 137001 "SCM Online Adjustment"
         CreateSingleLinePurchaseOrder(PurchaseHeader, Item."No.", PurchaseLine.Type::Item);
         PostPurchaseOrder(PurchInvHeader, PurchaseHeader);
         TempPurchInvHeader := PurchInvHeader;
-        TempPurchInvHeader.Insert;
+        TempPurchInvHeader.Insert();
 
         CreateSingleLinePurchaseOrder(PurchaseHeader, Item."No.", PurchaseLine.Type::Item);
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
@@ -160,7 +160,7 @@ codeunit 137001 "SCM Online Adjustment"
         PurchaseLine.Modify(true);
         PostPurchaseOrder(PurchInvHeader, PurchaseHeader);
         TempPurchInvHeader := PurchInvHeader;
-        TempPurchInvHeader.Insert;
+        TempPurchInvHeader.Insert();
 
         CreateSingleLineSalesOrder(SalesHeader, Item);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -296,7 +296,7 @@ codeunit 137001 "SCM Online Adjustment"
         Item.Modify(true);
 
         Item1.CalcFields(Inventory);
-        ProductionOrder.DeleteAll;
+        ProductionOrder.DeleteAll();
 
         // [GIVEN] Created and refreshed production order for parent item.
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item,
@@ -461,12 +461,12 @@ codeunit 137001 "SCM Online Adjustment"
         SetupParameters(InventorySetup."Automatic Cost Adjustment"::Never, AvgCostCalcType);
 
         // Create locations.
-        TempLocation.DeleteAll;
+        TempLocation.DeleteAll();
         for count := 1 to 4 do begin
             LibraryWarehouse.CreateLocation(Location);
             LibraryInventory.UpdateInventoryPostingSetup(Location);
             TempLocation := Location;
-            TempLocation.Insert;
+            TempLocation.Insert();
         end;
 
         // Create in-transit location.
@@ -566,7 +566,7 @@ codeunit 137001 "SCM Online Adjustment"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Online Adjustment");
     end;
 
@@ -580,7 +580,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         // Setup Sales and Purchases.
         LibrarySales.SetCreditWarningsToNoWarnings;
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", false);
         PurchasesPayablesSetup.Modify(true);
@@ -670,7 +670,7 @@ codeunit 137001 "SCM Online Adjustment"
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         if PurchInvLine.FindSet then
             repeat
-                PurchaseLine.Init;
+                PurchaseLine.Init();
                 PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
                 PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
                 PurchaseLine.Validate("Line No.", PurchInvLine."Line No.");
@@ -745,7 +745,7 @@ codeunit 137001 "SCM Online Adjustment"
 
     local procedure UpdatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
@@ -808,7 +808,7 @@ codeunit 137001 "SCM Online Adjustment"
         ItemJournalLine.FindSet;
         repeat
             TempItemJournalLine := ItemJournalLine;
-            TempItemJournalLine.Insert;
+            TempItemJournalLine.Insert();
         until ItemJournalLine.Next = 0;
 
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -852,7 +852,7 @@ codeunit 137001 "SCM Online Adjustment"
 
         // Save in temporary table.
         TempItemJournalLine := ItemJournalLine1;
-        TempItemJournalLine.Insert;
+        TempItemJournalLine.Insert();
 
         // Post revaluation.
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -880,7 +880,7 @@ codeunit 137001 "SCM Online Adjustment"
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Document Type", DocumentType);
@@ -1109,7 +1109,7 @@ codeunit 137001 "SCM Online Adjustment"
         // Cost of raw material as initially purchased.
         CalculatedTotalCost := PurchInvLine."Direct Unit Cost" * PurchInvLine.Quantity;
 
-        PurchInvLine.Reset;
+        PurchInvLine.Reset();
         PurchInvLine.SetRange("Document No.", PurchInvHeader1."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
         PurchInvLine.FindFirst;
@@ -1138,7 +1138,7 @@ codeunit 137001 "SCM Online Adjustment"
         PurchInvLine.FindFirst;
         UnitCost := PurchInvLine."Unit Cost (LCY)";
 
-        PurchInvLine.Reset;
+        PurchInvLine.Reset();
         PurchInvLine.SetRange("Document No.", PurchInvHeader1."No.");
         PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
         PurchInvLine.FindFirst;

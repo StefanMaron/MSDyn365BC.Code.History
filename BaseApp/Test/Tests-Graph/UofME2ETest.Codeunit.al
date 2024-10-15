@@ -105,7 +105,7 @@ codeunit 135516 "UofM E2E Test"
         LibraryGraphMgt.PostToWebService(GetServiceUrl, Request, Response);
 
         // [THEN] The entity is in the table.
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         LibraryGraphMgt.GetObjectIDFromJSON(Response, 'code', Code);
         UnitOfMeasure.Get(Code);
 
@@ -120,12 +120,12 @@ codeunit 135516 "UofM E2E Test"
             GenerateUnitOfMeasure(UnitOfMeasure);
             UnitOfMeasure.Insert(true);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure GenerateUnitOfMeasure(var UnitOfMeasure: Record "Unit of Measure")
     begin
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.Validate(Code, LibraryUtility.GenerateRandomCode(UnitOfMeasure.FieldNo(Code), DATABASE::"Unit of Measure"));
         UnitOfMeasure.Validate(Description, LibraryUtility.GenerateRandomAlphabeticText(10, 1));
         UnitOfMeasure.Validate(

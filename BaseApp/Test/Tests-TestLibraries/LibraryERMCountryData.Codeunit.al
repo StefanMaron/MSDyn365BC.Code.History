@@ -7,11 +7,6 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
-    var
-        LibraryERM: Codeunit "Library - ERM";
-        PCS: Label 'PCS';
-        BOX: Label 'BOX';
-
     procedure InitializeCountry()
     begin
         exit;
@@ -47,7 +42,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure SetupCostAccounting()
     begin
-        SetupCostTypeLinks;
+        exit;
     end;
 
     procedure SetupReportSelections()
@@ -64,12 +59,12 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateAccountInCustomerPostingGroup()
     begin
-        UpdateCustomerPostingGroup;
+        exit;
     end;
 
     procedure UpdateAccountInVendorPostingGroups()
     begin
-        UpdateVendorPostingGroup;
+        exit;
     end;
 
     procedure UpdateAccountsInServiceContractAccountGroups()
@@ -89,7 +84,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        exit;
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -104,7 +99,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralLedgerSetup()
     begin
-        UpdateGLSetup;
+        exit;
     end;
 
     procedure UpdatePrepaymentAccounts()
@@ -119,7 +114,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateSalesReceivablesSetup()
     begin
-        UpdateSalesReceivablesSetupData;
+        exit;
     end;
 
     procedure UpdateGenProdPostingGroup()
@@ -133,13 +128,8 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure CreateUnitsOfMeasure()
-    var
-        UnitofMeasure: Record "Unit of Measure";
     begin
-        if not UnitofMeasure.Get(PCS) then
-            CreateUnitOfMeasure(PCS);
-        if not UnitofMeasure.Get(BOX) then
-            CreateUnitOfMeasure(BOX);
+        exit;
     end;
 
     procedure CreateTransportMethodTableData()
@@ -197,9 +187,9 @@ codeunit 131305 "Library - ERM Country Data"
         CompanyInformation: Record "Company Information";
         LibraryERM: Codeunit "Library - ERM";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     procedure AmountOnBankAccountLedgerEntriesPage(var BankAccountLedgerEntries: TestPage "Bank Account Ledger Entries"): Decimal
@@ -212,135 +202,6 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure InsertRecordsToProtectedTables()
     begin
-    end;
-
-    local procedure CreateGLAccount(): Code[20]
-    var
-        GLAccount: Record "G/L Account";
-    begin
-        LibraryERM.CreateGLAccount(GLAccount);
-        exit(GLAccount."No.");
-    end;
-
-    local procedure FindGLAccount(var GLAccount: Record "G/L Account"; No: Code[20]): Boolean
-    begin
-        if GLAccount.Get(No) then
-            if (GLAccount."Income/Balance" = GLAccount."Income/Balance"::"Income Statement") and (GLAccount."Account Type" = GLAccount."Account Type"::Posting) then
-                exit(true);
-        exit(false);
-    end;
-
-    local procedure SetupCostTypeLinks()
-    var
-        CostType: Record "Cost Type";
-        GLAccount: Record "G/L Account";
-    begin
-        // Copy of LinkCostTypesToGLAccounts function from COD1100.
-        CostType.SetRange(Type, CostType.Type::"Cost Type");
-        CostType.SetFilter(CostType."G/L Account Range", '');
-        if CostType.FindSet then
-            repeat
-                if FindGLAccount(GLAccount, CostType."No.") then begin
-                    CostType."G/L Account Range" := CostType."No.";
-                    CostType.Modify;
-                    GLAccount."Cost Type No." := CostType."No.";
-                    GLAccount.Modify;
-                end;
-            until CostType.Next = 0;
-    end;
-
-    local procedure UpdateAccountsInGeneralPostingSetup()
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-    begin
-        if GeneralPostingSetup.FindSet then
-            repeat
-                // Use assignment to avoid error
-                if GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc." = '' then
-                    GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc." := CreateGLAccount;
-                if GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." = '' then
-                    GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := CreateGLAccount;
-                if GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc." = '' then
-                    GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc." := CreateGLAccount;
-                if GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc." = '' then
-                    GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc." := CreateGLAccount;
-                if GeneralPostingSetup."Sales Pmt. Tol. Debit Acc." = '' then
-                    GeneralPostingSetup."Sales Pmt. Tol. Debit Acc." := CreateGLAccount;
-                if GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." = '' then
-                    GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." := CreateGLAccount;
-                if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
-                    GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." := CreateGLAccount;
-                if GeneralPostingSetup."Invt. Accrual Acc. (Interim)" = '' then
-                    GeneralPostingSetup."Invt. Accrual Acc. (Interim)" := CreateGLAccount;
-                if GeneralPostingSetup."COGS Account" = '' then
-                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
-                if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
-                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
-                GeneralPostingSetup.Modify(true);
-            until GeneralPostingSetup.Next = 0;
-    end;
-
-    local procedure UpdateCustomerPostingGroup()
-    var
-        CustomerPostingGroup: Record "Customer Posting Group";
-    begin
-        if CustomerPostingGroup.FindSet then
-            repeat
-                if CustomerPostingGroup."Payment Disc. Debit Acc." = '' then begin
-                    CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
-                    CustomerPostingGroup.Modify(true);
-                end;
-                if CustomerPostingGroup."Payment Disc. Credit Acc." = '' then begin
-                    CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
-                    CustomerPostingGroup.Modify(true);
-                end;
-            until CustomerPostingGroup.Next = 0;
-    end;
-
-    local procedure UpdateGLSetup()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.Get;  // Need to set value to match field value with W1 Demo Data.
-        GeneralLedgerSetup."Adjust for Payment Disc." := false;  // Using VALIDATE cause an error message,hence using Assignment.
-        GeneralLedgerSetup.Modify(true);
-    end;
-
-    [Scope('OnPrem')]
-    procedure UpdateSalesReceivablesSetupData()
-    var
-        SalesAndReceivableSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesAndReceivableSetup.Get;
-        SalesAndReceivableSetup.Validate("Arch. Orders and Ret. Orders", true);
-        SalesAndReceivableSetup.Modify(true);
-    end;
-
-    local procedure UpdateVendorPostingGroup()
-    var
-        VendorPostingGroup: Record "Vendor Posting Group";
-    begin
-        if VendorPostingGroup.FindSet then
-            repeat
-                if VendorPostingGroup."Payment Disc. Debit Acc." = '' then begin
-                    VendorPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
-                    VendorPostingGroup.Modify(true);
-                end;
-                if VendorPostingGroup."Payment Disc. Credit Acc." = '' then begin
-                    VendorPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
-                    VendorPostingGroup.Modify(true);
-                end;
-            until VendorPostingGroup.Next = 0;
-    end;
-
-    local procedure CreateUnitOfMeasure("Code": Text)
-    var
-        UnitofMeasure: Record "Unit of Measure";
-    begin
-        UnitofMeasure.Init;
-        UnitofMeasure.Code := Code;
-        UnitofMeasure.Description := Code;
-        UnitofMeasure.Insert;
     end;
 }
 

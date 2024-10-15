@@ -127,7 +127,7 @@ codeunit 396 NoSeriesManagement
     var
         NoSeriesRelationship: Record "No. Series Relationship";
     begin
-        NoSeries.Reset;
+        NoSeries.Reset();
         NoSeriesRelationship.SetRange(Code, NoSeriesCode);
         if NoSeriesRelationship.FindSet then
             repeat
@@ -163,7 +163,7 @@ codeunit 396 NoSeriesManagement
             NoSeries.Get(NoSeriesCode);
             SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, SeriesDate);
             if ModifySeries and not NoSeriesLine."Allow Gaps in Nos." then
-                NoSeriesLine.LockTable;
+                NoSeriesLine.LockTable();
             if not NoSeriesLine.FindFirst then begin
                 if NoErrorsOrWarnings then
                     exit('');
@@ -276,7 +276,7 @@ codeunit 396 NoSeriesManagement
         if LastNoSeriesLine."Allow Gaps in Nos." then
             exit;
         if LastNoSeriesLine."Series Code" <> '' then
-            LastNoSeriesLine.Modify;
+            LastNoSeriesLine.Modify();
 
         OnAfterSaveNoSeries(LastNoSeriesLine);
     end;
@@ -446,7 +446,7 @@ codeunit 396 NoSeriesManagement
     var
         NoSeriesRelationship: Record "No. Series Relationship";
     begin
-        NoSeriesRelationship.Reset;
+        NoSeriesRelationship.Reset();
         NoSeriesRelationship.SetRange(Code, DefaultNoSeriesCode);
         exit(not NoSeriesRelationship.IsEmpty);
     end;

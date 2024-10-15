@@ -31,7 +31,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The current Company is a Demo Company
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.IsTrue(CompanyInformation."Demo Company", CompanyInformation.FieldName("Demo Company"));
     end;
 
@@ -42,7 +42,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The ship-to name and display name equals the company name
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField(Name, CompanyName);
         CompanyInformation.TestField("Ship-to Name", CompanyName);
     end;
@@ -205,7 +205,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
             Assert.RecordCount(PurchHeader, 3);
 
             SetRange("Document Type", "Document Type"::Order);
-            Assert.RecordCount(PurchHeader, 4);
+            Assert.RecordCount(PurchHeader, 5);
 
             SetFilter("Document Type", '<>%1&<>%2', "Document Type"::Order, "Document Type"::Invoice);
             Assert.RecordCount(PurchHeader, 0);
@@ -236,7 +236,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
     begin
         // [FEATURE] [Cash Flow] [Forecast] [Azure AI]
         // [SCENARIO] Monthly purchases must be between 15.000 and 45.000
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         PurchaseHeader.SetCurrentKey("Due Date");
         PurchaseHeader.FindFirst;
         PeriodStart := PurchaseHeader."Due Date";
@@ -247,7 +247,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         PeriodEnd := CalcDate('<CM>', PeriodStart);
         while PeriodEnd < LastOrderDate do begin
             Total := 0;
-            PurchaseHeader.Reset;
+            PurchaseHeader.Reset();
             PurchaseHeader.SetRange("Due Date", PeriodStart, PeriodEnd);
             PurchaseHeader.FindSet;
             repeat
@@ -494,7 +494,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         MarketingSetup: Record "Marketing Setup";
     begin
         // [SCENARIO 175276] Marketing Setup Default fields filled
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.TestField("Default Language Code");
         MarketingSetup.TestField("Default Correspondence Type", MarketingSetup."Default Correspondence Type"::Email);
         MarketingSetup.TestField("Default Sales Cycle Code");
@@ -560,7 +560,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Automatic Cost Posting", true);
         InventorySetup.TestField("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
     end;
@@ -571,7 +571,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Item Nos.", ItemNoSeriesTok);
         ValidateNoSeriesExists(ItemNoSeriesTok);
         InventorySetup.TestField("Nonstock Item Nos.", NonStockNoSeriesTok);
@@ -582,6 +582,24 @@ codeunit 138400 "RS Pack Content - Evaluation"
         ValidateNoSeriesExists(TransReceiptNoSeriesTok);
         InventorySetup.TestField("Posted Transfer Shpt. Nos.", TransShipmentNoSeriesTok);
         ValidateNoSeriesExists(TransShipmentNoSeriesTok);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReportLayoutSelections()
+    begin
+        // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUESIMPLE');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUESIMPLE');
+    end;
+
+    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])
+    var
+        ReportLayoutSelection: Record "Report Layout Selection";
+    begin
+        ReportLayoutSelection.SetRange("Report ID", ReportID);
+        ReportLayoutSelection.SetRange("Custom Report Layout Code", CustomReportLayoutCode);
+        Assert.RecordIsNotEmpty(ReportLayoutSelection);
     end;
 
     local procedure ValidateNoSeriesExists(NoSeriesCode: Code[20])
@@ -601,8 +619,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        // [SCENARIO] There are 3 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 3);
+        // [SCENARIO] There are 7 VAT Prod. Posting groups
+        Assert.RecordCount(VATProductPostingGroup, 7);
     end;
 
     [Test]
@@ -692,7 +710,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [FEATURE] [Sales] [No. Series] [UT]
         // [SCENARIO 291743] Posted Sales Return Receipt No. Series is populated
         ValidateNoSeriesExists(SalesReturnReceiptTok);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Posted Return Receipt Nos.");
     end;
 

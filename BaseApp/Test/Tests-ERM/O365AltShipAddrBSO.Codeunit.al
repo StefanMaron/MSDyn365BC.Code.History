@@ -265,7 +265,7 @@ codeunit 138072 "O365 Alt. Ship Addr. B. S. O."
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CopyBlanketSalesOrderSellToAddressFromCustomer(var BlanketSalesOrder: TestPage "Blanket Sales Order"; Customer: Record Customer)

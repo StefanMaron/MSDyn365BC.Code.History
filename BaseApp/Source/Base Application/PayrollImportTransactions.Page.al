@@ -94,14 +94,14 @@ page 1661 "Payroll Import Transactions"
                                     ImportGLTransaction."App ID" := "App ID";
                                     ImportGLTransaction."G/L Account" := "G/L Account";
                                     ImportGLTransaction."External Account" := "External Account";
-                                    ImportGLTransaction.Insert;
+                                    ImportGLTransaction.Insert();
                                 end
                             end else
                                 if xRec."G/L Account" <> '' then begin
                                     ImportGLTransaction.SetRange("App ID", "App ID");
                                     ImportGLTransaction.SetRange("External Account", "External Account");
                                     ImportGLTransaction.SetRange("G/L Account", xRec."G/L Account");
-                                    ImportGLTransaction.DeleteAll;
+                                    ImportGLTransaction.DeleteAll();
                                 end;
                             TempImportGLTransaction := Rec;
                             SetRange("External Account", "External Account");
@@ -177,7 +177,7 @@ page 1661 "Payroll Import Transactions"
                 begin
                     NextStep(true);
                     if Step = 0 then
-                        DeleteAll;
+                        DeleteAll();
                 end;
             }
             action(ActionNext)
@@ -255,7 +255,7 @@ page 1661 "Payroll Import Transactions"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         IsDemoCompany := CompanyInformation."Demo Company";
         LoadTopBanners;
     end;
@@ -270,14 +270,11 @@ page 1661 "Payroll Import Transactions"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), Page::"Payroll Import Transactions") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.ExistsAndIsNotComplete(Page::"Payroll Import Transactions") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
-        end;
     end;
 
     var
@@ -324,7 +321,6 @@ page 1661 "Payroll Import Transactions"
     var
         NewGenJournalLine: Record "Gen. Journal Line";
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
         NextLinieNo: Integer;
     begin
         NextLinieNo := 0;
@@ -335,24 +331,23 @@ page 1661 "Payroll Import Transactions"
 
         if FindSet then begin
             repeat
-                NewGenJournalLine.Init;
+                NewGenJournalLine.Init();
                 NewGenJournalLine."Journal Template Name" := GenJournalLine."Journal Template Name";
                 NewGenJournalLine."Journal Batch Name" := GenJournalLine."Journal Batch Name";
                 NextLinieNo += 10000;
                 NewGenJournalLine."Line No." := NextLinieNo;
-                NewGenJournalLine.Insert;
+                NewGenJournalLine.Insert();
                 NewGenJournalLine.SetUpNewLine(GenJournalLine, 0, false);
                 NewGenJournalLine.Validate("Account Type", NewGenJournalLine."Account Type"::"G/L Account");
                 NewGenJournalLine.Validate("Account No.", "G/L Account");
                 NewGenJournalLine.Validate("Posting Date", "Transaction Date");
                 NewGenJournalLine.Validate(Amount, Amount);
                 NewGenJournalLine.Validate(Description, Description);
-                NewGenJournalLine.Modify;
+                NewGenJournalLine.Modify();
             until Next = 0;
 
             GenJournalLine := NewGenJournalLine;
-            NavApp.GetCurrentModuleInfo(Info);
-            AssistedSetup.Complete(Info.Id(), Page::"Payroll Import Transactions");
+            AssistedSetup.Complete(Page::"Payroll Import Transactions");
 
             Message(PayrollImportedMsg);
         end;
@@ -438,7 +433,7 @@ page 1661 "Payroll Import Transactions"
         ImportGLTransaction.SetRange("App ID", "App ID");
         if ImportGLTransaction.FindFirst then
             if Confirm(ResetLinksQst) then begin
-                ImportGLTransaction.DeleteAll;
+                ImportGLTransaction.DeleteAll();
                 TempImportGLTransaction := Rec;
                 if FindSet then
                     repeat

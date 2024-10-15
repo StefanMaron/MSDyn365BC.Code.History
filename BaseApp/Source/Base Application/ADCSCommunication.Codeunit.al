@@ -24,7 +24,7 @@ codeunit 7701 "ADCS Communication"
         InputIsHidden: Boolean;
         Text005: Label 'Miniform %1 not found.';
         Text006: Label 'There must be one miniform that is set to %1.';
-        Text007: Label '<%1> not used.';
+        Text007: Label '<%1> not used.', Locked = true;
 
     [Scope('OnPrem')]
     procedure EncodeMiniForm(MiniFormHdr: Record "Miniform Header"; StackCode: Code[250]; var XMLDOMin: DotNet XmlDocument; ActiveInputField: Integer; cMessage: Text[250]; ADCSUserId: Text[250])
@@ -58,7 +58,7 @@ codeunit 7701 "ADCS Communication"
 
         // Add all the header fields from the incoming XMLDOM
         oAttributes := ReturnedNode.Attributes;
-        iAttributeCounter := oAttributes.Count;
+        iAttributeCounter := oAttributes.Count();
         iCounter := 0;
         while iCounter < iAttributeCounter do begin
             AttributeNode := oAttributes.Item(iCounter);
@@ -106,7 +106,7 @@ codeunit 7701 "ADCS Communication"
         NewChild: DotNet XmlNode;
     begin
         // Add the Function List to the XML Document
-        FunctionLine.Reset;
+        FunctionLine.Reset();
         FunctionLine.SetRange("Miniform Code", MiniFormHdr.Code);
 
         if FunctionLine.Find('-') then
@@ -132,7 +132,7 @@ codeunit 7701 "ADCS Communication"
         CurrentOption := -1;
         LineCounter := 0;
 
-        MiniFormLine.Reset;
+        MiniFormLine.Reset();
         MiniFormLine.SetCurrentKey(Area);
         MiniFormLine.SetRange("Miniform Code", MiniFormHdr.Code);
         if MiniFormLine.Find('-') then
@@ -338,13 +338,11 @@ codeunit 7701 "ADCS Communication"
         "Code": Code[250];
         Boolean: Boolean;
     begin
-        Evaluate(Field.Type, Format(FldRef.Type));
-
         if Text = '' then
             exit(true);
 
-        case Field.Type of
-            Field.Type::Option:
+        case FldRef.Type of
+            FieldType::Option:
                 begin
                     if Text = '' then begin
                         FldRef.Value := 0;
@@ -366,26 +364,24 @@ codeunit 7701 "ADCS Communication"
                         OptionNo := OptionNo + 1;
                     end;
                 end;
-            Field.Type::Text:
+            FieldType::Text:
                 begin
                     RecordRef := FldRef.Record;
-                    Field.Get(RecordRef.Number, FldRef.Number);
-                    if StrLen(Text) > Field.Len then
-                        Error(Text004, FldRef.Record.Caption, FldRef.Caption, Field.Len, Text);
+                    if StrLen(Text) > FldRef.Length then
+                        Error(Text004, FldRef.Record.Caption, FldRef.Caption, FldRef.Length, Text);
                     FldRef.Value := Text;
                     exit(true);
                 end;
-            Field.Type::Code:
+            FieldType::Code:
                 begin
                     Code := Text;
                     RecordRef := FldRef.Record;
-                    Field.Get(RecordRef.Number, FldRef.Number);
-                    if StrLen(Code) > Field.Len then
-                        Error(Text004, FldRef.Record.Caption, FldRef.Caption, Field.Len, Code);
+                    if StrLen(Code) > FldRef.Length then
+                        Error(Text004, FldRef.Record.Caption, FldRef.Caption, FldRef.Length, Code);
                     FldRef.Value := Code;
                     exit(true);
                 end;
-            Field.Type::Date:
+            FieldType::Date:
                 begin
                     if Text <> '' then begin
                         Evaluate(Date, Text);
@@ -393,49 +389,49 @@ codeunit 7701 "ADCS Communication"
                     end;
                     exit(true);
                 end;
-            Field.Type::DateTime:
+            FieldType::DateTime:
                 begin
                     Evaluate(DateTime, Text);
                     FldRef.Value := DateTime;
                     exit(true);
                 end;
-            Field.Type::Integer:
+            FieldType::Integer:
                 begin
                     Evaluate(Integer, Text);
                     FldRef.Value := Integer;
                     exit(true);
                 end;
-            Field.Type::BigInteger:
+            FieldType::BigInteger:
                 begin
                     Evaluate(BigInteger, Text);
                     FldRef.Value := BigInteger;
                     exit(true);
                 end;
-            Field.Type::Duration:
+            FieldType::Duration:
                 begin
                     Evaluate(Duration, Text);
                     FldRef.Value := Duration;
                     exit(true);
                 end;
-            Field.Type::Decimal:
+            FieldType::Decimal:
                 begin
                     Evaluate(Decimal, Text);
                     FldRef.Value := Decimal;
                     exit(true);
                 end;
-            Field.Type::DateFormula:
+            FieldType::DateFormula:
                 begin
                     Evaluate(DateFormula, Text);
                     FldRef.Value := DateFormula;
                     exit(true);
                 end;
-            Field.Type::Boolean:
+            FieldType::Boolean:
                 begin
                     Evaluate(Boolean, Text);
                     FldRef.Value := Boolean;
                     exit(true);
                 end;
-            Field.Type::BLOB, Field.Type::Binary:
+            FieldType::BLOB:
                 begin
                     Field.Get(FldRef.Record.Number, FldRef.Number);
                     Field.FieldError(Type);
@@ -526,7 +522,7 @@ codeunit 7701 "ADCS Communication"
     var
         MiniformLine: Record "Miniform Line";
     begin
-        MiniformLine.Reset;
+        MiniformLine.Reset();
         MiniformLine.SetRange("Miniform Code", MiniFormCode);
         MiniformLine.SetRange(Text, ReturnTextValue);
         MiniformLine.FindFirst;

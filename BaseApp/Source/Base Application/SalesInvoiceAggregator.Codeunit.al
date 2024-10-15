@@ -55,7 +55,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         if not SalesInvoiceEntityAggregate.Get(Rec."No.", false) then
             exit;
 
-        SalesInvoiceEntityAggregate.Delete;
+        SalesInvoiceEntityAggregate.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 56, 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
@@ -152,7 +152,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         if not SalesInvoiceEntityAggregate.Get(Rec."No.", true) then
             exit;
 
-        SalesInvoiceEntityAggregate.Delete;
+        SalesInvoiceEntityAggregate.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 60, 'OnAfterCalcSalesDiscount', '', false, false)]
@@ -423,7 +423,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         RecordExists: Boolean;
     begin
-        SalesInvoiceEntityAggregate.LockTable;
+        SalesInvoiceEntityAggregate.LockTable();
         RecordExists := SalesInvoiceEntityAggregate.Get(SalesHeader."No.", false);
 
         SalesInvoiceEntityAggregate.TransferFields(SalesHeader, true);
@@ -453,7 +453,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         RecordExists: Boolean;
     begin
-        SalesInvoiceEntityAggregate.LockTable;
+        SalesInvoiceEntityAggregate.LockTable();
         RecordExists := SalesInvoiceEntityAggregate.Get(SalesInvoiceHeader."No.", true);
         SalesInvoiceEntityAggregate.TransferFields(SalesInvoiceHeader, true);
         SalesInvoiceEntityAggregate.Id := GetSalesInvoiceHeaderId(SalesInvoiceHeader);
@@ -660,7 +660,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate."Subtotal Amount" := 0;
         SalesInvoiceEntityAggregate.Amount := 0;
         SalesInvoiceEntityAggregate."Amount Including VAT" := 0;
-        SalesInvoiceEntityAggregate.Modify;
+        SalesInvoiceEntityAggregate.Modify();
     end;
 
     local procedure CheckValidRecord(var SalesHeader: Record "Sales Header"): Boolean

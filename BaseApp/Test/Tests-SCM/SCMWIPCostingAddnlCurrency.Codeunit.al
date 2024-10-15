@@ -87,7 +87,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM WIP Costing Addnl Currency");
     end;
 
@@ -189,7 +189,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     begin
         // Set Residual Gains Account and Residual Losses Account for Currency.
         UpdateResidualAccountsCurrency(CurrencyExchangeRate, Currency);
-        Commit;
+        Commit();
 
         // Update Additional Reporting Currency on G/L setup to execute Adjust Additional Reporting Currency report.
         GeneralLedgerSetup.OpenEdit;

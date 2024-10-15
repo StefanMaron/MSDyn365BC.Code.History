@@ -1,4 +1,4 @@
-﻿page 5976 "Posted Service Shpt. Subform"
+page 5976 "Posted Service Shpt. Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

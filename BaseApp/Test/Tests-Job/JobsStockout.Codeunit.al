@@ -43,7 +43,7 @@ codeunit 136134 "Jobs Stockout"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Jobs Stockout");
     end;
 
@@ -82,7 +82,7 @@ codeunit 136134 "Jobs Stockout"
 
         // WHEN we decrease the quantity so the item is available (0 items ordered)
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
-        NbNotifs := TempNotificationContext.Count;
+        NbNotifs := TempNotificationContext.Count();
         EditJobPlaningLinesQuantity(JobNo, 0);
 
         // THEN the item availability notification is recalled
@@ -263,11 +263,11 @@ codeunit 136134 "Jobs Stockout"
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
         Job.Validate("Description 2", DescriptionTxt);
-        Job.Modify;
+        Job.Modify();
 
         // Job Task Line:
         LibraryJob.CreateJobTask(Job, JobTaskLine);
-        JobTaskLine.Modify;
+        JobTaskLine.Modify();
 
         // Job Planning Line:
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTaskLine, JobPlanningLine);
@@ -280,7 +280,7 @@ codeunit 136134 "Jobs Stockout"
         JobPlanningLine.Validate("No.", ItemNo);
         JobPlanningLine.Validate(Quantity, ItemQuantity);
         JobPlanningLine.Validate("Location Code", LocationCode);
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         exit(Job."No.");
     end;
@@ -328,7 +328,7 @@ codeunit 136134 "Jobs Stockout"
         PurchaseLine.Validate(Quantity, Quantity);
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Validate("Expected Receipt Date", ReceiptDate);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         exit(PurchaseHeader."No.");
     end;
 

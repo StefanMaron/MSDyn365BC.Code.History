@@ -15,7 +15,7 @@ report 1134 "Copy Cost Budget"
                 CostAccMgt: Codeunit "Cost Account Mgt";
             begin
                 if "Entry No." > LastEntryNo then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 CostBudgetEntryTarget := "Cost Budget Entry";
 
@@ -37,7 +37,7 @@ report 1134 "Copy Cost Budget"
                     NextEntryNo := NextEntryNo + 1;
                     if DateChangeFormula <> '' then
                         CostBudgetEntryTarget.Date := CalcDate(DateFormula, CostBudgetEntryTarget.Date);
-                    CostBudgetEntryTarget.Insert;
+                    CostBudgetEntryTarget.Insert();
                     NoInserted := NoInserted + 1;
 
                     if CostBudgetRegNo = 0 then
@@ -93,11 +93,9 @@ report 1134 "Copy Cost Budget"
                 then
                     Error('');
 
-                LockTable;
+                LockTable();
 
-                if CostBudgetEntryTarget.FindLast then
-                    LastEntryNo := CostBudgetEntryTarget."Entry No.";
-
+                LastEntryNo := CostBudgetEntryTarget.GetLastEntryNo();
                 NextEntryNo := LastEntryNo + 1;
 
                 Window.Open(Text005);
@@ -184,7 +182,7 @@ report 1134 "Copy Cost Budget"
 
         trigger OnInit()
         begin
-            CostBudgetEntryReqForm.Init;
+            CostBudgetEntryReqForm.Init();
         end;
     }
 

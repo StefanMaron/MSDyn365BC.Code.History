@@ -1,4 +1,4 @@
-﻿page 50 "Purchase Order"
+page 50 "Purchase Order"
 {
     Caption = 'Purchase Order';
     PageType = Document;
@@ -1766,6 +1766,27 @@
                         PurchaseHeader.SendRecords;
                     end;
                 }
+                action(AttachAsPDF)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attach as PDF';
+                    Image = PrintAttachment;
+                    Promoted = true;
+                    PromotedCategory = Category10;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        PurchaseHeader: Record "Purchase Header";
+                        DocPrint: Codeunit "Document-Print";
+                    begin
+                        PurchaseHeader := Rec;
+                        PurchaseHeader.SetRecFilter();
+                        DocPrint.PrintPurchaseHeaderToDocumentAttachment(PurchaseHeader);
+                    end;
+                }
             }
         }
     }
@@ -1781,6 +1802,7 @@
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingAndPayToOption;
+        ShowOverReceiptNotification();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1849,8 +1871,6 @@
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
-        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
         NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         [InDataSet]
         JobQueueVisible: Boolean;
@@ -1872,6 +1892,10 @@
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    protected var
+        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
+        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
     local procedure ActivateFields()
     begin
@@ -1910,7 +1934,7 @@
             NavigateAfterPost::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
-                    PurchaseHeader.Init;
+                    PurchaseHeader.Init();
                     PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
                     OnPostDocumentOnBeforePurchaseHeaderInsert(PurchaseHeader);
                     PurchaseHeader.Insert(true);
@@ -1991,7 +2015,7 @@
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         VendorInvoiceNoMandatory := PurchasesPayablesSetup."Ext. Doc. No. Mandatory"
     end;
 
@@ -2053,7 +2077,7 @@
     var
         LocationsQuery: Query "Locations from items Purch";
     begin
-        if Status <> Status::Released then begin
+        if TestStatusIsNotReleased then begin
             LocationsQuery.SetRange(Document_No, "No.");
             LocationsQuery.SetRange(Require_Receive, true);
             LocationsQuery.Open;
@@ -2092,6 +2116,13 @@
         end;
 
         OnAfterCalculateCurrentShippingAndPayToOption(ShipToOptions, PayToOptions, Rec);
+    end;
+
+    local procedure ShowOverReceiptNotification()
+    var
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+    begin
+        OverReceiptMgt.ShowOverReceiptNotificationFromOrder("No.");
     end;
 
     [IntegrationEvent(false, false)]

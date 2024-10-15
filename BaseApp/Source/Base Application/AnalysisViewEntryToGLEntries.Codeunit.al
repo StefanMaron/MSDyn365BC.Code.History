@@ -24,12 +24,12 @@ codeunit 413 AnalysisViewEntryToGLEntries
         if AnalysisView."Date Compression" = AnalysisView."Date Compression"::None then begin
             if GLEntry.Get(AnalysisViewEntry."Entry No.") then begin
                 TempGLEntry := GLEntry;
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             end;
             exit;
         end;
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         StartDate := AnalysisViewEntry."Posting Date";
         EndDate := StartDate;
@@ -72,7 +72,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
                        UpdateAnalysisView.DimSetIDInFilter("Dimension Set ID", AnalysisView)
                     then begin
                         TempGLEntry := GLEntry;
-                        if TempGLEntry.Insert then;
+                        if TempGLEntry.Insert() then;
                     end;
                 until Next = 0;
         end;
@@ -92,12 +92,12 @@ codeunit 413 AnalysisViewEntryToGLEntries
         if AnalysisView."Date Compression" = AnalysisView."Date Compression"::None then begin
             if CFForecastEntry2.Get(AnalysisViewEntry."Entry No.") then begin
                 CFForecastEntry := CFForecastEntry2;
-                CFForecastEntry.Insert;
+                CFForecastEntry.Insert();
             end;
             exit;
         end;
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         StartDate := AnalysisViewEntry."Posting Date";
         EndDate := StartDate;
@@ -140,7 +140,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
                        UpdateAnalysisView.DimSetIDInFilter("Dimension Set ID", AnalysisView)
                     then begin
                         CFForecastEntry := CFForecastEntry2;
-                        CFForecastEntry.Insert;
+                        CFForecastEntry.Insert();
                     end;
                 until Next = 0;
         end;

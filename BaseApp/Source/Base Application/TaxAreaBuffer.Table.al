@@ -77,7 +77,7 @@ table 5504 "Tax Area Buffer"
             Error(RecordMustBeTemporaryErr);
 
         if GeneralLedgerSetup.UseVat then begin
-            if Insert then begin
+            if Insert() then begin
                 VATBusinessPostingGroup.TransferFields(Rec, true);
                 VATBusinessPostingGroup.Insert(true)
             end else begin
@@ -92,7 +92,7 @@ table 5504 "Tax Area Buffer"
 
             UpdateFromVATBusinessPostingGroup(VATBusinessPostingGroup);
         end else begin
-            if Insert then begin
+            if Insert() then begin
                 TaxArea.TransferFields(Rec, true);
                 TaxArea.Insert(true)
             end else begin
