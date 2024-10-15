@@ -517,6 +517,79 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,ConfirmHandlerTRUE,MessageHandler')]
+    procedure PostPhysInventoryOrderWithPositiveNegativeAdjustmentLine()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordLine: Array[2] of Record "Phys. Invt. Record Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PstdPhysInvtOrderHeader: Record "Pstd. Phys. Invt. Order Hdr";
+        Bin: Record Bin;
+        PhysInvtCalcQtyOne: Codeunit "Phys. Invt.-Calc. Qty. One";
+        BinCode: Array[2] of Code[20];
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 428294] Post Phys. Inventory Order with added positive adjustment should not show error
+        Initialize();
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Post 20 pcs of the item to inventory, assign lot no. "L".
+        LibraryVariableStorage.Enqueue(false);
+        CreateLocation(Location, Item."No.", true);
+        // [GIVEN] Bins: Bin1 and Bin2
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+        BinCode[1] := Bin.Code;
+        LibraryWarehouse.CreateBin(Bin, Location.Code, 'Bin2', '', '');
+        BinCode[2] := Bin.Code;
+        FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::"Positive Adjmt.", Item."No.");
+        LotNo := ItemLedgerEntry."Lot No.";
+
+        // [GIVEN] Create physical inventory order, calculate lines.
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader, Item."No.", true);
+
+        // [GIVEN] Create phys. inventory recording for 15 pcs, select lot no. "L".
+        // [GIVEN] Add additional Phys. Inventory recording with Serial No. and quantity 1.
+        CreatePhysInventoryRecordingWithTracking(
+          PhysInvtRecordLine[1], PhysInvtOrderHeader, PhysInvtOrderLine, Item."No.", LibraryRandom.RandInt(10));
+        PhysInvtRecordHeader.Get(PhysInvtOrderHeader."No.", PhysInvtRecordLine[1]."Recording No.");
+        PhysInvtRecordHeader.Validate("Allow Recording Without Order", true);
+        PhysInvtRecordHeader.Modify();
+        FindPhysInvtRecordingLine(PhysInvtRecordLine[1], Item."No.", BinCode[1]);
+        PhysInvtRecordLine[1].Validate("Serial No.", 'SN1');
+        PhysInvtRecordLine[1].Modify();
+
+        CreatePhysInvtRecordLine(
+          PhysInvtRecordLine[2], PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", 1);
+        PhysInvtRecordLine[2].Validate("Location Code", PhysInvtRecordLine[1]."Location Code");
+        PhysInvtRecordLine[2].Validate("Lot No.", PhysInvtRecordLine[1]."Lot No.");
+        PhysInvtRecordLine[2].Validate("Bin Code", BinCode[2]);
+        PhysInvtRecordLine[2].Validate("Serial No.", 'SN2');
+        PhysInvtRecordLine[2].Modify();
+
+        // [GIVEN] Finish the recording.
+        FinishPhysInventoryRecording(PhysInvtRecordLine[1], PhysInvtOrderHeader."No.");
+
+        // [GIVEN] Calculate expected quantity for added line of Phys. Inventory Order
+        FindPhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.");
+        PhysInvtOrderLine.Next();
+        PhysInvtCalcQtyOne.Run(PhysInvtOrderLine);
+
+        // [WHEN] Finish and post the phys. inventory order (negative adjustment for 5 pcs and positive for 1 pcs)
+        FinishAndPostPhysInventoryOrder(PhysInvtOrderHeader);
+
+        // [THEN] The physical inventory order is successfully posted.
+        PstdPhysInvtOrderHeader.SetRange("Pre-Assigned No.", PhysInvtOrderHeader."No.");
+        Assert.RecordCount(PstdPhysInvtOrderHeader, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -957,6 +1030,19 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         BinContent.SetRange("Serial No. Filter", SerialNo);
         BinContent.CalcFields("Quantity (Base)");
         BinContent.TestField("Quantity (Base)", Quantity);
+    end;
+
+    local procedure CreatePhysInvtRecordLine(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; RecordingNo: Integer; Qty: Decimal)
+    begin
+        with PhysInvtRecordLine do begin
+            Validate("Order No.", PhysInvtOrderLine."Document No.");
+            Validate("Recording No.", RecordingNo);
+            Validate("Line No.", LibraryUtility.GetNewRecNo(PhysInvtRecordLine, FieldNo("Line No.")));
+            Validate("Item No.", PhysInvtOrderLine."Item No.");
+            Validate(Quantity, Qty);
+            Validate(Recorded, true);
+            Insert(true);
+        end;
     end;
 
     [RequestPageHandler]
