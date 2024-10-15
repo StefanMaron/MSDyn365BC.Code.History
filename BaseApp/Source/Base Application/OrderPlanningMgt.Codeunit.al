@@ -47,6 +47,7 @@ codeunit 5522 "Order Planning Mgt."
         RequisitionLine.SetCurrentKey("User ID", "Worksheet Template Name");
         RequisitionLine.SetRange("User ID", UserId);
         RequisitionLine.SetRange("Worksheet Template Name", '');
+        OnPrepareRequisitionRecordOnBeforeDeleteAll(RequisitionLine);
         RequisitionLine.DeleteAll(true);
 
         RequisitionLine.Reset();
@@ -535,6 +536,11 @@ codeunit 5522 "Order Planning Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertDemandLinesOnBeforeReqLineInsert(var RequisitionLine: Record "Requisition Line"; var UnplannedDemand: Record "Unplanned Demand")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareRequisitionRecordOnBeforeDeleteAll(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

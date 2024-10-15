@@ -111,6 +111,7 @@ codeunit 1302 "Customer Mgt."
 
     local procedure CalcAmountsOnPostedDocs(CustNo: Code[20]; var RecCount: Integer; DocType: Integer): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgEntry do begin

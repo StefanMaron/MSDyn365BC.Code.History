@@ -193,16 +193,12 @@ table 7323 "Posted Whse. Shipment Line"
     {
     }
 
+    [Obsolete('Reference SetSourceFilterForPostedWhseShptLine function from codeunit Whse. Management instead', '17.0')]
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
+    var
+        WhseManagement: Codeunit "Whse. Management";
     begin
-        if SetKey then
-            SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
-        SetRange("Source Type", SourceType);
-        if SourceSubType >= 0 then
-            SetRange("Source Subtype", SourceSubType);
-        SetRange("Source No.", SourceNo);
-        if SourceLineNo >= 0 then
-            SetRange("Source Line No.", SourceLineNo);
+        WhseManagement.SetSourceFilterForPostedWhseShptLine(Rec, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
 }
 

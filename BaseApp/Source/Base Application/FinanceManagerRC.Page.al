@@ -918,7 +918,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 group("Group30")
                 {
-                    Caption = 'Collection';
+                    Caption = 'Reminder/Fin. Charge Memos';
                     action("Reminders")
                     {
                         ApplicationArea = Suite;
@@ -1723,7 +1723,7 @@ page 8901 "Finance Manager Role Center"
                 action("Phys. Invt. Counting Periods")
                 {
                     ApplicationArea = Warehouse, Basic, Suite;
-                    Caption = 'Physical Invtory Counting Periods';
+                    Caption = 'Physical Inventory Counting Periods';
                     RunObject = Page "Phys. Invt. Counting Periods";
                 }
                 action("Application Worksheet")

@@ -10,6 +10,7 @@ codeunit 401 "Sales Header Apply"
             CustLedgEntry.SetCurrentKey("Customer No.", Open);
             CustLedgEntry.SetRange("Customer No.", BilToCustNo);
             CustLedgEntry.SetRange(Open, true);
+            OnRunOnAfterFilterCustLedgEntry(CustLedgEntry);
             if "Applies-to ID" = '' then
                 "Applies-to ID" := "No.";
             if "Applies-to ID" = '' then
@@ -29,6 +30,7 @@ codeunit 401 "Sales Header Apply"
             CustLedgEntry.SetRange("Customer No.", BilToCustNo);
             CustLedgEntry.SetRange(Open, true);
             CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
+            OnRunOnBeforeCustLedgEntryFindFirst(CustLedgEntry);
             if CustLedgEntry.FindFirst then begin
                 "Applies-to Doc. Type" := 0;
                 "Applies-to Doc. No." := '';
@@ -46,5 +48,15 @@ codeunit 401 "Sales Header Apply"
         ApplyCustEntries: Page "Apply Customer Entries";
         BilToCustNo: Code[20];
         OK: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterFilterCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCustLedgEntryFindFirst(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
 }
 

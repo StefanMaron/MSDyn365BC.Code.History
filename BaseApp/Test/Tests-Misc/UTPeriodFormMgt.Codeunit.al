@@ -209,7 +209,7 @@ codeunit 134996 "UT Period Form Mgt"
         AccountingPeriod: Record "Accounting Period";
         Calendar: Record Date;
     begin
-        // [SCENARIO 312912] Function FindDate returns Calendar."Period End" = 31.12.9998 in case Calendar."Period Start" is equal to Starting Date of the last Accounting Period.
+        // [SCENARIO 312912] Function FindDate returns Calendar."Period End" = 31.12.9999 in case Calendar."Period Start" is equal to Starting Date of the last Accounting Period.
 
         // [GIVEN] Set Calendar."Period Start" = AccountingPeriod."Starting Date" of the last Accounting Period.
         AccountingPeriod.FindLast;
@@ -218,8 +218,8 @@ codeunit 134996 "UT Period Form Mgt"
         // [WHEN] Run FindDate function on this Calendar record with SearchString ">=" and Period Type "Accounting Period".
         PeriodFormMgt.FindDate('>=', Calendar, PeriodType::"Accounting Period");
 
-        // [THEN] Calendar."Period End" is equal to 31.12.9998.
-        Calendar.TestField("Period End", DMY2Date(31, 12, 9998));
+        // [THEN] Calendar."Period End" is equal to 31.12.9999.
+        Calendar.TestField("Period End", DMY2Date(31, 12, 9999));
     end;
 
     local procedure GetRandomDateFilter(): Text
