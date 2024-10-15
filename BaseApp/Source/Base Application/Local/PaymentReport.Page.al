@@ -19,7 +19,7 @@ page 10863 "Payment Report"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the payment class.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies text to describe the payment status.';

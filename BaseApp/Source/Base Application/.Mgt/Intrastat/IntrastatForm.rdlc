@@ -1,0 +1,295 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString />
+      </ConnectionProperties>
+      <rd:SecurityType>None</rd:SecurityType>
+    </DataSource>
+  </DataSources>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <Height>2in</Height>
+        <Style />
+      </Body>
+      <Width>6.5in</Width>
+      <Page>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="ItemDesc_IntrastatJnlLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ItemDesc_IntrastatJnlLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ItemDesc_IntrastatJnlLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SttstclValue_IntrastatJnlLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>SttstclValue_IntrastatJnlLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>SttstclValue_IntrastatJnlLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CustVATRegNo_IntrastatJnlLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CustVATRegNo_IntrastatJnlLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CustVATRegNo_IntrastatJnlLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Amt_IntrastatJnlLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Amt_IntrastatJnlLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Amt_IntrastatJnlLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="TrnsctnSpec_IntrastatJnlLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>TrnsctnSpec_IntrastatJnlLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>TrnsctnSpec_IntrastatJnlLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ShpmntdCode_IntrastatJnlLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ShpmntdCode_IntrastatJnlLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>ShpmntdCode_IntrastatJnlLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Area_IntrastatJnlLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Area_IntrastatJnlLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Area_IntrastatJnlLineCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CntyRgnCode_IntrastatJnlLineCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>CntyRgnCode_IntrastatJnlLineCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>CntyRgnCode_IntrastatJnlLineCaption</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <Code>Public Function BlankZero(ByVal Value As Decimal)
+    if Value = 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankPos(ByVal Value As Decimal)
+    if Value &gt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankZeroAndPos(ByVal Value As Decimal)
+    if Value &gt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNeg(ByVal Value As Decimal)
+    if Value &lt; 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+
+Public Function BlankNegAndZero(ByVal Value As Decimal)
+    if Value &lt;= 0 then
+        Return ""
+    end if
+    Return Value
+End Function
+</Code>
+  <Language>=User!Language</Language>
+  <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportID>0eeb6585-38ae-40f1-885b-8d50088d51b4</rd:ReportID>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="JrnlTemName_IntrastatJnlBatch">
+          <DataField>JrnlTemName_IntrastatJnlBatch</DataField>
+        </Field>
+        <Field Name="Name_IntrastatJnlBatch">
+          <DataField>Name_IntrastatJnlBatch</DataField>
+        </Field>
+        <Field Name="IntrastatJnlBatchStatisticsPeriod">
+          <DataField>IntrastatJnlBatchStatisticsPeriod</DataField>
+        </Field>
+        <Field Name="CompanyName">
+          <DataField>CompanyName</DataField>
+        </Field>
+        <Field Name="Type_IntrastatJnlLine">
+          <DataField>Type_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="CompanyInfoVATRegNo">
+          <DataField>CompanyInfoVATRegNo</DataField>
+        </Field>
+        <Field Name="PhoneNo">
+          <DataField>PhoneNo</DataField>
+        </Field>
+        <Field Name="FaxNo">
+          <DataField>FaxNo</DataField>
+        </Field>
+        <Field Name="ObligationLevel">
+          <DataField>ObligationLevel</DataField>
+        </Field>
+        <Field Name="Contact">
+          <DataField>Contact</DataField>
+        </Field>
+        <Field Name="HeaderText">
+          <DataField>HeaderText</DataField>
+        </Field>
+        <Field Name="IntraJnlLineFilter">
+          <DataField>IntraJnlLineFilter</DataField>
+        </Field>
+        <Field Name="HeaderFilter">
+          <DataField>HeaderFilter</DataField>
+        </Field>
+        <Field Name="TariffNo_IntrastatJnlLine">
+          <DataField>TariffNo_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="ItemDesc_IntrastatJnlLine">
+          <DataField>ItemDesc_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="CountryIntrastatCode">
+          <DataField>CountryIntrastatCode</DataField>
+        </Field>
+        <Field Name="TransType_IntrastatJnlLine">
+          <DataField>TransType_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="TrnsprtMethod_IntrastatJnlLine">
+          <DataField>TrnsprtMethod_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineTotalWeight">
+          <DataField>IntrastatJnlLineTotalWeight</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineTotalWeightFormat">
+          <DataField>IntrastatJnlLineTotalWeightFormat</DataField>
+        </Field>
+        <Field Name="SttstclValue_IntrastatJnlLine">
+          <DataField>SttstclValue_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="SttstclValue_IntrastatJnlLineFormat">
+          <DataField>SttstclValue_IntrastatJnlLineFormat</DataField>
+        </Field>
+        <Field Name="NoOfRecords">
+          <DataField>NoOfRecords</DataField>
+        </Field>
+        <Field Name="CustVATRegNo_IntrastatJnlLine">
+          <DataField>CustVATRegNo_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="Amt_IntrastatJnlLine">
+          <DataField>Amt_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="Amt_IntrastatJnlLineFormat">
+          <DataField>Amt_IntrastatJnlLineFormat</DataField>
+        </Field>
+        <Field Name="TrnsctnSpec_IntrastatJnlLine">
+          <DataField>TrnsctnSpec_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="SplmntyUts_IntrastatJnlLine">
+          <DataField>SplmntyUts_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="ShpmntdCode_IntrastatJnlLine">
+          <DataField>ShpmntdCode_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="Area_IntrastatJnlLine">
+          <DataField>Area_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="CntyRgnCode_IntrastatJnlLine">
+          <DataField>CntyRgnCode_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="TotalWeight">
+          <DataField>TotalWeight</DataField>
+        </Field>
+        <Field Name="TotalWeightFormat">
+          <DataField>TotalWeightFormat</DataField>
+        </Field>
+        <Field Name="JnlTemName_IntrastatJnlLine">
+          <DataField>JnlTemName_IntrastatJnlLine</DataField>
+        </Field>
+        <Field Name="IntrastatFormCaption">
+          <DataField>IntrastatFormCaption</DataField>
+        </Field>
+        <Field Name="CurrReportPageNoCaption">
+          <DataField>CurrReportPageNoCaption</DataField>
+        </Field>
+        <Field Name="VATRegNoCaption">
+          <DataField>VATRegNoCaption</DataField>
+        </Field>
+        <Field Name="ContactCaption">
+          <DataField>ContactCaption</DataField>
+        </Field>
+        <Field Name="PhoneNoCaption">
+          <DataField>PhoneNoCaption</DataField>
+        </Field>
+        <Field Name="FaxNoCaption">
+          <DataField>FaxNoCaption</DataField>
+        </Field>
+        <Field Name="ObligationLevelCaption">
+          <DataField>ObligationLevelCaption</DataField>
+        </Field>
+        <Field Name="IntrastatJnlLineTariffNoCaption">
+          <DataField>IntrastatJnlLineTariffNoCaption</DataField>
+        </Field>
+        <Field Name="CountryIntrastatCodeCaption">
+          <DataField>CountryIntrastatCodeCaption</DataField>
+        </Field>
+        <Field Name="TransactionTypeCaption">
+          <DataField>TransactionTypeCaption</DataField>
+        </Field>
+        <Field Name="TransportMethodCaption">
+          <DataField>TransportMethodCaption</DataField>
+        </Field>
+        <Field Name="TotalWeightCaption">
+          <DataField>TotalWeightCaption</DataField>
+        </Field>
+        <Field Name="NoOfRecordsCaption">
+          <DataField>NoOfRecordsCaption</DataField>
+        </Field>
+        <Field Name="SupplementaryUnitsCaption">
+          <DataField>SupplementaryUnitsCaption</DataField>
+        </Field>
+        <Field Name="TotalCaption">
+          <DataField>TotalCaption</DataField>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+    </DataSet>
+  </DataSets>
+</Report>

@@ -38,7 +38,7 @@ page 10801 "FR Account Schedule"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number for the account schedule line.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the account schedule line.';

@@ -1273,10 +1273,6 @@ codeunit 144032 "ERM INTRASTAT"
     begin
         if not IntrastatSetup.Get() then
             IntrastatSetup.Insert();
-#if not CLEAN19
-        IntrastatSetup."Use Advanced Checklist" := true;
-        IntrastatSetup.Modify;
-#endif
     end;
 
     local procedure FindIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option; DocumentNo: Code[20])

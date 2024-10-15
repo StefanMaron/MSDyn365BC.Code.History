@@ -30,6 +30,7 @@ page 9062 "User Security Activities"
                     ToolTip = 'Specifies users without subscription to use Business Central.';
                     Visible = SoftwareAsAService;
                 }
+#if not CLEAN22
                 field("Users - Not Group Members"; Rec."Users - Not Group Members")
                 {
                     ApplicationArea = Basic, Suite;
@@ -37,8 +38,12 @@ page 9062 "User Security Activities"
                     DrillDownPageID = "User Security Status List";
                     Editable = false;
                     ToolTip = 'Specifies users who have not yet been reviewed by an administrator.';
-                    Visible = SoftwareAsAService;
+                    Visible = SoftwareAsAService and LegacyUserGroupsVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'User group membership cannot be calculated via a flow field in the new user group system.';
+                    ObsoleteTag = '22.0';
                 }
+#endif
                 field(NumberOfPlans; NumberOfPlans)
                 {
                     ApplicationArea = Basic, Suite;
@@ -143,7 +148,13 @@ page 9062 "User Security Activities"
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         MonitorSensitiveField: codeunit "Monitor Sensitive Field";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+#if not CLEAN22
+        LegacyUserGroups: Codeunit "Legacy User Groups";
+#endif
     begin
+#if not CLEAN22
+        LegacyUserGroupsVisible := LegacyUserGroups.UiElementsVisible();
+#endif
         SoftwareAsAService := EnvironmentInfo.IsSaaS();
         if SoftwareAsAService then
             NumberOfPlans := GetNumberOfPlans();
@@ -202,6 +213,9 @@ page 9062 "User Security Activities"
         IsPageReady: Boolean;
         UsersWithoutSubscriptions: Integer;
         MonitorEntriesNotifications: Integer;
+#if not CLEAN22
+        LegacyUserGroupsVisible: Boolean;
+#endif
 
     local procedure GetNumberOfPlans(): Integer
     var

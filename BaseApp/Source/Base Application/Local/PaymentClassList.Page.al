@@ -18,7 +18,7 @@ page 10860 "Payment Class List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a payment class code.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies text to describe the payment class.';

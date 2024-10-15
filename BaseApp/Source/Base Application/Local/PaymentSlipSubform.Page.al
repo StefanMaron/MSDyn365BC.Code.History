@@ -69,7 +69,7 @@ page 10869 "Payment Slip Subform"
                     ToolTip = 'Specifies the total amount (including VAT) of the payment line, if it is a credit amount.';
                     Visible = CreditAmountVisible;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the total amount (including VAT) of the payment line.';

@@ -107,16 +107,6 @@ page 355 "Receivables-Payables Lines"
     protected var
         GLSetup: Record "General Ledger Setup";
 
-#if not CLEAN19
-    [Obsolete('Replaced by SetLines().', '19.0')]
-    procedure Set(var NewGLSetup: Record "General Ledger Setup"; NewPeriodType: Integer; NewAmountType: Option)
-    begin
-        SetLines(
-            NewGLSetup,
-            "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType));
-    end;
-#endif
-
     procedure SetLines(var NewGLSetup: Record "General Ledger Setup"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type")
     begin
         GLSetup.Copy(NewGLSetup);

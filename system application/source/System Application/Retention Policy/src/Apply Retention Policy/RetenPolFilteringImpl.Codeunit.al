@@ -6,6 +6,8 @@
 codeunit 3915 "Reten. Pol. Filtering Impl." implements "Reten. Pol. Filtering"
 {
     Access = Internal;
+    InherentEntitlements = X;
+    InherentPermissions = X;
     Permissions = tabledata "Retention Policy Log Entry" = r; // read through RecRef
 
     var

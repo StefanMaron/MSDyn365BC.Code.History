@@ -1502,13 +1502,15 @@ codeunit 137064 "SCM Warehouse Management"
 
     local procedure VSTF323171_CreateBinContent(ForceCreateBinContent: Boolean; var BinContent: Record "Bin Content"; LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[10]; SerialNo: Code[10]; Qty: Decimal; Blocked: Boolean)
     var
+        Bin: Record Bin;
         WhseEntry: Record "Warehouse Entry";
         WhseEntryCurrent: Record "Warehouse Entry";
     begin
         if ForceCreateBinContent then begin
+            LibraryWarehouse.CreateBin(Bin, LocationCode, '', '', '');
             Clear(BinContent);
             BinContent."Location Code" := LocationCode;
-            BinContent."Bin Code" := LibraryUtility.GenerateRandomCode(BinContent.FieldNo("Bin Code"), DATABASE::"Bin Content");
+            BinContent."Bin Code" := Bin.Code;
             BinContent."Item No." := ItemNo;
             if Blocked then
                 BinContent."Block Movement" := BinContent."Block Movement"::Outbound;

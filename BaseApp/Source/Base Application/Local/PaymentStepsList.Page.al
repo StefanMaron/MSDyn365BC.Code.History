@@ -21,7 +21,7 @@ page 10873 "Payment Steps List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the step line''s entry number.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies text to describe the payment step.';

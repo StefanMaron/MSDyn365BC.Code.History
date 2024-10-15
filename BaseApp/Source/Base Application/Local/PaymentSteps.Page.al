@@ -15,7 +15,7 @@ page 10866 "Payment Steps"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies text to describe the payment step.';

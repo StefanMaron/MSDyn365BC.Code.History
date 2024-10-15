@@ -1,7 +1,11 @@
+#if not CLEAN22
 page 10842 "Apply G/L Entries"
 {
     Caption = 'Apply G/L Entries';
     DataCaptionExpression = GetCaption();
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
+    ObsoleteTag = '22.0';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
@@ -33,7 +37,7 @@ page 10842 "Apply G/L Entries"
                     Editable = false;
                     ToolTip = 'Specifies the number of the document that the general ledger entries apply to.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -54,7 +58,7 @@ page 10842 "Apply G/L Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the ID when you choose Set Applies-to ID. The field is cleared when you post the application.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -274,4 +278,4 @@ page 10842 "Apply G/L Entries"
     begin
     end;
 }
-
+#endif

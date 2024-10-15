@@ -246,8 +246,16 @@ table 91 "User Setup"
             CalcFormula = Lookup(User."License Type" WHERE("User Name" = FIELD("User ID")));
             Caption = 'License Type';
             FieldClass = FlowField;
-            OptionCaption = 'Full User,Limited User,Device Only User,Windows Group,External User';
-            OptionMembers = "Full User","Limited User","Device Only User","Windows Group","External User";
+            OptionCaption = 'Full User,Limited User,Device Only User,Windows Group,External User,External Administrator,External Accountant,Application,AAD Group';
+            OptionMembers = "Full User","Limited User","Device Only User","Windows Group","External User","External Administrator","External Accountant","Application","AAD Group";
+        }
+        field(80; "Sales Invoice Posting Policy"; Enum "Invoice Posting Policy")
+        {
+            Caption = 'Sales Invoice Posting Policy';
+        }
+        field(90; "Purch. Invoice Posting Policy"; Enum "Invoice Posting Policy")
+        {
+            Caption = 'Purch. Invoice Posting Policy';
         }
         field(950; "Time Sheet Admin."; Boolean)
         {
@@ -291,6 +299,9 @@ table 91 "User Setup"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "User ID")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -408,7 +419,7 @@ table 91 "User Setup"
         OriginalFilterGroup := FilterGroup;
         FilterGroup := 2;
         CalcFields("License Type");
-        SetFilter("License Type", '<>%1', "License Type"::"External User");
+        SetFilter("License Type", '<>%1&<>%2', "License Type"::"External User", "License Type"::"AAD Group");
         FilterGroup := OriginalFilterGroup;
     end;
 

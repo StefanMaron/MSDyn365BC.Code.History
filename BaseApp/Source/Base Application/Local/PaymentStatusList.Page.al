@@ -12,7 +12,7 @@ page 10861 "Payment Status List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies text to describe the payment status.';
@@ -37,7 +37,7 @@ page 10861 "Payment Status List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the acceptation code will displayed on the payment lines.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the amount will displayed on the payment lines.';

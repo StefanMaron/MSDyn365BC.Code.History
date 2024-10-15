@@ -33,7 +33,7 @@ page 10880 "Payment Lines Archive List"
                     ToolTip = 'Specifies the currency code of the archived payment line.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount (including VAT) of the archived payment line.';

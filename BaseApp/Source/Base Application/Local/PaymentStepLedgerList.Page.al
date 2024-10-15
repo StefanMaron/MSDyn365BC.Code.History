@@ -28,7 +28,7 @@ page 10882 "Payment Step Ledger List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = ' Specifies if the posting will result in a debit or credit entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description to be used on the general ledger entry.';

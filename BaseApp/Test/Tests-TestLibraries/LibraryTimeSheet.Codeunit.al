@@ -45,6 +45,15 @@ codeunit 131904 "Library - Time Sheet"
         Commit();
     end;
 
+#if not CLEAN22
+    procedure SetNewTimeSheetExperience(Enabled: Boolean)
+    begin
+        ResourcesSetup.Get();
+        ResourcesSetup."Use New Time Sheet Experience" := Enabled;
+        ResourcesSetup.Modify();
+    end;
+#endif
+
     procedure CheckAssemblyTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; AssemblyHeaderNo: Code[20]; AssemblyLineNo: Integer; AssemblyLineQuantity: Decimal)
     var
         TimeSheetLine: Record "Time Sheet Line";
@@ -598,6 +607,7 @@ codeunit 131904 "Library - Time Sheet"
         CreateTimeSheets.Run();
     end;
 
+#if not CLEAN22
     [EventSubscriber(ObjectType::Page, Page::"Time Sheet", 'OnAfterProcess', '', false, false)]
     local procedure OnAfterProcessTimeSheet(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Submit Selected","Submit All","Reopen Selected","Reopen All")
     var
@@ -605,6 +615,7 @@ codeunit 131904 "Library - Time Sheet"
     begin
         TimeSheetMgt.CopyFilteredTimeSheetLinesToBuffer(TimeSheetLine, TempTimeSheetLine);
     end;
+#endif
 
     [EventSubscriber(ObjectType::Page, Page::"Manager Time Sheet", 'OnAfterProcess', '', false, false)]
     local procedure OnAfterProcessManagerTimeSheet(var TimeSheetLine: Record "Time Sheet Line"; "Action": Option "Approve Selected","Approve All","Reopen Selected","Reopen All","Reject Selected","Reject All")

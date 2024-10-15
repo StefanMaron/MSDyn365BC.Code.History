@@ -36,7 +36,7 @@ page 10872 "Payment Lines List"
                     ToolTip = 'Specifies the currency code for the amount on this line.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount (including VAT) of the payment line.';

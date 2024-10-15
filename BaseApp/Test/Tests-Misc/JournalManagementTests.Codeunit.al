@@ -161,6 +161,7 @@ codeunit 134931 "Journal Management Tests"
         VerifyFiltersInFilterGroups(RequisitionWkshName, RequisitionWkshName.FieldNo("Worksheet Template Name"), ExpectedTemplateName, 0);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure OpenJnlBatch_IntraJnlManagement_PresetGroup2()
@@ -188,6 +189,7 @@ codeunit 134931 "Journal Management Tests"
 
         VerifyFiltersInFilterGroups(IntrastatJnlBatch, IntrastatJnlBatch.FieldNo("Journal Template Name"), ExpectedTemplateName, 0);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -443,6 +445,7 @@ codeunit 134931 "Journal Management Tests"
         VerifyFiltersInFilterGroups(RequisitionWkshName, RequisitionWkshName.FieldNo("Worksheet Template Name"), ExpectedTemplateName, 2);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure OpenJnlBatch_IntraJnlManagement_PresetGroup0()
@@ -470,6 +473,7 @@ codeunit 134931 "Journal Management Tests"
 
         VerifyFiltersInFilterGroups(IntrastatJnlBatch, IntrastatJnlBatch.FieldNo("Journal Template Name"), ExpectedTemplateName, 2);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]

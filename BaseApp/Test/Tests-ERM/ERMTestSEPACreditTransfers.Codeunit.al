@@ -1606,10 +1606,9 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateBankAccount(BankAccount);
         if EURCode = 'EUR' then begin
-            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-1Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2),
-              LibraryRandom.RandDec(100, 2));
-            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-2Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2),
-              LibraryRandom.RandDec(100, 2));
+            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-1Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-2Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+            LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-3Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
         end;
 
         Vendor.Init();

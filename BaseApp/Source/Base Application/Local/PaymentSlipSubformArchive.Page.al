@@ -58,7 +58,7 @@ page 10878 "Payment Slip Subform Archive"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the credit amount of the archived payment line.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount (including VAT) of the archived payment line.';

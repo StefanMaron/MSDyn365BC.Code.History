@@ -22,7 +22,7 @@ page 10875 "Payment Addresses"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this address is the default payment address.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name associated with the payment address.';

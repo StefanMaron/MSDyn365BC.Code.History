@@ -13,7 +13,7 @@ page 10865 "Payment Status"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies text to describe the payment status.';
@@ -33,7 +33,7 @@ page 10865 "Payment Status"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that documents with this status may be printed.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the amount will displayed on the payment lines.';
