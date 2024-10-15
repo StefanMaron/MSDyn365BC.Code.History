@@ -1,4 +1,4 @@
-table 10752 "SII Doc. Upload State"
+﻿table 10752 "SII Doc. Upload State"
 {
     Caption = 'SII Doc. Upload States';
 
@@ -341,6 +341,7 @@ table 10752 "SII Doc. Upload State"
           SIIDocUploadState."Corrected Doc. No.", SIIDocUploadState."Corr. Posting Date", SIIDocUploadState."Posting Date");
         SIIDocUploadState."Version No." := GetSIIVersionNo();
         SetStatus(SIIDocUploadState);
+        OnCreateNewRequestInternalOnBeforeSIIDocUploadStateInsert(SIIDocUploadState, EntryNo, InvEntryNo, DocumentSource, DocumentType, DocumentNo, ExternalDocumentNo, PostingDate);
         SIIDocUploadState.Insert();
 
         SIIHistory.CreateNewRequest(SIIDocUploadState.Id, SIIHistory."Upload Type"::Regular, 4, false, false);
@@ -545,6 +546,7 @@ table 10752 "SII Doc. Upload State"
                         end;
                 end;
         end;
+        OnAfterValidateDocInfo(TempSIIDocUploadState, EntryNo, DocumentSource, DocumentType, DocumentNo);
     end;
 
     procedure IsCreditMemoRemoval(): Boolean
@@ -666,6 +668,16 @@ table 10752 "SII Doc. Upload State"
         Validate("Succeeded Company Name", SucceededCompanyName);
         Validate("Succeeded VAT Registration No.", SucceededVATRegNo);
         Validate(IDType, NewIDType);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewRequestInternalOnBeforeSIIDocUploadStateInsert(var SIIDocUploadState: Record "SII Doc. Upload State"; EntryNo: Integer; InvEntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35]; ExternalDocumentNo: Code[35]; PostingDate: Date)
+    begin
     end;
 }
 

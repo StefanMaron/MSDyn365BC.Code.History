@@ -2492,6 +2492,32 @@ codeunit 147524 "SII Documents No Taxable"
           SIIXMLCreator.FormatNumber(GetVATEntryTotalAmount(VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.")));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoTaxablePurchInvoiceWithSpecialSchemeCode08DoesNotHaveVATXmlNodes()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PurchaseHeader: Record "Purchase Header";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 381227] XML request does not have TipoImpositivo and CuotaSoportada nodes for Purchase Invoice with no taxable VAT and "Special Scheme Code" = "08  IPSI / IGIC"
+
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with one line where "VAT Calculation Type" = "No Taxable VAT"
+        PostPurchInvWithNoTaxableVATAndSpecialSchemeCode(VendorLedgerEntry, PurchaseHeader."Special Scheme Code"::"08  IPSI / IGIC");
+
+        // [WHEN] Create xml for Posted Purchase Invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] No "sii:TipoImpositivo" xml node present in the xml file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:TipoImpositivo');
+
+        // [THEN] No "sii:CuotaSoportada" xml node present in the xml file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:CuotaSoportada');
+    end;
+    
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -2630,6 +2656,16 @@ codeunit 147524 "SII Documents No Taxable"
     end;
 
     local procedure PostPurchInvWithNoTaxableVAT(var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+        PostCustomPurchInv(VendLedgEntry, 0);
+    end;
+
+    local procedure PostPurchInvWithNoTaxableVATAndSpecialSchemeCode(var VendLedgEntry: Record "Vendor Ledger Entry"; SpecialSchemeCode: Option)
+    begin
+        PostCustomPurchInv(VendLedgEntry, SpecialSchemeCode);
+    end;
+
+    local procedure PostCustomPurchInv(var VendLedgEntry: Record "Vendor Ledger Entry"; SpecialSchemeCode: Option)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         PurchHeader: Record "Purchase Header";
@@ -2639,6 +2675,8 @@ codeunit 147524 "SII Documents No Taxable"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         VendNo := LibrarySII.CreateVendWithVATSetup(VATBusinessPostingGroup.Code);
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, VendNo);
+        PurchHeader.Validate("Special Scheme Code", SpecialSchemeCode);
+        PurchHeader.Modify(true);
         ItemNo :=
           LibrarySII.CreateItemNoWithSpecificVATSetup(
             LibrarySII.CreateSpecificNoTaxableVATSetup(VATBusinessPostingGroup.Code, false, 0));

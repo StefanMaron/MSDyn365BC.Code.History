@@ -1021,12 +1021,26 @@
             Caption = 'Recurring Method';
 
             trigger OnValidate()
+            var
+                ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if "Recurring Method" in
                    ["Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance"]
                 then
                     TestField("Currency Code", '');
                 UpdateSalesPurchLCY;
+
+                if "Recurring Method".AsInteger() < "Recurring Method"::"BD Balance by Dimension".AsInteger() then begin
+                    if DimFilterExists() then
+                        Error(RecurringMethodsDimFilterErr, "Recurring Method");
+                end else
+                    if LineDimExists() then
+                        Error(RecurringMethodsLineDimdErr, "Recurring Method");
+
+                if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
+                    if not HideValidationDialog then
+                        if ConfirmManagement.GetResponse(RecurringSetDimFilterQst, true) then
+                            ShowRecurringDimFilter();
             end;
         }
         field(54; "Expiration Date"; Date)
@@ -3159,8 +3173,11 @@
         Text013: Label 'The %1 must not be more than %2.';
         WrongJobQueueStatus: Label 'Journal line cannot be modified because it has been scheduled for posting.';
         RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlTemplate: Record "Gen. Journal Template";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlBatch: Record "Gen. Journal Batch";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlLine: Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -3214,6 +3231,9 @@
         BlockedErr: Label 'The Blocked field must not be %1 for %2 %3.', Comment = '%1=Blocked field value,%2=Account Type,%3=Account No.';
         BlockedEmplErr: Label 'You cannot export file because employee %1 is blocked due to privacy.', Comment = '%1 = Employee no. ';
         InvoiceForGivenIDDoesNotExistErr: Label 'Invoice for given Applies-to Invoice Id does not exist.';
+        RecurringSetDimFilterQst: Label 'You can use dimension filters for the selected recurring method. Do you want to set the filters now?';
+        RecurringMethodsDimFilterErr: Label 'Recurring method %1 cannot be used for the line with dimension filter setup.', Comment = '%1 - Recurring Method value';
+        RecurringMethodsLineDimdErr: Label 'Recurring method %1 cannot be used for the line with dimension setup.', Comment = '%1 - Recurring Method value';
         IncorrectAccTypeErr: Label '%1 or %2 must be a %3.', Comment = '%1=Account Type,%2=Balance Account Type,%3=Customer or Vendor';
         OneOrAnotherTok: Label '%1 or %2', Comment = 'Customer or Vendor';
 
@@ -6250,6 +6270,7 @@
 
     procedure IsRecurring(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         if "Journal Template Name" <> '' then
@@ -6261,6 +6282,7 @@
 
     local procedure SuggestBalancingAmount(LastGenJnlLine: Record "Gen. Journal Line"; BottomLine: Boolean)
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
     begin
         if "Document No." = '' then
@@ -6716,6 +6738,7 @@
 
     procedure CreateFAAcquisitionLines(var FAGenJournalLine: Record "Gen. Journal Line")
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         BalancingGenJnlLine: Record "Gen. Journal Line";
         LocalGLAcc: Record "G/L Account";
         FAPostingGr: Record "FA Posting Group";
@@ -6811,6 +6834,7 @@
 
     procedure GetNewLineNo(TemplateName: Code[10]; BatchName: Code[10]): Integer
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.Validate("Journal Template Name", TemplateName);
@@ -6825,6 +6849,7 @@
     procedure VoidPaymentFile()
     var
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine2: Record "Gen. Journal Line";
         VoidTransmitElecPmnts: Report "Void/Transmit Elec. Pmnts";
     begin
@@ -8003,6 +8028,30 @@
             Error(AccTypeNotSupportedErr);
 
         ShowDeferrals("Posting Date", "Currency Code");
+    end;
+
+    procedure ShowRecurringDimFilter()
+    var
+        GenJnlDimFilters: Page "Gen. Jnl. Dim. Filters";
+    begin
+        Commit();
+        GenJnlDimFilters.SetGenJnlLine(Rec);
+        GenJnlDimFilters.RunModal();
+    end;
+
+    local procedure DimFilterExists(): Boolean
+    var
+        GenJnlDimFilter: Record "Gen. Jnl. Dim. Filter";
+    begin
+        GenJnlDimFilter.SetRange("Journal Template Name", "Journal Template Name");
+        GenJnlDimFilter.SetRange("Journal Batch Name", "Journal Batch Name");
+        GenJnlDimFilter.SetRange("Journal Line No.", "Line No.");
+        exit(not GenJnlDimFilter.IsEmpty);
+    end;
+
+    local procedure LineDimExists(): Boolean
+    begin
+        exit("Dimension Set ID" <> 0);
     end;
 
     [IntegrationEvent(false, false)]

@@ -565,8 +565,12 @@ report 10707 "Make 347 Declaration"
                     if IsSilentMode then
                         FileManagement.CopyServerFile(FileName, ToTestFileName, true)
                     else
+#if not CLEAN17
                         if Download(FileName, '', '', FileFilterTxt, ToFile) and FileManagement.IsLocalFileSystemAccessible then
                             Message(FileSuccessfullyExportedMsg, ToFile);
+#else
+                        if Download(FileName, '', '', FileFilterTxt, ToFile) then;
+#endif
                 end else begin
                     OutFile.Close;
                     Erase(FileName);
@@ -579,8 +583,12 @@ report 10707 "Make 347 Declaration"
                 if IsSilentMode then
                     FileManagement.CopyServerFile(FileName, ToTestFileName, true)
                 else
+#if not CLEAN17
                     if Download(FileName, '', '', FileFilterTxt, ToFile) and FileManagement.IsLocalFileSystemAccessible then
                         Message(FileSuccessfullyExportedMsg, ToFile);
+#else
+                    if Download(FileName, '', '', FileFilterTxt, ToFile) then;
+#endif
             end;
         end else begin
             OutFile.Close;

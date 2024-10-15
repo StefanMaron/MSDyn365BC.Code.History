@@ -947,6 +947,7 @@ codeunit 7000000 CarteraManagement
                           VATEntry2."Add.-Curr. Rem. Unreal. Amount" - VATEntry."Additional-Currency Amount";
                         VATEntry2."Add.-Curr. Rem. Unreal. Base" :=
                           VATEntry2."Add.-Curr. Rem. Unreal. Base" - VATEntry."Additional-Currency Base";
+                        OnVendUnrealizedVATOnBeforeVATEntry2Modify(VATEntry, VendLedgEntry2, GenJnlLine);
                         Test2 := VATEntry2.Modify();
                         LastVATEntryNo := VATEntryNo;
                     end;
@@ -1180,6 +1181,11 @@ codeunit 7000000 CarteraManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnVendUnrealizedVATOnAfterVATPartCalculated(VendorLedgerEntry: Record "Vendor Ledger Entry"; VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; var SettledAmount: Decimal; var VATPart: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendUnrealizedVATOnBeforeVATEntry2Modify(var VATEntry: Record "VAT Entry"; VendLedgEntry2: Record "Vendor Ledger Entry"; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

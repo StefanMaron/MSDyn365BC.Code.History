@@ -1172,8 +1172,11 @@ table 21 "Cust. Ledger Entry"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.Get("Payment Method Code");
-        if (("Document Type" = "Document Type"::Bill) and PaymentMethod."Create Bills") or
-           (("Document Type" = "Document Type"::Invoice) and PaymentMethod."Invoices to Cartera") then
+        if (("Document Type" = "Document Type"::Bill) and not PaymentMethod."Create Bills") or
+           (("Document Type" = "Document Type"::Invoice) and
+            ("Document Situation" <> "Document Situation"::" ") and
+            not PaymentMethod."Invoices to Cartera")
+        then
             Error(CannotChangePmtMethodErr);
     end;
 

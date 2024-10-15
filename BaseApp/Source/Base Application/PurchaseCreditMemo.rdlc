@@ -3783,7 +3783,7 @@ Cstr(Fields!CACCaption.Value)
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=SUM(Fields!LineAmt_PurchCrMemoLine.Value)</Value>
+                                                    <Value>=Last(Fields!TotalAmount.Value)</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>

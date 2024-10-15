@@ -16,6 +16,8 @@ codeunit 5350 "CRM Statistics Job"
         StartingInitialUploadCustomerStatisticsMsg: Label 'Starting the initial upload of customer statistics.', Locked = true;
         FinishedRefreshingCustomerStatisticsMsg: Label 'Finished refreshing customer statistics based on ledger entry and lines activity.', Locked = true;
         FinishedInitialUploadCustomerStatisticsMsg: Label 'Finished the initial upload of customer statistics.', Locked = true;
+        UnexpectedErrorWhenGettingInvoiceErr: Label 'Unexpected error when trying to get the CRM Invoice %1: %2', Locked = true;
+        UnexpectedErrorsDetectedErr: Label 'Unexpected errors detected while updating CRM Invoices. Not moving the last processed ledger entry number.', Locked = true;
         TelemetryCategoryTok: Label 'AL CRM Integration';
         CRMProductName: Codeunit "CRM Product Name";
 
@@ -119,8 +121,10 @@ codeunit 5350 "CRM Statistics Job"
                     end;
                 end;
 
-            CRMSynchStatus."Cust. Statistics Synch. Time" := NewCustomerStatisticsSynchTime;
-            CRMSynchStatus.Modify();
+            if CRMSynchStatus.Get() then begin
+                CRMSynchStatus."Cust. Statistics Synch. Time" := NewCustomerStatisticsSynchTime;
+                CRMSynchStatus.Modify();
+            end;
 
             Session.LogMessage('0000DZA', FinishedRefreshingCustomerStatisticsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         end;
@@ -349,6 +353,7 @@ codeunit 5350 "CRM Statistics Job"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CurrCLENo: Integer;
         ForAllCustomers: Boolean;
+        UnexpectedErrorDetected: Boolean;
     begin
 
         if CRMSynchStatus.IsEmpty then begin
@@ -363,17 +368,20 @@ codeunit 5350 "CRM Statistics Job"
             CurrCLENo := DtldCustLedgEntry."Cust. Ledger Entry No.";
             repeat
                 if CurrCLENo <> DtldCustLedgEntry."Cust. Ledger Entry No." then begin
-                    UpdatedInvoiceCounter += UpdateInvoice(CurrCLENo);
+                    UpdatedInvoiceCounter += UpdateInvoice(CurrCLENo, UnexpectedErrorDetected);
                     CurrCLENo := DtldCustLedgEntry."Cust. Ledger Entry No.";
                 end;
-            until DtldCustLedgEntry.Next = 0;
-            UpdatedInvoiceCounter += UpdateInvoice(CurrCLENo);
+            until DtldCustLedgEntry.Next() = 0;
+            UpdatedInvoiceCounter += UpdateInvoice(CurrCLENo, UnexpectedErrorDetected);
             if ForAllCustomers then
-                CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo;
+                if not UnexpectedErrorDetected then
+                    CRMSynchStatus.UpdateLastUpdateInvoiceEntryNo
+                else
+                    Session.LogMessage('0000EC8', StrSubstno(UnexpectedErrorsDetectedErr), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         end;
     end;
 
-    local procedure UpdateInvoice(CustLedgEntryNo: Integer): Integer
+    local procedure UpdateInvoice(CustLedgEntryNo: Integer; var UnexpectedErrorDetected: Boolean): Integer
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMInvoice: Record "CRM Invoice";
@@ -385,11 +393,29 @@ codeunit 5350 "CRM Statistics Job"
             if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice then
                 if SalesInvHeader.Get(CustLedgerEntry."Document No.") then
                     if CRMIntegrationRecord.FindByRecordID(SalesInvHeader.RecordId) then
-                        if CRMInvoice.Get(CRMIntegrationRecord."CRM ID") then
+                        if TryGetCRMInvoice(CRMInvoice, CRMIntegrationRecord."CRM ID", UnexpectedErrorDetected) then
                             exit(CRMSynchHelper.UpdateCRMInvoiceStatusFromEntry(CRMInvoice, CustLedgerEntry));
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnFindingIfJobNeedsToBeRun', '', false, false)]
+    local procedure TryGetCRMInvoice(var CRMInvoice: Record "CRM Invoice"; CRMId: Guid; var UnexpectedErrorDetected: Boolean): Boolean
+    var
+        invoiceFound: Boolean;
+    begin
+        // no unhandled exceptions thrown in the try function - return the result
+        if GetCRMInvoice(CRMInvoice, CrmId, invoiceFound) then
+            exit(invoiceFound);
+
+        UnexpectedErrorDetected := true;
+        Session.LogMessage('0000EC9', StrSubstno(UnexpectedErrorWhenGettingInvoiceErr, Format(CrmId), GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+    end;
+
+    [TryFunction]
+    local procedure GetCRMInvoice(var CRMInvoice: Record "CRM Invoice"; CRMId: Guid; var invoiceFound: Boolean)
+    begin
+        invoiceFound := CRMInvoice.Get(CRMId);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnFindingIfJobNeedsToBeRun', '', false, false)]
     local procedure OnFindingIfJobNeedsToBeRun(var Sender: Record "Job Queue Entry"; var Result: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";

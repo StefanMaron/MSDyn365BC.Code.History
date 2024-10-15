@@ -46,14 +46,18 @@ codeunit 7000005 "Invoice-Split Payment"
         VATPostingSetup: Record "VAT Posting Setup";
         SepaDirectDebitMandate: Record "SEPA Direct Debit Mandate";
         BillNo: Integer;
+        IsHandled: Boolean;
     begin
         with SalesHeader do begin
             if not PaymentMethod.Get("Payment Method Code") then
                 exit;
             if (not PaymentMethod."Create Bills") and (not PaymentMethod."Invoices to Cartera") then
                 exit;
-            if PaymentMethod."Create Bills" and ("Document Type" = "Document Type"::"Credit Memo") then
-                Error(Text1100000, FieldCaption("Payment Method Code"));
+            IsHandled := false;
+            OnSplitSalesInvOnBeforeCheckPaymentMethod(SalesHeader, PaymentMethod, PaymentTerms, IsHandled);
+            if not IsHandled then
+                if PaymentMethod."Create Bills" and ("Document Type" = "Document Type"::"Credit Memo") then
+                    Error(Text1100000, FieldCaption("Payment Method Code"));
 
             if "Currency Code" = '' then
                 CurrencyFactor := 1
@@ -67,12 +71,15 @@ codeunit 7000005 "Invoice-Split Payment"
             PaymentTerms.CalcFields("No. of Installments");
             if PaymentTerms."No. of Installments" = 0 then
                 PaymentTerms."No. of Installments" := 1;
-            if PaymentMethod."Invoices to Cartera" and (PaymentTerms."No. of Installments" > 1) then
-                Error(
-                  Text1100001,
-                  PaymentTerms.FieldCaption("No. of Installments"),
-                  PaymentMethod.FieldCaption("Invoices to Cartera"),
-                  PaymentMethod.TableCaption);
+            IsHandled := false;
+            OnSplitSalesInvOnBeforeCheckPaymentMethod(SalesHeader, PaymentMethod, PaymentTerms, IsHandled);
+            if not IsHandled then
+                if PaymentMethod."Invoices to Cartera" and (PaymentTerms."No. of Installments" > 1) then
+                    Error(
+                      Text1100001,
+                      PaymentTerms.FieldCaption("No. of Installments"),
+                      PaymentMethod.FieldCaption("Invoices to Cartera"),
+                      PaymentMethod.TableCaption);
             CustLedgEntry.Find('+');
             CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
             if CustLedgEntry."Remaining Amount" = 0 then
@@ -283,16 +290,20 @@ codeunit 7000005 "Invoice-Split Payment"
     var
         VATPostingSetup: Record "VAT Posting Setup";
         BillNo: Integer;
+        IsHandled: Boolean;
     begin
         with PurchHeader do begin
             if not PaymentMethod.Get("Payment Method Code") then
                 exit;
             if (not PaymentMethod."Create Bills") and (not PaymentMethod."Invoices to Cartera") then
                 exit;
-            if PaymentMethod."Create Bills" and ("Document Type" = "Document Type"::"Credit Memo") then
-                Error(
-                  Text1100000,
-                  FieldCaption("Payment Method Code"));
+            IsHandled := false;
+            OnSplitPurchInvOnBeforeCheckPaymentMethod(PurchHeader, PaymentMethod, PaymentTerms, IsHandled);
+            if not IsHandled then
+                if PaymentMethod."Create Bills" and ("Document Type" = "Document Type"::"Credit Memo") then
+                    Error(
+                      Text1100000,
+                      FieldCaption("Payment Method Code"));
 
             if "Currency Code" = '' then
                 CurrencyFactor := 1
@@ -306,12 +317,15 @@ codeunit 7000005 "Invoice-Split Payment"
             PaymentTerms.CalcFields("No. of Installments");
             if PaymentTerms."No. of Installments" = 0 then
                 PaymentTerms."No. of Installments" := 1;
-            if PaymentMethod."Invoices to Cartera" and (PaymentTerms."No. of Installments" > 1) then
-                Error(
-                  Text1100001,
-                  PaymentTerms.FieldCaption("No. of Installments"),
-                  PaymentMethod.FieldCaption("Invoices to Cartera"),
-                  PaymentMethod.TableCaption);
+            IsHandled := false;
+            OnSplitPurchInvOnBeforeCheckPaymentMethod(PurchHeader, PaymentMethod, PaymentTerms, IsHandled);
+            if not IsHandled then
+                if PaymentMethod."Invoices to Cartera" and (PaymentTerms."No. of Installments" > 1) then
+                    Error(
+                      Text1100001,
+                      PaymentTerms.FieldCaption("No. of Installments"),
+                      PaymentMethod.FieldCaption("Invoices to Cartera"),
+                      PaymentMethod.TableCaption);
             VendLedgEntry.Find('+');
             VendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
             if VendLedgEntry."Remaining Amount" = 0 then
@@ -999,6 +1013,16 @@ codeunit 7000005 "Invoice-Split Payment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSplitServInvCreateBills(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitPurchInvOnBeforeCheckPaymentMethod(var PurchHeader: Record "Purchase Header"; var PaymentMethod: Record "Payment Method"; var PaymentTerms: Record "Payment Terms"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitSalesInvOnBeforeCheckPaymentMethod(var SalesHeader: Record "Sales Header"; var PaymentMethod: Record "Payment Method"; var PaymentTerms: Record "Payment Terms"; var IsHandled: Boolean)
     begin
     end;
 }

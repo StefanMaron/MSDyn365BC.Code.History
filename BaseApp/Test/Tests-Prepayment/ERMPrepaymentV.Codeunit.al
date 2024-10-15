@@ -2006,6 +2006,8 @@ codeunit 134106 "ERM Prepayment V"
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 20));
         SalesLine.Modify(true);
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
 
         // [GIVEN] Post prepayment invoice.
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -2047,6 +2049,8 @@ codeunit 134106 "ERM Prepayment V"
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 20));
         PurchaseLine.Modify(true);
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+            PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
 
         // [GIVEN] Post prepayment invoice.
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);

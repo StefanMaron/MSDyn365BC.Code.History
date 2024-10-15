@@ -1,4 +1,4 @@
-codeunit 10750 "SII XML Creator"
+﻿codeunit 10750 "SII XML Creator"
 {
 
     trigger OnRun()
@@ -38,7 +38,7 @@ codeunit 10750 "SII XML Creator"
         ResultValue: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGenerateXML(LedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval, ResultValue, IsHandled);
+        OnBeforeGenerateXML(LedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval, ResultValue, IsHandled, RetryAccepted, SIIVersion);
         IF IsHandled THEN
             EXIT(ResultValue);
 
@@ -467,6 +467,7 @@ codeunit 10750 "SII XML Creator"
             if AddNodeForTotals then
                 FillMacrodatoNode(XMLNode, TotalAmount);
 
+            OnBeforeContraparteNode(XMLNode, CustLedgerEntry);
             if IncludeContraparteNodeBySalesInvType(InvoiceType) then begin
                 XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Contraparte', '', 'sii', SiiTxt, XMLNode);
                 FillThirdPartyId(
@@ -1018,6 +1019,9 @@ codeunit 10750 "SII XML Creator"
         TempVATEntryCalculated.Init();
         TempVATEntryCalculated."Entry No." += 1;
         TempVATEntryCalculated.Base := NonTaxableAmount;
+        TempVATEntryCalculated.Type := TempVATEntryCalculated.Type::Purchase;
+        // assign non-blank value to distinguish between the normal VAT entry from non-taxable one
+        TempVATEntryCalculated."No Taxable Type" := TempVATEntryCalculated."No Taxable Type"::"Non Taxable Art 7-14 and others";
         TempVATEntryCalculated.Insert();
     end;
 
@@ -1668,11 +1672,17 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
-    local procedure GetClaveRegimenNodeSales(SIIDocUploadState: Record "SII Doc. Upload State"; CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer): Code[2]
+    local procedure GetClaveRegimenNodeSales(SIIDocUploadState: Record "SII Doc. Upload State"; CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer) RegimeCode: Code[2]
     var
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
         CustLedgerEntryRecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetClaveRegimenNodeSales(SIIDocUploadState, CustLedgerEntry, Customer, RegimeCode, IsHandled);
+        if IsHandled then
+            exit(RegimeCode);
+
         if SIIInitialDocUpload.DateWithinInitialUploadPeriod(CustLedgerEntry."Posting Date") then
             exit('16');
         DataTypeManagement.GetRecordRef(CustLedgerEntry, CustLedgerEntryRecRef);
@@ -1685,11 +1695,17 @@ codeunit 10750 "SII XML Creator"
         exit('02');
     end;
 
-    local procedure GetClaveRegimenNodePurchases(SIIDocUploadState: Record "SII Doc. Upload State"; VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor): Code[2]
+    local procedure GetClaveRegimenNodePurchases(SIIDocUploadState: Record "SII Doc. Upload State"; VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor) RegimeCode: Code[2]
     var
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
         VendorLedgerEntryRecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetClaveRegimenNodePurchases(SIIDocUploadState, VendorLedgerEntry, Vendor, RegimeCode, IsHandled);
+        if IsHandled then
+            exit(RegimeCode);
+
         if SIIInitialDocUpload.DateWithinInitialUploadPeriod(VendorLedgerEntry."Posting Date") then
             exit('14');
         DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
@@ -1725,6 +1741,7 @@ codeunit 10750 "SII XML Creator"
                         if SalesInvoiceLine."Shipment Date" > LastShipDate then
                             LastShipDate := SalesInvoiceLine."Shipment Date";
                     until SalesInvoiceLine.Next = 0;
+                OnGenerateNodeForFechaOperacionSalesOnBeforeFillFechaOperacion(LastShipDate, SalesInvoiceHeader);
                 FillFechaOperacion(XMLNode, LastShipDate, SalesInvoiceHeader."Posting Date", true, RegimeCode);
             end;
     end;
@@ -1882,7 +1899,33 @@ codeunit 10750 "SII XML Creator"
 
     local procedure IsREAGYPSpecialSchemeCode(VATEntry: Record "VAT Entry"; RegimeCode: Code[2]): Boolean
     begin
-        exit((VATEntry.Type = VATEntry.Type::Purchase) and (RegimeCode = '02'));
+        exit((VATEntry.Type = VATEntry.Type::Purchase) and (RegimeCode = SecondSpecialRegimeCode()));
+    end;
+
+    local procedure ExportTaxInformation(VATEntry: Record "VAT Entry"; RegimeCode: Code[2]): Boolean
+    begin
+        if VATEntry.Type <> VATEntry.Type::Purchase then
+            exit(true);
+
+        exit((VATEntry."No Taxable Type" = 0) or (RegimeCode <> EighthSpecialRegimeCode()));
+    end;
+
+    local procedure ExportTipoImpositivo(VATEntry: Record "VAT Entry"; RegimeCode: Code[2]): Boolean
+    begin
+        if IsREAGYPSpecialSchemeCode(VATEntry, RegimeCode) then
+            exit(false);
+
+        exit(ExportTaxInformation(VATEntry, RegimeCode));
+    end;
+
+    local procedure SecondSpecialRegimeCode(): Code[2]
+    begin
+        exit('02');
+    end;
+
+    local procedure EighthSpecialRegimeCode(): Code[2]
+    begin
+        exit('08');
     end;
 
     local procedure BuildVATEntrySource(var ExemptExists: Boolean; var ExemptionCausePresent: array[10] of Boolean; var ExemptionCode: Option; var ExemptionBaseAmounts: array[10] of Decimal; var VATEntryPerPercent: Record "VAT Entry"; var NonExemptTransactionType: Option S1,S2,S3,Initial; var VATEntry: Record "VAT Entry"; PostingDate: Date; SplitByEUService: Boolean)
@@ -2276,7 +2319,7 @@ codeunit 10750 "SII XML Creator"
           FormatNumber(CalcTipoImpositivo(NonExemptTransactionType, RegimeCode, Base, TempVATEntry."VAT %"));
 
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DetalleIVA', '', 'sii', SiiTxt, XMLNode);
-        if not IsREAGYPSpecialSchemeCode(TempVATEntry, RegimeCode) then
+        if ExportTipoImpositivo(TempVATEntry, RegimeCode) then
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoImpositivo', VATPctText, 'sii', SiiTxt, TempXmlNode);
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'BaseImponible', FormatNumber(Base), 'sii', SiiTxt, TempXmlNode);
@@ -2285,7 +2328,8 @@ codeunit 10750 "SII XML Creator"
             AmountNodeName := 'ImporteCompensacionREAGYP';
         end;
         OnBeforeAddLineAmountElement(TempVATEntry, AmountNodeName, Amount);
-        XMLDOMManagement.AddElementWithPrefix(XMLNode, AmountNodeName, FormatNumber(Amount), 'sii', SiiTxt, TempXmlNode);
+        if ExportTaxInformation(TempVATEntry, RegimeCode) then
+            XMLDOMManagement.AddElementWithPrefix(XMLNode, AmountNodeName, FormatNumber(Amount), 'sii', SiiTxt, TempXmlNode);
         if (ECPercent <> 0) and FillEUServiceNodes then
             GenerateRecargoEquivalenciaNodes(XMLNode, ECPercent, ECAmount);
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
@@ -2335,6 +2379,7 @@ codeunit 10750 "SII XML Creator"
             if IsShptDateMustBeAfterPostingDate(RegimeCode) then
                 LastShptRcptDate := PostingDate + 1;
         end;
+        OnFillFechaOperacionOnBeforeAddElementWithPrefix(LastShptRcptDate, PostingDate);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'FechaOperacion', FormatDate(LastShptRcptDate), 'sii', SiiTxt, TempXMLNode);
     end;
 
@@ -2501,7 +2546,32 @@ codeunit 10750 "SII XML Creator"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenerateXML(LedgerEntry: Variant; var XMLDocOut: DotNet XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean; var ResultValue: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeContraparteNode(var XMLNode: DotNet XmlNode; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenerateXML(LedgerEntry: Variant; var XMLDocOut: DotNet XmlDocument; UploadType: Option; IsCreditMemoRemoval: Boolean; var ResultValue: Boolean; var IsHandled: Boolean; RetryAccepted: Boolean; SIIVersion: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetClaveRegimenNodePurchases(SIIDocUploadState: Record "SII Doc. Upload State"; VendLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor; var RegimeCode: Code[2]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetClaveRegimenNodeSales(SIIDocUploadState: Record "SII Doc. Upload State"; CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer; var RegimeCode: Code[2]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillFechaOperacionOnBeforeAddElementWithPrefix(var LastShptRcptDate: Date; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateNodeForFechaOperacionSalesOnBeforeFillFechaOperacion(var LastShipDate: Date; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

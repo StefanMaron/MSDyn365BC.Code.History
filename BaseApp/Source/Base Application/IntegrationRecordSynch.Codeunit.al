@@ -63,13 +63,49 @@ codeunit 5336 "Integration Record Synch."
         ConstantOptionIndex: Integer;
         CurrentOptionIndex: Integer;
     begin
-        if DestinationFieldRef.Type = FieldType::Option then begin
-            ConstantOptionIndex := OutlookSynchTypeConv.TextToOptionValue(ConstantValue, DestinationFieldRef.OptionCaption);
-            CurrentOptionIndex :=
-              OutlookSynchTypeConv.TextToOptionValue(Format(DestinationFieldRef.Value), DestinationFieldRef.OptionCaption);
+        if DestinationFieldRef.Type() = FieldType::Option then begin
+            ConstantOptionIndex := TextToOptionValue(ConstantValue, DestinationFieldRef);
+            CurrentOptionIndex := TextToOptionValue(Format(DestinationFieldRef.Value()), DestinationFieldRef);
             exit(CurrentOptionIndex <> ConstantOptionIndex);
         end;
-        exit(Format(DestinationFieldRef.Value) <> ConstantValue);
+        exit(Format(DestinationFieldRef.Value()) <> ConstantValue);
+    end;
+
+    local procedure TextToOptionValue(InputText: Text; var FieldRef: FieldRef): Integer
+    var
+        IntVar: Integer;
+    begin
+        IntVar := OutlookSynchTypeConv.TextToOptionValue(InputText, FieldRef.OptionCaption());
+        if IntVar < 0 then
+            IntVar := OutlookSynchTypeConv.TextToOptionValue(InputText, FieldRef.OptionMembers());
+        exit(IntVar);
+    end;
+
+    local procedure TextToOptionFieldRef(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    var
+        NewValue: Integer;
+        OldValue: Integer;
+    begin
+        if FieldRef.Type <> FieldType::Option then
+            exit(false);
+
+        if FieldRef.Class in [FieldClass::FlowField, FieldClass::FlowFilter] then
+            exit(true);
+
+        if not Evaluate(NewValue, InputText) then
+            NewValue := TextToOptionValue(InputText, FieldRef);
+
+        if NewValue < 0 then
+            exit(false);
+
+        if ToValidate then begin
+            OldValue := FieldRef.Value();
+            if OldValue <> NewValue then
+                FieldRef.Validate(NewValue);
+        end else
+            FieldRef.Value := NewValue;
+
+        exit(true);
     end;
 
     local procedure IsFieldModified(var SourceFieldRef: FieldRef; var DestinationFieldRef: FieldRef): Boolean
@@ -127,7 +163,7 @@ codeunit 5336 "Integration Record Synch."
         if SourceFieldNo < 1 then begin // using ConstantValue as a source value
             if (not ParameterOnlyModified) or IsConstantDiffToDestination(ConstantValue, DestinationFieldRef) then begin
                 CurrValue := Format(DestinationFieldRef.Value);
-                if OutlookSynchTypeConv.EvaluateTextToFieldRef(ConstantValue, DestinationFieldRef, true) then
+                if TextToOptionFieldRef(ConstantValue, DestinationFieldRef, true) then
                     IsModified := (CurrValue <> Format(DestinationFieldRef.Value)) or not ParameterOnlyModified;
             end;
         end else begin

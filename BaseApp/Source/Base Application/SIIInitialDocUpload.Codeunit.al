@@ -1,4 +1,4 @@
-codeunit 10755 "SII Initial Doc. Upload"
+﻿codeunit 10755 "SII Initial Doc. Upload"
 {
 
     trigger OnRun()
@@ -32,6 +32,7 @@ codeunit 10755 "SII Initial Doc. Upload"
         CustLedgerEntry.SetRange("Posting Date", StartDate, EndDate);
         if CustLedgerEntry.FindSet then begin
             repeat
+                OnHandleExistingCustomerLedgerEntriesOnBeforeCheckDocumentType(CustLedgerEntry);
                 if CustLedgerEntry."Document Type" in [CustLedgerEntry."Document Type"::"Credit Memo",
                                                        CustLedgerEntry."Document Type"::Invoice]
                 then
@@ -51,6 +52,7 @@ codeunit 10755 "SII Initial Doc. Upload"
         VendorLedgerEntry.SetRange("Posting Date", StartDate, EndDate);
         if VendorLedgerEntry.FindSet then begin
             repeat
+                OnHandleExistingVendorLedgerEntriesOnBeforeCheckDocumentType(VendorLedgerEntry);
                 if VendorLedgerEntry."Document Type" in [VendorLedgerEntry."Document Type"::"Credit Memo",
                                                          VendorLedgerEntry."Document Type"::Invoice]
                 then
@@ -84,6 +86,16 @@ codeunit 10755 "SII Initial Doc. Upload"
     procedure DateWithinInitialUploadPeriod(InputDate: Date): Boolean
     begin
         exit(InputDate in [GetInitialStartDate .. GetInitialEndDate]);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleExistingCustomerLedgerEntriesOnBeforeCheckDocumentType(var CustLedgerEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleExistingVendorLedgerEntriesOnBeforeCheckDocumentType(VAR VendorLedgerEntry: Record "Vendor Ledger Entry");
+    begin
     end;
 }
 

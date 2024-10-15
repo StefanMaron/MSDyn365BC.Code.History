@@ -1,4 +1,4 @@
-codeunit 10752 "SII Doc. Upload Management"
+﻿codeunit 10752 "SII Doc. Upload Management"
 {
 
     trigger OnRun()
@@ -171,6 +171,7 @@ codeunit 10752 "SII Doc. Upload Management"
         IsSupported: Boolean;
         Message: Text;
     begin
+        OnBeforeExecutePendingRequestsPerDocument(SIIDocUploadState, TempSIIHistoryBuffer, XMLDoc, IsInvokeSoapRequest, SIISessionId);
         TempSIIHistoryBuffer.SetRange("Document State Id", SIIDocUploadState.Id);
         if TempSIIHistoryBuffer.FindSet then
             repeat
@@ -192,6 +193,7 @@ codeunit 10752 "SII Doc. Upload Management"
                         IsInvokeSoapRequest := true or IsInvokeSoapRequest;
                 TempSIIHistoryBuffer.Modify();
             until TempSIIHistoryBuffer.Next = 0;
+        OnAfterExecutePendingRequestsPerDocument(SIIDocUploadState, TempSIIHistoryBuffer, XMLDoc, IsInvokeSoapRequest, SIISessionId);
     end;
 
     local procedure PreExecutePendingRequests(var SIISession: Record "SII Session"; var IsInvokeSoapRequest: Boolean; SkipPrePost: Boolean)
@@ -703,6 +705,16 @@ codeunit 10752 "SII Doc. Upload Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDocStateFilters(var SIIDocUploadState: Record "SII Doc. Upload State")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterExecutePendingRequestsPerDocument(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; var XMLDoc: DotNet XmlDocument; var IsInvokeSoapRequest: Boolean; SIISessionId: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExecutePendingRequestsPerDocument(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; var XMLDoc: DotNet XmlDocument; var IsInvokeSoapRequest: Boolean; SIISessionId: Integer)
     begin
     end;
 

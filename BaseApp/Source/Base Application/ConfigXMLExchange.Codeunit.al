@@ -1084,14 +1084,23 @@ codeunit 8614 "Config. XML Exchange"
     procedure GetElementName(NameIn: Text[250]): Text[250]
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
+        PercentCharPos: Integer;
+        SubString1: Text;
+        SubString2: Text;
     begin
         OnBeforeGetElementName(NameIn);
 
         if not XMLDOMManagement.IsValidXMLNameStartCharacter(NameIn[1]) then
             NameIn := '_' + NameIn;
+        PercentCharPos := STRPOS(NameIn, '%');
+        IF PercentCharPos > 0 THEN BEGIN
+            SubString1 := COPYSTR(NameIn, 1, PercentCharPos - 1);
+            SubString2 := COPYSTR(NameIn, PercentCharPos + 1, MAXSTRLEN(NameIn));
+            NameIn := SubString1 + '_pct' + SubString2;
+        END;
         NameIn := CopyStr(XMLDOMManagement.ReplaceXMLInvalidCharacters(NameIn, ' '), 1, MaxStrLen(NameIn));
         NameIn := DelChr(NameIn, '=', '?''`');
-        NameIn := ConvertStr(NameIn, '<>,./\+&()%:', '            ');
+        NameIn := ConvertStr(NameIn, '<>,./\+&():', '           ');
         NameIn := ConvertStr(NameIn, '-', '_');
         NameIn := DelChr(NameIn, '=', ' ');
         exit(NameIn);

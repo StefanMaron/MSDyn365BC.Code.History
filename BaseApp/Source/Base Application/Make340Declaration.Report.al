@@ -2215,8 +2215,12 @@ report 10743 "Make 340 Declaration"
         // Testability: FileName is initialized if this report is invoked from tests
         if FileName = '' then begin
             FileName := StrSubstNo(FileNameTxt, FiscalYear, Month);
+#if not CLEAN17
             if Download(ServerTempFileName, '', '', FileFilterTxt, FileName) and FileManagement.IsLocalFileSystemAccessible then
                 Message(FileExportedMsg, FileName);
+#else
+            if Download(ServerTempFileName, '', '', FileFilterTxt, FileName) then;
+#endif
         end else begin
             FileManagement.CopyServerFile(ServerTempFileName, FileName, true);
             Message(FileExportedMsg, FileName);

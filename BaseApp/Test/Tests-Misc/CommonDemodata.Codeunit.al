@@ -281,6 +281,8 @@ codeunit 138500 "Common Demodata"
         // [THEN] "Price List Nos." in Sales Setup is filled.
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Price List Nos.");
+        // [THEN] "Copy Customer Name to Entries" is 'Yes' in Sales Setup is filled.
+        SalesReceivablesSetup.TestField("Copy Customer Name to Entries");
         // [THEN] "Price List Nos." in Purchase Setup is filled.
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.TestField("Price List Nos.");

@@ -334,7 +334,7 @@ codeunit 99000834 "Purch. Line-Reserve"
             if TransferQty = 0 then
                 exit;
             OldReservEntry.SetRange("Reservation Status", ReservStatus);
-
+            OnTransferPurchLineToPurchLineOnAfterOldReservEntrySetFilters(OldPurchLine, NewPurchLine);
             if OldReservEntry.FindSet then
                 repeat
                     OldReservEntry.TestItemFields(OldPurchLine."No.", OldPurchLine."Variant Code", OldPurchLine."Location Code");
@@ -756,6 +756,11 @@ codeunit 99000834 "Purch. Line-Reserve"
         if ReservSummEntry."Entry No." in [12, 16] then
             UpdateStatistics(
                 CalcReservEntry, ReservSummEntry, AvailabilityDate, "Purchase Document Type".FromInteger(ReservSummEntry."Entry No." - 11), Positive, TotalQuantity);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferPurchLineToPurchLineOnAfterOldReservEntrySetFilters(var OldPurchLine: record "Purchase Line"; var NewPurchLine: Record "Purchase Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

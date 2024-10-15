@@ -1562,7 +1562,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateChargeable(Rec, IsHandled);
+        OnBeforeValidateChargeable(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -1649,7 +1649,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFindPriceAndDiscount(JobJnlLine, CalledByFieldNo, IsHandled);
+        OnBeforeFindPriceAndDiscount(Rec, CalledByFieldNo, IsHandled);
         if IsHandled then
             exit;
 
@@ -2058,7 +2058,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateChargeable(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateChargeable(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean; xJobJournalLine: Record "Job Journal Line")
     begin
     end;
 
