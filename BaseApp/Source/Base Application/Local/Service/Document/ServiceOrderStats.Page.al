@@ -349,7 +349,7 @@ page 10052 "Service Order Stats."
                     Editable = false;
                     ToolTip = 'Specifies the cost adjustment amount, in local currency.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;
@@ -438,7 +438,7 @@ page 10052 "Service Order Stats."
                     Editable = false;
                     ToolTip = 'Specifies the profit, expressed as an amount in local currency, which was associated with the service order, when it was originally posted.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;
@@ -539,7 +539,7 @@ page 10052 "Service Order Stats."
                     Editable = false;
                     ToolTip = 'Specifies the adjusted cost of the service order, in local currency.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;
