@@ -11,6 +11,8 @@ codeunit 1326 "Top Five Customers Chart Mgt."
         SalesLCYYCaptionTxt: Label 'Sales (LCY)';
         AllOtherCustomersTxt: Label 'All Other Customers';
         SalesAmountCaptionTxt: Label 'Amount Excl. VAT (%1)', Comment = '%1=Currency Symbol (e.g. $)';
+        CustomerNameNoLbl: Label '%1 - %2', Locked = true;
+        CustomerNo: array[5] of Code[20];
 
     procedure UpdateChart(var BusChartBuf: Record "Business Chart Buffer")
     var
@@ -21,10 +23,10 @@ codeunit 1326 "Top Five Customers Chart Mgt."
         SalesLCY: array[11] of Decimal;
     begin
         with BusChartBuf do begin
-            Initialize;
-            if GLSetup.Get then;
-            if EnvInfoProxy.IsInvoicing then
-                AddMeasure(StrSubstNo(SalesAmountCaptionTxt, GLSetup.GetCurrencySymbol), 1, "Data Type"::Decimal, "Chart Type"::Doughnut)
+            Initialize();
+            if GLSetup.Get() then;
+            if EnvInfoProxy.IsInvoicing() then
+                AddMeasure(StrSubstNo(SalesAmountCaptionTxt, GLSetup.GetCurrencySymbol()), 1, "Data Type"::Decimal, "Chart Type"::Doughnut)
             else
                 AddMeasure(SalesLCYYCaptionTxt, 1, "Data Type"::Decimal, "Chart Type"::Doughnut);
             SetXAxis(CustomerXCaptionTxt, "Data Type"::String);
@@ -46,9 +48,9 @@ codeunit 1326 "Top Five Customers Chart Mgt."
         // drill down only for top 5 customers
         // for the 6th column "all other customers", it drills down to customer list of all other customers
         if (BusChartBuf."Drill-Down Measure Index" = 0) and (BusChartBuf."Drill-Down X Index" < 5) then
-            DrillDownCust(Format(CustomerName));
+            DrillDownCust(CustomerNo[BusChartBuf."Drill-Down X Index" + 1]);
         if (BusChartBuf."Drill-Down Measure Index" = 0) and (BusChartBuf."Drill-Down X Index" = 5) then
-            DrillDownOtherCustList;
+            DrillDownOtherCustList();
     end;
 
     local procedure CalcTopSalesCustomers(var CustomerName: array[6] of Text[100]; var SalesLCY: array[6] of Decimal)
@@ -59,15 +61,18 @@ codeunit 1326 "Top Five Customers Chart Mgt."
         ColumnIndex: Integer;
         OtherCustomersSalesLCY: Decimal;
     begin
-        if TopCustomersBySalesBuffer.IsEmpty then
-            TopCustomersBySalesJob.UpdateCustomerTopList;
+        if TopCustomersBySalesBuffer.IsEmpty() then
+            TopCustomersBySalesJob.UpdateCustomerTopList();
 
-        if TopCustomersBySalesBuffer.FindSet then begin
+        if TopCustomersBySalesBuffer.FindSet() then begin
             repeat
                 ColumnIndex += 1;
                 if ColumnIndex <= 5 then begin
-                    CustomerName[TopCustomersBySalesBuffer.Ranking] := TopCustomersBySalesBuffer.CustomerName;
-                    SalesLCY[TopCustomersBySalesBuffer.Ranking] := TopCustomersBySalesBuffer.SalesLCY
+                    CustomerName[TopCustomersBySalesBuffer.Ranking] :=
+                        CopyStr(StrSubstNo(CustomerNameNoLbl, TopCustomersBySalesBuffer.CustomerNo, TopCustomersBySalesBuffer.CustomerName),
+                            1, MaxStrLen(CustomerName[TopCustomersBySalesBuffer.Ranking]));
+                    SalesLCY[TopCustomersBySalesBuffer.Ranking] := TopCustomersBySalesBuffer.SalesLCY;
+                    CustomerNo[TopCustomersBySalesBuffer.Ranking] := TopCustomersBySalesBuffer.CustomerNo
                 end else
                     OtherCustomersSalesLCY += TopCustomersBySalesBuffer.SalesLCY;
             until TopCustomersBySalesBuffer.Next = 0;
@@ -77,18 +82,17 @@ codeunit 1326 "Top Five Customers Chart Mgt."
                 SalesLCY[6] := OtherCustomersSalesLCY
             end;
 
-            ChartManagement.ScheduleTopCustomerListRefreshTask
+            ChartManagement.ScheduleTopCustomerListRefreshTask()
         end;
     end;
 
-    local procedure DrillDownCust(DrillDownName: Text[100])
+    local procedure DrillDownCust(DrillDownCustomerNo: Code[20])
     var
         Customer: Record Customer;
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        Customer.SetRange(Name, DrillDownName);
-        Customer.FindFirst;
-        if EnvInfoProxy.IsInvoicing then
+        Customer.Get(DrillDownCustomerNo);
+        if EnvInfoProxy.IsInvoicing() then
             PAGE.Run(PAGE::"BC O365 Sales Customer Card", Customer)
         else
             PAGE.Run(PAGE::"Customer Card", Customer);
@@ -99,10 +103,10 @@ codeunit 1326 "Top Five Customers Chart Mgt."
         Customer: Record Customer;
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        Customer.SetFilter("No.", GetFilterToExcludeTopFiveCustomers);
+        Customer.SetFilter("No.", GetFilterToExcludeTopFiveCustomers());
         Customer.SetCurrentKey(Name);
         Customer.Ascending(true);
-        if EnvInfoProxy.IsInvoicing then
+        if EnvInfoProxy.IsInvoicing() then
             PAGE.Run(PAGE::"BC O365 Customer List", Customer)
         else
             PAGE.Run(PAGE::"Customer List", Customer);
@@ -110,20 +114,14 @@ codeunit 1326 "Top Five Customers Chart Mgt."
 
     local procedure GetFilterToExcludeTopFiveCustomers(): Text
     var
-        TopCustomersBySalesBuffer: Record "Top Customers By Sales Buffer";
         CustomerCounter: Integer;
         FilterToExcludeTopFiveCustomers: Text;
     begin
-        CustomerCounter := 1;
-        if TopCustomersBySalesBuffer.FindSet then
-            repeat
-                if CustomerCounter = 1 then
-                    FilterToExcludeTopFiveCustomers := StrSubstNo('<>%1', TopCustomersBySalesBuffer.CustomerNo)
-                else
-                    FilterToExcludeTopFiveCustomers += StrSubstNo('&<>%1', TopCustomersBySalesBuffer.CustomerNo);
-                CustomerCounter += 1;
-            until (TopCustomersBySalesBuffer.Next = 0) or (CustomerCounter = 6);
+        for CustomerCounter := 1 to 5 do
+            if CustomerCounter = 1 then
+                FilterToExcludeTopFiveCustomers := StrSubstNo('<>%1', CustomerNo[CustomerCounter])
+            else
+                FilterToExcludeTopFiveCustomers += StrSubstNo('&<>%1', CustomerNo[CustomerCounter]);
         exit(FilterToExcludeTopFiveCustomers);
     end;
 }
-

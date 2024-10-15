@@ -220,6 +220,7 @@ page 20101 "AMC Banking Setup"
 
     var
         AMCBankServMgt: Codeunit "AMC Banking Mgt.";
+        [NonDebuggable]
         PasswordText: Text[50];
         CheckedEncryption: Boolean;
         CopyBCLicenseQst: Label 'Do you want to copy the License %1 to the User name field?';
