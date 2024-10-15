@@ -86,6 +86,7 @@ page 6550 "Whse. Item Tracking Lines"
                         {
                             ApplicationArea = ItemTracking;
                             BlankZero = true;
+                            DecimalPlaces = 0 : 5;
                             Editable = false;
                             ShowCaption = false;
                         }
@@ -93,6 +94,7 @@ page 6550 "Whse. Item Tracking Lines"
                         {
                             ApplicationArea = ItemTracking;
                             BlankZero = true;
+                            DecimalPlaces = 0 : 5;
                             Editable = false;
                             ShowCaption = false;
                             Visible = Handle3Visible;

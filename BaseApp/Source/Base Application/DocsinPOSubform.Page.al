@@ -237,7 +237,13 @@ page 7000075 "Docs. in PO Subform"
     procedure RemoveDocs(BGPONo: Code[20])
     var
         PaymentOrder: Record "Payment Order";
+        IsHandled: Boolean; 
     begin
+        IsHandled := false;
+        OnBeforeRemoveDocs(Rec, BGPONo, Doc, CarteraManagement, IsHandled);
+        if IsHandled then
+            exit;
+
         Doc.Copy(Rec);
         CurrPage.SetSelectionFilter(Doc);
         if PaymentOrder.Get(BGPONo) then
@@ -249,6 +255,11 @@ page 7000075 "Docs. in PO Subform"
     procedure NavigateDoc()
     begin
         CarteraManagement.NavigateDoc(Rec);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeRemoveDocs(var Rec: Record "Cartera Doc."; var BGPONo: Code[20]; var Doc: Record "Cartera Doc."; var CarteraManagement: Codeunit CarteraManagement; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -210,6 +210,15 @@ codeunit 132215 "Library - Error Message"
         exit(StrSubstNo(MissingAccountTxt, FieldCaption, TableCaption));
     end;
 
+    procedure GetMissingAccountErrorMessage(FieldCaption: Text; VariantRec: Variant): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(VariantRec);
+        RecRef.SetRecFilter();
+        exit(StrSubstNo(MissingAccountTxt, FieldCaption, RecRef.Caption() + ' ' + RecRef.GetFilters()));
+    end;
+
     local procedure AssertGetRecordRefAndFieldRef(RecRelatedVariant: Variant; FieldNumber: Integer; var RecordRef: RecordRef; var FieldRef: FieldRef)
     begin
         if not DataTypeManagement.GetRecordRefAndFieldRef(RecRelatedVariant, FieldNumber, RecordRef, FieldRef) then

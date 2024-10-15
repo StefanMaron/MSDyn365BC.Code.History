@@ -629,6 +629,7 @@ codeunit 7000000 CarteraManagement
         LastConnectionNo: Integer;
         Test1: Boolean;
         Test2: Boolean;
+        IsLastEntry: Boolean;
         PaymentTermsCode: Code[20];
     begin
         OnBeforeCustUnrealizedVAT(
@@ -780,7 +781,9 @@ codeunit 7000000 CarteraManagement
                     FirstVATEntryNo := LastVATEntryNo;
                 ExistVATEntry := Test1 and Test2;
 
-            until (VATEntry2.Next() = 0) or (VATEntryLast."Entry No." = VATEntry2."Entry No.");
+                IsLastEntry := VATEntryLast."Entry No." = VATEntry2."Entry No.";
+
+            until (VATEntry2.Next() = 0) or IsLastEntry;
         end;
     end;
 
@@ -824,6 +827,7 @@ codeunit 7000000 CarteraManagement
         LastConnectionNo: Integer;
         Test1: Boolean;
         Test2: Boolean;
+        IsLastEntry: Boolean;
         PaymentTermsCode: Code[20];
         ReverseChrgVATAcc: Code[20];
         ReverseChrgVATUnrealAcc: Code[20];
@@ -995,7 +999,9 @@ codeunit 7000000 CarteraManagement
                     FirstVATEntryNo := LastVATEntryNo;
                 ExistVATEntry := Test1 and Test2;
 
-            until (VATEntry2.Next() = 0) or (VATEntryLast."Entry No." = VATEntry2."Entry No.");
+                IsLastEntry := VATEntryLast."Entry No." = VATEntry2."Entry No.";
+
+            until (VATEntry2.Next() = 0) or IsLastEntry;
         end;
     end;
 

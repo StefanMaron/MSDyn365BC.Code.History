@@ -52,7 +52,6 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
         AddingInformationForARemovedUserTxt: Label 'Adding changes for a user removed / de-licensed in Office with user security ID [%1].', Comment = '%1 = User security ID', Locked = true;
         PlanNamesPerUserFromGraphTxt: Label 'User with AAD Object ID [%1] has plans [%2].', Comment = '%1 = authentication object ID (guid); %2 = list of plans for the user (text)', Locked = true;
         ProcessingUserTxt: Label 'Processing the user %1.', Comment = '%1 - Display name', Locked = true;
-        UserCannotBeDeletedAlreadyLoggedInErr: Label 'The user "%1" cannot be deleted because the user has been logged on to the system. To deactivate a user, set the user''s state to Disabled.', Comment = 'Shown when trying to delete a user that has been logged onto the system. %1 = UserName.';
         DelimiterTxt: Label '|', Locked = true;
 
     [NonDebuggable]
@@ -648,24 +647,6 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
     local procedure ConvertTextToList(InputText: Text; var MyList: List of [Text])
     begin
         MyList := InputText.Split(DelimiterTxt);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::User, 'OnBeforeDeleteEvent', '', true, true)]
-    local procedure OnBeforeDeleteUser(var Rec: Record User; RunTrigger: Boolean)
-    var
-        UserPersonalization: Record "User Personalization";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        // Allow deletion of users only if they have never logged in.
-        if not UserLoginTimeTracker.IsFirstLogin(Rec."User Security ID") then
-            Error(UserCannotBeDeletedAlreadyLoggedInErr, Rec."User Name");
-
-        // Access control and user property are cleaned-up in the platform.
-        // Clean-up user personalization.
-        if UserPersonalization.Get(Rec."User Security ID") then
-            UserPersonalization.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Custom Dimensions", 'OnAddCommonCustomDimensions', '', true, true)]

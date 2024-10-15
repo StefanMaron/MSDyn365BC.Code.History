@@ -735,7 +735,8 @@
         FromSalesInvHeader.CalcFields(Amount);
         with ToSalesHeader do
             if ("Applies-to Doc. Type" = "Applies-to Doc. Type"::" ") and ("Applies-to Doc. No." = '') and
-               (FromDocType = "Sales Document Type From"::"Posted Invoice") and (FromSalesInvHeader.Amount = 0)
+               (FromDocType = "Sales Document Type From"::"Posted Invoice") and (FromSalesInvHeader.Amount = 0) and
+               ("Document Type" = "Document Type"::"Credit Memo")
             then begin
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
                 "Applies-to Doc. No." := FromDocNo;
@@ -3434,6 +3435,7 @@
     local procedure SplitPstdSalesLinesPerILE(ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; var ItemLedgEntry: Record "Item Ledger Entry"; var TempSalesLineBuf: Record "Sales Line" temporary; FromSalesLine: Record "Sales Line"; var TempDocSalesLine: Record "Sales Line" temporary; var NextLineNo: Integer; var CopyItemTrkg: Boolean; var MissingExCostRevLink: Boolean; FillExactCostRevLink: Boolean; FromShptOrRcpt: Boolean): Boolean
     var
         OrgQtyBase: Decimal;
+        OneRecord: Boolean;
     begin
         if FromShptOrRcpt then begin
             TempSalesLineBuf.Reset();
@@ -3452,6 +3454,7 @@
             exit(false);
 
         with ItemLedgEntry do begin
+            OneRecord := Count() = 1;
             FindSet();
             if Quantity >= 0 then begin
                 TempSalesLineBuf."Document No." := "Document No.";
@@ -3501,7 +3504,10 @@
 
                     OnSplitPstdSalesLinesPerILETransferFields(FromSalesHeader, FromSalesLine, TempSalesLineBuf, ToSalesHeader);
                     TempSalesLineBuf.Insert();
-                    AddSalesDocLine(TempDocSalesLine, TempSalesLineBuf."Line No.", "Document No.", TempSalesLineBuf."Line No.");
+                    if OneRecord then
+                        AddSalesDocLine(TempDocSalesLine, TempSalesLineBuf."Line No.", FromSalesLine."Document No.", FromSalesLine."Line No.")
+                    else
+                        AddSalesDocLine(TempDocSalesLine, TempSalesLineBuf."Line No.", "Document No.", TempSalesLineBuf."Line No.");
                 end;
             until (Next() = 0) or (FromSalesLine."Quantity (Base)" = 0);
 
@@ -4305,6 +4311,7 @@
         Item: Record Item;
         ApplyRec: Record "Item Application Entry";
         OrgQtyBase: Decimal;
+        OneRecord: Boolean;
         IsHandled: Boolean;
     begin
         if FromShptOrRcpt then begin
@@ -4338,6 +4345,7 @@
             exit(false);
 
         with ItemLedgEntry do begin
+            OneRecord := Count() = 1;
             FindSet();
             if Quantity <= 0 then begin
                 FromPurchLineBuf."Document No." := "Document No.";
@@ -4403,7 +4411,10 @@
                     if FromPurchLineBuf.Quantity <> 0 then begin
                         OnSplitPstdPurchLinesPerILEOnBeforeFromPurchLineBufInsert(FromPurchHeader, FromPurchLine, FromPurchLineBuf, ToPurchHeader);
                         FromPurchLineBuf.Insert();
-                        AddPurchDocLine(TempDocPurchaseLine, FromPurchLineBuf."Line No.", "Document No.", FromPurchLineBuf."Line No.");
+                        if OneRecord then
+                            AddPurchDocLine(TempDocPurchaseLine, FromPurchLineBuf."Line No.", FromPurchLine."Document No.", FromPurchLine."Line No.")
+                        else
+                            AddPurchDocLine(TempDocPurchaseLine, FromPurchLineBuf."Line No.", "Document No.", FromPurchLineBuf."Line No.");
                     end else
                         SkippedLine := true;
                 end else

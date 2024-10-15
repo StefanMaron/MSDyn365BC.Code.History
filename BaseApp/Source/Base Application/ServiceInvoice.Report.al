@@ -430,7 +430,8 @@ report 5911 "Service - Invoice"
                                 AccNo := "No.";
                                 "No." := "Service Item No.";
                                 ServiceItemSerialNo := GetServiceItemSerialNo("Service Item No.");
-                            end;
+                            end else
+                                ServiceItemSerialNo := "Service Item Serial No.";
 
                             if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
                                 VATAmountLine.Init();
