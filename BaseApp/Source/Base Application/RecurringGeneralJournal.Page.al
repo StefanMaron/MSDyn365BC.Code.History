@@ -1,4 +1,4 @@
-page 283 "Recurring General Journal"
+﻿page 283 "Recurring General Journal"
 {
     AdditionalSearchTerms = 'accruals';
     ApplicationArea = Suite, FixedAssets;
@@ -582,6 +582,20 @@ page 283 "Recurring General Journal"
                     Image = InsertCurrency;
                     RunObject = Codeunit "Adjust Gen. Journal Balance";
                     ToolTip = 'Insert a rounding correction line in the journal. This rounding correction line will balance in LCY when amounts in the foreign currency also balance. You can then post the journal.';
+                }
+                action(SetDimFilters)
+                {
+                    ApplicationArea = Dimensions;
+                    Caption = 'Set Dimension Filter';
+                    Image = Filter;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    ToolTip = 'Set a filter that can be used with the BD Balance by Dimension or RBD Reversing Balance by Dimension recurring methods. When applied, it will get the balance by dimensions from general ledger entries.';
+
+                    trigger OnAction()
+                    begin
+                        ShowRecurringDimFilter();
+                    end;
                 }
             }
             group("P&osting")

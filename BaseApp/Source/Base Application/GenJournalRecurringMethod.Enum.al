@@ -1,4 +1,4 @@
-enum 53 "Gen. Journal Recurring Method"
+﻿enum 53 "Gen. Journal Recurring Method"
 {
     Extensible = true;
     AssignmentCompatibility = true;
@@ -10,4 +10,6 @@ enum 53 "Gen. Journal Recurring Method"
     value(4; "RF Reversing Fixed") { Caption = 'RF Reversing Fixed'; }
     value(5; "RV Reversing Variable") { Caption = 'RV Reversing Variable'; }
     value(6; "RB Reversing Balance") { Caption = 'RB Reversing Balance'; }
+    value(7; "BD Balance by Dimension") { Caption = 'BD Balance by Dimension'; }
+    value(8; "RBD Reversing Balance by Dimension") { Caption = 'RBD Reversing Balance by Dimension'; }
 }

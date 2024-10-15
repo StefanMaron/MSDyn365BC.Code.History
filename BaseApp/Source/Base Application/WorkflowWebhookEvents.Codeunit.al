@@ -75,6 +75,48 @@ codeunit 1541 "Workflow Webhook Events"
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         WorkflowSetup.InsertTableRelation(DATABASE::Vendor, DummyVendor.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+
+        CleanupOldIntegrationIdsTableRelation();
+    end;
+
+    procedure CleanupOldIntegrationIdsTableRelation()
+    var
+        DummyCustomer: Record Customer;
+        DummyItem: Record Item;
+        DummyGenJournalBatch: Record "Gen. Journal Batch";
+        DummyGenJournalLine: Record "Gen. Journal Line";
+        DummyPurchaseHeader: Record "Purchase Header";
+        DummySalesHeader: Record "Sales Header";
+        DummyVendor: Record Vendor;
+        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        CleanupIntegrationRecordTableRelation(DATABASE::Customer, DummyCustomer.FieldNo(SystemId), DummyCustomer.FieldNo(Id), DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        CleanupIntegrationRecordTableRelation(DATABASE::"Gen. Journal Batch", DummyGenJournalBatch.FieldNo(SystemId), DummyGenJournalBatch.FieldNo(Id), DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        CleanupIntegrationRecordTableRelation(DATABASE::"Gen. Journal Line", DummyGenJournalLine.FieldNo(SystemId), DummyGenJournalLine.FieldNo(Id), DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        CleanupIntegrationRecordTableRelation(DATABASE::Item, DummyItem.FieldNo(SystemId), DummyItem.FieldNo(Id), DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        CleanupIntegrationRecordTableRelation(DATABASE::"Purchase Header", DummyPurchaseHeader.FieldNo(SystemId), DummyPurchaseHeader.FieldNo(Id), DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        CleanupIntegrationRecordTableRelation(DATABASE::"Sales Header", DummySalesHeader.FieldNo(SystemId), DummySalesHeader.FieldNo(Id), DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+        CleanupIntegrationRecordTableRelation(DATABASE::Vendor, DummyVendor.FieldNo(SystemId), DummyVendor.FieldNo(Id), DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetRemoveOldWorkflowTableRelationshipRecordsTag()) then
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetRemoveOldWorkflowTableRelationshipRecordsTag());
+    end;
+
+    local procedure CleanupIntegrationRecordTableRelation(TableId: Integer; FieldId: Integer; OldFieldId: Integer; RelatedTableId: Integer; RelatedFieldId: Integer)
+    var
+        WorkflowTableRelation: Record "Workflow - Table Relation";
+        OldWorkflowTableRelation: Record "Workflow - Table Relation";
+    begin
+        // Only cleanup old if the new field exists
+        if not WorkflowTableRelation.Get(TableID, FieldId, RelatedTableId, RelatedFieldId) then
+            exit;
+
+        if not OldWorkflowTableRelation.Get(TableId, OldFieldId, RelatedTableId, RelatedFieldId) then
+            exit;
+
+        OldWorkflowTableRelation.Delete(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1543, 'OnCancelWorkflow', '', false, false)]

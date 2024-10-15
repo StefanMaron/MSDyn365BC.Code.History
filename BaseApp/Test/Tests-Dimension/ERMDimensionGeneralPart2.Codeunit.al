@@ -46,6 +46,8 @@ codeunit 134480 "ERM Dimension General Part 2"
         GLBudgetFilterControlId: Integer;
         CostBudgetFilterControlId: Integer;
         FormatStrTxt: Label '<Precision,%1><Standard Format,0>';
+        FieldMustBeVisibleErr: Label 'Field must be visible.';
+        FieldMustBeHiddenErr: Label 'Field must be hidden.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2620,6 +2622,42 @@ codeunit 134480 "ERM Dimension General Part 2"
         Assert.AreEqual(Format(Amount, 0, StrSubstNo(FormatStrTxt, Format(0))), LibraryVariableStorage.DequeueText(), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GLBalanceDimMatrixPageHandler')]
+    procedure GLBalancebyDimensionValuesFromAnalysisByDimUserParamDateFilter()
+    var
+        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
+        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+        GLAccountNo: Code[20];
+    begin
+        // [FEATURE] [GL Balance By Dimension] [UI]
+        // [SCENARIO 385733] G/L Balance by Dim. Matrix shows the periods from saved parameters
+        Initialize();
+
+        // [GIVEN] G/L Account "XXX"
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] "Analysis by Dim. User Param." for current user and page 408 with G/L Account Filter = "XXX" and "Date Filter" = '01/01/2021..01/02/2021';
+        AnalysisByDimUserParam.Init();
+        AnalysisByDimUserParam."User ID" := UserId();
+        AnalysisByDimUserParam."Page ID" := Page::"G/L Balance by Dimension";
+        AnalysisByDimUserParam."Account Filter" := GLAccountNo;
+        AnalysisByDimUserParam."Date Filter" := Format(WorkDate()) + '..' + Format(CalcDate('<1D>', WorkDate()));
+        AnalysisByDimUserParam.Insert();
+
+        // [WHEN] Open G/L Balance By Dimension page and invoke "Show Matrix"
+        GLBalancebyDimension.OpenEdit();
+        GLBalancebyDimension.LineDimCode.SetValue('');
+        GLBalancebyDimension.ColumnDimCode.SetValue('');
+        GLBalancebyDimension.Close();
+        GLBalancebyDimension.OpenEdit();
+        GLBalancebyDimension.ShowMatrix.Invoke();
+
+        // [THEN] G/L Balance by Dim. Matrix is showing only Field1 and Field2
+        // Verification in GLBalanceDimMatrixPageHandler
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3760,6 +3798,44 @@ codeunit 134480 "ERM Dimension General Part 2"
             else
                 Assert.Fail(CheckColIndexErr);
         end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GLBalanceDimMatrixPageHandler(var GLBalancebyDimMatrix: TestPage "G/L Balance by Dim. Matrix")
+    begin
+        Assert.IsTrue(GLBalancebyDimMatrix.Field1.Visible(), FieldMustBeVisibleErr);
+        Assert.IsTrue(GLBalancebyDimMatrix.Field2.Visible(), FieldMustBeVisibleErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field3.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field4.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field5.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field6.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field7.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field8.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field9.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field10.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field11.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field12.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field13.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field14.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field15.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field16.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field17.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field18.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field19.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field20.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field21.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field22.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field23.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field24.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field25.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field26.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field27.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field28.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field29.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field30.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field31.Visible(), FieldMustBeHiddenErr);
+        Assert.IsFalse(GLBalancebyDimMatrix.Field32.Visible(), FieldMustBeHiddenErr);
     end;
 
     [ModalPageHandler]

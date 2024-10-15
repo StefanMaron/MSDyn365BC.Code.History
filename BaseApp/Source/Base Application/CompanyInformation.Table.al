@@ -323,12 +323,14 @@ table 79 "Company Information"
                             else
                                 FileName := "IC Inbox Details" + StrSubstNo('\%1.xml', "IC Partner Code");
 
+#if not CLEAN17
                             FileName2 := FileMgt.SaveFileDialog(Text001, FileName, '');
                             if FileName <> FileName2 then begin
                                 Path := FileMgt.GetDirectoryName(FileName2);
                                 if Path <> '' then
                                     "IC Inbox Details" := CopyStr(Path, 1, 250);
                             end;
+#endif
                         end;
                 end;
             end;
