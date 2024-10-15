@@ -595,6 +595,8 @@
                         FieldError(Quantity, StrSubstNo(Text003, FieldCaption("Qty. Assigned")));
                 end;
 
+                CheckRetentionAttachedToLineNo();
+
                 IsHandled := false;
                 OnValidateQuantityOnBeforeCheckReceiptOrderStatus(Rec, StatusCheckSuspended, IsHandled);
                 if not IsHandled then
@@ -3161,13 +3163,13 @@
 
             trigger OnValidate()
             begin
-                if Quantity >= 0 then
-                    TestField("Retention Attached to Line No.", 0);
+                CheckRetentionAttachedToLineNo();
             end;
         }
         field(10002; "Retention VAT %"; Decimal)
         {
             Caption = 'Retention VAT %';
+            AutoFormatType = 2;	    
             MaxValue = 100;
             MinValue = 0;
         }
@@ -4652,9 +4654,6 @@
         if IsHandled then
             exit;
 
-        if Reserve = Reserve::Always then
-            exit;
-
         if "Shipment Date" = 0D then begin
             GetSalesHeader();
             if SalesHeader."Shipment Date" <> 0D then
@@ -4782,6 +4781,7 @@
             TestField("Shipment Date");
             ReservMgt.SetReservSource(Rec);
             ReservMgt.AutoReserve(FullAutoReservation, '', "Shipment Date", QtyToReserve, QtyToReserveBase);
+            CalcFields("Reserved Quantity");
             Find();
             SalesSetup.Get();
             if (not FullAutoReservation) and (not SalesSetup."Skip Manual Reservation") then begin
@@ -7174,6 +7174,12 @@
                             end;
                 end;
         end;
+    end;
+
+    local procedure CheckRetentionAttachedToLineNo()
+    begin
+        if Quantity >= 0 then
+            TestField("Retention Attached to Line No.", 0);
     end;
 
     procedure IsNonInventoriableItem(): Boolean

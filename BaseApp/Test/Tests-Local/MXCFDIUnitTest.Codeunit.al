@@ -18,6 +18,7 @@ codeunit 144000 "MX CFDI Unit Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         PACCodeDeleteError: Label 'You cannot delete the code %1 because it is used in the %2 window.';
         PACWebServiceDetailError: Label 'PAC Web Service Details count is incorrect.';
@@ -1397,12 +1398,121 @@ codeunit 144000 "MX CFDI Unit Test"
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RetentionLineNoInSalesDocumentsPACDisabled()
+    var
+        SalesOrderSubform: TestPage "Sales Order Subform";
+        SalesInvoiceSubform: TestPage "Sales Invoice Subform";
+        SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 389401] 'Retention Attached to Line No.' and 'Retention VAT %' are not visible in sales document lines when PAC Environment is disabled
+        UpdateGLSetupPACEnvironment(false);
+
+        SalesOrderSubform.OpenEdit;
+        Assert.IsFalse(
+          SalesOrderSubform."Retention Attached to Line No.".Visible, SalesOrderSubform."Retention Attached to Line No.".Caption);
+        Assert.IsFalse(
+          SalesOrderSubform."Retention VAT %".Visible, SalesOrderSubform."Retention VAT %".Caption);
+
+        SalesInvoiceSubform.OpenEdit;
+        Assert.IsFalse(
+          SalesInvoiceSubform."Retention Attached to Line No.".Visible, SalesInvoiceSubform."Retention Attached to Line No.".Caption);
+        Assert.IsFalse(
+          SalesInvoiceSubform."Retention VAT %".Visible, SalesInvoiceSubform."Retention VAT %".Caption);
+
+        SalesCrMemoSubform.OpenEdit;
+        Assert.IsFalse(
+          SalesCrMemoSubform."Retention Attached to Line No.".Visible, SalesCrMemoSubform."Retention Attached to Line No.".Caption);
+        Assert.IsFalse(
+          SalesCrMemoSubform."Retention VAT %".Visible, SalesCrMemoSubform."Retention VAT %".Caption);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RetentionLineNoInSalesDocumentsPACEnabled()
+    var
+        SalesOrderSubform: TestPage "Sales Order Subform";
+        SalesInvoiceSubform: TestPage "Sales Invoice Subform";
+        SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 389401] 'Retention Attached to Line No.' and 'Retention VAT %' are visible in sales document lines when PAC Environment is enabled
+        UpdateGLSetupPACEnvironment(true);
+
+        SalesOrderSubform.OpenEdit;
+        Assert.IsTrue(
+          SalesOrderSubform."Retention Attached to Line No.".Visible, SalesOrderSubform."Retention Attached to Line No.".Caption);
+        Assert.IsTrue(
+          SalesOrderSubform."Retention VAT %".Visible, SalesOrderSubform."Retention VAT %".Caption);
+
+        SalesInvoiceSubform.OpenEdit;
+        Assert.IsTrue(
+          SalesInvoiceSubform."Retention Attached to Line No.".Visible, SalesInvoiceSubform."Retention Attached to Line No.".Caption);
+        Assert.IsTrue(
+          SalesInvoiceSubform."Retention VAT %".Visible, SalesInvoiceSubform."Retention VAT %".Caption);
+
+        SalesCrMemoSubform.OpenEdit;
+        Assert.IsTrue(
+          SalesCrMemoSubform."Retention Attached to Line No.".Visible, SalesCrMemoSubform."Retention Attached to Line No.".Caption);
+        Assert.IsTrue(
+          SalesCrMemoSubform."Retention VAT %".Visible, SalesCrMemoSubform."Retention VAT %".Caption);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateRetentionLineNoPositiveQty()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineRetention: Record "Sales Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 389401] 'Retention Attached to Line No.' is assigned if line has negative Quantity
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        LibrarySales.CreateSalesLine(
+          SalesLineRetention, SalesHeader, SalesLineRetention.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        asserterror SalesLineRetention.Validate("Retention Attached to Line No.", SalesLine."Line No.");
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(
+          StrSubstNo('%1 must be equal to ''0''', SalesLineRetention.FieldCaption("Retention Attached to Line No.")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateRetentionLineNoNegativeQty()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineRetention: Record "Sales Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 389401] 'Retention Attached to Line No.' cannot be assigned if line has positive Quantity
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        LibrarySales.CreateSalesLine(
+          SalesLineRetention, SalesHeader, SalesLineRetention.Type::Item, LibraryInventory.CreateItemNo(), -1);
+        SalesLineRetention.Validate("Retention Attached to Line No.", SalesLine."Line No.");
+        SalesLineRetention.TestField("Retention Attached to Line No.", SalesLine."Line No.");
+    end;
+
     local procedure Initialize()
     begin
+        LibrarySetupStorage.Restore;
         if IsInitialized then
             exit;
 
         UpdateCompanyInfo;
+
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
         Commit();

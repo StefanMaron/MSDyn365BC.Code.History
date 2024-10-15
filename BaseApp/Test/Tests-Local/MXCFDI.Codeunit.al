@@ -2733,6 +2733,73 @@ codeunit 144001 "MX CFDI"
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
+    procedure ErrorLogCheckDocumentLinesWithRetentions()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Error Log] [Retention]
+        // [SCENARIO 389401] Error Log for Sales Invoice Lines with retentions
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice has tree lines
+        // [GIVEN] Normal sales line
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(), CreatePaymentMethodForSAT());
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItemWithPrice(LibraryRandom.RandIntInRange(1000, 2000)),
+          LibraryRandom.RandIntInRange(1, 10), 0, 0, false, false);
+        SalesLine.Description := '';
+        SalesLine.Modify();
+        // [GIVEN] Sales line with negative quantity supposed to be retention line, 'Retention Attached to Line No.' is not assigned
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItemWithPrice(LibraryRandom.RandIntInRange(100, 200)),
+          -LibraryRandom.RandIntInRange(1, 10), 0, 0, false, false);
+        // [GIVEN] Retention Sales line with assigned 'Retention Attached to Line No.', 'Retention VAT %' is not assigned
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItemWithPrice(LibraryRandom.RandIntInRange(100, 200)),
+          -LibraryRandom.RandIntInRange(1, 10), 0, 0, false, false);
+        SalesLine."Retention Attached to Line No." := LibraryRandom.RandIntInRange(1000, 2000);
+        SalesLine.Modify();
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.FindSet();
+
+        // [WHEN] Request Stamp Sales Invoice
+        ErrorMessages.Trap;
+        asserterror
+          RequestStamp(
+            DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+
+        // [THEN] Error Messages page is opened with logged errors for blank fields in Sales Line table
+        Assert.ExpectedMessage(
+          StrSubstNo('''%1'' in ''%2: %3,%4'' must not be blank.',
+            SalesInvoiceLine.FieldCaption(Description), SalesInvoiceLine.TableCaption,
+            SalesInvoiceLine."Document No.", SalesInvoiceLine."Line No."),
+          ErrorMessages.Description.Value);
+        // [THEN] Warning is registered for the line with negative Quantity and 'Retention Attached to Line No.' = 0
+        ErrorMessages.Next;
+        SalesInvoiceLine.Next();
+        Assert.ExpectedMessage(
+          StrSubstNo('''%1'' in ''Document Line: %2,%3'' must be greater than or equal to 0.',
+            SalesInvoiceLine.FieldCaption(Quantity),
+            SalesInvoiceLine."Document No.", SalesInvoiceLine."Line No."),
+          ErrorMessages.Description.Value);
+        // [THEN] Warning is registered for the line with line having 'Retention Attached to Line No.' and 'Retention VAT %' = 0
+        ErrorMessages.Next;
+        SalesInvoiceLine.Next();
+        Assert.ExpectedMessage(
+          StrSubstNo('''%1'' in ''Document Line: %2,%3'' must not be blank.',
+            SalesInvoiceLine.FieldCaption("Retention VAT %"),
+            SalesInvoiceLine."Document No.", SalesInvoiceLine."Line No."),
+          ErrorMessages.Description.Value);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
     procedure SalesInvoiceNormalVATRequestStamp()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -2775,9 +2842,11 @@ codeunit 144001 "MX CFDI"
         // [THEN] XML Document has node 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with total VAT line
         // [THEN] and attributes 'Importe' = 10, 'TipoFactor' = 'Tasa', 'Impuesto' = '003'.
         VerifyVATTotalLine(
-          OriginalStr, SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount,
+          OriginalStr,
           SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, SalesInvoiceLine."VAT %",
-          '003', 0, 1);
+          '003', 0, 1, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 38);
     end;
 
     [Test]
@@ -2825,7 +2894,9 @@ codeunit 144001 "MX CFDI"
         // [THEN] XML Document has node 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with total VAT line
         // [THEN] and attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
         VerifyVATTotalLine(
-          OriginalStr, 0, 0, 0, '002', 0, 1);
+          OriginalStr, 0, 0, '002', 0, 1, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', 0, 38);
     end;
 
     [Test]
@@ -2967,17 +3038,19 @@ codeunit 144001 "MX CFDI"
           OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
           SalesInvoiceLine."VAT %", '003', 2, 0, 0);
         VerifyVATTotalLine(
-          OriginalStr, SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount,
+          OriginalStr,
           SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount, SalesInvoiceLine."VAT %",
-          '003', 0, 2);
-        SalesInvoiceLine.FindLast();
+          '003', 0, 2, 0);
+        SalesInvoiceLine.FindLast;
         VerifyVATAmountLines(
           OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
           SalesInvoiceLine."VAT %", '003', 2, 1, 1);
         VerifyVATTotalLine(
-          OriginalStr, SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount,
+          OriginalStr,
           SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount, SalesInvoiceLine."VAT %",
-          '003', 1, 2);
+          '003', 1, 2, 0);
+        VerifyTotalImpuestos(
+          OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 57);
     end;
 
     [Test]
@@ -2992,6 +3065,8 @@ codeunit 144001 "MX CFDI"
         Customer: Record Customer;
         Currency: Record Currency;
         TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
         UnitPrice: Decimal;
         LineDiscExclVAT: Decimal;
     begin
@@ -3030,19 +3105,19 @@ codeunit 144001 "MX CFDI"
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] XML header has 'Total' = 5589, 'Descuento' = 140, 'SubTotal' = 5000 (4860 + 140)
         Currency.InitRoundingPrecision();
         UnitPrice := Round(SalesLine."Unit Price" * 100 / (100 + SalesLine."VAT %"), Currency."Unit-Amount Rounding Precision");
         LineDiscExclVAT :=
           Round(SalesLineDisc.Quantity * UnitPrice * SalesLineDisc."Line Discount %" / 100, Currency."Amount Rounding Precision");
-
-        LibraryXPathXMLReader.VerityAttributeFromRootNode(
-          'SubTotal', FormatDecimal(UnitPrice * (SalesLine.Quantity + SalesLineDisc.Quantity), 2));
-        LibraryXPathXMLReader.VerityAttributeFromRootNode(
-          'Total', FormatDecimal(SalesInvoiceHeader."Amount Including VAT", 2));
-        LibraryXPathXMLReader.VerityAttributeFromRootNode(
-          'Descuento', FormatDecimal(LineDiscExclVAT, 2));
+        VerifyRootNodeTotals(
+          OriginalStr,
+          SalesInvoiceHeader."Amount Including VAT", UnitPrice * (SalesLine.Quantity + SalesLineDisc.Quantity),
+          LineDiscExclVAT);
 
         // [THEN] 'Concepto' node for discount line has 'Descuento' = 140, Importe = 2000, 'ValorUnitario' = 1000
         // [THEN] 'Traslado' node for discount line has 'Importe' = 279 (2300 - 1860 -161), 'Base' = 1860 (2000 - 140)
@@ -3070,6 +3145,8 @@ codeunit 144001 "MX CFDI"
         Customer: Record Customer;
         Currency: Record Currency;
         TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
         UnitPrice: Decimal;
         LineDiscExclVAT: Decimal;
     begin
@@ -3108,19 +3185,19 @@ codeunit 144001 "MX CFDI"
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        ServiceInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
         // [THEN] XML header has 'Total' = 5589, 'Descuento' = 140, 'SubTotal' = 5000 (4860 + 140)
         Currency.InitRoundingPrecision();
         UnitPrice :=
           Round(ServiceLine."Unit Price" * 100 / (100 + ServiceLine."VAT %"), Currency."Unit-Amount Rounding Precision");
         LineDiscExclVAT := Round(ServiceLineDisc."Line Discount Amount" * 100 / (100 + ServiceLineDisc."VAT %"));
-
-        LibraryXPathXMLReader.VerityAttributeFromRootNode(
-          'SubTotal', FormatDecimal(UnitPrice * (ServiceLine.Quantity + ServiceLineDisc.Quantity), 2));
-        LibraryXPathXMLReader.VerityAttributeFromRootNode(
-          'Total', FormatDecimal(ServiceInvoiceHeader."Amount Including VAT", 2));
-        LibraryXPathXMLReader.VerityAttributeFromRootNode(
-          'Descuento', FormatDecimal(LineDiscExclVAT, 2));
+        VerifyRootNodeTotals(
+          OriginalStr,
+          ServiceInvoiceHeader."Amount Including VAT", UnitPrice * (ServiceLine.Quantity + ServiceLineDisc.Quantity),
+          LineDiscExclVAT);
 
         // [THEN] 'Concepto' node for discount line has 'Descuento' = 140, Importe = 2000, 'ValorUnitario' = 1000
         // [THEN] 'Traslado' node for discount line has 'Importe' = 279 (2300 - 1860 -161), 'Base' = 1860 (2000 - 140)
@@ -3593,6 +3670,222 @@ codeunit 144001 "MX CFDI"
         VerifyVATAmountLines(OriginalStr, 30838.9, 4934.224, 16, '002', 5, 1, 0);
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRetentionRequestStamp()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineRetention: Record "Sales Line";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Retention]
+        // [SCENARIO 389401] Request Stamp for Sales Invoice with retention line
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Amount = 1000, VAT Amount = 0
+        // [GIVEN] Retention Line with Amount = -100, Retention VAT % = 10
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(), CreatePaymentMethodForSAT());
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(100, 200), 0, 0, false, false);
+        CreateSalesLineItem(
+          SalesLineRetention, SalesHeader, CreateItem, -LibraryRandom.RandIntInRange(1, 10), 0, 0, false, false);
+        SalesLineRetention."Retention Attached to Line No." := SalesLine."Line No.";
+        SalesLineRetention."Retention VAT %" := LibraryRandom.RandIntInRange(10, 20);
+        SalesLineRetention.Modify();
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] Subtotal = 1000, Total = 900
+        VerifyRootNodeTotals(
+          OriginalStr, SalesLine."Amount Including VAT" + SalesLineRetention."Amount Including VAT", SalesLine."Amount Including VAT", 0);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado'
+        // [THEN] has attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 1000.
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion'
+        // [THEN] has attributes 'Importe' = 100, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 1000.
+        VerifyVATAmountLines(
+          OriginalStr, SalesLine."Amount Including VAT", 0, 0, '002', 2, 0, 0);
+        VerifyRetentionAmountLine(
+          OriginalStr,
+          SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT", SalesLineRetention."Retention VAT %", '002', 39, 0);
+
+        // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
+        // [THEN] 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 100, 'Impuesto' = '002'.
+        VerifyVATTotalLine(OriginalStr, 0, 0, '002', 0, 1, 8);
+        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention."Amount Including VAT", '002', 40, 0);
+
+        // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 0, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 100
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 46);
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos', -SalesLineRetention."Amount Including VAT", 41);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoRetentionRequestStamp()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineRetention: Record "Sales Line";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Retention]
+        // [SCENARIO 389401] Request Stamp for Sales Credit Memo with retention line
+        Initialize();
+
+        // [GIVEN] Posted Sales Credit Memo with Amount = 1000, VAT Amount = 0
+        // [GIVEN] Retention Line with Amount = -100, Retention VAT % = 10
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CreateCustomer(), CreatePaymentMethodForSAT());
+        CreateSalesLineItem(
+          SalesLine, SalesHeader, CreateItem, LibraryRandom.RandIntInRange(100, 200), 0, 0, false, false);
+        CreateSalesLineItem(
+          SalesLineRetention, SalesHeader, CreateItem, -LibraryRandom.RandIntInRange(1, 10), 0, 0, false, false);
+        SalesLineRetention."Retention Attached to Line No." := SalesLine."Line No.";
+        SalesLineRetention."Retention VAT %" := LibraryRandom.RandIntInRange(10, 20);
+        SalesLineRetention.Modify();
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Request Stamp for the Sales Credit Memo
+        RequestStamp(
+          DATABASE::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesCrMemoHeader.Find();
+        SalesCrMemoHeader.CalcFields("Original String", "Original Document XML");
+
+        TempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        SalesCrMemoHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] Subtotal = 1000, Total = 900
+        VerifyRootNodeTotals(
+          OriginalStr, SalesLine."Amount Including VAT" + SalesLineRetention."Amount Including VAT", SalesLine."Amount Including VAT", 0);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado'
+        // [THEN] has attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 1000.
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion'
+        // [THEN] has attributes 'Importe' = 100, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 1000.
+        VerifyVATAmountLines(
+          OriginalStr, SalesLine."Amount Including VAT", 0, 0, '002', 2, 0, 0);
+        VerifyRetentionAmountLine(
+          OriginalStr,
+          SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT", SalesLineRetention."Retention VAT %", '002', 39, 0);
+
+        // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
+        // [THEN] 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 100, 'Impuesto' = '002'.
+        VerifyVATTotalLine(OriginalStr, 0, 0, '002', 0, 1, 8);
+        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention."Amount Including VAT", '002', 40, 0);
+
+        // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 0, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 100
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', 0, 46);
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos', -SalesLineRetention."Amount Including VAT", 41);
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceRetentionTwoLinesRequestStamp()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineRetention1: Record "Sales Line";
+        SalesLineRetention2: Record "Sales Line";
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OriginalStr: Text;
+    begin
+        // [FEATURE] [Retention]
+        // [SCENARIO 389401] Request Stamp for Sales Invoice with two retention lines
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Amount = 78000, VAT Amount = 12480, VAT % = 16
+        // [GIVEN] Retention Line 1 with Amount = -7800, Retention VAT % = 10
+        // [GIVEN] Retention Line 2 with Amount = -8319.948, Retention VAT % = 10.6666
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(), CreatePaymentMethodForSAT());
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem, 1, 0, 16, false, false);
+        SalesLine.Validate("Unit Price", 78000);
+        SalesLine.Modify(true);
+        CreateRetentionSalesLine(
+          SalesLineRetention1, SalesHeader, SalesLine."Line No.", -1, SalesLine.Amount, 10);
+        CreateRetentionSalesLine(
+          SalesLineRetention2, SalesHeader, SalesLine."Line No.", -1, SalesLine.Amount, 10.6666);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Request Stamp for the Sales Invoice
+        RequestStamp(
+          DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", ResponseOption::Success, ActionOption::"Request Stamp");
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.CalcFields("Original String", "Original Document XML");
+
+        TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        SalesInvoiceHeader."Original String".CreateInStream(InStream);
+        InStream.ReadText(OriginalStr);
+        OriginalStr := ConvertStr(OriginalStr, '|', ',');
+
+        // [THEN] Subtotal = 78000, Total = 74360.05 (78000 + 12480 - 7800 - 8319.948)
+        VerifyRootNodeTotals(
+          OriginalStr,
+          SalesLine."Amount Including VAT" + SalesLineRetention1."Amount Including VAT" + SalesLineRetention2."Amount Including VAT",
+          SalesLine.Amount, 0);
+
+        // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado'
+        // [THEN] has attributes 'Importe' = 12480, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 78000.
+        // [THEN] Line 1 of 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion'
+        // [THEN] has attributes 'Importe' = 7800, 'TipoFactor' = 'Tasa', 'Impuesto' = '001', 'Base' = 78000.
+        // [THEN] Line 2 of 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion'
+        // [THEN] has attributes 'Importe' = 8319.948, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 78000.
+        VerifyVATAmountLines(
+          OriginalStr,
+          SalesLine.Amount, SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."VAT %", '002', 2, 0, 0);
+        VerifyRetentionAmountLine(
+          OriginalStr,
+          SalesLine.Amount, SalesLineRetention1.Amount, SalesLineRetention1."Retention VAT %", '001', 39, 0);
+        VerifyRetentionAmountLine(
+          OriginalStr,
+          SalesLine.Amount,
+          SalesLineRetention2."Unit Price" * SalesLineRetention2.Quantity, SalesLineRetention2."Retention VAT %", '002', 44, 1);
+
+        // [THEN] 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' has attributes 'Importe' = 12480, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
+        // [THEN] Line 1 of 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 7800, 'Impuesto' = '001'.
+        // [THEN] Line 2 of 'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion' has attributes 'Importe' = 8319.95, 'Impuesto' = '002'.
+        VerifyVATTotalLine(
+          OriginalStr, SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."VAT %", '002', 0, 1, 15);
+        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention1."Amount Including VAT", '001', 45, 0);
+        VerifyRetentionTotalLine(OriginalStr, -SalesLineRetention2."Amount Including VAT", '002', 47, 1);
+
+        // [THEN] Total Impuestos:  'cfdi:Impuestos/TotalImpuestosTrasladados' = 12480, 'cfdi:Impuestos/TotalImpuestosRetenidos' = 16119.95
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosTrasladados', SalesLine."Amount Including VAT" - SalesLine.Amount, 54);
+        VerifyTotalImpuestos(OriginalStr, 'TotalImpuestosRetenidos',
+          SalesLineRetention1.Amount + SalesLineRetention2.Amount, 49);
+    end;
+
     local procedure Initialize()
     var
         PostCode: Record "Post Code";
@@ -3605,6 +3898,7 @@ codeunit 144001 "MX CFDI"
         NameValueBuffer.DeleteAll();
         PostCode.ModifyAll("Time Zone", '');
         SetupCompanyInformation;
+        ClearLastError;
 
         if isInitialized then
             exit;
@@ -3799,6 +4093,15 @@ codeunit 144001 "MX CFDI"
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
         CustLedgerEntry.CalcFields(Amount);
+    end;
+
+    local procedure CreateRetentionSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineNo: Integer; Quantity: Decimal; BaseAmount: Decimal; RetentionVATPct: Decimal)
+    begin
+        CreateSalesLineItem(SalesLine, SalesHeader, CreateItem, Quantity, 0, 0, false, false);
+        SalesLine.Validate("Retention Attached to Line No.", LineNo);
+        SalesLine.Validate("Retention VAT %", RetentionVATPct);
+        SalesLine.Validate("Unit Price", BaseAmount * RetentionVATPct / 100);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreatePostApplySalesCrMemo(CustomerNo: Code[20]; InvoiceNo: Code[20]): Code[20]
@@ -4800,7 +5103,14 @@ codeunit 144001 "MX CFDI"
 
     local procedure FormatDecimal(InAmount: Decimal; DecimalPlaces: Integer): Text
     begin
-        exit(Format(Abs(InAmount), 0, '<Precision,' + Format(DecimalPlaces) + ':' + Format(DecimalPlaces) + '><Standard Format,1>'));
+        exit(
+          FormatDecimalRange(InAmount, DecimalPlaces, DecimalPlaces));
+    end;
+
+    local procedure FormatDecimalRange(InAmount: Decimal; DecimalPlacesFrom: Integer; DecimalPlacesTo: Integer): Text
+    begin
+        exit(
+          Format(Abs(InAmount), 0, '<Precision,' + Format(DecimalPlacesFrom) + ':' + Format(DecimalPlacesTo) + '><Standard Format,1>'));
     end;
 
     local procedure GetHeaderFieldValue(TableNo: Integer; DocumentNo: Code[20]; DocumentNoFieldNo: Integer; FieldNo: Integer): Code[10]
@@ -5100,6 +5410,22 @@ codeunit 144001 "MX CFDI"
           Abs(ActualDateTime - ExpectedDateTime) < 60 * 1000, StrSubstNo('%1 %2', ActualDateTime, ExpectedDateTime));
     end;
 
+    local procedure VerifyRootNodeTotals(OriginalStr: Text; Total: Decimal; SubTotal: Decimal; Discount: Decimal)
+    begin
+        LibraryXPathXMLReader.VerityAttributeFromRootNode('SubTotal', FormatDecimal(SubTotal, 2));
+        LibraryXPathXMLReader.VerityAttributeFromRootNode('Total', FormatDecimal(Total, 2));
+        LibraryXPathXMLReader.VerityAttributeFromRootNode('Descuento', FormatDecimal(Discount, 2));
+        Assert.AreEqual(
+          FormatDecimal(SubTotal, 2), SelectStr(7, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'SubTotal', OriginalStr));
+        Assert.AreEqual(
+          FormatDecimal(Total, 2), SelectStr(10, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'Total', OriginalStr));
+        Assert.AreEqual(
+          FormatDecimal(Discount, 2), SelectStr(8, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'Descuento', OriginalStr));
+    end;
+
     local procedure VerifyVATAmountLines(OriginalStr: Text; Amount: Decimal; VATAmount: Decimal; VATPct: Decimal; Impuesto: Text; Decimals: Integer; Offset: Integer; index: Integer)
     begin
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
@@ -5167,40 +5493,98 @@ codeunit 144001 "MX CFDI"
           'TasaOCuota');
     end;
 
-    local procedure VerifyVATTotalLine(OriginalStr: Text; TotalVATAmount: Decimal; VATAmount: Decimal; VATPct: Decimal; Impuesto: Text; index: Integer; LineQty: Integer)
+    local procedure VerifyRetentionAmountLine(OriginalStr: Text; Amount: Decimal; VATAmount: Decimal; VATPct: Decimal; Impuesto: Text; Offset: Integer; index: Integer)
+    begin
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion',
+          'Importe', FormatDecimalRange(VATAmount, 2, 6), index);
+        Assert.AreEqual(
+          FormatDecimalRange(VATAmount, 2, 6), SelectStr(Offset, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion',
+          'TasaOCuota', FormatDecimal(VATPct / 100, 6), index);
+        Assert.AreEqual(
+          FormatDecimal(VATPct / 100, 6), SelectStr(Offset - 1, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'TasaOCuota', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion',
+          'TipoFactor', 'Tasa', index);
+        Assert.AreEqual(
+          'Tasa', SelectStr(Offset - 2, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'Tasa', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion',
+          'Impuesto', Impuesto, index);
+        Assert.AreEqual(
+          Impuesto, SelectStr(Offset - 3, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'Impuesto', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion',
+          'Base', FormatDecimal(Amount, 2), index);
+        Assert.AreEqual(
+          FormatDecimal(Amount, 2), SelectStr(Offset - 4, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'Base', OriginalStr));
+    end;
+
+    local procedure VerifyVATTotalLine(OriginalStr: Text; VATAmount: Decimal; VATPct: Decimal; Impuesto: Text; index: Integer; LineQty: Integer; Offset: Integer)
     var
         TotalOffset: Integer;
     begin
-        TotalOffset := (LineQty - 1) * 18;
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Impuestos', 'TotalImpuestosTrasladados', FormatDecimal(TotalVATAmount, 2));
-        Assert.AreEqual(
-          FormatDecimal(TotalVATAmount, 2), SelectStr(39 + TotalOffset, OriginalStr),
-          StrSubstNo(IncorrectOriginalStrValueErr, 'TotalImpuestosTrasladados', OriginalStr));
+        TotalOffset := (LineQty - 1) * 14;
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado', 'Importe', FormatDecimal(VATAmount, 2), index);
         Assert.AreEqual(
-          FormatDecimal(VATAmount, 2), SelectStr(38 + TotalOffset + (index - 1) * 4, OriginalStr),
+          FormatDecimal(VATAmount, 2), SelectStr(38 + TotalOffset + index * 4 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado', 'TasaOCuota', FormatDecimal(VATPct / 100, 6), index);
         Assert.AreEqual(
-          FormatDecimal(VATPct / 100, 6), SelectStr(37 + TotalOffset + (index - 1) * 4, OriginalStr),
+          FormatDecimal(VATPct / 100, 6), SelectStr(37 + TotalOffset + index * 4 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'TasaOCuota', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado', 'TipoFactor', 'Tasa', index);
         Assert.AreEqual(
-          'Tasa', SelectStr(36 + TotalOffset + (index - 1) * 4, OriginalStr),
+          'Tasa', SelectStr(36 + TotalOffset + index * 4 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFactor', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado', 'Impuesto', Impuesto, index);
         Assert.AreEqual(
-          Impuesto, SelectStr(35 + TotalOffset + (index - 1) * 4, OriginalStr),
+          Impuesto, SelectStr(35 + TotalOffset + index * 4 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Impuesto', OriginalStr));
+    end;
+
+    local procedure VerifyRetentionTotalLine(OriginalStr: Text; VATAmount: Decimal; Impuesto: Text; Offset: Integer; index: Integer)
+    begin
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion', 'Importe', FormatDecimal(VATAmount, 2), index);
+        Assert.AreEqual(
+          FormatDecimal(VATAmount, 2), SelectStr(Offset + 1, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
+
+        LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
+          'cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion', 'Impuesto', Impuesto, index);
+        Assert.AreEqual(
+          Impuesto, SelectStr(Offset, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, 'Impuesto', OriginalStr));
+    end;
+
+    local procedure VerifyTotalImpuestos(OriginalStr: Text; TotalImpuestosNode: Text; TotalVATAmount: Decimal; Offset: Integer)
+    begin
+        // 'TotalImpuestosTrasladados' or 'TotalImpuestosRetenidos'
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Impuestos', TotalImpuestosNode, FormatDecimal(TotalVATAmount, 2));
+        Assert.AreEqual(
+          FormatDecimal(TotalVATAmount, 2), SelectStr(Offset, OriginalStr),
+          StrSubstNo(IncorrectOriginalStrValueErr, TotalImpuestosNode, OriginalStr));
     end;
 
     local procedure VerifyLineAmountsByIndex(DiscountAmount: Decimal; LineAmount: Decimal; UnitPrice: Decimal; VATAmount: Decimal; VATBase: Decimal; Index: Integer)

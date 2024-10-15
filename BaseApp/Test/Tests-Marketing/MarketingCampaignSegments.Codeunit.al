@@ -1165,6 +1165,45 @@ codeunit 136200 "Marketing Campaign Segments"
           CampaignTargetGr.Type::Contact, InteractionLogEntry."Contact Company No.", InteractionLogEntry."Campaign No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SegmentLineUpdateDescriptionOnUpdateInteractionTemplateCode()
+    var
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        Contact: Record Contact;
+        InteractionTemplate: Array[2] of Record "Interaction Template";
+    begin
+        // [SCENARIO 398630] Segment Line Description should update on Interaction Template change
+        Initialize();
+
+        // [GIVEN] Segment Header with Description 'X1' and Segment Line
+        LibraryMarketing.CreateSegmentLine(SegmentLine, '');
+        SegmentLine.Validate("Contact No.", LibraryMarketing.CreateCompanyContactNo());
+        SegmentLine.Modify(true);
+
+        // [GIVEN] Interaction Template 'IT1' with Description 'X2'
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate[1]);
+
+        // [GIVEN] Interaction Template 'IT2' with Description 'X3'
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate[2]);
+
+        // [WHEN] Segment Line Interaction Template Code = "IT1"
+        SegmentLine.Find();
+        SegmentLine.Validate("Interaction Template Code", InteractionTemplate[1].Code);
+        SegmentLine.Modify(true);
+
+        // [THEN] Segment Line Description = "X2"
+        SegmentLine.TestField(Description, InteractionTemplate[1].Description);
+
+        // [WHEN] Segment Line Interaction Template Code = "IT2"
+        SegmentLine.Validate("Interaction Template Code", InteractionTemplate[2].Code);
+        SegmentLine.Modify(true);
+
+        // [THEN] Segment Line Description = "X3"
+        SegmentLine.TestField(Description, InteractionTemplate[2].Description);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

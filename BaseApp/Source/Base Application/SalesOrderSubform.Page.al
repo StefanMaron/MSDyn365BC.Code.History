@@ -846,13 +846,13 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the sales order line that the record is linked to.';
-                    Visible = false;
+                    Visible = IsPACEnabled;
                 }
                 field("Retention VAT %"; "Retention VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the retention VAT percentage that is used in the line.';
-                    Visible = false;
+                    Visible = IsPACEnabled;
                 }
             }
             group(Control51)
@@ -1514,11 +1514,13 @@
     trigger OnInit()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
+        IsPACEnabled := EInvoiceMgt.IsPACEnvironmentEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1531,10 +1533,6 @@
         InitType();
         SetDefaultType();
 
-        // Default to Item for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
         Clear(ShortcutDimCode);
         UpdateTypeText();
     end;
@@ -1604,6 +1602,7 @@
         DimVisible8: Boolean;
         IsCommentLine: Boolean;
         IsBlankNumber: Boolean;
+        IsPACEnabled: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin

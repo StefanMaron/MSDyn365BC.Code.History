@@ -1883,6 +1883,76 @@
         VerifyDimensions(Database::"Employee Templ.", EmployeeTempl.Code, Database::Employee, Employee."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerTemplateApplyAddressFieldsUT()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        PostCode: Record "Post Code";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 395533] Address fields should not be cleared by template if they are not empty
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+
+        // [GIVEN] Customer template with empty address fields
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+
+        // [GIVEN] Customer with filled "Post Code", "City" and "Country/Region Code"
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreatePostCode(PostCode);
+        Customer."Post Code" := PostCode.Code;
+        Customer.City := PostCode.City;
+        Customer."Country/Region Code" := PostCode."Country/Region Code";
+        Customer.Modify();
+
+        // [WHEN] Apply customer template
+        CustomerTemplMgt.ApplyCustomerTemplate(Customer, CustomerTempl);
+
+        // [THEN] "Post Code", "City" and "Country/Region Code" are not changed
+        Assert.AreEqual(PostCode.Code, Customer."Post Code", 'Wrong Post Code after apply template');
+        Assert.AreEqual(PostCode.City, Customer.City, 'Wrong City after apply template');
+        Assert.AreEqual(PostCode."Country/Region Code", Customer."Country/Region Code", 'Wrong Country after apply template');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorTemplateApplyAddressFieldsUT()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        PostCode: Record "Post Code";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 395533] Address fields should not be cleared by template if they are not empty
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+
+        // [GIVEN] Vendor template with empty address fields
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+
+        // [GIVEN] Vendor with filled "Post Code", "City" and "Country/Region Code"
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreatePostCode(PostCode);
+        Vendor."Post Code" := PostCode.Code;
+        Vendor.City := PostCode.City;
+        Vendor."Country/Region Code" := PostCode."Country/Region Code";
+        Vendor.Modify();
+
+        // [WHEN] Apply Vendor template
+        VendorTemplMgt.ApplyVendorTemplate(Vendor, VendorTempl);
+
+        // [THEN] "Post Code", "City" and "Country/Region Code" are not changed
+        Assert.AreEqual(PostCode.Code, Vendor."Post Code", 'Wrong Post Code after apply template');
+        Assert.AreEqual(PostCode.City, Vendor.City, 'Wrong City after apply template');
+        Assert.AreEqual(PostCode."Country/Region Code", Vendor."Country/Region Code", 'Wrong Country after apply template');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");

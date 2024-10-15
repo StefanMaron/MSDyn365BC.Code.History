@@ -16,6 +16,7 @@ codeunit 141040 "UT COD Electronic Payment"
         TransitNoTxt: Label '110000000';
         TestFieldErr: Label '%1 must have a value in %2';
         VendorTransitNumNotValidErr: Label 'The specified transit number %1 for vendor %2  is not valid.', Comment = '%1 the transit number, %2 The Vendor No.';
+        TransitNumberIsNotValidErr: Label 'The specified transit number is not valid.';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -49,7 +50,7 @@ codeunit 141040 "UT COD Electronic Payment"
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
         // Create General Journal Line.
-        CreateGeneralJournalLine(GenJournalLine, AccountType, CreateBankAccount(CreateBankAccountPostingGroup, '', 0), false);
+        CreateGeneralJournalLine(GenJournalLine, AccountType, CreateBankAccount(CreateBankAccountPostingGroup, '', 0, ''), false);
 
         // Exercise.
         asserterror GenJnlCheckLine.RunCheck(GenJournalLine);
@@ -202,9 +203,7 @@ codeunit 141040 "UT COD Electronic Payment"
         UpdateCompanyInformationFederalID;
         BankAccountNo := CreateBankAccountUS(CreateBankAccountPostingGroup, TransitNoTxt);  // Codeunit 10093, weight is hardcoded to '37137137', so the value is selected  to make 10 - Digit MOD 10 equal to 0.
 
-        CustomerBankAccountCode := LibraryRandom.RandText(20);
-        CustomerNo := CreateCustomer();
-        CreateCustomerBankAccount(CustomerNo, CustomerBankAccountCode);
+        CreateCustomerBankAccount(CustomerNo, CustomerBankAccountCode, '', '');
 
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, CustomerBankAccountCode, true);  // Check Transmitted - TRUE.
 
@@ -233,9 +232,7 @@ codeunit 141040 "UT COD Electronic Payment"
         UpdateCompanyInformationFederalID;
         BankAccountNo := CreateBankAccountUS(CreateBankAccountPostingGroup, TransitNoTxt);  // Codeunit 10093, weight is hardcoded to '37137137', so the value is selected  to make 10 - Digit MOD 10 equal to 0.
 
-        CustomerBankAccountCode := LibraryRandom.RandText(20);
-        CustomerNo := CreateCustomer();
-        CreateCustomerBankAccount(CustomerNo, CustomerBankAccountCode);
+        CreateCustomerBankAccount(CustomerNo, CustomerBankAccountCode, '', '');
 
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, CustomerBankAccountCode, true);  // Check Transmitted - TRUE.
 
@@ -265,11 +262,8 @@ codeunit 141040 "UT COD Electronic Payment"
         // Setup: Create Vendor Bank Account without Transit No. Create General Journal Line with Account Type Vendor.
         UpdateCompanyInformationFederalID;
         BankAccountNo := CreateBankAccountUS(CreateBankAccountPostingGroup, TransitNoTxt);  // Codeunit 10093, weight is hardcoded to '37137137', so the value is selected  to make 10 - Digit MOD 10 equal to 0.
-        VendorNo := CreateVendorBankAccount(BankAccountNo);
 
-        VendorBankAccountCode := LibraryRandom.RandText(20);
-        VendorNo := CreateVendor();
-        CreateVendorBankAccount(VendorNo, VendorBankAccountCode);
+        CreateVendorBankAccount(VendorNo, VendorBankAccountCode, '', 'US');
 
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, VendorBankAccountCode, true);  // Check Transmitted - TRUE.
 
@@ -298,9 +292,7 @@ codeunit 141040 "UT COD Electronic Payment"
         UpdateCompanyInformationFederalID;
         BankAccountNo := CreateBankAccountUS(CreateBankAccountPostingGroup, TransitNoTxt);  // Codeunit 10093, weight is hardcoded to '37137137', so the value is selected  to make 10 - Digit MOD 10 equal to 0.
 
-        VendorBankAccountCode := LibraryRandom.RandText(20);
-        VendorNo := CreateVendor();
-        CreateVendorBankAccount(VendorNo, VendorBankAccountCode);
+        CreateVendorBankAccount(VendorNo, VendorBankAccountCode, '', 'US');
 
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, VendorBankAccountCode, true);  // Check Transmitted - TRUE.
 
@@ -398,6 +390,140 @@ codeunit 141040 "UT COD Electronic Payment"
         ExportPaymentsRB.StartExportFile(GenJournalLine."Account No.", GenJournalLine);
     end;
 
+    [Test]
+    procedure ExportPaymentsACH_CheckVendorTransitNum()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        VendorBankAccount: Record "Vendor Bank Account";
+        ExportPaymentsACH: Codeunit "Export Payments (ACH)";
+        VendorNo: Code[20];
+        VendorBankAccountNo: Code[20];
+    begin
+        // [FEATURE] [UT] [Vendor]
+        // [SCENARIO 395186] COD 10090 "Export Payments (ACH)".CheckVendorTransitNum() checks "Transit No." only for US vendor bank account
+
+        // Positive US case
+        CreateVendorBankAccount(VendorNo, VendorBankAccountNo, TransitNoTxt, 'US');
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, VendorBankAccountNo, false);
+        ExportPaymentsACH.CheckVendorTransitNum(GenJournalLine, VendorNo, Vendor, VendorBankAccount, true);
+
+        // Positive CA case
+        VendorBankAccount.Get(VendorNo, VendorBankAccountNo);
+        VendorBankAccount."Transit No." := '123456789';
+        VendorBankAccount."Country/Region Code" := 'CA';
+        VendorBankAccount.Modify();
+        ExportPaymentsACH.CheckVendorTransitNum(GenJournalLine, VendorNo, Vendor, VendorBankAccount, true);
+
+        // Negative US case
+        VendorBankAccount."Country/Region Code" := 'US';
+        VendorBankAccount.Modify();
+        asserterror ExportPaymentsACH.CheckVendorTransitNum(GenJournalLine, VendorNo, Vendor, VendorBankAccount, true);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(VendorTransitNumNotValidErr, VendorBankAccount."Transit No.", Vendor."No."));
+    end;
+
+    [Test]
+    procedure ExportEFTIAT_StartExportFile_TransitNumCheckDigit()
+    var
+        BankAccount: Record "Bank Account";
+        ACHUSHeader: Record "ACH US Header";
+        EFTValues: Codeunit "EFT Values";
+        ExportEFTIAT: Codeunit "Export EFT (IAT)";
+    begin
+        // [FEATURE] [UT] [Bank Account]
+        // [SCENARIO 395186] COD 10097 "Export EFT (IAT)".StartExportFile() checks "Transit No." only for US bank account
+        UpdateCompanyInformationFederalID;
+
+        ACHUSHeader."Data Exch. Entry No." := 0;
+        ACHUSHeader.Insert();
+
+        // Positive US case
+        BankAccount.Get(CreateBankAccount(CreateBankAccountPostingGroup, TransitNoTxt, BankAccount."Export Format"::US, 'US'));
+        ExportEFTIAT.StartExportFile(BankAccount."No.", '', 0, EFTValues);
+
+        // Positive CA case
+        BankAccount."Transit No." := '123456789';
+        BankAccount."Country/Region Code" := 'CA';
+        BankAccount.Modify();
+        ExportEFTIAT.StartExportFile(BankAccount."No.", '', 0, EFTValues);
+
+        // Negative US case
+        BankAccount."Country/Region Code" := 'US';
+        BankAccount.Modify();
+        asserterror ExportEFTIAT.StartExportFile(BankAccount."No.", '', 0, EFTValues);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(TransitNumberIsNotValidErr);
+    end;
+
+    [Test]
+    procedure ExportEFTIAT_GetRecipientData_VendorTransitNumCheckDigit()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        ExportEFTIAT: Codeunit "Export EFT (IAT)";
+        VendorNo: Code[20];
+        VendorBankAccountNo: Code[20];
+    begin
+        // [FEATURE] [UT] [Vendor]
+        // [SCENARIO 395186] COD 10097 "Export EFT (IAT)".GetRecipientData() checks "Transit No." only for US vendor bank account
+
+        // Positive US case
+        CreateVendorBankAccount(VendorNo, VendorBankAccountNo, TransitNoTxt, 'US');
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, VendorBankAccountNo, false);
+        UpdateEFTExportWorksetFromGenJnlLine(TempEFTExportWorkset, GenJournalLine);
+        ExportEFTIAT.GetRecipientData(TempEFTExportWorkset);
+
+        // Positive CA case
+        VendorBankAccount.Get(VendorNo, VendorBankAccountNo);
+        VendorBankAccount."Transit No." := '123456789';
+        VendorBankAccount."Country/Region Code" := 'CA';
+        VendorBankAccount.Modify();
+        ExportEFTIAT.GetRecipientData(TempEFTExportWorkset);
+
+        // Negative US case
+        VendorBankAccount."Country/Region Code" := 'US';
+        VendorBankAccount.Modify();
+        asserterror ExportEFTIAT.GetRecipientData(TempEFTExportWorkset);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(TransitNumberIsNotValidErr);
+    end;
+
+    [Test]
+    procedure ExportEFTIAT_GetRecipientData_CustomerTransitNumCheckDigit()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustomerBankAccount: Record "Customer Bank Account";
+        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        ExportEFTIAT: Codeunit "Export EFT (IAT)";
+        CustomerNo: Code[20];
+        CustomerBankAccountNo: Code[20];
+    begin
+        // [FEATURE] [UT] [Customer]
+        // [SCENARIO 395186] COD 10097 "Export EFT (IAT)".GetRecipientData() checks "Transit No." only for US customer bank account
+
+        // Positive US case
+        CreateCustomerBankAccount(CustomerNo, CustomerBankAccountNo, TransitNoTxt, 'US');
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, CustomerBankAccountNo, false);
+        UpdateEFTExportWorksetFromGenJnlLine(TempEFTExportWorkset, GenJournalLine);
+        ExportEFTIAT.GetRecipientData(TempEFTExportWorkset);
+
+        // Positive CA case
+        CustomerBankAccount.Get(CustomerNo, CustomerBankAccountNo);
+        CustomerBankAccount."Transit No." := '123456789';
+        CustomerBankAccount."Country/Region Code" := 'CA';
+        CustomerBankAccount.Modify();
+        ExportEFTIAT.GetRecipientData(TempEFTExportWorkset);
+
+        // Negative US case
+        CustomerBankAccount."Country/Region Code" := 'US';
+        CustomerBankAccount.Modify();
+        asserterror ExportEFTIAT.GetRecipientData(TempEFTExportWorkset);
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(TransitNumberIsNotValidErr);
+    end;
+
     local procedure CreateGenJnlLineWithBalAccountType(var GenJournalLine: Record "Gen. Journal Line"; BankPaymentType: Option; TransactionCode: Code[3])
     var
         BankAccountNo: Code[20];
@@ -410,7 +536,8 @@ codeunit 141040 "UT COD Electronic Payment"
         GenJournalLine."Transaction Code" := TransactionCode;
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CheckTransmitted: Boolean)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+                                                                                                              CheckTransmitted: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -419,7 +546,9 @@ codeunit 141040 "UT COD Electronic Payment"
         GenJournalLine.Insert();
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; RecipientBankAccountNo: Code[20]; CheckTransmitted: Boolean)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+                                                                                                              RecipientBankAccountNo: Code[20];
+                                                                                                              CheckTransmitted: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -430,7 +559,8 @@ codeunit 141040 "UT COD Electronic Payment"
         GenJournalLine.Insert();
     end;
 
-    local procedure SetGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CheckTransmitted: Boolean)
+    local procedure SetGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+                                                                                                           CheckTransmitted: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -471,17 +601,17 @@ codeunit 141040 "UT COD Electronic Payment"
     var
         BankAccount: Record "Bank Account";
     begin
-        exit(CreateBankAccount(BankAccPostingGroup, TransitNo, BankAccount."Export Format"::US));
+        exit(CreateBankAccount(BankAccPostingGroup, TransitNo, BankAccount."Export Format"::US, ''));
     end;
 
     local procedure CreateBankAccountCA(BankAccPostingGroup: Code[20]; TransitNo: Text[20]): Code[20]
     var
         BankAccount: Record "Bank Account";
     begin
-        exit(CreateBankAccount(BankAccPostingGroup, TransitNo, BankAccount."Export Format"::CA));
+        exit(CreateBankAccount(BankAccPostingGroup, TransitNo, BankAccount."Export Format"::CA, ''));
     end;
 
-    local procedure CreateBankAccount(BankAccPostingGroup: Code[20]; TransitNo: Text[20]; ExportFormat: Option): Code[20]
+    local procedure CreateBankAccount(BankAccPostingGroup: Code[20]; TransitNo: Text[20]; ExportFormat: Option; CountryRegionCode: Code[10]): Code[20]
     var
         BankAccount: Record "Bank Account";
     begin
@@ -492,6 +622,8 @@ codeunit 141040 "UT COD Electronic Payment"
         BankAccount."Client No." := LibraryUTUtility.GetNewCode10;
         BankAccount."Client Name" := LibraryUTUtility.GetNewCode10;
         BankAccount."Input Qualifier" := LibraryUTUtility.GetNewCode10;
+        BankAccount."Country/Region Code" := CountryRegionCode;
+        BankAccount."Last E-Pay Export File Name" := LibraryUTUtility.GetNewCode10();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -536,46 +668,36 @@ codeunit 141040 "UT COD Electronic Payment"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateCustomerBankAccount(BankAccountNo: Code[20]): Code[20]
+    local procedure CreateCustomerBankAccount(var CustomerNo: Code[20]; var CustomerBankAccountCode: Code[20]; TransitNo: Text[20]; CountryRegionCode: Code[10])
     var
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        CustomerBankAccount."Customer No." := CreateCustomer;
+        CustomerBankAccount."Customer No." := CreateCustomer();
+        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10();
         CustomerBankAccount."Use for Electronic Payments" := true;
-        CustomerBankAccount."Bank Account No." := BankAccountNo;
+        CustomerBankAccount."Transit No." := TransitNo;
+        CustomerBankAccount."Country/Region Code" := CountryRegionCode;
+        CustomerBankAccount."Bank Account No." := LibraryUTUtility.GetNewCode10();
         CustomerBankAccount.Insert();
-        exit(CustomerBankAccount."Customer No.");
+
+        CustomerNo := CustomerBankAccount."Customer No.";
+        CustomerBankAccountCode := CustomerBankAccount.Code
     end;
 
-    local procedure CreateCustomerBankAccount(CustomerNo: Code[20]; Code: Code[20])
-    var
-        CustomerBankAccount: Record "Customer Bank Account";
-    begin
-        CustomerBankAccount."Customer No." := CustomerNo;
-        CustomerBankAccount.Code := Code;
-        CustomerBankAccount."Use for Electronic Payments" := true;
-        CustomerBankAccount.Insert();
-    end;
-
-    local procedure CreateVendorBankAccount(BankAccountNo: Code[20]): Code[20]
+    local procedure CreateVendorBankAccount(var VendorNo: Code[20]; var VendorBankAccountCode: Code[20]; TransitNo: Text[20]; CountryRegionCode: Code[10])
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        VendorBankAccount."Vendor No." := CreateVendor;
+        VendorBankAccount."Vendor No." := CreateVendor();
+        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10();
         VendorBankAccount."Use for Electronic Payments" := true;
-        VendorBankAccount."Bank Account No." := BankAccountNo;
+        VendorBankAccount."Transit No." := TransitNo;
+        VendorBankAccount."Country/Region Code" := CountryRegionCode;
+        VendorBankAccount."Bank Account No." := LibraryUTUtility.GetNewCode10();
         VendorBankAccount.Insert();
-        exit(VendorBankAccount."Vendor No.");
-    end;
 
-    local procedure CreateVendorBankAccount(VendorNo: Code[20]; Code: Code[20])
-    var
-        VendorBankAccount: Record "Vendor Bank Account";
-    begin
-        VendorBankAccount."Vendor No." := VendorNo;
-        VendorBankAccount.Code := Code;
-        VendorBankAccount."Use for Electronic Payments" := true;
-        VendorBankAccount.Insert();
+        VendorNo := VendorBankAccount."Vendor No.";
+        VendorBankAccountCode := VendorBankAccount.Code;
     end;
 
     local procedure SelectCheckLedgerEntryNo(): Integer
@@ -612,6 +734,18 @@ codeunit 141040 "UT COD Electronic Payment"
         GenJournalLine."Bal. Account Type" := BalAccountType;
         GenJournalLine."Bal. Account No." := BalAccountNo;
         GenJournalLine.Modify();
+    end;
+
+    local procedure UpdateEFTExportWorksetFromGenJnlLine(var EFTExportWorkset: Record "EFT Export Workset"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+        EFTExportWorkset."Journal Template Name" := GenJournalLine."Journal Template Name";
+        EFTExportWorkset."Journal Batch Name" := GenJournalLine."Journal Batch Name";
+        EFTExportWorkset."Line No." := GenJournalLine."Line No.";
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor then
+            EFTExportWorkset."Account Type" := EFTExportWorkset."Account Type"::Vendor
+        else
+            EFTExportWorkset."Account Type" := EFTExportWorkset."Account Type"::Customer;
+        EFTExportWorkset."Account No." := GenJournalLine."Account No.";
     end;
 }
 

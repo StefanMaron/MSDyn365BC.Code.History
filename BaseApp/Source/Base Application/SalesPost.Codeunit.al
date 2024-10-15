@@ -2143,7 +2143,7 @@
             PostingNoSeries := SetupNoSeries;
     end;
 
-    local procedure UpdateAssocOrder(var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
+    local procedure UpdateAssociatedPurchaseOrder(var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; SalesHeader: Record "Sales Header")
     var
         PurchOrderHeader: Record "Purchase Header";
         PurchOrderLine: Record "Purchase Line";
@@ -2157,6 +2157,7 @@
         repeat
             if PurchOrderHeader."No." <> TempDropShptPostBuffer."Order No." then begin
                 PurchOrderHeader.Get(PurchOrderHeader."Document Type"::Order, TempDropShptPostBuffer."Order No.");
+                CheckAndUpdateAssocOrderPostingDate(PurchOrderHeader, SalesHeader."Posting Date");
                 PurchOrderHeader."Last Receiving No." := PurchOrderHeader."Receiving No.";
                 PurchOrderHeader."Receiving No." := '';
                 PurchOrderHeader.Modify();
@@ -2241,6 +2242,24 @@
 
         OnAfterUpdateAssosOrderPostingNos(SalesHeader, TempSalesLine, DropShipment);
         exit(DropShipment);
+    end;
+
+    local procedure CheckAndUpdateAssocOrderPostingDate(var PurchaseHeader: Record "Purchase Header"; PostingDate: Date)
+    var
+        ReleasePurchaseDocument: Codeunit "Release Purchase Document";
+        OriginalDocumentDate: Date;
+    begin
+        if (PostingDate <> 0D) and (PurchaseHeader."Posting Date" <> PostingDate) then begin
+            ReleasePurchaseDocument.Reopen(PurchaseHeader);
+            ReleasePurchaseDocument.SetSkipCheckReleaseRestrictions();
+
+            OriginalDocumentDate := PurchaseHeader."Document Date";
+            PurchaseHeader.SetHideValidationDialog(true);
+            PurchaseHeader.Validate("Posting Date", PostingDate);
+            PurchaseHeader.Validate("Document Date", OriginalDocumentDate);
+
+            ReleasePurchaseDocument.Run(PurchaseHeader);
+        end;
     end;
 
     local procedure UpdateAfterPosting(SalesHeader: Record "Sales Header")
@@ -2442,7 +2461,7 @@
                 Modify;
                 InsertTrackingSpecification(SalesHeader);
                 PostUpdateOrderLine(SalesHeader);
-                UpdateAssocOrder(TempDropShptPostBuffer);
+                UpdateAssociatedPurchaseOrder(TempDropShptPostBuffer, SalesHeader);
                 UpdateWhseDocuments(SalesHeader, EverythingInvoiced);
                 WhseSalesRelease.Release(SalesHeader);
                 UpdateItemChargeAssgnt(SalesHeader);
@@ -2459,7 +2478,7 @@
                             InsertTrackingSpecification(SalesHeader);
                         end;
                     else begin
-                            UpdateAssocOrder(TempDropShptPostBuffer);
+                            UpdateAssociatedPurchaseOrder(TempDropShptPostBuffer, SalesHeader);
                             if DropShipOrder then
                                 InsertTrackingSpecification(SalesHeader);
 
@@ -3044,7 +3063,7 @@
                     "Line No." := BiggestLineNo;
                     Validate(Type, Type::"G/L Account");
                 end;
-                Validate("No.", CustPostingGr.GetInvRoundingAccount);
+                Validate("No.", CustPostingGr.GetInvRoundingAccount());
                 "Tax Area Code" := '';
                 "Tax Liable" := false;
                 Validate(Quantity, 1);
@@ -5788,6 +5807,7 @@
             if not HasQtyToAsm(SalesLine, AsmHeader) then
                 exit;
 
+            AsmPost.SetSuppressCommit(SuppressCommit);
             AsmPost.SetPostingDate(true, SalesHeader."Posting Date");
             AsmPost.InitPostATO(AsmHeader);
 
@@ -7932,6 +7952,8 @@
         SalesHeader.TestField("Posting Date");
         SalesHeader.TestField("Document Date");
 
+        SalesHeader.TestField("On Hold", '');
+
         OnAfterCheckMandatoryFields(SalesHeader, SuppressCommit);
     end;
 
@@ -8098,6 +8120,75 @@
                 TempPurchaseLine.SetRange("Document No.", TempPurchaseHeader."No.");
                 CheckDimensions.CheckPurchDim(PurchaseHeader, TempPurchaseLine);
             until TempPurchaseHeader.Next() = 0;
+    end;
+
+    local procedure NeedUpdateGenProdPostingGroupOnItemChargeOnSalesLine(SalesLine: Record "Sales Line"): Boolean
+    var
+        NeedUpdate: Boolean;
+        IsHandled: Boolean;
+    begin
+        NeedUpdate := true;
+        IsHandled := false;
+        OnNeedUpdateGenProdPostingGroupOnItemChargeOnSalesLine(SalesLine, NeedUpdate, IsHandled);
+        if IsHandled then
+            exit(NeedUpdate);
+
+        with SalesLine do begin
+            if Type <> Type::"Charge (Item)" then
+                exit(false);
+            if "No." = '' then
+                exit(false);
+            if ((Type = Type::"Charge (Item)") and ("Gen. Prod. Posting Group" <> '')) then
+                exit(false);
+        end;
+
+        exit(true);
+    end;
+
+    local procedure NeedUpdateGenProdPostingGroupOnItemChargeOnSalesShipmentLine(SalesShipmentLine: Record "Sales Shipment Line"): Boolean
+    var
+        NeedUpdate: Boolean;
+        IsHandled: Boolean;
+    begin
+        NeedUpdate := true;
+        IsHandled := false;
+        OnNeedUpdateGenProdPostingGroupOnItemChargeOnSalesShipmentLine(SalesShipmentLine, NeedUpdate, IsHandled);
+        if IsHandled then
+            exit(NeedUpdate);
+
+        with SalesShipmentLine do begin
+            if Type <> Type::"Charge (Item)" then
+                exit(false);
+            if "No." = '' then
+                exit(false);
+            if ((Type = Type::"Charge (Item)") and ("Gen. Prod. Posting Group" <> '')) then
+                exit(false);
+        end;
+
+        exit(true);
+    end;
+
+    local procedure NeedUpdateGenProdPostingGroupOnItemChargeOnReturnRecepitLine(ReturnReceiptLine: Record "Return Receipt Line"): Boolean
+    var
+        NeedUpdate: Boolean;
+        IsHandled: Boolean;
+    begin
+        NeedUpdate := true;
+        IsHandled := false;
+        OnNeedUpdateGenProdPostingGroupOnItemChargeOnReturnReceiptLine(ReturnReceiptLine, NeedUpdate, IsHandled);
+        if IsHandled then
+            exit(NeedUpdate);
+
+        with ReturnReceiptLine do begin
+            if Type <> Type::"Charge (Item)" then
+                exit(false);
+            if "No." = '' then
+                exit(false);
+            if ((Type = Type::"Charge (Item)") and ("Gen. Prod. Posting Group" <> '')) then
+                exit(false);
+        end;
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
@@ -9404,9 +9495,7 @@
     var
         ItemCharge: Record "Item Charge";
     begin
-        if (ReturnReceiptLine.Type <> ReturnReceiptLine.Type::"Charge (Item)") or (ReturnReceiptLine."No." = '') or
-           ((ReturnReceiptLine.Type = ReturnReceiptLine.Type::"Charge (Item)") and (ReturnReceiptLine."Gen. Prod. Posting Group" <> ''))
-        then
+        if not NeedUpdateGenProdPostingGroupOnItemChargeOnReturnRecepitLine(ReturnReceiptLine) then
             exit;
 
         ItemCharge.Get(ReturnReceiptLine."No.");
@@ -9420,9 +9509,7 @@
     var
         ItemCharge: Record "Item Charge";
     begin
-        if (SalesShipmentLine.Type <> SalesShipmentLine.Type::"Charge (Item)") or (SalesShipmentLine."No." = '') or
-           ((SalesShipmentLine.Type = SalesShipmentLine.Type::"Charge (Item)") and (SalesShipmentLine."Gen. Prod. Posting Group" <> ''))
-        then
+        if not NeedUpdateGenProdPostingGroupOnItemChargeOnSalesShipmentLine(SalesShipmentLine) then
             exit;
 
         ItemCharge.Get(SalesShipmentLine."No.");
@@ -9436,9 +9523,7 @@
     var
         ItemCharge: Record "Item Charge";
     begin
-        if (SalesLine.Type <> SalesLine.Type::"Charge (Item)") or (SalesLine."No." = '') or
-           ((SalesLine.Type = SalesLine.Type::"Charge (Item)") and (SalesLine."Gen. Prod. Posting Group" <> ''))
-        then
+        if not NeedUpdateGenProdPostingGroupOnItemChargeOnSalesLine(SalesLine) then
             exit;
 
         ItemCharge.Get(SalesLine."No.");
@@ -10245,6 +10330,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateReceiveAndCheckIfInvPutawayExists(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNeedUpdateGenProdPostingGroupOnItemChargeOnSalesLine(SalesLine: Record "Sales Line"; var NeedUpdate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNeedUpdateGenProdPostingGroupOnItemChargeOnSalesShipmentLine(SalesShipmentLine: Record "Sales Shipment Line"; var NeedUpdate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNeedUpdateGenProdPostingGroupOnItemChargeOnReturnReceiptLine(ReturnReceiptLine: Record "Return Receipt Line"; var NeedUpdate: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
