@@ -7,6 +7,7 @@ page 5642 Maintenance
     PageType = List;
     SourceTable = Maintenance;
     UsageCategory = Administration;
+    AnalysisModeEnabled = false;
 
     layout
     {

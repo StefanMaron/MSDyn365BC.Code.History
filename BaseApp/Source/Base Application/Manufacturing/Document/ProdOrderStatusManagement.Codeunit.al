@@ -13,6 +13,7 @@ using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Document;
 using Microsoft.Utilities;
@@ -202,6 +203,7 @@ codeunit 5407 "Prod. Order Status Management"
     begin
         FromProdOrderLine.SetRange(Status, FromProdOrder.Status);
         FromProdOrderLine.SetRange("Prod. Order No.", FromProdOrder."No.");
+        OnTransProdOrderLineOnAfterFromProdOrderLineSetFilters(FromProdOrderLine, FromProdOrder, NewUpdateUnitCost);
         FromProdOrderLine.LockTable();
         if FromProdOrderLine.FindSet() then begin
             OnTransProdOrderLineOnAfterFromProdOrderLineFindSet(FromProdOrderLine, ToProdOrderLine, NewStatus);
@@ -745,6 +747,8 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     local procedure InitItemJnlLineFromProdOrderComp(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; PostingDate: Date; QtyToPost: Decimal)
+    var
+        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
     begin
         ItemJnlLine.Init();
         OnInitItemJnlLineFromProdOrderCompOnAfterInit(ItemJnlLine);
@@ -764,6 +768,8 @@ codeunit 5407 "Prod. Order Status Management"
         ItemJnlLine."Qty. per Unit of Measure" := ProdOrderComp."Qty. per Unit of Measure";
         ItemJnlLine.Description := ProdOrderComp.Description;
         ItemJnlLine.Validate(Quantity, QtyToPost);
+        if Abs(ItemJnlLine."Quantity (Base)" - ProdOrderComp."Qty. Picked (Base)") <= UnitOfMeasureManagement.QtyRndPrecision() then
+            ItemJnlLine."Quantity (Base)" := ProdOrderComp."Qty. Picked (Base)";
         ItemJnlLine.Validate("Unit Cost", ProdOrderComp."Unit Cost");
         ItemJnlLine."Location Code" := ProdOrderComp."Location Code";
         ItemJnlLine."Bin Code" := ProdOrderComp."Bin Code";
@@ -1392,6 +1398,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferLinksOnBeforeCopyLinks(var FromProductionOrder: Record "Production Order"; var ToProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransProdOrderLineOnAfterFromProdOrderLineSetFilters(var FromProdOrderLine: Record "Prod. Order Line"; var FromProductionOrder: Record "Production Order"; NewUpdateUnitCost: Boolean)
     begin
     end;
 }

@@ -18,6 +18,7 @@ page 1350 "Posted Sales Shipment - Update"
         {
             group(General)
             {
+                Caption = 'General';
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;

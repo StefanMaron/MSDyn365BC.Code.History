@@ -259,7 +259,7 @@ page 7388 "Scan Warehouse Activity Line"
             {
                 ApplicationArea = Warehouse;
                 Caption = 'Picture';
-                SubPageLink = "No." = field("No.");
+                SubPageLink = "No." = field("Item No.");
             }
         }
     }

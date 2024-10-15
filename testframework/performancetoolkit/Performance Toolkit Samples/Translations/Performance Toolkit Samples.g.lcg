@@ -149,4 +149,31 @@
       <Cmt Name="Dev"><![CDATA[%1 = a string]D;]A;(LookupHint=Codeunit BCPT Purch. Post with N Lines - NamedType ParamValidationErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1902486214 - NamedType 1607471646" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[CategoryCode]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Sleep X seconds JQ - NamedType CategoryLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1902486214 - NamedType 3777018723" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[NoOfSeconds]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BCPT Sleep X seconds JQ - NamedType NoOfSecondsLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1902486214 - NamedType 1355010387" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Parameter is not defined in the correct format. The expected format is "%1"]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = a string]D;]A;(LookupHint=Codeunit BCPT Sleep X seconds JQ - NamedType ParamValidationErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

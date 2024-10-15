@@ -35,7 +35,7 @@ codeunit 5344 "CRM Product Name"
 
     procedure FSServiceName(): Text
     begin
-        exit('Field Service');
+        exit('Dynamics 365 Field Service');
     end;
 }
 

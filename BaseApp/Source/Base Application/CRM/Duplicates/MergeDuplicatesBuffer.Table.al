@@ -5,12 +5,14 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Comment;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.History;
 using System.Reflection;
 using System.Utilities;
 
 table 64 "Merge Duplicates Buffer"
 {
     Caption = 'Merge Duplicates Buffer';
+    Permissions = tabledata "Sales Shipment Header" = rm;
     DataClassification = CustomerContent;
     ReplicateData = false;
 

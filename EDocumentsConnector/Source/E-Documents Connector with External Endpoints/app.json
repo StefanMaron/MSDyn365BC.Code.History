@@ -4,7 +4,7 @@
     "publisher":  "Microsoft",
     "brief":  "This app extends Microsoft standard E-documents framework, offering connectors to 3rd party access-points providers.",
     "description":  "This app extends Microsoft standard E-documents framework, offering connectors to 3rd party access-points providers.",
-    "version":  "24.1.18927.19498",
+    "version":  "24.2.20227.20424",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  " https://learn.microsoft.com/en-us/dynamics365/business-central/finance-edocuments-overview",
@@ -16,7 +16,7 @@
                              "id":  "e1d97edc-c239-46b4-8d84-6368bdf67c8b",
                              "name":  "E-Document Core",
                              "publisher":  "Microsoft",
-                             "version":  "24.1.0.0"
+                             "version":  "24.2.0.0"
                          }
                      ],
     "screenshots":  [
@@ -34,6 +34,6 @@
                                    "allowDownloadingSource":  true,
                                    "includeSourceInSymbolFile":  true
                                },
-    "application":  "24.1.0.0",
+    "application":  "24.2.0.0",
     "target":  "OnPrem"
 }

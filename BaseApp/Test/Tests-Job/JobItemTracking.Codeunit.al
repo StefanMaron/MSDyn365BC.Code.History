@@ -3335,6 +3335,75 @@ codeunit 136319 "Job Item Tracking"
         Assert.RecordCount(JobLedgerEntry, 3);
     end;
 
+    [Test]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure RegisterInventoryPickForJobWithSNTrackedItemAndMultipleBins()
+    var
+        ItemAll: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReservationStatus: Enum "Reservation Status";
+        QtyInventory: Integer;
+        QtyToHandle: Integer;
+        counter: Integer;
+    begin
+        // [SCENARIO 498962]  No Error Message when regestering an Inventory Pick from a Job if the item has Serial tracking and the number of Tracking is greater than 1
+        Initialize();
+
+        // [GIVEN] Create Serial Tracked Item
+        CreateSerialTrackedItem(ItemAll, true);
+
+        // [GIVEN] Set Inventory and Qty. to Handle to 3
+        QtyInventory := 3;
+        QtyToHandle := 3;
+
+        // [GIVEN] Create Inventory upto 3 in different Bins
+        CreateAndPostInvtAdjustmentWithSNTracking(ItemAll."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, 1, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithSNTracking(ItemAll."No.", LocationWithRequirePickBinMandatory.Code, Bin2.Code, 1, LibraryRandom.RandDec(10, 2));
+        CreateAndPostInvtAdjustmentWithSNTracking(ItemAll."No.", LocationWithRequirePickBinMandatory.Code, Bin3.Code, 1, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create Job with job tasks
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] 2 Job Planning Lines for Job Task T1, Line Type = Budget
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, ItemAll."No.", LocationWithRequirePickBinMandatory.Code, '', QtyInventory);
+
+        // [WHEN] 'Item Tracking Lines' is opened for Job Planning Line and Serial numbers are assigned
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::AssignMultiple);
+        LibraryVariableStorage.Enqueue(QtyInventory);
+        LibraryVariableStorage.Enqueue(ItemAll."No.");
+        LibraryVariableStorage.Enqueue(LocationWithRequirePickBinMandatory.Code);
+        JobPlanningLine.OpenItemTrackingLines();
+
+        // [GIVEN] Inventory Picks are created for the job.
+        Job.Get(JobTask."Job No.");
+        OpenJobAndCreateInventoryPick(Job);
+
+        // [WHEN] Inventory Pick lines are handled for ItemAll at LocationWithRequirePickBinMandatory
+        Clear(WarehouseActivityLine);
+        WarehouseActivityLine.SetRange("Item No.", ItemAll."No.");
+        WarehouseActivityLine.SetRange("Location Code", LocationWithRequirePickBinMandatory.Code);
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", 1);
+            WarehouseActivityLine.Modify(true);
+            WarehouseActivityLine.Next();
+            counter += 1;
+        until counter = QtyToHandle;
+
+        // [WHEN] Inventory Picks is posted for LocationWithRequirePickBinMandatory
+        PostInventoryPickFromPage(Job."No.", LocationWithRequirePickBinMandatory.Code, false);
+
+        // [THEN] No error is thrown and remaining Reservation entry exists with status as Surplus.
+        VerifyReservationEntry(JobPlanningLine, QtyInventory - QtyToHandle, -1, ReservationStatus::Surplus);
+
+        // [THEN] Intermediate entry with reservation status "Prospect" should not exist after posting Job Journal Line.
+        VerifyReservationEntry(JobPlanningLine, 0, 0, ReservationStatus::Prospect);
+    end;
+
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";
