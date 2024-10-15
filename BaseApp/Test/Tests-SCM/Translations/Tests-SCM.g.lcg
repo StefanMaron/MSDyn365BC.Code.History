@@ -878,6 +878,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Posting - NamedType TextGetLastErrorText)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 237793734 - NamedType 1750763547" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Actual Quantity ,%2=Table Name]D;]A;(LookupHint=Codeunit SCM Assembly Reservation I - NamedType ReservationQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 237793734 - NamedType 1405540346" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Remaining Quantity in the availability page]]></Val>
@@ -1319,6 +1328,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Capacity Requirements - NamedType BOMCostShareQtyErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4202532295 - NamedType 2650056099" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Capacity, %2 = value, %3 = WorkCenterGroupLoadlines]D;]A;(LookupHint=Codeunit SCM Capacity Requirements - NamedType CapacityErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4202532295 - NamedType 3301997387" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Firm Planned Prod. Order]]></Val>
@@ -1398,6 +1416,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Capacity Requirements - NamedType ProdOrderLineQuantityError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4202532295 - NamedType 3880012856" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Prod. Order Need (Qty.), %2 = value, %3 = WorkCenterGroupLoadlines]D;]A;(LookupHint=Codeunit SCM Capacity Requirements - NamedType ProdOrderNeedQtyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4202532295 - NamedType 2624207095" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -18255,6 +18282,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Quantity]D;]A;(LookupHint=Codeunit SCM Warehouse Orders - NamedType QtyToCrossDockErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 324823623 - NamedType 3552982996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Qty. to Handle, %2 = Quantity * Qty. per Unit of Measure, %3 = Whse. Worksheet Line]D;]A;(LookupHint=Codeunit SCM Warehouse Orders - NamedType QtyToHandleErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 324823623 - NamedType 925014488" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
