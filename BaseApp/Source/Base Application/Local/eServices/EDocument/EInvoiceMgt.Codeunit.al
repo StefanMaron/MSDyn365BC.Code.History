@@ -6,6 +6,7 @@ namespace Microsoft.eServices.EDocument;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
@@ -53,7 +54,6 @@ codeunit 10145 "E-Invoice Mgt."
         SourceCodeSetup: Record "Source Code Setup";
         EInvoiceCommunication: Codeunit "EInvoice Communication";
         DocNameSpace: Text;
-        DocType: Text;
         Text000: Label 'Dear customer, please find invoice number %1 in the attachment.';
         PaymentAttachmentMsg: Label 'Dear customer, please find payment number %1 in the attachment.', Comment = '%1=The payment number.';
         Text001: Label 'E-Document %1 has been sent.';
@@ -68,14 +68,15 @@ codeunit 10145 "E-Invoice Mgt."
         Text008: Label '&Request Stamp,&Send,Request Stamp &and Send';
         Text009: Label 'Cannot find a valid PAC web service for the action %1.\You must specify web service details for the combination of the %1 action and the %2 and %3 that you have selected in the %4 window.';
         Text010: Label 'You cannot choose the action %1 when the document status is %2.';
-        EDocAction: Option "Request Stamp",Send,Cancel,CancelRequest,MarkAsCanceled;
+        EDocAction: Option "Request Stamp",Send,Cancel,CancelRequest,MarkAsCanceled,ResetCancelRequest;
         Text011: Label 'There is no electronic stamp for document no. %1.\Do you want to continue?';
-        CancelAction: Option ,CancelRequest,GetResponse,MarkAsCanceled;
+        CancelAction: Option ,CancelRequest,GetResponse,MarkAsCanceled,ResetCancelRequest;
         MethodTypeRef: Option "Request Stamp",Cancel,CancelRequest;
         Text012: Label 'Cannot contact the PAC. You must specify a value for the %1 field in the %2 window for the PAC that you selected in the %3 window.', Comment = '%1=Certificate;%2=PACWebService table caption;%3=GLSetup table caption';
-        Text013: Label 'Request Stamp,Send,Cancel,Cancel Request,Mark as Canceled';
+        Text013: Label 'Request Stamp,Send,Cancel,Cancel Request,Mark as Canceled,Reset Cancellation Request';
         Text014: Label 'CFDI feature is not enabled. Open the General Ledger Setup page, toggle the Enabled checkbox and specify the PAC Environment under the Electronic Invoice FastTab.';
         Text015: Label 'Do you want to cancel the electronic document?';
+        ResetCancellationRequestQst: Label 'Do you want to reset the cancellation request to the error status?';
         FileDialogTxt: Label 'Import electronic invoice';
         ImportFailedErr: Label 'The import failed. The XML document is not a valid electronic invoice.';
         StampErr: Label 'You have chosen the document type %1. You can only request and send documents if the document type is Payment.', Comment = '%1=Document Type';
@@ -104,6 +105,7 @@ codeunit 10145 "E-Invoice Mgt."
         InvokeMethodSuccessMsg: Label 'Successful request for action: %1', Locked = true;
         NullParameterErr: Label 'The %1 cannot be empty', Locked = true;
         ProcessResponseErr: Label 'Cannot process response for document %1. %2', Locked = true;
+        ResetCancellationRequestErr: Label 'Reset cancellation request for document %1.', Locked = true;
         SendDocMsg: Label 'Sending document: %1', Locked = true;
         SendDocSuccessMsg: Label 'Document %1 successfully sent', Locked = true;
         SendEmailErr: Label 'Cannot send email. %1', Locked = true;
@@ -122,7 +124,7 @@ codeunit 10145 "E-Invoice Mgt."
         CFDIXSDLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd', Comment = 'Locked';
         CFDIComercioExteriorNamespaceTxt: Label 'http://www.sat.gob.mx/ComercioExterior11', Comment = 'Locked';
         CFDIComercioExteriorSchemaLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/ComercioExterior11/ComercioExterior11.xsd', Comment = 'Locked';
-        CancelSelectionMenuQst: Label 'Cancel Request,Get Response,Mark as Canceled';
+        CancelSelectionMenuQst: Label 'Cancel Request,Get Response,Mark as Canceled,Reset Cancellation Request';
 
     procedure RequestStampDocument(var RecRef: RecordRef; Prepayment: Boolean)
     var
@@ -191,18 +193,32 @@ codeunit 10145 "E-Invoice Mgt."
         Selection := CancelAction;
         if GuiAllowed and (Selection = 0) then begin
             Selection := StrMenu(CancelSelectionMenuQst, 1);
-            if Selection <> CancelAction::GetResponse then
+            case Selection of
+                CancelAction::CancelRequest, CancelAction::MarkAsCanceled:
                 if not Confirm(Text015, false) then
-                    exit;
+                        Selection := 0;
+                CancelAction::ResetCancelRequest:
+                    if not Confirm(ResetCancellationRequestQst, false) then
+                        Selection := 0;
+            end;
         end;
         if Selection = 0 then
             exit;
 
         ElectronicDocumentStatus := RecRef.Field(10030).Value;
-        if Selection = CancelAction::MarkAsCanceled then begin
+        case Selection of
+            CancelAction::MarkAsCanceled:
+                begin
             EDocActionValidation(EDocAction::MarkAsCanceled, ElectronicDocumentStatus);
             CancelDocumentManual(RecRef, true);
             exit;
+        end;
+            CancelAction::ResetCancelRequest:
+                begin
+                    EDocActionValidation(EDocAction::ResetCancelRequest, ElectronicDocumentStatus);
+                    ResetCancellationRequest(RecRef);
+                    exit;
+                end;
         end;
 
         case RecRef.Number of
@@ -378,6 +394,10 @@ codeunit 10145 "E-Invoice Mgt."
         if Action in [EDocAction::CancelRequest, EDocAction::MarkAsCanceled] then
             if not (Status in [DocStatus::"Cancel Error", DocStatus::"Cancel In Progress"]) then
                 Error(Text010, SelectStr(Action + 1, Text013), TempSalesInvoiceHeader."Electronic Document Status");
+
+        if Action = EDocAction::ResetCancelRequest then
+            if Status <> DocStatus::"Cancel In Progress" then
+                Error(Text010, SelectStr(Action + 1, Text013), TempSalesInvoiceHeader."Electronic Document Status");
     end;
 
     procedure EDocPrintValidation(EDocStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error"; DocNo: Code[20])
@@ -436,8 +456,6 @@ codeunit 10145 "E-Invoice Mgt."
         case DocumentHeaderRecordRef.Number of
             DATABASE::"Sales Invoice Header":
                 begin
-                    DocType := 'Sales Invoice';
-
                     DocumentHeaderRecordRef.SetTable(SalesInvoiceHeader);
                     if not Reverse then // If reverse, AdvanceSettle must be false else you fall into an infinite loop
                         AdvanceSettle := IsInvoicePrepaymentSettle(SalesInvoiceHeader."No.", AdvanceAmount);
@@ -455,8 +473,6 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
-                    DocType := 'Sales Cr.Memo';
-
                     DocumentHeaderRecordRef.SetTable(SalesCrMemoHeader);
                     CreateTempDocument(
                       SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
@@ -469,8 +485,6 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
             DATABASE::"Service Invoice Header":
                 begin
-                    DocType := 'Service Invoice';
-
                     DocumentHeaderRecordRef.SetTable(ServiceInvoiceHeader);
                     CreateTempDocument(
                       ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
@@ -483,8 +497,6 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
             DATABASE::"Service Cr.Memo Header":
                 begin
-                    DocType := 'Service Cr.Memo';
-
                     DocumentHeaderRecordRef.SetTable(ServiceCrMemoHeader);
                     CreateTempDocument(
                       ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
@@ -520,7 +532,8 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
         end;
 
-        Session.LogMessage('0000C72', StrSubstNo(StampReqMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C72', StrSubstNo(StampReqMsg, GetDocTypeTextFromDatabaseId(DocumentHeaderRecordRef.Number)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
         CurrencyDecimalPlaces := GetCurrencyDecimalPlaces(TempDocumentHeader."Currency Code");
 
         // Create Digital Stamp
@@ -737,7 +750,8 @@ codeunit 10145 "E-Invoice Mgt."
                 end;
         end;
 
-        Session.LogMessage('0000C73', StrSubstNo(StampReqSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C73', StrSubstNo(StampReqSuccessMsg, GetDocTypeTextFromDatabaseId(DocumentHeaderRecordRef.Number)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         // If Advance Settle, and everything went well, then need to create CFDI document for Advance reverse.
         if AdvanceSettle then begin
@@ -808,8 +822,8 @@ codeunit 10145 "E-Invoice Mgt."
                 if not Confirm(PaymentsAlreadySentQst) then
                     Error('');
 
-        DocType := 'Sales Invoice';
-        Session.LogMessage('0000C74', StrSubstNo(SendDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C74', StrSubstNo(SendDocMsg, GetDocTypeTextFromDatabaseId(Database::"Sales Invoice Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         // Export XML
         if not Reverse then begin
@@ -865,7 +879,8 @@ codeunit 10145 "E-Invoice Mgt."
         end;
 
         Message(Text001, SalesInvHeader."No.");
-        Session.LogMessage('0000C75', StrSubstNo(SendDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C75', StrSubstNo(SendDocSuccessMsg, GetDocTypeTextFromDatabaseId(Database::"Sales Invoice Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure SendESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -884,8 +899,8 @@ codeunit 10145 "E-Invoice Mgt."
             if not Confirm(Text002) then
                 Error('');
 
-        DocType := 'Sales Cr.Memo';
-        Session.LogMessage('0000C74', StrSubstNo(SendDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C74', StrSubstNo(SendDocMsg, GetDocTypeTextFromDatabaseId(Database::"Sales Cr.Memo Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         // Export XML
         SalesCrMemoHeader.CalcFields("Signed Document XML");
@@ -917,7 +932,8 @@ codeunit 10145 "E-Invoice Mgt."
         SalesCrMemoHeaderLoc.Modify();
 
         Message(Text001, SalesCrMemoHeader."No.");
-        Session.LogMessage('0000C75', StrSubstNo(SendDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C75', StrSubstNo(SendDocSuccessMsg, GetDocTypeTextFromDatabaseId(Database::"Sales Cr.Memo Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure SendEServiceInvoice(var ServiceInvoiceHeader: Record "Service Invoice Header")
@@ -936,8 +952,8 @@ codeunit 10145 "E-Invoice Mgt."
             if not Confirm(Text002) then
                 Error('');
 
-        DocType := 'Service Invoice';
-        Session.LogMessage('0000C74', StrSubstNo(SendDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C74', StrSubstNo(SendDocMsg, GetDocTypeTextFromDatabaseId(Database::"Service Invoice Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         // Export XML
         ServiceInvoiceHeader.CalcFields("Signed Document XML");
@@ -969,7 +985,8 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceInvoiceHeaderLoc.Modify();
 
         Message(Text001, ServiceInvoiceHeader."No.");
-        Session.LogMessage('0000C75', StrSubstNo(SendDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C75', StrSubstNo(SendDocSuccessMsg, GetDocTypeTextFromDatabaseId(Database::"Service Invoice Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure SendEServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
@@ -988,8 +1005,8 @@ codeunit 10145 "E-Invoice Mgt."
             if not Confirm(Text002) then
                 Error('');
 
-        DocType := 'Service Cr.Memo';
-        Session.LogMessage('0000C74', StrSubstNo(SendDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C74', StrSubstNo(SendDocMsg, GetDocTypeTextFromDatabaseId(Database::"Service Cr.Memo Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         // Export XML
         ServiceCrMemoHeader.CalcFields("Signed Document XML");
@@ -1021,7 +1038,8 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceCrMemoHeaderLoc.Modify();
 
         Message(Text001, ServiceCrMemoHeader."No.");
-        Session.LogMessage('0000C75', StrSubstNo(SendDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C75', StrSubstNo(SendDocSuccessMsg, GetDocTypeTextFromDatabaseId(Database::"Service Cr.Memo Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure CancelESalesInvoice(var SalesInvHeader: Record "Sales Invoice Header"; MethodType: Option)
@@ -1036,8 +1054,8 @@ codeunit 10145 "E-Invoice Mgt."
         if SalesInvHeader."Source Code" = SourceCodeSetup."Deleted Document" then
             Error(Text007);
 
-        DocType := 'Sales Invoice';
-        Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7C', StrSubstNo(CancelDocMsg, GetDocTypeTextFromDatabaseId(Database::"Sales Invoice Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         SalesInvHeader.TestField("CFDI Cancellation Reason Code");
         if CancellationReasonRequired(SalesInvHeader."CFDI Cancellation Reason Code") then
@@ -1079,7 +1097,8 @@ codeunit 10145 "E-Invoice Mgt."
             SalesInvHeader.Modify();
         end;
 
-        Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7D', StrSubstNo(CancelDocSuccessMsg, GetDocTypeTextFromDatabaseId(Database::"Sales Invoice Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure CancelESalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; MethodType: Option)
@@ -1094,8 +1113,8 @@ codeunit 10145 "E-Invoice Mgt."
         if SalesCrMemoHeader."Source Code" = SourceCodeSetup."Deleted Document" then
             Error(Text007);
 
-        DocType := 'Sales Cr.Memo';
-        Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7C', StrSubstNo(CancelDocMsg, GetDocTypeTextFromDatabaseId(Database::"Sales Cr.Memo Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         SalesCrMemoHeader.TestField("CFDI Cancellation Reason Code");
         if CancellationReasonRequired(SalesCrMemoHeader."CFDI Cancellation Reason Code") then
@@ -1138,7 +1157,8 @@ codeunit 10145 "E-Invoice Mgt."
             SalesCrMemoHeader.Modify();
         end;
 
-        Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7D', StrSubstNo(CancelDocSuccessMsg, GetDocTypeTextFromDatabaseId(Database::"Sales Cr.Memo Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure CancelEServiceInvoice(var ServiceInvHeader: Record "Service Invoice Header"; MethodType: Option)
@@ -1153,8 +1173,8 @@ codeunit 10145 "E-Invoice Mgt."
         if ServiceInvHeader."Source Code" = SourceCodeSetup."Deleted Document" then
             Error(Text007);
 
-        DocType := 'Service Invoice';
-        Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7C', StrSubstNo(CancelDocMsg, GetDocTypeTextFromDatabaseId(Database::"Service Invoice Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         ServiceInvHeader.TestField("CFDI Cancellation Reason Code");
         if CancellationReasonRequired(ServiceInvHeader."CFDI Cancellation Reason Code") then
@@ -1196,7 +1216,8 @@ codeunit 10145 "E-Invoice Mgt."
             ServiceInvHeader.Modify();
         end;
 
-        Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7D', StrSubstNo(CancelDocSuccessMsg, GetDocTypeTextFromDatabaseId(Database::"Service Invoice Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure CancelEServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; MethodType: Option)
@@ -1211,8 +1232,8 @@ codeunit 10145 "E-Invoice Mgt."
         if ServiceCrMemoHeader."Source Code" = SourceCodeSetup."Deleted Document" then
             Error(Text007);
 
-        DocType := 'Service Cr.Memo';
-        Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7C', StrSubstNo(CancelDocMsg, GetDocTypeTextFromDatabaseId(Database::"Service Cr.Memo Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         ServiceCrMemoHeader.TestField("CFDI Cancellation Reason Code");
         if CancellationReasonRequired(ServiceCrMemoHeader."CFDI Cancellation Reason Code") then
@@ -1254,7 +1275,8 @@ codeunit 10145 "E-Invoice Mgt."
             ServiceCrMemoHeader.Modify();
         end;
 
-        Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7D', StrSubstNo(CancelDocSuccessMsg, GetDocTypeTextFromDatabaseId(Database::"Service Cr.Memo Header")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure CancelESalesShipment(var SalesShipmentHeader: Record "Sales Shipment Header"; MethodType: Option)
@@ -1266,8 +1288,6 @@ codeunit 10145 "E-Invoice Mgt."
         OutStr: OutStream;
         CancelDateTime: Text[50];
     begin
-        DocType := 'Sales Shipment';
-
         SalesShipmentHeader.TestField("CFDI Cancellation Reason Code");
         if CancellationReasonRequired(SalesShipmentHeader."CFDI Cancellation Reason Code") then
             SalesShipmentHeaderSubst.Get(SalesShipmentHeader."Substitution Document No.");
@@ -1318,8 +1338,6 @@ codeunit 10145 "E-Invoice Mgt."
         OutStr: OutStream;
         CancelDateTime: Text[50];
     begin
-        DocType := 'Transfer Shipment';
-
         TransferShipmentHeader.TestField("CFDI Cancellation Reason Code");
         if CancellationReasonRequired(TransferShipmentHeader."CFDI Cancellation Reason Code") then
             TransferShipmentHeaderSubst.Get(TransferShipmentHeader."Substitution Document No.");
@@ -1370,8 +1388,8 @@ codeunit 10145 "E-Invoice Mgt."
         Response: Text;
         CancelDateTime: Text[50];
     begin
-        DocType := 'payment';
-        Session.LogMessage('0000C7C', StrSubstNo(CancelDocMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7C', StrSubstNo(CancelDocMsg, GetDocTypeTextFromDatabaseId(Database::"Cust. Ledger Entry")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
         CustLedgerEntry.TestField("CFDI Cancellation Reason Code");
         if CancellationReasonRequired(CustLedgerEntry."CFDI Cancellation Reason Code") then
@@ -1413,7 +1431,8 @@ codeunit 10145 "E-Invoice Mgt."
             CustLedgerEntry.Modify();
         end;
 
-        Session.LogMessage('0000C7D', StrSubstNo(CancelDocSuccessMsg, DocType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+        Session.LogMessage(
+            '0000C7D', StrSubstNo(CancelDocSuccessMsg, GetDocTypeTextFromDatabaseId(Database::"Cust. Ledger Entry")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure CancelDocumentManual(var RecRef: RecordRef; MarkAsCanceled: Boolean)
@@ -1434,6 +1453,23 @@ codeunit 10145 "E-Invoice Mgt."
             FieldRef.Value := true;
         end;
         RecRef.Modify();
+    end;
+
+    local procedure ResetCancellationRequest(var RecRef: RecordRef)
+    var
+        FieldRef: FieldRef;
+        Status: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
+    begin
+        FieldRef := RecRef.Field(GetFieldIDElectronicDocumentStatus());
+        FieldRef.Value := Status::"Cancel Error";
+        FieldRef := RecRef.Field(GetFieldIDDateTimeCancelSent());
+        FieldRef.Value := 0DT;
+        FieldRef := RecRef.Field(GetFieldIDDateTimeCanceled());
+        FieldRef.Value := '';
+        RecRef.Modify();
+
+        Session.LogMessage(
+            '0000M81', StrSubstNo(ResetCancellationRequestErr, GetDocTypeTextFromDatabaseId(RecRef.Number)), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
     end;
 
     local procedure CancelXMLDocument(var XMLDoc: DotNet XmlDocument; var OutStr: OutStream; CancelDateTime: Text[50]; DateTimeStamped: Text; FiscalinvoiceNumberPAC: Text; CancellationReason: Text; SubstitutionDocumentUUID: Text)
@@ -1581,7 +1617,8 @@ codeunit 10145 "E-Invoice Mgt."
                 CFDIDocuments.Modify();
             end;
 
-            Session.LogMessage('0000C7M', StrSubstNo(ProcessResponseErr, 'Sales Invoice', TelemetryError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+            Session.LogMessage(
+                '0000C7M', StrSubstNo(ProcessResponseErr, GetDocTypeTextFromDatabaseId(Database::"Sales Invoice Header"), TelemetryError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
             exit;
         end;
@@ -1751,7 +1788,8 @@ codeunit 10145 "E-Invoice Mgt."
                     end;
             end;
 
-            Session.LogMessage('0000C7M', StrSubstNo(ProcessResponseErr, 'Sales Cr.Memo', TelemetryError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+            Session.LogMessage(
+                '0000C7M', StrSubstNo(ProcessResponseErr, GetDocTypeTextFromDatabaseId(Database::"Sales Cr.Memo Header"), TelemetryError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
             exit;
         end;
@@ -1884,7 +1922,8 @@ codeunit 10145 "E-Invoice Mgt."
                     end;
             end;
 
-            Session.LogMessage('0000C7M', StrSubstNo(ProcessResponseErr, 'Service Invoice', TelemetryError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+            Session.LogMessage(
+                '0000C7M', StrSubstNo(ProcessResponseErr, GetDocTypeTextFromDatabaseId(Database::"Service Invoice Header"), TelemetryError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
             exit;
         end;
@@ -2016,7 +2055,8 @@ codeunit 10145 "E-Invoice Mgt."
                     end;
             end;
 
-            Session.LogMessage('0000C7M', StrSubstNo(ProcessResponseErr, 'Service Cr.Memo', TelemetryError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+            Session.LogMessage(
+                '0000C7M', StrSubstNo(ProcessResponseErr, GetDocTypeTextFromDatabaseId(Database::"Service Cr.Memo Header"), TelemetryError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
 
             exit;
         end;
@@ -2401,6 +2441,13 @@ codeunit 10145 "E-Invoice Mgt."
         DummySalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         exit(DummySalesInvoiceHeader.FieldNo("Date/Time Cancel Sent"));
+    end;
+
+    local procedure GetFieldIDDateTimeCanceled(): Integer
+    var
+        DummySalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        exit(DummySalesInvoiceHeader.FieldNo("Date/Time Canceled"));
     end;
 
     local procedure CreateXMLDocument33(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; DateTimeFirstReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; IsCredit: Boolean; var XMLDoc: DotNet XmlDocument; SubTotal: Decimal; TotalTax: Decimal; TotalRetention: Decimal; TotalDiscount: Decimal)
@@ -4399,7 +4446,6 @@ codeunit 10145 "E-Invoice Mgt."
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
         VATPostingSetup: Record "VAT Posting Setup";
         DataTypeManagement: Codeunit "Data Type Management";
-        SATUtilities: Codeunit "SAT Utilities";
         RecRef: RecordRef;
     begin
         DataTypeManagement.GetRecordRef(DocumentHeaderVariant, RecRef);
@@ -4428,8 +4474,7 @@ codeunit 10145 "E-Invoice Mgt."
                             CalcDocumentLineAmounts(
                               TempDocumentLine, SalesInvoiceLine."Inv. Discount Amount",
                               SalesInvoiceHeader."Currency Code", SalesInvoiceHeader."Prices Including VAT", SalesInvoiceLine."Line Discount %");
-                            if SalesInvoiceLine.Type = SalesInvoiceLine.Type::"Fixed Asset" then
-                                TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureFixedAsset();
+                            UpdateDocumentLine(TempDocumentLine);
                             TempDocumentLine.Insert();
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
@@ -4459,8 +4504,7 @@ codeunit 10145 "E-Invoice Mgt."
                             CalcDocumentLineAmounts(
                               TempDocumentLine, SalesCrMemoLine."Inv. Discount Amount",
                               SalesCrMemoHeader."Currency Code", SalesCrMemoHeader."Prices Including VAT", SalesCrMemoLine."Line Discount %");
-                            if SalesCrMemoLine.Type = SalesCrMemoLine.Type::"Fixed Asset" then
-                                TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureFixedAsset();
+                            UpdateDocumentLine(TempDocumentLine);
                             TempDocumentLine.Insert();
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
@@ -4491,6 +4535,7 @@ codeunit 10145 "E-Invoice Mgt."
                             CalcDocumentLineAmounts(
                               TempDocumentLine, ServiceInvoiceLine."Inv. Discount Amount",
                               ServiceInvoiceHeader."Currency Code", ServiceInvoiceHeader."Prices Including VAT", ServiceInvoiceLine."Line Discount %");
+                            UpdateDocumentLine(TempDocumentLine);
                             TempDocumentLine.Insert();
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
@@ -4521,6 +4566,7 @@ codeunit 10145 "E-Invoice Mgt."
                             CalcDocumentLineAmounts(
                               TempDocumentLine, ServiceCrMemoLine."Inv. Discount Amount",
                               ServiceCrMemoHeader."Currency Code", ServiceCrMemoHeader."Prices Including VAT", ServiceCrMemoLine."Line Discount %");
+                            UpdateDocumentLine(TempDocumentLine);
                             TempDocumentLine.Insert();
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
@@ -4619,6 +4665,20 @@ codeunit 10145 "E-Invoice Mgt."
         if TempDocumentHeader."Currency Code" = '' then begin
             TempDocumentHeader."Currency Code" := GLSetup."LCY Code";
             TempDocumentHeader."Currency Factor" := 1.0;
+        end;
+    end;
+
+    local procedure UpdateDocumentLine(var TempDocumentLine: Record "Document Line" temporary)
+    var
+        SATUtilities: Codeunit "SAT Utilities";
+    begin
+        if TempDocumentLine."Unit of Measure Code" <> '' then
+            exit;
+        case TempDocumentLine.Type of
+            TempDocumentLine.Type::"G/L Account":
+                TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureGLAccount();
+            TempDocumentLine.Type::"Fixed Asset":
+                TempDocumentLine."Unit of Measure Code" := SATUtilities.GetSATUnitOfMeasureFixedAsset();
         end;
     end;
 
@@ -7112,6 +7172,7 @@ IsVATExemptLine(TempDocumentLine));
     local procedure CheckDocumentLine(var TempErrorMessage: Record "Error Message" temporary; DocumentVariant: Variant; var DocumentLine: Record "Document Line"; ForeignTrade: Boolean)
     var
         Item: Record Item;
+        GLAccount: Record "G/L Account";
         ItemCharge: Record "Item Charge";
         FixedAsset: Record "Fixed Asset";
         UnitOfMeasure: Record "Unit of Measure";
@@ -7128,20 +7189,13 @@ IsVATExemptLine(TempDocumentLine));
                 LogIfEmpty(LineVariant, DocumentLine.FieldNo(Description), "Message Type"::Error);
                 LogIfEmpty(LineVariant, DocumentLine.FieldNo("Unit Price/Direct Unit Cost"), "Message Type"::Error);
                 LogIfEmpty(LineVariant, DocumentLine.FieldNo("Amount Including VAT"), "Message Type"::Error);
-                if DocumentLine.Type <> DocumentLine.Type::"Fixed Asset" then
+                if not (DocumentLine.Type in [DocumentLine.Type::"G/L Account", DocumentLine.Type::"Fixed Asset"]) then
                     LogIfEmpty(LineVariant, DocumentLine.FieldNo("Unit of Measure Code"), "Message Type"::Error);
-                if DocumentLine."Retention Attached to Line No." = 0 then
-                    if DocumentLine.Type = DocumentLine.Type::"G/L Account" then
-                        LogMessage(
-                            LineVariant, DocumentLine.FieldNo(Type), "Message Type"::Error,
-                            StrSubstNo(
-                                WrongFieldValueErr,
-                                DocumentLine.Type, DocumentLine.FieldCaption(Type), LineTableCaption))
-                    else
-                        LogIfEmpty(DocumentLine, DocumentLine.FieldNo("Unit of Measure Code"), "Message Type"::Error);
 
                 if (DocumentLine.Type = DocumentLine.Type::Item) and Item.Get(DocumentLine."No.") then
                     LogIfEmpty(Item, Item.FieldNo("SAT Item Classification"), "Message Type"::Error);
+                if (DocumentLine.Type = DocumentLine.Type::"G/L Account") and GLAccount.Get(DocumentLine."No.") then
+                    LogIfEmpty(GLAccount, GLAccount.FieldNo("SAT Classification Code"), "Message Type"::Error);
                 if (DocumentLine.Type = DocumentLine.Type::"Charge (Item)") and ItemCharge.Get(DocumentLine."No.") then
                     LogIfEmpty(ItemCharge, ItemCharge.FieldNo("SAT Classification Code"), "Message Type"::Error);
                 if (DocumentLine.Type = DocumentLine.Type::"Fixed Asset") and FixedAsset.Get(DocumentLine."No.") then
@@ -7433,6 +7487,26 @@ IsVATExemptLine(TempDocumentLine));
                     LineVariant := TransferShipmentLine;
                     TableCaption := TransferShipmentLine.TableCaption();
                 end;
+        end;
+    end;
+
+    local procedure GetDocTypeTextFromDatabaseId(DatabeseId: Integer): Text
+    begin
+        case DatabeseId of
+            Database::"Sales Invoice Header":
+                exit('Sales Invoice');
+            Database::"Sales Cr.Memo Header":
+                exit('Sales Cr.Memo');
+            Database::"Service Invoice Header":
+                Exit('Service Invoice');
+            Database::"Service Cr.Memo Header":
+                exit('Service Cr.Memo');
+            Database::"Sales Shipment Header":
+                exit('Sales Shipment');
+            Database::"Transfer Shipment Header":
+                exit('Transfer Shipment');
+            Database::"Cust. Ledger Entry":
+                exit('payment');
         end;
     end;
 

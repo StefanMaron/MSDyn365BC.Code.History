@@ -1272,6 +1272,63 @@ codeunit 137290 "SCM Pick Bin Policy"
         Assert.RecordCount(WarehouseActivityLine, 4);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure WarehousePickQtyWithAlwaysCreatePickAndAlternateUoM()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Bin: Record Bin;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty, QtyPer : Decimal;
+    begin
+        // [FEATURE] [Always Create Pick] [Unit of Measure]
+        // [SCENARIO 492010] Correct unit of measure conversion on warehouse pick line when Always Create Pick Line is used.
+        Initialize();
+        Qty := 2;
+        QtyPer := 5;
+
+        CreateLocationSetupWithBins(Location, false, true, false, true, true, 5, false);
+        Location."Always Create Pick Line" := true;
+        Location.Modify(true);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPer);
+        Item.Validate("Sales Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Location.Code, Item."No.", Qty, false);
+
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        WarehouseShipmentLine.SetRange("Source Document", "Warehouse Activity Source Document"::"Sales Order");
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseShipmentLine.ModifyAll("Bin Code", Bin.Code);
+        WarehouseShipmentLine.FindFirst();
+
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick,
+          Location.Code, WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.TestField(Quantity, Qty);
+        WarehouseActivityLine.TestField("Qty. (Base)", Qty * QtyPer);
+        WarehouseActivityLine.TestField("Unit of Measure Code", ItemUnitOfMeasure.Code);
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick,
+          Location.Code, WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.TestField(Quantity, Qty);
+        WarehouseActivityLine.TestField("Qty. (Base)", Qty * QtyPer);
+        WarehouseActivityLine.TestField("Unit of Measure Code", ItemUnitOfMeasure.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

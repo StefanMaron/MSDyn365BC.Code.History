@@ -33,6 +33,7 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryPurchase: Codeunit "Library - Purchase";
         Amounts: Label 'Amounts';
         GetAmtINT01: Label 'GetAmtINT01';
         GetAmtMISC02: Label 'GetAmtMISC02';
@@ -1618,6 +1619,277 @@ codeunit 142055 "UT REP Vendor 1099"
         FileManagement.DeleteServerFile(FileName);
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099Div2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099DivReportShowAmountOnlyAdjustment()
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 497306] A "Vendor 1099 Div 2022" report shows the amount only from adjustment when no vendor ledger entries exist for the vendor
+
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Adjustment amount equals 100 for vendor, IRS code "DIV-01", Year = 2022
+        LibraryLocalFunctionality.CreateIRS1099Adjustment(
+          IRS1099Adjustment, Vendor."No.", IRS1099CodeDiv, Date2DMY(WorkDate(), 3), LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
+
+        // [THEN] Run "Vendor 1099 Div 2022" report
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        REPORT.Run(REPORT::"Vendor 1099 Div 2022", true, false);
+
+        // [THEN] Report has amount 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtCombinedDivCodeAB, IRS1099Adjustment.Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099MiscReportShowAmountOnlyAdjustment()
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 497306] A "Vendor 1099 Misc 2022" report shows the amount only from adjustment when no vendor ledger entries exist for the vendor
+
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Adjustment amount equals 100 for vendor, IRS code "MISC-02", Year = 2022
+        LibraryLocalFunctionality.CreateIRS1099Adjustment(
+          IRS1099Adjustment, Vendor."No.", IRS1099CodeMisc, Date2DMY(WorkDate(), 3), LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
+
+        // [THEN] Run "Vendor 1099 Div 2022" report
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        REPORT.Run(REPORT::"Vendor 1099 Misc 2022", true, false);
+
+        // [THEN] Report has amount 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, IRS1099Adjustment.Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Nec2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099NecReportShowAmountOnlyAdjustment()
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 497306] A "Vendor 1099 Nec 2022" report shows the amount only from adjustment when no vendor ledger entries exist for the vendor
+
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Adjustment amount equals 100 for vendor, IRS code "Nec-01", Year = 2022
+        LibraryLocalFunctionality.CreateIRS1099Adjustment(
+          IRS1099Adjustment, Vendor."No.", IRS1099CodeNec01Tok, Date2DMY(WorkDate(), 3), LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
+
+        // [THEN] Run "Vendor 1099 Nec 2022" report
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        REPORT.Run(REPORT::"Vendor 1099 Nec 2022", true, false);
+
+        // [THEN] Report has amount 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtNEC01Tok, IRS1099Adjustment.Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Int2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099IntReportShowAmountOnlyAdjustment()
+    var
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 497306] A "Vendor 1099 Int 2022" report shows the amount only from adjustment when no vendor ledger entries exist for the vendor
+
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Adjustment amount equals 100 for vendor, IRS code "Int-01", Year = 2022
+        LibraryLocalFunctionality.CreateIRS1099Adjustment(
+          IRS1099Adjustment, Vendor."No.", IRS1099CodeInt, Date2DMY(WorkDate(), 3), LibraryRandom.RandDecInDecimalRange(1000, 2000, 2));
+
+        // [THEN] Run "Vendor 1099 Int 2022" report
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        REPORT.Run(REPORT::"Vendor 1099 Int 2022", true, false);
+
+        // [THEN] Report has amount 100
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtINT01, IRS1099Adjustment.Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099Misc2022Refund()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Code[20];
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+    begin
+        // [SCENARIO 497410] Stan can print "Vendor 1099 Misc 2022" report that consideres refunds
+
+        Initialize();
+        InvoiceAmount := LibraryRandom.RandIntInRange(1000, 2000);
+        // [GIVEN] Invoice Vendor Leger Entry with "MISC-02" code and Amount = 100
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc, InvoiceAmount);
+        VendorNo := VendorLedgerEntry."Vendor No.";
+        // [GIVEN] Credit Memo Vendor Leger Entry with "MISC-02" code and Amount = -20
+        CrMemoAmount := Round(InvoiceAmount / 2);
+        Clear(VendorLedgerEntry);
+        CreateNegativeLedgerEntriesForVendor(VendorLedgerEntry, VendorNo, IRS1099CodeMisc, -CrMemoAmount);
+
+        // [WHEN] Run "Vendor 1099 Misc 2022" report
+        REPORT.Run(REPORT::"Vendor 1099 Misc 2022");
+
+        // [THEN] "MISC-02" code prints with amount equals 80
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, InvoiceAmount - CrMemoAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Div2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099Div2022Refund()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Code[20];
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+    begin
+        // [SCENARIO 497410] Stan can print "Vendor 1099 Div 2022" report that consideres refunds
+
+        Initialize();
+        InvoiceAmount := LibraryRandom.RandIntInRange(1000, 2000);
+        // [GIVEN] Invoice Vendor Leger Entry with "DIV-01" code and Amount = 100
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeDiv, InvoiceAmount);
+        VendorNo := VendorLedgerEntry."Vendor No.";
+        // [GIVEN] Credit Memo Vendor Leger Entry with "DIV-01" code and Amount = -20
+        CrMemoAmount := Round(InvoiceAmount / 2);
+        Clear(VendorLedgerEntry);
+        CreateNegativeLedgerEntriesForVendor(VendorLedgerEntry, VendorNo, IRS1099CodeDiv, -CrMemoAmount);
+
+        // [WHEN] Run "Vendor 1099 Div 2022" report
+        REPORT.Run(REPORT::"Vendor 1099 Div 2022");
+
+        // [THEN] "DIV-01" code prints with amount equals 80
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtCombinedDivCodeAB, InvoiceAmount - CrMemoAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Nec2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099Nec2022Refund()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Code[20];
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+    begin
+        // [SCENARIO 497410] Stan can print "Vendor 1099 Nec 2022" report that consideres refunds
+
+        Initialize();
+        InvoiceAmount := LibraryRandom.RandIntInRange(1000, 2000);
+        // [GIVEN] Invoice Vendor Leger Entry with "NEC-01" code and Amount = 100
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeNec01Tok, InvoiceAmount);
+        VendorNo := VendorLedgerEntry."Vendor No.";
+        // [GIVEN] Credit Memo Vendor Leger Entry with "NEC-01" code and Amount = -20
+        CrMemoAmount := Round(InvoiceAmount / 2);
+        Clear(VendorLedgerEntry);
+        CreateNegativeLedgerEntriesForVendor(VendorLedgerEntry, VendorNo, IRS1099CodeNec01Tok, -CrMemoAmount);
+
+        // [WHEN] Run "Vendor 1099 Nec 2022" report
+        REPORT.Run(REPORT::"Vendor 1099 Nec 2022");
+
+        // [THEN] "NEC-01" code prints with amount equals 80
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtNEC01Tok, InvoiceAmount - CrMemoAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Int2022RPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099Int2022Refund()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Code[20];
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+    begin
+        // [SCENARIO 497410] Stan can print "Vendor 1099 Int 2022" report that consideres refunds
+
+        Initialize();
+        InvoiceAmount := LibraryRandom.RandIntInRange(1000, 2000);
+        // [GIVEN] Invoice Vendor Leger Entry with "INT-01" code and Amount = 100
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeInt, InvoiceAmount);
+        VendorNo := VendorLedgerEntry."Vendor No.";
+        // [GIVEN] Credit Memo Vendor Leger Entry with "INT-01" code and Amount = -20
+        CrMemoAmount := Round(InvoiceAmount / 2);
+        Clear(VendorLedgerEntry);
+        CreateNegativeLedgerEntriesForVendor(VendorLedgerEntry, VendorNo, IRS1099CodeInt, -CrMemoAmount);
+
+        // [WHEN] Run "Vendor 1099 Int 2022" report
+        REPORT.Run(REPORT::"Vendor 1099 Int 2022");
+
+        // [THEN] "INT-01" code prints with amount equals 80
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtINT01, InvoiceAmount - CrMemoAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099InformationRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099InformationRefund()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorNo: Code[20];
+        InvoiceAmount: Decimal;
+        CrMemoAmount: Decimal;
+    begin
+        // [SCENARIO 497410] Stan can print "Vendor 1099 Information" report that consideres refunds
+
+        Initialize();
+        InvoiceAmount := LibraryRandom.RandIntInRange(1000, 2000);
+        // [GIVEN] Invoice Vendor Leger Entry with "INT-01" code and Amount = 100
+        SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeInt, InvoiceAmount);
+        VendorNo := VendorLedgerEntry."Vendor No.";
+        // [GIVEN] Credit Memo Vendor Leger Entry with "INT-01" code and Amount = -20
+        CrMemoAmount := Round(InvoiceAmount / 2);
+        Clear(VendorLedgerEntry);
+        CreateNegativeLedgerEntriesForVendor(VendorLedgerEntry, VendorNo, IRS1099CodeInt, -CrMemoAmount);
+
+        // [WHEN] Run "Vendor 1099 Information" report
+        REPORT.Run(REPORT::"Vendor 1099 Information");
+
+        // [THEN] Report prints value 80
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(Amounts, InvoiceAmount - CrMemoAmount);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1703,14 +1975,24 @@ codeunit 142055 "UT REP Vendor 1099"
     end;
 
     local procedure SetupToCreateLedgerEntriesForExistingVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; IRS1099Code: Code[10]; VendorLedgerEntryAmount: Decimal)
+    begin
+        MockPairOfVendorLedgerEnties(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Payment, VendorNo, IRS1099Code, VendorLedgerEntryAmount);
+    end;
+
+    local procedure CreateNegativeLedgerEntriesForVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; IRS1099Code: Code[10]; VendorLedgerEntryAmount: Decimal)
+    begin
+        MockPairOfVendorLedgerEnties(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", VendorLedgerEntry."Document Type"::Refund, VendorNo, IRS1099Code, VendorLedgerEntryAmount);
+    end;
+
+    local procedure MockPairOfVendorLedgerEnties(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType1: Enum "Gen. Journal Document Type"; DocType2: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; IRS1099Code: Code[10]; VendorLedgerEntryAmount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
         CreateVendorLedgerEntry(
-          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorNo, IRS1099Code, VendorLedgerEntryAmount);
+          VendorLedgerEntry, DocType1, VendorNo, IRS1099Code, VendorLedgerEntryAmount);
         CreateVendorLedgerEntry(
-          VendorLedgerEntry2, VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Vendor No.", IRS1099Code, 0);  // Using 0 for zero amount.
+          VendorLedgerEntry2, DocType2, VendorLedgerEntry."Vendor No.", IRS1099Code, 0);  // Using 0 for zero amount.
         CreateDetailedVendorLedgerEntry(
           VendorLedgerEntry."Entry No.", 0, DetailedVendorLedgEntry."Entry Type"::"Initial Entry",
           VendorLedgerEntry."Vendor No.", -VendorLedgerEntryAmount, true);
@@ -1992,7 +2274,7 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryERM.FindPostCode(PostCode);
         Vendor1099MagneticMedia.VendorInfoCity.SetValue(PostCode.City);
         Vendor1099MagneticMedia.VendorInfoPostCode.SetValue(PostCode.Code);
-    
+
         Vendor1099MagneticMedia.Year.SetValue(Date2DMY(WorkDate(), 3));
         Vendor1099MagneticMedia.TransCode.SetValue(CopyStr(LibraryUTUtility.GetNewCode(), 1, 5));
         Vendor1099MagneticMedia.ContactName.SetValue(LibraryUTUtility.GetNewCode());

@@ -1168,7 +1168,7 @@ codeunit 1535 "Approvals Mgmt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateApprovalEntryNotification(ApprovalEntry, IsHandled);
+        OnBeforeCreateApprovalEntryNotification(ApprovalEntry, IsHandled, WorkflowStepInstance);
         if not IsHandled then begin
             if not WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
                 exit;
@@ -2683,7 +2683,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateApprovalEntryNotification(ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateApprovalEntryNotification(ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean; WorkflowStepInstance: Record "Workflow Step Instance")
     begin
     end;
 

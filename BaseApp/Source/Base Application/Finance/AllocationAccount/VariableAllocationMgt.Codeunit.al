@@ -1,17 +1,14 @@
 ﻿namespace Microsoft.Finance.AllocationAccount;
 
 using Microsoft.Bank.Ledger;
-using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Ledger;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Period;
 
 codeunit 2670 "Variable Allocation Mgt."
 {
     internal procedure CalculateAmountDistributions(var AllocationAccount: Record "Allocation Account"; AmountToDistribute: Decimal; var AmountDistributions: Dictionary of [Guid, Decimal]; var ShareDistributions: Dictionary of [Guid, Decimal]; PostingDate: Date; CurrencyCode: Code[10])
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        Currency: Record Currency;
+        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
         AccountSystemID: Guid;
         AccountBalance: Decimal;
         TotalBalance: Decimal;
@@ -23,12 +20,7 @@ codeunit 2670 "Variable Allocation Mgt."
         CalculateVariableBalance(AllocationAccount, ShareDistributions, TotalBalance, PostingDate);
         FixBalances(ShareDistributions, FixedShareDistributions, TotalBalance);
 
-        GeneralLedgerSetup.Get();
-        AmountRoundingPercision := GeneralLedgerSetup."Amount Rounding Precision";
-        if CurrencyCode <> '' then
-            if Currency.Get(CurrencyCode) then
-                AmountRoundingPercision := Currency."Amount Rounding Precision";
-
+        AmountRoundingPercision := AllocationAccountMgt.GetCurrencyRoundingPrecision(CurrencyCode);
         foreach AccountSystemID in FixedShareDistributions.Keys() do begin
             FixedShareDistributions.Get(AccountSystemID, AccountBalance);
             if TotalBalance <> 0 then

@@ -2123,8 +2123,15 @@ codeunit 8 AccSchedManagement
         OnAfterHasDimFilter(AccSchedLine, ColumnLayout, Result);
     end;
 
-    local procedure HasCostDimFilter(var AccSchedLine: Record "Acc. Schedule Line"): Boolean
+    local procedure HasCostDimFilter(var AccSchedLine: Record "Acc. Schedule Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasCostDimFilter(AccSchedLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit((AccSchedLine."Cost Center Totaling" <> '') or
           (AccSchedLine."Cost Object Totaling" <> '') or
           (AccSchedLine.GetFilter("Cost Center Filter") <> '') or
@@ -2931,6 +2938,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcColumnDates(ColumnLayout: Record "Column Layout"; var FromDate: Date; var ToDate: Date; var FiscalStartDate2: Date; var PeriodError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasCostDimFilter(var AccScheduleLine: Record "Acc. Schedule Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

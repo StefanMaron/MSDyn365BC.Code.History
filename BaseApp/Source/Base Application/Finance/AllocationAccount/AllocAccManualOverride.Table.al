@@ -48,6 +48,12 @@ table 2673 "Alloc. Acc. Manual Override"
             DataClassification = CustomerContent;
             Caption = 'Percentage';
         }
+        field(20; Quantity; Decimal)
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'Quantity';
+            DecimalPlaces = 0 : 5;
+        }
         field(37; "Global Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,1,1';
