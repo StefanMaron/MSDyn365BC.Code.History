@@ -473,23 +473,29 @@ codeunit 392 "Reminder-Make"
     end;
 
     procedure SetReminderLine(var LineLevel2: Integer; var ReminderDueDate2: Date)
+    var
+        IsHandled: Boolean;
     begin
-        if CustLedgEntry."Last Issued Reminder Level" > 0 then begin
-            ReminderEntry.SetCurrentKey("Customer Entry No.", Type);
-            ReminderEntry.SetRange("Customer Entry No.", CustLedgEntry."Entry No.");
-            ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
-            ReminderEntry.SetRange("Reminder Level", CustLedgEntry."Last Issued Reminder Level");
-            ReminderEntry.SetRange(Canceled, false);
-            OnSetReminderLineOnAfterSetFilters(ReminderEntry);
-            if ReminderEntry.FindLast() then begin
-                ReminderDueDate2 := ReminderEntry."Due Date";
-                LineLevel2 := ReminderEntry."Reminder Level" + 1;
-                OnSetReminderLineOnAfterFindNextLineLevel(ReminderEntry, LineLevel2, ReminderDueDate2);
-                exit;
-            end
+        IsHandled := false;
+        OnBeforeSetReminderLine(LineLevel2, ReminderDueDate2, IsHandled, CustLedgEntry, ReminderEntry);
+        if not IsHandled then begin
+            if CustLedgEntry."Last Issued Reminder Level" > 0 then begin
+                ReminderEntry.SetCurrentKey("Customer Entry No.", Type);
+                ReminderEntry.SetRange("Customer Entry No.", CustLedgEntry."Entry No.");
+                ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
+                ReminderEntry.SetRange("Reminder Level", CustLedgEntry."Last Issued Reminder Level");
+                ReminderEntry.SetRange(Canceled, false);
+                OnSetReminderLineOnAfterSetFilters(ReminderEntry);
+                if ReminderEntry.FindLast() then begin
+                    ReminderDueDate2 := ReminderEntry."Due Date";
+                    LineLevel2 := ReminderEntry."Reminder Level" + 1;
+                    OnSetReminderLineOnAfterFindNextLineLevel(ReminderEntry, LineLevel2, ReminderDueDate2);
+                    exit;
+                end
+            end;
+            ReminderDueDate2 := CustLedgEntry."Due Date";
+            LineLevel2 := 1;
         end;
-        ReminderDueDate2 := CustLedgEntry."Due Date";
-        LineLevel2 := 1;
 
         OnAfterSetReminderLine(CustLedgEntry, LineLevel2, ReminderDueDate2);
     end;
@@ -802,6 +808,11 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeReminderOnBeforeReminderHeaderInsertLines(var ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetReminderLine(var LineLevel2: Integer; var ReminderDueDate2: Date; var IsHandled: Boolean; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry")
     begin
     end;
 }

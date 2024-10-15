@@ -168,7 +168,10 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     begin
                         SetResPrice("No.", "Work Type Code", "Currency Code");
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
-                        OnAfterFindServLineResPrice(ServLine, ResPrice);
+                        IsHandled := false;
+                        OnAfterFindServLineResPrice(ServLine, ResPrice, HideResUnitPriceMessage, CalledByFieldNo, IsHandled);
+                        if IsHandled then
+                            exit;
                         ConvertPriceToVAT(false, '', '', ResPrice."Unit Price");
                         ResPrice."Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
                         ConvertPriceLCYToFCY(ResPrice."Currency Code", ResPrice."Unit Price");
@@ -1215,9 +1218,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         Job.Get("Job No.");
                         SetResPrice("No.", "Work Type Code", "Currency Code");
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
-                        OnAfterFindJobPlanningLineResPrice(JobPlanningLine, ResPrice);
-                        ConvertPriceLCYToFCY(ResPrice."Currency Code", ResPrice."Unit Price");
-                        "Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
+                        IsHandled := false;
+                        OnAfterFindJobPlanningLineResPrice(JobPlanningLine, ResPrice, CalledByFieldNo, AllowLineDisc, IsHandled);
+                        if not IsHandled then begin
+                            ConvertPriceLCYToFCY(ResPrice."Currency Code", ResPrice."Unit Price");
+                            "Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
+                        end;
                     end;
             end;
         end;
@@ -1274,16 +1280,16 @@ codeunit 7000 "Sales Price Calc. Mgt."
                             JobPlanningLineFindJobResPrice(JobPlanningLine, JobResPrice, JobResPrice.Type::All):
                                 CopyJobResPriceToJobPlanLine(JobPlanningLine, JobResPrice);
                             else begin
-                                    JobResPrice.SetRange("Job Task No.", '');
-                                    case true of
-                                        JobPlanningLineFindJobResPrice(JobPlanningLine, JobResPrice, JobResPrice.Type::Resource):
-                                            CopyJobResPriceToJobPlanLine(JobPlanningLine, JobResPrice);
-                                        JobPlanningLineFindJobResPrice(JobPlanningLine, JobResPrice, JobResPrice.Type::"Group(Resource)"):
-                                            CopyJobResPriceToJobPlanLine(JobPlanningLine, JobResPrice);
-                                        JobPlanningLineFindJobResPrice(JobPlanningLine, JobResPrice, JobResPrice.Type::All):
-                                            CopyJobResPriceToJobPlanLine(JobPlanningLine, JobResPrice);
-                                    end;
+                                JobResPrice.SetRange("Job Task No.", '');
+                                case true of
+                                    JobPlanningLineFindJobResPrice(JobPlanningLine, JobResPrice, JobResPrice.Type::Resource):
+                                        CopyJobResPriceToJobPlanLine(JobPlanningLine, JobResPrice);
+                                    JobPlanningLineFindJobResPrice(JobPlanningLine, JobResPrice, JobResPrice.Type::"Group(Resource)"):
+                                        CopyJobResPriceToJobPlanLine(JobPlanningLine, JobResPrice);
+                                    JobPlanningLineFindJobResPrice(JobPlanningLine, JobResPrice, JobResPrice.Type::All):
+                                        CopyJobResPriceToJobPlanLine(JobPlanningLine, JobResPrice);
                                 end;
+                            end;
                         end;
                     end;
                 Type::"G/L Account":
@@ -1412,9 +1418,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         SetResPrice("No.", "Work Type Code", "Currency Code");
                         OnBeforeFindJobJnlLineResPrice(JobJnlLine, ResPrice);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Price", ResPrice);
-                        OnAfterFindJobJnlLineResPrice(JobJnlLine, ResPrice);
-                        ConvertPriceLCYToFCY(ResPrice."Currency Code", ResPrice."Unit Price");
-                        "Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
+                        IsHandled := false;
+                        OnAfterFindJobJnlLineResPrice(JobJnlLine, ResPrice, CalledByFieldNo, IsHandled);
+                        if not IsHandled then begin
+                            ConvertPriceLCYToFCY(ResPrice."Currency Code", ResPrice."Unit Price");
+                            "Unit Price" := ResPrice."Unit Price" * "Qty. per Unit of Measure";
+                        end;
                     end;
             end;
         end;
@@ -1513,16 +1522,16 @@ codeunit 7000 "Sales Price Calc. Mgt."
                             JobJnlLineFindJobResPrice(JobJnlLine, JobResPrice, JobResPrice.Type::All):
                                 CopyJobResPriceToJobJnlLine(JobJnlLine, JobResPrice);
                             else begin
-                                    JobResPrice.SetRange("Job Task No.", '');
-                                    case true of
-                                        JobJnlLineFindJobResPrice(JobJnlLine, JobResPrice, JobResPrice.Type::Resource):
-                                            CopyJobResPriceToJobJnlLine(JobJnlLine, JobResPrice);
-                                        JobJnlLineFindJobResPrice(JobJnlLine, JobResPrice, JobResPrice.Type::"Group(Resource)"):
-                                            CopyJobResPriceToJobJnlLine(JobJnlLine, JobResPrice);
-                                        JobJnlLineFindJobResPrice(JobJnlLine, JobResPrice, JobResPrice.Type::All):
-                                            CopyJobResPriceToJobJnlLine(JobJnlLine, JobResPrice);
-                                    end;
+                                JobResPrice.SetRange("Job Task No.", '');
+                                case true of
+                                    JobJnlLineFindJobResPrice(JobJnlLine, JobResPrice, JobResPrice.Type::Resource):
+                                        CopyJobResPriceToJobJnlLine(JobJnlLine, JobResPrice);
+                                    JobJnlLineFindJobResPrice(JobJnlLine, JobResPrice, JobResPrice.Type::"Group(Resource)"):
+                                        CopyJobResPriceToJobJnlLine(JobJnlLine, JobResPrice);
+                                    JobJnlLineFindJobResPrice(JobJnlLine, JobResPrice, JobResPrice.Type::All):
+                                        CopyJobResPriceToJobJnlLine(JobJnlLine, JobResPrice);
                                 end;
+                            end;
                         end;
                         OnAfterJobJnlLineFindJTPriceResource(JobJnlLine);
                     end;
@@ -1695,7 +1704,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindJobJnlLineResPrice(var JobJournalLine: Record "Job Journal Line"; var ResourcePrice: Record "Resource Price")
+    local procedure OnAfterFindJobJnlLineResPrice(var JobJournalLine: Record "Job Journal Line"; var ResourcePrice: Record "Resource Price"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -1710,7 +1719,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindJobPlanningLineResPrice(var JobPlanningLine: Record "Job Planning Line"; var ResourcePrice: Record "Resource Price")
+    local procedure OnAfterFindJobPlanningLineResPrice(var JobPlanningLine: Record "Job Planning Line"; var ResourcePrice: Record "Resource Price"; CalledByFieldNo: Integer; var AllowLineDisc: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1755,7 +1764,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindServLineResPrice(var ServiceLine: Record "Service Line"; var ResPrice: Record "Resource Price")
+    local procedure OnAfterFindServLineResPrice(var ServiceLine: Record "Service Line"; var ResPrice: Record "Resource Price"; var HideResUnitPriceMessage: Boolean; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

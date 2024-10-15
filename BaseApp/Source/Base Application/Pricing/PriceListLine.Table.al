@@ -835,7 +835,10 @@ table 7001 "Price List Line"
                 "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
             end;
         CopyFromAssetType();
+#if not CLEAN23
         OnAfterCopyFromPriceAsset(PriceAsset, Rec);
+#endif
+        OnAfterCopyFromForPriceAsset(PriceAsset, Rec);
     end;
 
     procedure CopyPriceFrom(PriceAsset: Record "Price Asset")
@@ -918,6 +921,8 @@ table 7001 "Price List Line"
                 if TempPriceListLine.Insert() then
                     Copied := true;
             until Next() = 0;
+
+        OnAfterCopyFilteredLinesToTemporaryBuffer(TempPriceListLine);
     end;
 
     local procedure GetHeader(): Boolean;
@@ -1176,8 +1181,16 @@ table 7001 "Price List Line"
         end;
     end;
 
+#if not CLEAN23
+    [Obsolete('typo, use OnAfterCopyFromForPriceAsset instead', '23.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyFromPriceAsset(PriceAsset: Record "Price Asset"; var riceListLine: Record "Price List Line")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCopyFromForPriceAsset(PriceAsset: Record "Price Asset"; var PriceListLine: Record "Price List Line")
     begin
     end;
 
@@ -1269,5 +1282,10 @@ table 7001 "Price List Line"
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromAssetTypeOnAfterCopyFromAssetTypeResource(Resource: Record Resource; var PriceListLine: Record "Price List Line")
     begin
-    end;    
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFilteredLinesToTemporaryBuffer(var TempPriceListLine: Record "Price List Line" temporary)
+    begin
+    end;
 }
