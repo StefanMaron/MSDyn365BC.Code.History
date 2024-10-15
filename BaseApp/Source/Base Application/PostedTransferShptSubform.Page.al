@@ -1,4 +1,4 @@
-page 5744 "Posted Transfer Shpt. Subform"
+﻿page 5744 "Posted Transfer Shpt. Subform"
 {
     Caption = 'Lines';
     Editable = false;
@@ -122,6 +122,11 @@ page 5744 "Posted Transfer Shpt. Subform"
                                                                   "Dimension Value Type" = CONST(Standard),
                                                                   Blocked = CONST(false));
                     Visible = DimVisible8;
+                }
+                field("Custom Transit Number"; "Custom Transit Number")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies a unique transit number as five groups of digits separated by two spaces. The number identifies the transport, the year of transport, the customs office, and other required information.';
                 }
             }
         }

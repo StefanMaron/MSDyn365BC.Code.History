@@ -359,6 +359,30 @@ page 5600 "Fixed Asset Card"
                     ToolTip = 'Specifies that the fixed asset is linked to an insurance policy.';
                 }
             }
+            group("Electronic Document")
+            {
+                Caption = 'Electronic Document';
+                field("Vehicle Licence Plate"; "Vehicle Licence Plate")
+                {
+                    ApplicationArea = FixedAssets, BasicMX;
+                    ToolTip = 'Specifies the vehicle plate of the motor carrier, trailer, or semi-trailer that is used to transport the goods or merchandise.';
+                }
+                field("Vehicle Year"; "Vehicle Year")
+                {
+                    ApplicationArea = FixedAssets, BasicMX;
+                    ToolTip = 'Specifies the year of the motor carrier that is used to transport the goods or merchandise.';
+                }
+                field("SAT Federal Autotransport"; "SAT Federal Autotransport")
+                {
+                    ApplicationArea = FixedAssets, BasicMX;
+                    ToolTip = 'Specifies the nomenclature key of the federal freight motor carrier that is used to transport the goods or merchandise.';
+                }
+                field("SAT Trailer Type"; "SAT Trailer Type")
+                {
+                    ApplicationArea = FixedAssets, BasicMX;
+                    ToolTip = 'Specifies the subtype of trailer or semi-trailers that are used with the motor carrier for the transfer of goods or merchandise.';
+                }
+            }
         }
         area(factboxes)
         {

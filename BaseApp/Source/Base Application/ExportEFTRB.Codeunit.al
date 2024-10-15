@@ -119,7 +119,8 @@ codeunit 10095 "Export EFT (RB)"
             ACHRBHeader.Validate("Settlement Date", TempEFTExportWorkset.UserSettleDate);
 
             // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
-            FindDataExchColumnDef(DataExchColumnDef, DataExchEntryNo, ACHRBHeader.FieldName("File Creation Date"));
+            FindDataExchColumnDefWithMapping(
+                DataExchColumnDef,DataExchEntryNo,DATABASE::"ACH RB Header",ACHRBHeader.FieldNo("File Creation Date"));
             if DataExchColumnDef."Data Format" <> '' then begin
                 Evaluate(DateInteger, Format(FileDate, DataExchColumnDef.Length, DataExchColumnDef."Data Format"));
                 ACHRBHeader."File Creation Date" := DateInteger;
@@ -331,7 +332,8 @@ codeunit 10095 "Export EFT (RB)"
             ACHRBDetail."Payment Date" := JulianDate(SettleDate);
 
             // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
-            FindDataExchColumnDef(DataExchColumnDef, DataExchEntryNo, ACHRBDetail.FieldName("Payment Date"));
+            FindDataExchColumnDefWithMapping(
+                DataExchColumnDef,DataExchEntryNo,DATABASE::"ACH RB Detail",ACHRBDetail.FieldNo("Payment Date"));
             if DataExchColumnDef."Data Format" <> '' then begin
                 Evaluate(DateInteger, Format(SettleDate, DataExchColumnDef.Length, DataExchColumnDef."Data Format"));
                 ACHRBDetail."Payment Date" := DateInteger;
@@ -411,6 +413,35 @@ codeunit 10095 "Export EFT (RB)"
         DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
         DataExchColumnDef.SetRange(Name, FieldName);
         if DataExchColumnDef.FindFirst then;
+    end;
+
+    procedure FindDataExchColumnDefWithMapping(var DataExchColumnDef : Record "Data Exch. Column Def"; DataExchEntryNo : Integer; TableID: Integer; FieldNo: Integer)
+    var
+      DataExch: Record "Data Exch.";
+      DataExchFieldMapping: Record "Data Exch. Field Mapping";
+      RecRef: RecordRef;
+      FieldRefLocal: FieldRef;
+    begin
+      if not DataExch.Get(DataExchEntryNo) then
+        exit;
+
+      RecRef.Open(TableID);
+      FieldRefLocal := RecRef.Field(FieldNo);
+
+      FindDataExchColumnDef(DataExchColumnDef,DataExchEntryNo,FieldRefLocal.Name);
+
+      if DataExchColumnDef."Column No." <> 0 then
+        exit;
+
+      DataExchFieldMapping.SetRange("Data Exch. Def Code",DataExch."Data Exch. Def Code");
+      DataExchFieldMapping.SetRange("Data Exch. Line Def Code",DataExch."Data Exch. Line Def Code");
+      DataExchFieldMapping.SetRange("Table ID",TableID);
+      DataExchFieldMapping.SetRange("Field ID",FieldNo);
+
+      if not DataExchFieldMapping.FindFirst() then
+        exit;
+
+      if DataExchColumnDef.Get(DataExch."Data Exch. Def Code",DataExch."Data Exch. Line Def Code",DataExchFieldMapping."Column No.") then;
     end;
 
     [IntegrationEvent(false, false)]

@@ -2695,6 +2695,58 @@
             Caption = 'STE Transaction ID';
             Editable = false;
         }
+        field(10044; "Transport Operators"; Integer)
+        {
+            Caption = 'Transport Operators';
+            CalcFormula = Count ("CFDI Transport Operator" WHERE ("Document Table ID" = CONST (36),
+                                                                 "Document Type" = FIELD ("Document Type"),
+                                                                 "Document No." = FIELD ("No.")));
+            FieldClass = FlowField;
+        }
+        field(10045; "Transit-from Date/Time"; DateTime)
+        {
+            Caption = 'Transit-from Date/Time';
+        }
+        field(10046; "Transit Hours"; Integer)
+        {
+            Caption = 'Transit Hours';
+        }
+        field(10047; "Transit Distance"; Decimal)
+        {
+            Caption = 'Transit Distance';
+        }
+        field(10048; "Insurer Name"; Text[50])
+        {
+            Caption = 'Insurer Name';
+        }
+        field(10049; "Insurer Policy Number"; Text[30])
+        {
+            Caption = 'Insurer Policy Number';
+        }
+        field(10050; "Foreign Trade"; Boolean)
+        {
+            Caption = 'Foreign Trade';
+        }
+        field(10051; "Vehicle Code"; Code[20])
+        {
+            Caption = 'Vehicle Code';
+            TableRelation = "Fixed Asset";
+        }
+        field(10052; "Trailer 1"; Code[20])
+        {
+            Caption = 'Trailer 1';
+            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+        }
+        field(10053; "Trailer 2"; Code[20])
+        {
+            Caption = 'Trailer 2';
+            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+        }
+        field(10055; "Transit-to Location"; Code[10])
+        {
+            Caption = 'Transit-to Location';
+            TableRelation = Location WHERE ("Use As In-Transit" = CONST (false));
+        }
         field(12600; "Prepmt. Include Tax"; Boolean)
         {
             Caption = 'Prepmt. Include Tax';
@@ -3411,6 +3463,7 @@
                 SalesLine.BlockDynamicTracking(true);
                 repeat
                     RecreateSalesLinesHandleSupplementTypes(TempSalesLine, ExtendedTextAdded, TempItemChargeAssgntSales, TempInteger);
+                    RestoreSalesCommentLine(TempSalesCommentLine, TempSalesLine."Line No.", SalesLine."Line No.");
                     SalesLineReserve.CopyReservEntryFromTemp(TempReservEntry, TempSalesLine, SalesLine."Line No.");
                     RecreateReqLine(TempSalesLine, SalesLine."Line No.", false);
                     SynchronizeForReservations(SalesLine, TempSalesLine);
@@ -3424,7 +3477,7 @@
                     end;
                 until TempSalesLine.Next() = 0;
 
-                RestoreSalesCommentLineFromTemp(TempSalesCommentLine);
+                RestoreSalesCommentLine(TempSalesCommentLine, 0, 0);
 
                 CreateItemChargeAssgntSales(TempItemChargeAssgntSales, TempSalesLine, TempInteger);
 
@@ -3489,15 +3542,17 @@
             until SalesCommentLine.Next() = 0;
     end;
 
-    local procedure RestoreSalesCommentLineFromTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
+    local procedure RestoreSalesCommentLine(var TempSalesCommentLine: Record "Sales Comment Line" temporary; OldDocumnetLineNo: Integer; NewDocumentLineNo: Integer)
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
         TempSalesCommentLine.SetRange("Document Type", "Document Type");
         TempSalesCommentLine.SetRange("No.", "No.");
+        TempSalesCommentLine.SetRange("Document Line No.", OldDocumnetLineNo);
         if TempSalesCommentLine.FindSet() then
             repeat
                 SalesCommentLine := TempSalesCommentLine;
+                SalesCommentLine."Document Line No." := NewDocumentLineNo;
                 SalesCommentLine.Insert();
             until TempSalesCommentLine.Next() = 0;
     end;

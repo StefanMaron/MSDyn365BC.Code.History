@@ -1,4 +1,4 @@
-table 111 "Sales Shipment Line"
+﻿table 111 "Sales Shipment Line"
 {
     Caption = 'Sales Shipment Line';
     DrillDownPageID = "Posted Sales Shipment Lines";
@@ -565,6 +565,10 @@ table 111 "Sales Shipment Line"
         field(10000; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+        }
+        field(10003; "Custom Transit Number"; Text[30])
+        {
+            Caption = 'Custom Transit Number';
         }
     }
 

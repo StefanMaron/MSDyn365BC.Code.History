@@ -79,6 +79,11 @@ table 10003 "Document Line"
         {
             Caption = 'Amount Including VAT';
         }
+        field(34; "Gross Weight"; Decimal)
+        {
+            Caption = 'Gross Weight';
+            DecimalPlaces = 0 : 5;
+        }
         field(89; "VAT Bus. Posting Group"; Code[20])
         {
             Caption = 'VAT Bus. Posting Group';
@@ -99,6 +104,10 @@ table 10003 "Document Line"
         {
             Caption = 'Retention VAT %';
             AutoFormatType = 2;	    
+        }
+        field(10003; "Custom Transit Number"; Text[30])
+        {
+            Caption = 'Custom Transit Number';
         }
     }
 

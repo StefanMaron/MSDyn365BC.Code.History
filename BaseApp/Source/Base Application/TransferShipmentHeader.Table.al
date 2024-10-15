@@ -1,4 +1,4 @@
-table 5744 "Transfer Shipment Header"
+﻿table 5744 "Transfer Shipment Header"
 {
     Caption = 'Transfer Shipment Header';
     DataCaptionFields = "No.";
@@ -226,6 +226,123 @@ table 5744 "Transfer Shipment Header"
                 ShowDimensions();
             end;
         }
+        field(10020; "Original Document XML"; BLOB)
+        {
+            Caption = 'Original Document XML';
+        }
+        field(10022; "Original String"; BLOB)
+        {
+            Caption = 'Original String';
+        }
+        field(10023; "Digital Stamp SAT"; BLOB)
+        {
+            Caption = 'Digital Stamp SAT';
+        }
+        field(10024; "Certificate Serial No."; Text[250])
+        {
+            Caption = 'Certificate Serial No.';
+            Editable = false;
+        }
+        field(10025; "Signed Document XML"; BLOB)
+        {
+            Caption = 'Signed Document XML';
+        }
+        field(10026; "Digital Stamp PAC"; BLOB)
+        {
+            Caption = 'Digital Stamp PAC';
+        }
+        field(10030; "Electronic Document Status"; Option)
+        {
+            Caption = 'Electronic Document Status';
+            Editable = false;
+            OptionCaption = ' ,Stamp Received,Sent,Canceled,Stamp Request Error,Cancel Error';
+            OptionMembers = " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error";
+        }
+        field(10031; "Date/Time Stamped"; Text[50])
+        {
+            Caption = 'Date/Time Stamped';
+            Editable = false;
+        }
+        field(10033; "Date/Time Canceled"; Text[50])
+        {
+            Caption = 'Date/Time Canceled';
+            Editable = false;
+        }
+        field(10035; "Error Code"; Code[10])
+        {
+            Caption = 'Error Code';
+            Editable = false;
+        }
+        field(10036; "Error Description"; Text[250])
+        {
+            Caption = 'Error Description';
+            Editable = false;
+        }
+        field(10040; "PAC Web Service Name"; Text[50])
+        {
+            Caption = 'PAC Web Service Name';
+            Editable = false;
+        }
+        field(10041; "QR Code"; BLOB)
+        {
+            Caption = 'QR Code';
+        }
+        field(10042; "Fiscal Invoice Number PAC"; Text[50])
+        {
+            Caption = 'Fiscal Invoice Number PAC';
+            Editable = false;
+        }
+        field(10043; "Date/Time First Req. Sent"; Text[50])
+        {
+            Caption = 'Date/Time First Req. Sent';
+            Editable = false;
+        }
+        field(10044; "Transport Operators"; Integer)
+        {
+            Caption = 'Transport Operators';
+            CalcFormula = Count ("CFDI Transport Operator" WHERE ("Document Table ID" = CONST (5744),
+                                                                 "Document No." = FIELD ("No.")));
+            FieldClass = FlowField;
+        }
+        field(10045; "Transit-from Date/Time"; DateTime)
+        {
+            Caption = 'Transit-from Date/Time';
+        }
+        field(10046; "Transit Hours"; Integer)
+        {
+            Caption = 'Transit Hours';
+        }
+        field(10047; "Transit Distance"; Decimal)
+        {
+            Caption = 'Transit Distance';
+        }
+        field(10048; "Insurer Name"; Text[50])
+        {
+            Caption = 'Insurer Name';
+        }
+        field(10049; "Insurer Policy Number"; Text[30])
+        {
+            Caption = 'Insurer Policy Number';
+        }
+        field(10050; "Foreign Trade"; Boolean)
+        {
+            Caption = 'Foreign Trade';
+        }
+        field(10051; "Vehicle Code"; Code[20])
+        {
+            Caption = 'Vehicle Code';
+            TableRelation = "Fixed Asset";
+        }
+        field(10052; "Trailer 1"; Code[20])
+        {
+            Caption = 'Trailer 1';
+            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+        }
+        field(10053; "Trailer 2"; Code[20])
+        {
+            Caption = 'Trailer 2';
+            TableRelation = "Fixed Asset" WHERE ("SAT Trailer Type" = FILTER (<> ''));
+        }
     }
 
     keys
@@ -271,6 +388,7 @@ table 5744 "Transfer Shipment Header"
     var
         DimMgt: Codeunit DimensionManagement;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        NoElectronicStampErr: Label 'There is no electronic stamp for document no. %1.', Comment = '%1 - Document No.';
 
     procedure Navigate()
     var
@@ -345,7 +463,48 @@ table 5744 "Transfer Shipment Header"
         "Transaction Specification" := TransHeader."Transaction Specification";
         "Direct Transfer" := TransHeader."Direct Transfer";
 
+        "Transit-from Date/Time" := TransHeader."Transit-from Date/Time";
+        "Transit Hours" := TransHeader."Transit Hours";
+        "Transit Distance" := TransHeader."Transit Distance";
+        "Insurer Name" := TransHeader."Insurer Name";
+        "Insurer Policy Number" := TransHeader."Insurer Policy Number";
+        "Foreign Trade" := TransHeader."Foreign Trade";
+        "Vehicle Code" := TransHeader."Vehicle Code";
+        "Trailer 1" := TransHeader."Trailer 1";
+        "Trailer 2" := TransHeader."Trailer 2";
+
         OnAfterCopyFromTransferHeader(Rec, TransHeader);
+    end;
+
+    procedure ExportEDocument()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        FileManagement: Codeunit "File Management";
+    begin
+        CalcFields("Signed Document XML");
+        if "Signed Document XML".HasValue then begin
+            TempBlob.FromRecord(Rec, FieldNo("Signed Document XML"));
+            FileManagement.BLOBExport(TempBlob, "No." + '.xml', true);
+        end else
+            Error(NoElectronicStampErr, "No.");
+    end;
+
+    procedure RequestStampEDocument()
+    var
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        LoCRecRef: RecordRef;
+    begin
+        LoCRecRef.GetTable(Rec);
+        EInvoiceMgt.RequestStampDocument(LoCRecRef, false);
+    end;
+
+    procedure CancelEDocument()
+    var
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        LoCRecRef: RecordRef;
+    begin
+        LoCRecRef.GetTable(Rec);
+        EInvoiceMgt.CancelDocument(LoCRecRef);
     end;
 
     [IntegrationEvent(false, false)]

@@ -1,4 +1,4 @@
-page 5740 "Transfer Order"
+﻿page 5740 "Transfer Order"
 {
     Caption = 'Transfer Order';
     PageType = Document;
@@ -401,6 +401,65 @@ page 5740 "Transfer Order"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code of either the port of entry at which the items passed into your country/region, or the port of exit.';
+                }
+            }
+            group(ElectronicDocument)
+            {
+                Caption = 'Electronic Document';
+                field("Transport Operators"; "Transport Operators")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the operator of the vehicle that transports the goods or merchandise.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+                }
+                field("Transit-from Date/Time"; "Transit-from Date/Time")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the estimated date and time at which the goods or merchandise leave the start address.';
+                }
+                field("Transit Hours"; "Transit Hours")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the estimated time in hours that it will take to transit from the start address to the temporary or final destination.';
+                }
+                field("Transit Distance"; "Transit Distance")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the distance travelled in kilometers from the start address to the temporary or final destination as a combination of the distances that are travelled by the different means of transport that move the goods or merchandise.';
+                }
+                field("Vehicle Code"; "Vehicle Code")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the vehicle that transports the goods or merchandise.';
+                }
+                field("Trailer 1"; "Trailer 1")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the trailer or semi-trailer that is used with the vehicle for the transfer of goods or merchandise.';
+                }
+                field("Trailer 2"; "Trailer 2")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the second trailer or semi-trailer that is used with the vehicle for the transfer of goods or merchandise.';
+                }
+                field(Control1310002; "Foreign Trade")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
+                }
+                field("Insurer Name"; "Insurer Name")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the name of the insurer that covers the risks of the motor transport used for the transfer of goods or merchandise.';
+                }
+                field("Insurer Policy Number"; "Insurer Policy Number")
+                {
+                    ApplicationArea = Location, BasicMX;
+                    ToolTip = 'Specifies the policy number assigned by the insurer, which covers the risks of the motor transport used for the transfer of goods or merchandise.';
                 }
             }
         }

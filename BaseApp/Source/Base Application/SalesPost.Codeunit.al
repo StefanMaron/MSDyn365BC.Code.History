@@ -2441,6 +2441,7 @@
             WarehouseRequest.DeleteRequest(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
 
             EInvoiceMgt.DeleteCFDIRelationsAfterPosting(SalesHeader);
+            EInvoiceMgt.DeleteCFDITransportOperatorsAfterPosting(DATABASE::"Sales Header", "Document Type", "No.");
         end;
 
         OnAfterDeleteAfterPosting(SalesHeader, SalesInvHeader, SalesCrMemoHeader, SuppressCommit);
@@ -6465,6 +6466,7 @@
     var
         SalesCommentLine: Record "Sales Comment Line";
         RecordLinkManagement: Codeunit "Record Link Management";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         with SalesHeader do begin
             SalesShptHeader.Init();
@@ -6501,6 +6503,7 @@
                 OnBeforeCreatePostedWhseRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, SalesHeader);
                 WhsePostRcpt.CreatePostedRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, "Shipping No.", "Posting Date");
             end;
+            EInvoiceMgt.InsertSalesShipmentCFDITransportOperators(SalesHeader, SalesShptHeader."No.");
         end;
     end;
 
