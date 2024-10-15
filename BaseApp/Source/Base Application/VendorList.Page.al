@@ -606,7 +606,7 @@ page 27 "Vendor List"
                 Image = History;
                 action("Ledger E&ntries")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Suite;
                     Caption = 'Ledger E&ntries';
                     Image = VendorLedger;
                     Promoted = true;

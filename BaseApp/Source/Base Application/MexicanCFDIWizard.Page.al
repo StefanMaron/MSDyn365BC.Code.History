@@ -518,10 +518,13 @@ page 27010 "Mexican CFDI Wizard"
     local procedure DoesSATInfoAlreadyExist(): Boolean
     var
         SATRelationshipType: Record "SAT Relationship Type";
+        SATState: Record "SAT State";
     begin
-        if SATRelationshipType.FindFirst then
-            exit(true);
-        exit(false);
+        if SATRelationshipType.IsEmpty() then
+            exit(false);
+        if SATState.IsEmpty() then
+            exit(false);
+        exit(true);
     end;
 
     local procedure MapSATInformation()

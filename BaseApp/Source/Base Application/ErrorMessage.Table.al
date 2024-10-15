@@ -170,6 +170,16 @@
         DataTypeManagement: Codeunit "Data Type Management";
         DevMsgNotTemporaryErr: Label 'This function can only be used when the record is temporary.';
         ErrorMessageMgt: Codeunit "Error Message Management";
+        CachedLastID: Integer;
+        CachedRegisterID: Guid;
+
+    trigger OnInsert()
+    begin
+        if not Context then begin
+            CachedLastID := ID;
+            CachedRegisterID := "Register ID";
+        end;
+    end;
 
     procedure LogIfEmpty(RecRelatedVariant: Variant; FieldNumber: Integer; MessageType: Option): Integer
     var
@@ -442,8 +452,21 @@
         ClearFilters;
         SetRange(Context, false);
         SetRange("Register ID", "Register ID");
-        if FindLast then
-            exit(ID);
+
+        if not FindLast() then
+            exit(0);
+
+        CachedLastID := ID;
+        CachedRegisterID := "Register ID";
+        exit(ID);
+    end;
+
+    procedure GetCachedLastID(): Integer
+    begin
+        if CachedRegisterID <> "Register ID" then
+            exit(GetLastID());
+
+        exit(CachedLastID);
     end;
 
     local procedure GetTableNo(RecordID: RecordID): Integer

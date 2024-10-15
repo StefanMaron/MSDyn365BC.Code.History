@@ -250,6 +250,24 @@ table 5600 "Fixed Asset"
         {
             Caption = 'Image';
         }
+        field(10001; "Vehicle Licence Plate"; Code[10])
+        {
+            Caption = 'Vehicle Licence Plate';
+        }
+        field(10002; "Vehicle Year"; Integer)
+        {
+            Caption = 'Vehicle Year';
+        }
+        field(10004; "SAT Federal Autotransport"; Code[10])
+        {
+            Caption = 'SAT Federal Autotransport';
+            TableRelation = "SAT Federal Motor Transport";
+        }
+        field(10005; "SAT Trailer Type"; Code[10])
+        {
+            Caption = 'SAT Trailer Type';
+            TableRelation = "SAT Trailer Type";
+        }
     }
 
     keys

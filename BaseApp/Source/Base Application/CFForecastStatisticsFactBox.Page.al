@@ -174,8 +174,10 @@ page 840 "CF Forecast Statistics FactBox"
 
     trigger OnAfterGetRecord()
     begin
-        if CurrentDate <> WorkDate then
-            CurrentDate := WorkDate;
+        if CurrentDate <> WorkDate() then
+            CurrentDate := WorkDate();
+        if "Manual Payments To" <> 0D then
+            CurrentDate := "Manual Payments To";
 
         SetCashFlowDateFilter(0D, CurrentDate);
     end;

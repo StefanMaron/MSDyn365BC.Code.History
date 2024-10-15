@@ -2067,6 +2067,16 @@
             Caption = 'SAT Item Classification';
             TableRelation = "SAT Classification";
         }
+        field(27024; "SAT Hazardous Material"; Code[10])
+        {
+            Caption = 'SAT Hazardous Material';
+            TableRelation = "SAT Hazardous Material";
+        }
+        field(27025; "SAT Packaging Type"; Code[10])
+        {
+            Caption = 'SAT Packaging Type';
+            TableRelation = "SAT Packaging Type";
+        }
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
