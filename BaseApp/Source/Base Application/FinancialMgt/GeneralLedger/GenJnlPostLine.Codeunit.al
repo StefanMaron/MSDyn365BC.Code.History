@@ -677,6 +677,7 @@
                     VATEntry."Delivery Operation Code" := VATProductPostingGroup."Delivery Operation Code";
             GetSellToBuyFrom(GenJnlLine, VATEntry);
             VATEntry."No Taxable Type" := VATPostingSetup."No Taxable Type";
+            VATEntry."Ignore In SII" := VATPostingSetup."Ignore In SII";
 
             if "VAT Difference" = 0 then
                 VATDifferenceLCY := 0

@@ -928,6 +928,7 @@ codeunit 143006 "Library - SII"
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.SetRange("Transaction No.", TransactionNo);
         VATEntry.SetFilter("VAT %", '>0');
+        VATEntry.SetRange("Ignore In SII", false);
         if VATEntry.FindSet() then
             repeat
                 TempReturnVATEntry.SetRange("VAT %");

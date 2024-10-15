@@ -221,10 +221,15 @@
     end;
 
     procedure GetNoTaxablePurchAmount(var NoTaxableAmount: Decimal; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    begin
+        exit(GetNoTaxablePurchAmount(NoTaxableAmount, SourceNo, DocumentType, DocumentNo, PostingDate, false));
+    end;
+
+    procedure GetNoTaxablePurchAmount(var NoTaxableAmount: Decimal; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IgnoreInSII: Boolean): Boolean
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        if NoTaxableEntriesExistPurchase(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate) then begin
+        if NoTaxableEntriesExistPurchase(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate, IgnoreInSII) then begin
             NoTaxableEntry.CalcSums("Amount (LCY)");
             NoTaxableAmount := -NoTaxableEntry."Amount (LCY)";
             exit(true);
@@ -233,6 +238,11 @@
     end;
 
     procedure GetNoTaxableSalesAmount(var NoTaxableAmount: Decimal; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean): Boolean
+    begin
+        exit(GetNoTaxableSalesAmount(NoTaxableAmount, SourceNo, DocumentType, DocumentNo, PostingDate, IsService, UseNoTaxableType, IsLocalRule, false));
+    end;
+
+    procedure GetNoTaxableSalesAmount(var NoTaxableAmount: Decimal; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean; IgnoreInSII: Boolean): Boolean
     var
         NoTaxableEntry: Record "No Taxable Entry";
         IsHandled: Boolean;
@@ -247,7 +257,7 @@
         if IsHandled then
             exit(false);
 
-        if NoTaxableEntriesExistSales(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate, IsService, UseNoTaxableType, IsLocalRule) then begin
+        if NoTaxableEntriesExistSales(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate, IsService, UseNoTaxableType, IsLocalRule, IgnoreInSII) then begin
             NoTaxableEntry.CalcSums("Amount (LCY)");
             if DoNotReportNegativeLines() then
                 case true of
@@ -399,6 +409,7 @@
         VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.SetRange("Document No.", DocNumber);
         VATEntry.SetRange("No Taxable Type", VATEntry."No Taxable Type"::" ");
+        VATEntry.SetRange("Ignore In SII", false);
         SIISetup.Get();
         if SIISetup."Do Not Export Negative Lines" then begin
             DocTypeFieldRef := LedgerEntryRecRef.Field(DummyCustLedgerEntry.FieldNo("Document Type"));
@@ -460,6 +471,7 @@
                         end;
                 end;
         end;
+        NoTaxableEntry.SetRange("Ignore In SII", false);
         exit(NoTaxableEntry.FindSet());
     end;
 
@@ -649,16 +661,28 @@
 
     procedure NoTaxableEntriesExistPurchase(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
+        exit(NoTaxableEntriesExistPurchase(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate, false));
+    end;
+
+    procedure NoTaxableEntriesExistPurchase(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IgnoreInSII: Boolean): Boolean
+    begin
         NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Purchase.AsInteger(), SourceNo, DocumentType, DocumentNo, PostingDate, false);
         NoTaxableEntry.SetRange("Not In 347", false);
+        NoTaxableEntry.SetRange("Ignore In SII", IgnoreInSII);
         exit(not NoTaxableEntry.IsEmpty);
     end;
 
     procedure NoTaxableEntriesExistSales(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean): Boolean
     begin
+        exit(NoTaxableEntriesExistSales(NoTaxableEntry, SourceNo, DocumentType, DocumentNo, PostingDate, IsService, UseNoTaxableType, IsLocalRule, false));
+    end;
+
+    procedure NoTaxableEntriesExistSales(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean; IgnoreInSII: Boolean): Boolean
+    begin
         NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Sale.AsInteger(), SourceNo, DocumentType, DocumentNo, PostingDate, false);
         NoTaxableEntry.SetRange("EU Service", IsService);
         NoTaxableEntry.SetRange("Not In 347", false);
+        NoTaxableEntry.SetRange("Ignore In SII", IgnoreInSII);
         if UseNoTaxableType then
             if IsLocalRule then
                 NoTaxableEntry.SetRange(
