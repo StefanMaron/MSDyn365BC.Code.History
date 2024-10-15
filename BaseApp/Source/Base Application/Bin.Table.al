@@ -43,7 +43,7 @@ table 7354 Bin
         }
         field(5; "Adjustment Bin"; Boolean)
         {
-            CalcFormula = Exist (Location WHERE(Code = FIELD("Location Code"),
+            CalcFormula = Exist(Location WHERE(Code = FIELD("Location Code"),
                                                 "Adjustment Bin Code" = FIELD(Code)));
             Caption = 'Adjustment Bin';
             Editable = false;
@@ -168,7 +168,7 @@ table 7354 Bin
         }
         field(34; Default; Boolean)
         {
-            CalcFormula = Exist ("Bin Content" WHERE("Location Code" = FIELD("Location Code"),
+            CalcFormula = Exist("Bin Content" WHERE("Location Code" = FIELD("Location Code"),
                                                      "Bin Code" = FIELD(Code),
                                                      "Item No." = FIELD("Item Filter"),
                                                      "Variant Code" = FIELD("Variant Filter"),
@@ -456,7 +456,13 @@ table 7354 Bin
         TotalWeight: Decimal;
         Cubage: Decimal;
         Weight: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckMaxQtyBinContent(Rec, CheckWeight, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Maximum Cubage" <> 0) or ("Maximum Weight" <> 0) then begin
             BinContent.Reset();
             BinContent.SetRange("Location Code", "Location Code");
@@ -622,6 +628,11 @@ table 7354 Bin
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var Bin: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMaxQtyBinContent(var Bin: Record Bin; CheckWeight: Boolean; var IsHandled: Boolean)
     begin
     end;
 

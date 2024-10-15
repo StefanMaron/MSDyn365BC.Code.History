@@ -57,7 +57,7 @@ codeunit 139197 DocumentSendingPostTests
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerNo')]
     [Scope('OnPrem')]
     procedure TestCreateDefaultDocumentSendingProfileOnTheFly()
@@ -92,7 +92,7 @@ codeunit 139197 DocumentSendingPostTests
           DefaultSendingProfileContentErr);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerNoWithSendingProfileValidation')]
     [Scope('OnPrem')]
     procedure TestDefaultSendingProfileUsedForSalesInvoice()
@@ -120,7 +120,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.")
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerNoWithSendingProfileValidation')]
     [Scope('OnPrem')]
     procedure TestDefaultSendingProfileUsedForSalesCreditMemo()
@@ -149,7 +149,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.")
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerNoWithSendingProfileValidation,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestCustomerSendingProfileUsedForSalesInvoice()
@@ -183,7 +183,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.")
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerNoWithSendingProfileValidation,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestCustomerSendingProfileUsedForSalesCreditMemo()
@@ -219,7 +219,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.")
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerWithOverrideAndSendingProfileValidation,SelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure TestDefaultSendingProfileOverrideForSalesInvoice()
@@ -247,7 +247,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifySetupUnchanged(TempDefaultDocumentSendingProfileBeforeOverride, DefaultDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerWithOverrideAndSendingProfileValidation,SelectSendingOptionHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestDefaultSendingProfileOverrideForSalesCreditMemo()
@@ -282,7 +282,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifySetupUnchanged(TempDefaultDocumentSendingProfileBeforeOverride, DefaultDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes,EmailDialogHandlerNo,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailInvoice()
@@ -324,7 +324,7 @@ codeunit 139197 DocumentSendingPostTests
         Assert.IsFalse(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Invoice not posted.');
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailPostedInvoice()
@@ -372,7 +372,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedSalesInvoices.SendCustom.Invoke();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler,PrintInvoiceHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAndPrintPostedInvoiceByUsingDefaultRule()
@@ -437,7 +437,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesInvoiceHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYesWithOverride,EmailDialogHandlerNo,PrintInvoiceHandler,SelectSendingOptionHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAndPrintInvoiceByUsingDefaultRule()
@@ -495,7 +495,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesInvoiceHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes,PrintInvoiceHandler')]
     [Scope('OnPrem')]
     procedure TestPrintInvoice()
@@ -538,7 +538,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesInvoiceHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintInvoiceHandler')]
     [Scope('OnPrem')]
     procedure TestPrintPostedInvoice()
@@ -576,7 +576,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesInvoiceHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintInvoiceHandler')]
     [Scope('OnPrem')]
     procedure TestPrintMultiplePostedInvoices()
@@ -620,7 +620,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesInvoiceHeader2."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes,PrintCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure TestPrintCreditMemo()
@@ -663,7 +663,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesCrMemoHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure TestPrintPostedCreditMemo()
@@ -701,7 +701,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesCrMemoHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure TestPrintMultiplePostedCreditMemos()
@@ -744,7 +744,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesCrMemoHeader2."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes,EmailDialogHandlerNo,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailCreditMemo()
@@ -786,7 +786,7 @@ codeunit 139197 DocumentSendingPostTests
         Assert.IsFalse(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Credit Memo not posted.');
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailPostedCreditMemo()
@@ -836,7 +836,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedSalesCreditMemos.Close;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNo,CloseEmailEditorHandler,PrintCreditMemoHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAndPrintPostedCreditMemoByUsingDefaultRule()
@@ -897,7 +897,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesCrMemoHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYesWithOverride,EmailDialogHandlerNo,CloseEmailEditorHandler,PrintCreditMemoHandler,SelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAndPrintCreditMemoByUsingDefaultRule()
@@ -963,7 +963,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesCrMemoHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes')]
     [Scope('OnPrem')]
     procedure TestDiskInvoice()
@@ -1006,7 +1006,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesInvoiceHeader.FindLast();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes')]
     [Scope('OnPrem')]
     procedure TestElectronicServiceInvoice()
@@ -1051,7 +1051,7 @@ codeunit 139197 DocumentSendingPostTests
         Assert.IsTrue(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Invoice posted.');
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure TestUnsupportedDocumentType()
     var
@@ -1064,7 +1064,7 @@ codeunit 139197 DocumentSendingPostTests
         UnsupportedDocumentType(SalesHeader."Document Type"::Quote);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectElectronicDocumentSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure TestSendingMultipleCreditMemosElectronicExportSupported()
@@ -1098,7 +1098,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesCrMemoHeader.SendRecords;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectElectronicDocumentSendingOptionHandler,ConfirmDefaultProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure TestSendingMultipleInvoicesElectronicExportSupported()
@@ -1134,7 +1134,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesInvoiceHeader.SendRecords;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintCreditMemoHandler,EmailDialogHandlerNo,ConfirmDefaultProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure TestSendingMultipleCreditMemosToDifferentCustomers()
@@ -1193,7 +1193,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintInvoiceHandler,EmailDialogHandlerNo,ConfirmDefaultProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure TestSendingMultipleInvoicesToDifferentCustomers()
@@ -1253,7 +1253,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes')]
     [Scope('OnPrem')]
     procedure TestSendingFailsIfElectronicFormatCannotBeFound()
@@ -1298,7 +1298,7 @@ codeunit 139197 DocumentSendingPostTests
         ErrorMessagesPage.Context.AssertEquals(Format(SalesHeader.RecordId));
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes,EmailDialogHandlerNoService,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailServiceInvoice()
@@ -1351,7 +1351,7 @@ codeunit 139197 DocumentSendingPostTests
         Assert.IsFalse(ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No."), 'Invoice not posted.');
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNoService,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailPostedServiceInvoice()
@@ -1402,7 +1402,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedServiceInvoices.SendCustom.Invoke();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNoService,CloseEmailEditorHandler,PrintInvoiceHandlerService,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAndPrintPostedServiceInvoiceByUsingDefaultRule()
@@ -1466,7 +1466,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceInvoiceHeaderNo(ServiceInvoiceHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYesWithOverride,EmailDialogHandlerNoService,PrintInvoiceHandlerService,SelectSendingOptionHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAndPrintServiceInvoiceByUsingDefaultRule()
@@ -1517,7 +1517,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceInvoiceHeaderNo(ServiceInvoiceHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes,PrintInvoiceHandlerService')]
     [Scope('OnPrem')]
     procedure TestPrintServiceInvoice()
@@ -1560,7 +1560,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceInvoiceHeaderNo(ServiceInvoiceHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintInvoiceHandlerService')]
     [Scope('OnPrem')]
     procedure TestPrintPostedServiceInvoice()
@@ -1600,7 +1600,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceInvoiceHeaderNo(ServiceInvoiceHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintInvoiceHandlerService')]
     [Scope('OnPrem')]
     procedure TestPrintMultiplePostedServiceInvoices()
@@ -1656,7 +1656,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceInvoiceHeaderNo(ServiceInvoiceHeader2."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes')]
     [Scope('OnPrem')]
     procedure TestDiskServiceInvoice()
@@ -1701,7 +1701,7 @@ codeunit 139197 DocumentSendingPostTests
         ServiceInvoiceHeader.FindLast();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes,EmailDialogHandlerNoService,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailServiceCrMemo()
@@ -1747,7 +1747,7 @@ codeunit 139197 DocumentSendingPostTests
         Assert.IsFalse(ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No."), 'Credit Memo not posted.');
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNoService,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailPostedServiceCrMemo()
@@ -1803,7 +1803,7 @@ codeunit 139197 DocumentSendingPostTests
         PostedServiceCreditMemos.SendCustom.Invoke();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,EmailDialogHandlerNoService,CloseEmailEditorHandler,PrintCreditMemoHandlerService,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAndPrintPostedServiceCrMemoByUsingDefaultRule()
@@ -1869,7 +1869,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceHeaderNo(ServiceCrMemoHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYesWithOverride,EmailDialogHandlerNoService,PrintCreditMemoHandlerService,SelectSendingOptionHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestEmailAndPrintServiceCrMemoByUsingDefaultRule()
@@ -1921,7 +1921,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceHeaderNo(ServiceCrMemoHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes,PrintCreditMemoHandlerService')]
     [Scope('OnPrem')]
     procedure TestPrintServiceCrMemo()
@@ -1965,7 +1965,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceHeaderNo(ServiceCrMemoHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintCreditMemoHandlerService')]
     [Scope('OnPrem')]
     procedure TestPrintPostedServiceCrMemo()
@@ -2004,7 +2004,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceHeaderNo(ServiceCrMemoHeader."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintCreditMemoHandlerService')]
     [Scope('OnPrem')]
     procedure TestPrintMultiplePostedServiceCrMemo()
@@ -2060,7 +2060,7 @@ codeunit 139197 DocumentSendingPostTests
         AssertValidServiceHeaderNo(ServiceCrMemoHeader2."No.");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerYes')]
     [Scope('OnPrem')]
     procedure TestDiskServiceCrMemo()
@@ -2105,7 +2105,7 @@ codeunit 139197 DocumentSendingPostTests
         ServiceCrMemoHeader.FindLast();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerNoWithPromptWarningValidation')]
     [Scope('OnPrem')]
     procedure TestWarningAboutBeingPrompted()
@@ -2127,7 +2127,7 @@ codeunit 139197 DocumentSendingPostTests
         CODEUNIT.Run(CODEUNIT::"Sales-Post and Send", SalesHeader);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerWithOverrideAndPromptWarningValidation,SelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure TestWarningAboutBeingPromptedNotShown()
@@ -2156,7 +2156,7 @@ codeunit 139197 DocumentSendingPostTests
         CODEUNIT.Run(CODEUNIT::"Sales-Post and Send", SalesHeader);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('PostAndSendHandlerForAssistEditTest,SelectSendingOptionHandlerAllTrue')]
     [Scope('OnPrem')]
     procedure TestDocumentSendingProfileSelectionsAfterChangesInAssistEdit()
@@ -2176,7 +2176,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesInvoiceList.PostAndSend.Invoke();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailDialogVerifySubjectAndAttahcmentNamesMPH,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailSubjectAndAttachmentNamesForSingleSalesInvoice()
@@ -2200,7 +2200,7 @@ codeunit 139197 DocumentSendingPostTests
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailDialogVerifySubjectAndAttahcmentNamesMPH,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailSubjectAndAttachmentNamesForSeveralSalesInvoices()
@@ -2228,7 +2228,7 @@ codeunit 139197 DocumentSendingPostTests
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailDialogVerifySubjectAndAttahcmentNamesMPH,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailSubjectAndAttachmentNamesForSingleSalesCrMemo()
@@ -2252,7 +2252,7 @@ codeunit 139197 DocumentSendingPostTests
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailDialogVerifySubjectAndAttahcmentNamesMPH,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailSubjectAndAttachmentNamesForSeveralSalesCrMemos()
@@ -2280,7 +2280,7 @@ codeunit 139197 DocumentSendingPostTests
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailDialogVerifySubjectAndAttahcmentNamesMPH,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailSubjectAndAttachmentNamesForSingleSalesShipment()
@@ -2304,7 +2304,7 @@ codeunit 139197 DocumentSendingPostTests
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailDialogVerifySubjectAndAttahcmentNamesMPH,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailSubjectAndAttachmentNamesForSeveralSalesShipments()
@@ -2332,7 +2332,7 @@ codeunit 139197 DocumentSendingPostTests
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailDialogVerifySubjectAndAttahcmentNamesMPH,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailSubjectAndAttachmentNamesForSingleReturnReceipt()
@@ -2356,7 +2356,7 @@ codeunit 139197 DocumentSendingPostTests
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailDialogVerifySubjectAndAttahcmentNamesMPH,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure EmailSubjectAndAttachmentNamesForSeveralReturnReceipts()
@@ -2512,7 +2512,7 @@ codeunit 139197 DocumentSendingPostTests
           "Document Exchange Status", ServiceCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service");
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailDialogHandlerNo,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure SendEmailPostedSalesInvoiceForCustomerWithSeveralDocumentLayouts()
@@ -2574,7 +2574,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifyAndCancelCustomerProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure ProfileSelectionMethodForPostedSalesInvoices()
@@ -2600,7 +2600,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifyAndCancelCustomerProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure ProfileSelectionMethodForPostedSalesCrMemos()
@@ -2626,7 +2626,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifyAndCancelCustomerProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure ProfileSelectionMethodForPostedServiceInvoices()
@@ -2652,7 +2652,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifyAndCancelCustomerProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure ProfileSelectionMethodForPostedServiceCrMemos()
@@ -2678,7 +2678,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifyAndCancelCustomerProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure ProfileSelectionMethodForJobs()
@@ -2704,7 +2704,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifyAndCancelVendorProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure ProfileSelectionMethodForPurchaseOrders()
@@ -2730,7 +2730,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure LookupProfileCustomerNotMultiselectionNotShowDialog()
     var
@@ -2753,7 +2753,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifyDocumentProfilesAreIdentical(CustomerDocumentSendingProfile, LookupDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure LookupProfileCustomerMultiselectionNotShowDialog()
     var
@@ -2776,7 +2776,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifyDocumentProfilesAreIdentical(CustomerDocumentSendingProfile, LookupDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifySelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure LookupProfileCustomerNotMultiselectionShowDialog()
@@ -2803,7 +2803,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifyDocumentProfilesAreIdentical(CustomerDocumentSendingProfile, LookupDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifySelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure LookupProfileCustomerMultiselectionShowDialog()
@@ -2830,7 +2830,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifyDocumentProfilesAreIdentical(CustomerDocumentSendingProfile, LookupDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure LookupProfileVendorNotMultiselectionNotShowDialog()
     var
@@ -2853,7 +2853,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifyDocumentProfilesAreIdentical(VendorDocumentSendingProfile, LookupDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure LookupProfileVendorMultiselectionNotShowDialog()
     var
@@ -2876,7 +2876,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifyDocumentProfilesAreIdentical(VendorDocumentSendingProfile, LookupDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifySelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure LookupProfileVendorNotMultiselectionShowDialog()
@@ -2903,7 +2903,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifyDocumentProfilesAreIdentical(VendorDocumentSendingProfile, LookupDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('VerifySelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure LookupProfileVendorMultiselectionShowDialog()
@@ -2930,7 +2930,7 @@ codeunit 139197 DocumentSendingPostTests
         VerifyDocumentProfilesAreIdentical(VendorDocumentSendingProfile, LookupDocumentSendingProfile);
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ConfirmPerDocProfileSelectionMethodStrMenuHandler,VerifyAndCancelSelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure CustomerConfirmProfilePerDocAndCancelSending()
@@ -2972,7 +2972,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ConfirmPerDocProfileSelectionMethodAndCloseEmailStrMenuHandler,VerifySelectSendingOptionHandler,PrintInvoiceHandler,EmailDialogHandlerNo')]
     [Scope('OnPrem')]
     procedure CustomerConfirmProfilePerDocAndSend()
@@ -3022,7 +3022,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('UseDefaultProfileSelectionMethodStrMenuAndCloseEmailHandler,PrintInvoiceHandler,EmailDialogHandlerNo')]
     [Scope('OnPrem')]
     procedure CustomerUseDefaultProfilePerDocAndSend()
@@ -3062,7 +3062,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ConfirmPerDocProfileSelectionMethodStrMenuHandler,VerifyAndCancelSelectSendingOptionHandler')]
     [Scope('OnPrem')]
     procedure VendorConfirmProfilePerDocAndCancelSending()
@@ -3103,7 +3103,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ConfirmPerDocProfileSelectionMethodAndCloseEmailStrMenuHandler,VerifySelectSendingOptionHandler,PurchasePrintInvoiceHandler,EmailDialogHandlerNo')]
     [Scope('OnPrem')]
     procedure VendorConfirmProfilePerDocAndSend()
@@ -3154,7 +3154,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('UseDefaultProfileSelectionMethodStrMenuAndCloseEmailHandler,PurchasePrintInvoiceHandler,EmailDialogHandlerNo')]
     [Scope('OnPrem')]
     procedure VendorUseDefaultProfilePerDocAndSend()
@@ -3219,7 +3219,7 @@ codeunit 139197 DocumentSendingPostTests
         end;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PurchaseQuoteReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseQuote_PrintedWithSendActionButton()
@@ -3249,7 +3249,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionHandler,PrintInvoiceHandler,EmailDialogHandlerNo,ConfirmDefaultProfileSelectionMethodStrMenuHandler')]
     [Scope('OnPrem')]
     procedure SendingMultipleInvoicesToDifferentCustomersWithSpecialSymbols()
@@ -3305,7 +3305,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.AssertEmpty;
     end;
 
-    // [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure DocumentSendingProfileDoesNotRunCheckForDiskPDF()
     var
@@ -4420,7 +4420,7 @@ codeunit 139197 DocumentSendingPostTests
     var
         ExpectedQueueLength: Integer;
     begin
-        if Options = 'Yes,No' then
+        if Options = 'Keep as draft in Email Outbox,Discard email' then
             Choice := 1
         else begin
             ExpectedQueueLength := LibraryVariableStorage.DequeueInteger;
@@ -4429,14 +4429,13 @@ codeunit 139197 DocumentSendingPostTests
         end;
     end;
 
-
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure ConfirmPerDocProfileSelectionMethodAndCloseEmailStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     var
         ExpectedQueueLength: Integer;
     begin
-        if Options = 'Yes,No' then
+        if Options = 'Keep as draft in Email Outbox,Discard email' then
             Choice := 1
         else begin
             ExpectedQueueLength := LibraryVariableStorage.DequeueInteger;

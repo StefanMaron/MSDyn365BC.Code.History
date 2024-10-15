@@ -495,5 +495,265 @@ codeunit 139161 "CRM Integration Record Test"
             'Expected %1 to be considered newer than the synchronized Customer Modified On %2', NewDateTime,
             Customer.SystemModifiedAt));
     end;
-}
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanInsertRecordForWonQuote()
+    var
+        CRMQuote: Record "CRM Quote";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        BlankGuid: Guid;
+    begin
+        // [FEATURE] [CRM Integration Record]
+        // [SCENARIO] Table ID could be zero for blank ID on insert coupling
+        LibraryCRMIntegration.ResetEnvironment();
+
+        // [GIVEN] Won Quoute exists
+        LibraryCRMIntegration.ConfigureCRM();
+        LibraryCRMIntegration.CreateCRMQuote(CRMQuote);
+        CRMQuote.StateCode := CRMQuote.StateCode::Won;
+        CRMQuote.StatusCode := CRMQuote.StatusCode::Won;
+        CRMQuote.Modify();
+
+        // [WHEN] Creating a coupling with zero Table ID for blank ID
+        CRMIntegrationRecord.InsertRecord(CRMQuote.QuoteId, BlankGuid, 0);
+        // [THEN] Coupling is created and no error
+        Assert.IsTrue(CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGuid), 'CRM Integration Record is not found.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotInsertRecordWithZeroTableId()
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        // [FEATURE] [CRM Integration Record]
+        // [SCENARIO] Table ID must be specified on insert coupling
+        LibraryCRMIntegration.ResetEnvironment();
+
+        // [GIVEN] Existing BC Customer and CRM Account
+        LibraryCRMIntegration.ConfigureCRM();
+        LibrarySales.CreateCustomer(Customer);
+        LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
+        Assert.IsTrue(Customer.Find(), 'Customer is not found.');
+        Assert.IsTrue(CRMAccount.Find(), 'CRM Account is not found.');
+
+        // [WHEN] Creating a coupling with zero Table ID
+        // [THEN] Error - Table ID must be specified.
+        asserterror CRMIntegrationRecord.InsertRecord(CRMAccount.AccountId, Customer.SystemId, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotResetTableId()
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+    begin
+        // [FEATURE] [CRM Integration Record]
+        // [SCENARIO] Table ID must be specified on modify coupling
+        LibraryCRMIntegration.ResetEnvironment();
+
+        // [GIVEN] An existing coupling between  Customer and a CRM Account
+        LibraryCRMIntegration.ConfigureCRM();
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        Assert.IsTrue(Customer.Find(), 'Customer is not found.');
+        Assert.IsTrue(CRMAccount.Find(), 'CRM Account is not found.');
+        Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'Coupling is not found.');
+
+        // [WHEN] Creating a coupling with zero Table ID
+        // [THEN] Error - Table ID must be specified.
+        asserterror CRMIntegrationRecord.Validate("Table ID", 0)
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RepairBrokenCouplingThroughGetTableID()
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+    begin
+        // [FEATURE] [CRM Integration Record]
+        // [SCENARIO] Repair Table ID through GetTableID
+        LibraryCRMIntegration.ResetEnvironment();
+
+        // [GIVEN] A valid CDS setup
+        LibraryCRMIntegration.ConfigureCRM();
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup.Insert();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
+
+        // [GIVEN] An existing coupling between a Customer and a CRM Account
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        Assert.IsTrue(Customer.Find(), 'Customer is not found.');
+        Assert.IsTrue(CRMAccount.Find(), 'CRM Account is not found.');
+        Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'Coupling is not found.');
+
+        // [GIVEN] Zero Table ID in the coupling record
+        CRMIntegrationRecord."Table ID" := 0;
+        CRMIntegrationRecord.Modify();
+
+        // [WHEN] Call procedure GetTableID
+        Assert.AreEqual(Database::Customer, CRMIntegrationRecord.GetTableID(), 'GetTableID returned wrong value.');
+
+        // [THEN] Table ID is fixed in the record
+        Assert.IsTrue(CRMIntegrationRecord.Find(), 'CRM Integration Record is not found.');
+        Assert.AreEqual(Database::Customer, CRMIntegrationRecord."Table ID", 'Table ID has wrong value.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RepairsBrokenCouplingThroughFindByRecordID()
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+    begin
+        // [FEATURE] [CRM Integration Record]
+        // [SCENARIO] Repair Table ID through FindByRecordID
+        LibraryCRMIntegration.ResetEnvironment();
+
+        // [GIVEN] A valid CDS setup
+        LibraryCRMIntegration.ConfigureCRM();
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup.Insert();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
+
+        // [GIVEN] An existing coupling between a Customer and a CRM Account
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        Assert.IsTrue(Customer.Find(), 'Customer is not found.');
+        Assert.IsTrue(CRMAccount.Find(), 'CRM Account is not found.');
+        Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'Coupling is not found.');
+
+        // [GIVEN] Zero Table ID in the coupling record
+        CRMIntegrationRecord."Table ID" := 0;
+        CRMIntegrationRecord.Modify();
+
+        // [WHEN] Call procedure GetTableID
+        Assert.IsTrue(CRMIntegrationRecord.FindByRecordID(Customer.RecordId), 'FindByRecordID returned wrong value.');
+        // [THEN] Table ID is fixed in the record
+        Assert.AreEqual(Database::Customer, CRMIntegrationRecord."Table ID", 'Table ID has wrong value.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RepairBrokenCouplingsInBulkFull()
+    var
+        Customer: array[3] of Record Customer;
+        CRMAccount: array[3] of Record "CRM Account";
+        CRMIntegrationRecord: array[3] of Record "CRM Integration Record";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        I: Integer;
+    begin
+        // [FEATURE] [CRM Integration Record]
+        // [SCENARIO] Repair Table ID in bulk
+        LibraryCRMIntegration.ResetEnvironment();
+
+        // [GIVEN] A valid CDS setup
+        LibraryCRMIntegration.ConfigureCRM();
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup.Insert();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
+
+        // [GIVEN] 3 existing couplings between a Customer and a CRM Account
+        for i := 1 to 3 do begin
+            LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[I], CRMAccount[I]);
+            Assert.IsTrue(CRMIntegrationRecord[I].FindByCRMID(CRMAccount[I].AccountId), 'Coupling is not found for record ' + Format(I));
+        end;
+
+        // [GIVEN] Deleted 1st and 3rd Customer, 2nd and 3rd CRM Account
+        Customer[1].Delete();
+        Customer[3].Delete();
+        CRMAccount[2].Delete();
+        CRMAccount[3].Delete();
+        Assert.IsFalse(Customer[1].Find(), 'Customer 1 is found.');
+        Assert.IsTrue(Customer[2].Find(), 'Customer 2 is not found.');
+        Assert.IsFalse(Customer[3].Find(), 'Customer 3 is found.');
+        Assert.IsTrue(CRMAccount[1].Find(), 'CRM Account 1 is not found.');
+        Assert.IsFalse(CRMAccount[2].Find(), 'CRM Account 2 is found.');
+        Assert.IsFalse(CRMAccount[3].Find(), 'CRM Account 3 is found.');
+
+        // [GIVEN] Zero Table ID in all 3 coupling records
+        for i := 1 to 3 do begin
+            CRMIntegrationRecord[I]."Table ID" := 0;
+            CRMIntegrationRecord[I].Modify();
+        end;
+
+        // [WHEN] Call procedure RepairBrokenCouplings
+        CRMIntegrationManagement.RepairBrokenCouplings();
+
+        // [THEN] Table ID is fixed in both records
+        Assert.IsTrue(CRMIntegrationRecord[1].Find(), 'CRM Integration Record 1 is not found.');
+        Assert.IsTrue(CRMIntegrationRecord[2].Find(), 'CRM Integration Record 2 is not found.');
+        Assert.IsFalse(CRMIntegrationRecord[3].Find(), 'CRM Integration Record 3 is not deleted.');
+        Assert.AreEqual(Database::Customer, CRMIntegrationRecord[1]."Table ID", 'Table ID has wrong value in CRM Integration Record 1.');
+        Assert.AreEqual(Database::Customer, CRMIntegrationRecord[2]."Table ID", 'Table ID has wrong value in CRM Integration Record 2.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RepairBrokenCouplingsInBulkFast()
+    var
+        Customer: array[3] of Record Customer;
+        CRMAccount: array[3] of Record "CRM Account";
+        CRMIntegrationRecord: array[3] of Record "CRM Integration Record";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        I: Integer;
+    begin
+        // [FEATURE] [CRM Integration Record]
+        // [SCENARIO] Repair Table ID in bulk
+        LibraryCRMIntegration.ResetEnvironment();
+
+        // [GIVEN] A valid CDS setup
+        LibraryCRMIntegration.ConfigureCRM();
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup.Insert();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
+
+        // [GIVEN] 3 existing couplings between a Customer and a CRM Account
+        for i := 1 to 3 do begin
+            LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[I], CRMAccount[I]);
+            Assert.IsTrue(CRMIntegrationRecord[I].FindByCRMID(CRMAccount[I].AccountId), 'Coupling is not found for record ' + Format(I));
+        end;
+
+        // [GIVEN] Deleted 1st and 3rd Customer, 2nd and 3rd CRM Account
+        Customer[1].Delete();
+        Customer[3].Delete();
+        CRMAccount[2].Delete();
+        CRMAccount[3].Delete();
+        Assert.IsFalse(Customer[1].Find(), 'Customer 1 is found.');
+        Assert.IsTrue(Customer[2].Find(), 'Customer 2 is not found.');
+        Assert.IsFalse(Customer[3].Find(), 'Customer 3 is found.');
+        Assert.IsTrue(CRMAccount[1].Find(), 'CRM Account 1 is not found.');
+        Assert.IsFalse(CRMAccount[2].Find(), 'CRM Account 2 is found.');
+        Assert.IsFalse(CRMAccount[3].Find(), 'CRM Account 3 is found.');
+
+        // [GIVEN] Zero Table ID in all 3 coupling records
+        for i := 1 to 3 do begin
+            CRMIntegrationRecord[I]."Table ID" := 0;
+            CRMIntegrationRecord[I].Modify();
+        end;
+
+        // [WHEN] Call procedure RepairBrokenCouplings with UseLocalRecordsOnly=true
+        CRMIntegrationManagement.RepairBrokenCouplings(true);
+
+        // [THEN] Table ID is fixed in both records
+        Assert.IsTrue(CRMIntegrationRecord[1].Find(), 'CRM Integration Record 1 is not found.');
+        Assert.IsTrue(CRMIntegrationRecord[2].Find(), 'CRM Integration Record 2 is not found.');
+        Assert.IsTrue(CRMIntegrationRecord[3].Find(), 'CRM Integration Record 3 is not found.');
+        Assert.AreEqual(0, CRMIntegrationRecord[1]."Table ID", 'Table ID has wrong value in CRM Integration Record 1.');
+        Assert.AreEqual(Database::Customer, CRMIntegrationRecord[2]."Table ID", 'Table ID has wrong value in CRM Integration Record 2.');
+    end;
+}

@@ -230,11 +230,15 @@ table 28075 "Purch. Tax Inv. Header"
             Editable = false;
             FieldClass = FlowField;
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(66; "Vendor Order No."; Code[35])
+#pragma warning restore AS0086
         {
             Caption = 'Vendor Order No.';
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(68; "Vendor Invoice No."; Code[35])
+#pragma warning restore AS0086
         {
             Caption = 'Vendor Invoice No.';
         }

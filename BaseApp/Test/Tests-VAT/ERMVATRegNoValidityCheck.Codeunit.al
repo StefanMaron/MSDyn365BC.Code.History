@@ -1,4 +1,4 @@
-codeunit 134060 "ERM VAT Reg. No Validity Check"
+﻿codeunit 134060 "ERM VAT Reg. No Validity Check"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -27,7 +27,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         LibraryERM: Codeunit "Library - ERM";
         WrongLogEntryCountErr: Label 'Unexpected entry count in VAT Registration Log table.';
         LibraryApplicationArea: Codeunit "Library - Application Area";
-        LibraryMarketing: Codeunit "Library - Marketing";
         IsInitialized: Boolean;
         GetVATRegNoErr: Label 'Unexpected output of GetVATRegNo method';
         GetCountryCodeErr: Label 'Not expected country code.';
@@ -1286,34 +1285,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure VatRegistrationNoValidationUpdatesContactCompanyName()
-    var
-        Contact: Record Contact;
-        VATRegistrationLog: Record "VAT Registration Log";
-        VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
-        RecordRef: RecordRef;
-        ContactName: Text[100];
-    begin
-        // [FEATURE] [Contact] [UT]
-        // [SCENARIO 329802] When Stan validates Vat Registration No. on Contact and accepts Contact's Name change, then Contact's Company Name is equal to Contact's Name.
-        Initialize;
-
-        // [GIVEN] Contact.
-        LibraryMarketing.CreateCompanyContact(Contact);
-
-        // [WHEN] Contact's Vat Registration No. validation is successful and Stan accepts Contact's Name change.
-        ContactName := CopyStr(LibraryRandom.RandText(MaxStrLen(ContactName)), 1, MaxStrLen(ContactName));
-        CreateVATRegistrationLog(VATRegistrationLog, VATRegistrationLog.Status::Valid, ContactName);
-        VATRegistrationLogMgt.UpdateRecordFromVATRegLog(RecordRef, Contact, VATRegistrationLog);
-        RecordRef.SetTable(Contact);
-
-        // [THEN] Contact's Company Name is equal to Contact's Name.
-        Assert.AreEqual(Contact.Name, Contact."Company Name", '');
-    end;
-
-    [Test]
     [HandlerFunctions('VATRegLogHandler')]
     [Scope('OnPrem')]
     procedure TestLaunchingVatRegistrationLogSelectLastValidatedVATRegistrationNo()
@@ -1338,33 +1309,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         CustomerCard."VAT Registration No.".DrillDown;
 
         // [THEN] On opened page selected line has VAT Registration No. = "B".
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler')]
-    procedure VATRegistrationNoValidationDoesNotUpdatesNameIfNameIsEmpty()
-    var
-        Customer: Record Customer;
-        VATRegistrationLog: Record "VAT Registration Log";
-        VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
-        RecordRef: RecordRef;
-        CustomerName: Text[100];
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 365579] Customer Name should keeps the value when there is no name associated to the VAT Registration No.
-        Initialize();
-
-        // [GIVEN] Customer with Name specified
-        LibrarySales.CreateCustomer(Customer);
-        CustomerName := Customer.Name;
-        Assert.AreNotEqual('', CustomerName, '');
-
-        // [WHEN] Customer's VAT Registration No. validation is successful and Customer's Name change is accepted.
-        CreateVATRegistrationLog(VATRegistrationLog, VATRegistrationLog.Status::Valid, '');
-        VATRegistrationLogMgt.UpdateRecordFromVATRegLog(RecordRef, Customer, VATRegistrationLog);
-
-        // [THEN] Customer's Name keeps the same value
-        Assert.AreEqual(CustomerName, Customer.Name, '');
     end;
 
     local procedure Initialize()
@@ -1394,14 +1338,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
         VATRegistrationLog.SetRange("Account Type", AccountType);
         VATRegistrationLog.SetRange("Account No.", AccountNo);
         Assert.RecordIsEmpty(VATRegistrationLog);
-    end;
-
-    local procedure CreateVATRegistrationLog(var VATRegistrationLog: Record "VAT Registration Log"; Status: Option; VATRegLogName: Text[150])
-    begin
-        VATRegistrationLog.Init();
-        VATRegistrationLog.Status := Status;
-        VATRegistrationLog."Verified Name" := VATRegLogName;
-        VATRegistrationLog.Insert();
     end;
 
     local procedure CreateInvalidVATCheckResponse(var XMLDoc: DotNet XmlDocument)
@@ -1632,13 +1568,6 @@ codeunit 134060 "ERM VAT Reg. No Validity Check"
     begin
         VATRegistrationLog."VAT Registration No.".AssertEquals(LibraryVariableStorage.DequeueText);
         VATRegistrationLog.OK.Invoke;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 
     [MessageHandler]

@@ -1232,9 +1232,9 @@ codeunit 5342 "CRM Synch. Helper"
         DestinationTableID: Integer;
         Direction: Integer;
     begin
-        if (SourceFieldRef.Relation() <> 0) and (DestinationFieldRef.Relation() <> 0) then begin
-            SourceTableID := SourceFieldRef.Relation();
-            DestinationTableID := DestinationFieldRef.Relation();
+        SourceTableID := GetFieldRelation(SourceFieldRef);
+        DestinationTableID := GetFieldRelation(DestinationFieldRef);
+        if (SourceTableID <> 0) and (DestinationTableID <> 0) then begin
             if DestinationFieldRef.Type() = FieldType::GUID then begin
                 IntegrationTableMapping.SetRange("Table ID", SourceTableID);
                 IntegrationTableMapping.SetRange("Integration Table ID", DestinationTableID);
@@ -1250,8 +1250,44 @@ codeunit 5342 "CRM Synch. Helper"
                 exit(true);
             end;
             Error(
-              MappingMustBeSetForGUIDFieldErr,
-              SourceFieldRef.Relation(), DestinationFieldRef.Relation(), SourceFieldRef.Name(), DestinationFieldRef.Name());
+                MappingMustBeSetForGUIDFieldErr,
+                SourceTableID, DestinationTableID, SourceFieldRef.Name(), DestinationFieldRef.Name());
+        end;
+    end;
+
+    local procedure GetFieldRelation(FldRef: FieldRef) TableID: Integer
+    var
+        PriceListLine: Record "Price List Line";
+        RecRef: RecordRef;
+    begin
+        TableID := FldRef.Relation();
+        if TableID = 0 then begin
+            RecRef := FldRef.Record();
+            case RecRef.Number of
+                Database::"Price List Line":
+                    begin
+                        RecRef.SetTable(PriceListLine);
+                        TableID := GetFieldRelation(PriceListLine, FldRef.Number);
+                        RecRef.Close();
+                    end;
+            end;
+            OnAfterGetFieldRelation(RecRef, FldRef, TableID);
+        end;
+    end;
+
+    local procedure GetFieldRelation(PriceListLine: Record "Price List Line"; FieldId: Integer) TableID: Integer;
+    var
+        PriceAsset: Record "Price Asset";
+    begin
+        case FieldId of
+            PriceListLine.FieldNo("Asset No."):
+                if PriceListLine."Asset No." <> '' then begin
+                    PriceAsset.Validate("Asset Type", PriceListLine."Asset Type");
+                    PriceAsset.Validate("Asset No.", PriceListLine."Asset No.");
+                    TableID := PriceAsset."Table Id";
+                end;
+            PriceListLine.FieldNo("Unit of Measure Code"):
+                TableID := Database::"Unit of Measure";
         end;
     end;
 
@@ -1329,6 +1365,11 @@ codeunit 5342 "CRM Synch. Helper"
     begin
         CRMOptionMapping.SetRange("Table ID", TableID);
         exit(not CRMOptionMapping.IsEmpty());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetFieldRelation(RecRef: RecordRef; FldRef: FieldRef; var TableID: Integer)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

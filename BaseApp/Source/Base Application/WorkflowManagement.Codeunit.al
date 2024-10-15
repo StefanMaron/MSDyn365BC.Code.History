@@ -239,6 +239,7 @@ codeunit 1501 "Workflow Management"
 
         Result := Result and EvaluateRules(RecRef, xRecRef, WorkflowRule);
 
+        OnAfterEvaluateCondition(RecRef, xRecRef, ArgumentID, WorkflowRule, Result);
         exit(Result);
     end;
 
@@ -723,6 +724,11 @@ codeunit 1501 "Workflow Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleEventWithxRec(FunctionName: Code[128]; Variant: Variant; xVariant: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEvaluateCondition(RecRef: RecordRef; xRecRef: RecordRef; ArgumentID: Guid; var WorkflowRule: Record "Workflow Rule"; var Result: Boolean)
     begin
     end;
 }

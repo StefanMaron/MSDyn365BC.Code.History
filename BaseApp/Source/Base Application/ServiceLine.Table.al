@@ -1,4 +1,4 @@
-table 5902 "Service Line"
+﻿table 5902 "Service Line"
 {
     Caption = 'Service Line';
     DrillDownPageID = "Service Line List";
@@ -2872,6 +2872,7 @@ table 5902 "Service Line"
                 end;
 
             "Variant Code" := VariantCode;
+            OnReplaceServItemOnAfterAssignVariantCode(Rec, ServItemReplacement, SerialNo);
             Validate(Quantity, 1);
             TempTrackingSpecification.DeleteAll();
             TempTrackingSpecification."Serial No." := SerialNo;
@@ -3745,6 +3746,7 @@ table 5902 "Service Line"
                 ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.",
                 '', 0, ServiceLine."Line No.", ServiceLine."Qty. per Unit of Measure",
                 ServiceLine.Quantity, ServiceLine."Quantity (Base)", ReservEntry);
+            OnInsertItemTrackingOnBeforeCreateEntry(Rec);
             CreateReservEntry.CreateEntry(
                 ServiceLine."No.", ServiceLine."Variant Code", ServiceLine."Location Code", ServiceLine.Description,
                 0D, ServiceLine."Posting Date", 0, "Reservation Status"::Surplus);
@@ -3808,7 +3810,7 @@ table 5902 "Service Line"
         end;
     end;
 
-    procedure GetSKU(): Boolean
+    procedure GetSKU() Result: Boolean
     begin
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "No.") and
@@ -3818,7 +3820,8 @@ table 5902 "Service Line"
         if SKU.Get("Location Code", "No.", "Variant Code") then
             exit(true);
 
-        exit(false);
+        Result := false;
+        OnAfterGetSKU(Rec, Result);
     end;
 
     procedure GetUnitCost()
@@ -4943,6 +4946,7 @@ table 5902 "Service Line"
         else
             SetFilter("Quantity (Base)", '>0');
         SetRange("Job No.", ' ');
+        OnAfterFindLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
     end;
 
     local procedure UpdateServiceLedgerEntry()
@@ -5445,12 +5449,22 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSKU(ServiceLine: Record "Service Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetUnitCost(var ServiceLine: Record "Service Line"; Item: Record Item)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var ServiceLine: Record "Service Line"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindLinesForReservation(var ServiceLine: Record "Service Line"; ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
     begin
     end;
 
@@ -5657,6 +5671,16 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupServiceItemNoOnAfterServItemSetFilters(var ServiceLine: Record "Service Line"; ServHeader: Record "Service Header"; var ServItem: Record "Service Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReplaceServItemOnAfterAssignVariantCode(var ServiceLine: Record "Service Line"; ServItemReplacement: Page "Service Item Replacement"; SerialNo: Code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemTrackingOnBeforeCreateEntry(var Rec: Record "Service Line")
     begin
     end;
 }

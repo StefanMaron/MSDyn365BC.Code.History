@@ -4,7 +4,7 @@ page 72 "Resource Groups"
     Caption = 'Resource Groups';
     PageType = List;
     SourceTable = "Resource Group";
-    PromotedActionCategories = 'New,Process,Report,Prices';
+    PromotedActionCategories = 'New,Process,Report,Prices & Discounts';
     UsageCategory = Lists;
 
     layout
@@ -118,6 +118,8 @@ page 72 "Resource Groups"
                     ApplicationArea = Jobs;
                     Caption = 'Costs';
                     Image = ResourceCosts;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     RunObject = Page "Resource Costs";
                     RunPageLink = Type = CONST("Group(Resource)"),
                                   Code = FIELD("No.");
@@ -132,6 +134,8 @@ page 72 "Resource Groups"
                     ApplicationArea = Jobs;
                     Caption = 'Prices';
                     Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category4;
                     RunObject = Page "Resource Prices";
                     RunPageLink = Type = CONST("Group(Resource)"),
                                   Code = FIELD("No.");
@@ -144,7 +148,7 @@ page 72 "Resource Groups"
                 action(PurchPriceLists)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Costs';
+                    Caption = 'Purchase Prices';
                     Image = ResourceCosts;
                     Promoted = true;
                     PromotedCategory = Category4;
@@ -162,7 +166,7 @@ page 72 "Resource Groups"
                 action(SalesPriceLists)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Prices';
+                    Caption = 'Sales Prices';
                     Image = Price;
                     Promoted = true;
                     PromotedCategory = Category4;

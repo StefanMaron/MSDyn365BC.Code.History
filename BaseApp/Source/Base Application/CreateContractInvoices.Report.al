@@ -1,4 +1,4 @@
-report 6030 "Create Contract Invoices"
+﻿report 6030 "Create Contract Invoices"
 {
     ApplicationArea = Service;
     Caption = 'Create Service Contract Invoices';
@@ -23,6 +23,7 @@ report 6030 "Create Contract Invoices"
                     Window.Update(1, Round(Counter1 / CounterTotal * 10000, 1));
                 end;
                 Clear(ServContractMgt);
+                OnServiceContractHeaderOnAfterGetRecordOnBeforeServContractMgtInitCodeUnit("Service Contract Header", ServContractMgt);
                 ServContractMgt.InitCodeUnit;
                 ServContractHeader := "Service Contract Header";
                 with ServContractHeader do begin
@@ -60,6 +61,7 @@ report 6030 "Create Contract Invoices"
                         else
                             ResultDescription := '';
                 end;
+                OnServiceContractHeaderOnAfterGetRecordOnBeforeServContractMgtFinishCodeunit("Service Contract Header", LastCustomer, LastContractCombined, InvoiceNo);
                 ServContractMgt.FinishCodeunit;
 
                 OnAfterServiceContractHeaderOnAfterGetRecord("Service Contract Header", InvoiceNo);
@@ -256,6 +258,16 @@ report 6030 "Create Contract Invoices"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceContractHeaderOnAfterGetRecord(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServiceContractHeaderOnAfterGetRecordOnBeforeServContractMgtInitCodeUnit(var ServiceContractHeader: Record "Service Contract Header"; var ServContractMgt: Codeunit ServContractManagement)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServiceContractHeaderOnAfterGetRecordOnBeforeServContractMgtFinishCodeunit(var ServiceContractHeader: Record "Service Contract Header"; LastCustomer: Code[20]; LastContractCombined: Boolean; InvoiceNo: Code[20])
     begin
     end;
 }

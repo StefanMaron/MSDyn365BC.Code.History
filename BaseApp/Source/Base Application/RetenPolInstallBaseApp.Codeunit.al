@@ -103,12 +103,6 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         exit('MS-334067-RetenPolBaseAppTables-20200801');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
-    local procedure RegisterPerDatabaseUpgradeTags(var PerCompanyUpgradeTags: List of [Code[250]])
-    begin
-        PerCompanyUpgradeTags.Add(GetRetenPolBaseAppTablesUpgradeTag());
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnBeforeOnRun', '', false, false)]
     local procedure AddAllowedTablesOnBeforeCompanyInit()
     var

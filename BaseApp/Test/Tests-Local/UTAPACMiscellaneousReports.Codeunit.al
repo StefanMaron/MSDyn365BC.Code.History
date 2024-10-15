@@ -12,6 +12,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         Assert: Codeunit Assert;
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         BankAccountBalanceAtDateCap: Label 'Bank_Account__Balance_at_Date_';
@@ -498,6 +499,38 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseReceiptsRequestPageHandlerSimple')]
+    [Scope('OnPrem')]
+    procedure PurchaseReceiptsFromVendorPage()
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        Vendor: Record Vendor;
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [Purchase Receipts] [UI]
+        // [SCENARIO 374783] "Purchase Receipts" report can be run from Vendor Card action without error
+        Initialize;
+
+        // [GIVEN] Purchase Receipt posted for Vendor
+        CreatePurchaseReceipt(PurchRcptLine);
+
+        // [GIVEN] Vendor Card page was open
+        Vendor.Get(PurchRcptLine."Pay-to Vendor No.");
+        VendorCard.OpenView();
+        VendorCard.Filter.SetFilter("No.", Vendor."No.");
+
+        Commit();
+
+        // [WHEN] Invoke "Purchase Receipts" action
+        VendorCard."Purchase Receipts".Invoke();
+
+        // [THEN] No error and "Purchase Receipts" report is ran for Vendor
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(TotalAmountCap, PurchRcptLine.Quantity * PurchRcptLine."Direct Unit Cost");
+        LibraryReportDataset.AssertElementWithValueExists(PayToVendorNoCap, PurchRcptLine."Pay-to Vendor No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -626,7 +659,7 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
         PurchRcptHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchRcptHeader."Pay-to Vendor No." := LibraryUTUtility.GetNewCode;
+        PurchRcptHeader."Pay-to Vendor No." := LibraryPurchase.CreateVendorNo();
         PurchRcptHeader."Posting Date" := WorkDate;
         PurchRcptHeader.Insert();
         PurchRcptLine."Document No." := PurchRcptHeader."No.";
@@ -854,6 +887,14 @@ codeunit 141077 "UT APAC Miscellaneous Reports"
         LibraryVariableStorage.Dequeue(PayToVendorNo2);
         PurchaseReceipts."Purch. Rcpt. Header".SetFilter(
           "Pay-to Vendor No.", StrSubstNo(PayToVendorNoFilter, PayToVendorNo, PayToVendorNo2));
+        PurchaseReceipts."Purch. Rcpt. Header".SetFilter("Posting Date", Format(WorkDate));
+        PurchaseReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseReceiptsRequestPageHandlerSimple(var PurchaseReceipts: TestRequestPage "Purchase Receipts")
+    begin
         PurchaseReceipts."Purch. Rcpt. Header".SetFilter("Posting Date", Format(WorkDate));
         PurchaseReceipts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

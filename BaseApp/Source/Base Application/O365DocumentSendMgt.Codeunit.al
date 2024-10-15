@@ -49,8 +49,7 @@ codeunit 2158 "O365 Document Send Mgt"
     var
         DummyO365DocumentSentHistory: Record "O365 Document Sent History";
     begin
-        SalesInvoiceHeader.CalcFields(Cancelled);
-        if SalesInvoiceHeader.Cancelled then
+        if IsSalesInvoiceHeaderCancelled(SalesInvoiceHeader) then
             exit;
 
         SalesInvoiceHeader.CalcFields("Last Email Sent Time", "Last Email Sent Status");
@@ -59,6 +58,18 @@ codeunit 2158 "O365 Document Send Mgt"
         then
             ShowSendFailedNotificationForDocument(
               DummyO365DocumentSentHistory."Document Type"::Invoice, SalesInvoiceHeader."No.", true, SalesInvoiceHeader.RecordId, true);
+    end;
+
+    local procedure IsSalesInvoiceHeaderCancelled(var SalesInvoiceHeader: Record "Sales Invoice Header") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeIsSalesInvoiceHeaderCancelled(SalesInvoiceHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        SalesInvoiceHeader.CalcFields(Cancelled);
+        Result := SalesInvoiceHeader.Cancelled;
     end;
 
     procedure ShowSalesHeaderFailedNotification(SalesHeader: Record "Sales Header")
@@ -283,6 +294,11 @@ codeunit 2158 "O365 Document Send Mgt"
                         O365DocumentSentHistory.SetStatusAsSuccessfullyFinished;
                 end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsSalesInvoiceHeaderCancelled(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

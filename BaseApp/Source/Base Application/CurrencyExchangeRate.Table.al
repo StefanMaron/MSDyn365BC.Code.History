@@ -202,6 +202,7 @@ table 330 "Currency Exchange Rate"
             TestField("Relational Adjmt Exch Rate Amt");
             "Exchange Rate Amount" := "Adjustment Exch. Rate Amount";
             "Relational Exch. Rate Amount" := "Relational Adjmt Exch Rate Amt";
+            OnExchangeAmtFCYToLCYOnAfterSetRelationalExchRateAmount(Rec);
         end;
         if "Relational Currency Code" = '' then
             if "Fix Exchange Rate Amount" = "Fix Exchange Rate Amount"::Both then
@@ -222,6 +223,7 @@ table 330 "Currency Exchange Rate"
                 TestField("Relational Adjmt Exch Rate Amt");
                 "Exchange Rate Amount" := "Adjustment Exch. Rate Amount";
                 "Relational Exch. Rate Amount" := "Relational Adjmt Exch Rate Amt";
+                OnExchangeAmtFCYToLCYOnAfterSetRelationalExchRateAmount(Rec);
             end;
             case FixExchangeRateAmt of
                 "Fix Exchange Rate Amount"::"Relational Currency":
@@ -688,6 +690,11 @@ table 330 "Currency Exchange Rate"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindCurrency(var CurrencyExchangeRate: Record "Currency Exchange Rate"; var CurrencyExchangeRateArray: array[2] of Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExchangeAmtFCYToLCYOnAfterSetRelationalExchRateAmount(var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
     end;
 }

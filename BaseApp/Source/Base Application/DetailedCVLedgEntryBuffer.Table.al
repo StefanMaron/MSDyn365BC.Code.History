@@ -317,6 +317,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
 
         DtldCVLedgEntryBuf.TestField("Entry Type");
 
+        OnInsertDtldCVLedgEntryOnBeforeNewDtldCVLedgEntryBufInit(DtldCVLedgEntryBuf, CVLedgEntryBuf);
         NewDtldCVLedgEntryBuf.Init();
         NewDtldCVLedgEntryBuf := DtldCVLedgEntryBuf;
 
@@ -365,7 +366,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             DtldCVLedgEntryBuf."Additional-Currency Amount" :=
               DtldCVLedgEntryBuf."Additional-Currency Amount" +
               NewDtldCVLedgEntryBuf."Additional-Currency Amount";
-            OnInsertDtldCVLedgEntryOnBeforeModify(DtldCVLedgEntryBuf);
+            OnInsertDtldCVLedgEntryOnBeforeModify(DtldCVLedgEntryBuf, NewDtldCVLedgEntryBuf);
             DtldCVLedgEntryBuf.Modify();
         end else begin
             NewDtldCVLedgEntryBuf."Entry No." := NextDtldBufferEntryNo;
@@ -385,6 +386,8 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             CVLedgEntryBuf."Original Amt. (LCY)" := NewDtldCVLedgEntryBuf."Amount (LCY)";
         end;
         DtldCVLedgEntryBuf.Reset();
+
+        OnAfterInsertDtldCVLedgEntry(DtldCVLedgEntryBuf, CVLedgEntryBuf, NewDtldCVLedgEntryBuf, NextDtldBufferEntryNo);
     end;
 
     procedure CopyPostingGroupsFromVATEntry(VATEntry: Record "VAT Entry")
@@ -490,6 +493,11 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertDtldCVLedgEntry(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var NewDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var NextDtldBufferEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertDtldCVLedgEntry(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -505,7 +513,12 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertDtldCVLedgEntryOnBeforeModify(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure OnInsertDtldCVLedgEntryOnBeforeModify(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; NewDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDtldCVLedgEntryOnBeforeNewDtldCVLedgEntryBufInit(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; CVLedgEntryBuf: Record "CV Ledger Entry Buffer")
     begin
     end;
 }

@@ -95,6 +95,8 @@ codeunit 231 "Gen. Jnl.-Post"
 
                 GenJnlPostBatch.Run(GenJnlLine);
 
+                OnCodeOnAfterGenJnlPostBatchRun(GenJnlLine);
+
                 if PreviewMode then
                     exit;
 
@@ -140,6 +142,11 @@ codeunit 231 "Gen. Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlPostBatchRun(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterGenJnlPostBatchRun(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

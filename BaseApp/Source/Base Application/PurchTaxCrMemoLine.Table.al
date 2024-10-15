@@ -55,7 +55,9 @@ table 28078 "Purch. Tax Cr. Memo Line"
         {
             Caption = 'Expected Receipt Date';
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(11; Description; Text[100])
+#pragma warning restore AS0086
         {
             Caption = 'Description';
         }
@@ -178,7 +180,9 @@ table 28078 "Purch. Tax Cr. Memo Line"
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount';
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(70; "Vendor Item No."; Text[50])
+#pragma warning restore AS0086
         {
             Caption = 'Vendor Item No.';
         }

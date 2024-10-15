@@ -55,7 +55,9 @@ table 28072 "Sales Tax Invoice Line"
         {
             Caption = 'Shipment Date';
         }
+#pragma warning disable AS0086 // Breaking change required for #369413
         field(11; Description; Text[100])
+#pragma warning restore AS0086
         {
             Caption = 'Description';
         }

@@ -54,6 +54,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         GeneralLedgerSetup.TestField("LCY Code");
 
         MessageID := BankAccount.GetCreditTransferMessageNo;
+        OnFillExportBufferOnAfterGetMessageID(TempGenJnlLine, MessageID);
         CreditTransferRegister.CreateNew(MessageID, BankAccount."No.");
 
         with PaymentExportData do begin
@@ -111,6 +112,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                     AddRemittanceText(TempGenJnlLine."Message to Recipient");
 
                 ValidatePaymentExportData(PaymentExportData, TempGenJnlLine);
+                OnFillExportBufferOnBeforeInsertPaymentExportData(PaymentExportData, TempGenJnlLine);
                 Insert(true);
                 TempInteger.DeleteAll();
                 GetAppliesToDocEntryNumbers(TempGenJnlLine, TempInteger);
@@ -284,6 +286,16 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
             exit;
 
         PaymentExportData.AddGenJnlLineErrorText(GenJnlLine, StrSubstNo(FieldIsBlankErr, Field."Field Caption"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillExportBufferOnAfterGetMessageID(var TempGenJnlLine: Record "Gen. Journal Line" temporary; var MessageID: code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillExportBufferOnBeforeInsertPaymentExportData(var PaymentExportData: Record "Payment Export Data"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

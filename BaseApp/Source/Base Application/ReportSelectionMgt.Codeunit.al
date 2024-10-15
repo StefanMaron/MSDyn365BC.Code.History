@@ -96,6 +96,7 @@ codeunit 1901 "Report Selection Mgt."
         InitReportSelection("Report Selection Usage"::Reminder);
         InitReportSelection("Report Selection Usage"::"Fin.Charge");
         InitReportSelection("Report Selection Usage"::"Rem.Test");
+        InitReportSelection("Report Selection Usage"::"P.V.Remit.");
         InitReportSelection("Report Selection Usage"::"F.C.Test");
         InitReportSelection("Report Selection Usage"::"C.Statement");
 
@@ -292,6 +293,8 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::"P.TaxCreditMemo", '1', REPORT::"Purch. - Tax Cr. Memo");
             "Report Selection Usage"::"WHT Certificate":
                 InsertRepSelection("Report Selection Usage"::"WHT Certificate", '1', REPORT::"WHT Certificate - Other");
+            "Report Selection Usage"::"P.V.Remit.":
+                InsertRepSelection("Report Selection Usage"::"P.V.Remit.", '1', REPORT::"Remittance Advice - Entries");
             else
                 OnInitReportUsage(ReportUsage.AsInteger());
         end;

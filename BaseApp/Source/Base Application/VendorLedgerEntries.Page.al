@@ -481,7 +481,7 @@ page 29 "Vendor Ledger Entries"
                         CurrPage.SetSelectionFilter(VendLedgEntry);
                         VendLedgEntry.CopyFilters(Rec);
                         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-                        REPORT.Run(REPORT::"Remittance Advice - Entries", true, false, VendLedgEntry);
+                        SendVendorRecords(VendLedgEntry);
                     end;
                 }
                 action(ReverseTransaction)
@@ -681,6 +681,7 @@ page 29 "Vendor Ledger Entries"
         DebitCreditVisible: Boolean;
         VendNameVisible: Boolean;
         ExportToPaymentFileConfirmTxt: Label 'Editing the Exported to Payment File field will change the payment suggestions in the Payment Journal. Edit this field only if you must correct a mistake.\Do you want to continue?';
+        RemittanceAdviceTxt: Label 'Remittance Advice';
 
     local procedure SetControlVisibility()
     var
@@ -705,6 +706,19 @@ page 29 "Vendor Ledger Entries"
 
         GenJournalTemplate.Get(JournalTemplateName);
         GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
+    end;
+
+    local procedure SendVendorRecords(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        DocumentSendingProfile: Record "Document Sending Profile";
+        DummyReportSelections: Record "Report Selections";
+    begin
+        if not VendorLedgerEntry.FindSet() then
+            exit;
+
+        DocumentSendingProfile.SendVendorRecords(
+            DummyReportSelections.Usage::"P.V.Remit.", VendorLedgerEntry, RemittanceAdviceTxt, "Vendor No.", "Document No.",
+            VendorLedgerEntry.FieldNo("Vendor No."), VendorLedgerEntry.FieldNo("Document No."));
     end;
 }
 

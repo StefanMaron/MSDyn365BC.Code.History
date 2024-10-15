@@ -809,6 +809,7 @@
                     }
                     action(GetPrice)
                     {
+                        AccessByPermission = TableData "Sales Price Access" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Get &Price';
                         Ellipsis = true;
@@ -823,6 +824,7 @@
                     }
                     action(GetLineDiscount)
                     {
+                        AccessByPermission = TableData "Sales Discount Access" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Get Li&ne Discount';
                         Ellipsis = true;
@@ -1179,7 +1181,7 @@
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
-		[InDataSet]
+        [InDataSet]
         ItemReferenceVisible: Boolean;
         LocationCodeVisible: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;

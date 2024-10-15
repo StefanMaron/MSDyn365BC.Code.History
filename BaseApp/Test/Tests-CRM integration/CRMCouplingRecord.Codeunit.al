@@ -711,6 +711,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
         Initialize;
+        ResetDefaultCRMSetupConfiguration();
         // [GIVEN] The Customer coupled to the CRM Account "A"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, OriginallyCoupledCRMAccount);
         // [GIVEN] The CRM Account "B"
@@ -752,6 +753,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
         Initialize;
+        ResetDefaultCRMSetupConfiguration();
         // [GIVEN] The Customer
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] The CRM Account "A", where Name = 'CCCC'
@@ -1029,6 +1031,8 @@ codeunit 139174 "CRM Coupling Record"
         LocalCRMAccount: Record "CRM Account";
         CRMCouplingRecord: Page "CRM Coupling Record";
     begin
+        Initialize();
+        ResetDefaultCRMSetupConfiguration();
         LibrarySales.CreateCustomer(Customer);
         LibraryCRMIntegration.CreateCRMAccount(LocalCRMAccount);
         CoupleToCRMAccount := LocalCRMAccount;
@@ -1147,8 +1151,7 @@ codeunit 139174 "CRM Coupling Record"
           'The Enabled setting of the CRM Name Control should be opposite to the value of the Create New in CRM Control');
     end;
 
-    //[Test]
-    // TODO: Re-enable in bug https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368273
+    [Test]
     [Scope('OnPrem')]
     procedure TestDeletedCustomerCouplingKeptUndeleted()
     var

@@ -95,25 +95,21 @@ page 1002 "Job Task Lines"
                 field("Contract (Total Cost)"; "Contract (Total Cost)")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Billable (Total Cost)';
                     ToolTip = 'Specifies, in local currency, the total billable cost for the job task during the time period in the Planning Date Filter field.';
                 }
                 field("Contract (Total Price)"; "Contract (Total Price)")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Billable (Total Price)';
                     ToolTip = 'Specifies, in the local currency, the total billable price for the job task during the time period in the Planning Date Filter field.';
                 }
                 field("Contract (Invoiced Cost)"; "Contract (Invoiced Cost)")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Billable (Invoiced Cost)';
                     ToolTip = 'Specifies, in the local currency, the total billable cost for the job task that has been invoiced during the time period in the Posting Date Filter field.';
                 }
                 field("Contract (Invoiced Price)"; "Contract (Invoiced Price)")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Billable (Invoiced Price)';
                     ToolTip = 'Specifies, in the local currency, the total billable price for the job task that has been invoiced during the time period in the Posting Date Filter field.';
                 }
                 field("Remaining (Total Cost)"; "Remaining (Total Cost)")

@@ -250,11 +250,10 @@
                 TempPrepmtInvLineBuffer.Modify();
             until TempPrepmtInvLineBuffer.Next = 0;
 
-            if "Last Prepayment No." = '' then
-                if GLSetup."Enable WHT" then
-                    if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
-                        if DocumentType = DocumentType::Invoice then
-                            WHTManagement.InsertVendPrepaymentInvoiceWHT(PurchInvHeader, PurchHeader);
+            if GLSetup."Enable WHT" then
+                if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
+                    if DocumentType = DocumentType::Invoice then
+                        WHTManagement.InsertVendPrepaymentInvoiceWHT(PurchInvHeader, PurchHeader);
 
             TempPrepmtInvLineBuffer.Reset();
             TempPrepmtInvLineBuffer.SetCurrentKey(Adjustment);
@@ -313,10 +312,9 @@
             Modify;
             GLSetup.Get();
             if GLSetup."Enable WHT" then
-                if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then begin
+                if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
                     if DocumentType = DocumentType::"Credit Memo" then
                         WHTManagement.InsertVendPrepaymentCrMemoWHT(PurchCrMemoHeader, PurchHeader);
-                end;
         end;
 
         PurchHeader2 := PurchHeader;
