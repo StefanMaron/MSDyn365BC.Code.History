@@ -878,7 +878,8 @@ Fields!TransferFromAddr3.Value + Chr(177) +
 Fields!TransferFromAddr4.Value + Chr(177) +
 Fields!TransferFromAddr5.Value + Chr(177) +
 Fields!TransferFromAddr6.Value + Chr(177) +
-Fields!ShptMethodDesc.Value)</Hidden>
+Fields!ShptMethodDesc.Value + Chr(177) +
+Fields!No_TransferHdr.Value)</Hidden>
                                             </Visibility>
                                             <Style>
                                               <Border>
@@ -1723,7 +1724,7 @@ Fields!ShptMethodDesc.Value)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=Fields!No_TransferHdr.Value</Value>
+                      <Value>=Code.GetData(19)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
