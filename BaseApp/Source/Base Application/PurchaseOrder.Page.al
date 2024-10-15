@@ -778,6 +778,104 @@ page 50 "Purchase Order"
                         }
                     }
                 }
+                group("Remit-to")
+                {
+                    ShowCaption = false;
+                    field("Remit-to Code"; Rec."Remit-to Code")
+                    {
+                        Editable = "Buy-from Vendor No." <> '';
+                        ApplicationArea = Basic, Suite;
+                        Importance = Promoted;
+                        ToolTip = 'Specifies the code for the vendor''s remit address for this order.';
+
+                        trigger OnValidate()
+                        begin
+                            FillRemitToFields();
+                        end;
+                    }
+                    group("Remit-to information")
+                    {
+                        ShowCaption = false;
+                        Visible = "Remit-to Code" <> '';
+                        field("Remit-to Name"; RemitAddressBuffer.Name)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Name';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the name of the company at the address that you want the order to be remitted to.';
+                        }
+                        field("Remit-to Address"; RemitAddressBuffer.Address)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Address';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the address that you want the items on the purchase document to be remitted to.';
+                        }
+                        field("Remit-to Address 2"; RemitAddressBuffer."Address 2")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Address 2';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies additional address information.';
+                        }
+                        field("Remit-to City"; RemitAddressBuffer.City)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'City';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the city of the address that you want the items on the purchase document to be remitted to.';
+                        }
+                        group("Remit-to County group")
+                        {
+                            ShowCaption = false;
+                            Visible = IsRemitToCountyVisible;
+                            field("Remit-to County"; RemitAddressBuffer.County)
+                            {
+                                ApplicationArea = Basic, Suite;
+                                Caption = 'County';
+                                Editable = false;
+                                Importance = Additional;
+                                QuickEntry = false;
+                                ToolTip = 'Specifies the state, province or county of the address.';
+                            }
+                        }
+                        field("Remit-to Post Code"; RemitAddressBuffer."Post Code")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Post Code';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the postal code of the address that you want the items on the purchase document to be remitted to.';
+                        }
+                        field("Remit-to Country/Region Code"; RemitAddressBuffer."Country/Region Code")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Country/Region';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the country/region code of the address that you want the items on the purchase document to be remitted to.';
+                        }
+                        field("Remit-to Contact"; RemitAddressBuffer.Contact)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Contact';
+                            Editable = false;
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the name of a contact person for the address that you want the items on the purchase document to be remitted to.';
+                        }
+                    }
+                }
             }
             group("Foreign Trade")
             {
@@ -2093,8 +2191,10 @@ page 50 "Purchase Order"
     begin
         Rec."Responsibility Center" := UserMgt.GetPurchasesFilter();
 
-        if (not DocNoVisible) and (Rec."No." = '') then
+        if (not DocNoVisible) and (Rec."No." = '') then begin
             Rec.SetBuyFromVendorFromFilter();
+            SelectDefaultRemitAddress(Rec);
+        end;
 
         CalculateCurrentShippingAndPayToOption();
     end;
@@ -2128,6 +2228,7 @@ page 50 "Purchase Order"
         PayToContact: Record Contact;
         PurchSetup: Record "Purchases & Payables Setup";
         GLSetup: Record "General Ledger Setup";
+        RemitAddressBuffer: Record "Remit Address Buffer";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
@@ -2167,6 +2268,7 @@ page 50 "Purchase Order"
         [InDataSet]
         IsPurchaseLinesEditable: Boolean;
         ShouldSearchForVendByName: Boolean;
+        IsRemitToCountyVisible: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
@@ -2456,6 +2558,19 @@ page 50 "Purchase Order"
         OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
     begin
         OverReceiptMgt.ShowOverReceiptNotificationFromOrder(Rec."No.");
+    end;
+
+    local procedure FillRemitToFields()
+    var
+        RemitAddress: Record "Remit Address";
+    begin
+        RemitAddress.SetRange("Vendor No.", "Buy-from Vendor No.");
+        RemitAddress.SetRange(Code, "Remit-to Code");
+        if not RemitAddress.IsEmpty() then begin
+            RemitAddress.FindFirst();
+            FormatAddress.VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
+            CurrPage.Update();
+        end;
     end;
 
     [IntegrationEvent(false, false)]

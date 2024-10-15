@@ -46,7 +46,8 @@
                     ReminderIssue.GetIssuedReminder(IssuedReminderHeader);
                     TempIssuedReminderHeader := IssuedReminderHeader;
                     OnBeforeTempIssuedReminderHeaderInsert(TempIssuedReminderHeader);
-                    TempIssuedReminderHeader.Insert();
+                    if TempIssuedReminderHeader."No." <> '' then
+                        TempIssuedReminderHeader.Insert();
                 end;
             end;
 
@@ -60,15 +61,15 @@
                 Commit();
                 if PrintEmailDocument <> PrintEmailDocument::" " then
                     if TempIssuedReminderHeader.FindSet() then
-                            repeat
-                                IssuedReminderHeaderPrint := TempIssuedReminderHeader;
-                                IsHandled := false;
-                                OnBeforePrintIssuedReminderHeader(IssuedReminderHeaderPrint, IsHandled);
-                                if not IsHandled then begin
-                                    IssuedReminderHeaderPrint.SetRecFilter();
-                                    IssuedReminderHeaderPrint.PrintRecords(false, PrintEmailDocument = PrintEmailDocument::Email, HideDialog);
-                                end;
-                            until TempIssuedReminderHeader.Next() = 0;
+                        repeat
+                            IssuedReminderHeaderPrint := TempIssuedReminderHeader;
+                            IsHandled := false;
+                            OnBeforePrintIssuedReminderHeader(IssuedReminderHeaderPrint, IsHandled);
+                            if not IsHandled then begin
+                                IssuedReminderHeaderPrint.SetRecFilter();
+                                IssuedReminderHeaderPrint.PrintRecords(false, PrintEmailDocument = PrintEmailDocument::Email, HideDialog);
+                            end;
+                        until TempIssuedReminderHeader.Next() = 0;
                 MarkedOnly := true;
                 if FindFirst() then
                     if ConfirmManagement.GetResponse(ShowNotIssuedQst, true) then

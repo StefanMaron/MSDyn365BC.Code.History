@@ -32,6 +32,7 @@
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         LibraryResource: Codeunit "Library - Resource";
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         isInitialized: Boolean;
         FieldError: Label 'Number of Lines for %1 and %2  must be Equal.';
         CurrencyError: Label '%1 must be Equal in %2.';
@@ -80,6 +81,8 @@
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         DisposedErr: Label '%1 is disposed.';
         RoundingTo0Err: Label 'Rounding of the field';
+        RemitToCodeShouldNotBeEditableErr: Label 'Remit-to code should not be editable when vendor is not selected.';
+        RemitToCodeShouldBeEditableErr: Label 'Remit-to code should be editable when vendor is selected.';
 
     [Test]
     [Scope('OnPrem')]
@@ -6709,6 +6712,82 @@
         Assert.RecordCount(PurchaseLine, 1);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderRemitToNotEditableBeforeVendorSelected()
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI]
+        // [Scenario] Remit-to code Field on Purchase Order Page not editable if no vendor selected
+        // [Given]
+        Initialize();
+        // [WHEN] Purchase Order page is opened
+        PurchaseOrder.OpenNew();
+        // [THEN] Field is not editable
+        Assert.IsFalse(PurchaseOrder."Remit-to Code".Editable, RemitToCodeShouldNotBeEditableErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure PurchaseOrderRemitToEditableAfterVendorSelected()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [Scenario] Remit-to code Field on Purchase Order Page  editable if vendor selected
+        // [Given]
+        Initialize();
+        // [Given] A sample Purchase Order
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder."Buy-from Vendor No.".SetValue(VendorNo);
+        // [THEN] Remit-to code Field is editable
+        Assert.IsTrue(PurchaseOrder."Remit-to Code".Editable, RemitToCodeShouldBeEditableErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseDocumentTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderReportVerifyRemit()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RemitAddress: Record "Remit Address";
+        PurchaseOrderPage: TestPage "Purchase Order";
+        VendorNo: Code[20];
+        PurchaseHeaderNo: Code[20];
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO] Create a Purchase Order with Negative quanity, try to post and then delete.
+        Initialize();
+        // [GIVEN] Create a new Remit-to address
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, VendorNo);
+        // [GIVEN] Purchase Order with one Item
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        PurchaseHeaderNo := PurchaseHeader."No.";
+        PurchaseHeader.Validate("Remit-to Code", RemitAddress.Code);
+        PurchaseHeader.Modify(true);
+        PurchaseOrderPage.OpenEdit;
+        PurchaseOrderPage.GotoRecord(PurchaseHeader);
+        Commit;
+        // [WHEN] Run report "Purchase - Order"
+        RequestPageXML := REPORT.RunRequestPage(REPORT::"Purchase Document - Test", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(REPORT::"Purchase Document - Test", PurchaseHeader, RequestPageXML);
+        // [THEN] TotalBalOnBankAccount has value 200
+        LibraryReportDataset.AssertElementWithValueExists('RemitToAddress_Name', RemitAddress.Name);
+    end;
+
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -10006,6 +10085,13 @@
     procedure ExplodeBOMHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
     begin
         Choice := 1;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
+    begin
+        // Close handler
     end;
 }
 

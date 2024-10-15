@@ -1,4 +1,4 @@
-page 9004 "Bookkeeper Role Center"
+﻿page 9004 "Bookkeeper Role Center"
 {
     Caption = 'Bookkeeper';
     PageType = RoleCenter;
@@ -728,6 +728,15 @@ page 9004 "Bookkeeper Role Center"
                 Image = PaymentJournal;
                 RunObject = Page "EB Payment Journal";
                 ToolTip = 'View or edit the payment journal where you can register payments to vendors.';
+            }
+            action("Payment Registration")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Payment Registration';
+                Image = Payment;
+                RunObject = Page "Payment Registration";
+                ToolTip = 'Apply customer payments observed on your bank account to non-posted sales documents to record that payment is made.';
+                Visible = false;
             }
             separator(Action77)
             {

@@ -121,6 +121,11 @@ page 2000001 "EB Payment Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
+                field(Description; Rec.Description)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a description of the entry.';
+                }
                 field("Applies-to Doc. Type"; Rec."Applies-to Doc. Type")
                 {
                     ApplicationArea = Basic, Suite;

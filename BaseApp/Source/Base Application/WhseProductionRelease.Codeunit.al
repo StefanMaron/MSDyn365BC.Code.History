@@ -162,7 +162,7 @@ codeunit 5774 "Whse.-Production Release"
 
             if ("Line No." = OldProdOrderComp."Line No.") and
                (("Location Code" <> OldProdOrderComp."Location Code") or
-                (("Remaining Quantity" * OldProdOrderComp."Remaining Quantity") <= 0))
+                ("Remaining Quantity" <= 0))
             then
                 DeleteLine(OldProdOrderComp);
         end;

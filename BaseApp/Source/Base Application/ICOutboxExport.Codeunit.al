@@ -5,6 +5,8 @@ codeunit 431 "IC Outbox Export"
     trigger OnRun()
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -13,6 +15,8 @@ codeunit 431 "IC Outbox Export"
             if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
                 exit;
 
+        FeatureTelemetry.LogUptake('0000ILC', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000ILE', ICMapping.GetFeatureTelemetryName(), 'IC Outbox Export');
         RunOutboxTransactions(Rec);
     end;
 
@@ -32,12 +36,17 @@ codeunit 431 "IC Outbox Export"
     procedure RunOutboxTransactions(var ICOutboxTransaction: Record "IC Outbox Transaction")
     var
         CopyICOutboxTransaction: Record "IC Outbox Transaction";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeRunOutboxTransactions(ICOutboxTransaction, IsHandled);
         if IsHandled then
             exit;
+
+        FeatureTelemetry.LogUptake('0000ILD', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000ILF', ICMapping.GetFeatureTelemetryName(), 'Run Outbox Transaction');
 
         CompanyInfo.Get();
         CopyICOutboxTransaction.Copy(ICOutboxTransaction);

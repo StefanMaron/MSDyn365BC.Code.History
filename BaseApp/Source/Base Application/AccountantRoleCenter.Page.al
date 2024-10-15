@@ -63,6 +63,10 @@ page 9027 "Accountant Role Center"
                 AccessByPermission = TableData "Report Inbox" = IMD;
                 ApplicationArea = Basic, Suite;
             }
+            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
+            {
+                ApplicationArea = Basic, Suite;
+            }
 #if not CLEAN21
             part(Control122; "Power BI Report Spinner Part")
             {
@@ -73,10 +77,6 @@ page 9027 "Accountant Role Center"
                 ObsoleteTag = '21.0';
             }
 #endif
-            part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
-            {
-                ApplicationArea = Basic, Suite;
-            }
             systempart(Control1901377608; MyNotes)
             {
                 ApplicationArea = Basic, Suite;

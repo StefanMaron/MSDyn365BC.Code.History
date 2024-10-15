@@ -38,6 +38,7 @@ codeunit 1000 "Job Calculate WIP"
     var
         JobTask: Record "Job Task";
         JobLedgEntry: Record "Job Ledger Entry";
+        JobLedgerEntry2: Record "Job Ledger Entry";
         JobPlanningLine: Record "Job Planning Line";
         JobWIPEntry: Record "Job WIP Entry";
         JobWIPGLEntry: Record "Job WIP G/L Entry";
@@ -89,6 +90,20 @@ codeunit 1000 "Job Calculate WIP"
                     JobTaskCalcWIP(Job, FromJobTask, JobTask."Job Task No.");
                     First := true;
                     AssignWIPTotalAndMethodToRemainingJobTask(JobTask, Job);
+                    // Balance job ledger entry when used quantity on a task is returned
+                    if (JobTask."Recognized Sales Amount" = 0) and (JobTask."Recognized Sales G/L Amount" <> 0) then begin
+                        JobLedgerEntry2.SetRange("Job No.", JobTask."Job No.");
+                        JobLedgerEntry2.SetRange("Job Task No.", JobTask."Job Task No.");
+                        JobLedgerEntry2.SetRange("Entry Type", JobLedgerEntry2."Entry Type"::Sale);
+                        JobLedgerEntry2.SetLoadFields("Line Amount (LCY)", "Amt. to Post to G/L", "Amt. Posted to G/L");
+                        if JobLedgerEntry2.FindSet(true) then
+                            repeat
+                                if (JobLedgerEntry2."Line Amount (LCY)" <> 0) and (JobLedgerEntry2."Amt. to Post to G/L" = 0) and (JobLedgerEntry2."Amt. Posted to G/L" = 0) then begin
+                                    JobLedgerEntry2.Validate("Amt. to Post to G/L", JobLedgerEntry2."Line Amount (LCY)");
+                                    JobLedgerEntry2.Modify(true);
+                                end;
+                            until JobLedgerEntry2.Next() = 0;
+                    end;
                 end;
             until JobTask.Next() = 0;
         CreateWIPEntries(Job."No.");
@@ -295,6 +310,8 @@ codeunit 1000 "Job Calculate WIP"
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
+        OnBeforeCalcWIP(JobTask, JobWIPTotal, JobComplete, RecognizedAllocationPercentage, JobWIPTotalChanged);
+
         if JobComplete then begin
             JobTask."Recognized Sales Amount" := JobTask."Contract (Invoiced Price)";
             JobTask."Recognized Costs Amount" := JobTask."Usage (Total Cost)";
@@ -1056,7 +1073,7 @@ codeunit 1000 "Job Calculate WIP"
     local procedure GetAppliedSalesAmount(RecognizedSalesAmount: Decimal; ContractTotalPrice: Decimal; JobWIPMethod: Record "Job WIP Method"; AppliedAccrued: Boolean) AppliedSalesWIPEntryAmount: Decimal
     begin
         if AppliedAccrued then
-            exit(ContractTotalPrice + RecognizedSalesAmount);
+            exit(RecognizedSalesAmount - ContractTotalPrice);
 
         if IsAccruedSalesWIPMethod(JobWIPMethod) and (RecognizedSalesAmount <> 0) then begin
             AppliedSalesWIPEntryAmount := GetMAX(Abs(RecognizedSalesAmount), Abs(ContractTotalPrice));
@@ -1209,6 +1226,7 @@ codeunit 1000 "Job Calculate WIP"
         JobWIPEntry: Record "Job WIP Entry";
         JobTask: Record "Job Task";
     begin
+        OnBeforeVerifyJobWIPEntryIsEmpty(JobWIPEntry);
         JobWIPEntry.SetRange("Job No.", JobNo);
         if not JobWIPEntry.IsEmpty() then
             Error(CannotModifyAssociatedEntriesErr, JobTask.TableCaption());
@@ -1245,6 +1263,11 @@ codeunit 1000 "Job Calculate WIP"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyJobWIPEntryIsEmpty(var JobWIPEntry: Record "Job WIP Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateWIPEntriesOnBeforeJobWIPEntryInsert(var JobWIPEntry: Record "Job WIP Entry")
     begin
     end;
@@ -1271,6 +1294,11 @@ codeunit 1000 "Job Calculate WIP"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterJobTaskCalcWIP(var Job: Record Job; FromJobTask: Code[20]; ToJobTask: Code[20]; var JobWIPTotal: Record "Job WIP Total")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcWIP(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total"; JobComplete: Boolean; var RecognizedAllocationPercentage: Decimal; var JobWIPTotalChanged: Boolean)
     begin
     end;
 }

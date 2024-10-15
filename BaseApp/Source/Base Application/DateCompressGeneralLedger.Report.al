@@ -69,6 +69,8 @@ report 98 "Date Compress General Ledger"
                                 SetFilter("Additional-Currency Amount", '<0');
                         end;
 
+                        OnGLEntryOnAfterGetRecordOnBeforeInitNewEntry(GLEntry2, "G/L Entry");
+
                         InitNewEntry(NewGLEntry);
 
                         DimBufMgt.CollectDimEntryNo(
@@ -662,6 +664,11 @@ report 98 "Date Compress General Ledger"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitRegisters(var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGLEntryOnAfterGetRecordOnBeforeInitNewEntry(var GLEntry2: Record "G/L Entry"; var GLEntry: Record "G/L Entry")
     begin
     end;
 

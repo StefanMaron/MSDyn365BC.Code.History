@@ -1837,8 +1837,10 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesLine: Record "Sales Line";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        NoSerMgmt: Codeunit NoSeriesManagement;
         NoSeriesCode: Code[20];
         DocumentNo: Code[20];
+        PostingNo: code[20];
     begin
         // [FEATURE] [No. Series] [Sales] [Credit Memo]
         // [SCENARIO 368758] Stan can post Sales Credit Memo with No. Series having "Default Nos." = false and "Manual Nos." = true
@@ -1865,6 +1867,10 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.Modify(true);
+        if SalesHeader."Posting No. Series" <> '' then
+            PostingNo := NoSerMgmt.DoGetNextNo(SalesHeader."Posting No. Series", SalesHeader."Posting Date", false, false)
+        else
+            PostingNo := NoSerMgmt.DoGetNextNo(NoSeriesCode, SalesHeader."Posting Date", false, false);
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
 
@@ -1873,7 +1879,9 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesHeader.Validate(Invoice, true);
         Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
 
-        Assert.RecordCount(SalesCrMemoHeader, 0);
+        SalesCrMemoHeader.Reset();
+        SalesCrMemoHeader.SetFilter("No.", PostingNo);
+        Assert.RecordCount(SalesCrMemoHeader, 1);
     end;
 
     [Test]

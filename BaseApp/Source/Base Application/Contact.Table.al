@@ -7,7 +7,7 @@
     Permissions = TableData "Sales Header" = rm,
                   TableData "Contact Alt. Address" = rd,
                   TableData "Contact Alt. Addr. Date Range" = rd,
-                  TableData "Contact Business Relation" = rd,
+                  TableData "Contact Business Relation" = rid,
                   TableData "Contact Mailing Group" = rd,
                   TableData "Contact Industry Group" = rd,
                   TableData "Contact Web Source" = rd,
@@ -245,7 +245,13 @@
             trigger OnValidate()
             var
                 MailManagement: Codeunit "Mail Management";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateEmail(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "E-Mail" = '' then begin
                     SetSearchEmail();
                     exit;
@@ -748,7 +754,13 @@
             trigger OnValidate()
             var
                 MailManagement: Codeunit "Mail Management";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateEmail(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 MailManagement.ValidateEmailAddressField("E-Mail 2");
             end;
         }
@@ -3601,6 +3613,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnModify(var Contact: Record Contact; ContactBeforeModify: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEmail(var Contact: Record Contact; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

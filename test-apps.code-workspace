@@ -24,6 +24,9 @@
       "path": "./DataArchive/test/Data Archive Tests"
     },
     {
+      "path": "./servicedeclaration/test/Service Declaration Tests"
+    },
+    {
       "path": "./system application/test/System Application Test"
     },
     {
