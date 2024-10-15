@@ -79,8 +79,8 @@ codeunit 7314 "Warehouse Availability Mgt."
     procedure CalcReservQtyOnPicksShipsWithItemTracking(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TrackingSpecification: Record "Tracking Specification"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]) Result: Decimal
     var
         ReservEntry: Record "Reservation Entry";
+        PositiveReservationEntry: Record "Reservation Entry";
         TempReservEntryBuffer: Record "Reservation Entry Buffer" temporary;
-        ReservMgt: Codeunit "Reservation Management";
         ResPickShipQty: Decimal;
         QtyPicked: Decimal;
         QtyToPick: Decimal;
@@ -99,13 +99,16 @@ codeunit 7314 "Warehouse Availability Mgt."
         ReservEntry.SetRange("Location Code", LocationCode);
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         ReservEntry.SetRange(Positive, false);
-        ReservEntry.SetTrackingFilterFromSpecIfNotBlank(TrackingSpecification);
         if not ReservEntry.FindSet() then
             exit(0);
 
         with TempReservEntryBuffer do begin
             repeat
-                if ReservMgt.ReservEntryPositiveTypeIsItemLedgerEntry(ReservEntry."Entry No.") then begin
+                PositiveReservationEntry.SetRange("Entry No.", ReservEntry."Entry No.");
+                PositiveReservationEntry.SetRange(Positive, true);
+                PositiveReservationEntry.SetRange("Source Type", DATABASE::"Item Ledger Entry");
+                ReservEntry.SetTrackingFilterFromSpecIfNotBlank(TrackingSpecification);
+                if not PositiveReservationEntry.IsEmpty() then begin
                     TransferFields(ReservEntry);
                     if Find then begin
                         "Quantity (Base)" += ReservEntry."Quantity (Base)";

@@ -18,6 +18,7 @@ report 11404 "Create Elec. ICP Declaration"
 
                     trigger OnAfterGetRecord()
                     var
+                        CountryRegion: Record "Country/Region";
                         ElementName: Text[80];
                         CountryRegionCode: Code[10];
                     begin
@@ -29,22 +30,26 @@ report 11404 "Create Elec. ICP Declaration"
 
                         if Abs(Base) >= 1 then begin
                             "Elec. Tax Declaration Header".InsertLine(0, 1, CurrentType, '');
-                            CountryRegionCode := GetCountryRegionCode("Country/Region Code");
-                            InsertDataLine("Elec. Tax Declaration Header", 2, 'bd-i:CountryCodeISO-EC',
-                              CopyStr(CountryRegionCode, 1, 2), '', 'Msg', '');
+                            if CountryRegion.Get("Country/Region Code") then
+                                CountryRegionCode := CountryRegion."EU Country/Region Code";
 
-                            if CopyStr(UpperCase("VAT Registration No."), 1, StrLen("Country/Region Code")) = CountryRegionCode then
-                                "VAT Registration No." := DelStr("VAT Registration No.", 1, StrLen("Country/Region Code"));
+                            if CountryRegionCode <> '' then begin
+                                InsertDataLine("Elec. Tax Declaration Header", 2, 'bd-i:CountryCodeISO-EC',
+                                  CopyStr(CountryRegionCode, 1, 2), '', 'Msg', '');
 
-                            if Integer.Number = 1 then
-                                ElementName := 'bd-i:ServicesAmount'
-                            else
-                                ElementName := 'bd-i:SuppliesAmount';
+                                if CopyStr(UpperCase("VAT Registration No."), 1, StrLen("Country/Region Code")) = CountryRegionCode then
+                                    "VAT Registration No." := DelStr("VAT Registration No.", 1, StrLen("Country/Region Code"));
 
-                            InsertDataLine("Elec. Tax Declaration Header", 2, ElementName,
-                              Format(-Base, 0, '<Sign><Integer>'), 'INF', 'Msg', 'EUR');
-                            InsertDataLine("Elec. Tax Declaration Header", 2, 'bd-i:VATIdentificationNumberNational',
-                              "VAT Registration No.", '', 'Msg', '');
+                                if Integer.Number = 1 then
+                                    ElementName := 'bd-i:ServicesAmount'
+                                else
+                                    ElementName := 'bd-i:SuppliesAmount';
+
+                                InsertDataLine("Elec. Tax Declaration Header", 2, ElementName,
+                                  Format(-Base, 0, '<Sign><Integer>'), 'INF', 'Msg', 'EUR');
+                                InsertDataLine("Elec. Tax Declaration Header", 2, 'bd-i:VATIdentificationNumberNational',
+                                  "VAT Registration No.", '', 'Msg', '');
+                            end;
                         end;
 
                         Find('+');
@@ -240,20 +245,7 @@ report 11404 "Create Elec. ICP Declaration"
         Res := DelChr(AppVersion, '=', DelChr(AppVersion, '=', '0123456789'));
         exit(CopyStr(Res, 1, 2));
     end;
-
-    local procedure GetCountryRegionCode(CountryRegionCode: Code[10]): Code[10]
-    var
-        CountryRegion: Record "Country/Region";
-    begin
-        if not CountryRegion.Get(CountryRegionCode) then
-            exit('');
-
-        if CountryRegion."EU Country/Region Code" <> '' then
-            exit(CountryRegion."EU Country/Region Code");
-
-        exit(CountryRegion.Code);
-    end;
-
+    
     local procedure InsertDataLine(var ElecTaxDeclHeader: Record "Elec. Tax Declaration Header"; Indentation: Integer; elementName: Text[80]; value: Text[250]; decimalType: Text[20]; contextRef: Text[20]; unitRef: Text[20])
     begin
         ElecTaxDeclHeader.InsertLine(0, Indentation, elementName, value);
