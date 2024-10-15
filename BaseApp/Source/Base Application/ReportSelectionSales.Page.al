@@ -102,6 +102,7 @@ page 306 "Report Selection - Sales"
 
     trigger OnOpenPage()
     begin
+        InitUsageFilter();
         SetUsageFilter(false);
     end;
 
@@ -155,6 +156,56 @@ page 306 "Report Selection - Sales"
         end;
         FilterGroup(0);
         CurrPage.Update;
+    end;
+
+    local procedure InitUsageFilter()
+    var
+        DummyReportSelections: Record "Report Selections";
+    begin
+        if GetFilter(Usage) <> '' then begin
+            if Evaluate(DummyReportSelections.Usage, GetFilter(Usage)) then
+                case DummyReportSelections.Usage of
+                    Usage::"S.Quote":
+                        ReportUsage2 := ReportUsage2::Quote;
+                    Usage::"S.Blanket":
+                        ReportUsage2 := ReportUsage2::"Blanket Order";
+                    Usage::"S.Order":
+                        ReportUsage2 := ReportUsage2::Order;
+                    Usage::"S.Work Order":
+                        ReportUsage2 := ReportUsage2::"Work Order";
+                    Usage::"S.Order Pick Instruction":
+                        ReportUsage2 := ReportUsage2::"Pick Instruction";
+                    Usage::"S.Invoice":
+                        ReportUsage2 := ReportUsage2::Invoice;
+                    Usage::"S.Invoice Draft":
+                        ReportUsage2 := ReportUsage2::"Draft Invoice";
+                    Usage::"S.Return":
+                        ReportUsage2 := ReportUsage2::"Return Order";
+                    Usage::"S.Cr.Memo":
+                        ReportUsage2 := ReportUsage2::"Credit Memo";
+                    Usage::"S.Shipment":
+                        ReportUsage2 := ReportUsage2::Shipment;
+                    Usage::"S.Ret.Rcpt.":
+                        ReportUsage2 := ReportUsage2::"Return Receipt";
+                    Usage::"S.Test":
+                        ReportUsage2 := ReportUsage2::"Sales Document - Test";
+                    Usage::"S.Test Prepmt.":
+                        ReportUsage2 := ReportUsage2::"Prepayment Document - Test";
+                    Usage::"S.Arch.Quote":
+                        ReportUsage2 := ReportUsage2::"Archived Quote";
+                    Usage::"S.Arch.Order":
+                        ReportUsage2 := ReportUsage2::"Archived Order";
+                    Usage::"S.Arch.Return":
+                        ReportUsage2 := ReportUsage2::"Archived Return Order";
+                    Usage::"C.Statement":
+                        ReportUsage2 := ReportUsage2::"Customer Statement";
+                    Usage::"Pro Forma S. Invoice":
+                        ReportUsage2 := ReportUsage2::"Pro Forma Invoice";
+                    Usage::"S.Arch.Blanket":
+                        ReportUsage2 := ReportUsage2::"Archived Blanket Order";
+                end;
+            SetRange(Usage);
+        end;
     end;
 }
 

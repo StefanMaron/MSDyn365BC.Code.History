@@ -1,7 +1,7 @@
 page 7004 "Sales Line Discounts"
 {
     Caption = 'Sales Line Discounts';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = PageCaption;
     DelayedInsert = true;
     PageType = List;
     SaveValues = true;
@@ -325,7 +325,8 @@ page 7004 "Sales Line Discounts"
     begin
         IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
         GetRecFilters;
-        SetRecFilters;
+        SetRecFilters();
+        SetCaption();
     end;
 
     var
@@ -341,6 +342,7 @@ page 7004 "Sales Line Discounts"
         CodeFilter: Text;
         StartingDateFilter: Text[30];
         Text000: Label 'All Customers';
+        PageCaption: Text;
         CurrencyCodeFilter: Text;
         [InDataSet]
         SalesCodeEditable: Boolean;
@@ -404,12 +406,12 @@ page 7004 "Sales Line Discounts"
         CurrPage.Update(false);
     end;
 
-    local procedure GetCaption(): Text[250]
+    local procedure SetCaption()
     begin
         if IsOnMobile then
-            exit('');
-
-        exit(GetFilterDescription);
+            PageCaption := ''
+        else
+            PageCaption := GetFilterDescription();
     end;
 
     local procedure GetFilterDescription(): Text
@@ -440,6 +442,7 @@ page 7004 "Sales Line Discounts"
         end;
 
         SalesSrcTableName := '';
+        Description := '';
         case SalesTypeFilter of
             SalesTypeFilter::Customer:
                 begin
@@ -463,10 +466,7 @@ page 7004 "Sales Line Discounts"
                         Description := Campaign.Description;
                 end;
             SalesTypeFilter::"All Customers":
-                begin
-                    SalesSrcTableName := Text000;
-                    Description := '';
-                end;
+                SalesSrcTableName := Text000;
         end;
 
         if SalesSrcTableName = Text000 then
@@ -478,6 +478,7 @@ page 7004 "Sales Line Discounts"
     begin
         CurrPage.SaveRecord;
         SetRecFilters;
+        SetCaption();
     end;
 
     local procedure SalesTypeFilterOnAfterValidate()
@@ -485,6 +486,7 @@ page 7004 "Sales Line Discounts"
         CurrPage.SaveRecord;
         SalesCodeFilter := '';
         SetRecFilters;
+        SetCaption();
     end;
 
     local procedure StartingDateFilterOnAfterValid()
@@ -504,6 +506,7 @@ page 7004 "Sales Line Discounts"
     begin
         CurrPage.SaveRecord;
         SetRecFilters;
+        SetCaption();
     end;
 
     local procedure CurrencyCodeFilterOnAfterValid()

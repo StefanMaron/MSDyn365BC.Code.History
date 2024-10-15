@@ -465,10 +465,10 @@ codeunit 408 DimensionManagement
     local procedure CollectDefaultDimsToCheck(TableID: array[10] of Integer; No: array[10] of Code[20]; var TempDefaultDim: Record "Default Dimension" temporary)
     var
         DefaultDim: Record "Default Dimension";
-        DefaultDimPriority: array[2] of Record "Default Dimension Priority";
         NoFilter: array[2] of Code[20];
         i: Integer;
         j: Integer;
+        Priority: array[2] of Integer;
     begin
         NoFilter[2] := '';
         for i := 1 to ArrayLen(TableID) do
@@ -483,25 +483,35 @@ codeunit 408 DimensionManagement
                             TempDefaultDim.SetRange("Dimension Code", DefaultDim."Dimension Code");
                             if not TempDefaultDim.FindFirst then begin
                                 TempDefaultDim := DefaultDim;
-                                TempDefaultDim.Insert;
-                            end else
-                                if DefaultDimPriority[1].Get(SourceCode, DefaultDim."Table ID") then
-                                    if DefaultDimPriority[2].Get(SourceCode, TempDefaultDim."Table ID") then begin
-                                        if DefaultDimPriority[1].Priority < DefaultDimPriority[2].Priority then begin
-                                            TempDefaultDim.Delete;
-                                            TempDefaultDim := DefaultDim;
-                                            TempDefaultDim.Insert;
-                                        end
-                                    end else begin
-                                        TempDefaultDim.Delete;
-                                        TempDefaultDim := DefaultDim;
-                                        TempDefaultDim.Insert;
-                                    end;
+                                TempDefaultDim.Insert();
+                            end else begin
+                                Priority[1] := GetDimensionPriorityForTable(TempDefaultDim."Table ID");
+                                Priority[2] := GetDimensionPriorityForTable(DefaultDim."Table ID");
+                                if not PriorityGreaterThan(Priority[1], Priority[2]) then begin
+                                    if PriorityGreaterThan(Priority[2], Priority[1]) then
+                                        TempDefaultDim.DeleteAll();
+                                    TempDefaultDim := DefaultDim;
+                                    TempDefaultDim.Insert();
+                                end;
+                            end;
                         until DefaultDim.Next = 0;
                 end;
             end;
-
         OnAfterCheckDimValuePosting(TableID, No, TempDefaultDim);
+    end;
+
+    local procedure PriorityGreaterThan(Priority1: Integer; Priority2: Integer): Boolean
+    begin
+        exit((Priority1 > 0) AND ((Priority2 = 0) or (Priority1 < Priority2)));
+    end;
+
+    local procedure GetDimensionPriorityForTable(TableID : Integer) : Integer
+    var
+        DefaultDimPriority: Record "Default Dimension Priority";
+    begin
+        if DefaultDimPriority.GET(SourceCode, TableID) then
+            exit(DefaultDimPriority.Priority);
+        exit(0);
     end;
 
     local procedure GetMissedMandatoryDimErr(DefaultDim: Record "Default Dimension"): Text

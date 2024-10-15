@@ -257,6 +257,7 @@ report 6 "Trial Balance"
 
     trigger OnPreReport()
     begin
+        "G/L Account".SecurityFiltering(SecurityFilter::Filtered);
         GLFilter := "G/L Account".GetFilters;
         PeriodText := "G/L Account".GetFilter("Date Filter");
     end;

@@ -611,6 +611,10 @@ table 112 "Sales Invoice Header"
             Caption = 'Payment Instructions Name';
             DataClassification = CustomerContent;
         }
+        field(180; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';

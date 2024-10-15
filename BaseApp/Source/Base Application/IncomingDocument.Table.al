@@ -593,14 +593,22 @@ table 130 "Incoming Document"
         GenJnlLine: Record "Gen. Journal Line";
         LastGenJnlLine: Record "Gen. Journal Line";
         LineNo: Integer;
+        JournalTemplate: Code[10];
+        JournalBatch: Code[10];
+        IsHandled: Boolean;
     begin
         if "Document Type" <> "Document Type"::Journal then
             TestIfAlreadyExists;
         TestReadyForProcessing;
-        IncomingDocumentsSetup.TestField("General Journal Template Name");
-        IncomingDocumentsSetup.TestField("General Journal Batch Name");
-        GenJnlLine.SetRange("Journal Template Name", IncomingDocumentsSetup."General Journal Template Name");
-        GenJnlLine.SetRange("Journal Batch Name", IncomingDocumentsSetup."General Journal Batch Name");
+        OnBeforeGetJournalTemplateAndBatch(JournalTemplate, JournalBatch, IsHandled);
+        if not IsHandled then begin
+            IncomingDocumentsSetup.TestField("General Journal Template Name");
+            IncomingDocumentsSetup.TestField("General Journal Batch Name");
+            JournalTemplate := IncomingDocumentsSetup."General Journal Template Name";
+            JournalBatch := IncomingDocumentsSetup."General Journal Batch Name";
+        end;
+        GenJnlLine.SetRange("Journal Template Name", JournalTemplate);
+        GenJnlLine.SetRange("Journal Batch Name", JournalBatch);
         GenJnlLine.SetRange("Incoming Document Entry No.", "Entry No.");
         if not GenJnlLine.IsEmpty then
             exit; // instead; go to the document
@@ -612,9 +620,9 @@ table 130 "Incoming Document"
         if GenJnlLine.FindLast then;
         LastGenJnlLine := GenJnlLine;
         LineNo := GenJnlLine."Line No." + 10000;
-        GenJnlLine.Init;
-        GenJnlLine."Journal Template Name" := IncomingDocumentsSetup."General Journal Template Name";
-        GenJnlLine."Journal Batch Name" := IncomingDocumentsSetup."General Journal Batch Name";
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := JournalTemplate;
+        GenJnlLine."Journal Batch Name" := JournalBatch;
         GenJnlLine."Line No." := LineNo;
         GenJnlLine.SetUpNewLine(LastGenJnlLine, 0, true);
         GenJnlLine."Incoming Document Entry No." := "Entry No.";
@@ -1991,6 +1999,11 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDataExchangePath(DataExchLineDef: Record "Data Exch. Line Def"; FieldNumber: Integer; var DataExchangePath: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetJournalTemplateAndBatch(var JournalTemplate: Code[10]; var JournalBatch: Code[10]; var IsHandled: Boolean)
     begin
     end;
 
